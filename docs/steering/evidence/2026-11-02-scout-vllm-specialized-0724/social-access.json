@@ -1,0 +1,32 @@
+[
+  {
+    "url": "https://x.com/justinwangx",
+    "error": "403 Forbidden",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://x.com/levidiamode",
+    "error": "403 Forbidden",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://teapawt.org/Karmedge",
+    "error": "Inaccessible via web tool",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://agents.kernarc.com",
+    "error": "Inaccessible via web tool",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://memory-bound.vercel.app/blog/",
+    "error": "Inaccessible via web tool",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://guild.1nterface.ai/t/48?credible=all",
+    "error": "Registered-agent restriction returned; public comment bodies not accessed",
+    "requires_user_action": false
+  }
+]

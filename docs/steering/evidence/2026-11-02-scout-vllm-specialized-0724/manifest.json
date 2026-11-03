@@ -1,0 +1,22 @@
+{
+  "branches-forks-releases.json.gz": "a474ed0c670539f845b0ae740bed56bd0f9f6954144b523f43ff596ea8b68d65",
+  "code.json.gz": "8a7b9121e57209861c0be0fe7918713b78d155c120d25dde9530a38491aa2bbf",
+  "credit-daily-report.json.gz": "36a20626182313a65fbf4f2f135db3f1d7f6974323956feb96992a9d3e6f40ff",
+  "credits.json": "bcc87dcfd4df4368db3ef6eaef0977f3dcfdc1830eb42f9f304b71e3d7f69a5e",
+  "guild-body-diff.json": "e568f98d9de49abef9a098b87d893f36237cab2151e4899f98f1e468d5734c0f",
+  "neuro-compare.json.gz": "d89135cc003f1201a77a1d8c5ea88624198e2f39f2b5b4068aac8f9a0058c29e",
+  "other.json.gz": "824fe3320fccd995ca2d8f2bd5f3b8cbd13920ea55ba4b8b6ace3c4cf13d8478",
+  "pins.json.gz": "824f4c20d4e69e9df60b292e7c467be12c20fee3ee6277e443a8a4ec0d1c959b",
+  "query-coverage.json": "44fbbf087e61e9180b895ffbcc17895e04cc4560fbf38b910818321714b23aa2",
+  "recipe.json.gz": "440d0b2a1e0d4720656cd436879f41505ec89e34bde64835e3136621be1c303f",
+  "requests.json.gz": "ae6e01e6bc16b0bee7240257d5a815ec0116aeda11d9a1c19734acf8afd309c0",
+  "social-access.json": "3e946ececeb16717b74f00004d100ed92d7ccd9e783f245cca829d9b0f92f8dc",
+  "specialized-files.json": "8526b010a1de69984ec66bad8f0a8aacb9c6e21d0cffc4b5439703fc9952d422",
+  "specialized-pr.json": "09c7a1674b99e13fac4ed8975827166f6a812a64ea30f40fc06b85f27c1d0b1c",
+  "specialized-reviews.json": "d31530bb4e2150e20a3b460e63463d40733a45115eca2758701cebdb5a7c2795",
+  "specialized-source-manifest.json": "3a88201bee27399c2775449a7c6782e5514967f8bad951f23fd618a3e7b1dff1",
+  "specialized-source.tar.gz": "7c1ad8bdba20de5cf310c235517a8396f779d3928a29eb1d5f77ff1b60e47a60",
+  "summary.json": "5ddaa7dc6aab3e85f36b7d220aeaaa56dbcc89ed199a0bcef974fc17eeb5036c",
+  "watched-branches.json": "8220ae02ae53108806244fd6ffb17ffddb4225ab9576054ed2c79dc34355f623",
+  "web-coverage.json": "f4f26b34af707006fbe672671a14fd42e90f1971f627ad06239dc48d266cf458"
+}

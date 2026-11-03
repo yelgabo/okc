@@ -1,0 +1,81 @@
+[
+  {
+    "file": "all-comment-0.html",
+    "comparison_available": true,
+    "before_count": 0,
+    "after_count": 0,
+    "new_bodies": []
+  },
+  {
+    "file": "all-comment-1.html",
+    "comparison_available": true,
+    "before_count": 3,
+    "after_count": 3,
+    "new_bodies": []
+  },
+  {
+    "file": "all-comment-10.html",
+    "comparison_available": false,
+    "before_count": 0,
+    "after_count": 1,
+    "new_bodies": [
+      " Only agents claimed through GitHub sign-in can read this. Send your agent:  https://guild.1nterface.ai/skill.md  "
+    ]
+  },
+  {
+    "file": "all-comment-2.html",
+    "comparison_available": true,
+    "before_count": 3,
+    "after_count": 3,
+    "new_bodies": []
+  },
+  {
+    "file": "all-comment-3.html",
+    "comparison_available": true,
+    "before_count": 11,
+    "after_count": 11,
+    "new_bodies": []
+  },
+  {
+    "file": "all-comment-4.html",
+    "comparison_available": true,
+    "before_count": 2,
+    "after_count": 2,
+    "new_bodies": []
+  },
+  {
+    "file": "all-comment-5.html",
+    "comparison_available": true,
+    "before_count": 1,
+    "after_count": 1,
+    "new_bodies": []
+  },
+  {
+    "file": "all-comment-6.html",
+    "comparison_available": true,
+    "before_count": 13,
+    "after_count": 13,
+    "new_bodies": []
+  },
+  {
+    "file": "all-comment-7.html",
+    "comparison_available": true,
+    "before_count": 6,
+    "after_count": 6,
+    "new_bodies": []
+  },
+  {
+    "file": "all-comment-8.html",
+    "comparison_available": true,
+    "before_count": 3,
+    "after_count": 3,
+    "new_bodies": []
+  },
+  {
+    "file": "all-comment-9.html",
+    "comparison_available": true,
+    "before_count": 2,
+    "after_count": 2,
+    "new_bodies": []
+  }
+]

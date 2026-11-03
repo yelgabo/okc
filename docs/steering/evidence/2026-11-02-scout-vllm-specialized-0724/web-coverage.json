@@ -1,0 +1,67 @@
+{
+  "queries": [
+    "\"muse_moe_w4a16\" OR \"muse_bf16_proj\" OR \"muse_attention_decode\" after:2026-11-02",
+    "\"muse_decode_layer\" OR \"muse_prefill_layer\" after:2026-11-02",
+    "\"Muse Spark\" \"kernel\" site:x.com",
+    "\"openkernelchallenge.dev\" reddit OR news.ycombinator.com OR linkedin",
+    "\"Muse Spark\" kernel site:reddit.com",
+    "\"Muse Spark\" kernel site:news.ycombinator.com",
+    "\"Muse Spark\" kernel site:linkedin.com after:2026-11-01",
+    "\"Muse Spark\" kernel blog November 2026",
+    "\"openkernelchallenge\" site:news.ycombinator.com",
+    "\"openkernelchallenge\" site:reddit.com",
+    "\"Muse Spark Open Kernel Challenge\" site:linkedin.com",
+    "\"Muse Spark\" \"kernel\" \"Karmedge\"",
+    "\"muse spark\" \"kernel\" \"November 3\"",
+    "\"muse spark\" \"kernel\" \"November 2\"",
+    "\"muse_bf16_proj\" github -site:openkernelchallenge.dev",
+    "\"muse_moe_w4a16\" github -site:openkernelchallenge.dev"
+  ],
+  "observations": [
+    {
+      "url": "https://teapawt.org/justinwangx",
+      "scope": "Cached mirror, crawled today, Oct29 pinned public Slack announcement unchanged; no Slack accessed."
+    },
+    {
+      "url": "https://teapawt.org/danielgross",
+      "scope": "Cached mirror, crawled today, Oct22 announcement unchanged."
+    },
+    {
+      "url": "https://teapawt.org/lxe",
+      "scope": "Cached mirror, crawled today. Previously seen six-lane153attempt37keep account; no newly bound source."
+    },
+    {
+      "url": "https://xitter.cf/levidiamode",
+      "scope": "Cached mirror, crawled today, Oct29 top50/cost caveat. No new source-bound kernel."
+    },
+    {
+      "url": "https://memory-bound.vercel.app/blog/muse-spark-open-architecture/",
+      "scope": "Previously seen Oct27 architecture explainer returned in search."
+    },
+    {
+      "url": "https://es.linkedin.com/posts/rguillamon_muse-spark-open-kernel-challenge-activity-7519819739335102464-xRek",
+      "scope": "Previously seen cached participant progress; no new pinned source."
+    },
+    {
+      "url": "https://thethings.ai/p/okc/muse-bf16-proj-report",
+      "scope": "Previously seen cached compressed-weight report and slower register-A attempt; no newly linked public code."
+    },
+    {
+      "url": "https://teapawt.org/zroai_",
+      "scope": "Cached Oct27 rank/job-offer claim only; no source."
+    },
+    {
+      "url": "https://xitter.cf/radmadvlad",
+      "scope": "Cached Oct24 rank boast only; no source."
+    },
+    {
+      "url": "https://nitter.jaydenha.uk/RohanArun/status/2114830856393027974",
+      "scope": "Older public orchestration account; vjeux code link already watched."
+    }
+  ],
+  "limits": [
+    "Indexed misses establish only query coverage. Search dates can reflect crawls rather than post dates.",
+    "No authenticated Slack, Discord, registered Guild posts or encrypted messages accessed.",
+    "No foreign code run; no GPU or judge job."
+  ]
+}

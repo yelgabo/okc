@@ -10,6 +10,8 @@
 
 ## Latest audit, November 2 23:08 Pacific
 
+[Public scout: eight-token specialized decode](2026-11-02-scout-vllm-specialized-0724.md) pins vLLM PR64077 at31ebba98 and verifies42changed files. The author reports1.53x on GB300 against stock vLLM. SM100, BF16 KV, quantized expert activations and auxiliary streams prevent treating it as an H200 challenge gain. Source reference only; current short-load assignments remain intact.
+
 [Repository audit](2026-11-02-2308-repo-audit.md): rank 389 of 1223 at 2.1261x, rank 50 at 2.3216x, top 50 by the deadline judged out of reach on measured deltas; main checkout merged with the G line; orphaned kernel work in one worktree; seven doc contradictions listed with line numbers.
 
 ## Worker repurpose: former Decode32 → standalone MoE P0; CUDA Optimizer → BF16 P1
