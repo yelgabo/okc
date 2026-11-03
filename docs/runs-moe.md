@@ -5644,10 +5644,25 @@ Result pending.
 
 MOE-NW16-BAL-01 terminal `ab54144f6c4d4727`: PASS 5 tests (relative L2 4.46e-3 to 4.57e-3, so the 16-warp
 scale addressing is exact) / 6 benchmarks, prepare 180.9 s, no flags. Medians T1 30.85 / T8 71.20 / T16 93.97 /
-T32 122.75 / T128 181.36 / T256 213.68 us against the public release's 26.73 / 67.21 / 93.96 / 127.56 /
+T32 122.75 / T128 181.36 / T256 213.68 us (score 6,005.7 us, 2.2393x, CI 2.206-2.273) against the public release's 26.73 / 67.21 / 93.96 / 127.56 /
 180.87 / 217.35: T1 +4.1 us and T8 +4.0 us (best-of-100 at T1 30.24 against 21.89), the unchanged cells inside
 noise. Loss. The 16-warp loop at the 544-thread register cap (96) is slower per unit than the 8-warp loop, by
 about 0.35 us per unit at T = 1 (cause not separated: the 512-thread unit barrier, the helper's 16-way
 reduction per unit, or the register cap). Balanced counts cannot be read from this run (masked). Status and
 log: `muse_moe_w4a16/profiles/tiny_nw16_bal.ab54144f6c4d4727.status.json`, `.log`. Not a candidate; row added
 to docs/ruled-out.md.
+
+## November 3 MOE-BAL-01: balanced per-CTA unit counts alone, Tiny / Tiny2
+
+The balanced split from MOE-NW16-BAL-01 on the 8-warp loop: `muse_moe_w4a16/cand/tiny_bal.py` (afc514cb,
+322,466 bytes), `tools/moe_tiny_bfix.py <release> <out> --bal`; `-DOKC_BAL=1` on the tiny and tiny2 defines
+only, everything else the release's (MID and B4 / MAIN bytes unchanged). Local nvcc 12.8.1 sm_90a: 149
+registers (release 145), 0 spills, the same barrier / fence / copy opcode counts. Expected (hypothesis, from the
+timeline): one unit less finish spread, about 0.5-1 us less barrier idle at T = 1 and about 1 us at T = 8;
+below the directive's 2 us ship threshold unless the spread is more count-driven than the timeline's
+min / max suggest. Spent as the third and last check of this lane because it is the one remaining measured
+exposure with a deterministic, low-risk fix.
+
+Own private check `b45cce36b47f4e81`, accepted 2026-11-03 00:07 PT (4 MoE checks left before it; another
+owner's public MoE run 5b61d2f03dd44614 was running and is not ours). Sole waiter writes
+`muse_moe_w4a16/profiles/tiny_bal.b45cce36b47f4e81.status.json` / `.log`. Result pending.
