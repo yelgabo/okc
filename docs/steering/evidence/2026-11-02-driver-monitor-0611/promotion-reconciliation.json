@@ -1,0 +1,142 @@
+{
+  "observed_at": "2026-11-03T06:15:49.335721+00:00",
+  "source_commit": "1c09aa76",
+  "scope": "Release relationships/disclosure only. Job,score,source identity,judged arm,owner,evidence and exact treatment stops are unchanged. Historical46aaf/b65c remain separately open.",
+  "updates": [
+    {
+      "job": "3c45788127e945c4",
+      "before": {
+        "release_state": "treatment-stopped-base-release-open",
+        "reason": "Scale/group treatment failed every matched group against newer c7 control. Stop treatment, retain the separate newer-base versus public release opportunity.",
+        "disclosure_report": "docs/steering/2026-11-02-private-promotion-audit.md"
+      },
+      "after": {
+        "release_state": "treatment-stopped-base-family-published",
+        "reason": "Scale/group treatment failed every matched group against newer c7 control. The conforming current c7-family base is now public as4aa033ef23a142cd (physical5df257af,5788.720720us). This closes the separate base-family release task, not a release or qualification of this older treatment/diagnostic source. Its recorded treatment/observer stop remains unchanged; cross-job lower points do not reopen it.",
+        "disclosure_report": "docs/steering/2026-11-02-driver-monitor-0611.md",
+        "base_family_public_job": "4aa033ef23a142cd",
+        "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e"
+      }
+    },
+    {
+      "job": "3aa3885f6b734f8c",
+      "before": {
+        "release_state": "treatment-stopped-base-release-open",
+        "reason": "Scale-only treatment failed matched benefit/regression gate. Newer control family still needs standalone release disposition.",
+        "disclosure_report": "docs/steering/2026-11-02-private-promotion-audit.md"
+      },
+      "after": {
+        "release_state": "treatment-stopped-base-family-published",
+        "reason": "Scale-only treatment failed matched benefit/regression gate. The conforming current c7-family base is now public as4aa033ef23a142cd (physical5df257af,5788.720720us). This closes the separate base-family release task, not a release or qualification of this older treatment/diagnostic source. Its recorded treatment/observer stop remains unchanged; cross-job lower points do not reopen it.",
+        "disclosure_report": "docs/steering/2026-11-02-driver-monitor-0611.md",
+        "base_family_public_job": "4aa033ef23a142cd",
+        "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e"
+      }
+    },
+    {
+      "job": "f147d06a64504c1e",
+      "before": {
+        "release_state": "observer-invalid-base-release-open",
+        "reason": "Official arm is the newer control, not an observer performance candidate. Observer perturbation invalidated phase attribution; base release opportunity remains.",
+        "disclosure_report": "docs/steering/2026-11-02-private-promotion-audit.md"
+      },
+      "after": {
+        "release_state": "observer-invalid-base-family-published",
+        "reason": "Official arm is the newer control, not an observer performance candidate. The conforming current c7-family base is now public as4aa033ef23a142cd (physical5df257af,5788.720720us). This closes the separate base-family release task, not a release or qualification of this older treatment/diagnostic source. Its recorded treatment/observer stop remains unchanged; cross-job lower points do not reopen it. Observer perturbation still invalidates its phase attribution.",
+        "disclosure_report": "docs/steering/2026-11-02-driver-monitor-0611.md",
+        "base_family_public_job": "4aa033ef23a142cd",
+        "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e"
+      }
+    },
+    {
+      "job": "56e0c8b5634545e6",
+      "before": {
+        "release_state": "treatment-stopped-base-release-open",
+        "reason": "Pre-gamma treatment failed all matched groups, with affected regressions. Newer control release is a separate task.",
+        "disclosure_report": "docs/steering/2026-11-02-private-promotion-audit.md"
+      },
+      "after": {
+        "release_state": "treatment-stopped-base-family-published",
+        "reason": "Pre-gamma treatment failed all matched groups, with affected regressions. The conforming current c7-family base is now public as4aa033ef23a142cd (physical5df257af,5788.720720us). This closes the separate base-family release task, not a release or qualification of this older treatment/diagnostic source. Its recorded treatment/observer stop remains unchanged; cross-job lower points do not reopen it.",
+        "disclosure_report": "docs/steering/2026-11-02-driver-monitor-0611.md",
+        "base_family_public_job": "4aa033ef23a142cd",
+        "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e"
+      }
+    },
+    {
+      "job": "b38a9ed6dc9743e9",
+      "before": {
+        "release_state": "treatment-stopped-base-release-open",
+        "reason": "WS norm aggregation failed all six matched groups. Retain original norms; newer base release remains separate.",
+        "disclosure_report": "docs/steering/2026-11-02-private-promotion-audit.md"
+      },
+      "after": {
+        "release_state": "treatment-stopped-base-family-published",
+        "reason": "WS norm aggregation failed all six matched groups. The conforming current c7-family base is now public as4aa033ef23a142cd (physical5df257af,5788.720720us). This closes the separate base-family release task, not a release or qualification of this older treatment/diagnostic source. Its recorded treatment/observer stop remains unchanged; cross-job lower points do not reopen it.",
+        "disclosure_report": "docs/steering/2026-11-02-driver-monitor-0611.md",
+        "base_family_public_job": "4aa033ef23a142cd",
+        "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e"
+      }
+    },
+    {
+      "job": "e044121f822d47b1",
+      "before": {
+        "release_state": "treatment-stopped-base-release-open",
+        "reason": "Whole-unit B queue failed all six matched groups. Stop queue, retain newer control and its standalone release opportunity.",
+        "disclosure_report": "docs/steering/2026-11-02-private-promotion-audit.md"
+      },
+      "after": {
+        "release_state": "treatment-stopped-base-family-published",
+        "reason": "Whole-unit B queue failed all six matched groups. The conforming current c7-family base is now public as4aa033ef23a142cd (physical5df257af,5788.720720us). This closes the separate base-family release task, not a release or qualification of this older treatment/diagnostic source. Its recorded treatment/observer stop remains unchanged; cross-job lower points do not reopen it.",
+        "disclosure_report": "docs/steering/2026-11-02-driver-monitor-0611.md",
+        "base_family_public_job": "4aa033ef23a142cd",
+        "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e"
+      }
+    },
+    {
+      "job": "f0b875484960438b",
+      "before": {
+        "release_state": "treatment-stopped-base-release-open",
+        "reason": "NS4 lost the matched gate; retain NS3. Unchanged-load drift limits precise causality, not the frozen stop. Newer base release remains separate.",
+        "disclosure_report": "docs/steering/2026-11-02-private-promotion-audit.md"
+      },
+      "after": {
+        "release_state": "treatment-stopped-base-family-published",
+        "reason": "NS4 lost the matched gate; retain NS3. The conforming current c7-family base is now public as4aa033ef23a142cd (physical5df257af,5788.720720us). This closes the separate base-family release task, not a release or qualification of this older treatment/diagnostic source. Its recorded treatment/observer stop remains unchanged; cross-job lower points do not reopen it. Unchanged-load drift still limits precise causal attribution, not the frozen stop.",
+        "disclosure_report": "docs/steering/2026-11-02-driver-monitor-0611.md",
+        "base_family_public_job": "4aa033ef23a142cd",
+        "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e"
+      }
+    },
+    {
+      "job": "05e51ddeb7014dd9",
+      "before": {
+        "release_state": "diagnostic-control-base-release-open",
+        "reason": "Official BYTE control score, not a qualifying SC6 treatment gain. SC6 failed its matched gate. Track baseline family with the release-qualification task.",
+        "disclosure_report": "docs/steering/2026-11-02-private-promotion-audit.md"
+      },
+      "after": {
+        "release_state": "diagnostic-control-base-family-published",
+        "reason": "Official BYTE control score, not a qualifying SC6 treatment gain. The conforming current c7-family base is now public as4aa033ef23a142cd (physical5df257af,5788.720720us). This closes the separate base-family release task, not a release or qualification of this older treatment/diagnostic source. Its recorded treatment/observer stop remains unchanged; cross-job lower points do not reopen it. SC6 failed its matched gate; this official arm was BYTE control.",
+        "disclosure_report": "docs/steering/2026-11-02-driver-monitor-0611.md",
+        "base_family_public_job": "4aa033ef23a142cd",
+        "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e"
+      }
+    },
+    {
+      "job": "1c6ebc76b91d4b7f",
+      "before": {
+        "release_state": "diagnostic-control-base-release-open",
+        "reason": "Official control in fixed-owner frontier diagnostic. Favorable model failed its opportunity gate; no separate new candidate. Baseline release remains open.",
+        "disclosure_report": "docs/steering/2026-11-02-private-promotion-audit.md"
+      },
+      "after": {
+        "release_state": "diagnostic-control-base-family-published",
+        "reason": "Official control in fixed-owner frontier diagnostic. The conforming current c7-family base is now public as4aa033ef23a142cd (physical5df257af,5788.720720us). This closes the separate base-family release task, not a release or qualification of this older treatment/diagnostic source. Its recorded treatment/observer stop remains unchanged; cross-job lower points do not reopen it. The fixed-owner opportunity gate failed; no separate candidate is established.",
+        "disclosure_report": "docs/steering/2026-11-02-driver-monitor-0611.md",
+        "base_family_public_job": "4aa033ef23a142cd",
+        "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e"
+      }
+    }
+  ]
+}
