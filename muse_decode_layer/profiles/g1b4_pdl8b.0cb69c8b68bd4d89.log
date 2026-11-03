@@ -1,0 +1,17 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.44 on 72.06 us, median paired saving 5.31, wins 9/9
+PDL8_STRESS T=1 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['0.00e+00', '1.25e-04', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '1.25e-04', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=1 full: off 84.35 on 78.05 us, median paired saving 6.34, wins 9/9
+PDL8_AB T=16 sliding: off 167.62 on 162.72 us, median paired saving 4.96, wins 9/9
+PDL8_STRESS T=16 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['6.37e-03', '5.75e-03', '0.00e+00'] (int mismatches 0), on ['6.37e-03', '5.75e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=16 full: off 252.58 on 247.62 us, median paired saving 5.15, wins 9/9
+PDL8_AB T=32 sliding: off 221.38 on 216.67 us, median paired saving 4.54, wins 9/9
+PDL8_AB T=32 full: off 391.07 on 387.26 us, median paired saving 3.71, wins 9/9
+PDL8_STRESS T=32 full: 2000 replays per arm, max rel diff to the PDL-off output off ['6.10e-03', '6.06e-03', '0.00e+00'] (int mismatches 0), on ['6.10e-03', '6.06e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8 weighted paired saving T=1: 5.58 us
+PDL8 weighted paired saving T=16: 5.01 us
+PDL8 weighted paired saving T=32: 4.33 us
+PDL8 six-load estimate +2.08% (enabled loads only); enabled {1: True, 8: False, 16: True, 32: True}

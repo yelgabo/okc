@@ -4571,3 +4571,211 @@ consumer thread 0 issues one global RMW per tile and every consumer passes the f
 per tile. That ps2 (no lambda unroll, fewer spills) still loses 25 / 52 us says the unroll is not
 the main cost; the warm loss exceeding the cold one points at per-tile serialization in the loop,
 not at memory. These are hypotheses.
+
+## 2026-11-03 batch 16 / 32 sliding timeline and split arms (modes 1 and 3), registered before dispatch
+
+Owner: third attention lane, final-day exception for the four batch 16 / 32 sliding cells
+(decode 16 / 32 mode 1, verify 16 / 32 mode 3). Base: the 8914751e3b9f468b control body
+(worktree commit 62376d7e). Judged medians of 8914751e: decode 16 / 32 sliding 7.83 / 10.09 us,
+verify 16 / 32 sliding 11.45 / 15.60 us.
+
+What is already measured: the phase exits of 1c861d3944f149a0 (cold, ours / public) put decode
+16 sliding at prologue 10.34 / tile loop 0.99 / reds 0.38 / ticket 0.83 / finalize 0.96 us and
+verify 16 / 32 sliding at prologue 8.93 / 9.18, loop 4.35 / 8.13, reds 0.74 / 0.74, barrier
+1.21 / 1.28, finalize 0.77 / 1.09. Most of verify minus decode is the q_len 8 tile loop (+3.4 us
+at batch 16, +4.6 at batch 32): verify runs 5 / 9 sequential tiles per CTA (33 tiles over 8 / 4
+splits, 7 / 4 active CTAs per request) at about 0.9 us per tile, one CTA per SM, against 2 / 4
+tiles per CTA at decode. The split counts equal the public kernel's (static table, 10-28), but
+they were copied, not swept on our kernel. A phase exit drains the copies, so its "prologue"
+includes the first tiles' DRAM fetch; the new stamps separate them.
+
+Source change (default off, all 13 judged instances SASS-identical to 62376d7e when off, local
+sm_90a compile): `ONE_STAMP=3` (bench only), thread 0 of every per-request CTA writes globaltimer
+and clock64 at the existing ONE_DIAG stamp points plus entry, each tile's ready point, the grid
+barrier and the finalize slice end (`PR_BASE` in attn_one.cu). Stamp build: 114 / 115 registers at
+1/1 and 8/3, no spills.
+
+Check: `tools/attn_make_sl_tl.py` (arms ctrl, ctrl2 null, tl_probe and tlA_probe (stamps, control
+and spA splits), spA / spB / spC (the control module with its own state, splits per request
+overridden on the host): spA 32 / 16 / 16 / 8, spB 11 / 11 / 11 / 6, spC 8 / 6 / 6 / 3 at decode
+16 / decode 32 / verify 16 / verify 32; control 16 / 8 / 8 / 4). Only the four cells are timed;
+3 held-out inputs, 150 cold rounds plus warm graphs, seed 311401. Reading: TLSL per call and TLSUM
+medians (phase lengths, critical CTA timeline), ABSUM / ABIN per arm.
+Gate for a split arm as a candidate: arm - ctrl at most -0.5 us cold on a cell on all three
+inputs and beyond |ctrl2 - ctrl|, no other of the four cells worse than the null, ABCHECK clean.
+A passing split set becomes a host-only `_one_plan` change; its confirming check is the full
+judge run of the clean file plus the strict fresh-input replay stress.
+
+### Result: acc16cee189246cd, timeline read, split counts already right
+
+Receipt `profiles/sltl.acc16cee189246cd.{json,log,dispatch.json}` (bench SHA256 6f097fcd, built
+at aea65e2e). Unchanged control passed 16/16 official tests, 2.517x (CI 2.480-2.568), no flags;
+ABCHECKSUM 4/0 on every correct-output arm (output against the control's, workspace clean).
+
+Split arms, cold / warm us, pooled over three held-out inputs (null ctrl2 - ctrl in brackets):
+
+| cell | ctrl cold | spA | spB | spC | null | ctrl warm | spA | spB | spC |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| decode 16 sliding (16 splits) | 12.86 | +2.24 (32) | +0.10 (11) | -0.03 (8) | +0.19 | 7.31 | +3.18 | +0.24 | +0.41 |
+| decode 32 sliding (8) | 15.65 | +2.59 (16) | +0.19 (11) | +0.80 (6) | +0.00 | 9.56 | +3.35 | +0.19 | +1.34 |
+| verify 16 sliding (8) | 15.62 | +0.61 (16) | +0.58 (11) | +0.64 (6) | +0.06 | 11.44 | +0.67 | +0.63 | +0.59 |
+| verify 32 sliding (4) | 19.84 | -0.42 (8) | +0.61 (6) | +2.21 (3) | +0.00 | 15.04 | +0.02 | +1.10 | +2.74 |
+
+No split arm passes the gate (spA at verify 32 is -0.42 cold on all three inputs but +0.02 warm).
+The plan's split counts are at or next to the optimum on our kernel too; closed in ruled-out.md.
+
+Timeline of the control-splits stamp build (TLSUM, medians of five cold calls; us from the first
+CTA entry; "crit" is the CTA that ends last, i.e. the finalizer that sets the kernel end; the
+verify tile-ready stamps were missing in this build because the q_len 8 loop has its own
+acquire, so its loop is read from s13 to s16; fixed in 986997b2):
+
+| point (crit CTA) | decode 16 | decode 32 | verify 16 | verify 32 |
+|---|---:|---:|---:|---:|
+| page indices landed (s4) | 1.06 | 1.06 | 0.96 | 1.28 |
+| prologue K/V issued (s6) | 1.86 | 2.11 | 1.38 | 1.73 |
+| query pass, new rows, patch done (s13) | 2.27 | 2.56 | 2.53 | 2.78 |
+| first tile ready (s24) | 4.10 | 4.35 | - | - |
+| tile loop end (s16) | 5.70 | 9.02 | 7.26 | 11.62 |
+| reds issued (s17) | 6.05 | 9.38 | 8.29 | 12.45 |
+| ticket / grid barrier passed | 7.65 | 10.05 | 10.21 | 14.37 |
+| finalize done = kernel end | 8.45 | 10.98 | 11.04 | 15.30 |
+| tiles per CTA | 2 | 4 | 5 | 9 |
+| median gap between tile-ready points | 1.19 | 1.19 | - | - |
+
+Attribution. Decode 16 (8.45 us span cold): 2.3 us to the end of the prologue (seq length and
+page-index round trip 1.0, the prologue cp.async issue 0.8, query work 0.4), 1.8 us waiting for
+the first tile from DRAM, 1.6 us for the two tiles, 2.75 us of merge tail (reds 0.35, ticket 1.6:
+the acq_rel atomic waits for the reds, finalize 0.8). Decode 32 adds two tiles at 1.2 us each:
+with STAGES 3 the ring holds two tiles in flight and the loop runs at one DRAM latency per two
+tiles. Verify minus decode: batch 16 +2.6 us = tile loop +1.3 (5 tiles at about 0.95 us against
+2), merge tail +1.0 (reds 1.0 against 0.35, grid barrier 1.9 against the ticket's 1.6),
+prologue +0.3 (q_len 8 query pass); batch 32 +4.3 = loop +2.4 (9 tiles at 0.98 us against 4 at
+1.2), tail +1.7. The stamp build cost +0.3-0.5 us per cell (tl_probe - ctrl).
+Next: check 2 tests ring depth (ONE_NSR8 / ONE_NSR1, 4 and 5 stages), which targets the loop at
+decode 32 and both verify cells.
+
+## 2026-11-03 per-request ring depth (ONE_NSR8 / ONE_NSR1), registered before dispatch
+
+Mechanism: the consumer-copy instances 8/3 (verify 16 / 32 sliding) and 1/1 (decode 16 / 32
+sliding) hold STAGES = 3 stages, so two tiles are in flight; acc16cee189246cd shows the tile
+loop pacing at one DRAM latency per two tiles (1.2 us per tile at decode 32, about 1 us at
+verify). ONE_NSR8 / ONE_NSR1 = 4 or 5 give those two instances 3 or 4 tiles in flight with the
+same commit-group arithmetic (prologue SR - 1 tiles, wait_group SR - 2 per tile, page indices
+2 SR - 2 tiles ahead in the 8-entry ring). Smem 8/3: 107 KB at 4 (two CTAs per SM), 123 KB at
+5 (one CTA per SM, 132 resident for 128 cooperative CTAs); 1/1: 75 / 91 KB. All 13 instances
+SASS-identical at the defaults; 8/3 and 1/1 at 5: 111 / 108 registers, no spills (local sm_90a).
+Prior against: EARLY (ruled-out.md) lost 0.8-1.1 us at verify 16 / 32 sliding with three tiles
+in flight, but it moved the stage release behind a CTA-wide barrier; this keeps the judged loop
+and only deepens the ring.
+
+Check: `tools/attn_make_sl_tl.py OUT nsr` (arms ctrl, ctrl2 null, tl_probe (stamps, now with the
+q_len 8 tile stamps), n4, n5, n4s (n4's build with 16 / 8 splits at verify 16 / 32), tln5_probe
+(stamps on n5)); the four cells only, 3 held-out inputs, 150 cold rounds, seed 311402; bench
+SHA256 f514d70a. Gate: arm - ctrl at most -0.5 us cold on a targeted cell on all three inputs
+and beyond the null, warm not worse, no other of the four cells worse than the null. Expected
+(hypothesis): decode 32 -1.5 to -2.5 us, verify 32 -2 to -4, verify 16 -1 to -2, decode 16 flat.
+
+### Result: fd482cc58ac440e1, a deeper ring changes nothing
+
+Receipt `profiles/slnsr.fd482cc58ac440e1.{json,log,dispatch.json}`. Control 16/16, 2.531x (CI
+2.493-2.569), no flags; ABCHECKSUM 4/0 on n4, n5, n4s, ctrl, ctrl2. Cold pooled us (null
+ctrl2 - ctrl within 0.06):
+
+| cell | ctrl | n4 | n5 | n4s | warm ctrl | n4 | n5 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| decode 16 sliding | 12.96 | +0.03 | +0.00 | -0.06 | 7.37 | +0.44 | +0.18 |
+| decode 32 sliding | 15.71 | +0.16 | +0.26 | +0.03 | 9.56 | +0.31 | +0.47 |
+| verify 16 sliding | 15.71 | +0.22 | +0.22 | +0.86 | 11.34 | +0.25 | +0.22 |
+| verify 32 sliding | 19.90 | +0.26 | +0.22 | +0.06 | 15.30 | +0.12 | +0.14 |
+
+Timeline with the q_len 8 tile stamps (TLSUM, control build / n5): verify tile gap 0.90 / 0.79
+us at batch 16, 0.90 / 0.89 at batch 32, first tile ready 0.2 us after the prologue, so the q_len
+8 loop is consumer-bound (the tile is in smem when the consumer gets to it). At decode 32 the
+gap is 1.17 / 1.09 us but n5 issues all four tiles in the prologue for 2.1 us (0.5 us of cp.async
+issue per tile) and the kernel ends no earlier: 256 CTAs x 16 KB per 1.1 us is 3.8 TB/s, so the
+decode 32 loop already runs at about the DRAM rate. Closed in ruled-out.md. What is left: the
+q_len 8 tile body (0.8-0.9 us per tile at one CTA per SM) and the merge tail (2.7 us decode,
+3.7 us verify cold).
+
+## 2026-11-03 last arriver skips the cooperative poll (ONE_LASTSKIP), registered before dispatch
+
+Mechanism: in `coop_barrier` the CTA whose acq_rel add completes the key count still polls the
+counter with ld.acquire (one more L2 round trip, plus a 64 ns sleep) before it finalizes. Its
+RMW reads the value written by the other arrivers' acq_rel RMWs on the same location, so it
+already synchronizes with all of them (release sequence); the last-CTA ticket finalizes on the
+same argument without a poll. ONE_LASTSKIP=1 drops the poll for that CTA in the per-request
+cooperative instances (1/3, 1/11, 8/3, 8/11, 8/15: verify 16 / 32 sliding, verify 1 sliding,
+decode / verify 1 full); the flat grid barrier (49, 51, 19, 17) is untouched (SASS-identical,
+local sm_90a). The timeline puts the verify critical CTA's barrier at 1.9-2.0 us.
+
+Check: `tools/attn_make_bench_ab.py --null --shapes all --inputs 3 --rounds 150 --seed 311403
+ls@own=-DONE_LASTSKIP=1` plus `tools/attn_inline_one.py` (bench SHA256 6b324c87). Gate: ls - ctrl
+at most -0.3 us cold on verify 16 or verify 32 sliding on all three inputs and beyond the null,
+no scored cell worse than the null. Expected (hypothesis): -0.2 to -0.6 us on the five
+cooperative cells, zero elsewhere.
+
+### Result: b27e873b98f34ff9, the skipped poll is not on the critical path
+
+Receipt `profiles/sk.b27e873b98f34ff9.{json,log,dispatch.json}` (bench SHA256 6b324c87).
+Control 16/16, 2.511x (CI 2.473-2.563), no flags; ABCHECKSUM 19/0 on ls, ctrl, ctrl2. ls - ctrl
+cold (null ctrl2 - ctrl in brackets): verify 16 sliding -0.06 (-0.10), verify 32 sliding -0.16
+(-0.06; per input -0.19 / -0.13 / -0.03), verify 1 sliding 0.00 (0.00), decode 1 full -0.22
+(-0.26), verify 1 full 0.00 (0.00); unchanged instances inside the null (verify 32 full +0.58
+against +0.22, per input +1.47 / -0.29 / +0.67 with ctrl2 at +0.35 / -0.22 / +1.44: full-context
+drift). Fails the -0.3 us gate; closed in ruled-out.md. The 1.9 us grid barrier of the timeline
+is the release of the CTA's own reds plus the RMW, not the extra acquire load.
+
+## 2026-11-03 host-only merge plans (nc copies, cooperative decode), registered before dispatch
+
+Arms on the control's module with their own state, `tools/attn_make_sl_tl.py OUT host`: nc2 /
+nc4 (two / four workspace copies per request at all four cells; with 4 splits at verify 32 every
+split then reds into its own copy, so no two CTAs add to the same address; the finalize reads
+every copy in the rolled loop), dcoop (decode 16 / 32 on instance 1/3: grid barrier plus a row
+slice per CTA in place of the last-CTA ticket). Same four cells, 3 held-out inputs, 150 cold
+rounds, seed 311404. Gate as for the split arms: -0.5 us cold on a cell on all three inputs,
+beyond the null, no other cell worse. Hypothesis: same-address red contention (7 / 4 CTAs adding
+32 KB each into one request's rows) sets the verify reds and barrier at 0.8 + 1.9 us; nc removes
+it at the cost of one more dependent round trip per copy in the finalize.
+
+### Result: e468255b7f9948c6, more workspace copies and the cooperative decode both lose
+
+Receipt `profiles/slhost.e468255b7f9948c6.{json,log,dispatch.json}` (bench SHA256 7c9643f4).
+Control 16/16, 2.521x (CI 2.483-2.559), no flags; ABCHECKSUM 4/0 on every arm. Cold pooled
+us, arm - ctrl (null ctrl2 - ctrl within 0.10; every input has the same sign):
+
+| cell | ctrl | nc2 | nc4 | dcoop |
+|---|---:|---:|---:|---:|
+| decode 16 sliding | 12.86 | +0.22 | +0.93 | +0.80 |
+| decode 32 sliding | 15.49 | +0.48 | +1.15 | +1.06 |
+| verify 16 sliding | 15.42 | +0.42 | +1.22 | (control plan) |
+| verify 32 sliding | 19.65 | +0.51 | +2.30 | (control plan) |
+
+Warm rows agree (nc2 +0.27 to +0.53, nc4 +0.87 to +1.67, dcoop +0.92 / +0.99). Same-address red
+contention is not what the verify tail pays: removing it (nc4 at verify 32 gives every split its
+own copy) costs more in the finalize's extra round trips than it saves. The grid barrier is
+slower than the ticket at decode by 0.8-1.1 us. Closed in ruled-out.md.
+
+## Lane summary (third attention lane, 2026-11-03): no candidate
+
+Four of six checks spent (acc16cee189246cd, fd482cc58ac440e1, b27e873b98f34ff9,
+e468255b7f9948c6), each against its own control and null; no arm met its gate, nothing goes to
+the promotion queue, the confirming check was not used. Public best stays 8914751e3b9f468b.
+
+Where the time goes (cold, critical CTA, acc16cee189246cd / fd482cc58ac440e1):
+decode 16 sliding 8.4 us = 2.3 prologue (seq length plus page-index round trip 1.0, prologue
+cp.async issue 0.8, query work 0.4) + 1.8 first-tile DRAM wait (8 MB requested at once, about
+the DRAM rate) + 1.6 loop + 2.75 merge tail (reds 0.35, ticket 1.6, finalize 0.8). Decode 32
+adds two tiles at 1.1-1.2 us, which is the DRAM rate for 256 CTAs (3.8 TB/s). Verify 16 / 32
+(11.0 / 15.3 us): loop 4.7 / 8.8 us at 0.8-0.9 us per tile with the tile already in smem, so it
+is the q_len 8 tile body; the 8/3 loop body is 588 SASS instructions per thread per tile (76
+ISETP, 46 IMAD, 40 FMUL, 37 LDS, 34 FSEL / FMNMX / MUFU), about 1,170 issue cycles per tile
+for eight warps, i.e. issue-bound; merge tail 3.8 / 3.7 us (reds 0.6-1.0, barrier 1.9, finalize
+0.9). Verify minus decode: batch 16 +2.6 = loop +1.3, tail +1.0, prologue +0.3; batch 32 +4.3 =
+loop +2.4, tail +1.7.
+
+Ruled out on this kernel: other split counts (copied public counts are at the optimum within 0.4
+us), ring depth 4 / 5, the last arriver's poll, 2 / 4 workspace copies, the cooperative
+finalize at decode. What is left is structural: a q_len 8 tile body with fewer instructions per
+tile (masking only on the boundary tile, address math hoisted per segment, the DCARRY / VHOIST
+carries of mode 51 brought to the per-request loop), and a merge tail with fewer dependent L2
+round trips than reds, release RMW and reload. Neither fits one check with a stop rule today.

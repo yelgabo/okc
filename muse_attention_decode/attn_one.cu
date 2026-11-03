@@ -240,6 +240,14 @@ constexpr int STAMP_W = 16;
 // warpgroup 1's full-barrier wait cycles, [194, 256) warpgroup 0's running wait cycles.
 constexpr int TL_BASE = STAMP_BASE + 512 * STAMP_W;
 constexpr int TL_W = 256;
+// ONE_STAMP=3 (bench-only, per-request modes): thread 0 of every CTA writes %globaltimer (low 32
+// bits) at each stamp(k) point into dbg[PR_BASE + (blockIdx.y * gridDim.x + blockIdx.x) * PR_W
+// + k] and the low 32 bits of clock64 at + PR_CLK + k. Points: 0 entry, 1-20 the ONE_DIAG
+// stamp points, 21 grid barrier passed, 22 finalize slice done, 24 + i tile i ready (i < 16);
+// fields 44 SM id, 45 tiles, 46 the ticket's last-CTA flag.
+constexpr int PR_BASE = TL_BASE + 512 * TL_W;
+constexpr int PR_W = 96;
+constexpr int PR_CLK = 48;
 // ONE_HSPLIT (flat q_len 8 producer builds): one full and one empty mbarrier per KV head and
 // stage. The producer threads of chunks 4h .. 4h + 3 fill head h's half of every row and the
 // warpgroup of head h releases it, so the two heads' rings run independently instead of
@@ -308,8 +316,29 @@ __host__ __device__ constexpr bool one_pb(int L, int mode) {
     return ONE_PBULK != 0 && L == 1 && (mode & M_PROD) && !(mode & M_SOLO);
 }
 
+// ONE_NSR8 / ONE_NSR1: ring depth of the per-request multi-tile instances without the
+// speculated length (q_len 8 mode 3, verify 16 / 32 sliding; q_len 1 mode 1, decode 16 / 32
+// sliding), default STAGES. Bench-only until judged.
+#ifndef ONE_NSR8
+#define ONE_NSR8 3
+#endif
+// ONE_LASTSKIP / ONE_POLLNS (per-request cooperative instances 3, 11, 15 only; the flat
+// grid barrier keeps the default): see coop_barrier.
+#ifndef ONE_LASTSKIP
+#define ONE_LASTSKIP 0
+#endif
+#ifndef ONE_POLLNS
+#define ONE_POLLNS 64
+#endif
+#ifndef ONE_NSR1
+#define ONE_NSR1 3
+#endif
 __host__ __device__ constexpr int one_ns(int L, int mode) {
-    return (mode & M_PROD) && L == 8 ? 4 : ((mode & M_PROD) && L == 1 ? ONE_NS1 : STAGES);
+    return (mode & M_PROD) && L == 8 ? 4
+           : (mode & M_PROD) && L == 1 ? ONE_NS1
+           : L == 8 && mode == 3 ? ONE_NSR8
+           : L == 1 && mode == 1 ? ONE_NSR1
+                                 : STAGES;
 }
 
 __host__ __device__ constexpr int one_threads(int L, int mode) {
@@ -926,18 +955,26 @@ __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_h
 // whose keys complete the count; a CTA with no keys never is) clears the other parity and
 // bumps the epoch, and every CTA spins until the count reaches `total`. dbg[0], when given,
 // records the longest spin in polls.
-template <int NC>
+// SKIP (ONE_LASTSKIP, per-request instances): the arriver whose keys complete the count does
+// not poll. Its acq_rel RMW reads the value written by the last of the other arrivers' acq_rel
+// RMWs on the same counter, so it synchronizes with every one of them (release sequence), the
+// same argument that lets the last-CTA ticket finalize without a poll. PNS: the poll's
+// nanosleep in ns (ONE_POLLNS; 0 spins without sleeping).
+template <int NC, bool SKIP = false, int PNS = 64>
 __device__ __forceinline__ void coop_barrier(int* cnt, int* epoch, int ep, int mine, int total,
                                              int tid, int* dbg) {
     if (tid == 0) {
         const int old = atom_add_acq_rel(cnt + (ep & 1), mine);
-        if (mine > 0 && old + mine == total) {
+        const bool last = mine > 0 && old + mine == total;
+        if (last) {
             __stcg(cnt + ((ep + 1) & 1), 0);
             __stcg(epoch, ep + 1);
         }
         int polls = 0;
-        while (ld_acquire(cnt + (ep & 1)) < total) {
-            __nanosleep(64);
+        while (!(SKIP && last) && ld_acquire(cnt + (ep & 1)) < total) {
+            if constexpr (PNS > 0) {
+                __nanosleep(PNS);
+            }
             if (++polls > COOP_POLL_LIMIT) {
                 __trap();
             }
@@ -1056,6 +1093,9 @@ attn_one_kernel(const Params p) {
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
     constexpr int NS = one_ns(L, MODE);
+    // Ring depth of the consumer-copy path (non-producer instances).
+    constexpr int SR = PROD ? STAGES : NS;
+    static_assert(SR >= 2 && 2 * SR - 2 <= NIDX, "the page-index ring holds 2 SR - 2 tiles");
     constexpr int ROWS = HQ * L;
     constexpr int SEGK = L == 8 ? SEGK8 : SEGK1;
     constexpr int PF = 3;
@@ -1093,17 +1133,27 @@ attn_one_kernel(const Params p) {
     if (ONE_DIAG && p.phase_limit == (k)) { cp_wait<0>(); return false; }
     // Diagnostic stamps: thread 0 of CTA (0, 0) records the time in microseconds at point k
     // into dbg[1 + k] when a dbg buffer is given (the judge's timed path passes none).
+    constexpr bool PSTAMP = ONE_STAMP == 3 && !FLAT;
+    int* const prow = PSTAMP && p.dbg != nullptr
+                          ? p.dbg + PR_BASE + (blockIdx.y * gridDim.x + split) * PR_W
+                          : nullptr;
     auto stamp = [&](int k) {
         if constexpr (ONE_DIAG) {
             if (p.dbg != nullptr && split == 0 && blockIdx.y == 0 && tid == 0) {
                 p.dbg[1 + k] = static_cast<int>(globaltimer_ns() / 1000u);
             }
         }
+        if constexpr (PSTAMP) {
+            if (prow != nullptr && tid == 0) {
+                prow[k] = static_cast<int>(globaltimer_ns() & 0xffffffffull);
+                prow[PR_CLK + k] = static_cast<int>(clock64());
+            }
+        }
     };
     // ONE_STAMP: record k of this CTA's row (thread 0 of the consumers, or of the producers for
     // their fields). Times are %globaltimer ns (low 32 bits, comparable across SMs); the *_cyc
     // sums are clock64 cycles of one thread.
-    constexpr bool STAMPS = ONE_STAMP && PROD;
+    constexpr bool STAMPS = (ONE_STAMP == 1 || ONE_STAMP == 2) && PROD;
     int* const srow = STAMPS && p.dbg != nullptr ? p.dbg + STAMP_BASE + split * STAMP_W : nullptr;
     auto srec = [&](int k, long long v) {
         if constexpr (STAMPS) {
@@ -2040,7 +2090,7 @@ attn_one_kernel(const Params p) {
         if constexpr (!PROD) {
             // Group 0: page indices of the prologue tiles.
 #pragma unroll
-            for (int t = 0; t < STAGES - 1; ++t) {
+            for (int t = 0; t < SR - 1; ++t) {
                 issue_idx(t);
             }
             cp_commit();
@@ -2114,7 +2164,7 @@ attn_one_kernel(const Params p) {
                     seq = seq_real;
                     derive();
 #pragma unroll
-                    for (int t = 0; t < STAGES - 1; ++t) {
+                    for (int t = 0; t < SR - 1; ++t) {
                         issue_idx(t);
                     }
                     cp_commit();
@@ -2129,17 +2179,17 @@ attn_one_kernel(const Params p) {
             stamp(5);
             PHASE_EXIT(4)
             // K/V of the prologue tiles go out while the query group is still in flight;
-            // each later group also carries the page indices STAGES - 1 tiles ahead.
+            // each later group also carries the page indices SR - 1 tiles ahead.
 #pragma unroll
-            for (int t = 0; t < STAGES - 1; ++t) {
+            for (int t = 0; t < SR - 1; ++t) {
                 if (t < ntiles) {
                     issue_kv(t, t, false);
-                    issue_idx(t + STAGES - 1);
+                    issue_idx(t + SR - 1);
                 }
                 cp_commit();
             }
             stamp(6);
-            cp_wait<STAGES - 1>();
+            cp_wait<SR - 1>();
         } else {
             cp_wait<0>();
         }
@@ -2265,7 +2315,7 @@ attn_one_kernel(const Params p) {
             // Patch the new rows into the tiles issued before they were staged.
             if (hi > seq) {
 #pragma unroll
-                for (int t = 0; t < STAGES - 1; ++t) {
+                for (int t = 0; t < SR - 1; ++t) {
                     if (t < ntiles) {
                         patch_tile(t, lo + t * BN);
                     }
@@ -2283,6 +2333,11 @@ attn_one_kernel(const Params p) {
         }
 
         stamp(13);
+        if constexpr (PSTAMP) {
+            if (prow != nullptr && tid == 0) {
+                prow[45] = ntiles;
+            }
+        }
         PHASE_EXIT(9)
         const float sl2k = (L == 1 ? 1.f : p.sl2) * k_scale;
         const int copy = p.nc > 1 ? split % p.nc : 0;
@@ -2346,7 +2401,7 @@ attn_one_kernel(const Params p) {
                     csync();
                 }
             } else {
-                cp_wait<STAGES - 2>();
+                cp_wait<SR - 2>();
                 if constexpr (L == 8) {
                     fence_proxy_async();
                 }
@@ -2357,10 +2412,15 @@ attn_one_kernel(const Params p) {
                 if (it == 0) {
                     stamp(15);
                 }
+                if constexpr (PSTAMP) {
+                    if (it < 16) {
+                        stamp(24 + it);
+                    }
+                }
                 if constexpr (!ONE) {
-                    if (it + STAGES - 1 < ntiles) {
-                        issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
-                        issue_idx(it + 2 * STAGES - 2);
+                    if (it + SR - 1 < ntiles) {
+                        issue_kv(it + SR - 1, (st + SR - 1) % SR, true);
+                        issue_idx(it + 2 * SR - 2);
                     }
                     cp_commit();
                 }
@@ -2527,7 +2587,7 @@ attn_one_kernel(const Params p) {
                     }
                 }
                 release(st);
-                st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
+                st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);
             }
             if constexpr (STAMPS) {
                 s_loop += clock64() - s_l0;
@@ -3090,7 +3150,7 @@ attn_one_kernel(const Params p) {
                         vt_cur ^= vt_x;
                         vd_lo ^= vd_x;
                     }
-                    st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
+                    st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);
 #if ONE_PSTEAL
                     return true;
                 };
@@ -3122,7 +3182,7 @@ attn_one_kernel(const Params p) {
                 for (int it = 0; it < ntiles; ++it) {
                     // acquire() of the judged loop, with the copy issue split off so QKF can
                     // place it after the Q.K issue.
-                    cp_wait<STAGES - 2>();
+                    cp_wait<SR - 2>();
                     fence_proxy_async();
                     if (it == 0) {
                         stamp(14);
@@ -3131,11 +3191,16 @@ attn_one_kernel(const Params p) {
                     if (it == 0) {
                         stamp(15);
                     }
+                    if constexpr (PSTAMP) {
+                        if (it < 16) {
+                            stamp(24 + it);
+                        }
+                    }
                     auto issue_next = [&]() {
                         if constexpr (!ONE) {
-                            if (it + STAGES - 1 < ntiles) {
-                                issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
-                                issue_idx(it + 2 * STAGES - 2);
+                            if (it + SR - 1 < ntiles) {
+                                issue_kv(it + SR - 1, (st + SR - 1) % SR, true);
+                                issue_idx(it + 2 * SR - 2);
                             }
                             cp_commit();
                         }
@@ -3296,7 +3361,7 @@ attn_one_kernel(const Params p) {
                     }
                     wg_wait<0>();
                     reg_fence(o);
-                    st = st == STAGES - 1 ? 0 : st + 1;
+                    st = st == SR - 1 ? 0 : st + 1;
                 }
             } else {
                 int st = PROD ? cst : 0;
@@ -3421,7 +3486,7 @@ attn_one_kernel(const Params p) {
                         reg_fence(o);
                     }
                     release(st);
-                    st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
+                    st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);
                 }
             }
             if constexpr (STAMPS) {
@@ -3470,6 +3535,11 @@ attn_one_kernel(const Params p) {
         }
         stamp(19);
         csync();
+        if constexpr (PSTAMP) {
+            if (prow != nullptr && tid == 0) {
+                prow[46] = *flag;
+            }
+        }
         if (ONE_DIAG && p.phase_limit == 12) {
             return;
         }
@@ -3490,6 +3560,14 @@ attn_one_kernel(const Params p) {
     };
 
     if constexpr (!FLAT) {
+        stamp(0);
+        if constexpr (PSTAMP) {
+            if (prow != nullptr && tid == 0) {
+                uint32_t smid;
+                asm volatile("mov.u32 %0, %%smid;\n" : "=r"(smid));
+                prow[44] = static_cast<int>(smid);
+            }
+        }
         seq = SPEC ? p.pt_stride - L : seq_real;
         derive();
         if (!SPEC && lo >= end) {
@@ -3510,16 +3588,19 @@ attn_one_kernel(const Params p) {
             __syncthreads();
             const int ep = *reinterpret_cast<const int*>(smem + S::CONST + C_EPOCH);
             const int rows_per = (ROWS + nact - 1) / nact;
-            coop_barrier<NC>(p.ws_cnt + CNT_COOP + 2 * b, p.ws_cnt + CNT_EPOCH + b, ep, hi - lo,
+            coop_barrier<NC, ONE_LASTSKIP != 0, ONE_POLLNS>(p.ws_cnt + CNT_COOP + 2 * b,
+                                                         p.ws_cnt + CNT_EPOCH + b, ep, hi - lo,
                              n_keys, tid, p.dbg);
             if (ONE_DIAG && p.phase_limit == 12) {
                 return;
             }
+            stamp(21);
             const int r_lo = split * rows_per;
             const int r_hi = min(ROWS, r_lo + rows_per);
             if (r_lo < r_hi) {
                 finalize_rows<L, NC, FIN8>(p, b * ROWS + r_lo, b * ROWS + r_hi, v_scale, tid);
             }
+            stamp(22);
         }
     } else {
         // The previous launch wrote this epoch (stream order makes it visible); a coherent
