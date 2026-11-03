@@ -1,4 +1,4 @@
 paired.py -text
 *.log -text whitespace=-blank-at-eol
 *.txt -text whitespace=-blank-at-eol
-*.diff -text whitespace=-blank-at-eol
+*.diff -text whitespace=-blank-at-eol,-space-before-tab
