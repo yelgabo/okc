@@ -5805,3 +5805,149 @@ dispatched (one MoE check left today, the directive's gate is two): `muse_moe_w4
 it also loses per unit, the chunk walk and the helper's per-unit chunk mapping are the cost and an incremental walk
 (thread 0 and the helper keep the current chunk and its remaining units in registers) is the fix; if it does not, the
 staging's in-loop poll and branch are. The parent's two named mechanisms stay declined (rows in docs/ruled-out.md).
+
+## 2026-11-03 MoE short-load plan: value table, lever ranking, two prepared paired benches
+
+Prepared 2026-11-03 03:00 to 05:00 PT with no judge quota (1 MoE check left today, 20 at the 16:00 PT reset). Binding
+rules: the final-day directive (short loads, fence rule, ledger before dispatch). Evidence base, all existing receipts:
+
+- MoE public best `2821fdb184d740b1` (repeat draw 2 of the release `current_control_release.py` 5df257af, file
+  `.build/repeats/muse_moe_w4a16.draw2.py` e85ef86f, profile `.build/repeats/profiles/muse_moe_w4a16.draw2.2821fdb184d740b1.txt`):
+  5,737.99 us, 2.3438x, CI 2.309-2.379. One kernel per cell, `okc::moe_fused` (Tiny at T = 1, Tiny2 at T = 8, MID at
+  T = 16, B4 at T = 32, MAIN at 128 / 256).
+- Layer `607eb52bdaf24160` (`muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.txt`): the same MoE engine is
+  30 to 63% of every cell.
+- MOE-TL-01 timeline `19128cda79ca4e25` on the judge's own inputs (section above), the MOE-NW16-BAL-01, MOE-BAL-01,
+  MOE-SHORT-READY-01 and MOE-HALF-XS-01 results, the MoE section of docs/ruled-out.md and the public sweep
+  (docs/steering/2026-11-03-0115-public-techniques-research.md).
+
+### Value per microsecond saved in the MoE kernel
+
+MoE board: speedup is the geometric mean over six one-shape loads, so a load's value is 100 / (6 t) % per us. Layer: the
+MoE kernel runs in both the sliding (weight 46) and the full (weight 16) shape of each load, so a saving s in a load is
+62 s of its weighted time 46 t_sliding + 16 t_full, worth 100 / 6 x 62 / (46 t_s + 16 t_f) % per us of the layer score.
+Derived from the receipts above; floors from TASK.md.
+
+| load | build | MoE cell (us) | floor (us) | above floor | MoE %/us | floor gap x value | layer MoE row sl / full (us) | layer %/us |
+|---|---|---:|---:|---:|---:|---:|---|---:|
+| decode 1 (T 1) | Tiny | 25.27 | 11.42 | 13.8 | 0.660 | 9.1% | 29.8 / 42.8 | 0.212 |
+| verify 1 (T 8) | Tiny2 | 64.19 | 37.32 | 26.9 | 0.260 | 7.0% | 71.6 / 58.8 | 0.144 |
+| decode 16 | MID | 96.08 | 52.52 | 43.6 | 0.173 | 7.6% | 77.0 / 65.2 | 0.105 |
+| decode 32 | B4 | 123.55 | 70.76 | 52.8 | 0.135 | 7.1% | 70.6 / 87.6 | 0.087 |
+| verify 16 (T 128) | MAIN | 179.16 | 101.34 | 77.8 | 0.093 | 7.2% | 155.3 / 178.1 | 0.062 |
+| verify 32 (T 256) | MAIN | 218.26 | 108.94 | 109.3 | 0.076 | 8.4% | 204.8 / 203.3 | 0.046 |
+
+Rank 100 needs 185 us of score (3.2%). One microsecond off both short builds is 0.92% of the MoE score and 0.36% of the
+layer score. The floor counts 0.75 of the mean distinct experts, so no load can reach it; the gap column is a ceiling
+on value, not an expected gain. The directive admits decode 1 and verify 1, and decode 16 only where it falls out of the
+same change; B4 (decode 32) and MAIN stay closed.
+
+### Exposure at the short loads (measured, MOE-TL-01, mean CTA)
+
+T = 1 kernel 22.6 us: ramp 3.1, phase A 10.4, A-to-B handoff 2.2 (doneA wait 1.7, credit lag 1.3 after the last A unit),
+phase B 4.8, tail 2.1 (B end spread 1.5, barrier latency 0.9). T = 8 kernel 52.9 us: ramp 3.5, A 29.0, handoff 2.2
+(wait 1.8), B 13.7, tail 4.2 (B end 46.8 / 48.4 / 50.8 us, barrier idle mean 3.5). The unit loop runs at 1.1-1.2 us per
+36,864-byte unit with under 0.1 us of weights wait per unit.
+
+### Open levers, ranked by expected microseconds times value
+
+P is a hypothesis (my estimate), not a measurement. EV = P x (gain if it works) x value, MoE board / layer.
+
+| rank | lever | cells | mechanism | gain if it works (hypothesis) | P | EV MoE / layer | status against docs/ruled-out.md |
+|---|---|---|---|---|---:|---|---|
+| 1 | HALF chunk order without staging (Tiny / Tiny2) | T 1, T 8 | A units of job half 0, A of half 1, then B of each half; doneA credited per half, so every B chunk's dependency is complete before the CTA reaches it | -1.8 us at T 1 and at T 8 (the 1.7-1.8 us doneA wait plus switch) | 0.40 | 0.66% / 0.26% | Row "job-half chunk order ... and smem-staged x" closed HALF+XS; its own text leaves the cause unseparated and names the HALF-only build as the distinguishing test. Reopen condition met: that test has not run |
+| 2 | Run-time claims of the last phase B units (Tiny / Tiny2) | T 8 (T 1 only with 3+ local experts) | the last min(2G, nB - 4G) B units form a pool that CTAs claim as they refill their ring, so fast CTAs absorb the slow ones' rate variance | -1.3 us at T 8 (end spread 4.0 to about 2) | 0.35 | 0.12% / 0.07% | Row "balanced per-CTA A + B unit counts" names "run-time claiming of the last phase B units" as not ruled out; MOE-BQUEUE-01 covered B4 / MAIN only (its steering file scopes Tiny / Tiny2 / MID out), and the TL-01 exposure is newer than it |
+| 3 | HALF on MID (T 16), after rank 1 wins | T 16 | the same chunk order in the OKC_SPLIT build (FAST1 split preissue needs its own chunk table) | -1.8 us at T 16 | 0.28 | 0.09% / 0.05% | not built; directive admits decode 16 only as fall-out of rank 1 |
+| 4 | One phase loop instantiation (A and B share the unit-loop code) | T 1, T 8 | after the cold-L2 flush and SGLang's alternating replays, skinny_ring_ws<true> is cold code when every CTA enters phase B at once; the public "cold-code warming" item | up to -0.5 us each (unmeasured) | 0.20 | 0.09% / 0.04% | zero hits in our logs; no stamp separates the first B unit, so the next timeline should stamp it before a build |
+| 5 | Third FAST1 preissue / earlier first fill | T 1, T 8 | fill the third ring slot before routing | about -0.3 us (declined-row bound) | 0.5 | 0.12% / 0.05% at most | declined row "route only what the first two ring fills need" bounds it at 0.3 us, inside the judge's T1 band |
+
+Excluded, with the reason: B4 at decode 32 and MAIN at verify 16 / 32 (directive); 16 compute warps (row needs a
+per-warp register budget above 96, not met); balanced counts alone (lost, b45cce36b47f4e81); HALF + XS as built (lost,
+abc831c68f174b68); per-CTA ready flags (lost, plus an unproved publication edge); ticket in place of the grid barrier and
+the routing prologue (declined rows, conditions unchanged); phase B L2 prefetch (0.2-0.5 us of weights wait to
+recover); factorized output (matched gate failed, release check inside noise); LUT, direct X, row-owned WS, split
+finalizer, NS4 depth, norm aggregation (closed, no new exposure evidence); the redundant `__threadfence` before the
+grid barrier's `atom.acq_rel` (a fence removal, not allowed); lossless code compression (the generator's FP4 codes are
+uniform over all 16 patterns, so they carry 4 bits each).
+
+Why rank 1 should not inherit HALF-XS's per-unit slowdown (source reading, hypothesis): with XS, lane 0 of every compute
+warp issues `ld.acquire.gpu` on the next job's doneA at the top of each unit of a staging-eligible run until the job is
+complete (most of chunk 2 at T = 1), before the unit's shared-memory reads and MMAs; an acquire load orders the thread's
+later memory operations after it, so each such unit waits one loaded L2 round trip. XS also adds cp.async staging and
+raised registers to 155 / 154. The HALF-only build has none of it and compiles to 145 / 147 registers (release 145 / 145).
+
+### Candidate 1: MOE-SB-HALF-01, `muse_moe_w4a16/cand/sb_half.py`
+
+- SHA256 560a07dad7bc6c8144aab112a647836bf870195c97e6cd002304647a305ab211, 481,101 bytes.
+- Built by `python3 tools/moe_tiny_half.py muse_moe_w4a16/cand/current_control_release.py <half_only.py> --no-xs --no-tlx`
+  (single-arm form committed as `muse_moe_w4a16/cand/tiny_half_only.py`, c1805a7e) and then
+  `python3 tools/moe_short_bench.py --cand muse_moe_w4a16/cand/tiny_half_only.py --define=-DOKC_HALF=1 --name half --out muse_moe_w4a16/cand/sb_half.py`.
+  Candidate helper0 source SHA256 f35b555d8728b99e44a6ebe02c8fa1f02a481eac23b1bdcceebf890988960934.
+- Local nvcc 12.8.1 sm_90a (Docker, no target parity): tiny 145 registers, 5,588 instructions (release 145, 5,228);
+  tiny2 147, 5,644 (release 145, 5,276); no stack, no spills; receipts `muse_moe_w4a16/profiles/tiny_half_only.compile.*.txt`.
+
+### Candidate 2: MOE-SB-BCLM-01, `muse_moe_w4a16/cand/sb_bclm2.py`
+
+- SHA256 57751b9464886d845c378f74444eeac9ca43df13a4c817295e91b00d5f20f38a, 478,774 bytes.
+- Built by `python3 tools/moe_tiny_claim.py muse_moe_w4a16/cand/current_control_release.py <bclm2.py> --k 2` (single-arm
+  form `muse_moe_w4a16/cand/tiny_bclm2.py`, 9f5087a2) and
+  `python3 tools/moe_short_bench.py --cand muse_moe_w4a16/cand/tiny_bclm2.py --define=-DOKC_BCLM=2 --name bclm2 --out muse_moe_w4a16/cand/sb_bclm2.py`.
+  Candidate helper0 SHA256 aa48c4fa140f4cc4f9de866c774c9773ef40310c3753a20a7df8104ae93cafcc.
+- Mechanism and ordering are in the generator's docstring: thread 0 writes the claimed unit (or the end marker -1) to
+  `S.bq[slot]` before the slot's mbarrier arrive (`.release.cta` by default; consumers' `try_wait` is `.acquire.cta`), the
+  helper gets each buffer's unit through `S.bh` and the existing wsrf pair, the claim for the next fill is issued one
+  fill ahead, `p.ctr[1]` is the release's own dynamic-pool counter (zeroed after the grid barrier). No fence, barrier or
+  `fence.proxy.async` is removed or moved; the unit body is the release's. With no pool (for example T = 1 with two local
+  experts, where nB - 4G < 0) the loop is the release's.
+- Local nvcc: tiny 152 registers, 5,252 instructions; tiny2 148, 5,292; no stack, no spills; BAR 12, MEMBAR 11, FENCE 4
+  as the release, ATOMG 11 (release 9: the two claim sites), SYNCS 52 (47); receipts
+  `muse_moe_w4a16/profiles/tiny_bclm2.compile.*.txt`.
+- CPU protocol model `tools/moe_tiny_claim_model.py` (3,000 random launches, G 100-136, 1-32 jobs, K 1-2, pool 1-3 G,
+  random CTA interleaving): every A and B unit finished exactly once, every S.bq read after its fill, every WSBL warp
+  prefetched the unit it finishes, the helper always gets its end marker.
+
+### The bench (both files, `tools/moe_short_bench.py`)
+
+The file is the release byte for byte plus one appended block; kernel_fn and the judged state are the release's, so the
+official score is a control draw and the candidate cannot fail the judge's tests. After the release's prepare, the block
+builds the candidate's Tiny / Tiny2 modules (helper0 swapped, MID and larger unchanged) and runs three arms on the
+judge's weights: ctrl (release modules, own scratch), ctrl2 (release modules, second scratch: the null), cand. Sizes
+T = 1, 8, 16 (16 is untouched in both candidates: a drift check). 48 held-out inputs per size from a copy of
+`generate_input` (dist normal, rank busiest, seeds 910001 + 1000 T + r, a range no earlier MoE bench in the repo uses by grep), one fresh
+input per repetition copied into each arm's static buffers, a 256 MB buffer read before every replay (cold L2), one CUDA
+graph per arm and size, arm order rotated and reversed so all six permutations occur equally. Every replay's output is
+checked against an FP32 reference built from the judge's weights (relative L2 at most 1.5e-2, every row at most 7.5e-2,
+finite, as checks.compare) and the candidate's output is compared with the control's. Paired deltas per repetition
+with a distribution-free 95% interval for the median. The block stops starting new work at 280 s of prepare and never
+fails prepare (errors print as `MOE_SB error`). Expected prepare: release about 185 s, two extra compiles about 70 s,
+bench under 15 s. Output is about 2 KB of `MOE_SB` lines. CPU checks run in the session: the input copy equals
+`reference.generate_input` bit for bit, the dequant and FP32 reference equal `nvfp4.dequantize` and `ref_kernel`
+bit for bit, the error terms match `checks.compare`, the interval covers at 0.97 on simulated nulls, and the whole
+`_sb_run` path runs end to end on CPU with a mocked `torch.cuda` and a reference-math native stub.
+
+Registered gates (set before any dispatch):
+
+- Valid run: every arm passes numerics on every held-out input; ctrl2-ctrl median within 0.3 us with an interval that
+  contains 0 at T = 1 and T = 8; T = 16 cand-ctrl inside the same band. Otherwise inconclusive, no repeat of the same bytes.
+- Keep: cand-ctrl median at or below -1.0 us at T = 1 or T = 8 with the interval's upper end below 0, and the other short
+  size's median at or below +0.3 us. A kept lever gets a single-arm release check (`tiny_half_only.py` or
+  `tiny_bclm2.py`); the directive's promotion bar (T = 1 or T = 8 at least 2 us better on the judged cell, other loads
+  inside noise) applies to that check.
+- Stop: cand-ctrl median at or above +0.5 us at T = 1 or T = 8 with the interval's lower end above 0. Row in
+  docs/ruled-out.md, lever closed for the day.
+
+### Dispatch order and today's check
+
+First at the reset: `sb_half.py`. It carries most of the expected value (rank 1 EV is about five times rank 2's), it is
+the distinguishing test the HALF-XS row asks for, its result decides whether ranks 3 and the HALF + claims combination
+are worth building, and a T = 1 / T = 8 win ports to the layer by file edit (same helper engine). Then `sb_bclm2.py`.
+Today's last MoE check is held: both hypotheses can be judged at the reset, and nothing in the benches needs a judge
+run to finish them. If the lead prefers the HALF answer 13 hours early so that rank 3 and the combination can be built
+before the reset, `sb_half.py` is ready to dispatch now.
+
+Ledger lines to add at dispatch (lane MoE short-load bench, check `okc check muse_moe_w4a16 <file> --no-wait --json`):
+
+- MOE-SB-HALF-01: file `muse_moe_w4a16/cand/sb_half.py`, SHA256 560a07da...; hypothesis: HALF without staging hides the
+  1.7-1.8 us doneA wait at T = 1 and T = 8 with the unit loop at the release's rate; gate as registered above.
+- MOE-SB-BCLM-01: file `muse_moe_w4a16/cand/sb_bclm2.py`, SHA256 57751b94...; hypothesis: claiming the last
+  min(2G, nB - 4G) phase B units at run time cuts the T = 8 end spread and the kernel by about 1.3 us; gate as above.

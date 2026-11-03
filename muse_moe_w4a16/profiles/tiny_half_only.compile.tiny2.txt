@@ -1,0 +1,45 @@
+nvcc exit 0 key tiny2 flags -DOKC_NW=8 -DOKC_TINY=1 -DOKC_CPF=0 -DOKC_EPI4=0 -DOKC_FAST1=2 -DOKC_NACC=4 -DOKC_UWARP=0 -DOKC_WS=1 -DOKC_WSB=1 -DOKC_WSBL=2 -DOKC_WSBLK=1 -DOKC_FINPF=1 -DOKC_HALF=1 -DOKC_NS=3 -DOKC_FNST=4 -DOKC_NSF=3 -DOKC_DQ7=1 -DOKC_PRMTSC=1
+/w/device.cu(1652): warning #177-D: variable "ce" was declared but never referenced
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+/w/device.cu(136): warning #177-D: variable "okc::UB_A" was declared but never referenced
+/w/device.cu(136): warning #177-D: variable "okc::UB_B" was declared but never referenced
+/w/device.cu(139): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+/w/device.cu(145): warning #177-D: variable "okc::XP_SK" was declared but never referenced
+/w/device.cu(147): warning #177-D: variable "okc::XP_FT" was declared but never referenced
+/w/device.cu(148): warning #177-D: variable "okc::NST" was declared but never referenced
+/w/device.cu(551): warning #177-D: variable "okc::X1P" was declared but never referenced
+/w/device.cu(952): warning #177-D: variable "okc::NSF" was declared but never referenced
+Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+Used 147 registers, used 3 barriers
+Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+Used 147 registers, used 3 barriers
+{
+ "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+  "ATOMG": 9,
+  "BAR": 12,
+  "CS2R": 55,
+  "ERRBAR": 4,
+  "FENCE": 4,
+  "MEMBAR": 11,
+  "S2R": 23,
+  "S2UR": 37,
+  "SYNCS": 47,
+  "UBLKCP": 11,
+  "instr": 5644
+ },
+ "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+  "ATOMG": 9,
+  "BAR": 12,
+  "CS2R": 55,
+  "ERRBAR": 4,
+  "FENCE": 4,
+  "MEMBAR": 11,
+  "S2R": 23,
+  "S2UR": 37,
+  "SYNCS": 47,
+  "UBLKCP": 11,
+  "instr": 5644
+ }
+}
