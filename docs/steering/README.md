@@ -4,11 +4,15 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 16:26 UTC](2026-11-03-driver-monitor-1626.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 17:33 UTC](2026-11-03-driver-monitor-1733.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
+
+## November 3 17:33 UTC public T8 selection review
+
+[Current monitor](2026-11-03-driver-monitor-1733.md): board verifies publicf931**10374.616018us/2.18035x,rank364**. **Public prepare enabled all six T8edges includingattn/o; private4a737qualifiedonlyfour.** Implemented drift gate passed,but the original T8hardoff/sourcefix condition is not reconciled for this actual selection. Existing release owner has one explicit mask/sourceproof/authority/repeatbase decision;root has not withdrawn,submitted,changed helpers or claimed direct delivery. C2is now a verified scoped loss;attention default SASS/caches match but registered output-bitwise clause missed. New M1reserve source pass completed with a semantic/costgap. [Central release review](../releases/promotion-queue.json).
 
 ## November 3 16:26 UTC source-only reserve
 
@@ -51,6 +55,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 [Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.
 
 ## Audits and monitors, November 2 to 3
+
+[Driver monitor17:33UTC](2026-11-03-driver-monitor-1733.md): new public score,actual T8dispatch/scope mismatch,certification limits,new round2allocation and completed M1reserve.
 
 [Driver monitor16:26UTC](2026-11-03-driver-monitor-1626.md): final-selector correction,new M1reserve qualification,existing BCLM/PDL ownership and fresh release guard.
 

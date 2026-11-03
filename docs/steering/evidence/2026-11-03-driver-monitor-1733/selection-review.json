@@ -1,0 +1,77 @@
+{
+  "public_job": "f931abf568544018",
+  "private_job": "4a737387f88b4d7d",
+  "artifact": "muse_decode_layer/cand/g1b4_pdl8d.py",
+  "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
+  "source_bytes": 907644,
+  "public_receipt": "muse_decode_layer/cand/profiles/g1b4_pdl8d.f931abf568544018.json",
+  "private_receipt": "muse_decode_layer/cand/profiles/g1b4_pdl8d.4a737387f88b4d7d.json",
+  "public_summary": {
+    "error": null,
+    "passed": true,
+    "score_us": 10374.616018194523,
+    "speedup": 2.180350574934972,
+    "speedup_ci": [
+      2.1476453163109475,
+      2.2130558335589963
+    ],
+    "status": "ok",
+    "tests": 13,
+    "tests_passed": 13
+  },
+  "private_summary": {
+    "error": null,
+    "passed": true,
+    "score_us": 10443.85234300183,
+    "speedup": 2.165896190131155,
+    "speedup_ci": [
+      2.1334077472791875,
+      2.198384632983122
+    ],
+    "status": "ok",
+    "tests": 13,
+    "tests_passed": 13
+  },
+  "private_T8_edges": [
+    "b1",
+    "pool",
+    "route",
+    "fin"
+  ],
+  "public_T8_edges": [
+    "attn",
+    "o",
+    "b1",
+    "pool",
+    "route",
+    "fin"
+  ],
+  "public_off_and_on_drift_equal": {
+    "full": [
+      0.00466,
+      0.004,
+      0
+    ],
+    "sliding": [
+      0.0126,
+      0.00956,
+      0
+    ]
+  },
+  "public_log": "muse_decode_layer/cand/profiles/g1b4_pdl8d.f931abf568544018.log",
+  "public_log_lines": [
+    14,
+    28
+  ],
+  "source_selector_lines": [
+    17692,
+    17749
+  ],
+  "source_rule": "stress full with all edges first; if within max(1e-4,own-off-drift),choose all; store positive-saving chosen set in prepared state",
+  "implemented_relative_drift_gate_passed": true,
+  "observed_incorrect_output_failure": false,
+  "source_level_attention_edge_cause_fixed": null,
+  "source_level_attention_edge_cause_status": "Not established; new PDL round2 explicitly investigates it. No observed failure is inferred from this metadata field.",
+  "approval_condition": "User02:58Pacific: best clean PDL layer after private score/stress;T8hardoff unless race fixed at source. Lead interpreted pdld as drift-carrying attn/o remainingoff. Actual public selected them on.",
+  "decision": "Eligibility/scope reconciliation open for actual six-edge public selection; score/test PASS does not settle this. Existing release owner must reconcile before treating it as the privately qualified four-edge configuration or blindly repeating it."
+}

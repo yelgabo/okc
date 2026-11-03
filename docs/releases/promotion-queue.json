@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-03T11:25:53.134709+00:00",
+  "observed_at": "2026-11-03T17:42:30.044010+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -458,6 +458,42 @@
       "public_board_verified": true,
       "public_score_us": 10419.876725867654,
       "public_rank_at_observation": 369
+    },
+    {
+      "job": "f931abf568544018",
+      "problem": "muse_decode_layer",
+      "score_us": 10374.616018194523,
+      "owner": "Existing layer PDL release owner / final-day lead",
+      "judged_arm": "single-arm public pdld;prepared T8attn+o+b1+pool+route+fin;other enabledT1/T16/T32",
+      "source_identity": "muse_decode_layer/cand/g1b4_pdl8d.py;canonical Git SHA256 7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904;907644B",
+      "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
+      "artifact": "muse_decode_layer/cand/g1b4_pdl8d.py",
+      "release_state": "public-posted-selection-scope-review-open",
+      "reason": "Board/own CLI receipt verifies new public10374.616018us/2.180350575x,rank364. Same source private4a737 selected T8four edges excludingattn/o; public selectedall6 under a different own-off-drift baseline. Relative gate/testspass, but unresolved attention-edge cause and original T8hardoff/sourcefix condition are not reconciled for six-edge selection. No observed output failure or intent is inferred. Existing owner must reconcile actual mask/sourceproof/repeatbase;root does not withdraw or submit.",
+      "evidence": "muse_decode_layer/cand/profiles/g1b4_pdl8d.f931abf568544018.json",
+      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-1733.md",
+      "public_submission_approved": true,
+      "public_submission_condition_satisfied": null,
+      "public_submission_approval_scope": "Historical02:58Pacific conditional best clean PDL authority; actual six-edge T8 selection requires reconciliation, not inferred blanket approval.",
+      "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
+      "release_review_required": true,
+      "public_board_verified": true,
+      "private_qualification_job": "4a737387f88b4d7d",
+      "private_prepared_T8_edges": [
+        "b1",
+        "pool",
+        "route",
+        "fin"
+      ],
+      "public_prepared_T8_edges": [
+        "attn",
+        "o",
+        "b1",
+        "pool",
+        "route",
+        "fin"
+      ],
+      "review_evidence": "docs/steering/evidence/2026-11-03-driver-monitor-1733/selection-review.json"
     }
   ]
 }
