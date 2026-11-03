@@ -6,3 +6,4 @@ docs/steering/evidence/2026-11-02-moe-bqueue/profiles/paired.e044121f822d47b1.tx
 docs/steering/evidence/2026-11-02-moe-release/profiles/*.txt -whitespace
 docs/steering/evidence/2026-11-02-moe-public/profiles/*.txt -whitespace
 docs/steering/evidence/2026-11-02-moe-pairlut/profiles/*.txt -whitespace
+docs/steering/evidence/2026-11-02-moe-direct-input/profiles/*.txt -whitespace

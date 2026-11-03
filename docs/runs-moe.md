@@ -5507,3 +5507,7 @@ Performance rejects the exact treatment:0/6bank/distribution groups, all18affect
 
 
 Stop exact pair lookup, retain public5df257af. No follow-on/rescue/public action. [All six official loads, complete matched rows and stop](steering/2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup). Next source qualification is direct phase-A input staging, a distinct work-elimination design.
+
+## November2 MOE-DIRECT-X-01 terminal loss
+
+Own94c57451574c4cd3/paired1191e44c/nativec705df6a, publishedf1955498, PASS5/6/6 andall54private cases. Complete378observations/216captures/1152timings/54restores; prepare272.829260s. All6matched groups fail,24whole-six factors0.755196–0.803711,18affected regressions,one unchangedT16/skewed drift. Official7194.998534us/1.869145621x CI[1.841108436,1.897182805]. Retain global gather/public5df257af; stop exact direct input without mapping/cache/ring sweep, retry, mask, integration or public action. Waiter38355ended0. [Full six loads, evidence and next lossless output-storage preparation](steering/2026-11-02-moe-direct-input.md#terminal-decision-retain-global-gather).

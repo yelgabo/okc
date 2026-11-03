@@ -41,3 +41,22 @@ The frozen runtime verifies all7registered compiler requests, four independent s
 ## Accepted private screen
 
 Own94c57451574c4cd3 accepted for frozen1191e44c/350697bytes, publishedf1955498. Fresh shared list hadzero live jobs; MoE checks11left before this dispatch. Accepted source/job association is archived. Follow only this ID with one foreground waiter. No target result yet.
+
+## Terminal decision, retain global gather
+
+Own94c57451574c4cd3 passed5official tests/6benchmarks/6profiles, all54private cases/378observations/216captures/1152cold timings/54restores and cleanup. Exact7build/table-owner/source pins pass the strict reader. Prepare272.829260s; worst global/row error0.000135036/0.000206546 within unchanged0.015/0.075limits. Solewaiter38355ended0 before archive.
+
+Performance fails0/6groups,24complete-six factors0.755195813–0.803710954 and all18affected regressionrows. T16/skewed/1102031also breaches unchanged-path drift. This drift limits precise attribution; it does not erase the large frozen rejection. Official candidate2 score7194.998534us/1.869145621x CI[1.841108436,1.897182805]. This is not a release lead or a reason to replace the public5788.720720us source.
+
+| Tokens | Official adjusted us |
+|---|---:|
+|1|25.431312|
+|16|96.453180|
+|32|146.644775|
+|8|64.959878|
+|128|310.721120|
+|256|407.752651|
+
+[Owning receipt](evidence/2026-11-02-moe-direct-input/status-wait.raw.json), [strict36-row analysis](evidence/2026-11-02-moe-direct-input/analysis.json), [summary](evidence/2026-11-02-moe-direct-input/summary.json), [complete profiles](evidence/2026-11-02-moe-direct-input/profiles). Stop this exact implementation. No mapping/cache/ring sweep, retry, shape mask, integration or public action. The result does not isolate producer instruction, scattered traffic or synchronization cost, nor establish a family ceiling.
+
+Next bounded source preparation is lossless factorized expert-output storage. Store the required BF16 down result and reconstruct the identical FP32 gamma product before the unchanged norm/combine operations. This is distinct from folding gamma into W2 or rounding the post-gamma product. Mathematical/store-layout/fallback proof and compiled-source qualification precede any new private check.
