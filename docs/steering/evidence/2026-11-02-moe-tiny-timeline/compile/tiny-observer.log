@@ -1,0 +1,63 @@
+
+==========
+== CUDA ==
+==========
+
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.
+   Use the NVIDIA Container Toolkit to start this container with GPU support; see
+   https://docs.nvidia.com/datacenter/cloud-native/ .
+
+tr: misaligned [:upper:] and/or [:lower:] construct
+/w/observer.cu(1497): warning #177-D: variable "ce" was declared but never referenced
+      const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
+                                             ^
+          detected during:
+            instantiation of "void okc::run_phase<PB,BIG>(const okc::Params &, okc::Smem &, __nv_bfloat16 *) [with PB=false, BIG=false]" at line 2425
+            instantiation of "void okc::moe_fused<BIG>(okc::Params) [with BIG=false]" at line 2624
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/w/observer.cu(139): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;
+                ^
+
+/w/observer.cu(145): warning #177-D: variable "okc::XP_SK" was declared but never referenced
+  constexpr int XP_SK = HD + 8;
+                ^
+
+/w/observer.cu(147): warning #177-D: variable "okc::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;
+                ^
+
+/w/observer.cu(148): warning #177-D: variable "okc::NST" was declared but never referenced
+  constexpr int NST = 3;
+                ^
+
+/w/observer.cu(532): warning #177-D: variable "okc::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;
+                ^
+
+/w/observer.cu(933): warning #177-D: variable "okc::NSF" was declared but never referenced
+  constexpr int NSF = 3;
+                ^
+
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 147 registers, used 3 barriers
+ptxas info    : Compile time = 337.827 ms
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 147 registers, used 3 barriers
+ptxas info    : Compile time = 562.572 ms

@@ -1,6 +1,6 @@
 # Prepared gamma with factorized output storage
 
-November2,2026 Pacific. MOE-PARAM-Y-01 is the next complete alternative after own factorized-storage job7479372115c64702 failed its matched gate. Its lower5698.508243us point remains disclosed. No new GPU job is dispatched. This design does not require storage alone to win.
+November2,2026 Pacific. MOE-PARAM-Y-01 is a prepared, target-untested complete alternative after own factorized-storage job7479372115c64702 failed its matched gate. Its lower5698.508243us point remains disclosed. No new GPU job is dispatched. This design does not require storage alone to win.
 
 ## New source evidence and coupled design
 
@@ -23,3 +23,7 @@ Prove prepared gamma equals the old BF16 effective parameter over finite BF16 in
 One complete private screen only after the accepted job's decision, qualified exact source publication and fresh shared-job/quota coordination. General's separate accepted7f10243c98e74746 remains its own job. No polling or duplicate posting of that ID. Use three fixed fresh normal/skewed banks,54cases/36timed rows,378observations,216captures,1152cold replays and54restores, with independent duplicate owners. Preparation stays295s and partial evidence stays failed. Keep the every-bank/allfour-cross1.01/twice-null/all-load/no-regression/no-drift gates. A successful screen needs held-out confirmation before integration or another public request.
 
 Any source-policy, exactness, ownership, ordering/progress/lifetime, numerical, guard, source/record/coverage/budget, drift, regression or benefit failure stops this exact combined design. No larger guard, parameter/layout sweep, post-gamma rounding fallback, favorable mask or blind repeat. A source-correct build precedes speed qualification; no ingredient must win separately. Public permission remains limited to the already submitted5df257af. No GPU result or integration is claimed here.
+
+## Final-day priority deferral
+
+Origin/main776f8857 directs all new engineering and checks to short loads. Park this B4/MAIN design without a GPU dispatch. Paired8ec6ee0693e9c18f70ed517c5e97ddf7061a8b576e362b6855d95c3e8992319e/350452bytes, native0b864c8ed578baaad19035e323193e8a5dbe026cab0bdba16ae7b9ccb3d1f54e. Eight CPU/source/host/reader tests pass. The actual native reader CPU witness covers2088960products and8192paired loads; an injected post-gamma round fails. Both candidate CUDA12.8.1 SM90a device builds pass locally, with exact prior control builds retained. These checks establish no H200 speedup. Source generation remains reproducible through tools/moe_param_y_harness.py; qualification records are in evidence/2026-11-02-moe-param-y. No independent review was available. New next action is the assigned Tiny/Tiny2 timeline, not this deferred dispatch.
