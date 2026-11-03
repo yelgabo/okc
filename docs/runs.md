@@ -2595,3 +2595,78 @@ cells (o 1 / 8 rdo8n, pooler 1 / 8 rdp8n, router 1 rgemvn, qkv 8 qkv8n, slice 8 
 rt16w8n) and no warm or XMC twin; no cell beats the public receipt by more than the 0.5 to 0.8 us cross-run noise
 (largest gains router verify 32 -1.15 on an unchanged wd pick, qkv_gate decode 1 -0.53 on unchanged cgemv), so no
 arm wins on the judge. Lane stopped after 1 of 4 checks; the production file is unchanged.
+
+## 2026-11-03 way 4: register-A wgmma (ra) at pooler m = 128 (branch worktree-agent-afc824c826a59610f)
+
+Brief: docs/steering/2026-11-03-bf16-proj-approaches.md, way 4. Budget: 4 checks of muse_bf16_proj today.
+
+Design (`muse_bf16_proj/experiments/ra_wgmma.py`, `ra_kernel`): 128 weight rows per CTA (two consumer
+warpgroups of 64 rows, one m64n128k16 accumulator each, 64 FP32 registers per thread) and a 128-token x
+tile over one K slice, K split over a CLK-CTA cluster (pooler CLK 4, unpooler CLK 2; 128 CTAs, one wave),
+plus one producer warp. Each consumer warp reads its 16 rows' 12-bit rd units straight into registers
+(PF units ahead), decodes them with `decode8` and patches escapes by XOR as rd_kernel does; the decoded
+`av[4]` per k16 step is passed as the wgmma register-A fragment (`wgmma.mma_async ... {a0..a3}, desc_b, p,
+1, 1, 0`, syntax from CUTLASS `SM90_64x128x16_F32BF16BF16_RS`; layout = CUTLASS `ALayout_64x16`, which is
+the mma.m16n8k16 A layout per warp). Weights never touch shared memory. x is the B operand from a 6-stage
+TMA ring of wd's 128B-swizzled {64 k, 128 token} boxes (16 KB each). Two A register sets alternate so unit
+s decodes while unit s - 1's wgmma group runs (wait_group 1). Partials go through wd's pull reduction (part
+over the ring, cluster barrier, rank r sums its 128 / CLK tokens from every rank in rank order, BF16 out).
+rd's lane layout holds k 16a + 4b + c at step b; the stream is rd_pack of W with columns permuted inside
+each 64-k block (`ra_perm`) so those slots carry the natural k 16b + 2a + (0, 1, 8, 9)[c] that the
+shared-memory B operand uses. `tools/proj_ra_emulate.py` decodes the stream on the CPU exactly as the
+kernel does and finds every weight's bits at its A position (0 mismatches with escapes; the identity
+permutation gives 61,385 of 65,536 mismatches, so the check can fail).
+
+Compile (local nvcc 12.8 sm_90a via tools/compile_check.sh, `__maxnreg__(224)`): rap (PF 2) 180
+registers, rap3 (PF 3) 192, rau 180, ablations a1 154 / a2 36 / a3 36 / a4 122; no spills, no wgmma
+serialization warning. With `__launch_bounds__(288, 1)` ptxas capped them at 168 and spilled 20-96 B.
+
+Registered before dispatch: arms ctrl = the cuBLASLt pooler m = 128 pick (LT_PREF), rap, rap3, and the
+ablations a1 decode off (raw words as A), a2 wgmma off, a3 both off (memory pipeline only), a4 weights off
+(x ring and wgmma on A = 0); 9 rounds x 3 reps of cold-L2 graph replay, order rotating (`_time_rounds`);
+unpooler m = 128 rau against its Lt pick in the same check. rap / rap3 / rau self-test at m = 65 / 100 /
+128 against FP64 with probe rows and are offered to the ltune stable pick, which ships them only if they
+beat the Lt pin by its margin. Stop rule (brief): if rap is not within 2 us of ctrl and a1 + a2 is much
+larger than rap (no overlap headroom), log the loss and stop.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 11-03 | 415b2ebb5c604af1 | check (bench ra 1) | 95123f6f (SHA256 a487f6e1) | ra at pooler / unpooler m = 128 with ablations, offered to the ltune pick | 1.518x (1.495-1.540) | rap / rap3 / rau failed to launch (cudaErrorLaunchOutOfResources at 180 / 192 registers x 288 threads), so the judged path is the incumbent; ablations ran, diag 0 |
+
+Check 1 bench (in-process us, cold L2, 9 rounds x 3 reps, includes the ~4 us replay cost; d = median
+paired delta against ctrl / rounds faster): ctrl (Lt pin) 24.58; a1 weights + wgmma, no decode 53.76
+(+29.12, 0/9); a2 weights + decode, no wgmma 16.03 (-8.58, 9/9); a3 memory only 15.68 (-8.93, 9/9);
+a4 x ring + wgmma on A = 0 31.65 (+7.20, 0/9). `cudaOccupancyMaxActiveClusters` for the pooler
+launch: 30 clusters of 4 resident against 32 in the grid, so every pooler arm ran a second partial wave
+(measured; the P3 entry above listed this as untested). The memory pipeline is near the HBM bound:
+11.68 us after the replay cost for 50.3 MB of 12-bit weights = 4.31 TB/s (floor 10.49 at 4.8 TB/s),
+against P3's 2.2 TB/s; decode adds 0.35 us on top. The wgmma side is the cost: wgmma alone (a4) is
+7.2 us over the whole Lt GEMM, and with weight loads in flight (a1) 29 us over it. SASS (local, nvcc
+12.8) shows four chained `HGMMA.64x128x16.F32.BF16` from registers per unit, `gsb0` on the last and
+`WARPGROUP.DEPBAR.LE gsb0, 0x1`, with no extra waits inserted. The launch failure: the CTA's register
+allocation rounds 288 threads to 384, so 168 is the cap that ptxas chose under `__launch_bounds__(288, 1)`.
+
+Check 2 (registered): `__launch_bounds__(288, 1)` restored (168 registers, 20-byte spill); pooler rap,
+rap_a3, rap_a4 (two waves) and unpooler rau with a1-a4 (64 clusters of 2, one wave if the occupancy
+call confirms it), each against its Lt pin. Same stop rule: rau must come within 2 us of the unpooler
+ctrl; if rau_a4 alone is still above ctrl, the register-A wgmma path loses in one wave too, and the lane stops.
+| 11-03 | 63c0ecaf94114524 | check (bench ra 2) | 73cefcb4 (SHA256 50001b8b) | 168-register ra; pooler rap with a3 / a4, unpooler rau with a1-a4 | 1.521x (1.498-1.544) | all launched, diag 0; ltune rejected rap (-29.15 vs pin) and rau (-10.27); judged pooler m = 128 20.6 us on Lt f1, unpooler 19.3 on the pin |
+
+Check 2 bench (in-process us, as above): pooler ctrl 24.64; rap 53.86 (+29.34, 0/9); rap_a3 15.49
+(-9.18; 11.49 net = 4.38 TB/s); rap_a4 31.39 (+6.82); 30 of 32 clusters of 4 resident again. Unpooler,
+one wave (66 clusters of 2 resident for 64): ctrl 23.10; rau 33.15 (+9.76, 0/9); a1 decode off 30.59
+(+7.39); a2 wgmma off 13.28 (-9.82); a3 memory only 13.31 (-9.79; 9.31 net, which would be 5.41 TB/s,
+above the HBM peak, so either part of the stream survives the flush in L2 or the replay cost here is
+under 4 us); a4 wgmma on the x ring with zero A 18.62 (-4.42; 14.6 net).
+
+What it shows (measured): in one wave, the weight stream and decode reach the byte floor (a2 = a3), and
+wgmma alone on the x ring takes 14.6 us net, about 60% of tensor peak for 8.6 GFLOP. With both, the
+kernel takes 26.6 us net (decode off) and 29.2 (full), more than the 23.9 sum of its parts, so the two
+do not overlap. The pooler's two waves (30 of 32 clusters of 4) double its wgmma-bound time.
+Hypotheses (not tested): the loads for unit s + PF are issued by the same warps after each wait_group 1,
+so the in-flight weight bytes per SM (8 warps x PF 2 x 1.5 KB) shrink whenever the tensor pipe stalls
+the issue, and the 168-register cap blocks a deeper PF.
+
+Decision: the stop rule fired (rau +9.8 us; decode-off plus wgmma-off 43.9 against rau 33.2). Two of the
+four checks used; no geometry sweep. Logged in docs/ruled-out.md with its reopen condition. The
+incumbent is unchanged; the bench file keeps ra for the reopen.
