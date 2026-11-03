@@ -4351,3 +4351,54 @@ unless g9 beats g6 by 3 us or more, which makes a bulk-copy producer the candida
 5 us under ctrl means the consumer side costs that much and the candidate cuts consumer work per
 tile. g8 - g6 prices the randomness of the rows (the layout is fixed by the problem); g7 - g8
 prices compute at the streaming rate.
+
+### Result: f2f2abad10f943f3, the random 128-byte gather sets mode 49's pace
+
+| date | job | source | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-11-03 | f2f2abad10f943f3 (check) | 02d78484 | `.build/q1g/q1gather.py` (SHA256 68db9c5a, `tools/attn_make_q1_gather.py`) | 2.526x (CI 2.488-2.564), judged path = control, 16/16 tests, checks.ok, no flags | diagnostic; ABCHECKSUM ctrl / ctrlb 2/0, probes marked PROBE; every arm 58,960 bytes, 2 CTAs per SM, 264 resident |
+
+Receipt `profiles/q1gather.f2f2abad10f943f3.{json,log,txt}`. Cold medians pooled over two held-out
+inputs (us; warm in brackets), arm - ctrl:
+
+| arm | what it keeps | d16 full | d32 full |
+|---|---|---:|---:|
+| ctrl | everything | 100.90 [87.87] | 179.42 [167.09] |
+| ctrlb (null) | same code, own build and state | -0.10 [-0.08] | +0.22 [-0.07] |
+| g6_probe | page-table gather, no compute | -2.56 [-2.01] | -3.49 [-3.22] |
+| g8_probe | sequential rows, no compute | -9.18 [-8.09] | -17.09 [-17.20] |
+| g7_probe | sequential rows, compute | -7.10 [-6.12] | -13.82 [-13.77] |
+| nc_probe | compute, no cache reads | -25.02 [-16.83] | -41.76 [-34.30] |
+| g9_probe | one cp.async.bulk per row, no compute | +9.79 [+12.11] | +21.25 [+22.87] |
+
+Per-input rows agree within 0.6 us for every arm (ABCOLD in=0 / in=1).
+
+Attribution of the distance to the byte floor (judged 85.05 / 162.55 us, floor 63.2 / 126.4):
+- The gather. With the consumers doing no work at all, the page-table gather alone runs within
+  2.6 / 3.5 us of the full kernel (g6). The random 128-byte rows themselves cost 6.6 / 13.6 us over
+  reading the same number of sequential rows with the same producer (g8 - g6), and the layout is
+  fixed by the problem. Even sequential rows with this producer stay well above the floor, so the
+  16-byte `cp.async` gather with three 16 KB stages per CTA is close to the memory system's limit for
+  this access pattern. The steady-state rate is the gap; the judged cells' marginal rate is
+  3.91 TB/s (d32 - d16).
+- Compute. The consumer stream alone (nc) is 75 / 77% of the control, and taking it away saves
+  only 2.6 / 3.5 us (g6): compute is hidden behind the gather apart from that. At the streaming
+  rate it costs 2.1 / 3.3 us (g7 - g8).
+- Producer issue. Replacing the eight 16-byte copies of a row with one 128-byte bulk copy is
+  9.8 / 21.3 us slower (g9): per-row TMA issue is worse than `cp.async`, so the bulk copy is not a
+  fix (ruled-out row). Page-entry refill was already null (PE16, c8e99e038d9f4575).
+- Prologue and tail (from the 10-30 stamps of bce37d22a0ec4045 on the same mode 49 structure): first
+  tile 4.4 us after the start (the first fill of 264 x 3 x 16 KB at the gather rate), tail after
+  the last loop 1.3 / 2.4 us median / max, loop end median to max 3.9 / 6.8 us, SM pair gap
+  3.1 / 6.2 us. The intercept of the judged cells is about 7.5 us.
+
+Decision under the registered rule: g6 is within 3 us of ctrl at d16 and 3.5 us at d32, so the
+gather sets the pace; g9 is slower, so no bulk-copy candidate. What is left to recover is the
+compute overlap (at most 2.6 / 3.5 us) and the end spread (at most about 4 / 7 us with perfect
+balancing, before any cost of rebalancing). Neither alone reaches the brief's 4 us on decode 16
+full, and both together need a run-time key-stealing scheme across CTAs (chunks from a global
+counter, merged through the existing fixed-frame red.add path, the counter reset after the
+cooperative barrier) whose extra merges and ring breaks at chunk boundaries eat into the same few
+microseconds. No candidate check is dispatched from this lane; three of its four checks are
+returned. If the q_len 8 lane's pair split (ONE_PSTEAL, mode 51) wins, its mechanism is the one to
+port to mode 49, sized against the 3.1 / 6.2 us pair gap above.
