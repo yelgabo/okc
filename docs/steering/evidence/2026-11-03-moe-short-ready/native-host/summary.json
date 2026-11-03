@@ -1,0 +1,19 @@
+{
+  "native_wait_sha256": "4debb40bf07c6106aa8e2160519575502923a527e2bfb83917f2fbd879a1daae",
+  "cpu_warp_model": true,
+  "gpu": false,
+  "cases": [
+    {
+      "case": "actual",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_sha256": "680f01ffc473df9855e7d7a681ce05b3612f26f10e976004e0f722cbca1f0a18"
+    },
+    {
+      "case": "injected-missing-contributor",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "source_sha256": "a5d1eacdafef8e02e6a77db4e6af7ef5ff9b593ecf65d25fc6d0f295576cce08"
+    }
+  ]
+}

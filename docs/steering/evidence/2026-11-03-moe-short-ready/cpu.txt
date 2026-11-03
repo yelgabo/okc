@@ -1,0 +1,31 @@
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.8.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.
+   Use the NVIDIA Container Toolkit to start this container with GPU support; see
+   https://docs.nvidia.com/datacenter/cloud-native/ .
+
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_all_contributor_intervals_and_adversarial_publication (test_moe_short_ready.ShortReady.test_all_contributor_intervals_and_adversarial_publication) ... ok
+test_complete_host_selected_calls_graph_updates_and_reset (test_moe_short_ready.ShortReady.test_complete_host_selected_calls_graph_updates_and_reset) ... ok
+test_exact_selected_source_reverse_fences_and_reserved_layout (test_moe_short_ready.ShortReady.test_exact_selected_source_reverse_fences_and_reserved_layout) ... ok
+test_reader_requires_own_source_and_complete_frozen_short_gate (test_moe_short_ready.ShortReady.test_reader_requires_own_source_and_complete_frozen_short_gate) ... ok
+test_wrong_output_stale_flags_and_cleanup_remain_failed (test_moe_short_ready.ShortReady.test_wrong_output_stale_flags_and_cleanup_remain_failed) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 25.985s
+
+OK

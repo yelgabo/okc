@@ -1,0 +1,42 @@
+{
+  "tiny": {
+    "resources": [
+      "ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+      "    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas info    : Used 154 registers, used 3 barriers",
+      "ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+      "    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas info    : Used 154 registers, used 3 barriers"
+    ],
+    "gpu_stores": [
+      "/*12af0*/                   STG.E.STRONG.GPU desc[UR10][R6.64+0x200], R13 ;                     /* 0x0002000d06007986 */",
+      "/*12af0*/                   STG.E.STRONG.GPU desc[UR10][R6.64+0x200], R13 ;                     /* 0x0002000d06007986 */"
+    ],
+    "acquire_load_count": 98,
+    "vote_count": 34,
+    "final_acqrel_rmw_count": 2,
+    "control_final_acqrel_rmw_count": 2,
+    "proxy_fences": 8,
+    "control_proxy_fences": 8
+  },
+  "tiny2": {
+    "resources": [
+      "ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+      "    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas info    : Used 154 registers, used 3 barriers",
+      "ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+      "    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads",
+      "ptxas info    : Used 154 registers, used 3 barriers"
+    ],
+    "gpu_stores": [
+      "/*12d60*/                   STG.E.STRONG.GPU desc[UR10][R6.64+0x200], R13 ;                     /* 0x0002000d06007986 */",
+      "/*12d60*/                   STG.E.STRONG.GPU desc[UR10][R6.64+0x200], R13 ;                     /* 0x0002000d06007986 */"
+    ],
+    "acquire_load_count": 98,
+    "vote_count": 34,
+    "final_acqrel_rmw_count": 2,
+    "control_final_acqrel_rmw_count": 2,
+    "proxy_fences": 8,
+    "control_proxy_fences": 8
+  }
+}

@@ -37,6 +37,8 @@ def short_decision(rows):
             groups.append(dict(bank=seed,dist=dist,factors=[math.exp(x) for x in logs],
                                duplicate_log_null=null,resolved=all(x>2*null for x in logs)))
     qualifying=[t for t,items in savings.items() if all(x['resolved'] for x in items)]
-    return dict(passed=bool(qualifying) and not regressions and not drift and all(g['resolved'] for g in groups),
+    result=dict(passed=bool(qualifying) and not regressions and not drift and all(g['resolved'] for g in groups),
                 qualifying_tokens=qualifying,savings=savings,groups=groups,
                 affected_regressions=regressions,unchanged_drift=drift)
+    result['component_pass']=result['passed']
+    return result
