@@ -1,0 +1,74 @@
+{
+  "observed_utc": "2026-11-03T02:14:53.481498+00:00",
+  "evidence_commit": "bc6c7a2f9b517352ba7840f4381ca7ffbed6569d",
+  "commands": {
+    "quota": [
+      "problems",
+      "--json"
+    ],
+    "jobs": [
+      "jobs",
+      "--json"
+    ],
+    "overall": [
+      "leaderboard",
+      "--json"
+    ],
+    "layer": [
+      "leaderboard",
+      "muse_decode_layer",
+      "--json"
+    ]
+  },
+  "limits": {
+    "muse_moe_w4a16": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 3,
+        "left": 17
+      }
+    },
+    "muse_decode_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 4,
+        "left": 16
+      }
+    }
+  },
+  "live_jobs": [],
+  "overall": {
+    "rank": 383,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 382
+  },
+  "layer": {
+    "rank": 383,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 382,
+    "to_first": 1.1713
+  },
+  "layer100": {
+    "attempts": 39,
+    "job": "25aa6742f4004602",
+    "rank": 100,
+    "speedup": 2.2713,
+    "submitted_at": 1793659565.2762632,
+    "team": "keell0renz",
+    "value": 9959.084930650843
+  },
+  "scope": "Derived shared CLI snapshots; no per-job status polling or dispatch."
+}

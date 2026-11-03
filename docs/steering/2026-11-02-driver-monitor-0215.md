@@ -1,0 +1,33 @@
+# Hourly monitor: routing block localized; no new runtime winner
+
+November2 Pacific / November3,2026,02:15UTC. Evidence **bc6c7a2f9b517352ba7840f4381ca7ffbed6569d**; current instructions, steering index, D32 ledger, standing hotspot goal and subsequent receipts reconciled. This monitor records outcomes and current ownership, not another kernel assignment, diagnostic allocation or approval gate. No GPU job or other-owner status poll was issued.
+
+## Attention confirmation remains blocked before timing
+
+Corrected matched **62a4f6b27ed74b50**, frozenf397bca8/929019LF, failed setup112 with EXPERT_FRESH_ROUTING_MISMATCH. Follow-up diagnostic **5909739e8a4445b2**, source9e5e5d64/929890LF, also failed setup112. Each has one failed setup record, **zero official tests/benchmarks/profiles and no matched report/score**. Native expert56replay startup passed; that is not an attention confirmation. Owning receipt blobs/hashes are [verified here](evidence/2026-11-02-driver-monitor-0215/receipt-verification.json).
+
+The diagnostic localizes D32sliding,seed1102031,freshreplay7,row6,placement3 versus0. Original ordered IDs are216,156,94,93,153,49,144,221; differing IDs216,156,94,153,93,49,144,221. Experts93/153 swap zero-based slots3/4; the set is unchanged. **Captured attention selection is false on this sliding workload.** A treatment-bound owner does not establish treatment execution. This does not identify a lookahead numerical failure, prove equal weights/logits/outputs, or establish a particular upstream/ownership defect.
+
+The [owner's existing next action](decode32/2026-11-02-14-routing-order-diagnostic.md) is appropriately discriminating: preserve the frozen candidate/control and strict route gate; retain actual selected projection/router branch, attention output, normalized router input and pool/router tensors; compare owners and the same graph's preceding replay plus caches/inputs. Exercise forwarding, lifetime and negative cases on CPU before a new pinned diagnostic. Stop at the first differing boundary or one inconclusive qualified observer. Observer timings cannot establish a speedup. **No blind full-matrix retry or set-equality relaxation.** Decode32 Worker owns this investigation directly; no Driver handoff is required.
+
+First ordinary attention17383751 remains valid/exploratory, not a confirmed gain. No D32 lookahead integration or public promotion is justified by these setup failures. The selected B4 prefix proposal also correctly closed without a GPU check: B4/MAIN already use the parallel scan; the serial literal belongs to Tiny/Tiny2/MID. Do not revive the duplicate B4 proposal.
+
+## Other matched experiments closed at their exact scope
+
+Independent read-only audit verified each component receipt's5tests/6benchmarks/6completeprofiles and clean official correctness. Matched gates, not their official SGLang-relative scores, decide treatment/control promotion.
+
+| Exact experiment | Own private job | Matched factors | Decision |
+|---|---|---|---|
+| Constant scale |3aa3885f6b734f8c|0.992411..1.004932 across24whole-six crosses|No cross meets its registered1.01gate; STOPexactcandidate|
+| Corrected scale/group |3c45788127e945c4|0.995560..1.008180 across24whole-six crosses|No cross meets its registered1.01gate; STOPexactcandidate|
+| Skinny NS4 |f0b875484960438b|0.966414..0.990167 on affectedT1/T8/T16 aggregates|RetainNS3, PARKexactNS4; unchangedT256drift caveat prevents a blanket causal interpretation|
+
+Compiler spill removal/fewer group operations did not establish a robust full-call win. These are scoped closures, not bans on all scale/scheduling/ring mechanisms. [CUDA owning report](2026-11-02-cuda-part2-experiments.md); [General owning report](2026-11-02-general-optimizer-pipeline-depth.md). No repeat confirmation or sweep is needed for these exact negatives.
+
+## Work queue, capacity and standings
+
+The newer [standing incumbent-hotspot goal](2026-11-02-incumbent-hotspot-goal.md) already supplies distinct next work: **GOPT-SHORT-02** selected-helper serial-prefix decision and **CUDA-MOE-PHASE-01** low-perturbation B4/MAIN critical-path attribution. D32 retains its upstream diagnostic. These are posted tasks; current pickup of the new tasks is not established by publication, and missing commits do not prove inactivity. No duplicate worker, task, direct wake-up or broad-search request was created here; qualified next work is already available. Wider scouting is reserved for a genuinely depleted source-qualified queue.
+
+Fresh02:14:53UTC shared snapshot: **no live jobs; layer16private/10scored; MoE17private/10scored**. Refresh before any dispatch; an empty list does not rule out a local/in-flight POST. Overall/layer **383**; public607 remains2.126082676x. Layer100cutoff is now2.2713x. No runtime/public candidate was promoted. [Snapshot commands and values](evidence/2026-11-02-driver-monitor-0215/live-summary.json).
+
+Current official page and its referenced index-hNMNI-Nr.js were checked first; assetSHAa40d07775d2797cba5e81933f905fdc858a07025a89ba78b58a27d7444c7c207 still gives **2026-11-05T00:00:00-08:00**. Campaign active, hourly monitoring retained. Existing D32/research/General/CUDA ownership and public permissions remain. The stopped captain and prior exact parked variants were not restarted.

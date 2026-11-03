@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "job": "62a4f6b27ed74b50",
+      "receipt": "docs/steering/decode32/evidence/D32-ATTN-03/status-wait.raw.json",
+      "receipt_blob": "05e4c4f9f2b5f02a07470d136f689f58972c33d7",
+      "canonical_receipt_sha256": "5ee0f5c59b2ff7394444b9dfcc1c88502cdeef440c1015eee1b195ecb3e72d29",
+      "events": 1,
+      "returncode": 112,
+      "official_tests": 0,
+      "benchmarks": 0,
+      "profiles": 0,
+      "matched_report": false
+    },
+    {
+      "job": "5909739e8a4445b2",
+      "receipt": "docs/steering/decode32/evidence/D32-ATTN-04/status-wait.raw.json",
+      "receipt_blob": "06ae0c4afc24cc246e2ea9118dfeaaea1a8b4b3b",
+      "canonical_receipt_sha256": "6e0d365c30bf977b3c6f76633721c3d6b08153412782b521f78b21fca816e3da",
+      "events": 1,
+      "returncode": 112,
+      "official_tests": 0,
+      "benchmarks": 0,
+      "profiles": 0,
+      "matched_report": false
+    }
+  ],
+  "independent_audit": "k128_terminal_audit confirmed exact order swap93/153, same set, captured selectorfalse; no diagnosis of upstream cause or kernel speed."
+}

@@ -1,5 +1,9 @@
 # Shared project steering
 
+## Monitoring snapshot: routing diagnostic terminal, next observer defined
+
+[Driver02:15UTC monitor](2026-11-02-driver-monitor-0215.md) verifies matched62a4 and diagnostic590 are setup-only failures with no timings. The diagnostic found an expert-order swap on D32sliding while the captured attention treatment was inactive; this establishes no lookahead failure or gain. Strict gate remains; the owner's next bounded upstream/tensor/replay observer is already defined. CUDA scale/group and GeneralNS4 matched trials are terminal without promotion; existing GOPT-SHORT-02/CUDA-MOE-PHASE-01 next tasks remain distinct. No new root job, duplicate task or approval gate. Fresh overall/layer383, layer16private/10scored, no live jobs; public607 unchanged.
+
 ## Standing goal: optimize incumbent hotspots and keep worker tasks flowing
 
 **[GOAL-OKC-HOTSPOT: research-owned task flow](2026-11-02-incumbent-hotspot-goal.md)** is the user's ongoing instruction. Research keeps one qualified next experiment available per worker, using the *actual selected* incumbent, verified hotspot, finite private tests, matched complete-call benefit and prior negative receipts. **[GOPT-SHORT-02](2026-11-02-general-short-prefix-task.md)** assigns General Optimizer a bounded Tiny/Tiny2/MID selected-helper serial-prefix check (B4 already has the parallel scan). **[CUDA-MOE-PHASE-01](2026-11-02-cuda-b4-phase-attribution-task.md)** assigns CUDA Optimizer a low-perturbation selected B4/MAIN A→B/tail critical-path study after its finished scale/group losses. **Decode32 Worker** retains independent ownership of its currently accepted attention routing diagnostic and subsequent D32 implementation. No interruption, duplicate GPU jobs or new public permission. When credible candidates run out, request widened, source-grounded findings from **“Monitor muse challenge disscussions”** and **“OKC CUDA research”**; shared-repo posting is not verified direct-chat delivery. The posted worker tasks are **not yet acknowledged**.
@@ -160,6 +164,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [Driver02:15UTC monitor](2026-11-02-driver-monitor-0215.md) | bc6c7a2f; own62a4/590 receipts; liveCLI | Setup-only routing block on inactive-treatment sliding path; strictgate/nextobserver, componentclosures, existingdistinctqueue; no promotion |
 | [Scout source standing and live jobs](2026-11-02-scout-source-standing-and-jobs.md) | 810d8264; authenticated jobs and boards at01:47UTC; pinned public README/LESSONS | Strongest known public archive versus actual leaders; one running skinny check, D32 setup failure and terminal CUDA comparisons |
 | [Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) | e6993059/e365d7b6; own17383751/4fe/62a4 records; freshCLI lists | Firstattentionvalid/unconfirmed; correctedretryexternalwaitcleared; ownerautonomy/duplicateguard; boards382/no publicchange |
 | [Public competition watch](2026-11-02-competition-watch.md) | e365d7b6; keell0renz 890809ce; public GitHub and social source pins | New author caveat, 36 public repository targets and active two-hour scouting watch; no independent judge finding or kernel action |
