@@ -1,0 +1,35 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.47 on 71.01 us, median paired saving 6.72, wins 9/9
+PDL8_STRESS T=1 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0), on ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=1 full: off 84.00 on 76.58 us, median paired saving 7.01, wins 9/9
+PDL8_AB T=16 sliding: off 159.71 on 154.88 us, median paired saving 4.93, wins 9/9
+PDL8_STRESS T=16 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['3.58e-03', '4.08e-03', '0.00e+00'] (int mismatches 0), on ['3.98e-03', '4.19e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift FAIL, T off
+PDL8_AB T=32 sliding: off 207.90 on 203.42 us, median paired saving 4.16, wins 9/9
+PDL8_AB T=32 full: off 372.58 on 368.19 us, median paired saving 4.06, wins 9/9
+PDL8_STRESS T=32 full: 2000 replays per arm, max rel diff to the PDL-off output off ['5.52e-03', '4.85e-03', '0.00e+00'] (int mismatches 2524), on ['5.52e-03', '5.19e-03', '0.00e+00'] (int mismatches 2728); bound 1e-04: strict FAIL, within the off arm's own drift FAIL, T off
+PDL8D_OFF T=8 full: 2000 replays, max rel diff to the PDL-off output ['4.29e-03', '4.18e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_OFF T=8 sliding: 2000 replays, max rel diff to the PDL-off output ['7.63e-03', '5.81e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_STRESS T=8 full all edges=attn+o+b1+pool+route+fin: on ['1.43e-03', '1.23e-03', '0.00e+00'] (int mismatches 0) against off ['4.29e-03', '4.18e-03', '0.00e+00']: clean (0.4 s)
+PDL8D T=8 chosen edges attn+o+b1+pool+route+fin; left serialized none
+PDL8D_OFF T=8 full repeat: ['7.14e-04', '1.18e-03', '0.00e+00'] (int mismatches 0), informational
+PDL8D_STRESS T=8 full final edges=attn+o+b1+pool+route+fin: on ['7.14e-04', '1.18e-03', '0.00e+00'] (int mismatches 0) against off ['4.29e-03', '4.18e-03', '0.00e+00']: clean (0.4 s)
+PDL8D_STRESS T=8 sliding final edges=attn+o+b1+pool+route+fin: on ['7.63e-03', '5.81e-03', '0.00e+00'] (int mismatches 0) against off ['7.63e-03', '5.81e-03', '0.00e+00']: clean (0.4 s)
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin: off 119.33 on 114.40 us, median paired saving 5.12, wins 9/9
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin: off 140.90 on 135.36 us, median paired saving 5.47, wins 9/9
+PDL8D T=8 on: final stress clean, weighted saving 5.21 us, edges attn+o+b1+pool+route+fin; stress times ['0.4', '0.4', '0.4'] s
+PDL8 weighted paired saving T=1: 6.79 us
+PDL8 weighted paired saving T=8: 5.21 us
+PDL8 six-load estimate +2.19% (enabled loads only); enabled {1: True, 8: True, 16: False, 32: False}
+BOX submission import+prepare 14.2 s
+BOX baseline import+prepare 0.0 s
+BOX decode 1 sliding: raw 72.59 net 68.91 us (overhead 3.68) | sglang raw 188.02 paired 2.650 shown 69.56 | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.977 | sglang box/judge 184.34/173.89 = 1.060 | check PASS
+BOX decode 1 full: raw 78.34 net 74.56 us (overhead 3.78) | sglang raw 198.03 paired 2.603 shown 74.62 | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.933 | sglang box/judge 194.26/185.97 = 1.045 | check PASS
+BOX decode 16 sliding: raw 141.70 net 137.73 us (overhead 3.97) | sglang raw 279.50 paired 2.028 shown 135.85 | judge net 127.89 (n=1, 127.89-127.89) box/judge 1.077 | sglang box/judge 275.54/258.48 = 1.066 | check PASS
+BOX decode 16 full: raw 213.34 net 209.31 us (overhead 4.03) | sglang raw 454.24 paired 2.126 shown 211.79 | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.994 | sglang box/judge 450.21/438.27 = 1.027 | check PASS
+BOX verify 1 sliding: raw 108.88 net 104.94 us (overhead 3.94) | sglang raw 275.28 paired 2.591 shown 104.73 | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.988 | sglang box/judge 271.34/262.96 = 1.032 | check PASS
+BOX verify 1 full: raw 116.72 net 113.01 us (overhead 3.71) | sglang raw 289.74 paired 2.512 shown 113.88 | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.948 | sglang box/judge 286.03/282.94 = 1.011 | check PASS

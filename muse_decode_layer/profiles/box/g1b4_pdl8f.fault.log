@@ -1,0 +1,47 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.02 on 71.78 us, median paired saving 5.25, wins 9/9
+PDL8F_STRESS T=1 sliding det: off ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=1 sliding det_fresh: off ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=1 sliding fresh: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['1.31e-03', '1.69e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=1 sliding fixed: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8_AB T=1 full: off 90.82 on 84.16 us, median paired saving 6.56, wins 9/9
+PDL8_AB T=16 sliding: off 166.30 on 161.66 us, median paired saving 4.90, wins 9/9
+PDL8F_STRESS T=16 sliding det: off ['0.00e+00', '8.61e-06', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '8.61e-06', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=16 sliding det_fresh: off ['2.90e-03', '2.49e-03', '0.00e+00'] (int mismatches 0), on ['2.90e-03', '2.49e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=16 sliding fresh: off ['9.62e-03', '8.53e-03', '0.00e+00'] (int mismatches 0), on ['9.62e-03', '8.53e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=16 sliding fixed: off ['6.62e-03', '5.73e-03', '0.00e+00'] (int mismatches 0), on ['6.62e-03', '7.69e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8_AB T=16 full: off 242.30 on 237.60 us, median paired saving 4.74, wins 9/9
+PDL8_AB T=32 sliding: off 226.85 on 223.71 us, median paired saving 3.84, wins 9/9
+PDL8_AB T=32 full: off 367.23 on 361.98 us, median paired saving 5.31, wins 9/9
+PDL8F_STRESS T=32 full det: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=32 full det_fresh: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=32 full fresh: off ['6.25e-03', '1.00e-02', '0.00e+00'] (int mismatches 0), on ['6.25e-03', '1.00e-02', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=32 full fixed: off ['5.49e-03', '5.56e-03', '0.00e+00'] (int mismatches 0), on ['5.49e-03', '5.56e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8E_STRESS T=8 full det edges=attn+o+b1+pool+route+fin: off ['9.62e-04', '3.59e-04', '0.00e+00'] (int mismatches 0), on ['9.62e-04', '3.59e-04', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (1.4 s)
+PDL8E_STRESS T=8 full det_fresh edges=attn+o+b1+pool+route+fin: off ['9.62e-04', '1.18e-03', '0.00e+00'] (int mismatches 0), on ['9.62e-04', '1.18e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (1.4 s)
+PDL8E_STRESS T=8 full fresh edges=attn+o+b1+pool+route+fin: off ['7.69e-03', '6.43e-03', '0.00e+00'] (int mismatches 0), on ['7.69e-03', '9.11e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.9 s)
+PDL8E_STRESS T=8 full fixed edges=attn+o+b1+pool+route+fin: off ['5.07e-03', '5.00e-03', '0.00e+00'] (int mismatches 0), on ['5.07e-03', '5.00e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.8 s)
+PDL8E_STRESS T=8 sliding det edges=attn+o+b1+pool+route+fin: off ['1.87e-03', '1.35e-03', '0.00e+00'] (int mismatches 0), on ['1.87e-03', '1.35e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.9 s)
+PDL8E_STRESS T=8 sliding det_fresh edges=attn+o+b1+pool+route+fin: off ['1.87e-03', '2.34e-03', '0.00e+00'] (int mismatches 0), on ['1.87e-03', '2.34e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.9 s)
+PDL8E_STRESS T=8 sliding fresh edges=attn+o+b1+pool+route+fin: off ['1.87e-03', '1.47e-03', '0.00e+00'] (int mismatches 0), on ['7.46e-03', '5.79e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.8 s)
+PDL8E_STRESS T=8 sliding fixed edges=attn+o+b1+pool+route+fin: off ['5.51e-03', '5.76e-03', '0.00e+00'] (int mismatches 0), on ['5.51e-03', '5.76e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.8 s)
+PDL8E T=8 chosen edges attn+o+b1+pool+route+fin
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin: off 139.39 on 134.14 us, median paired saving 4.96, wins 9/9
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin: off 127.87 on 122.50 us, median paired saving 5.70, wins 9/9
+PDL8E T=8 on: weighted saving 5.15 us, edges attn+o+b1+pool+route+fin; stage times ['1.4', '1.4', '0.9', '0.8', '0.9', '0.9', '0.8', '0.8'] s
+PDL8 weighted paired saving T=1: 5.59 us
+PDL8 weighted paired saving T=8: 5.15 us
+PDL8 weighted paired saving T=16: 4.85 us
+PDL8 weighted paired saving T=32: 4.22 us
+PDL8 six-load estimate +2.80% (enabled loads only); enabled {1: True, 8: True, 16: True, 32: True}
+FAULT T=8 full: all: out 1.58e+00 s2 1.48e+00 ids_mismatch 300; token: out 7.76e-01 s2 7.62e-01 ids_mismatch 39; qhead: out 2.69e-01 s2 2.55e-01 ids_mismatch 26; kv: out 8.20e-03 s2 6.10e-03 ids_mismatch 0
+FAULT T=8 sliding: all: out 1.16e+00 s2 1.46e+00 ids_mismatch 285; token: out 1.04e+00 s2 1.20e+00 ids_mismatch 33; qhead: out 2.36e-01 s2 2.23e-01 ids_mismatch 22; kv: out 7.81e-03 s2 9.20e-03 ids_mismatch 3
+FAULT T=1 sliding: all: out 1.13e+00 s2 1.08e+00 ids_mismatch 35; token: out 1.13e+00 s2 1.08e+00 ids_mismatch 35; qhead: out 3.05e-01 s2 3.77e-01 ids_mismatch 19; kv: out 7.81e-03 s2 7.76e-03 ids_mismatch 4
+FAULT T=16 sliding: all: out 1.01e+00 s2 1.19e+00 ids_mismatch 570; token: out 9.41e-01 s2 9.90e-01 ids_mismatch 30; qhead: out 1.82e-01 s2 2.20e-01 ids_mismatch 23; kv: out 1.41e-02 s2 1.44e-02 ids_mismatch 0
+FAULT T=32 full: all: out 1.25e+00 s2 1.12e+00 ids_mismatch 1165; token: out 1.05e+00 s2 1.01e+00 ids_mismatch 35; qhead: out 4.52e-01 s2 5.09e-01 ids_mismatch 35; kv: out 6.06e-03 s2 6.31e-03 ids_mismatch 0
+EXIT 0

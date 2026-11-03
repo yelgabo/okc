@@ -1,0 +1,35 @@
+START g1b4_pdl8f Tue Nov  3 21:38:37 UTC 2026
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BOX import 0.5 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 76.61 on 71.68 us, median paired saving 4.99, wins 9/9
+PDL8F_STRESS T=1 sliding det: off ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0); rule within the off arm: clean
+PDL8F_STRESS T=1 sliding det_fresh: off ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0); rule within the off arm: clean
+PDL8F_STRESS T=1 sliding fresh: off ['1.31e-03', '1.69e-03', '0.00e+00'] (int mismatches 0), on ['1.31e-03', '1.69e-03', '0.00e+00'] (int mismatches 0); rule bound 1e-02: clean
+PDL8F_STRESS T=1 sliding fixed: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); rule bound 1e-02: clean
+PDL8_AB T=1 full: off 90.59 on 84.19 us, median paired saving 6.24, wins 9/9
+PDL8_AB T=16 sliding: off 166.50 on 161.70 us, median paired saving 4.83, wins 9/9
+PDL8F_STRESS T=16 sliding det: off ['0.00e+00', '8.61e-06', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '8.61e-06', '0.00e+00'] (int mismatches 0); rule within the off arm: clean
+PDL8F_STRESS T=16 sliding det_fresh: off ['2.90e-03', '2.49e-03', '0.00e+00'] (int mismatches 0), on ['2.90e-03', '2.49e-03', '0.00e+00'] (int mismatches 0); rule within the off arm: clean
+PDL8F_STRESS T=16 sliding fresh: off ['9.62e-03', '8.53e-03', '0.00e+00'] (int mismatches 0), on ['9.62e-03', '8.53e-03', '0.00e+00'] (int mismatches 0); rule bound 1e-02: clean
+PDL8F_STRESS T=16 sliding fixed: off ['6.62e-03', '5.73e-03', '0.00e+00'] (int mismatches 0), on ['6.62e-03', '7.69e-03', '0.00e+00'] (int mismatches 0); rule bound 1e-02: clean
+PDL8_AB T=16 full: off 242.46 on 237.79 us, median paired saving 4.54, wins 9/9
+PDL8_AB T=32 sliding: off 226.02 on 223.30 us, median paired saving 3.62, wins 9/9
+PDL8_AB T=32 full: off 365.92 on 361.22 us, median paired saving 4.93, wins 9/9
+PDL8F_STRESS T=32 full det: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); rule within the off arm: clean
+PDL8F_STRESS T=32 full det_fresh: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); rule within the off arm: clean
+PDL8F_STRESS T=32 full fresh: off ['6.25e-03', '1.00e-02', '0.00e+00'] (int mismatches 0), on ['6.25e-03', '1.00e-02', '0.00e+00'] (int mismatches 0); rule bound 1e-02: DRIFT, T off
+PDL8E_STRESS T=8 full det edges=attn+o+b1+pool+route+fin: off ['9.62e-04', '3.59e-04', '0.00e+00'] (int mismatches 0), on ['9.62e-04', '3.59e-04', '0.00e+00'] (int mismatches 0); rule within the off arm: clean (1.4 s)
+PDL8E_STRESS T=8 full det_fresh edges=attn+o+b1+pool+route+fin: off ['9.62e-04', '1.18e-03', '0.00e+00'] (int mismatches 0), on ['1.69e-03', '3.33e-03', '0.00e+00'] (int mismatches 0); rule within the off arm: DRIFT (1.4 s)
+PDL8E_STRESS T=8 full pdl8d_set edges=b1+pool+route+fin: off ['7.69e-03', '6.43e-03', '0.00e+00'] (int mismatches 0), on ['7.69e-03', '6.43e-03', '0.00e+00'] (int mismatches 0); rule within the off arm: clean (0.8 s)
+PDL8E_STRESS T=8 sliding pdl8d_set edges=b1+pool+route+fin: off ['1.87e-03', '1.47e-03', '0.00e+00'] (int mismatches 0), on ['7.46e-03', '5.79e-03', '0.00e+00'] (int mismatches 0); rule within the off arm: DRIFT (0.9 s)
+PDL8E T=8 chosen edges none
+PDL8 weighted paired saving T=1: 5.31 us
+PDL8 weighted paired saving T=16: 4.76 us
+PDL8 six-load estimate +1.63% (enabled loads only); enabled {1: True, 8: False, 16: True, 32: False}
+BOX prepare 25.0 s; pdl8_on {1: True, 8: False, 16: True, 32: False} edges None
+EXIT g1b4_pdl8f rc=0 Tue Nov  3 21:39:05 UTC 2026

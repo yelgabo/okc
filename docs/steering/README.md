@@ -4,12 +4,22 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 20:41 UTC](2026-11-03-driver-monitor-2041.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 21:44 UTC](2026-11-03-driver-monitor-2144.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 3 14:15 PT — PDL8f closed, one final gate, and routing release authority reconciled
+
+The latest [lead ledger](2026-11-02-final-day-directive.md#ledger), committed at `9d470cd` and `7799e11`, supersedes two older assumptions in the 21:44 UTC entry below. **PDL8f** own `9ae1d02f0c2e4244` (`g1b4_pdl8f.py`, source `c4164566`) is **terminal not-kept**: PASS13/13, **10,549.1 µs**, PDL on at T1/T8/T32 but T16 off after the fresh-stage routing-IDs clause failed (off arm itself changed 52 IDs, on arm 184). It failed the frozen all-T, decode16 and six-load keep rules; **no submission**. The existing layer lead has approved **one last PDL8g gate-design attempt**, with near-tie-free routing test inputs, 50 off-arm replays and same-box paired dry run before its one authorized private check. This is **lead allocation, not accepted GPU-job pickup**; if it fails, close the PDL lane on public PDL8d.
+
+The user has separately **authorized the already-owned routing-slack layer release** without another approval ping **only if** its own judge check is VALID13/13, improves the six-load result against current public, every PDL stress is clean, and every [TASK routing margin](../../muse_decode_layer/TASK.md) is satisfied. This supersedes the earlier “fresh public approval required” statement *only for this qualifying file*. Routing-slack savings remain a box **model**, not a measured win; implementation, corrected same-session box A/B versus exact public bytes, and one owner-allocated private check remain pending/unconfirmed. Do not expand the allowance, alter the original kernel, dispatch extra jobs or presume owner pickup. **P0 standalone MoE** BCLM2 remains a terminal matched loss; **P1 BF16** clean selected-twin qualification remains with its existing owner; General has no source-qualified separate WS next. Decode32 P4, paused reminder, and all existing ownership remain unchanged.
+
+## November 3 21:44 UTC — terminal losses, corrected box routing and current private queue
+
+[Current monitor](2026-11-03-driver-monitor-2144.md): BCLM2 `2b3f078535cd4def` is a matched loss (+1.71/+1.25us atT1/T8), not a pending reset job. PDL8e `61c009066a5d40a6` passed all six T8edge stages but failed its T16 stress/all-T keep; not submitted. The corrected box runner uses each fresh input's own busiest local expert range; old affected outer-runner layer comparisons must be rerun. The newer human rule requires candidate versus exact public bytes on the same box/session, not absolute judge parity. Existing lead has opened a routing-slack implementation/box-A/B/one-private-check lane and separately allocated gate-onlyPDL8f; root creates neither a worker nor a dispatch. Routing savings remain modeled, and eventual public routing release requires fresh approval. BF16 clean selected-twin task remains open. Live caps40private/20scored replace old exhausted snapshots; capacity creates no extra scope. Scores unchanged, overall/layer357, BF16rank249; audit16leads/zero gaps. This dated entry supersedes older pending BCLM/PDL8e and pre-fix box assumptions below, preserving their history.
 
 ## November 3 13:18 PST — local H200 parity published; short-load transfer unqualified
 

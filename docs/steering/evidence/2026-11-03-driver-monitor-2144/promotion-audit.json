@@ -1,0 +1,46 @@
+{
+  "observed_at": "2026-11-03T21:49:11.320577+00:00",
+  "public": {
+    "muse_moe_w4a16": {
+      "job": "2821fdb184d740b1",
+      "score_us": 5737.988910262929,
+      "rank": 354,
+      "speedup": 2.3438,
+      "snapshot": ".build\\driver-monitor-2144\\public-snapshots\\muse_moe_w4a16.leaderboard.json"
+    },
+    "muse_bf16_proj": {
+      "job": "9eba96894ee1402e",
+      "score_us": 3161.918773020326,
+      "rank": 249,
+      "speedup": 1.5278,
+      "snapshot": ".build\\driver-monitor-2144\\public-snapshots\\muse_bf16_proj.leaderboard.json"
+    },
+    "muse_attention_decode": {
+      "job": "8914751e3b9f468b",
+      "score_us": 1446.1905945986007,
+      "rank": 285,
+      "speedup": 2.6043,
+      "snapshot": ".build\\driver-monitor-2144\\public-snapshots\\muse_attention_decode.leaderboard.json"
+    },
+    "muse_decode_layer": {
+      "job": "f931abf568544018",
+      "score_us": 10374.616018194523,
+      "rank": 357,
+      "speedup": 2.1804,
+      "snapshot": ".build\\driver-monitor-2144\\public-snapshots\\muse_decode_layer.leaderboard.json"
+    },
+    "muse_prefill_layer": {
+      "job": "1530ec79d50a4f69",
+      "score_us": 318441.9905489318,
+      "rank": 656,
+      "speedup": 1.2166,
+      "snapshot": ".build\\driver-monitor-2144\\public-snapshots\\muse_prefill_layer.leaderboard.json"
+    }
+  },
+  "clean_passing_receipts": 221,
+  "lower_private_leads": 16,
+  "promotion_gaps": [],
+  "command": "python tools/release_audit.py --snapshots .build/driver-monitor-2144/public-snapshots --out .build/driver-monitor-2144/release-audit.json --ledger docs/releases/promotion-queue.json --check",
+  "exit_code": 0,
+  "scope": "Saved own receipts, including archives and ignored files. Lower elapsed is a numerical lead, not release eligibility or matched gain."
+}
