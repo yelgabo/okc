@@ -4779,3 +4779,39 @@ finalize at decode. What is left is structural: a q_len 8 tile body with fewer i
 tile (masking only on the boundary tile, address math hoisted per segment, the DCARRY / VHOIST
 carries of mode 51 brought to the per-request loop), and a merge tail with fewer dependent L2
 round trips than reds, release RMW and reload. Neither fits one check with a stop rule today.
+
+## 2026-11-03 main's merged attn_one.cu against the public build (certification), registered before dispatch
+
+Why: the 03:30 PT merge of the PSTEAL and sliding lanes left two stage-advance lines in
+`muse_attention_decode/attn_one.cu` (union script); the hand fix keeps
+`st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);` inside one_tile. That source had not been built
+at a judge. Public best is 8914751e3b9f468b (file `.build/repeats/attention_base.py`, SHA256
+aa3535d0f1fbb78c92da7e8628d264392c440a17ba756a2297d7566ee46e27e1).
+
+Local gate (Docker CUDA 12.8.1 nvcc, sm_90a, `tools/attn_one_sass.sh` on all 13 default
+instances): the public `_ONE_SRC` and main's attn_one.cu (SHA256 6c518aa6, every switch at its
+default: ONE_PSTEAL 0, ONE_STAMP 0, ONE_NSR8 3, ONE_LASTSKIP and ONE_POLLNS as defaulted, ONE_CL
+0) give the same registers (0 spills on both) and byte-identical SASS for all 15 functions after
+the anonymous-namespace hash is normalized (13 attn_one_kernel instances, coop_probe,
+smid_probe). The host-side differences are the ONE_CL launch branch (`if constexpr`, not
+instantiated) and the mode 136 plan line in submission.py, which needs `(L, 136)` in the
+residency table and so cannot fire without ONE_CL. This is a local compiler observation, not
+the judge's build.
+
+Check file: `.build/attn_cert/main_cert.py`, SHA256
+dbdedb251b80bbcbdcbf6d560cc82aba701d8ee619ab86c655e889f7519340fe, written by
+`tools/attn_make_main_cert.py .build/attention_base.py OUT` (2 held-out inputs, 100 rounds). Its
+judged path is the public file byte for byte (the first 292,419 bytes are aa3535d0). At import it
+execs `ctrl2` (the public file again, its own one-launch extension and workspace: the null) and
+`main` (submission.py with main's attn_one.cu inlined, own extension and workspace), then dumps
+cuobjdump SASS of each arm's one-launch .so and compares it per function with ctrl, compares
+outputs and written cache rows bitwise on held-out inputs (seeds 1000, 1001) for all twelve
+scored cells, runs the judge-style FP32 check for ctrl and main on the batch-1 cells, and times
+cold-L2 graph replays in a random arm order per round.
+
+Hypothesis: main's attn_one.cu at defaults is the public kernel: the same SASS and bitwise-equal
+outputs. Gate: every attn_one_kernel function identical at the judge (or, if cuobjdump is
+missing or the text differs, every cell's paired main - ctrl inside the ctrl2 - ctrl null's
+range) and main bitwise equal to ctrl on every input where ctrl2 is bitwise equal to ctrl. Stop:
+pass, stop at one check; fail to compile or material SASS difference, one fix and one more
+check.
