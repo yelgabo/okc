@@ -4,11 +4,15 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 09:20 UTC](2026-11-03-driver-monitor-0920.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 10:24 UTC](2026-11-03-driver-monitor-1024.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
+
+## November 3 10:24 UTC execution checkpoint
+
+[Current monitor](2026-11-03-driver-monitor-1024.md): BF16 stream-K and mode49 attention probes closed without a qualified candidate; wrong-output attribution arms are timing-only. Layer late-PDL-trigger check was not run because the selected release has no PDL edge; retained cache-read patch is uncompiled. Existing source-only widened refill directly delivered once to the named researcher after verifying prior pass complete/idle; new pickup unconfirmed. Two shared-live jobs retain owning source attribution. Fresh all-five-board audit:16leads/zero gaps. Newer named lead allocations supersede old finite owner rows only within their actual scopes.
 
 ## November 3 short-load queue exhaustion — same research refill
 
@@ -27,6 +31,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 [Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.
 
 ## Audits and monitors, November 2 to 3
+
+[Driver monitor10:24UTC](2026-11-03-driver-monitor-1024.md): stream-K/gather-probe scoped losses, selected PDL premise rejected without a run, same-refill direct delivery, live ranks/quotas and release guard.
 
 [Driver monitor09:20UTC](2026-11-03-driver-monitor-0920.md): readiness/F3 endpoints stopped;publication proof gap retained;MoE queue empty,one source-only comparator decision requested,no new target allocation;fresh ranks/quotas and16promotion dispositions verified.
 
