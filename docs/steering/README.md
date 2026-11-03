@@ -18,6 +18,8 @@
 
 ## Worker repurpose: former Decode32 → standalone MoE P0; CUDA Optimizer → BF16 P1
 
+[General completed Tiny export audit](2026-11-03-general-tiny-timeline-support.md#completed-target-export-audit-november-3-0116-vancouver-time) verifies the ended f4012a0531af4013 source/receipt and both retained T1/T8 exports. The observer passes its diagnostic screen; no speedup or isolated wait cause is established. The existing MoE owner retains the distributed-ready-flag candidate.
+
 ## Latest component results and historical transfer audit
 
 [18:54 Vancouver review](2026-11-02-1854-performance-review.md). Corrected scale/groups and current skinny NS4 pass correctness and fail promotion. NS3 and public G1b4 are retained. The historical source audit distinguishes retained wins from changed policies. D32 diagnostic5909739e8a4445b2 is accepted.
