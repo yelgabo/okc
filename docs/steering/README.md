@@ -12,7 +12,7 @@
 
 ## November 3 11:22 UTC public layer advance
 
-[Current monitor](2026-11-03-driver-monitor-1122.md): **publicfefd/PDL8b10419.876726us,2.1709x,overall/layer369**,independently board-verified. T1/T16/T32PDLon,T8hardoff; actual edge enabling differs from the earlier inactive trigger-only proposal. Private leads8f/0cb now have explicit promotion dispositions. Existing layer composition is in flight; no root duplicate dispatch. Research continuation completed with a source qualification gap,not another pending request. New attention/M128BF16lanes closed; their unused budgets are not renewed automatically.
+[Current monitor](2026-11-03-driver-monitor-1122.md): **publicfefd/PDL8b10419.876726us,2.1709x,overall/layer369**,independently board-verified. T1/T16/T32PDLon,T8hardoff; actual edge enabling differs from the earlier inactive trigger-only proposal. Private leads8f/0cb now have explicit promotion dispositions. pdl8c failed its decode1clause; newer PDL-participating c2 and the explicitly allocated MoE HALF-only bench are reported dispatched. No root duplicate dispatch. Research continuation completed with a source qualification gap,not another pending request. New attention/M128BF16lanes closed; their unused budgets are not renewed automatically.
 
 ## November 3 10:24 UTC execution checkpoint
 
