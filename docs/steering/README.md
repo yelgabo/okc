@@ -4,11 +4,15 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 11:22 UTC](2026-11-03-driver-monitor-1122.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 12:22 UTC](2026-11-03-driver-monitor-1222.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
+
+## November 3 12:22 UTC execution checkpoint
+
+[Current monitor](2026-11-03-driver-monitor-1222.md): HALF-onlyac81 is a complete matched loss,T1/T8+2.18/+1.26us;exact design closed. Prepared BCLM2 remains the existing owner's first reset check with zero MoEprivatechecks now. Shared layer65f completed10526.686888us,own source/stress/per-cell report not yet published;do not infer c2qualification from the scalar or job timing. Current publicPDL8b unchanged,overall/layer371. Lead's repeat restarter now reads the PDL layer base;root creates no timer/dispatch. Fresh audit15leads/zero gaps. Scout's new Blackwell/TF32router reference is not a qualified H200candidate.
 
 ## November 3 11:45 UTC short-load handoff reconciliation
 
@@ -43,6 +47,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 [Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.
 
 ## Audits and monitors, November 2 to 3
+
+[Driver monitor12:22UTC](2026-11-03-driver-monitor-1222.md): exact HALF loss,BCLM reset continuity,terminal layer publication gap,current public/quotas and scoped router source.
 
 [Public scout: router tactics beside the pooler](2026-11-03-scout-router-critical-path-1128.md) pins SGLang PR47636 at `07e2f70f` and verifies six changed files. The author selects the router tactic in serving context because larger isolated winners can wait for SMs. Blackwell and TF32 limits prevent treating the published timings as an H200 challenge gain. Includes new BF16 repository checks, changing search coverage and access limits; no new GPU assignment.
 

@@ -1,0 +1,14 @@
+{
+  "checked_at": "2026-11-03T12:23:46.256397+00:00",
+  "leads": 15,
+  "promotion_gaps": [],
+  "public_layer": {
+    "job": "fefd7f7b8e834bd7",
+    "score_us": 10419.876725867654,
+    "rank": 371,
+    "speedup": 2.1709,
+    "snapshot": ".build\\driver-monitor-1222\\public-snapshots\\muse_decode_layer.leaderboard.json"
+  },
+  "ledger": "docs/releases/promotion-queue.json",
+  "result": "PASS; all five fresh public snapshots; Windows Python/rg"
+}
