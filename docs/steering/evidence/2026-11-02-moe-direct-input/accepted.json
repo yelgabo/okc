@@ -1,0 +1,9 @@
+{
+  "job_id": "94c57451574c4cd3",
+  "problem": "muse_moe_w4a16",
+  "source_sha256": "1191e44cf87cacc36e89729a9e2f33d3c80f04361afe30062e022cd07009d537",
+  "source_commit": "f1955498",
+  "accepted_at": "2026-11-03T06:36:41.589154+00:00",
+  "experiment": "MOE-DIRECT-X-01",
+  "public_submission": false
+}
