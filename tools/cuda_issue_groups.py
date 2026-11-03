@@ -70,7 +70,7 @@ def generate(out, treatment=transform):
 
 
 def compile_pair(out, arms=('control', 'candidate')):
-    flags = ['-O3', '-std=c++17', '-gencode=arch=compute_90a,code=sm_90a', '-Xptxas=-v',
+    flags = ['-O3', '-std=c++17', '-gencode=arch=compute_90a,code=sm_90a', '-lineinfo', '-Xptxas=-v',
              '-DOKC_NS=3', '-DOKC_NSF=3', '-DOKC_FNST=4', '-DOKC_PRMTSC=1', '-DOKC_DQ7=1',
              '-DOKC_SC6W=1', '-DOKC_NW=16', '-DOKC_FAST1=0', '-DOKC_EPI4=0', '-DOKC_WGS=1']
     results = []

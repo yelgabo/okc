@@ -1,0 +1,10 @@
+--- 
++++ 
+@@ -23,6 +23,7 @@
+ code version = [1,7]
+ host = linux
+ compile_size = 64bit
++identifier = /w/control-device.cu
+ 
+ 	code for sm_90a
+ 		Function : _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE

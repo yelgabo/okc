@@ -17,12 +17,13 @@ def read(folder, job):
         raise ValueError('Accepted source/job mismatch')
     if receipt.get('id') != job or receipt.get('board') != 'muse_moe_w4a16' or receipt.get('mode') != 'check':
         raise ValueError('Owning private MoE receipt mismatch')
-    log_path = Path(receipt['output']['log'])
+    owning_log = receipt['output']['log']
+    log_path = folder / 'profiles' / Path(owning_log).name
     log = log_path.read_bytes().decode('utf8')
     upload = dict(job=job, team='yelgabo', mode='check', board='muse_moe_w4a16',
                   content_hash=receipt['content_hash'], payload_ref=receipt['payload_ref'],
                   source_sha256=manifest['source_sha256'], source_bytes=len(payload))
-    attestation = dict(job=job, owning_log=str(log_path), sha256=reader.sha(log),
+    attestation = dict(job=job, owning_log=owning_log, sha256=reader.sha(log),
                        source_sha256=reader.sha(payload))
     previous = reader.build
     treatment = {'cuda_scale_constant': 'scale', 'cuda_group_scale_fixed': 'group_scale'}[manifest['experiment']]
