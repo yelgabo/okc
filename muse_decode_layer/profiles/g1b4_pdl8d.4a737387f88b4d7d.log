@@ -1,0 +1,37 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.50 on 71.49 us, median paired saving 5.98, wins 9/9
+PDL8_STRESS T=1 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound 1e-04: strict pass, within the off arm's own drift pass
+PDL8_AB T=1 full: off 90.53 on 84.86 us, median paired saving 5.73, wins 9/9
+PDL8_AB T=16 sliding: off 160.64 on 155.26 us, median paired saving 5.34, wins 9/9
+PDL8_STRESS T=16 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['6.21e-03', '5.78e-03', '0.00e+00'] (int mismatches 0), on ['6.21e-03', '5.78e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=16 full: off 258.72 on 253.41 us, median paired saving 4.80, wins 9/9
+PDL8_AB T=32 sliding: off 208.54 on 204.19 us, median paired saving 4.38, wins 9/9
+PDL8_AB T=32 full: off 354.08 on 349.31 us, median paired saving 4.93, wins 9/9
+PDL8_STRESS T=32 full: 2000 replays per arm, max rel diff to the PDL-off output off ['7.31e-04', '3.92e-04', '0.00e+00'] (int mismatches 0), on ['7.31e-04', '3.92e-04', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8D_OFF T=8 full: 2000 replays, max rel diff to the PDL-off output ['0.00e+00', '2.61e-08', '0.00e+00'] (int mismatches 0)
+PDL8D_OFF T=8 sliding: 2000 replays, max rel diff to the PDL-off output ['6.37e-03', '5.37e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_STRESS T=8 full all edges=attn+o+b1+pool+route+fin: on ['6.67e-03', '5.93e-03', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: DRIFT (0.5 s)
+PDL8D_STRESS T=8 full half1 edges=attn+o+b1: on ['1.67e-03', '1.16e-03', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: DRIFT (0.5 s)
+PDL8D_STRESS T=8 full half2 edges=pool+route+fin: on ['0.00e+00', '2.61e-08', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: clean (0.5 s)
+PDL8D_STRESS T=8 full single edges=attn: on ['6.67e-03', '5.93e-03', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: DRIFT (0.5 s)
+PDL8D_STRESS T=8 full single edges=o: on ['6.67e-03', '5.93e-03', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: DRIFT (0.5 s)
+PDL8D_STRESS T=8 full single edges=b1: on ['0.00e+00', '2.61e-08', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: clean (0.5 s)
+PDL8D_STRESS T=8 full single edges=pool: on ['0.00e+00', '2.61e-08', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: clean (0.5 s)
+PDL8D_STRESS T=8 full single edges=route: on ['0.00e+00', '2.61e-08', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: clean (0.5 s)
+PDL8D_STRESS T=8 full single edges=fin: on ['0.00e+00', '2.61e-08', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: clean (0.5 s)
+PDL8D_STRESS T=8 full union edges=b1+pool+route+fin: on ['0.00e+00', '2.61e-08', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: clean (0.5 s)
+PDL8D T=8 chosen edges b1+pool+route+fin; left serialized attn+o
+PDL8D_OFF T=8 full repeat: ['0.00e+00', '2.61e-08', '0.00e+00'] (int mismatches 0), informational
+PDL8D_STRESS T=8 full final edges=b1+pool+route+fin: on ['0.00e+00', '2.61e-08', '0.00e+00'] (int mismatches 0) against off ['0.00e+00', '2.61e-08', '0.00e+00']: clean (0.5 s)
+PDL8D_STRESS T=8 sliding final edges=b1+pool+route+fin: on ['6.37e-03', '5.37e-03', '0.00e+00'] (int mismatches 0) against off ['6.37e-03', '5.37e-03', '0.00e+00']: clean (0.4 s)
+PDL8_AB T=8 sliding edges=b1+pool+route+fin: off 134.43 on 132.22 us, median paired saving 2.27, wins 9/9
+PDL8_AB T=8 full edges=b1+pool+route+fin: off 142.08 on 138.85 us, median paired saving 2.91, wins 9/9
+PDL8D T=8 on: final stress clean, weighted saving 2.44 us, edges b1+pool+route+fin; stress times ['0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.4'] s
+PDL8 weighted paired saving T=1: 5.92 us
+PDL8 weighted paired saving T=8: 2.44 us
+PDL8 weighted paired saving T=16: 5.20 us
+PDL8 weighted paired saving T=32: 4.52 us
+PDL8 six-load estimate +2.55% (enabled loads only); enabled {1: True, 8: True, 16: True, 32: True}
