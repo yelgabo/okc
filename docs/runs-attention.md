@@ -4549,3 +4549,26 @@ ls@own=-DONE_LASTSKIP=1` plus `tools/attn_inline_one.py` (bench SHA256 6b324c87)
 at most -0.3 us cold on verify 16 or verify 32 sliding on all three inputs and beyond the null,
 no scored cell worse than the null. Expected (hypothesis): -0.2 to -0.6 us on the five
 cooperative cells, zero elsewhere.
+
+### Result: b27e873b98f34ff9, the skipped poll is not on the critical path
+
+Receipt `profiles/sk.b27e873b98f34ff9.{json,log,dispatch.json}` (bench SHA256 6b324c87).
+Control 16/16, 2.511x (CI 2.473-2.563), no flags; ABCHECKSUM 19/0 on ls, ctrl, ctrl2. ls - ctrl
+cold (null ctrl2 - ctrl in brackets): verify 16 sliding -0.06 (-0.10), verify 32 sliding -0.16
+(-0.06; per input -0.19 / -0.13 / -0.03), verify 1 sliding 0.00 (0.00), decode 1 full -0.22
+(-0.26), verify 1 full 0.00 (0.00); unchanged instances inside the null (verify 32 full +0.58
+against +0.22, per input +1.47 / -0.29 / +0.67 with ctrl2 at +0.35 / -0.22 / +1.44: full-context
+drift). Fails the -0.3 us gate; closed in ruled-out.md. The 1.9 us grid barrier of the timeline
+is the release of the CTA's own reds plus the RMW, not the extra acquire load.
+
+## 2026-11-03 host-only merge plans (nc copies, cooperative decode), registered before dispatch
+
+Arms on the control's module with their own state, `tools/attn_make_sl_tl.py OUT host`: nc2 /
+nc4 (two / four workspace copies per request at all four cells; with 4 splits at verify 32 every
+split then reds into its own copy, so no two CTAs add to the same address; the finalize reads
+every copy in the rolled loop), dcoop (decode 16 / 32 on instance 1/3: grid barrier plus a row
+slice per CTA in place of the last-CTA ticket). Same four cells, 3 held-out inputs, 150 cold
+rounds, seed 311404. Gate as for the split arms: -0.5 us cold on a cell on all three inputs,
+beyond the null, no other cell worse. Hypothesis: same-address red contention (7 / 4 CTAs adding
+32 KB each into one request's rows) sets the verify reds and barrier at 0.8 + 1.9 us; nc removes
+it at the cost of one more dependent round trip per copy in the finalize.

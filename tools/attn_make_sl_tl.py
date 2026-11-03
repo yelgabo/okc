@@ -36,6 +36,14 @@ VARIANTS = {
              "n4s@own=-DONE_NSR8=4,-DONE_NSR1=4," + NSR,
              "tln5_probe@own=-DONE_STAMP=3,-DONE_NSR8=5,-DONE_NSR1=5," + NSR],
             {"n4s": {(16, 8): 16, (32, 8): 8}}, "311402"),
+    # Variant "host" (check 4): host-only plan arms on the control's module. nc2 / nc4: two /
+    # four workspace copies per request (spreads the same-address reds over more rows, the
+    # finalize then reads every copy); dcoop: decode 16 / 32 on the cooperative q_len 1
+    # instance 1/3 (grid barrier and a row slice per CTA instead of the last-CTA ticket).
+    "host": (["nc2@own=", "nc4@own=", "dcoop@own="],
+             {"nc2": {k: {"nc": 2} for k in ((16, 1), (32, 1), (16, 8), (32, 8))},
+              "nc4": {k: {"nc": 4} for k in ((16, 1), (32, 1), (16, 8), (32, 8))},
+              "dcoop": {(16, 1): {"mode": 3}, (32, 1): {"mode": 3}}}, "311404"),
 }
 
 ONLY = ('#if ONE_DETM\n#define ONE_INSTANCES(X) X(1, 49)\n',
@@ -47,11 +55,20 @@ _SL_SPLITS = @@SPLITS@@
 _PR_BASE, _PR_W, _PR_CLK = 1024 + 512 * 16 + 512 * 256, 96, 48
 
 
-def _sl_splits(name, data):
+def _sl_kw(name, data):
+    """_one keyword overrides of arm `name` on this shape: an int is a split count, a dict is
+    passed as is (splits, nc, mode)."""
     cfg = data["config"]
     if not cfg["window"]:
-        return None
-    return _SL_SPLITS.get(name, {}).get((cfg["batch"], cfg["q_len"]))
+        return {}
+    v = _SL_SPLITS.get(name, {}).get((cfg["batch"], cfg["q_len"]))
+    if v is None:
+        return {}
+    return {"splits": v} if isinstance(v, int) else dict(v)
+
+
+def _sl_splits(name, data):
+    return _sl_kw(name, data).get("splits")
 
 
 _SL_SUM = {}
@@ -188,12 +205,12 @@ def main():
         "    # sliding timeline: the four batch 16 / 32 sliding shapes only.")
     sub("            return _one(data, mode=m) if m else _one(data)",
         "            if m:\n                return _one(data, mode=m)\n"
-        "            n = _sl_splits(name, data)\n"
-        "            return _one(data, splits=n) if n else _one(data)")
+        "            kw = _sl_kw(name, data)\n"
+        "            return _one(data, **kw) if kw else _one(data)")
     sub("            return _ob_plan_str(data).replace(\" \", \",\")\n    except",
-        "            n = _sl_splits(name, data)\n"
+        "            n = _sl_kw(name, data)\n"
         "            return _ob_plan_str(data).replace(\" \", \",\") + "
-        "(f\",splits_override={n}\" if n else \"\")\n    except")
+        "(f\",override={n}\" if n else \"\")\n    except")
     marker = "# Own-state arms: a private _ONE_STATE dict per arm, swapped in around each call."
     sub(marker, HELPERS.replace("@@SPLITS@@", repr(splits)) + marker)
     sub("        try:\n            _ab_bench()\n",
