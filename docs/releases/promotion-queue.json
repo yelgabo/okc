@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-03T06:15:49.335721+00:00",
+  "observed_at": "2026-11-03T07:33:38.954723+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -358,15 +358,19 @@
       "problem": "muse_moe_w4a16",
       "score_us": 5698.5082429255835,
       "owner": "MoE worker (former Decode32), release build delegated by the final-day lead",
-      "release_state": "clean-release-pending",
-      "reason": "MOE-FACTOR-Y-01 lossless factorized expert-output storage: 2.360x, CI 2.325-2.395, every cell at or below public 4aa033ef (d1 25.7, d16 92.4, d32 127.2, v1 63.4, v16 180.8, v32 214.0 us). Judged arm candidate2 of a two-arm private adapter; a single-arm release file and one confirming private check are in progress (tools/moe_factor_y_release.py). Public submission still needs the user's go-ahead. Owning complete matched analysis: 0/6 groups, 13 affected regressions, two unchanged-path drifts against already-public C7. This is a cross-job release lead, not a qualified algorithm improvement. The final-day lead has separately requested clean release qualification; no new public approval.",
+      "release_state": "conditionally-approved-confirmation-pending",
+      "reason": "Official candidate2 point5698.508243us/2.360003606x is lower than current public5788.720720us, but matched0/6groups,13affected regressions andtwo unchanged drifts show no qualifying storage-only advantage against already-public C7. Preserve that negative. User separately authorized \"yes, submit on confirmation\" in20a6cfa9: existing MoE release builder prepares the ONE clean single-arm file; final-day lead follows its own confirming private check and submits that one file if the condition passes, without asking again. Approval is conditional, not source/readiness qualification; public_submission_condition_satisfied remainsfalse until evidence is recorded. No paired-adapter public upload, PARAM-Y approval or generic repeat authority.",
       "evidence": "docs/steering/evidence/2026-11-02-moe-factor-y/status-wait.raw.json",
       "disclosure_report": "docs/steering/2026-11-02-moe-factorized-output.md",
-      "public_submission_approved": false,
+      "public_submission_approved": true,
       "judged_arm": "candidate2; factorized BF16 down-result storage, native ecd1df11, helper b8ed8543 unchanged",
       "source_identity": "paired physical 78506b743ace84e1fc0b088fe7fe3b23009f3de0bf5136e20413504026e07492/348783B, tracked copy muse_moe_w4a16/cand/factor_y_paired.py",
       "source_sha256": "78506b743ace84e1fc0b088fe7fe3b23009f3de0bf5136e20413504026e07492",
-      "artifact": "muse_moe_w4a16/cand/factor_y_paired.py"
+      "artifact": "muse_moe_w4a16/cand/factor_y_paired.py",
+      "public_submission_condition_satisfied": false,
+      "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
+      "public_submission_approval_commit": "20a6cfa989b642ffe411b10abd8e47b85664417c",
+      "public_submission_approval_scope": "ONE clean single-arm storage-only Factor-Y release derived from nativeecd1df11/paired78506b74, only after its own private check confirms within noise of5698.508243us. Pin exact release hash before POST. The private paired comparison adapter and combined PARAM-Y alternative are not authorized for public use."
     }
   ]
 }

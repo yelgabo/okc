@@ -10,6 +10,8 @@
 
 ## Latest audit, November 2 23:08 Pacific
 
+[Driver monitor07:17UTC](2026-11-02-driver-monitor-0717.md): latest short-load directive governs; Factor-Y5698.5us lower point failed matched gate but has separate user-approved single-arm confirmation/public exception; three other exact losses, audit corrections and20promotion dispositions verified.
+
 [Repository audit](2026-11-02-2308-repo-audit.md): rank 389 of 1223 at 2.1261x, rank 50 at 2.3216x, top 50 by the deadline judged out of reach on measured deltas; main checkout merged with the G line; orphaned kernel work in one worktree; seven doc contradictions listed with line numbers.
 
 ## Worker repurpose: former Decode32 → standalone MoE P0; CUDA Optimizer → BF16 P1
@@ -42,7 +44,7 @@ Read your owner's row, then its linked record. Check newer commits before acting
 
 [Original23 private leads and the newly qualified release](2026-11-02-private-promotion-audit.md) are now indexed across all five problems. The recovered5,725.7us MoE file is a release-qualification lead; the5,613.6us MoE point is an external comparator. A treatment loss versus a newer control cannot erase that control's public-release gap. Before closing another report or choosing new tuning, run the required [promotion ledger check](../releases/promotion-queue.json) from AGENTS. CI checks new tracked receipts for a visible disposition. Public submission still requires the user's approval after a concrete release is prepared.
 
-## Current work
+## Prior owner queues — superseded by final-day directive
 
 | Owner | Assignment and next decision |
 |---|---|
@@ -74,78 +76,78 @@ The Decode32 Worker owns its checks and job waits. Each other owner retains its 
 
 [Incumbent profile overlays](2026-11-02-incumbent-profile-overlays.md) add measured group costs and shares to the layer, WGS and phase diagrams. Internal phase costs remain unisolated; no new GPU measurement.
 
-## Latest hourly report, November 2 17:53 Vancouver time
+## Historical hourly report, November 2 17:53 Vancouver time
 
 [Calibration, MID terminal and D32 attention confirmation](2026-11-02-1753-performance-review.md).
 
-## Previous hourly report, November 2 16:50 Vancouver time
+## Historical hourly report, November 2 16:50 Vancouver time
 
 [Shared-A and direct-weight terminal losses; D32 priority](2026-11-02-1650-performance-review.md).
 
-## Previous hourly report, November 2 15:43 Vancouver time
+## Historical hourly report, November 2 15:43 Vancouver time
 
 [Fixed K128 whole-layer results and next expert proposal](2026-11-02-1543-performance-review.md).
 
-## Previous hourly report, November 2 12:48 Vancouver time
+## Historical hourly report, November 2 12:48 Vancouver time
 
 Two expert-engine proposals stopped at source review. The isolated attention continuity candidate is frozen before H200 testing. [Review and evidence](2026-11-02-1248-performance-review.md)
 
-## Previous hourly report, November 2 11:53 Vancouver time
+## Historical hourly report, November 2 11:53 Vancouver time
 
 The one-token expert split passed correctness and lost its paired MoE gate. [Review and timings](2026-11-02-1153-performance-review.md)
 
-## Previous hourly report, November 2 10:44 Vancouver time
+## Historical hourly report, November 2 10:44 Vancouver time
 
 G pre-gamma transport passed component correctness and missed the paired performance gate. [Review and timings](2026-11-02-1044-performance-review.md)
 
-## Previous hourly report, November 2 09:46 Vancouver time
+## Historical hourly report, November 2 09:46 Vancouver time
 
 The expert component adapter passed CPU checks. Its paired harness and target measurements remain pending. [Review and evidence](2026-11-02-0946-performance-review.md)
 
-## Previous hourly report, November 2 08:49 Vancouver time
+## Historical hourly report, November 2 08:49 Vancouver time
 
 The PR buffer check failed host compilation before timing. Two expert prototypes have offline evidence, and an attention continuity toggle stopped at source review. [Review and evidence](2026-11-02-0849-performance-review.md)
 
-## Previous hourly report, November 2 07:49 Vancouver time
+## Historical hourly report, November 2 07:49 Vancouver time
 
 The graph-owned PR candidate has a conditional private allocation following host checks. [Review and qualification requirements](2026-11-02-0749-performance-review.md)
 
-## Previous hourly report, November 2 06:47 Vancouver time
+## Historical hourly report, November 2 06:47 Vancouver time
 
 Short serial passed correctness but missed its confirmation thresholds. The last private check remains reserved. [Review and six-load timings](2026-11-02-0647-performance-review.md)
 
-## Previous hourly report, November 2 05:28 Vancouver time
+## Historical hourly report, November 2 05:28 Vancouver time
 
 A fresh G1b4 control is queued. The serial short producer awaits its candidate run. The canonical timed SiLU receipt is available. [Review](2026-11-02-0528-performance-review.md)
 
-## Previous hourly report, November 2 04:32 Vancouver time
+## Historical hourly report, November 2 04:32 Vancouver time
 
 The matched G short-counter treatment missed its gate. G224 and timed SiLU passed correctness and were parked. The four-cell infrastructure failure was refunded. [Review and job ledger](2026-11-02-0432-performance-review.md)
 
-## Previous hourly report, November 1 14:49 Vancouver time
+## Historical hourly report, November 1 14:49 Vancouver time
 
 G’s reset queue is held. The common control needs H200 qualification before the remaining short-counter hypothesis can be tested. [Review and evidence](2026-11-01-1449-performance-review.md)
 
-## Previous hourly report, November 1 13:47 Vancouver time
+## Historical hourly report, November 1 13:47 Vancouver time
 
 The four-cell H200 job was accepted. Its result is unknown during service maintenance. Both standalone progress-repair forms failed the local spill gate. [Review and receipts](2026-11-01-1347-performance-review.md)
 
-## Previous hourly report, November 1 12:45 Vancouver time
+## Historical hourly report, November 1 12:45 Vancouver time
 
 Stage-local XOR lost on all ten targets. The repaired verify hybrid fits the file limit and awaits H200 qualification. [November 1 review](2026-11-01-1245-performance-review.md)
 
-## Previous hourly report, November 1 11:19 Vancouver time
+## Historical hourly report, November 1 11:19 Vancouver time
 
 The private VP2 comparator wins its target cell but misses the six-load gate. Global sparse XOR loses on all ten projection targets. The stage-local result is pending. [November 1 review](2026-11-01-1119-performance-review.md)
 
-## Previous hourly report, November 1 08:04 MST
+## Historical hourly report, November 1 08:04 MST
 
 [Retained G layer and final measured outcomes](2026-11-01-0804-performance-review.md)
 records remote snapshot `af3b550`. Family G retains2.126083x. Owned Lt-plus-boundary
 has matched gains. New owned scheduling and projection variants fail gates, and detailed
 wait observers fail causal-usability checks. The final handoff defines pending reset checks.
 
-## Previous hourly report, November 1 01:16
+## Historical hourly report, November 1 01:16
 
 **[2026-11-01 01:16 PDT: remote architecture evidence](2026-11-01-0116-performance-review.md)**
 
@@ -154,7 +156,7 @@ masked grouped MoE loses. Late-tid2 attention is promoted standalone. Earlier PR
 port has one win and an unresolved repeat. C3 router gains remain component-only.
 Timeline routing counts are invalid and CUPTI access is denied. Prefill remains deferred.
 
-## Previous hourly report, 23:32
+## Historical hourly report, 23:32
 
 **[2026-10-30 23:32 PDT: PBULK measured, mode 86 and fusion gates](2026-10-30-2332-performance-review.md)**
 
@@ -163,7 +165,7 @@ its performance gate. M-C C-1 loses locally before a bench fault. New layer scor
 remains within prior uncertainty; changed validation and sensitivity findings are retained.
 GTICKET review is complete, with corrected code awaiting benchmark validation.
 
-## Previous hourly report, 22:35
+## Historical hourly report, 22:35
 
 [Same-refill P0 WS/P1 C2 source screens](2026-11-02-general-hotspot-search-refill.md#p0-ws-and-p1-bf16-research-pickup-and-source-screens--november-2-2026-pacific): terminal-join SASS and exact C2 reconstruction checked; structural alternatives remain cost/feasibility gaps, not measured gains. No kernels or worker jobs changed.
 

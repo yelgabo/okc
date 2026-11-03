@@ -1,0 +1,170 @@
+{
+  "observed_at": "2026-11-03T07:36:31.308659+00:00",
+  "scope": "Saved own receipts, including archives and ignored files. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+  "json_files_scanned": 2750,
+  "distinct_clean_passing_own_receipts": 188,
+  "leads": 20,
+  "promotion_gaps": [],
+  "check_exit": 0,
+  "ledger_sha256": "e4461dd785d259c71a82fa93d3fed44e70294dc9dd83db0f24534e148e6d62a5",
+  "approval_update": "747only; authorization true conditional, confirmation false; all measured identities/score/arm/evidence unchanged",
+  "public": {
+    "muse_moe_w4a16": {
+      "job": "4aa033ef23a142cd",
+      "score_us": 5788.7207203627,
+      "rank": 374,
+      "speedup": 2.3232,
+      "snapshot": ".build\\driver-monitor-0717\\public-snapshots\\muse_moe_w4a16.leaderboard.json"
+    },
+    "muse_bf16_proj": {
+      "job": "9eba96894ee1402e",
+      "score_us": 3161.918773020326,
+      "rank": 369,
+      "speedup": 1.5278,
+      "snapshot": ".build\\driver-monitor-0717\\public-snapshots\\muse_bf16_proj.leaderboard.json"
+    },
+    "muse_attention_decode": {
+      "job": "8914751e3b9f468b",
+      "score_us": 1446.1905945986007,
+      "rank": 263,
+      "speedup": 2.6043,
+      "snapshot": ".build\\driver-monitor-0717\\public-snapshots\\muse_attention_decode.leaderboard.json"
+    },
+    "muse_decode_layer": {
+      "job": "607eb52bdaf24160",
+      "score_us": 10639.426326569794,
+      "rank": 389,
+      "speedup": 2.1261,
+      "snapshot": ".build\\driver-monitor-0717\\public-snapshots\\muse_decode_layer.leaderboard.json"
+    },
+    "muse_prefill_layer": {
+      "job": "1530ec79d50a4f69",
+      "score_us": 318441.9905489318,
+      "rank": 641,
+      "speedup": 1.2166,
+      "snapshot": ".build\\driver-monitor-0717\\public-snapshots\\muse_prefill_layer.leaderboard.json"
+    }
+  },
+  "numerical_leads": [
+    {
+      "job": "cd6805e7ebce45ee",
+      "problem": "muse_attention_decode",
+      "score_us": 1426.841504095996,
+      "elapsed_reduction_pct": 1.337935025637138
+    },
+    {
+      "job": "80415fe736bb4890",
+      "problem": "muse_attention_decode",
+      "score_us": 1435.839528231834,
+      "elapsed_reduction_pct": 0.7157470395276366
+    },
+    {
+      "job": "3c6a2baf7b4b4bf3",
+      "problem": "muse_bf16_proj",
+      "score_us": 3071.044087992324,
+      "elapsed_reduction_pct": 2.874036037971872
+    },
+    {
+      "job": "bac995b3b94541c4",
+      "problem": "muse_bf16_proj",
+      "score_us": 3116.5034536012295,
+      "elapsed_reduction_pct": 1.4363215085286707
+    },
+    {
+      "job": "b103af15ba564ef6",
+      "problem": "muse_bf16_proj",
+      "score_us": 3144.6115056857234,
+      "elapsed_reduction_pct": 0.547365969115976
+    },
+    {
+      "job": "3a5f879df0d44825",
+      "problem": "muse_decode_layer",
+      "score_us": 10058.873726017206,
+      "elapsed_reduction_pct": 5.4566156363410006
+    },
+    {
+      "job": "17383751c6a24010",
+      "problem": "muse_decode_layer",
+      "score_us": 10625.699452428964,
+      "elapsed_reduction_pct": 0.12901893127968966
+    },
+    {
+      "job": "b65c4c878014416c",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5613.592490285424,
+      "elapsed_reduction_pct": 3.02533562314099
+    },
+    {
+      "job": "7479372115c64702",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5698.5082429255835,
+      "elapsed_reduction_pct": 1.5584182031753713
+    },
+    {
+      "job": "46aafddc195c4c57",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5725.692982284411,
+      "elapsed_reduction_pct": 1.0888025372614574
+    },
+    {
+      "job": "3c45788127e945c4",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5726.825020062481,
+      "elapsed_reduction_pct": 1.0692466140660772
+    },
+    {
+      "job": "3aa3885f6b734f8c",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5744.7258087458995,
+      "elapsed_reduction_pct": 0.7600109547873379
+    },
+    {
+      "job": "f147d06a64504c1e",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5746.540010389314,
+      "elapsed_reduction_pct": 0.7286706685470046
+    },
+    {
+      "job": "64f9998ef238476f",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5762.134394618605,
+      "elapsed_reduction_pct": 0.4592780862716972
+    },
+    {
+      "job": "56e0c8b5634545e6",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5765.743115976166,
+      "elapsed_reduction_pct": 0.3969375186076429
+    },
+    {
+      "job": "b38a9ed6dc9743e9",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5769.290637794547,
+      "elapsed_reduction_pct": 0.3356541713923855
+    },
+    {
+      "job": "defbb042449d44e7",
+      "problem": "muse_prefill_layer",
+      "score_us": 297780.60668370064,
+      "elapsed_reduction_pct": 6.488272425886732
+    },
+    {
+      "job": "f92ffc2953284a9a",
+      "problem": "muse_prefill_layer",
+      "score_us": 299350.07599605137,
+      "elapsed_reduction_pct": 5.995413645031455
+    },
+    {
+      "job": "e9bd4269a6584df8",
+      "problem": "muse_prefill_layer",
+      "score_us": 304181.849040534,
+      "elapsed_reduction_pct": 4.478097088834332
+    },
+    {
+      "job": "2bd4f06042864771",
+      "problem": "muse_prefill_layer",
+      "score_us": 306796.6918581915,
+      "elapsed_reduction_pct": 3.656960776644469
+    }
+  ]
+}

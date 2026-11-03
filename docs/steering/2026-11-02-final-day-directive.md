@@ -49,3 +49,10 @@ hash, affected cells before and after, decision. Chat-only results do not count.
 ## Ledger
 
 - 2026-11-02 ~23:30 PT, user authorization: "yes, submit on confirmation" for the MoE factorized-output release (lead job 7479372115c64702, 5,698.5 us, 2.360x). The final-day lead submits the single-arm release file to the muse_moe_w4a16 board as soon as its own private check confirms within noise of that result, without a further ask. This authorization covers that one file only.
+
+
+## Execution reconciliation — November3 07:17UTC monitor
+
+The fixed General row-owned native896b5350 has already completed as7f10243c98e74746/payloadf31b652f: correctness5/6/6passes, all6matched performance groups fail. Reuse its [terminal decision](2026-11-02-general-ws-row-owned.md); the conditional queue mention above does not create a duplicate dispatch. General's available action is support for the existing MoE owner's Tiny/Tiny2 timeline, not a second instrument/job or another full-K sweep. Named assignments, including explicit T8/T16 exceptions, define scope; the sensitivity threshold does not expand work to other rows.
+
+MoE factorized-output7479372115c64702 is terminal and archived at1454ac73: officialcandidate2 point5698.508243us, but matched0/6groups/13regressions/two unchanged drifts against already-public C7. This exact experimental comparison is closed. The **separate conditional single-arm release authorization in the ledger above remains valid**: existing release builder/final-day lead prepares exact clean bytes, performs its own confirming private check, and publicly submits that one file only if the user's condition passes, without a further ask. No adapter upload, combined PARAM-Y, new large-load representation iteration or duplicate collector follows. [Current result, scope and authority](2026-11-02-driver-monitor-0717.md).

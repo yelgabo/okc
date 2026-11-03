@@ -1,0 +1,22 @@
+{
+  "audit_commit": "b24ba3ed",
+  "correction_base": "20a6cfa9",
+  "owning_public_job": "607eb52bdaf24160",
+  "source": "ba9e327c/869076LFbytes",
+  "owning_receipts_agree": true,
+  "wrong_source_found": false,
+  "profile_activity_to_endpoint_pct": {
+    "moe": 50.6116,
+    "sk2": 23.7057,
+    "attention": 15.2568,
+    "all_activity": 103.8259
+  },
+  "method": "Weight profiler activity and independently benchmarked endpoints by46sliding+16full within each ofsixloads; average activity/endpoint ratios. These are not disjoint score shares or exposed removable time.",
+  "scope_correction": "Earlier P4label was Decode32 specifically; new776fshort-load directive nowsupersedes queues and allows boundedlayer tasks.",
+  "discovery_correction": "Prior0510/0611monitor reports alreadyrecord deadline/ranks with exact datedevidence; globalabsence claimunsupported.",
+  "evidence": [
+    "muse_decode_layer/profiles/scored.607eb52bdaf24160.json",
+    "docs/steering/2026-11-02-driver-monitor-0611.md",
+    "docs/steering/2026-11-02-final-day-directive.md"
+  ]
+}
