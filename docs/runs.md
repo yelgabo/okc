@@ -2457,3 +2457,71 @@ twelve same-kernel geometries tested in one wave or two; the pull reduction is 1
 0.3-0.45 is the exit drain. The comparator's 2.55 us comes with fewer weight bytes (12-bit codec
 at m = 128) and BF16-rounded K-split partials, neither of which this lane tested; at 0.248% per us
 the whole gap is about 0.6% of the board, short of the 3.5% to rank 100.
+
+### 2026-11-03 m = 1 cgemv as a PDL participant (final-day BF16 bench lane, CGPDL-01 / 02)
+
+Question: why did the layer's m = 1 cgemv kernels time 3 to 4.7 us slower in the layer's in-prepare tuner once
+`tools/dl_pdl8c_patch.py --cgpdl` made them PDL participants (g1b4_pdl8c2 `65f0a3be76a1499b`: cg 15.23 / 13.06 / 8.0 us
+for qkv_gate / o / slice, against 12.35 / 8.74 / 7.01 in pdl8c `eba613c023414ca8`)? Source reading first: the tuner
+runs inside prepare while `_PDL8` is False, so it timed the edited kernel launched by `cudaLaunchKernelEx` without
+the attribute, alone in its graph. Local sm_90a build (CUDA 12.8 in Docker, a compiler observation): `__ldcg` is
+`LDG.E.128.STRONG.GPU`, `griddepcontrol.wait` is `ACQBULK`, `launch_dependents` is `PREEXIT`, and pdl8c2 issues all
+2 x CPT weight loads, then `PREEXIT`, `ACQBULK`, then the x loads, where the plain kernel interleaves weight and x
+loads; no arm spills.
+
+Bench: `tools/proj_make_bench_cgpdl.py` on the public BF16 bytes 5610b8a6 (judged arm = that control), C2's cgemv body
+with one pdl8c2 ingredient at a time behind template bits, pdl8c2's own edited source as `c2pdl`, and a two-kernel
+chain (a producer that triggers at entry, streams 8 MB and writes x, then the cgemv). Every arm bitwise equal to
+ctrl2 on 4 inputs (FP64 + probe rows on ctrl2) and on 3 fresh captured replays; 3 held-out inputs x 100 shuffled
+cold-L2 graph rounds. Check 1 `aa5e4ae178d244de` (cg_pdl.py be9ce416): PASS, board run 3,165.5 us (1.5261x), but the
+server's 16 KB log tail dropped the qkv_gate rows and o input 0. Check 2 `990758fa4f634261` (cg_pdl2.py 40bb87b5,
+`--set 2`, compact log): PASS, board run 3,193.8 us (1.5125x). Nulls ctrl2 - ctrl -0.18 to -0.02 us, MAD 0.13-0.29.
+
+Median paired delta against ctrl2 in us, the three inputs of check 2 (check 1 where marked), standalone launches:
+
+| arm | ingredient | qkv_gate 256x2 | o 64x1 | slice 128x2 |
+|---|---|---:|---:|---:|
+| ex0 | plain kernel through cudaLaunchKernelEx, no attribute | -0.03 / +0.03 / 0.00 | -0.02 / +0.06 / +0.02 | 0.00 / 0.00 / -0.03 |
+| exattr | plain kernel, PDL attribute, alone in its graph | -0.02 / -0.02 / -0.06 | 0.00 / +0.03 / -0.02 | +0.03 / -0.03 / +0.10 |
+| ord | compiler barrier after the weight loads | +0.03 / -0.02 / +0.06 | +0.06 / +0.13 / +0.03 | +0.16 / +0.11 / +0.19 |
+| wait | griddepcontrol.wait after the weight loads | +0.03 / 0.00 / +0.10 | +0.05 / +0.10 / +0.03 | +0.16 / +0.06 / +0.21 |
+| trig | launch_dependents after the weight loads | +1.71 / +1.63 / +1.86 | +1.81 / +1.98 / +1.79 | +0.38 / +0.42 / +0.54 |
+| trige | launch_dependents at the CTA's end | +0.06 / -0.06 / +0.10 | +0.80 / +0.96 / +0.90 | +0.16 / +0.06 / +0.26 |
+| cg | x through `__ldcg` | +0.46 / +0.80 / +0.48 | +2.85 / +2.82 / +2.74 | +0.22 / +0.59 / +0.35 |
+| cgord (check 1) | `__ldcg` + order barrier | - | +2.72 / +2.78 | +0.32 / +0.19 / +0.26 |
+| cgrep | `__ldcg` from 16 replicas of x (diagnostic) | +0.51 / +0.48 / +0.61 | +0.26 / +0.29 / +0.37 | +0.29 / +0.22 / +0.34 |
+| full | pdl8c2: `__ldcg` + trigger + wait, as the tuner launched it | +3.26 / +3.58 / +3.36 | +4.64 / +4.64 / +4.74 | +1.34 / +1.57 / +1.39 |
+| fullattr (check 1) | full with the attribute, alone in its graph | - | +4.80 / +4.78 | +1.26 / +1.25 / +1.12 |
+| c2pdl | pdl8c2's own source, verbatim | +3.25 / +3.73 / +3.39 | +4.74 / +4.80 / +4.77 | +1.34 / +1.66 / +1.36 |
+| fe | `__ldcg` + wait + trigger at the CTA's end | +0.42 / +0.74 / +0.54 | +2.67 / +2.69 / +2.59 | +0.19 / +0.62 / +0.22 |
+| s4 / s4e / s8e / s2e | x staged once per CTA by cp.async.cg, G row pairs per CTA | s2e +4.8 to +5.3 | s4 +0.5-0.6, s4e +1.2, s8e +0.9-1.0 | s4 +0.9, s4e +0.8-0.9, s2e +2.1 |
+
+Two-kernel chain, median paired delta against the plain chain chP (producer, then the plain cgemv without PDL), us:
+
+| chain | qkv_gate | o | slice |
+|---|---:|---:|---:|
+| chF1: full as a PDL secondary | +2.11 / +2.14 / +1.86 | +3.74 / +3.78 / +3.81 | +0.16 / +0.42 / +0.06 |
+| chFe0: fe, no attribute | +0.66 / +0.61 / +0.67 | +3.42 / +3.30 / +3.33 | +0.64 / +0.80 / +0.22 |
+| chFe1: fe as a PDL secondary | -0.08 / -0.24 / -0.21 (54-63 of 100 faster) | +2.56 / +2.59 / +2.51 | -0.29 / -0.03 / -0.51 (54-92) |
+| best staged, PDL | chS2e1 +3.7 | chS8e1 +0.8 | chS4e1 -0.16 / -0.03 / -0.40 |
+
+Cause (measured): the PDL attribute, a standalone PDL-attributed launch inside a graph, `griddepcontrol.wait` and
+the issue order cost nothing (all within 0.2 us). The two placements in pdl8c2 cost: (1) `launch_dependents` issued
+before the x loads, +1.6 to +2.0 us on qkv_gate and o and +0.4 on the slice; moved to the CTA's end it costs 0 on
+qkv_gate and the slice and +0.9 on o (4096 CTAs). (2) x through `__ldcg`, +0.5 / +2.8 / +0.3 us: with `__ldg`,
+CTAs on one SM share x through L1; with `.cg` every CTA reads its x lines from L2, and 16 replicas of x cut the o
+cost from 2.8 to 0.3 us, so most of it is many CTAs reading the same few L2 lines, not L2 latency. The two add up to
+pdl8c2's slowdown in this bench (full +3.4 / +4.7 / +1.4 us, matching the tuner's +2.9 / +4.3 / +1.0). The real PDL
+edge saving in the chain (chFe0 - chFe1) is 0.7-0.9 us per edge, so a cgemv secondary gains only if its own cost
+stays under that: fe does at qkv_gate and the slice (net -0.1 to -0.5 us against the plain chain), not at o (+2.5).
+Staging x into shared memory loses at every G tested (barrier and occupancy cost above the L2 saving).
+
+Decision against the registered gate (standalone d_ctrl2 <= +0.3 us on every shape and input, chain minus chP <=
+-0.5 us): no arm passes; fe is the closest and the only composable variant. It is written as `tools/dl_cgfe_cgemv.py
+--variant fe` (`muse_decode_layer/cand/g1b4_cgfe.py`, SHA256 3785f13a, built and compiled locally, not dispatched):
+pdl8c2 with the trigger moved to the CTA's end. In the layer's tuner, fe is expected to stay below sk2 at qkv_gate
+(about 12.35 + 0.6 against 13.5 us) and the slice (7.0 + 0.3 against 8.0), and above it at o (8.7 + 2.7 against 9.4),
+so the tuner keeps sk2's PDL path at o. Estimated layer effect from these benches (not measured in the layer):
+qkv and slice edges about -0.1 to -0.5 us each, the o edge unchanged from pdl8b, so the T = 1 gain is at most
+about 1 us, below the layer's draw spread. Lane stopped after 2 of 4 checks. Receipts:
+`muse_bf16_proj/experiments/profiles/cg_pdl.aa5e4ae178d244de.{json,txt,log}` and `cg_pdl2.990758fa4f634261.{json,txt,log}`.
