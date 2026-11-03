@@ -1,5 +1,10 @@
 # Shared project steering
 
+## H200 ~460-experiment lessons: actionable D32 next lead
+
+**[D32-12 source-backed backlog and B4 warp-prefix experiment](decode32/2026-11-02-12-h200-460-next-leads.md)** reviews [the user's new ~460-experiment note](../research/h200-460-experiments.md). The selected public607 B4/T32 path still computes cost prefixes and four range boundaries in one producer lane; an earlier unselected warp-parallel implementation in the same source provides a non-drop-in starting point. **D32-MOE-01** is a single B4-only implementation and private full-layer test, queued after Decode32 Worker's currently owned strict matched-attention routing diagnostic. Existing SC6, phase-B flags, shape-specialized builds and conditional T32 pooler/router fusion are acknowledged rather than assigned again. General Optimizer keeps its T1/T8/T16 ring comparison and CUDA Optimizer its separate MoE pipeline. External 460-experiment percentages are unverified; no new gain or job is claimed. The task is published, worker pickup unconfirmed.
+
+
 ## Public competition reconnaissance and recurring watch
 
 [Competition watch and source findings](2026-11-02-competition-watch.md) records the user's request to follow public GitHub and social discussion for all five Muse problem names. The new material finding is keell0renz's README-only author caveat at `890809ce`, asking readers to disregard a current #1 submission. This is an attributed statement, not an independent judge finding or a change to its published kernels. The baseline records 36 public repository targets, paginated search coverage and access gaps. A two-hour Codex watch is active in the scouting chat and alerts on substantive changes. No kernel work, judge job, public submission or ownership change.
