@@ -1,0 +1,93 @@
+{
+  "scope": "Release state/authorization history only; numerical/source/arm/owner/evidence identity preserved. Conditional authorization exists but is not satisfied.",
+  "updates": [
+    {
+      "job": "7479372115c64702",
+      "before": {
+        "job": "7479372115c64702",
+        "problem": "muse_moe_w4a16",
+        "score_us": 5698.5082429255835,
+        "owner": "MoE worker (former Decode32), release build delegated by the final-day lead",
+        "release_state": "conditionally-approved-confirmation-pending",
+        "reason": "Official candidate2 point5698.508243us/2.360003606x is lower than current public5788.720720us, but matched0/6groups,13affected regressions andtwo unchanged drifts show no qualifying storage-only advantage against already-public C7. Preserve that negative. User separately authorized \"yes, submit on confirmation\" in20a6cfa9: existing MoE release builder prepares the ONE clean single-arm file; final-day lead follows its own confirming private check and submits that one file if the condition passes, without asking again. Approval is conditional, not source/readiness qualification; public_submission_condition_satisfied remainsfalse until evidence is recorded. No paired-adapter public upload, PARAM-Y approval or generic repeat authority.",
+        "evidence": "docs/steering/evidence/2026-11-02-moe-factor-y/status-wait.raw.json",
+        "disclosure_report": "docs/steering/2026-11-02-moe-factorized-output.md",
+        "public_submission_approved": true,
+        "judged_arm": "candidate2; factorized BF16 down-result storage, native ecd1df11, helper b8ed8543 unchanged",
+        "source_identity": "paired physical 78506b743ace84e1fc0b088fe7fe3b23009f3de0bf5136e20413504026e07492/348783B, tracked copy muse_moe_w4a16/cand/factor_y_paired.py",
+        "source_sha256": "78506b743ace84e1fc0b088fe7fe3b23009f3de0bf5136e20413504026e07492",
+        "artifact": "muse_moe_w4a16/cand/factor_y_paired.py",
+        "public_submission_condition_satisfied": false,
+        "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
+        "public_submission_approval_commit": "20a6cfa989b642ffe411b10abd8e47b85664417c",
+        "public_submission_approval_scope": "ONE clean single-arm storage-only Factor-Y release derived from nativeecd1df11/paired78506b74, only after its own private check confirms within noise of5698.508243us. Pin exact release hash before POST. The private paired comparison adapter and combined PARAM-Y alternative are not authorized for public use."
+      },
+      "after": {
+        "job": "7479372115c64702",
+        "problem": "muse_moe_w4a16",
+        "score_us": 5698.5082429255835,
+        "owner": "MoE worker (former Decode32), release build delegated by the final-day lead",
+        "release_state": "conditionally-approved-confirmation-failed",
+        "reason": "Original candidate2 lead5698.508243us passed correctness but matched0/6groups,13regressions/two unchanged drifts against already-public C7. User separately approved one clean single-arm release on confirmation. Exact9fd9b8cb check9da6e737a8264d52 returned5767.982645us and failed the registered <=5760us/every-cell-within2% condition (T1+2.22%,T8+5.83%). That condition is unmet; no submission or blind retry follows. Conditional authorization history remains recorded; this is not waiting for another permission question.",
+        "evidence": "docs/steering/evidence/2026-11-02-moe-factor-y/status-wait.raw.json",
+        "disclosure_report": "docs/steering/2026-11-03-driver-monitor-0816.md",
+        "public_submission_approved": true,
+        "judged_arm": "candidate2; factorized BF16 down-result storage, native ecd1df11, helper b8ed8543 unchanged",
+        "source_identity": "paired physical 78506b743ace84e1fc0b088fe7fe3b23009f3de0bf5136e20413504026e07492/348783B, tracked copy muse_moe_w4a16/cand/factor_y_paired.py",
+        "source_sha256": "78506b743ace84e1fc0b088fe7fe3b23009f3de0bf5136e20413504026e07492",
+        "artifact": "muse_moe_w4a16/cand/factor_y_paired.py",
+        "public_submission_condition_satisfied": false,
+        "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
+        "public_submission_approval_commit": "20a6cfa989b642ffe411b10abd8e47b85664417c",
+        "public_submission_approval_scope": "ONE clean single-arm Factor-Y release9fd9b8cb, only after registered private confirmation. Confirmation9da6e737a8264d52 failed; this outcome permits no public POST/blind retry. Conditional user authorization history remains; paired adapter and PARAM-Y are excluded.",
+        "release_confirmation_job": "9da6e737a8264d52",
+        "release_confirmation_outcome": "failed",
+        "release_confirmation_evidence": "muse_moe_w4a16/profiles/factor_y_release.9da6e737a8264d52.receipt.json",
+        "approved_release_source_sha256": "9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a",
+        "approved_release_artifact": "muse_moe_w4a16/cand/factor_y_release.py"
+      }
+    },
+    {
+      "job": "9da6e737a8264d52",
+      "before": {
+        "job": "9da6e737a8264d52",
+        "problem": "muse_moe_w4a16",
+        "score_us": 5767.982644796483,
+        "owner": "MoE worker (former Decode32), release build delegated by the final-day lead",
+        "release_state": "clean-release-failed",
+        "reason": "Standalone single-arm release of the MOE-FACTOR-Y-01 candidate arm (control arm, pair edits, dispatch gate and harness removed; incumbent scale fallbacks restored). PASS 5/5, 6 benchmarks, 6 profiles, no flags: 5767.982645 us / 2.331578x CI [2.296604, 2.366551]. Registered acceptance against lead 7479372115c64702 (score at or under 5760 us, every cell within 2%) fails: score +8.0 us, decode 1 26.236 vs 25.667 (+2.22%), verify 1 67.115 vs 63.415 (+5.83%); decode 16 +1.77%, decode 32 -2.43%, verify 16 +0.19%, verify 32 +1.88%. The point is 20.738 us below public 4aa033ef 5788.720720 us with overlapping CIs; one receipt cannot separate file effect from run-to-run noise. No retry, no public action; public submission needs the user go-ahead.",
+        "evidence": "muse_moe_w4a16/profiles/factor_y_release.9da6e737a8264d52.receipt.json",
+        "disclosure_report": "docs/steering/2026-11-02-moe-factorized-output.md",
+        "public_submission_approved": false,
+        "judged_arm": "candidate, the only arm; factorized BF16 down-result storage, native ecd1df11, helper b8ed8543 unchanged",
+        "source_identity": "release physical 9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a/322430B; service 536871eaa26530ec1c1f30b2266144d179ed405933726855d90407d31d8e84b1; tracked muse_moe_w4a16/cand/factor_y_release.py, generated from paired 78506b74 by tools/moe_factor_y_release.py",
+        "source_sha256": "9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a",
+        "artifact": "muse_moe_w4a16/cand/factor_y_release.py"
+      },
+      "after": {
+        "job": "9da6e737a8264d52",
+        "problem": "muse_moe_w4a16",
+        "score_us": 5767.982644796483,
+        "owner": "MoE worker (former Decode32), release build delegated by the final-day lead",
+        "release_state": "clean-release-failed",
+        "reason": "Standalone single-arm release of the MOE-FACTOR-Y-01 candidate arm (control arm, pair edits, dispatch gate and harness removed; incumbent scale fallbacks restored). PASS 5/5, 6 benchmarks, 6 profiles, no flags: 5767.982645 us / 2.331578x CI [2.296604, 2.366551]. Registered acceptance against lead 7479372115c64702 (score at or under 5760 us, every cell within 2%) fails: score +8.0 us, decode 1 26.236 vs 25.667 (+2.22%), verify 1 67.115 vs 63.415 (+5.83%); decode 16 +1.77%, decode 32 -2.43%, verify 16 +0.19%, verify 32 +1.88%. The point is 20.738 us below public 4aa033ef 5788.720720 us with overlapping CIs; one receipt cannot separate file effect from run-to-run noise. No retry or public action from this outcome. The user already conditionally approved this one release in20a6cfa9; its registered confirmation failed, so the condition is unmet, not awaiting another go-ahead. The08:17 public board point5737.988910us is also lower than this release-check point.",
+        "evidence": "muse_moe_w4a16/profiles/factor_y_release.9da6e737a8264d52.receipt.json",
+        "disclosure_report": "docs/steering/2026-11-03-driver-monitor-0816.md",
+        "public_submission_approved": true,
+        "judged_arm": "candidate, the only arm; factorized BF16 down-result storage, native ecd1df11, helper b8ed8543 unchanged",
+        "source_identity": "release physical 9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a/322430B; service 536871eaa26530ec1c1f30b2266144d179ed405933726855d90407d31d8e84b1; tracked muse_moe_w4a16/cand/factor_y_release.py, generated from paired 78506b74 by tools/moe_factor_y_release.py",
+        "source_sha256": "9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a",
+        "artifact": "muse_moe_w4a16/cand/factor_y_release.py",
+        "public_submission_condition_satisfied": false,
+        "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
+        "public_submission_approval_commit": "20a6cfa989b642ffe411b10abd8e47b85664417c",
+        "release_confirmation_job": "9da6e737a8264d52",
+        "release_confirmation_outcome": "failed",
+        "release_confirmation_evidence": "muse_moe_w4a16/profiles/factor_y_release.9da6e737a8264d52.receipt.json",
+        "approved_release_source_sha256": "9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a",
+        "approved_release_artifact": "muse_moe_w4a16/cand/factor_y_release.py",
+        "public_submission_approval_scope": "ONE clean single-arm Factor-Y release9fd9b8cb, only after registered private confirmation. Confirmation9da6e737a8264d52 failed; this outcome permits no public POST/blind retry. Conditional user authorization history remains; paired adapter and PARAM-Y are excluded."
+      }
+    }
+  ]
+}
