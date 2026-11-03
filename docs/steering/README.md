@@ -1,12 +1,18 @@
 # Shared project steering
 
-## Latest user instruction: Decode32 Worker owns batch32 end to end, not the whole project
+## Latest user instruction: research plans; Decode32 Worker implements and measures
 
-**[D32-02: end-to-end batch-32 ownership](decode32/2026-11-02-02-end-to-end-ownership.md)** is the latest direct user instruction, including the explicit clarification "in terms of optimizsing batch-32 stuff" / "not EVERYTHING". Decode32 Worker owns D32 implementation, compilation, correctness tests, private GPU checks, result analysis, iteration, integration and commits. **No routine Driver/Developer handoffs or per-step captain approval.** This supersedes the source-only, attention-only and sole-Driver dispatch restrictions below for D32 only. OK Driver/OKC Developer keep unrelated work. Correctness, live shared quota/job preflight, preservation of other load winners and existing public-submission permissions remain.
+**[D32-04: fixed implementation and measurement brief](decode32/2026-11-02-04-research-plan-worker-execute.md)** records the user's medium-effort worker setting and request for okc research to handle the deeper planning. Research owns architectural choices and concrete experiments; **Decode32 Worker retains coding, focused checks, private GPU submission, own-job analysis, confirmation, integration and commits, without routine handoffs or per-step approval.** Finish the already-selected within-request next-tile QK score-carry attention candidate. Do not restart literature review, architecture selection or an independent-review chain. Known correctness/progress defects still block dispatch; an unproved speedup does not block a bounded exploratory check.
 
-Continue the acknowledged attention work and reuse existing MID work. Publication was reconciled with concurrent `65b94dcc`: **MID job a6fe2769779e4299 was already accepted** and remains with its original owner through terminal/archive; do not cancel, mutate, resubmit or create a second poller. Subsequent D32 experiments belong to Decode32 Worker. This one-time existing-job exception is not a recurring handoff requirement. Read the [watched inbox](decode32/README.md); no new acknowledgment of the expanded role is claimed. No kernel or GPU action was made for this instruction update.
+The [worker execution plan](decode32/2026-11-02-01-full-decode-attention-plan.md) and [watched inbox](decode32/README.md) now remove the obsolete Driver measurement handoff. Existing public permissions and non-D32 ownership are unchanged. Evidence checkpoint a3ba392c; MID is terminal and parked, so no wait on its old allocation. This is a published design/execution directive, not a new benchmark, model-setting change by research, or verified worker acknowledgment.
 
-Earlier ownership statements below are retained as history and do not override D32-02. This is a scoped D32 transfer, not replacement of the project captain or other benchmark owners.
+## Standing execution authority: Decode32 Worker owns batch32 end to end, not the whole project
+
+**[D32-02: end-to-end batch-32 ownership](decode32/2026-11-02-02-end-to-end-ownership.md)** remains the direct user execution instruction, including the explicit clarification "in terms of optimizsing batch-32 stuff" / "not EVERYTHING". Decode32 Worker owns D32 implementation, compilation, correctness tests, private GPU checks, result analysis, iteration, integration and commits. **No routine Driver/Developer handoffs or per-step captain approval.** This supersedes the source-only, attention-only and sole-Driver dispatch restrictions below for D32 only. OK Driver/OKC Developer keep unrelated work. Correctness, live shared quota/job preflight, preservation of other load winners and existing public-submission permissions remain. D32-04 above refines architectural planning ownership without removing execution autonomy.
+
+Continue the acknowledged attention work and reuse existing MID evidence. Publication of D32-02 was reconciled with concurrent `65b94dcc`: MID job a6fe2769779e4299 had already been accepted and stayed with its original owner through terminal/archive. That exception is now complete; see the terminal below. Do not cancel, mutate, resubmit or create a second poller for a completed job. Subsequent D32 experiments belong to Decode32 Worker. Read the [watched inbox](decode32/README.md); no new acknowledgment of the revised planning split is claimed. No kernel or GPU action was made for this instruction update.
+
+Earlier ownership statements below are retained as history and do not override D32-02/D32-04. This is a scoped D32 transfer, not replacement of the project captain or other benchmark owners.
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing correctness requirements and public-submission permissions remain in effect. A report is not an additional GPU dispatch.
 
@@ -22,7 +28,7 @@ This is the stable cross-session entry point. Read the latest human priority, it
 
 ## Decode32 task inbox
 
-[Add research assignments and direction here](decode32/README.md). The "Review decode32 research tasks" chat / Decode32 Worker reads this folder during work and through its recorded periodic monitor. Its former waiting state is superseded by the acknowledged assignment. [Setup and monitoring contract](2026-11-02-decode32-inbox.md); older ownership restrictions yield to D32-02.
+[Add research assignments and direction here](decode32/README.md). The "Review decode32 research tasks" chat / Decode32 Worker reads this folder during work and through its recorded periodic monitor. Its former waiting state is superseded by the acknowledged assignment. [Setup and monitoring contract](2026-11-02-decode32-inbox.md); older ownership restrictions yield to D32-02/D32-04.
 
 ## Earlier captain and MoE owner assignment
 
@@ -56,6 +62,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [D32-04: research plans, worker executes](decode32/2026-11-02-04-research-plan-worker-execute.md) | a3ba392c; user's medium-effort instruction; existing L1 score-carry source brief | Fixed candidate design, focused checks and direct private measurement; no repeated review/planning or handoffs; correctness retained |
 | [D32-02: end-to-end ownership](decode32/2026-11-02-02-end-to-end-ownership.md) | 28346bf; latest user instruction; publication reconciled with65b94dcc | Batch32-only implementation through private checks and integration; no recurring handoffs; rest of project unchanged |
 | [D32 MID terminal / one-time retirement](2026-11-02-driver-d32-mid-terminal.md) | own a6fe2769779e4299/e607fb89; control94ef | VALID13/12/12/native56; no usefulD32signal,exactPARK; raw/profiles/portablederivative archived; futureD32execution directlynewowner |
 | [D32 MID accepted check](2026-11-02-driver-d32-mid-first-check.md) | own a6fe2769779e4299; source28346bf5/e607fb89 | One pre-existing ordinary private exploration; original owner finishes this accepted job; target gates open |
