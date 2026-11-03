@@ -1,0 +1,44 @@
+MOE_TL prep T=1 grid=132 njS=2 pre=2 nA=7..8 nB=3..5 depwaits=1..1  (us min/mean/max over CTAs, from the first entry)
+ entry 0.0/0.1/0.3 | route+ranges 2.3/2.6/2.9 | first slot full 3.5/4.2/5.3
+ A end 16.4/18.5/21.0 | A unit 1.3/1.8/4.1 us (n=892, min dt 1.280) | A wwait 0.4/1.4/3.8 | A bufwait 0.2/0.3/0.4
+ credit0 15.7/16.3/17.9 | credit 18.9/20.5/22.8 | B0 switch start 20.9/23.2/26.8 | end 22.7/23.8/26.9 | B switch sum 0.3/1.0/2.5
+ B end 23.9/26.0/28.8 | B unit 1.2/1.7/3.8 us (n=380) | B wwait 0.1/0.2/0.3 | B bufwait 0.1/0.2/0.3 | helper done 21.0/23.8/26.6
+ switch cost (us) chunk1 0.1/0.2/0.5 | chunk2 0.1/0.4/0.8 | chunk3 0.1/0.6/1.8
+ bar arrive 25.2/27.0/29.9 | bar release 30.6/30.7/30.9 | bar idle 1.0/3.7/5.5 | final 0.8/1.0/2.0 | exit 31.6/31.7/32.7
+ mean CTA: ramp 4.2 | A 14.3 | A-end->B0 x ready 5.3 (B switches 1.0) | B 2.2 | B-end->bar 1.0 | bar 3.7 | final 1.0
+MOE_TL prep T=8 grid=132 njS=7 pre=2 nA=27..28 nB=13..14 depwaits=1..1  (us min/mean/max over CTAs, from the first entry)
+ entry 0.0/0.1/0.2 | route+ranges 2.3/2.5/2.7 | first slot full 3.5/3.9/4.8
+ A end 41.9/43.5/45.8 | A unit 1.2/1.4/4.2 us (n=3300, min dt 1.248) | A wwait 1.9/2.1/2.7 | A bufwait 0.9/1.1/1.3
+ credit0 20.6/21.8/23.4 | credit 43.5/45.1/47.5 | B0 switch start 52.9/54.5/57.2 | end 53.0/54.6/57.3 | B switch sum 0.2/0.3/0.4
+ B end 62.2/64.5/67.6 | B unit n/a us (n=0) | B wwait 0.6/0.7/0.9 | B bufwait 0.4/0.6/0.7 | helper done 61.7/64.1/67.1
+ switch cost (us) chunk1 0.1/0.3/0.4 | chunk2 0.1/0.2/0.3 | chunk3 0.1/0.1/0.3
+ bar arrive 63.7/65.6/68.7 | bar release 69.5/69.6/69.8 | bar idle 1.0/4.0/6.0 | final 0.8/1.1/1.8 | exit 70.5/70.7/71.3
+ mean CTA: ramp 3.9 | A 39.6 | A-end->B0 x ready 11.1 (B switches 0.3) | B 9.9 | B-end->bar 1.1 | bar 4.0 | final 1.1
+MOE_TL judge same=1 maxdiff=0 T=1 grid=132 njS=3 pre=2 nA=11..12 nB=5..7 depwaits=1..1  (us min/mean/max over CTAs, from the first entry)
+ entry 0.0/0.2/0.4 | route+ranges 2.7/2.8/2.9 | first slot full 3.8/3.9/4.1
+ A end 21.9/23.1/24.3 | A unit 1.2/1.6/3.7 us (n=1404, min dt 1.248) | A wwait 0.7/0.9/1.8 | A bufwait 0.4/0.5/0.6
+ credit0 10.7/12.4/13.3 | credit 23.5/24.7/26.3 | B0 switch start 26.2/28.2/30.0 | end 26.7/28.5/30.1 | B switch sum 0.2/0.5/1.0
+ B end 31.5/33.0/34.6 | B unit 1.1/1.5/2.7 us (n=636) | B wwait 0.2/0.3/0.4 | B bufwait 0.2/0.2/0.4 | helper done 29.8/31.3/32.9
+ switch cost (us) chunk1 0.1/0.2/0.5 | chunk2 0.1/0.2/0.3 | chunk3 0.1/0.3/0.7
+ bar arrive 32.4/33.9/35.6 | bar release 36.3/36.4/36.6 | bar idle 0.9/2.5/4.1 | final 0.2/0.2/0.8 | exit 36.5/36.7/37.1
+ mean CTA: ramp 3.9 | A 19.1 | A-end->B0 x ready 5.5 (B switches 0.5) | B 4.4 | B-end->bar 1.0 | bar 2.5 | final 0.2
+MOE_TL judge same=0 maxdiff=0.000488 T=8 grid=132 njS=10 pre=2 nA=38..39 nB=19..20 depwaits=1..2  (us min/mean/max over CTAs, from the first entry)
+ entry 0.0/0.1/0.2 | route+ranges 2.4/2.5/2.6 | first slot full 3.5/3.7/4.1
+ A end 55.8/57.3/59.1 | A unit 1.2/1.4/3.1 us (n=3300, min dt 1.248) | A wwait 2.7/3.0/3.4 | A bufwait 1.4/1.5/1.8
+ credit0 30.2/31.4/32.6 | credit 57.2/58.9/60.5 | B0 switch start 71.7/73.2/76.2 | end 71.9/73.3/76.3 | B switch sum 0.2/0.3/0.6
+ B end 84.3/85.6/88.8 | B unit n/a us (n=0) | B wwait 0.8/1.0/1.2 | B bufwait 0.6/0.8/1.0 | helper done 83.6/84.9/88.3
+ switch cost (us) chunk1 0.1/0.2/0.4 | chunk2 0.1/0.2/0.3 | chunk3 0.1/0.1/0.2
+ bar arrive 85.3/86.6/89.8 | bar release 90.5/90.7/90.8 | bar idle 0.9/4.1/5.3 | final 0.2/0.4/1.0 | exit 90.8/91.0/91.6
+ mean CTA: ramp 3.7 | A 53.6 | A-end->B0 x ready 16.0 (B switches 0.3) | B 12.3 | B-end->bar 1.0 | bar 4.1 | final 0.4
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 08:48:57 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop

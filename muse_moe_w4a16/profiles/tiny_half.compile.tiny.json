@@ -1,0 +1,28 @@
+{
+ "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+  "ATOMG": 9,
+  "BAR": 12,
+  "CS2R": 90,
+  "ERRBAR": 4,
+  "FENCE": 4,
+  "MEMBAR": 11,
+  "S2R": 25,
+  "S2UR": 38,
+  "SYNCS": 47,
+  "UBLKCP": 11,
+  "instr": 5828
+ },
+ "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+  "ATOMG": 9,
+  "BAR": 12,
+  "CS2R": 90,
+  "ERRBAR": 4,
+  "FENCE": 4,
+  "MEMBAR": 11,
+  "S2R": 25,
+  "S2UR": 38,
+  "SYNCS": 47,
+  "UBLKCP": 11,
+  "instr": 5828
+ }
+}
