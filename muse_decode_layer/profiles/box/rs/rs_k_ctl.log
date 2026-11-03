@@ -1,0 +1,57 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.76 on 69.98 us, median paired saving 7.81, wins 9/9
+PDL8_STRESS T=1 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0), on ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=1 full: off 82.94 on 76.54 us, median paired saving 6.21, wins 9/9
+PDL8_AB T=16 sliding: off 159.81 on 155.10 us, median paired saving 4.74, wins 9/9
+PDL8_STRESS T=16 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['3.58e-03', '4.08e-03', '0.00e+00'] (int mismatches 0), on ['3.58e-03', '4.08e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=16 full: off 236.48 on 232.03 us, median paired saving 4.70, wins 9/9
+PDL8_AB T=32 sliding: off 225.02 on 221.25 us, median paired saving 3.78, wins 9/9
+PDL8_AB T=32 full: off 346.56 on 341.76 us, median paired saving 4.80, wins 9/9
+PDL8_STRESS T=32 full: 2000 replays per arm, max rel diff to the PDL-off output off ['5.52e-03', '6.41e-03', '0.00e+00'] (int mismatches 0), on ['5.52e-03', '6.41e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8D_OFF T=8 full: 2000 replays, max rel diff to the PDL-off output ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_OFF T=8 sliding: 2000 replays, max rel diff to the PDL-off output ['3.16e-03', '3.98e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_STRESS T=8 full all edges=attn+o+b1+pool+route+fin: on ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0) against off ['7.25e-03', '6.89e-03', '0.00e+00']: clean (0.4 s)
+PDL8D T=8 chosen edges attn+o+b1+pool+route+fin; left serialized none
+PDL8D_OFF T=8 full repeat: ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0), informational
+PDL8D_STRESS T=8 full final edges=attn+o+b1+pool+route+fin: on ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0) against off ['7.25e-03', '6.89e-03', '0.00e+00']: clean (0.4 s)
+PDL8D_STRESS T=8 sliding final edges=attn+o+b1+pool+route+fin: on ['6.33e-03', '6.09e-03', '0.00e+00'] (int mismatches 0) against off ['3.16e-03', '3.98e-03', '0.00e+00']: DRIFT (0.4 s)
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin: off 125.31 on 120.99 us, median paired saving 4.19, wins 9/9
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin: off 133.66 on 127.65 us, median paired saving 6.75, wins 9/9
+PDL8D T=8 off: final stress DRIFT, weighted saving 4.85 us, edges attn+o+b1+pool+route+fin; stress times ['0.4', '0.4', '0.4'] s
+PDL8 weighted paired saving T=1: 7.40 us
+PDL8 weighted paired saving T=16: 4.73 us
+PDL8 weighted paired saving T=32: 4.04 us
+PDL8 six-load estimate +2.42% (enabled loads only); enabled {1: True, 8: False, 16: True, 32: True}
+BOX submission import+prepare 14.1 s
+BOX baseline import+prepare 0.0 s
+USDT:2026-11-03 22:07:55 18465:18465 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:07:55 18465:18465 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    25.10 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    17.21 us  void sk2_kernel_gle36af2e9ed6da<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfloat16, tru
+  KERNEL    10.10 us  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     6.52 us  void (anonymous namespace)::attn_kernel<1, false, 13>((anonymous namespace)::Params)
+  KERNEL     6.11 us  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     4.30 us  void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     4.23 us  _sl_tile_route_cg
+  KERNEL     3.97 us  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+  KERNEL     3.66 us  _sl_cluster_finish_cg
+  KERNEL    81.21 us  total
+BOX decode 1 sliding: raw 72.29 net 68.42 us (overhead 3.87) | sglang raw 187.86 paired 2.668 shown 68.95 | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.970 | sglang box/judge 183.98/173.89 = 1.058 | check PASS
+USDT:2026-11-03 22:07:56 18465:18465 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:07:56 18465:18465 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    24.38 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    17.29 us  void sk2_kernel_gle36af2e9ed6da<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfloat16, tru
+  KERNEL    13.12 us  void (anonymous namespace)::attn_kernel<1, false, 11>((anonymous namespace)::Params)
+  KERNEL    10.13 us  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     5.96 us  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     4.31 us  void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     4.12 us  _sl_tile_route_cg
+  KERNEL     3.99 us  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+  KERNEL     3.69 us  _sl_cluster_finish_cg
+  KERNEL    87.00 us  total
+BOX decode 1 full: raw 78.42 net 74.54 us (overhead 3.87) | sglang raw 198.88 paired 2.597 shown 75.08 | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.933 | sglang box/judge 195.01/185.97 = 1.049 | check PASS

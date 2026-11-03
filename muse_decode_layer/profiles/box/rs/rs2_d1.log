@@ -1,0 +1,51 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.79 on 71.33 us, median paired saving 6.53, wins 9/9
+PDL8_STRESS T=1 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0), on ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=1 full: off 78.85 on 72.93 us, median paired saving 6.30, wins 9/9
+PDL8_AB T=16 sliding: off 160.19 on 154.75 us, median paired saving 5.38, wins 9/9
+PDL8_STRESS T=16 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['3.58e-03', '4.08e-03', '0.00e+00'] (int mismatches 0), on ['3.58e-03', '4.08e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=16 full: off 236.54 on 231.04 us, median paired saving 5.98, wins 9/9
+PDL8_AB T=32 sliding: off 225.34 on 221.12 us, median paired saving 4.10, wins 9/9
+PDL8_AB T=32 full: off 346.78 on 341.41 us, median paired saving 4.93, wins 9/9
+PDL8_STRESS T=32 full: 2000 replays per arm, max rel diff to the PDL-off output off ['5.52e-03', '6.41e-03', '0.00e+00'] (int mismatches 0), on ['5.52e-03', '6.41e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8D_OFF T=8 full: 2000 replays, max rel diff to the PDL-off output ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_OFF T=8 sliding: 2000 replays, max rel diff to the PDL-off output ['3.16e-03', '3.98e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_STRESS T=8 full all edges=attn+o+b1+pool+route+fin: on ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0) against off ['7.25e-03', '6.89e-03', '0.00e+00']: clean (0.4 s)
+PDL8D T=8 chosen edges attn+o+b1+pool+route+fin; left serialized none
+PDL8D_OFF T=8 full repeat: ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0), informational
+PDL8D_STRESS T=8 full final edges=attn+o+b1+pool+route+fin: on ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0) against off ['7.25e-03', '6.89e-03', '0.00e+00']: clean (0.4 s)
+PDL8D_STRESS T=8 sliding final edges=attn+o+b1+pool+route+fin: on ['6.33e-03', '6.09e-03', '0.00e+00'] (int mismatches 0) against off ['3.16e-03', '3.98e-03', '0.00e+00']: DRIFT (0.4 s)
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin: off 126.02 on 121.50 us, median paired saving 4.51, wins 9/9
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin: off 133.79 on 127.94 us, median paired saving 6.11, wins 9/9
+PDL8D T=8 off: final stress DRIFT, weighted saving 4.92 us, edges attn+o+b1+pool+route+fin; stress times ['0.4', '0.4', '0.4'] s
+PDL8 weighted paired saving T=1: 6.47 us
+PDL8 weighted paired saving T=16: 5.53 us
+PDL8 weighted paired saving T=32: 4.31 us
+PDL8 six-load estimate +2.33% (enabled loads only); enabled {1: True, 8: False, 16: True, 32: True}
+RSCHECK decode 1 sliding: 400/400 pass; distinct ref 2.46 -> picked 1.76; routes ref 2.46 -> 1.76; inputs with a drop 229; min margins: keep 0.0098 win 0.0180 routes 2.16 distinct 0.30; max score err near the top 3.43e-03 (p99 2.26e-03, all experts 1.18e-02)
+RSERR decode 1 sliding: lead-over-9th error max 5.39e-03 median 8.41e-04; below-8th error max 5.40e-03 median 1.08e-03; near-top score error by token [0.0034]
+RSCHECK decode 1 full: 400/400 pass; distinct ref 2.51 -> picked 1.88; routes ref 2.51 -> 1.88; inputs with a drop 217; min margins: keep 0.0090 win 0.0176 routes 2.16 distinct 0.30; max score err near the top 9.10e-03 (p99 2.14e-03, all experts 9.33e-03)
+RSERR decode 1 full: lead-over-9th error max 2.98e-03 median 8.31e-04; below-8th error max 1.16e-02 median 1.15e-03; near-top score error by token [0.0091]
+RSCHECK test sliding: 20/20 pass; distinct ref 2.55 -> picked 1.65; routes ref 2.55 -> 1.65; inputs with a drop 14; min margins: keep 0.0121 win 0.0255 routes 2.16 distinct 0.30; max score err near the top 2.98e-03 (p99 2.43e-03, all experts 4.66e-03)
+RSERR test sliding: lead-over-9th error max 2.56e-03 median 1.21e-03; below-8th error max 4.07e-03 median 1.34e-03; near-top score error by token [0.003]
+RSCHECK test full: 20/20 pass; distinct ref 2.40 -> picked 1.75; routes ref 2.40 -> 1.75; inputs with a drop 10; min margins: keep 0.0118 win 0.0370 routes 2.24 distinct 0.45; max score err near the top 1.25e-03 (p99 1.14e-03, all experts 2.89e-03)
+RSERR test full: lead-over-9th error max 1.48e-03 median 8.57e-04; below-8th error max 1.47e-03 median 1.01e-03; near-top score error by token [0.0012]
+RSCHECK test sliding: 20/20 pass; distinct ref 5.80 -> picked 5.75; routes ref 15.15 -> 15.15; inputs with a drop 1; min margins: keep 0.0296 win 0.0491 routes 4.12 distinct 2.20; max score err near the top 2.10e-03 (p99 1.81e-03, all experts 3.99e-03)
+RSERR test sliding: lead-over-9th error max 2.42e-03 median 1.61e-03; below-8th error max 2.59e-03 median 1.83e-03; near-top score error by token [0.0017, 0.0015, 0.0013, 0.0018, 0.0014, 0.0015, 0.0018, 0.0021]
+RSCHECK test sliding: 20/20 pass; distinct ref 5.95 -> picked 5.95; routes ref 15.95 -> 15.95; inputs with a drop 0; min margins: keep nan win 0.0493 routes 5.04 distinct 2.45; max score err near the top nan (p99 nan, all experts 0.00e+00)
+RSCHECK test full: 20/20 pass; distinct ref 12.35 -> picked 12.40; routes ref 36.40 -> 35.75; inputs with a drop 16; min margins: keep 0.0208 win 0.0383 routes 3.72 distinct 2.50; max score err near the top nan (p99 nan, all experts 0.00e+00)
+RSCHECK test sliding: 20/20 pass; distinct ref 13.60 -> picked 13.60; routes ref 57.70 -> 57.60; inputs with a drop 18; min margins: keep 0.0159 win 0.0190 routes 5.24 distinct 2.95; max score err near the top nan (p99 nan, all experts 0.00e+00)
+RSCHECK test full: 20/20 pass; distinct ref 9.25 -> picked 9.20; routes ref 54.95 -> 54.95; inputs with a drop 1; min margins: keep 0.0297 win 0.0485 routes 7.40 distinct 2.35; max score err near the top nan (p99 nan, all experts 0.00e+00)
+RSCHECK test sliding: 20/20 pass; distinct ref 10.25 -> picked 10.35; routes ref 25.75 -> 25.85; inputs with a drop 13; min margins: keep 0.0167 win 0.0260 routes 4.40 distinct 2.35; max score err near the top nan (p99 nan, all experts 0.00e+00)
+RSCHECK test full: 20/20 pass; distinct ref 7.75 -> picked 7.55; routes ref 13.70 -> 13.45; inputs with a drop 13; min margins: keep 0.0178 win 0.0354 routes 3.12 distinct 2.05; max score err near the top 2.35e-02 (p99 2.22e-02, all experts 4.38e-02)
+RSERR test full: lead-over-9th error max 2.45e-02 median 1.61e-02; below-8th error max 3.26e-02 median 2.22e-02; near-top score error by token [0.0171, 0.0235, 0.021, 0.0222, 0.0181, 0.0206, 0.0205, 0.0164]
+RSCHECK test sliding: 20/20 pass; distinct ref 12.85 -> picked 12.70; routes ref 46.65 -> 46.60; inputs with a drop 19; min margins: keep 0.0175 win 0.0312 routes 4.44 distinct 2.40; max score err near the top nan (p99 nan, all experts 0.00e+00)
+RSCHECK test full: 20/20 pass; distinct ref 2.55 -> picked 1.75; routes ref 2.55 -> 1.75; inputs with a drop 12; min margins: keep 0.0121 win 0.0325 routes 2.24 distinct 0.45; max score err near the top 1.60e-03 (p99 1.60e-03, all experts 4.54e-03)
+RSERR test full: lead-over-9th error max 1.71e-03 median 6.80e-04; below-8th error max 2.33e-03 median 1.11e-03; near-top score error by token [0.0016]
+RSCHECK test sliding: 20/20 pass; distinct ref 13.00 -> picked 12.85; routes ref 47.85 -> 48.10; inputs with a drop 18; min margins: keep 0.0228 win 0.0356 routes 6.52 distinct 2.65; max score err near the top nan (p99 nan, all experts 0.00e+00)
+RSCHECK test full: 20/20 pass; distinct ref 7.35 -> picked 7.35; routes ref 26.80 -> 26.65; inputs with a drop 4; min margins: keep 0.0294 win 0.0485 routes 5.16 distinct 2.75; max score err near the top nan (p99 nan, all experts 0.00e+00)

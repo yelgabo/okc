@@ -1589,3 +1589,89 @@ graph's own route scores would separate them; it was not run.
 Lane status per the lead's last-gate rule: closed with pdl8d public. The T = 8 attention edges stay a measured saving (judge
 in-prepare A/B 4.6-5.8 us per verify 1 cell across 61c009066a5d40a6 and 9ae1d02f0c2e4244) waiting for a gate that does not flip on
 order noise.
+## 2026-11-03 - Routing slack at T = 1 (g1b4_rs, check `f8a55f1043804158`)
+
+Source `muse_decode_layer/cand/g1b4_rs.py` (SHA256 01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07),
+written by `tools/dl_rs_patch.py` from g1b4_pdl8d.py (the tool checks 7cb74240 first). One launch differs: at T = 1 the
+route program of `_sl_tile_route_cg` becomes `_rs_tile_route1`. It reads the same FP32 router logits (.cg, after
+griddepcontrol.wait), forms the same biased scores and sort key, takes a top 16 instead of a top 8, then applies TASK.md's
+near-tie slack. With one token every local pick is its own expert and a replacement cannot be one the call already uses,
+so the selection is closed-form: drop the k lowest-scoring local picks whose lead over the 9th best is at most 0.02
+(KEEP_TOL 0.03 minus a 0.010 margin) and take the k best non-local experts ranked 9th or lower within 0.035 of the 8th
+best (ROUTE_TOL 0.05 minus 0.015). k is capped so distinct experts and routes stay 0.25 above their bounds, with the
+reference count raised by any local expert within 0.012 of the 8th best (one the judge's own top 8 may hold through a
+near tie). Weights are the picked unbiased scores over their sum. The pooled-normalize programs, every PDL edge and gate,
+and every other T are pdl8d's code.
+
+Why T = 1 only. On the box the layer's scores at T = 8 sit up to 0.019 from the judge's FP64 ones (the layer's verify
+attention uses FP8 queries; the scores are closer to the E4M3-query reference than to the BF16 one). The quantities the
+slack thresholds are off by up to 0.021 (lead over the 9th best) and 0.026 (distance below the 8th best), against
+tolerances of 0.03 and 0.05. A first build that also ran at T = 8 failed check_implementation on 1 of 20 inputs per
+verify 1 cell for exactly that reason (a dropped pick 3.05e-2 above its 9th best). At T = 1 the same errors are at most
+5.4e-3 and 1.16e-2 over 800 inputs (`tools/box_rs_check.py`).
+
+Two earlier T = 1 builds lost on the box and are not dispatched. A multi-token greedy route program (whole-expert drops,
+local or non-local replacements, 8 sequential argmax passes; commit f312f87f) raised decode 1 by 2.4 to 2.9 us net in two
+paired rounds although moe_fused shrank; the same greedy on one 256-element sort took 7.0 / 7.3 us against the base
+program's 4.2 / 4.1 us. The closed-form program takes 4.9 / 4.6 us (`--kernels`, logs
+`muse_decode_layer/profiles/box/rs/rs_k_*.log`). Its first version allowed at most one drop per input (count margin 1.0
+on the reference's own count) and measured -0.7 / -0.5 us net, -2.0 / -1.3 us shown in one run; the dispatched version
+allows a second drop where the bound permits it and measures the same within noise (table below). The judge's
+statistic is a median over inputs, and most inputs keep at least one of their two experts either way.
+
+Correctness on the box (okc-h200, router seed 106218864389449120, the f931 public case seeds, local_start per input from
+case_fields; `tools/box_rs_check.py`, logs `muse_decode_layer/profiles/box/rs/rs2_{d1,rest,exact}.log`). Every input runs
+kernel_fn eagerly and is judged by reference.check_implementation; margins are measured under the reference's FP64 scores.
+
+| set | inputs | pass | distinct ref -> picked | min margin keep (0.03) | window (0.05) | routes | distinct |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 400 | 400 | 2.46 -> 1.76 | 0.0098 | 0.0180 | 2.16 | 0.30 |
+| decode 1 full | 400 | 400 | 2.51 -> 1.88 | 0.0090 | 0.0176 | 2.16 | 0.30 |
+| T = 1 tests (ctx 10 sliding, 3000 full, 80000 full) | 60 | 60 | 2.55 / 2.40 / 2.55 -> 1.65 / 1.75 / 1.70 | 0.0118 | 0.0255 | 2.16 | 0.30 |
+| other 10 test shapes | 200 | 200 | unchanged (pdl8d path) | | | | |
+| verify 1 sliding / full | 60 / 60 | 120 | unchanged (pdl8d path) | | | | |
+| decode 16 / 32, verify 16 / 32 | 10 per cell | 80 | unchanged (pdl8d path) | | | | |
+| decode 1, all margins 0 | 400 | 398 | 2.46 / 2.52 -> 1.50 / 1.57 | -0.0005 | 0.0170 | 2.16 | 0.30 |
+
+The zero-margin run lands on the keep bound (two inputs fail with a dropped pick 3.03e-2 / 3.05e-2 above its 9th best):
+the margins are what keeps the file inside it. A distinct margin of 0.30 is an input whose two local experts were both
+dropped (0 against a bound of -0.3).
+
+Paired box A/B, candidate against pdl8d bytes (`.build/repeats/layer_base.py`), same session, same seeds, 60 fresh inputs
+per cell, run order control, candidate, control, candidate (`tools/box_pair.py`, logs
+`muse_decode_layer/profiles/box/rs/rs2_ab_*.log`). "shown" is the judge's statistic (SGLang median over the median paired
+ratio), averaged over the two runs per side.
+
+| cell | control net | candidate net | per-input ratio | control shown | candidate shown | distinct ref -> picked |
+|---|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 68.54 | 67.68 | 0.937 | 69.01 | 67.24 | 2.48 -> 1.82 |
+| decode 1 full | 74.50 | 73.81 | 0.950 | 74.92 | 73.44 | 2.43 -> 1.78 |
+| verify 1 sliding | 109.90 | 110.40 | 0.997 | 109.34 | 109.74 | unchanged |
+| verify 1 full | 118.96 | 118.67 | 1.006 | 118.36 | 117.26 | unchanged |
+| decode 16 sliding / full | 132.11 / 208.35 | 132.27 / 208.53 | 1.000 / 1.000 | 133.01 / 209.88 | 132.94 / 208.75 | unchanged |
+| decode 32 sliding / full | 150.26 / 301.58 | 153.25 / 305.49 | 1.020 / 1.008 | 149.86 / 301.20 | 153.03 / 305.23 | unchanged |
+| verify 16 sliding / full | 244.80 / 326.82 | 244.35 / 327.79 | 0.999 / 1.001 | 242.17 / 325.43 | 242.66 / 326.29 | unchanged |
+| verify 32 sliding / full | 298.16 / 462.00 | 298.02 / 462.10 | 1.002 / 1.001 | 296.21 / 463.04 | 296.43 / 464.07 | unchanged |
+
+Only decode 1 runs different code. The other rows follow pdl8d's own per-process PDL gates, which differed between the
+four processes (T = 8 on in control 1 and candidate 2, T = 16 on in control 2 and candidate 1, T = 32 on in control 2
+only: the decode 32 row). The T = 1 gate was on in all four.
+
+### Judge check `f8a55f1043804158`
+
+VALID 13/13, 10,297.4 us (2.197x, CI 2.164-2.230), prepare log `muse_decode_layer/cand/profiles/g1b4_rs.f8a55f1043804158.log`.
+
+| cell | pdl8d check 4a737387 | this check | delta |
+|---|---:|---:|---:|
+| decode 1 sliding / full | 70.8 / 77.0 | 65.5 / 74.1 | -5.3 / -2.9 |
+| decode 16 sliding / full | 127.7 / 205.2 | 127.1 / 211.4 | -0.6 / +6.2 |
+| decode 32 sliding / full | 149.4 / 306.8 | 153.1 / 300.7 | +3.7 / -6.1 |
+| verify 1 sliding / full | 112.9 / 118.7 | 109.7 / 122.6 | -3.2 / +3.9 |
+| verify 16 sliding / full | 245.1 / 336.9 | 248.8 / 331.2 | +3.7 / -5.7 |
+| verify 32 sliding / full | 321.0 / 483.9 | 322.4 / 485.7 | +1.4 / +1.8 |
+
+PDL gates (pdl8d code): T = 1 on, T = 16 on, T = 32 on, T = 8 off (six-edge final stress 5.14e-3 against the off arm's
+1.71e-3). Only decode 1 runs different code; its two cells moved -5.3 / -2.9 us against pdl8d's check, more than the box's
+-1.8 / -1.5 (the judge's router draw and per-input routing differ from the box's). The other cells are a pdl8d draw with
+T = 8 off. Keep rule: score and decode 1 met; verify 1 full (122.6 against 118.7) and the T = 8 stress clause missed because
+pdl8d's own T = 8 gate aborted on this draw. Not submitted by the lane.
