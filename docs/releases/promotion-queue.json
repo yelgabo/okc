@@ -371,6 +371,21 @@
       "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
       "public_submission_approval_commit": "20a6cfa989b642ffe411b10abd8e47b85664417c",
       "public_submission_approval_scope": "ONE clean single-arm storage-only Factor-Y release derived from nativeecd1df11/paired78506b74, only after its own private check confirms within noise of5698.508243us. Pin exact release hash before POST. The private paired comparison adapter and combined PARAM-Y alternative are not authorized for public use."
+    },
+    {
+      "job": "9da6e737a8264d52",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5767.982644796483,
+      "owner": "MoE worker (former Decode32), release build delegated by the final-day lead",
+      "release_state": "clean-release-failed",
+      "reason": "Standalone single-arm release of the MOE-FACTOR-Y-01 candidate arm (control arm, pair edits, dispatch gate and harness removed; incumbent scale fallbacks restored). PASS 5/5, 6 benchmarks, 6 profiles, no flags: 5767.982645 us / 2.331578x CI [2.296604, 2.366551]. Registered acceptance against lead 7479372115c64702 (score at or under 5760 us, every cell within 2%) fails: score +8.0 us, decode 1 26.236 vs 25.667 (+2.22%), verify 1 67.115 vs 63.415 (+5.83%); decode 16 +1.77%, decode 32 -2.43%, verify 16 +0.19%, verify 32 +1.88%. The point is 20.738 us below public 4aa033ef 5788.720720 us with overlapping CIs; one receipt cannot separate file effect from run-to-run noise. No retry, no public action; public submission needs the user go-ahead.",
+      "evidence": "muse_moe_w4a16/profiles/factor_y_release.9da6e737a8264d52.receipt.json",
+      "disclosure_report": "docs/steering/2026-11-02-moe-factorized-output.md",
+      "public_submission_approved": false,
+      "judged_arm": "candidate, the only arm; factorized BF16 down-result storage, native ecd1df11, helper b8ed8543 unchanged",
+      "source_identity": "release physical 9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a/322430B; service 536871eaa26530ec1c1f30b2266144d179ed405933726855d90407d31d8e84b1; tracked muse_moe_w4a16/cand/factor_y_release.py, generated from paired 78506b74 by tools/moe_factor_y_release.py",
+      "source_sha256": "9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a",
+      "artifact": "muse_moe_w4a16/cand/factor_y_release.py"
     }
   ]
 }

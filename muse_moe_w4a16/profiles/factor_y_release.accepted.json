@@ -1,0 +1,13 @@
+{
+  "job": "9da6e737a8264d52",
+  "problem": "muse_moe_w4a16",
+  "file": "muse_moe_w4a16/cand/factor_y_release.py",
+  "source_sha256": "9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a",
+  "bytes": 322430,
+  "commit": "b58cabc7",
+  "branch": "worktree-agent-ae3b98dd823025d28",
+  "kind": "check (private)",
+  "lead_job": "7479372115c64702",
+  "dispatched_at": "2026-11-03T07:41:01.214241+00:00",
+  "preflight": "moe 8 of 20 checks left; live other-owner jobs 19128cda79ca4e25 (moe check, queued), f9f37b46225b4980 (moe run, running)"
+}

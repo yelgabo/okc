@@ -1,0 +1,9 @@
+07:41:38 poll 1 rc=0 status=queued
+07:42:40 poll 2 rc=0 status=queued
+07:43:42 poll 3 rc=0 status=queued
+07:44:43 poll 4 rc=0 status=queued
+07:45:44 poll 5 rc=0 status=running
+07:46:45 poll 6 rc=0 status=running
+07:47:46 poll 7 rc=0 status=running
+07:48:47 poll 8 rc=0 status=running
+07:49:49 poll 9 rc=0 status=terminal

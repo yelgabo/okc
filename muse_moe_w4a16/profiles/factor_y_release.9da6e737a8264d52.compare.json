@@ -1,0 +1,60 @@
+{
+  "job": "9da6e737a8264d52",
+  "problem": "muse_moe_w4a16",
+  "passed": true,
+  "score_us": 5767.982644796483,
+  "speedup": 2.331577750521216,
+  "speedup_ci": [
+    2.296604084263398,
+    2.3665514167790342
+  ],
+  "error": null,
+  "lead_us": 5698.5082429255835,
+  "score_within": false,
+  "cells": [
+    {
+      "load": "decode 1",
+      "lead_us": 25.667095160749792,
+      "actual_us": 26.23639159212731,
+      "change": 0.022180010157444165,
+      "within": false
+    },
+    {
+      "load": "decode 16",
+      "lead_us": 92.39548192960115,
+      "actual_us": 94.0265933067483,
+      "change": 0.017653583736810224,
+      "within": true
+    },
+    {
+      "load": "decode 32",
+      "lead_us": 127.21193617398296,
+      "actual_us": 124.12207618081374,
+      "change": -0.024289072913278694,
+      "within": true
+    },
+    {
+      "load": "verify 1",
+      "lead_us": 63.4151177930549,
+      "actual_us": 67.11466541835271,
+      "change": 0.058338575312131415,
+      "within": false
+    },
+    {
+      "load": "verify 16",
+      "lead_us": 180.84526258384437,
+      "actual_us": 181.18219308794616,
+      "change": 0.0018630872564083746,
+      "within": true
+    },
+    {
+      "load": "verify 32",
+      "lead_us": 214.04082491104168,
+      "actual_us": 218.06055352032712,
+      "change": 0.018780195838602715,
+      "within": true
+    }
+  ],
+  "cells_within": false,
+  "accepted": false
+}
