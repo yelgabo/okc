@@ -1036,7 +1036,7 @@
         "efb94c255ba3d2c497b5a59718cb6a80388db1224044d2bc7866014ed0c924c5",
         "be1d16460b56f380572646e3f3f3cb7755e504be8ce54503800bebd365bdc78a",
         "677d2bfdf11424491e29bcacc3eae8b719abd787d793b9d2dcf346e5be89fd15",
-        "5dcbf3519a4ba241402dfbf501800a4c37b31ea875340a60cfcde7ba2a96342d"
+        "ebbace43d64facaaf457f18bbe6a2e643c36a31cf9c47165fa561b21e5e84c68"
       ],
       "evidence": [
         "muse_decode_layer/cand/g1b4_stage_release.py",
@@ -1112,6 +1112,7 @@
     "November 2: added the supplied correction supplement and its verified Git blob. Existing ruled-out rows are unchanged; one new issue-group compiler closure was appended. Earlier digest claims retain their dated scope.",
     "November 2: appended the compiler-only stable-SS-pointer identity result; prior experiment rows and their conclusions are unchanged.",
     "November 2 terminal: appended exact scale-only matched failure and corrected the scope of initial grouped compiler closures. Their equality condition skipped a first-stage flush at active FCI4; no grouped GPU source had run. Earlier research claims retain their dated scope.",
-    "Concurrent D32 diagnostic closure appended during merge: FP8 isfinite setup failure is scoped to its exact diagnostic; preserved alongside optimizer closures. No CUDA research claim changes."
+    "Concurrent D32 diagnostic closure appended during merge: FP8 isfinite setup failure is scoped to its exact diagnostic; preserved alongside optimizer closures. No CUDA research claim changes.",
+    "Part2 experiment digest now links the scale-only terminal failure, identical pointer code, caught grouping schedule defect and corrected pending combined test. No GPU speedup or promoted default is claimed."
   ]
 }
