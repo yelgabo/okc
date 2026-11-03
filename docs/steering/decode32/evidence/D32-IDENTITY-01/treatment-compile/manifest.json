@@ -1,0 +1,203 @@
+{
+  "arm": "treatment",
+  "source": "/Users/gretchengabo/Documents/ChatGPT/okc/.build/d32-identity/treatment.cu",
+  "source_sha256": "b599e5b21c3e53cec6cfdd752d7e37ce693ba2003ac116629781888542d0d62d",
+  "original_device_prefix_sha256": "c31fc37972a2ed29cf1d3fe61f24c8c4ba330a240d075927e0e2afd4b26c749c",
+  "adapted_source_sha256": "2ae8920da50a0b2e3987f523312af1f39d496a1e87aa8f41ba874e6a2be07c49",
+  "image": {
+    "Id": "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+    "Architecture": "arm64",
+    "Os": "linux",
+    "RepoTags": [
+      "nvidia/cuda:12.8.1-devel-ubuntu24.04"
+    ],
+    "RepoDigests": [
+      "nvidia/cuda@sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66"
+    ]
+  },
+  "target": "sm_90a",
+  "selected_instance": "attn_kernel<1,true,0>",
+  "flags": [
+    "-O3",
+    "-std=c++17",
+    "-gencode=arch=compute_90a,code=sm_90a",
+    "--expt-relaxed-constexpr",
+    "-DOKC_QDIRECT=0",
+    "-DOKC_PK2=0",
+    "-DOKC_W0ENABLE=1",
+    "-DOKC_SM90=1",
+    "-D__CUDA_NO_HALF_OPERATORS__",
+    "-D__CUDA_NO_HALF_CONVERSIONS__",
+    "-D__CUDA_NO_BFLOAT16_CONVERSIONS__",
+    "-D__CUDA_NO_HALF2_OPERATORS__",
+    "-Xptxas=-v,--warn-on-spills"
+  ],
+  "adapters": [
+    "Torch/ATen/c10 includes removed from exact device prefix",
+    "cuda_runtime.h included for declarations supplied by Torch",
+    "explicit selected-instance template instantiation",
+    "constant-only sizeof/Cfg witness outside selected kernel"
+  ],
+  "commands": [
+    {
+      "stage": "cubin",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull=never",
+        "--network=none",
+        "--platform=linux/arm64",
+        "--env=NVIDIA_VISIBLE_DEVICES=void",
+        "--volume",
+        "/Users/gretchengabo/Documents/ChatGPT/okc/.build/d32-identity/treatment-compile:/w",
+        "--entrypoint",
+        "/usr/local/cuda/bin/nvcc",
+        "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+        "-O3",
+        "-std=c++17",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "--expt-relaxed-constexpr",
+        "-DOKC_QDIRECT=0",
+        "-DOKC_PK2=0",
+        "-DOKC_W0ENABLE=1",
+        "-DOKC_SM90=1",
+        "-D__CUDA_NO_HALF_OPERATORS__",
+        "-D__CUDA_NO_HALF_CONVERSIONS__",
+        "-D__CUDA_NO_BFLOAT16_CONVERSIONS__",
+        "-D__CUDA_NO_HALF2_OPERATORS__",
+        "-Xptxas=-v,--warn-on-spills",
+        "-cubin",
+        "/w/device.cu",
+        "-o",
+        "/w/device.cubin"
+      ],
+      "status": 0
+    },
+    {
+      "stage": "ptx",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull=never",
+        "--network=none",
+        "--platform=linux/arm64",
+        "--env=NVIDIA_VISIBLE_DEVICES=void",
+        "--volume",
+        "/Users/gretchengabo/Documents/ChatGPT/okc/.build/d32-identity/treatment-compile:/w",
+        "--entrypoint",
+        "/usr/local/cuda/bin/nvcc",
+        "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+        "-O3",
+        "-std=c++17",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "--expt-relaxed-constexpr",
+        "-DOKC_QDIRECT=0",
+        "-DOKC_PK2=0",
+        "-DOKC_W0ENABLE=1",
+        "-DOKC_SM90=1",
+        "-D__CUDA_NO_HALF_OPERATORS__",
+        "-D__CUDA_NO_HALF_CONVERSIONS__",
+        "-D__CUDA_NO_BFLOAT16_CONVERSIONS__",
+        "-D__CUDA_NO_HALF2_OPERATORS__",
+        "-Xptxas=-v,--warn-on-spills",
+        "-ptx",
+        "/w/device.cu",
+        "-o",
+        "/w/device.ptx"
+      ],
+      "status": 0
+    },
+    {
+      "stage": "sass",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull=never",
+        "--network=none",
+        "--platform=linux/arm64",
+        "--env=NVIDIA_VISIBLE_DEVICES=void",
+        "--volume",
+        "/Users/gretchengabo/Documents/ChatGPT/okc/.build/d32-identity/treatment-compile:/w",
+        "--entrypoint",
+        "/usr/local/cuda/bin/cuobjdump",
+        "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+        "--dump-sass",
+        "/w/device.cubin"
+      ],
+      "status": 0
+    }
+  ],
+  "scope": "CUDA12.8.1 compile only; host extension, runtime admission, CUDA numerics and performance not run",
+  "resources": {
+    "_ZN41_GLOBAL__N__cffe84ae_9_device_cu_b95fc04411attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 128,
+      "barriers": 3
+    }
+  },
+  "layout_witness": {
+    "declared_type": "b8",
+    "declared_elements": 24,
+    "element_bytes": 1,
+    "initialized_elements": 21,
+    "names": [
+      "sizeof_Smem_L1_flat",
+      "threads",
+      "stages",
+      "producer_registers",
+      "consumer_registers",
+      "minimum_blocks"
+    ],
+    "values": [
+      61440,
+      256,
+      3,
+      56,
+      200,
+      2
+    ]
+  },
+  "ptx_instruction_counts": {
+    "bar.sync": 17,
+    "barrier.cta": 0,
+    "mbarrier.init": 16,
+    "fence.proxy.async": 0,
+    "wgmma.wait_group": 0
+  },
+  "files": {
+    "device.cu": {
+      "bytes": 181368,
+      "sha256": "2ae8920da50a0b2e3987f523312af1f39d496a1e87aa8f41ba874e6a2be07c49"
+    },
+    "device.ptx": {
+      "bytes": 132345,
+      "sha256": "4892b9c5ffe79d81b6bf84facdebe3b8d491b20a163c1d5d58c56b972989c7f2"
+    },
+    "device.cubin": {
+      "bytes": 65040,
+      "sha256": "0e6a11cd203b1e587a94a1c7a5352915cc6fc4c8642c700786ae61836e7a12df"
+    },
+    "device.sass": {
+      "bytes": 915719,
+      "sha256": "ae1b32bd55e66ef4139b859a2534fd192389b43bc52a827a3da3318aba9ee28b"
+    },
+    "cubin.log": {
+      "bytes": 4708,
+      "sha256": "9091f0ad8e05b2c531c5fe080166790afbb635c39244d69fc7e7b8e0d4309eb1"
+    },
+    "ptx.log": {
+      "bytes": 4041,
+      "sha256": "f6daac1bf2dae9f56f934b9ff33e49c259485e3316c4a77d1095c491efe26f04"
+    },
+    "sass.log": {
+      "bytes": 915719,
+      "sha256": "ae1b32bd55e66ef4139b859a2534fd192389b43bc52a827a3da3318aba9ee28b"
+    }
+  },
+  "status": "COMPILED_NOT_TARGET_QUALIFIED"
+}

@@ -14,13 +14,13 @@ CONTROL = 'ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab'
 CORE = '335c2f6a3d3f6849cc7e9f77732ab3464f6688f3dca89fde6a757c2cd2cf8944'
 
 
-def report(log):
+def report(log, expected_pins=None):
     capsules = [line[len(PREFIX):] for line in log.splitlines() if line.startswith(PREFIX)]
     if len(capsules) != 1:
         raise ValueError('expected exactly one matched report')
     data = json.loads(zlib.decompress(base64.b64decode(capsules[0], validate=True)))
-    if (data.get('pins', {}).get('candidate') != CANDIDATE or data['pins'].get('control') != CONTROL
-            or data['pins'].get('harness_core_sha256') != CORE):
+    pins = expected_pins or dict(candidate=CANDIDATE, control=CONTROL, harness_core_sha256=CORE)
+    if data.get('pins') != pins:
         raise ValueError('candidate, control, or harness identity mismatch')
     if (data.get('official_arm') != 'attention_treatment' or data.get('cleanup_restored') is not True
             or (data.get('math_checks'), data.get('fresh_checks'), data.get('restores'),
@@ -40,10 +40,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('receipt', type=Path)
     parser.add_argument('--job', required=True)
+    parser.add_argument('--manifest', type=Path)
     args = parser.parse_args()
     receipt = json.loads(args.receipt.read_text())
     verified = validate(receipt, args.job, 'check')
-    paired = report(receipt['result']['log_tail'])
+    pins = json.loads(args.manifest.read_text())['pins'] if args.manifest else None
+    paired = report(receipt['result']['log_tail'], pins)
     print(json.dumps({'job': args.job, 'official_score': verified['score'],
                       'paired_decision': paired['decision'], 'rows': paired['rows'],
                       'prepare_s': paired.get('prepare_s'),
