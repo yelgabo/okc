@@ -32,7 +32,7 @@ The authenticated [recent job response](evidence/2026-11-02-scout-status-0147/jo
 
 Completed work should not be described as still running:
 
-- D32 confirmation `62a4f6b27ed74b50` is done with passed=false. Its [owning failure record](decode32/2026-11-02-11-matched-routing-mismatch.md) identifies `EXPERT_FRESH_ROUTING_MISMATCH` during setup. It produced no matched timings. The worker's next registered step is the strict-gate diagnostic `9e5e5d64`, not a confirmed attention speedup. No accepted diagnostic ID was present in the inspected ledger or live list.
+- D32 confirmation `62a4f6b27ed74b50` is done with passed=false. Its [owning failure record](../../archive/docs/steering/decode32/2026-11-02-11-matched-routing-mismatch.md) identifies `EXPERT_FRESH_ROUTING_MISMATCH` during setup. It produced no matched timings. The worker's next registered step is the strict-gate diagnostic `9e5e5d64`, not a confirmed attention speedup. No accepted diagnostic ID was present in the inspected ledger or live list.
 - CUDA Optimizer's `3aa3885f6b734f8c` and `3c45788127e945c4` are terminal. Their [owning report](2026-11-02-cuda-part2-experiments.md) and archived summaries show correctness passes but rejection by their matched speed gates. Neither is a promoted runtime win.
 - [Serving jobs](evidence/2026-11-02-scout-status-0147/serving-jobs.json) returned an empty list.
 

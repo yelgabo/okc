@@ -1,47 +1,25 @@
 # Shared project steering
 
-Read the current owner's status and latest applicable report. Historical job states are timestamped evidence.
+Read your owner's row, then its linked record. Check newer commits before acting on a dated job state. The scored whole-layer control is public607, SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`. [Incumbent source](../../muse_decode_layer/cand/g1b4_stage_release.py)
 
 ## Current work
 
-| Owner | Current record | Next action |
-|---|---|---|
-| Decode32 Worker | [Status](decode32/STATUS.md), [split reduction](decode32/2026-11-02-18-active-reduction-experiment.md), [identity-rescale next](2026-11-02-general-hotspot-search-refill.md#2-decode32-exact-identity-rescale-elimination-in-full-decode-attention) | Target2.3x. Sliding copy candidate93a05524 is CPU-checked and ready for one ordinary private check. Next qualify the newly supplied full-context identity-rescale mechanism while that job runs. Closed observers remain closed. |
-| OKC CUDA Optimizer | [B4 phase-attribution task](2026-11-02-cuda-b4-phase-attribution-task.md), [terminal scale/group results](2026-11-02-cuda-part2-experiments.md) | Identify one source-backed exposed critical-path mechanism. Prior scale/group treatments are stopped. |
-| OKC General Optimizer | [GOPT-WS-03 actual pickup](2026-11-02-general-ws-norm-aggregation.md), [joint refill findings](2026-11-02-general-hotspot-search-refill.md#1-general-reduce-unit-rate-norm-stat-atomics) | Qualify one T8/T16 WS-helper norm aggregation treatment locally, preserving FTZ, numerical and publication behavior. No accepted GPU job yet. NS3 retained. |
-| Research | [Standing hotspot goal](2026-11-02-incumbent-hotspot-goal.md), [completed joint source study](2026-11-02-general-hotspot-search-refill.md#joint-cuda-research-findings--november-2-2026-pacific) | Joint addendum acknowledged and three ranked mechanisms appended to the same refill. Archived SASS and CPU checks completed; candidate compilation, timing and D32 budget qualification remain open. Worker/scout pickup is not implied. |
-| Public scout | [Competition watch](2026-11-02-competition-watch.md), [new projection reference](2026-11-02-scout-utterwqlnut-projection-0328.md), [source standing](2026-11-02-scout-source-standing-and-jobs.md) | Two-hour watch. Added utterwqlnut's cluster projection source and author receipts; no base replacement or experiment. Snapshot ranks and jobs are historical. |
-
-The scored layer remains [public607 source](../../muse_decode_layer/cand/g1b4_stage_release.py), SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`. Preserve other load winners. B4/MAIN already have the [parallel prefix](decode32/2026-11-02-13-b4-prefix-selected-source.md); do not reopen that duplicate.
-
-## Latest audit
-
-[Diagram customization scope](2026-11-02-diagram-customization-scope.md) separates green performance badges from editable scope. Pooler/router, O, unpooler and all norm/residual boundaries are within the whole-layer problem; the standalone projections problem includes all five dense/router GEMMs.
-
-[Historical documentation archive](2026-11-02-docs-archive.md) moves 1,229 older records outside working `docs/`, with dependency exceptions and repaired citations. Search [archive/docs](../../archive/docs/) explicitly for earlier evidence; its [manifest](../../archive/manifest-2026-11-02.json) maps every moved path.
-
-[Context cleanup](2026-11-02-context-cleanup.md) removes retired source copies, shortens instruction entry points and limits default searches to useful working files. Frozen sources and run evidence remain intact. The [recovery manifest](evidence/2026-11-02-context-cleanup/manifest.json) pins every removed snapshot.
+| Owner | Assignment and next decision |
+|---|---|
+| Decode32 Worker | Own T32/q_len1 sliding and full through integration. Target verified D32 speedup of at least 2.3x. The owner registered private check `bd5776bdfcab42a7` for `93a05524` and picked up the full-context identity-rescale implementation. Follow the existing waiter. [Watched inbox](decode32/README.md) · [Job ledger](decode32/STATUS.md) · [Split reduction](decode32/2026-11-02-18-active-reduction-experiment.md) · [Full-context proposal](2026-11-02-general-hotspot-search-refill.md#2-decode32-exact-identity-rescale-elimination-in-full-decode-attention) |
+| OKC CUDA Optimizer | Attribute B4 startup, handoff and tail costs and select one exposed mechanism. Scale and grouping treatments are closed. [Assignment](2026-11-02-cuda-b4-phase-attribution-task.md) · [Results](2026-11-02-cuda-part2-experiments.md) |
+| OKC General Optimizer | GOPT-WS-03 picked up. Qualify one T8/T16 WS-helper norm-stat aggregation treatment on NS3. Check subnormal handling, numerical agreement and publication order before measurement. [Pickup and next gate](2026-11-02-general-ws-norm-aggregation.md) |
+| Research | Compare opportunities against the incumbent's complete-call cost. The joint study ranks norm aggregation and D32 identity rescaling first for their owners. Earlier phase-A credit is the reserve. [Standing assignment](2026-11-02-incumbent-hotspot-goal.md) · [Ranked mechanisms and stops](2026-11-02-general-hotspot-search-refill.md#joint-cuda-research-findings--november-2-2026-pacific) |
+| Public scout | Check public changes every two hours. The new cluster-projection reference needs source binding and a matched comparison. [Scout discovery](2026-11-02-scout-utterwqlnut-projection-0328.md) [Competition watch](2026-11-02-competition-watch.md) · [Source standing](2026-11-02-scout-source-standing-and-jobs.md) |
 
 ## Execution rules
 
-Decode32 Worker retains end-to-end batch32 authority under the [owner directive](decode32/2026-11-02-02-end-to-end-ownership.md) and [planning split](decode32/2026-11-02-04-research-plan-worker-execute.md). Use its [watched inbox](decode32/README.md). General/CUDA owners retain their separate assignments. Publication does not establish pickup or execution.
+The Decode32 Worker owns its checks and job waits. Each other owner retains its own jobs. Check live jobs and quota before dispatch. Record pickup, accepted job and measured result separately. Public submissions require user approval. [D32 directive](decode32/2026-11-02-02-end-to-end-ownership.md) · [Research and worker responsibilities](decode32/2026-11-02-04-research-plan-worker-execute.md) · [Project instructions](../../AGENTS.md)
 
-Check current shared jobs/quota before a new check. Preserve accepted jobs and each owner's sole waiter. No routine Driver handoffs, duplicate experiments, weakened correctness gates or expanded public permission.
+## Latest audit
 
-Publish substantive steering with evidence, source/job pins, decision, next action and stop criteria. Update this compact index, commit/push and verify remote files. Keep older records in the history below.
+[November 2 steering compaction](2026-11-02-steering-compaction.md) records the moves, retained paths and verification.
 
 ## Report history
 
-| Report | Evidence and scope |
-|---|---|
-| [Public projection source discovery](2026-11-02-scout-utterwqlnut-projection-0328.md) | Utterwqlnut pin e5c79030, author-hosted 1.356457x receipt; source binding and matched comparison remain open |
-| [Joint General and D32 refill findings](2026-11-02-general-hotspot-search-refill.md#joint-cuda-research-findings--november-2-2026-pacific) | Main9f8fa34a reconciled with frozen source; active WS atomics and sixteen D32 identity-rescale instructions verified in archived SASS; CPU evidence and explicit candidate/budget gaps; no kernel/GPU action |
-| [Diagram customization scope](2026-11-02-diagram-customization-scope.md) | Live official specs match local task files; performance badges do not define editable scope; no new GPU run |
-| [Historical documentation archive](2026-11-02-docs-archive.md) | 1,229 moved files, preserved raw payloads, 2,270 link targets checked; current reader dependencies retained |
-| [D32 split reduction experiment](decode32/2026-11-02-18-active-reduction-experiment.md) | Candidate93a05524; unchanged CUDA/build flags, one copy per D32 sliding split; target2.3x continuation |
-| [D32 observer budget closure and refill](decode32/2026-11-02-17-observer-budget-closure-and-refill.md) | Own8b1e364dafb54c71/00193aa2, no observer capsule or timing; five conditional pooler selector fixtures; precise D32 research gap |
-| [Context cleanup](2026-11-02-context-cleanup.md) | Base3a961a9d; removed snapshots recoverable from Git; unchanged current sources; verification in owning report |
-| [General helper-prefix result](2026-11-02-general-short-prefix-result.md) | Selected WS builds preprocess out the proposed serial work; no candidate or GPU run |
-| [D32 routing diagnostic](decode32/2026-11-02-14-routing-order-diagnostic.md) | Setup failed on an expert-order swap with attention treatment inactive; no matched timings |
-| [Historical transfer audit](2026-11-02-historical-wins-transfer-audit.md) | Earlier wins traced through F/G; distinct missing mechanisms require current evidence |
-| [Prior complete index](index-history-through-2026-11-02-context-cleanup.md) | Exact pre-integration index from74f7f1c0, including concurrent steering and earlier history |
+Use the [shared report archive](../../archive/docs/steering/) for older decisions. The [index before compaction](https://github.com/yelgabo/okc/blob/977fd319/docs/steering/README.md) retains the previous audit and report history with links at that revision. See the [prior archive manifest](../../archive/manifest-2026-11-02.json) for earlier moves.

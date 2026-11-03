@@ -1,6 +1,6 @@
 # D32-MOE-01: B4 already selects the parallel prefix scan
 
-November 2, 2026 Pacific. Picked up after the user asked for B4 prefix work while the GPU queue clears. Source checkpoint `5ab861e3`, inspected remote `ce1d2f77`. This supersedes the selected-source premise in [D32-12](2026-11-02-12-h200-460-next-leads.md).
+November 2, 2026 Pacific. Picked up after the user asked for B4 prefix work while the GPU queue clears. Source checkpoint `5ab861e3`, inspected remote `ce1d2f77`. This supersedes the selected-source premise in [D32-12](../../../archive/docs/steering/decode32/2026-11-02-12-h200-460-next-leads.md).
 
 The pinned B4/T32 build already runs the all-lane prefix scan and four-lane range lookup. The serial code cited by D32-12 belongs to the helper literal used by Tiny, Tiny2 and MID. Creating the prescribed B4 treatment would repeat existing work or change the active cost model. Close this exact serial-to-parallel proposal as already implemented. There is no new candidate or GPU allocation.
 

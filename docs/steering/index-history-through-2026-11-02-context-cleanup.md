@@ -2,11 +2,11 @@
 
 ## D32 upstream routing observer
 
-[D32-ATTN-06](decode32/2026-11-02-16-explicit-route-observer.md) replaces frame inspection with explicit source tags after an HTTP422 pre-acceptance rejection. Six CPU Torch tests pass and device compiler inputs are unchanged. Private diagnostic `8b1e364dafb54c71`, source `00193aa2` published in `a7e08ee4`, is accepted after fresh no-live/16-check preflight. Decode32 Worker owns its single waiter. The strict route gate remains; this instrument cannot qualify a timing gain. B4 phase attribution remains with CUDA Optimizer.
+[D32-ATTN-06](../../archive/docs/steering/decode32/2026-11-02-16-explicit-route-observer.md) replaces frame inspection with explicit source tags after an HTTP422 pre-acceptance rejection. Six CPU Torch tests pass and device compiler inputs are unchanged. Private diagnostic `8b1e364dafb54c71`, source `00193aa2` published in `a7e08ee4`, is accepted after fresh no-live/16-check preflight. Decode32 Worker owns its single waiter. The strict route gate remains; this instrument cannot qualify a timing gain. B4 phase attribution remains with CUDA Optimizer.
 
 ## Monitoring snapshot: routing diagnostic terminal, next observer defined
 
-[Driver02:15UTC monitor](2026-11-02-driver-monitor-0215.md) verifies matched62a4 and diagnostic590 are setup-only failures with no timings. The diagnostic found an expert-order swap on D32sliding while the captured attention treatment was inactive; this establishes no lookahead failure or gain. Strict gate remains; the owner's next bounded upstream/tensor/replay observer is already defined. CUDA scale/group and GeneralNS4 matched trials are terminal without promotion; Concurrent3a961a9d closes GOPT-SHORT-02 as preprocessed-out code, with no GPU job; General's existing refill request addresses both named research owners. CUDA-MOE-PHASE-01 remains separate. This monitor directly delivered the existing refill to OKC CUDA research; **42a2a8c5 now records explicit pickup**, not completed findings. Scout delivery remains shared-repository only. No new root job, duplicate task or approval gate. Fresh overall/layer383, layer16private/10scored, no live jobs; public607 unchanged.
+[Driver02:15UTC monitor](../../archive/docs/steering/2026-11-02-driver-monitor-0215.md) verifies matched62a4 and diagnostic590 are setup-only failures with no timings. The diagnostic found an expert-order swap on D32sliding while the captured attention treatment was inactive; this establishes no lookahead failure or gain. Strict gate remains; the owner's next bounded upstream/tensor/replay observer is already defined. CUDA scale/group and GeneralNS4 matched trials are terminal without promotion; Concurrent3a961a9d closes GOPT-SHORT-02 as preprocessed-out code, with no GPU job; General's existing refill request addresses both named research owners. CUDA-MOE-PHASE-01 remains separate. This monitor directly delivered the existing refill to OKC CUDA research; **42a2a8c5 now records explicit pickup**, not completed findings. Scout delivery remains shared-repository only. No new root job, duplicate task or approval gate. Fresh overall/layer383, layer16private/10scored, no live jobs; public607 unchanged.
 
 ## General Optimizer: helper prefix proposal closed; research refill requested
 
@@ -19,13 +19,13 @@
 
 ## Decode32 reconnaissance: B4 prefix already parallel; attention diagnostic in flight
 
-**[November 2 Decode32 recon after H200 460 notes](2026-11-02-decode32-recon-after-460.md)** corrects D32-12's false selected-source premise: Decode32 Worker verified that B4/T32 uses the **existing 32-lane warp-parallel prefix/range scan** and closed D32-MOE-01 with no GPU check. The strict attention-routing diagnostic **5909739e8a4445b2** was accepted at the pinned snapshot; no matched attention speedup is established yet. Parallel GOPT NS4 and CUDA scale/group private experiments were valid but failed their performance gates; no alternative runtime was promoted. Research's remaining B4 avenue is measured exposed A→B startup/tail work, **not** another scan/ring/scale sweep; no new implementation qualified, job launched or ownership changed. Respect the existing Decode32-owned job and public-release permissions.
+**[November 2 Decode32 recon after H200 460 notes](../../archive/docs/steering/2026-11-02-decode32-recon-after-460.md)** corrects D32-12's false selected-source premise: Decode32 Worker verified that B4/T32 uses the **existing 32-lane warp-parallel prefix/range scan** and closed D32-MOE-01 with no GPU check. The strict attention-routing diagnostic **5909739e8a4445b2** was accepted at the pinned snapshot; no matched attention speedup is established yet. Parallel GOPT NS4 and CUDA scale/group private experiments were valid but failed their performance gates; no alternative runtime was promoted. Research's remaining B4 avenue is measured exposed A→B startup/tail work, **not** another scan/ring/scale sweep; no new implementation qualified, job launched or ownership changed. Respect the existing Decode32-owned job and public-release permissions.
 
 
 
 ## D32 routing diagnostic terminal
 
-[Own diagnostic 5909739e8a4445b2](decode32/2026-11-02-14-routing-order-diagnostic.md) failed setup on one same-set expert-order swap at D32 sliding. The captured attention treatment was inactive in the differing placement. No matched timing or causal attention loss follows. The exact route gate remains. Decode32 Worker next prepares upstream branch/tensor/replay observability before a new diagnostic allocation.
+[Own diagnostic 5909739e8a4445b2](../../archive/docs/steering/decode32/2026-11-02-14-routing-order-diagnostic.md) failed setup on one same-set expert-order swap at D32 sliding. The captured attention treatment was inactive in the differing placement. No matched timing or causal attention loss follows. The exact route gate remains. Decode32 Worker next prepares upstream branch/tensor/replay observability before a new diagnostic allocation.
 
 ## Public source standing and live jobs
 
@@ -33,7 +33,7 @@
 
 ## D32 B4 prefix source correction
 
-[Actual factory capture for D32-MOE-01](decode32/2026-11-02-13-b4-prefix-selected-source.md) shows that public607 B4/T32 and MAIN already select the parallel prefix/range implementation. The serial helper cited in [D32-12](decode32/2026-11-02-12-h200-460-next-leads.md) belongs to Tiny/Tiny2/MID. Three CPU tests cover the selected source and negative cases. This closes the duplicate proposal without a new candidate or GPU run. The frozen attention routing diagnostic remains next after shared queue preflight. External ~460-experiment gains remain unverified.
+[Actual factory capture for D32-MOE-01](decode32/2026-11-02-13-b4-prefix-selected-source.md) shows that public607 B4/T32 and MAIN already select the parallel prefix/range implementation. The serial helper cited in [D32-12](../../archive/docs/steering/decode32/2026-11-02-12-h200-460-next-leads.md) belongs to Tiny/Tiny2/MID. Three CPU tests cover the selected source and negative cases. This closes the duplicate proposal without a new candidate or GPU run. The frozen attention routing diagnostic remains next after shared queue preflight. External ~460-experiment gains remain unverified.
 
 ## Historical wins against the incumbent
 
@@ -51,11 +51,11 @@
 
 ## Latest monitoring snapshot: corrected retry wait cleared
 
-[Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) verified first attention17383751/2.128829269x and D32C32=11.882275ms, still unmatched. Only full attention changed; do not credit unmodified sliding movement. The setup-onlyFP8-isfinite failure is corrected atf397bca8. PublishedSTATUS.md was waiting for unrelated3aa; fresh sharedlist shows it done/no live jobs/18layerchecks. **Concurrente365d7b6 records accepted corrected confirmation62a4f6b27ed74b50**. The worker already continued independently before the [queue note](decode32/2026-11-02-10-driver-live-queue.md) was published; it now records only that owning ID/no duplicate. Matched result remains pending. Shared no-live lists do not exclude an in-flight POST. Worker executes directly under D32-02/D32-04; no new assignment, approval, rootdispatch or directchat acknowledgment. Overall/layer382,public607unchanged.
+[Driver01:15UTC monitor](../../archive/docs/steering/2026-11-02-driver-monitor-0115.md) verified first attention17383751/2.128829269x and D32C32=11.882275ms, still unmatched. Only full attention changed; do not credit unmodified sliding movement. The setup-onlyFP8-isfinite failure is corrected atf397bca8. PublishedSTATUS.md was waiting for unrelated3aa; fresh sharedlist shows it done/no live jobs/18layerchecks. **Concurrente365d7b6 records accepted corrected confirmation62a4f6b27ed74b50**. The worker already continued independently before the [queue note](../../archive/docs/steering/decode32/2026-11-02-10-driver-live-queue.md) was published; it now records only that owning ID/no duplicate. Matched result remains pending. Shared no-live lists do not exclude an in-flight POST. Worker executes directly under D32-02/D32-04; no new assignment, approval, rootdispatch or directchat acknowledgment. Overall/layer382,public607unchanged.
 
 ## Decode32 next action and progress watch
 
-**[D32-06: continue directly to matched attention confirmation](decode32/2026-11-02-06-confirm-attention-and-progress-watch.md)** — the user asked research to watch the Decode32 inbox for inactivity. At evidence779b06ad, attention job17383751c6a24010 is terminal valid with C32=11.882275ms; confirmation, not another architecture review, is the already-authorized next step. Decode32 Worker keeps end-to-end execution authority and should record the accepted confirmation ID or a concrete blocker in STATUS.md. An hourly conditional research-side GitHub watch is enabled for new outcomes, blockers and documented missing continuation. This is not proof the local worker is asleep or a direct wake-up. No GPU dispatch, kernel change or new public permission. The watched inbox is updated; the other project owners remain unchanged.
+**[D32-06: continue directly to matched attention confirmation](../../archive/docs/steering/decode32/2026-11-02-06-confirm-attention-and-progress-watch.md)** — the user asked research to watch the Decode32 inbox for inactivity. At evidence779b06ad, attention job17383751c6a24010 is terminal valid with C32=11.882275ms; confirmation, not another architecture review, is the already-authorized next step. Decode32 Worker keeps end-to-end execution authority and should record the accepted confirmation ID or a concrete blocker in STATUS.md. An hourly conditional research-side GitHub watch is enabled for new outcomes, blockers and documented missing continuation. This is not proof the local worker is asleep or a direct wake-up. No GPU dispatch, kernel change or new public permission. The watched inbox is updated; the other project owners remain unchanged.
 
 ## CUDA optimizer / round-2 research alignment — actual optimizer plan not yet inspected
 
@@ -105,19 +105,19 @@ Root instructions load the reference index for future CUDA work.
 
 ## D32 matched routing failure
 
-[Corrected matched check 62a4f6b27ed74b50](decode32/2026-11-02-11-matched-routing-mismatch.md) stopped in setup on unequal natural routing during fresh replay; no matched timing was produced. A bounded diagnostic keeps the gate strict and records the load, seed and differing placements. The result does not identify a kernel loss.
+[Corrected matched check 62a4f6b27ed74b50](../../archive/docs/steering/decode32/2026-11-02-11-matched-routing-mismatch.md) stopped in setup on unequal natural routing during fresh replay; no matched timing was produced. A bounded diagnostic keeps the gate strict and records the load, seed and differing placements. The result does not identify a kernel loss.
 
 ## D32 matched confirmation setup correction
 
-[Private check 4fece18b20a2447b](decode32/2026-11-02-09-pair-setup-failure.md) failed in setup because target PyTorch does not implement FP8 `isfinite`. No timing was produced. The corrected diagnostic casts FP8 only for this check and has CPU Torch finite/nonfinite coverage. A new private check follows source publication and live preflight.
+[Private check 4fece18b20a2447b](../../archive/docs/steering/decode32/2026-11-02-09-pair-setup-failure.md) failed in setup because target PyTorch does not implement FP8 `isfinite`. No timing was produced. The corrected diagnostic casts FP8 only for this check and has CPU Torch finite/nonfinite coverage. A new private check follows source publication and live preflight.
 
 ## D32 matched confirmation payload
 
-[Attention confirmation payload](decode32/2026-11-02-08-confirmation-payload.md) `109cdb07` has generated-entry and real-CPU-Torch facade coverage. Target GPU correctness, 295-second preparation fit and paired timings are still open. One private check follows the normal job/quota preflight.
+[Attention confirmation payload](../../archive/docs/steering/decode32/2026-11-02-08-confirmation-payload.md) `109cdb07` has generated-entry and real-CPU-Torch facade coverage. Target GPU correctness, 295-second preparation fit and paired timings are still open. One private check follows the normal job/quota preflight.
 
 ## D32 attention first private result
 
-[Own job 17383751c6a24010](decode32/2026-11-02-05-attention-first-result.md) passed 13 tests and recorded D32 C32 11.882275 ms. This is a promising comparison with the earlier control, with different inputs and nodes. Matched confirmation is required before a causal gain or integration claim.
+[Own job 17383751c6a24010](../../archive/docs/steering/decode32/2026-11-02-05-attention-first-result.md) passed 13 tests and recorded D32 C32 11.882275 ms. This is a promising comparison with the earlier control, with different inputs and nodes. Matched confirmation is required before a causal gain or integration claim.
 
 ## D32 attention source and direct measurement
 
@@ -132,7 +132,7 @@ Its earlier pending checkpoint is superseded by the terminal result above; no in
 
 ## Earlier assignment: Decode32 Worker — full-context attention
 
-**[D32-ATTN-01: implement one isolated full-decode attention candidate](decode32/2026-11-02-01-full-decode-attention.md)** was posted for the user-created **Decode32 Worker**. The user clarified that it was waiting for tasks, not already implementing one. Start source/code work on T32/q_len1 full-context attention, independently of the existing MID MoE comparison. Its candidate/tests/Driver-handoff endpoint is now superseded: Decode32 Worker takes its work through measurement and integration itself. Preferred cross-tile-overlap hypothesis must first be reconciled with actual selected code and prior scoped failures; no gain is assumed.
+**[D32-ATTN-01: implement one isolated full-decode attention candidate](../../archive/docs/steering/decode32/2026-11-02-01-full-decode-attention.md)** was posted for the user-created **Decode32 Worker**. The user clarified that it was waiting for tasks, not already implementing one. Start source/code work on T32/q_len1 full-context attention, independently of the existing MID MoE comparison. Its candidate/tests/Driver-handoff endpoint is now superseded: Decode32 Worker takes its work through measurement and integration itself. Preferred cross-tile-overlap hypothesis must first be reconciled with actual selected code and prior scoped failures; no gain is assumed.
 
 **Historical ownership split, superseded for subsequent D32 work:** Decode32 Worker owned the isolated attention track; OKC Developer retained MID-at-T32 MoE; OK Driver was sole judge dispatcher/integration owner. Actual attention pickup is recorded in the [status file](decode32/2026-11-02-01-full-decode-attention-status.md): Decode32 Worker acknowledged at23:55UTC, published69cf82b3. Its isolated implementation plan is active; no GPU qualification was recorded at that checkpoint.
 
@@ -162,7 +162,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 ## Earlier execution records
 
-**[Direct-weight private check registration: 0b684a4065354fc5](2026-11-02-driver-direct-weight-first-check.md).** Its accepted/pending text is historical: the terminal and stop are recorded above. Do not resume or duplicate this completed job. The file changed B4/MAIN weight delivery and did not earn promotion.
+**[Direct-weight private check registration: 0b684a4065354fc5](../../archive/docs/steering/2026-11-02-driver-direct-weight-first-check.md).** Its accepted/pending text is historical: the terminal and stop are recorded above. Do not resume or duplicate this completed job. The file changed B4/MAIN weight delivery and did not earn promotion.
 
 **[K128/shared-A terminal history and direct-weight allocation](2026-11-02-driver-shared-a-terminal-and-direct-weight-next.md).** Preserve the completed losing implementations and their scoped stops. D32 focus and ownership changes are not evidence that those old variants won.
 
@@ -172,13 +172,13 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
-| [Driver02:15UTC monitor](2026-11-02-driver-monitor-0215.md) | bc6c7a2f; own62a4/590 receipts; liveCLI | Setup-only routing block on inactive-treatment sliding path; strictgate/nextobserver, componentclosures, existingdistinctqueue; no promotion |
+| [Driver02:15UTC monitor](../../archive/docs/steering/2026-11-02-driver-monitor-0215.md) | bc6c7a2f; own62a4/590 receipts; liveCLI | Setup-only routing block on inactive-treatment sliding path; strictgate/nextobserver, componentclosures, existingdistinctqueue; no promotion |
 | [Scout source standing and live jobs](2026-11-02-scout-source-standing-and-jobs.md) | 810d8264; authenticated jobs and boards at01:47UTC; pinned public README/LESSONS | Strongest known public archive versus actual leaders; one running skinny check, D32 setup failure and terminal CUDA comparisons |
-| [Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) | e6993059/e365d7b6; own17383751/4fe/62a4 records; freshCLI lists | Firstattentionvalid/unconfirmed; correctedretryexternalwaitcleared; ownerautonomy/duplicateguard; boards382/no publicchange |
+| [Driver01:15UTC monitor](../../archive/docs/steering/2026-11-02-driver-monitor-0115.md) | e6993059/e365d7b6; own17383751/4fe/62a4 records; freshCLI lists | Firstattentionvalid/unconfirmed; correctedretryexternalwaitcleared; ownerautonomy/duplicateguard; boards382/no publicchange |
 | [Public competition watch](2026-11-02-competition-watch.md) | e365d7b6; keell0renz 890809ce; public GitHub and social source pins | New author caveat, 36 public repository targets and active two-hour scouting watch; no independent judge finding or kernel action |
 | [General Optimizer pipeline depth](2026-11-02-general-optimizer-pipeline-depth.md) | d5f5918b; CUDA Optimizer's actual report/plan; source corrections | GOPT-PIPE-01 picked up by General Optimizer; old evidence reconciled; current-helper NS4 job f0b875484960438b passes correctness and fails promotion; NS3 retained |
 | [CUDA part 2 experiments](2026-11-02-cuda-part2-experiments.md) | f720ac61; c7 native control; two local compiler treatments | Larger issue groups stop at spills; constant multiplier has positive compiler evidence and one registered private MoE measurement; no target gain yet |
-| [D32 confirmation continuation and watch](decode32/2026-11-02-06-confirm-attention-and-progress-watch.md) | 779b06ad; own17383751; user watch request | Already-authorized matched confirmation; hourly conditional research watch; no proof of sleep or new measured gain |
+| [D32 confirmation continuation and watch](../../archive/docs/steering/decode32/2026-11-02-06-confirm-attention-and-progress-watch.md) | 779b06ad; own17383751; user watch request | Already-authorized matched confirmation; hourly conditional research watch; no proof of sleep or new measured gain |
 | [H200 research intake and application](2026-11-02-cuda-research-application.md) | ba9/c7 source; complete attachment; CPU regressions and local CUDA 12.8.1 build | Eight reference documents, full section/recommendation coverage, compiler-status repair; no runtime optimization or target gain claimed |
 | [CUDA optimizer alignment](2026-11-02-cuda-optimizer-alignment.md) | df237d36; native repair inventory; K128 terminal | Provisional guidance; named optimizer plan and exact CUDA report not retrieved; no candidate verdict or ownership change |
 | [D32 attention experiment](decode32/2026-11-02-01-full-decode-attention-experiment.md) | ba9 control; 5a580c7a candidate; six CPU tests and fixed device builds | Initial private check now terminal; see first result and D32-06 confirmation continuation |
@@ -187,8 +187,8 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 | [D32 MID terminal / one-time retirement](2026-11-02-driver-d32-mid-terminal.md) | own a6fe2769779e4299/e607fb89; control94ef | VALID13/12/12/native56; no usefulD32signal,exactPARK; raw/profiles/portablederivative archived; futureD32execution directlynewowner |
 | [D32 MID accepted check](2026-11-02-driver-d32-mid-first-check.md) | own a6fe2769779e4299; source28346bf5/e607fb89 | One pre-existing ordinary private exploration; original owner finishes this accepted job; target gates open |
 | [Calibration terminal and MID qualification gate](2026-11-02-driver-d32-control-terminal-and-mid-gate.md) | own94ef698e91964dfa; exactMIDe607fb89; independent source/CPU review | Unchanged calibration valid2.091747685x; D32 C32=12.324230ms,1.81179x; source qualification history |
-| [Fixed MID implementation](2026-11-02-worker-d32-mid-family.md) | ba9 control; MIDb8; e607fb89/870649LF | Existing MID for17..32, unchanged shaders/math; actual entry/cache/neighbor CPU gates |
-| [D32-ATTN-01 implementation task](decode32/2026-11-02-01-full-decode-attention.md) | a4192dec; existing D32 plan/continuity source | Original attention assignment;23:55UTC pickup69cf82b3; handoff restriction superseded |
+| [Fixed MID implementation](../../archive/docs/steering/2026-11-02-worker-d32-mid-family.md) | ba9 control; MIDb8; e607fb89/870649LF | Existing MID for17..32, unchanged shaders/math; actual entry/cache/neighbor CPU gates |
+| [D32-ATTN-01 implementation task](../../archive/docs/steering/decode32/2026-11-02-01-full-decode-attention.md) | a4192dec; existing D32 plan/continuity source | Original attention assignment;23:55UTC pickup69cf82b3; handoff restriction superseded |
 | [Decode32 inbox setup](2026-11-02-decode32-inbox.md) | bdbf35bf; user request | Shared task folder/periodic monitoring; ownership restrictions superseded for D32 |
 | [Decode32 owner directive](2026-11-02-decode32-owner-directive.md) | b9ca9dff and5b4a729a | Historical P0 and captain/developer pickup; current owner is Decode32 Worker under D32-02 |
 | [Captain D32 MID comparison](2026-11-02-driver-d32-mid-comparison.md) | b9ca9dff; own0b terminal; sourceba9/b8 | DirectD32 closure, fixedMID17..32 exploration, no shader/math/packing sweep |
