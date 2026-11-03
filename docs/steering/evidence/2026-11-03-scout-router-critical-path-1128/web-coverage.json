@@ -1,0 +1,74 @@
+{
+  "queries": [
+    "\"muse_bf16_proj\" OR \"muse_attention_decode\" OR \"muse_moe_w4a16\" github",
+    "\"muse_decode_layer\" OR \"muse_prefill_layer\" kernel github",
+    "\"Muse Spark\" \"Open Kernel Challenge\" site:x.com",
+    "\"openkernelchallenge.dev\" site:reddit.com OR site:news.ycombinator.com OR site:linkedin.com",
+    "\"muse\" \"kernel\" (\"justinwangx\" OR \"lxe\" OR \"levidiamode\")",
+    "\"Muse\" (\"Karmedge\" OR \"danielgross\") challenge",
+    "\"Muse Spark\" \"kernel\" site:reddit.com OR site:news.ycombinator.com OR site:linkedin.com/posts",
+    "\"Muse Spark\" kernel challenge blog November 2026",
+    "\"justinwangx\" \"kernel\"",
+    "\"lxe\" \"Muse\" \"challenge\"",
+    "\"levidiamode\" \"Muse\"",
+    "\"Karmedge\" \"Muse\"",
+    "\"openkernelchallenge.dev\" site:linkedin.com/posts",
+    "\"Muse Spark\" \"challenge\" site:news.ycombinator.com",
+    "\"Muse Spark\" \"kernel challenge\" site:reddit.com",
+    "\"Muse Spark\" kernel \"lxe\""
+  ],
+  "observations": [
+    {
+      "url": "https://teapaw.org/justinwangx",
+      "source_date": "Oct29/30,2026",
+      "cache_date": "crawled today",
+      "scope": "Old Slack channel announcement and quota-limited invite; channel unread; no new source-bound kernel."
+    },
+    {
+      "url": "https://xitter.cf/levidiamode",
+      "source_date": "Oct29-31,2026",
+      "cache_date": "crawled yesterday",
+      "scope": "Old top50/hobby learning notes; no newly linked kernel."
+    },
+    {
+      "url": "https://teapawt.org/lxe",
+      "source_date": "Oct31,2026",
+      "cache_date": "crawled today",
+      "scope": "Six-agent/two-H200 harness description remains background; no bound implementation receipt."
+    },
+    {
+      "url": "https://teapawt.org/danielgross",
+      "source_date": "Oct22,2026",
+      "cache_date": "crawled today",
+      "scope": "Existing challenge launch announcement."
+    },
+    {
+      "url": "https://teapaw.org/vanderseele",
+      "source_date": "Nov1/2,2026 entries",
+      "cache_date": "crawled today",
+      "scope": "Known published-repository and caveat discussion, deduplicated."
+    },
+    {
+      "url": "https://es.linkedin.com/posts/rguillamon_muse-spark-open-kernel-challenge-activity-7519819739335102464-xRek",
+      "cache_date": "crawled last week",
+      "scope": "Challenge link only."
+    },
+    {
+      "url": "https://teapaw.org/zroai_",
+      "cache_date": "crawled two days ago",
+      "scope": "Leaderboard/recruiting claim only; no source-bound implementation, no gain inferred from rank."
+    },
+    {
+      "url": "https://memory-bound.vercel.app/blog/muse-spark-open-architecture/",
+      "source_date": "2026-10-27",
+      "cache_date": "crawled today",
+      "scope": "Previously inaccessible model-architecture explainer now readable. No new kernel implementation or measured challenge receipt."
+    }
+  ],
+  "limits": [
+    "Indexed and cached public pages only; original five X profiles returned403.",
+    "Platform searches can miss unindexed posts; mixed broad queries returned substantial irrelevant material.",
+    "Authenticated Slack/Discord and registered-only Guild content were not accessed.",
+    "Only the architecture blog detail URL recovered; the prior blog-index access error is not assumed resolved."
+  ]
+}

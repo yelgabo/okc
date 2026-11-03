@@ -4,11 +4,27 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 11:22 UTC](2026-11-03-driver-monitor-1122.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 16:26 UTC](2026-11-03-driver-monitor-1626.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
+
+## November 3 16:26 UTC source-only reserve
+
+[Current monitor](2026-11-03-driver-monitor-1626.md): new AutoclickerI final rebinding selects RVC at M1/M8,not the original SMALLM_VAR body. Distinct M1direct-slot/norm reserve needs required numerical/ordering/progress and complete-cost qualification. One bounded source-only review directly sent to the existing researcher; pickup unverified,no GPU/public/default authority. BCLM2 retains its owner's first reset slot. Public scores unchanged;fresh audit15leads/zero gaps. [Selected-source addendum](2026-11-03-scout-autoclicker-s22-1405.md#dated-selected-dispatch-qualification--november3-1626utc-root).
+
+## November 3 12:22 UTC execution checkpoint
+
+[Current monitor](2026-11-03-driver-monitor-1222.md): HALF-onlyac81 is a complete matched loss,T1/T8+2.18/+1.26us;exact design closed. Prepared BCLM2 remains the existing owner's first reset check with zero MoEprivatechecks now. Shared layer65f completed10526.686888us,own source/stress/per-cell report not yet published;do not infer c2qualification from the scalar or job timing. Current publicPDL8b unchanged,overall/layer371. Lead's repeat restarter now reads the PDL layer base;root creates no timer/dispatch. Fresh audit15leads/zero gaps. Scout's new Blackwell/TF32router reference is not a qualified H200candidate.
+
+## November 3 11:45 UTC short-load handoff reconciliation
+
+**MoE short bench:** `MOE-SB-HALF-01` `ac81f50c22a94671` is **terminal matched loss** against the unchanged release control, not a new judged-candidate score: correct across 48/48 inputs per arm; candidate-minus-control T1 **+2.18 µs** (95% interval +1.95 to +2.40) and T8 **+1.26 µs** (+0.83 to +1.70), untouched T16 inside noise. Exact `sb_half.py` / SHA256 `560a07da...` is parked, not promoted. The owner/lead's **already prepared, ranked next** `MOE-SB-BCLM-01` `sb_bclm2.py` / SHA256 `57751b94...` remains first at the next quota reset; **no accepted job for BCLM is recorded here**. Do not duplicate that signed-off next, preempt its owner, infer GPU pickup, or dispatch it from steering. [Owning paired evidence](../runs-moe.md#moe-sb-half-01-result-check-ac81f50c22a94671-dispatched-on-todays-held-check-at-the-coordinators-go) · [Lead's current ledger](2026-11-02-final-day-directive.md#ledger) · [Latest scoped negative](../ruled-out.md).
+
+**Layer release:** public `fefd7f7b8e834bd7`, `g1b4_pdl8b.py` / SHA256 `7f5651e5...`, already board-verified at **10,419.876726 µs / 2.1709x / rank 369**, below prior public `607eb52bdaf24160` at 10,639.426327 µs; the **2.06355%** elapsed-time change is a cross-run public comparison, not matched attribution. T1/T16/T32 PDL enabled; T8 hard off. Existing layer owner owns source/public receipt binding and the already allocated pdl8c2 composition check (do not treat temporal job adjacency as source binding). [Verification and limitations](2026-11-03-driver-monitor-1122.md) · [Promotion ledger](../releases/promotion-queue.json).
+
+**Other lanes:** P1 BF16's four newer M128 checks and earlier short stream-K are scoped losses; selected C2 retained, no new independent GPU candidate authorized. General's separate MoE audit is complete, D32 is P4, the former worker's reminder stays paused. Existing named widened-research pass has concluded with zero qualified next proposals. This entry is an **index reconciliation**, not a new task, research escalation, quota authority, waiter, or public approval.
 
 ## November 3 11:22 UTC public layer advance
 
@@ -35,6 +51,14 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 [Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.
 
 ## Audits and monitors, November 2 to 3
+
+[Driver monitor16:26UTC](2026-11-03-driver-monitor-1626.md): final-selector correction,new M1reserve qualification,existing BCLM/PDL ownership and fresh release guard.
+
+[Public scout: AutoclickerI's readable S22 layer](2026-11-03-scout-autoclicker-s22-1405.md) pins `85aed1fb`, verifies 75 captured files and statically reconstructs all 61 embedded files to the archived wrapper's source. Uploaded October 27 H200 receipt reports 1.8892x; lab freeze-state and server upload binding limits remain explicit. New source reference, no reproduced gain or new GPU assignment.
+
+[Driver monitor12:22UTC](2026-11-03-driver-monitor-1222.md): exact HALF loss,BCLM reset continuity,terminal layer publication gap,current public/quotas and scoped router source.
+
+[Public scout: router tactics beside the pooler](2026-11-03-scout-router-critical-path-1128.md) pins SGLang PR47636 at `07e2f70f` and verifies six changed files. The author selects the router tactic in serving context because larger isolated winners can wait for SMs. Blackwell and TF32 limits prevent treating the published timings as an H200 challenge gain. Includes new BF16 repository checks, changing search coverage and access limits; no new GPU assignment.
 
 [Driver monitor11:22UTC](2026-11-03-driver-monitor-1122.md): public PDL layer advance and rank369,source/receipt limits,composed-owner continuity,closed lanes and completed research gap.
 

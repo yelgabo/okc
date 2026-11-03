@@ -1,0 +1,752 @@
+[
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "README.md",
+    "blob": "c982228ab2513538e078c6abf7975a27c4e7e8c6",
+    "sha256": "a7035fa7722da46b7049f6121e141bfe558481fd0ee1dceb78f8fd27d1e29d3f",
+    "bytes": 10574,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/README.md",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/README.md"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "THIRD_PARTY.md",
+    "blob": "fa02b44d3394051366329433228a8a0958ca274c",
+    "sha256": "657587a7ff7ec3b45ecde019464b1bf636bbc9308eda4efcb5b9075dd75beafd",
+    "bytes": 3663,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/THIRD_PARTY.md",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/THIRD_PARTY.md"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "docs/FINDINGS.md",
+    "blob": "2de190958a3666b113c18d6c627bfe84979a7f06",
+    "sha256": "b31a0b356b3e165e6bf41860f2c10267a00a92831e856fb1f64700ba460ad3ca",
+    "bytes": 371978,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/docs/FINDINGS.md",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/docs/FINDINGS.md"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "docs/serving/moe_port.md",
+    "blob": "e7ce48a988de418f3ab48e6d1a08bd04b4bc892f",
+    "sha256": "13b8c29dcde0847d684199c3932c0e682a452d7300e3d9cc971a078f92ed304e",
+    "bytes": 4248,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/docs/serving/moe_port.md",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/docs/serving/moe_port.md"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "docs/serving/muse_dflash.md",
+    "blob": "25612d1841d9e7f33d7e1f40008415043a3652a4",
+    "sha256": "6ee1c0b8a516a68e2f728dd0c4ae1cd9b10ebad0e0539d27c8c3b66b3965ca0a",
+    "bytes": 17430,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/docs/serving/muse_dflash.md",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/docs/serving/muse_dflash.md"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/README.md",
+    "blob": "2ebff5ffde8a4b8f7869819fca17f20ca550de9a",
+    "sha256": "38aa338736bf03ece1f3150e9f91517161230a38c12413b8994aea113aa664a5",
+    "bytes": 7886,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/README.md",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/README.md"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/build.py",
+    "blob": "680942c830cecd8e613a9058afce82872fc88ef4",
+    "sha256": "2d3084447033e8f73a35890deeeb8a837f45b7099430f293adf2e6d2e9e313f9",
+    "bytes": 9078,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/build.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/build.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/layer.py",
+    "blob": "56ff5a61238b5f32af9141256fe8371253b79c4a",
+    "sha256": "16a52b486384931269608895c7067f899567161d20be9542f50c328936e0ed74",
+    "bytes": 415389,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/layer.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/layer.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/ATTN_PORT_CUDA_SRC.cu",
+    "blob": "4c7d38f26753b2b7d7c1ebb9d424ad4c9b72e160",
+    "sha256": "519ea55f1acf936ac115e6e42b5d0c7abc6b913418865ebd2fe54d2d49932208",
+    "bytes": 31097,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/ATTN_PORT_CUDA_SRC.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/ATTN_PORT_CUDA_SRC.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/CUDA_SRC.cu",
+    "blob": "7cdb8771fe9e8ba3847820666be1a6564c46f73a",
+    "sha256": "e1fe1460f9f394803ec7b01dd24595b4e33f9366ecee200eb6d1833dc17f5762",
+    "bytes": 25247,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/CUDA_SRC.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/CUDA_SRC.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/DA_GPU_PACK_SOURCE.py",
+    "blob": "1f02e2fa23458fdf4141a7ec615dd89292e6c6dd",
+    "sha256": "3637b8e2faa09316ad727b7b14da722f4d7391ed5b24aafefd38332a09f28952",
+    "bytes": 4195,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/DA_GPU_PACK_SOURCE.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/DA_GPU_PACK_SOURCE.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/DENSE_CHAIN_CUDA.cu",
+    "blob": "ef9acd07509accac830d4106cc98b4004d293ece",
+    "sha256": "81d1859f3608a08e1b2c81aed6f34a21fac0f8c2deb6255c481737d8a0b253b3",
+    "bytes": 17211,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/DENSE_CHAIN_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/DENSE_CHAIN_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/GF_CUDA.cu",
+    "blob": "c204a9bb6e7824376cd8a2c4f4ed520aaea73698",
+    "sha256": "c26e6f40e67bc82ec6c1395ca0674aeb993b4cfc1ba0f82ca38f2d1935c14962",
+    "bytes": 5750,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/GF_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/GF_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/GLUE_CL_CUDA.cu",
+    "blob": "5f09400587ae79ebad3f71036b47281de01f0414",
+    "sha256": "1832a60d299f8cc6f78f7ac076d401342dff45da97d7359b732c742a28fda7e9",
+    "bytes": 21076,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/GLUE_CL_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/GLUE_CL_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/GP_CUDA.cu",
+    "blob": "5f09400587ae79ebad3f71036b47281de01f0414",
+    "sha256": "1832a60d299f8cc6f78f7ac076d401342dff45da97d7359b732c742a28fda7e9",
+    "bytes": 21076,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/GP_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/GP_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/MT_CUDA.cu",
+    "blob": "c11d7b78737d203496548e955f772415db09b65c",
+    "sha256": "2205cfb9678bdf742e2eb1927eff5bcc4d4208c29a14df9c8f4f35ba74688c5d",
+    "bytes": 7298,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/MT_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/MT_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/MT_PMZ_CUDA.cu",
+    "blob": "2940ee27dccf86a8ccafca6ed9355c2701a689d7",
+    "sha256": "2e30702125535673fe24e1c000b06b612114080f04228ee72f37cb95fc30fb30",
+    "bytes": 17145,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/MT_PMZ_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/MT_PMZ_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_CUDA.cu",
+    "blob": "312f3241a5fef1b85df3f147bd95e2acd6c9e9ca",
+    "sha256": "2e9f72ae8e04c29851ec393d6ae56d78bd5b4d62a6a2ca2f201d8a73b42482d5",
+    "bytes": 37865,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR.py",
+    "blob": "cc05092b10a12d5b3c89a4186f6706a011891e51",
+    "sha256": "7506479e7a91de8b74e2512a9178c9127e1d113a3e40cf36e9460857d6e385b6",
+    "bytes": 1349,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected.py",
+    "blob": "75bec01c30eb1c84e4e6a62249e2abd42a948383",
+    "sha256": "88943306dcc92af2175f20f85e240551135b8643865faa59dadcc4baf2587121",
+    "bytes": 102648,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected.py.b64",
+    "blob": "33736bd3c001473bc2fd4e8757cda475c54c49f4",
+    "sha256": "48440b48a27e876940c27a8017d9087c2441f0e3105830bf05c3def33351a70e",
+    "bytes": 135036,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected.py.b64",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected.py.b64"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/BUNDLE_QKV_CUDA.cu",
+    "blob": "b0f1d1b9763a3be10eec4728b23d6fa868b0d26d",
+    "sha256": "6b8bd845cf6464b0a660e252ffae72108511a04b3963932c02716b17a86d594c",
+    "bytes": 28227,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/BUNDLE_QKV_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/BUNDLE_QKV_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/L1260.cu",
+    "blob": "27f06137bb3bbcb011d09deaf5457fc570e1bebc",
+    "sha256": "cf25097e801ef990b650d2aeeb4669c2466d6d90ca35fee59227f0ce2e300663",
+    "bytes": 30841,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/L1260.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/L1260.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/OLAYER_CUDA.cu",
+    "blob": "b5f085f22b5654c787bafc4dbd85b6025beeff73",
+    "sha256": "b3c7b0666d0de587a3fd87633d1bc3b675a38277ac88442d442f26512c0dc171",
+    "bytes": 6864,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/OLAYER_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/OLAYER_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/V18S_CUDA_TEMPLATE.cu",
+    "blob": "e5593a675cebfa1e63b48ded05ceeaf07d6cb5dd",
+    "sha256": "f650b5599bfce28766252d5bdef5ff6b944bfe244f6041b9c0ad21977284e025",
+    "bytes": 26530,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/V18S_CUDA_TEMPLATE.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/V18S_CUDA_TEMPLATE.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/b2o_OLAYER_CUDA.cu",
+    "blob": "881bfa3889df9d42b1a71ab29eaeac963398af94",
+    "sha256": "ad3c550f8ae7930a6f93287389ef8ec3431e30f0f6bbf0d73375b66254d68dd9",
+    "bytes": 7274,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/b2o_OLAYER_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/b2o_OLAYER_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/b2p_tt_v10_m32x__CUDA.cu",
+    "blob": "c1e7b7e3861279c37899a9c6dbd67a2f35b1a09a",
+    "sha256": "624e9f73bf6090e5c8bea39fcac4efeef6172a365fbadeb865d20128ef2a0f81",
+    "bytes": 34891,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/b2p_tt_v10_m32x__CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/b2p_tt_v10_m32x__CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/b2q_tt_v10_m32x__Q_CUDA.cu",
+    "blob": "821da9e82fd7cb0e87097b69504f118c8f99d2a7",
+    "sha256": "1c7e2e629f017dc251fdad90dc3a1d13a28c6bf6e19e1ce5e3163fa4f73b27df",
+    "bytes": 38521,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/b2q_tt_v10_m32x__Q_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/b2q_tt_v10_m32x__Q_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/dd_decodediet_CPSSM_CUDA_TEMPLATE.cu",
+    "blob": "be21853b4b82afb9de6bcca1620f081c45591b0f",
+    "sha256": "2c7ae080c5004fd67a8b6045cfb40a43fe187fb8d808b160d7f5711e75a71d7c",
+    "bytes": 25631,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/dd_decodediet_CPSSM_CUDA_TEMPLATE.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/dd_decodediet_CPSSM_CUDA_TEMPLATE.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/dd_decodediet_tt_mw_CUDA_CORE.cu",
+    "blob": "a1d081deeff5aa65cbdae72b057f462a0b9425a8",
+    "sha256": "7a4ccf314255ac66c22fe6388eacb06f9df43611f577f0ecc11bf72199583c1e",
+    "bytes": 4688,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/dd_decodediet_tt_mw_CUDA_CORE.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/dd_decodediet_tt_mw_CUDA_CORE.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_lt__LT_CPP.cu",
+    "blob": "3e0db5fc6f3f6a19c4478f9163bd9d1441f27a83",
+    "sha256": "8b47136b8cfbaf5dc634084a70147edb63078961b4b70aedaea754e8160c7e60",
+    "bytes": 12477,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_lt__LT_CPP.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_lt__LT_CPP.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_m32x__Q_CUDA.cu",
+    "blob": "0f7f0a8be633d53ba6abfa85fc8e721f338f7b70",
+    "sha256": "96029713448db78c52b8e1d8f80b5338415e1bace9f752918cb9cba650d7603b",
+    "bytes": 34861,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_m32x__Q_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_m32x__Q_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_sm2_SMALLM2_CUDA_TEMPLATE.cu",
+    "blob": "281e87619fe89ebcf6b77d20d126d23363794bc7",
+    "sha256": "d9abce4e0444111a815f7727af07b56c3ab19c60864718b9ba23006f941bcbba",
+    "bytes": 27001,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_sm2_SMALLM2_CUDA_TEMPLATE.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_sm2_SMALLM2_CUDA_TEMPLATE.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_tune_CUDA.cu",
+    "blob": "0b2aa8f5d34fdd654e36559edd22451bc5282e57",
+    "sha256": "3adb65d623bd2e6dcb356c38a507092e32904e9bde7e71e2e82ff26ad7c1b8da",
+    "bytes": 10814,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_tune_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_tune_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_tune_RL_CUDA.cu",
+    "blob": "3d6678f488941560af4e6d5521ac8e075509816f",
+    "sha256": "db0613648b51f3393825eab1953332014192657c86069ac7e47b7eecb7f7e9a3",
+    "bytes": 6973,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_tune_RL_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v10_tune_RL_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v12_smtrace1_SMTRACE_CUDA_TEMPLATE.cu",
+    "blob": "d7cde992cb5f490056b0c9002ffebc2e6ac4a93e",
+    "sha256": "5c99b1fb5e3e7657e742e062c157f4c43963fce84850d00241be59860ff16075",
+    "bytes": 23109,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v12_smtrace1_SMTRACE_CUDA_TEMPLATE.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v12_smtrace1_SMTRACE_CUDA_TEMPLATE.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v13_smtrace8_SMTRACE_CUDA_TEMPLATE.cu",
+    "blob": "d7cde992cb5f490056b0c9002ffebc2e6ac4a93e",
+    "sha256": "5c99b1fb5e3e7657e742e062c157f4c43963fce84850d00241be59860ff16075",
+    "bytes": 23109,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v13_smtrace8_SMTRACE_CUDA_TEMPLATE.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v13_smtrace8_SMTRACE_CUDA_TEMPLATE.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v14_qkv_QKVBIG_CUDA.cu",
+    "blob": "13e0b26aff7a6dbb02064e882302bf3eefb00ef7",
+    "sha256": "8d4272dde4eaba0e8b91647bf066f10048e063d93589cbdad4b81f07cc1a068d",
+    "bytes": 13445,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v14_qkv_QKVBIG_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/tt_v14_qkv_QKVBIG_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/v18d_SM_CUDA_TEMPLATE.cu",
+    "blob": "0eb811225ca054c6ce450ea72743f0816d60b0ac",
+    "sha256": "f7ebd1489c25889c6312ee2b8b5b9ce15b312869c813fe130b406e01ec6aefb2",
+    "bytes": 23248,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/v18d_SM_CUDA_TEMPLATE.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/NF_VENDOR/NF86aff75-selected/v18d_SM_CUDA_TEMPLATE.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/P3B_CUDA.cu",
+    "blob": "d83708baee960d56f6cc98b04cf0aabe07b22223",
+    "sha256": "051ccd1f2e429b1d5478a809ae1c30141638c168d092e946fe44390860f53883",
+    "bytes": 57305,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/P3B_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/P3B_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/P7_PREFETCH_CUDA.cu",
+    "blob": "04905495b7f4dcfbe7b2c83524715f8291987f24",
+    "sha256": "530eaf125888be21af2d1600fb3818510e24e62795ccefda684baa42105917da",
+    "bytes": 2570,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/P7_PREFETCH_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/P7_PREFETCH_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/PARTIAL_CUDA.cu",
+    "blob": "baf97e5b27bc603fc3122067d02d35a4e37062c7",
+    "sha256": "8260df4d77059106824dc862e9133d88340fc49a848fe73fd75aca51eb559181",
+    "bytes": 31190,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/PARTIAL_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/PARTIAL_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/RT_CUDA.cu",
+    "blob": "3cbb02a68b4795d34224137bd16a0d643f125126",
+    "sha256": "b9d0ae028640e28cfde05303199d8488ed755ce08b4208c00b488caf677ebd61",
+    "bytes": 10125,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/RT_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/RT_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/RT_FAST_CUDA.cu",
+    "blob": "d5541d74d88f51caf7741b639139c0fae65b2acf",
+    "sha256": "3d05ab1c7e5031569eaa8f997ac7572ce6b2bfdd3170da3b47435f216044776a",
+    "bytes": 11129,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/RT_FAST_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/RT_FAST_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/RVC_NBASE1_CUDA.cu",
+    "blob": "3a800defb6f0c08904099fbd69a52f2a24b0315a",
+    "sha256": "5b6ae2c3611b71e102238719c69cbed6cd6b1d3566bbcf3765788fc787619fb6",
+    "bytes": 34785,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/RVC_NBASE1_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/RVC_NBASE1_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/RVC_NBASE2_CUDA.cu",
+    "blob": "d9e008d4837c9f01e0a55e5846381978a179bd48",
+    "sha256": "2e382eda4a71ba46c2a89183414fb7285785e238a3e75c53c26f24aba0282fd2",
+    "bytes": 34788,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/RVC_NBASE2_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/RVC_NBASE2_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/RVC_NFIDX0_CUDA.cu",
+    "blob": "ad9b39c7f28b8eabc0dc913dca1fa65fd930d474",
+    "sha256": "244c4d089f5979e2e79f45a681ee14a58bd57cc02d7c20001af4f1c3c7cb8040",
+    "bytes": 35453,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/RVC_NFIDX0_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/RVC_NFIDX0_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/SMALLM_VAR_CUDA.cu",
+    "blob": "30ca32c611e63d8bbb5eb97720486e3ce490e68b",
+    "sha256": "c511727257ab74911ec7693fcae4d8dbcb5eaded538d369417c22fac1f904a1d",
+    "bytes": 32308,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/SMALLM_VAR_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/SMALLM_VAR_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/SP_CUDA.cu",
+    "blob": "35ec6154e1932e3d1c4a5fe9c699f3b82d54971e",
+    "sha256": "0c49db6f7ee421f01c28cd377c4cfb05691ef3688d8071726142ee71c9f87771",
+    "bytes": 12573,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/SP_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/SP_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/V9_NT2_CUDA_SRC.cu",
+    "blob": "d6680561d2e2cd549f3ff1cc9fa1c41c955069e7",
+    "sha256": "1140e67f25b2e79aad54b8279c51ba30961a80d9807aa544cfa1f18a9c81d95d",
+    "bytes": 21738,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/V9_NT2_CUDA_SRC.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/V9_NT2_CUDA_SRC.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/VQ8_CUDA.cu",
+    "blob": "05a944cfd7677f2dda2fa017d18c4f3283b8ccb8",
+    "sha256": "36b40412cb5a4d79b1d0afb5f9437dc7d40e66249b1380294c7ee7f4a6ac4d04",
+    "bytes": 49647,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/VQ8_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/VQ8_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_HY_PUBLIC_NOTICES.txt",
+    "blob": "5403d5ca95bdb62e036df2e6933885c186089d28",
+    "sha256": "c91b7a513ad45d811b5658a368060cf32256271545d93c4cb0350404dafe1b4e",
+    "bytes": 15019,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_HY_PUBLIC_NOTICES.txt",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_HY_PUBLIC_NOTICES.txt"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_HY_SOURCES/lee_hybrid.py",
+    "blob": "8249520feb7132b33b80197ec33479375f3263d4",
+    "sha256": "1cc3a9818321738d2573723d9d4bb0f309baf8eb14dee7ca85ed96c53fec6ea3",
+    "bytes": 2076,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_HY_SOURCES/lee_hybrid.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_HY_SOURCES/lee_hybrid.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_HY_SOURCES/lee_hybrid/CUDA.cu",
+    "blob": "d065e6e379868266ec08d25e7015269acf531fba",
+    "sha256": "3c932de76789be2ab648deb67effc9f53ffa71a3d739881bd2aec5df9c639af6",
+    "bytes": 35253,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_HY_SOURCES/lee_hybrid/CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_HY_SOURCES/lee_hybrid/CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_HY_SOURCES/operator_direct.py",
+    "blob": "0c65aa9d4a562f90469b7c0a6c54a30e48df5881",
+    "sha256": "1cbdfd7560efb0d37f930dae812300eb7a75ae5f4869b9a8112138b2ffa55275",
+    "bytes": 18705,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_HY_SOURCES/operator_direct.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_HY_SOURCES/operator_direct.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_P5B_BRIDGE_SRC.cu",
+    "blob": "cd11c0ce313ecfa89c42287fdb781de66834eba6",
+    "sha256": "fd53d0aebbde78534ec4a666d5dff977f097e75743c1b523fb6af08360fa6888",
+    "bytes": 11598,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_P5B_BRIDGE_SRC.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_P5B_BRIDGE_SRC.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_P5B_PUBLIC_NOTICES.txt",
+    "blob": "5403d5ca95bdb62e036df2e6933885c186089d28",
+    "sha256": "c91b7a513ad45d811b5658a368060cf32256271545d93c4cb0350404dafe1b4e",
+    "bytes": 15019,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_P5B_PUBLIC_NOTICES.txt",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_P5B_PUBLIC_NOTICES.txt"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_P5B_REDUCE_SRC.cu",
+    "blob": "8c1946f7e99c8ae15e4bd1102835f877308cdbb6",
+    "sha256": "cc5e13af6a2328b0c3237740cf2a71092482ba2e78f2870a4e02273ce32a16bd",
+    "bytes": 4356,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_P5B_REDUCE_SRC.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_P5B_REDUCE_SRC.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_P5B_VQ_SOURCES/N.cu",
+    "blob": "cb45ca93ccd851e03fea5d4a6e64c2f0b9f12aff",
+    "sha256": "c74cc44958eeaeecd456169aae1ad6dfaf742559ec5211596f244e0547b1f450",
+    "bytes": 49409,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_P5B_VQ_SOURCES/N.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_P5B_VQ_SOURCES/N.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_PUBLIC_SOURCES/lee.py",
+    "blob": "0ea936b36edc7f947654153a50ce35f574dcbda3",
+    "sha256": "2a3a9ca68d7b57774d71033766629b3b327482458959ab359aacea2af2a71f61",
+    "bytes": 2704,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_PUBLIC_SOURCES/lee.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_PUBLIC_SOURCES/lee.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_PUBLIC_SOURCES/lee/CUDA.cu",
+    "blob": "9747ef5c973a5bed312b4997a6ba25ce70e4616d",
+    "sha256": "cbe771ad2b657fb14501b779f35cf21344184ac21c6bf728c66947d1b114ef81",
+    "bytes": 126391,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_PUBLIC_SOURCES/lee/CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_PUBLIC_SOURCES/lee/CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_PUBLIC_SOURCES/operator.py",
+    "blob": "f03bc1861c677919fc0d6c8bf5b9768ca5d7f307",
+    "sha256": "ab8067762a49b7ae4b7c93c3f282263ac82a29068da411888305143da9c4815f",
+    "bytes": 43280,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_PUBLIC_SOURCES/operator.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_PUBLIC_SOURCES/operator.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_pf_GROUPED_SRC.cu",
+    "blob": "65e7ee02bdbce636110c1a9d3ec74e441d43489d",
+    "sha256": "b04d432aa049c7e7157c7b65b7b9211d2b10dddda7ff06bab6811f26dd2f3ce5",
+    "bytes": 99703,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_pf_GROUPED_SRC.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_pf_GROUPED_SRC.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_s16_epi_NORM_EPIN_CUDA.cu",
+    "blob": "193b7d15b8345756340dc058a8112e23f656d8d7",
+    "sha256": "124e7e824018a5ab443a5fe988afc6c9dab3e1b9eb389a200658ccbfceae1c18",
+    "bytes": 34711,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_s16_epi_NORM_EPIN_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_s16_epi_NORM_EPIN_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_s16_epi_PAIR_EPIT_CUDA.cu",
+    "blob": "943a9678699b41f26cd63fbcc39f935ed47fdcf4",
+    "sha256": "d49547042e6a28cef6cf7c3da2dc5d6fda3b85f41db07f9a750c7dc44f91fff4",
+    "bytes": 34116,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_s16_epi_PAIR_EPIT_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_s16_epi_PAIR_EPIT_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/_s16_global_C128_cs_CUDA.cu",
+    "blob": "6cb3e2a081cdea5d4fe3dfe00375cc1aa8a53593",
+    "sha256": "35c257f89740f59ece3502f7ee88582ed3b2554c4eb850938dce7b73f950fe77",
+    "bytes": 35708,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/_s16_global_C128_cs_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/_s16_global_C128_cs_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/cs_CUDA.cu",
+    "blob": "d39c691d5a07b607e576539e5776bde6e9d5ca74",
+    "sha256": "3815beabedbbb5773536dd33b765fe223821624ed4eadf829b122973028ee85a",
+    "bytes": 35128,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/cs_CUDA.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/cs_CUDA.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/r2_KERNELS/dsm.cu",
+    "blob": "61286e9d7384ce90754b5000c0f5abee72f88ab9",
+    "sha256": "0f250847cd8dbc3cbc8583425f4fef9e441e538c340b90d91448dccc125ab4a9",
+    "bytes": 36467,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/r2_KERNELS/dsm.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/r2_KERNELS/dsm.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "final/muse_decode_layer/src/wr_KERNELS/STREAM2.cu",
+    "blob": "6b8b5883946efdbf03d1123f84b166ef4ab56890",
+    "sha256": "f755216970a712469304811466226233f9df78e9de93d96fe2259c57a991d80e",
+    "bytes": 39722,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/final/muse_decode_layer/src/wr_KERNELS/STREAM2.cu",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/final/muse_decode_layer/src/wr_KERNELS/STREAM2.cu"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "runs/muse_decode_layer/20261027T013731Z_submit_210d40e0c9cb4b71.json",
+    "blob": "373e883bcfb2a4d4525b1ac61752be7417e34a20",
+    "sha256": "a60e4842ae768c39bd3240f31c1bdf441bb29b9db09eb12e4fe5a2ff3b1505a5",
+    "bytes": 72245,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/runs/muse_decode_layer/20261027T013731Z_submit_210d40e0c9cb4b71.json",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/runs/muse_decode_layer/20261027T013731Z_submit_210d40e0c9cb4b71.json"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "runs/muse_decode_layer/20261027T013731Z_submit_210d40e0c9cb4b71.py",
+    "blob": "bbf522cfd48615d4bf134ba0a17f9decf77d8529",
+    "sha256": "2287496067a3da750d43afd1943c12e69fb1d5337ce1c5e528d4b6c64649a6fd",
+    "bytes": 383394,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/runs/muse_decode_layer/20261027T013731Z_submit_210d40e0c9cb4b71.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/runs/muse_decode_layer/20261027T013731Z_submit_210d40e0c9cb4b71.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "problems/muse_decode_layer/cand_r3_best7_s22p1_final.py",
+    "blob": "bbf522cfd48615d4bf134ba0a17f9decf77d8529",
+    "sha256": "2287496067a3da750d43afd1943c12e69fb1d5337ce1c5e528d4b6c64649a6fd",
+    "bytes": 383394,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/problems/muse_decode_layer/cand_r3_best7_s22p1_final.py",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/problems/muse_decode_layer/cand_r3_best7_s22p1_final.py"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "problems/muse_decode_layer/dev/s22/README.md",
+    "blob": "f54287a9e4f0fa33d41d0730ee5443e6e88c03f2",
+    "sha256": "8f523aba799f8cc6e2bf94658f26987aff13dcdafef3d1bfdd19c520e480ccca",
+    "bytes": 3840,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/problems/muse_decode_layer/dev/s22/README.md",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/problems/muse_decode_layer/dev/s22/README.md"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "problems/muse_decode_layer/dev/s22/stages/p1/results.json",
+    "blob": "edf3965d58dd67a7a2774d37d93dda68bcd4ef77",
+    "sha256": "4bf1e6cf2fb63527986a6c268ee97631db61e7b3e0f6a4d997b823b923262c76",
+    "bytes": 27453,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/problems/muse_decode_layer/dev/s22/stages/p1/results.json",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/problems/muse_decode_layer/dev/s22/stages/p1/results.json"
+  },
+  {
+    "repository": "AutoclickerI/muse-spark-open-kernels",
+    "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+    "path": "runs/muse_bf16_proj/20261027T011303Z_check_0e1f9bc8474648bc.json",
+    "blob": "c296845da75e1b639a6f750797a2110cfb8c7ba2",
+    "sha256": "6350c1fc25c6a2aaf2c6785ca0e53135965821c643aad3b05c2cb62dfa19b68e",
+    "bytes": 19036,
+    "local": ".build/scout-2026-11-03-1405/autoclicker-source/runs/muse_bf16_proj/20261027T011303Z_check_0e1f9bc8474648bc.json",
+    "url": "https://github.com/AutoclickerI/muse-spark-open-kernels/blob/85aed1fb1365877b615542dd44980646816d6b26/runs/muse_bf16_proj/20261027T011303Z_check_0e1f9bc8474648bc.json"
+  }
+]

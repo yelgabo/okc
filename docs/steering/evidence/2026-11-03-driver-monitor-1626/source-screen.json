@@ -1,0 +1,37 @@
+{
+  "upstream": "AutoclickerI/muse-spark-open-kernels",
+  "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+  "archive": "docs/steering/evidence/2026-11-03-scout-autoclicker-s22-1405/autoclicker-source.tar.gz",
+  "archive_sha256": "986c277f68957a1947730ca92bebe86e87901dfce2ec165467db90536d92de66",
+  "members": [
+    {
+      "member": "final/muse_decode_layer/layer.py",
+      "sha256": "16a52b486384931269608895c7067f899567161d20be9542f50c328936e0ed74",
+      "bytes": 415389
+    },
+    {
+      "member": "final/muse_decode_layer/src/RVC_NFIDX0_CUDA.cu",
+      "sha256": "244c4d089f5979e2e79f45a681ee14a58bd57cc02d7c20001af4f1c3c7cb8040",
+      "bytes": 35453
+    },
+    {
+      "member": "final/muse_decode_layer/src/RVC_NBASE1_CUDA.cu",
+      "sha256": "5b6ae2c3611b71e102238719c69cbed6cd6b1d3566bbcf3765788fc787619fb6",
+      "bytes": 34785
+    }
+  ],
+  "selector_lines": "layer.py7320-7326: final smallm_experts override routes M1->rvc_nfidx0_experts,M8->rvc_nbase1_experts,M16/M32->rvc_nbase2_experts; other shapes retain previous dispatcher",
+  "novelty": "Static source screen identifies distinct M1 direct-slot mapping and register-held norm versus selected5df/b8; thread0issuer alone is not new. No compiled-code or timing qualification.",
+  "semantic_obligations": [
+    "Required BF16 gate/up,down-result,gamma boundaries must be retained",
+    "No unreviewed down-scale cancellation in normalization",
+    "Review regrouping/FTZ,private state,publication,lifetime,progress and full packing/allocation costs"
+  ],
+  "source_ranges": [
+    "RVC_NFIDX0:306-325",
+    "RVC_NFIDX0:107-110,583-616,717",
+    "RVC_NBASE1:238-240,531-603"
+  ],
+  "foreign_code_executed": false,
+  "decision": "source-only M1 reserve qualification delegated once to existing research; preserve BCLM first target priority; no implementation/GPU/public authority"
+}

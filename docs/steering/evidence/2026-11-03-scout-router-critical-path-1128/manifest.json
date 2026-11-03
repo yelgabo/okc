@@ -1,0 +1,80 @@
+[
+  {
+    "path": "branches-forks-releases.json",
+    "bytes": 11335,
+    "sha256": "b95f52fa57c71b0cf8c415967d5fac3cbd271eb748057567e62a8b41585fa549",
+    "blob": "8d537a91ffe71c7f6ca4fc4acf692d06c4be41f7"
+  },
+  {
+    "path": "follow-source-manifest.json",
+    "bytes": 7837,
+    "sha256": "7c8e1bf133eedfbe6fba19bf3a301a7cb47086b0168285f386e79c54f83e7255",
+    "blob": "c4474688488f793b71e59845177c425ac1da5cd0"
+  },
+  {
+    "path": "guild-body-diff.json",
+    "bytes": 4721,
+    "sha256": "e1193ab10217ea3de0bdaa689f854edc863f3499effe813d3a7f7473764d3bb2",
+    "blob": "ade2e9f29d3fe06f72b0d1d78a662372bb710bbd"
+  },
+  {
+    "path": "query-coverage.json",
+    "bytes": 7723,
+    "sha256": "8fd345277dbfc10e33c9e83cc7c9e2aec38e26de77bddec7da4e1377d255a98f",
+    "blob": "ccc86cec3a06a05eed356ca7b24851ce5a5b87ff"
+  },
+  {
+    "path": "review-watch.json",
+    "bytes": 41208,
+    "sha256": "439ffab818a093186b4532e9ee1f4ba1988ccf9c78b112823c1472f6a057a0e6",
+    "blob": "bfc559eed5df0ab6ae729b31bb9974838caf6772"
+  },
+  {
+    "path": "router-source-manifest.json",
+    "bytes": 3442,
+    "sha256": "61e3b061c51d88ba9f528728c915262af0edb09f15896889f2a518ab47937f37",
+    "blob": "19407492f65a46a2dad71e1c630fe3875ace4bae"
+  },
+  {
+    "path": "router-source.tar.gz",
+    "bytes": 39591,
+    "sha256": "61ce078f0848afa9d552d5b26a888b6c342c106f552de7e534ce4ae19e99c853",
+    "blob": "7575f16eeb02f7d6e4947e3e430cdbcc83ae4cbc"
+  },
+  {
+    "path": "search-captures.tar.gz",
+    "bytes": 4032536,
+    "sha256": "c3098da969d432ca6b3ff6dbd8f62b5fe1c97097ba3d03c8d313df339e5101c8",
+    "blob": "9dafc80c284181977d676513d33e76ebf4d8b03e"
+  },
+  {
+    "path": "sglang-current.json",
+    "bytes": 273795,
+    "sha256": "fb7b3a14faecaf022198f961afb11731fb9570f69917d592ca9b53ce0aad19a7",
+    "blob": "5653d3071dedf88e3a52359eff419e693538f418"
+  },
+  {
+    "path": "social-access.json",
+    "bytes": 840,
+    "sha256": "df1cb69fe6f00e3f387ca5a3024ce0cb2e1d514391403081287441ac57f3d0dd",
+    "blob": "ffe89d1562b6de5fb40e4a00c11a3db24ed0435a"
+  },
+  {
+    "path": "summary.json",
+    "bytes": 16013,
+    "sha256": "24e7f3f9b8542b3574f62a37f8f7e9d172eb0c72fe78999635c6bd1d4a65f729",
+    "blob": "ee47ff5d1c676074eee0df8e224032ac05c28bf7"
+  },
+  {
+    "path": "watched-branches.json",
+    "bytes": 1738,
+    "sha256": "19df82a58853b42d37b8d550097b1183f79ae025a53cd1e95f796ca8e35fa4ba",
+    "blob": "cbfb5482c426ac6cc27aadb084ec6e86382ff977"
+  },
+  {
+    "path": "web-coverage.json",
+    "bytes": 3273,
+    "sha256": "6b3cb8bb844d419a401c97092e2335360e7bcbd7f8e471d4b938c0bc05615c7e",
+    "blob": "464627f796240fc61547a223eb4ab3c842cc3ad2"
+  }
+]

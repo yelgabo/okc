@@ -1,0 +1,83 @@
+{
+  "queries": [
+    "\"muse_moe_w4a16\" OR \"muse_attention_decode\" OR \"muse_bf16_proj\"",
+    "\"muse_decode_layer\" OR \"muse_prefill_layer\"",
+    "\"Muse Spark\" \"kernel\" site:x.com",
+    "\"openkernelchallenge.dev\" site:reddit.com OR site:news.ycombinator.com OR site:linkedin.com",
+    "\"Muse Spark\" \"justinwangx\"",
+    "\"Muse\" \"kernel\" \"lxe\"",
+    "\"Muse\" \"levidiamode\"",
+    "\"Muse Spark\" \"Karmedge\" OR \"danielgross\"",
+    "\"lxe\" \"openkernelchallenge\"",
+    "\"Muse Spark\" kernel benchmark blog github November 2026",
+    "\"Muse Spark\" \"challenge\" site:news.ycombinator.com",
+    "\"Muse Spark\" \"challenge\" site:reddit.com",
+    "\"openkernelchallenge.dev\" site:linkedin.com/posts",
+    "\"justinwangx\" \"muse-open-kernel-challenge\"",
+    "\"Karmedge\" \"kernel\" video",
+    "\"Muse Spark\" \"kernel\" \"Nov 3\"",
+    "\"lxe\" \"H200\" \"harness\"",
+    "\"Karmedge\" \"Muse\" \"github\"",
+    "\"Muse Spark\" \"kernel challenge\" \"November 3\"",
+    "\"Muse Spark\" \"judgemaxxed\""
+  ],
+  "observations": [
+    {
+      "url": "https://teapawt.org/lxe",
+      "date": "October 31, cached mirror crawled today",
+      "scope": "Same six-agent/two-H200 harness post already recorded; no new source."
+    },
+    {
+      "url": "https://teapawt.org/justinwangx",
+      "date": "October 29/30, cached mirror crawled today",
+      "scope": "Same Slack channel announcement and participant totals; channel not accessed."
+    },
+    {
+      "url": "https://xitter.cf/levidiamode",
+      "date": "October 29, cached mirror crawled yesterday",
+      "scope": "Same top-50/learning notes; no new source."
+    },
+    {
+      "url": "https://es.linkedin.com/posts/rguillamon_muse-spark-open-kernel-challenge-activity-7519819739335102464-xRek",
+      "date": "Cached page crawled last week; relative post date is not an absolute timestamp.",
+      "scope": "Known post now expanded in search excerpt: weight layouts, attention parallelism, PDL and author scores. No exact source or new bound receipt."
+    },
+    {
+      "url": "https://newruntime.com/posts/gb300-nvl72-vs-mi355x-muse-spark-open-cd7374/",
+      "date": "November 3, secondary field note",
+      "scope": "InferenceX hardware/serving benchmark summary, outside this kernel competition evidence; no new entrant source established."
+    },
+    {
+      "url": "https://zamantika.com/pt/profile/JensHonack",
+      "date": "Mirror crawled four days ago; relative dates cached",
+      "scope": "Karmedge rank and agent-video teaser, no published kernel or working video identified."
+    },
+    {
+      "url": "https://memory-bound.vercel.app/blog/muse-spark-open-architecture/",
+      "date": "October 27",
+      "scope": "Known architecture explainer, no new pinned implementation."
+    },
+    {
+      "url": "https://thethings.ai/p/okc/muse-bf16-proj-guide/index",
+      "scope": "Known BF16 guide and report, 1.343x private/1.331x public author claims. Revisited, no new source pin established."
+    },
+    {
+      "url": "https://thethings.ai/p/okc/muse-bf16-proj-report",
+      "scope": "Known BF16 mechanisms and losses, exact URL already seen."
+    },
+    {
+      "url": "https://news.ycombinator.com/item?id=49187575",
+      "scope": "General model/API discussion from 89 days ago, outside challenge timeframe."
+    },
+    {
+      "url": "https://guild.1nterface.ai/about",
+      "scope": "Public board and developer profile; encrypted guild messages unread."
+    }
+  ],
+  "limits": [
+    "20 bounded indexed queries; not exhaustive platform search.",
+    "Original X profiles inaccessible; mirrors secondary and cached.",
+    "No authenticated Slack/Discord or restricted/encrypted Guild content read.",
+    "First query batch coverage recorded in this summary; subsequent raw web responses retained."
+  ]
+}

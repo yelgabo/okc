@@ -1,0 +1,122 @@
+[
+  {
+    "repository": "Mithun-033/Muse-Spark-Open-Kernel-Challenge",
+    "pin": "6fcf5932afefdb09505844a8cbea046be9a8d4fb",
+    "path": "README.md",
+    "blob": "d99dc2e7ad1e1238ac43f0004a20ecd0de1f0b7e",
+    "sha256": "fff06e98c76983842197eed803893bd12f625679186dc90a44f03771c43f1e2b",
+    "bytes": 14839,
+    "local": ".build/scout-2026-11-03-1128/follow-source/Mithun-033/Muse-Spark-Open-Kernel-Challenge/README.md",
+    "url": "https://github.com/Mithun-033/Muse-Spark-Open-Kernel-Challenge/blob/6fcf5932afefdb09505844a8cbea046be9a8d4fb/README.md"
+  },
+  {
+    "repository": "Mithun-033/Muse-Spark-Open-Kernel-Challenge",
+    "pin": "6fcf5932afefdb09505844a8cbea046be9a8d4fb",
+    "path": "submission.py",
+    "blob": "b3db9a00dc498951a118e7a01bdaa4adb01984d6",
+    "sha256": "3b7d2b758b9ad010a57e2b9e8297a85e9dec506f571d1bde6579a80d9f2471a7",
+    "bytes": 35882,
+    "local": ".build/scout-2026-11-03-1128/follow-source/Mithun-033/Muse-Spark-Open-Kernel-Challenge/submission.py",
+    "url": "https://github.com/Mithun-033/Muse-Spark-Open-Kernel-Challenge/blob/6fcf5932afefdb09505844a8cbea046be9a8d4fb/submission.py"
+  },
+  {
+    "repository": "4gatepylon/LearningML",
+    "pin": "872d5bbc9b817a0eecd6a15b9a180d632672a935",
+    "path": "meta_muse_spark100k_challenge/4gatepylon_official_work/README.md",
+    "blob": "4c248e55778643a81b66c0a8e24dd8aaf8bf4dc3",
+    "sha256": "b6981112f58a614df873694b675e75e660e426c2a3de2c735706a22308c3a572",
+    "bytes": 1991,
+    "local": ".build/scout-2026-11-03-1128/follow-source/4gatepylon/LearningML/meta_muse_spark100k_challenge/4gatepylon_official_work/README.md",
+    "url": "https://github.com/4gatepylon/LearningML/blob/872d5bbc9b817a0eecd6a15b9a180d632672a935/meta_muse_spark100k_challenge/4gatepylon_official_work/README.md"
+  },
+  {
+    "repository": "4gatepylon/LearningML",
+    "pin": "872d5bbc9b817a0eecd6a15b9a180d632672a935",
+    "path": "meta_muse_spark100k_challenge/4gatepylon_official_work/muse_attention_decode/submission.py",
+    "blob": "39bce8064cd3a6e07f24b5b9e452a5c6b5a82ab4",
+    "sha256": "72bd11e1300479da752c930f429922c6aae8f5da2a1bf5d87bcc1ac6758a3249",
+    "bytes": 5911,
+    "local": ".build/scout-2026-11-03-1128/follow-source/4gatepylon/LearningML/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_attention_decode/submission.py",
+    "url": "https://github.com/4gatepylon/LearningML/blob/872d5bbc9b817a0eecd6a15b9a180d632672a935/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_attention_decode/submission.py"
+  },
+  {
+    "repository": "4gatepylon/LearningML",
+    "pin": "872d5bbc9b817a0eecd6a15b9a180d632672a935",
+    "path": "meta_muse_spark100k_challenge/4gatepylon_official_work/muse_bf16_proj/submission.py",
+    "blob": "6ce773a44036578450b1489df0030d65d2c67c0e",
+    "sha256": "964eed6cfef28ad2dc28ca05487a0bf28f7183ba12470eb82acc152cc5a25154",
+    "bytes": 1299,
+    "local": ".build/scout-2026-11-03-1128/follow-source/4gatepylon/LearningML/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_bf16_proj/submission.py",
+    "url": "https://github.com/4gatepylon/LearningML/blob/872d5bbc9b817a0eecd6a15b9a180d632672a935/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_bf16_proj/submission.py"
+  },
+  {
+    "repository": "4gatepylon/LearningML",
+    "pin": "872d5bbc9b817a0eecd6a15b9a180d632672a935",
+    "path": "meta_muse_spark100k_challenge/4gatepylon_official_work/muse_decode_layer/submission.py",
+    "blob": "0a0fc36b7854c07f5047c1df4e08ee984a830651",
+    "sha256": "c90d9dafdefac27d37232f22d6cbdae6fe0d50b3f098f1644d847801f3bf0a92",
+    "bytes": 10691,
+    "local": ".build/scout-2026-11-03-1128/follow-source/4gatepylon/LearningML/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_decode_layer/submission.py",
+    "url": "https://github.com/4gatepylon/LearningML/blob/872d5bbc9b817a0eecd6a15b9a180d632672a935/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_decode_layer/submission.py"
+  },
+  {
+    "repository": "4gatepylon/LearningML",
+    "pin": "872d5bbc9b817a0eecd6a15b9a180d632672a935",
+    "path": "meta_muse_spark100k_challenge/4gatepylon_official_work/muse_moe_w4a16/submission.py",
+    "blob": "8eeb6a4778875e37a1d9c55a5e27ee6079999847",
+    "sha256": "c60a27afaaf1c14b2c1c4b2d8c4acfa62f916fdcaaeb8356e6e5d94e541851c8",
+    "bytes": 3088,
+    "local": ".build/scout-2026-11-03-1128/follow-source/4gatepylon/LearningML/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_moe_w4a16/submission.py",
+    "url": "https://github.com/4gatepylon/LearningML/blob/872d5bbc9b817a0eecd6a15b9a180d632672a935/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_moe_w4a16/submission.py"
+  },
+  {
+    "repository": "4gatepylon/LearningML",
+    "pin": "872d5bbc9b817a0eecd6a15b9a180d632672a935",
+    "path": "meta_muse_spark100k_challenge/4gatepylon_official_work/muse_prefill_layer/submission.py",
+    "blob": "15e2cafa9040cfadc7045aca96417bbeb8707aa9",
+    "sha256": "1e294bac7f86bfcde5368f690695569e6561b0f56f77a720b19b3d642793aeeb",
+    "bytes": 10692,
+    "local": ".build/scout-2026-11-03-1128/follow-source/4gatepylon/LearningML/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_prefill_layer/submission.py",
+    "url": "https://github.com/4gatepylon/LearningML/blob/872d5bbc9b817a0eecd6a15b9a180d632672a935/meta_muse_spark100k_challenge/4gatepylon_official_work/muse_prefill_layer/submission.py"
+  },
+  {
+    "repository": "arunjyotisarmarsece24-jpg/neuro-spark-accel",
+    "pin": "462a0b1e2a7f687d62b887f395a7535caf0ddb91",
+    "path": "README.md",
+    "blob": "a09cf53b80e77a8acc4e76788eea0b71aec9ed6a",
+    "sha256": "5fd7cb2a00def4edd40e22c05bfa2c50d9bfd467ec70df5de40cf4cdec80a6e4",
+    "bytes": 15399,
+    "local": ".build/scout-2026-11-03-1128/follow-source/arunjyotisarmarsece24-jpg/neuro-spark-accel/README.md",
+    "url": "https://github.com/arunjyotisarmarsece24-jpg/neuro-spark-accel/blob/462a0b1e2a7f687d62b887f395a7535caf0ddb91/README.md"
+  },
+  {
+    "repository": "arunjyotisarmarsece24-jpg/neuro-spark-accel",
+    "pin": "462a0b1e2a7f687d62b887f395a7535caf0ddb91",
+    "path": "colab_submission.py",
+    "blob": "af82c05a378417b11b265a9052cd08d74f04df9e",
+    "sha256": "8e1342c0f7d923093471b221c82dd86b08528f87c123d1a5c268f4124b15f61b",
+    "bytes": 192277,
+    "local": ".build/scout-2026-11-03-1128/follow-source/arunjyotisarmarsece24-jpg/neuro-spark-accel/colab_submission.py",
+    "url": "https://github.com/arunjyotisarmarsece24-jpg/neuro-spark-accel/blob/462a0b1e2a7f687d62b887f395a7535caf0ddb91/colab_submission.py"
+  },
+  {
+    "repository": "Mithun-033/Muse-Spark-Open-Kernel-Challenge",
+    "pin": "6fcf5932afefdb09505844a8cbea046be9a8d4fb",
+    "path": "profiles/submission.79f65b29d2394b45.json",
+    "blob": "a1f6e085668c416365c0521c1d2aa75fa546c797",
+    "sha256": "5528235c6969aca03640538bbea41426fbe47955a7ef062ff06c53081860bdeb",
+    "bytes": 177230,
+    "local": ".build/scout-2026-11-03-1128/follow-source/Mithun-033/Muse-Spark-Open-Kernel-Challenge/profiles/submission.79f65b29d2394b45.json",
+    "url": "https://github.com/Mithun-033/Muse-Spark-Open-Kernel-Challenge/blob/6fcf5932afefdb09505844a8cbea046be9a8d4fb/profiles/submission.79f65b29d2394b45.json"
+  },
+  {
+    "repository": "Mithun-033/Muse-Spark-Open-Kernel-Challenge",
+    "pin": "6fcf5932afefdb09505844a8cbea046be9a8d4fb",
+    "path": "profiles/submission.79f65b29d2394b45.txt",
+    "blob": "44dd40ecbb5de9ab1d22341c6dbf7b8d3d126185",
+    "sha256": "098c6cda65c9ea016f3dc61619d43ba6a2d91b7ef215328257de4331161f3acf",
+    "bytes": 13001,
+    "local": ".build/scout-2026-11-03-1128/follow-source/Mithun-033/Muse-Spark-Open-Kernel-Challenge/profiles/submission.79f65b29d2394b45.txt",
+    "url": "https://github.com/Mithun-033/Muse-Spark-Open-Kernel-Challenge/blob/6fcf5932afefdb09505844a8cbea046be9a8d4fb/profiles/submission.79f65b29d2394b45.txt"
+  }
+]

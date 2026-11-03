@@ -1,0 +1,31 @@
+{
+  "repository": "AutoclickerI/muse-spark-open-kernels",
+  "pin": "85aed1fb1365877b615542dd44980646816d6b26",
+  "source_files_verified": 75,
+  "embedded_files": 61,
+  "wrapper_sha256": "2287496067a3da750d43afd1943c12e69fb1d5337ce1c5e528d4b6c64649a6fd",
+  "expanded_sha256": "fd5e0ca2ef4bbc1128b04b68aa6802c9543b61808e7663ca5ad10ec4d957110b",
+  "expanded_bytes": 1740697,
+  "byte_exact_static_join": true,
+  "foreign_code_executed": false,
+  "uploaded_receipt": {
+    "job": "210d40e0c9cb4b71",
+    "created_at": 1793065055.5757823,
+    "gpu": "H200",
+    "score_us": 11973.410084409994,
+    "speedup": 1.8892111637813869,
+    "speedup_ci": [
+      1.860872996324666,
+      1.9175493312381076
+    ],
+    "passed": true,
+    "flags": [],
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "content_hash": "e11687da25b3c262b0ab7cdc97af32d257061f55063e2afe3beba35f23e08c90"
+  },
+  "limits": "Static data reconstruction and public Git-blob verification only. Receipt path contains matching wrapper hash prefix, but payload content_hash uses a different representation whose server binding was not independently checked. No compilation, numerical validation, GPU execution or reproduction. Stage README contains additional historical wrapper hashes; do not substitute them for the captured final file."
+}

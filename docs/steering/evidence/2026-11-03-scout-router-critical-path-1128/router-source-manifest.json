@@ -1,0 +1,57 @@
+{
+  "repository": "wookjeHan/sglang",
+  "head": "07e2f70fa9de868aef4c2c35f0a4da0d6000f6e1",
+  "base": "fb9846d3e2d66811b372b28c73229e9dbbf54288",
+  "files": [
+    {
+      "path": "python/sglang/kernels/ops/gemm/muse_spark_router_gemm_cutedsl.py",
+      "blob": "ea96401674a7bb78b6dfc13bebb868d61be4a61b",
+      "sha256": "bbd52c391911d63563af182039f5fecfcdbb2518881b9f04789e9c15f015849e",
+      "bytes": 37268,
+      "local": ".build/scout-2026-11-03-0923/router-source/python/sglang/kernels/ops/gemm/muse_spark_router_gemm_cutedsl.py",
+      "url": "https://github.com/wookjeHan/sglang/blob/07e2f70fa9de868aef4c2c35f0a4da0d6000f6e1/python/sglang/kernels/ops/gemm/muse_spark_router_gemm_cutedsl.py"
+    },
+    {
+      "path": "python/sglang/srt/layers/muse_spark/muse_spark_fp4_moe.py",
+      "blob": "28e66478b277183437da83bad7081cc5c01b9173",
+      "sha256": "09c18a2b0d10d0ffeabfc60b21ff00c2e0af17698c44ac842535309827dd55b3",
+      "bytes": 33207,
+      "local": ".build/scout-2026-11-03-0923/router-source/python/sglang/srt/layers/muse_spark/muse_spark_fp4_moe.py",
+      "url": "https://github.com/wookjeHan/sglang/blob/07e2f70fa9de868aef4c2c35f0a4da0d6000f6e1/python/sglang/srt/layers/muse_spark/muse_spark_fp4_moe.py"
+    },
+    {
+      "path": "python/sglang/srt/layers/muse_spark/routed_moe_split.py",
+      "blob": "fa1f5888a2ec4cc470ab0ace93b9d9282eb0d0b5",
+      "sha256": "441da712ea5793e9b631071d373c0814cfffc98a27ebf02ee36beaf1de8f852f",
+      "bytes": 10825,
+      "local": ".build/scout-2026-11-03-0923/router-source/python/sglang/srt/layers/muse_spark/routed_moe_split.py",
+      "url": "https://github.com/wookjeHan/sglang/blob/07e2f70fa9de868aef4c2c35f0a4da0d6000f6e1/python/sglang/srt/layers/muse_spark/routed_moe_split.py"
+    },
+    {
+      "path": "python/sglang/srt/models/muse_spark.py",
+      "blob": "a14311b3325677d743b39bc6d645116262b51802",
+      "sha256": "04abb91e0be168ac67127c91ddc383c0a17651efd11975be19aba933726926c6",
+      "bytes": 69016,
+      "local": ".build/scout-2026-11-03-0923/router-source/python/sglang/srt/models/muse_spark.py",
+      "url": "https://github.com/wookjeHan/sglang/blob/07e2f70fa9de868aef4c2c35f0a4da0d6000f6e1/python/sglang/srt/models/muse_spark.py"
+    },
+    {
+      "path": "test/registered/kernels/ops/gemm/test_muse_spark_router_gemm_cutedsl.py",
+      "blob": "ce89f8f77e856fcb1ea1524c9d482432100cd533",
+      "sha256": "15220bceeaaa60af6cbefbeee10bc747bfb33b99b5a36db09c06a242e6a2a654",
+      "bytes": 4662,
+      "local": ".build/scout-2026-11-03-0923/router-source/test/registered/kernels/ops/gemm/test_muse_spark_router_gemm_cutedsl.py",
+      "url": "https://github.com/wookjeHan/sglang/blob/07e2f70fa9de868aef4c2c35f0a4da0d6000f6e1/test/registered/kernels/ops/gemm/test_muse_spark_router_gemm_cutedsl.py"
+    },
+    {
+      "path": "test/registered/kernels/ops/moe/test_muse_spark_routed_moe_split.py",
+      "blob": "e12d34f6f72dbb5822826a93e32c612645f477b9",
+      "sha256": "44fc3120396e6a80de05e1d652042e628f5fa06089699c98bdae6134dba70de5",
+      "bytes": 6853,
+      "local": ".build/scout-2026-11-03-0923/router-source/test/registered/kernels/ops/moe/test_muse_spark_routed_moe_split.py",
+      "url": "https://github.com/wookjeHan/sglang/blob/07e2f70fa9de868aef4c2c35f0a4da0d6000f6e1/test/registered/kernels/ops/moe/test_muse_spark_routed_moe_split.py"
+    }
+  ],
+  "rechecked_at": "2026-11-03T11:29:32.362001+00:00",
+  "initial_capture": "2026-11-03-0923"
+}
