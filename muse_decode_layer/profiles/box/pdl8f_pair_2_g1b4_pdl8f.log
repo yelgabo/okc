@@ -1,0 +1,49 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.76 on 70.66 us, median paired saving 7.07, wins 9/9
+PDL8F_STRESS T=1 sliding det: off ['1.99e-03', '2.93e-03', '0.00e+00'] (int mismatches 0), on ['1.99e-03', '1.91e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=1 sliding det_fresh: off ['1.99e-03', '1.91e-03', '0.00e+00'] (int mismatches 0), on ['1.99e-03', '1.91e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=1 sliding fresh: off ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0), on ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=1 sliding fixed: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8_AB T=1 full: off 90.75 on 83.65 us, median paired saving 7.30, wins 9/9
+PDL8_AB T=16 sliding: off 199.39 on 195.07 us, median paired saving 4.42, wins 9/9
+PDL8F_STRESS T=16 sliding det: off ['2.84e-03', '3.02e-03', '0.00e+00'] (int mismatches 0), on ['2.84e-03', '3.02e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=16 sliding det_fresh: off ['2.84e-03', '3.02e-03', '0.00e+00'] (int mismatches 0), on ['2.84e-03', '3.02e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=16 sliding fresh: off ['6.58e-03', '5.62e-03', '0.00e+00'] (int mismatches 0), on ['6.58e-03', '5.62e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=16 sliding fixed: off ['6.58e-03', '5.62e-03', '0.00e+00'] (int mismatches 0), on ['6.58e-03', '5.62e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8_AB T=16 full: off 253.70 on 248.42 us, median paired saving 5.50, wins 9/9
+PDL8_AB T=32 sliding: off 200.38 on 196.58 us, median paired saving 4.03, wins 9/9
+PDL8_AB T=32 full: off 390.37 on 385.73 us, median paired saving 4.93, wins 9/9
+PDL8F_STRESS T=32 full det: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=32 full det_fresh: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=32 full fresh: off ['6.25e-03', '5.75e-03', '0.00e+00'] (int mismatches 0), on ['6.25e-03', '5.75e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8F_STRESS T=32 full fixed: off ['6.25e-03', '5.08e-03', '0.00e+00'] (int mismatches 0), on ['6.25e-03', '5.08e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean
+PDL8E_STRESS T=8 full det edges=attn+o+b1+pool+route+fin: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (1.4 s)
+PDL8E_STRESS T=8 full det_fresh edges=attn+o+b1+pool+route+fin: off ['2.86e-03', '3.02e-03', '0.00e+00'] (int mismatches 0), on ['2.86e-03', '3.02e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (1.5 s)
+PDL8E_STRESS T=8 full fresh edges=attn+o+b1+pool+route+fin: off ['7.19e-03', '6.28e-03', '0.00e+00'] (int mismatches 0), on ['7.19e-03', '6.28e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.9 s)
+PDL8E_STRESS T=8 full fixed edges=attn+o+b1+pool+route+fin: off ['5.73e-03', '6.28e-03', '0.00e+00'] (int mismatches 0), on ['5.73e-03', '6.28e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.9 s)
+PDL8E_STRESS T=8 sliding det edges=attn+o+b1+pool+route+fin: off ['9.26e-04', '8.68e-04', '0.00e+00'] (int mismatches 0), on ['9.26e-04', '8.68e-04', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (1.0 s)
+PDL8E_STRESS T=8 sliding det_fresh edges=attn+o+b1+pool+route+fin: off ['2.92e-03', '2.07e-03', '0.00e+00'] (int mismatches 0), on ['2.92e-03', '2.61e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.9 s)
+PDL8E_STRESS T=8 sliding fresh edges=attn+o+b1+pool+route+fin: off ['5.85e-03', '5.43e-03', '0.00e+00'] (int mismatches 0), on ['5.85e-03', '5.43e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.9 s)
+PDL8E_STRESS T=8 sliding fixed edges=attn+o+b1+pool+route+fin: off ['5.85e-03', '5.43e-03', '0.00e+00'] (int mismatches 0), on ['5.85e-03', '5.43e-03', '0.00e+00'] (int mismatches 0); rule bound max(2e-02, off): clean (0.9 s)
+PDL8E T=8 chosen edges attn+o+b1+pool+route+fin
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin: off 152.90 on 147.90 us, median paired saving 4.96, wins 9/9
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin: off 141.34 on 135.55 us, median paired saving 6.14, wins 9/9
+PDL8E T=8 on: weighted saving 5.27 us, edges attn+o+b1+pool+route+fin; stage times ['1.4', '1.5', '0.9', '0.9', '1.0', '0.9', '0.9', '0.9'] s
+PDL8 weighted paired saving T=1: 7.13 us
+PDL8 weighted paired saving T=8: 5.27 us
+PDL8 weighted paired saving T=16: 4.70 us
+PDL8 weighted paired saving T=32: 4.26 us
+PDL8 six-load estimate +3.13% (enabled loads only); enabled {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 31.6 s
+BOX baseline import+prepare 0.0 s
+BOX decode 1 sliding: raw 71.86 net 68.21 us (overhead 3.65) | sglang raw 187.17 paired 2.672 shown 68.69 | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.967 | sglang box/judge 183.52/173.89 = 1.055 | check PASS
+BOX decode 1 full: raw 77.90 net 74.06 us (overhead 3.84) | sglang raw 197.84 paired 2.614 shown 74.23 | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.927 | sglang box/judge 194.00/185.97 = 1.043 | check PASS
+BOX decode 16 sliding: raw 134.90 net 131.12 us (overhead 3.78) | sglang raw 278.77 paired 2.126 shown 129.36 | judge net 127.89 (n=1, 127.89-127.89) box/judge 1.025 | sglang box/judge 274.99/258.48 = 1.064 | check PASS
+BOX decode 16 full: raw 206.99 net 202.77 us (overhead 4.22) | sglang raw 455.46 paired 2.202 shown 204.95 | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.963 | sglang box/judge 451.23/438.27 = 1.030 | check PASS
+BOX verify 1 sliding: raw 108.64 net 104.85 us (overhead 3.79) | sglang raw 273.55 paired 2.555 shown 105.60 | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.987 | sglang box/judge 269.76/262.96 = 1.026 | check PASS
+BOX verify 1 full: raw 116.14 net 112.02 us (overhead 4.13) | sglang raw 290.42 paired 2.540 shown 112.70 | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.940 | sglang box/judge 286.29/282.94 = 1.012 | check PASS

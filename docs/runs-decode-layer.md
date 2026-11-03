@@ -1459,3 +1459,57 @@ The T = 16 failure is the same kind of order noise: the T = 16 path in pdl8e is 
 pick a merge order that the off arm did not reach in its 2000 replays. The next step is to give T = 1 / 16 / 32 the same
 det / fresh gate as T = 8, so that the abort-to-off decision depends on a race test rather than on that draw.
 Receipts: `muse_decode_layer/cand/profiles/g1b4_pdl8e.61c009066a5d40a6.{json,log,txt}`.
+
+## 2026-11-03 - PDL8f (built; box dry run; layer check pending go)
+
+Source `muse_decode_layer/cand/g1b4_pdl8f.py` (SHA256 c4164566f0315cfc9059558b1531bf0b9e1ce844fd137d437df355b7ccb509cc), generated
+by `tools/dl_pdl8f_patch.py` from the pdl8e block (the tool checks that pdl8e still reproduces 27b5f252 and that no CUDA edit and
+no T = 16 / 32 launch changed). It replaces pdl8b's single fixed-input stress at T = 1 / 16 / 32 with pdl8e's four stages (det,
+det_fresh, fresh, fixed) on the same stressed layer per T (T = 1 sliding, T = 16 sliding, T = 32 full). For B > 1 the order-free
+plan is per-request with n_splits = nc = 8 and no flat kernel. It also changes the pass rule at every T, T = 8 included: a stage
+passes when ids are equal and every PDL-on value is within max(2e-2, the off arm's own drift).
+
+Why the rule changed. The first pdl8f build (rules as in pdl8e; box log `g1b4_pdl8f_v1.box_prepare.log`) turned T = 8 and T = 32
+off on the box. T = 8 det_fresh at full drifted (on 1.69e-3 / 3.33e-3 against off 9.62e-4 / 1.18e-3) with the order-free
+attention, so the layer has order noise downstream of the attention too, and "within the off arm's own drift" is a draw there as
+well. At T = 32 the fresh stage failed on the PDL-off arm alone (s2 1.00e-2 against the 1e-2 bound). The same coin flip appears in
+the box control: pdl8d turned T = 16 and T = 32 off in both of its paired runs below (for example T = 16 on 6.37e-3 against off
+3.58e-3) and T = 8 on.
+
+Sensitivity of the new bound, measured on the box (`tools/dl_pdl8f_box_fault.py`, log `g1b4_pdl8f.fault.log`): the attention fed
+the other input's qkv rows under alternating inputs, worst of 5 replays, out / s2:
+
+| shape | all rows stale | one token stale | one q head stale | one new K row stale |
+|---|---|---|---|---|
+| T8 full | 1.58 / 1.48, ids 300 | 0.78 / 0.76, ids 39 | 0.27 / 0.26, ids 26 | 8.2e-3 / 6.1e-3, ids 0 |
+| T8 sliding | 1.16 / 1.46, ids 285 | 1.04 / 1.20, ids 33 | 0.24 / 0.22, ids 22 | 7.8e-3 / 9.2e-3, ids 3 |
+| T1 sliding | 1.13 / 1.08, ids 35 | 1.13 / 1.08, ids 35 | 0.31 / 0.38, ids 19 | 7.8e-3 / 7.8e-3, ids 4 |
+| T16 sliding | 1.01 / 1.19, ids 570 | 0.94 / 0.99, ids 30 | 0.18 / 0.22, ids 23 | 1.4e-2 / 1.4e-2, ids 0 |
+| T32 full | 1.25 / 1.12, ids 1165 | 1.05 / 1.01, ids 35 | 0.45 / 0.51, ids 35 | 6.1e-3 / 6.3e-3, ids 0 |
+
+A stale q head or a whole stale token exceeds 2e-2 by 9x or more and also flips ids. A single stale new K row of one token stays
+under the bound wherever ids do not flip; the old own-drift rule cannot see it either, since off arms drift up to about 7e-3. That
+case is covered by the attention-board bench 2c84c321b3bb4dbb, whose alternating-input order-free arms are bitwise.
+
+Box dry run of the final build (log `g1b4_pdl8f.box_prepare.log`, prepare 29.8 s): every stage clean at every T and PDL on at
+T = 1, 8 (all six edges), 16 and 32. The largest PDL-on value was 1.00e-2 (T = 32 fresh s2, off 5.57e-3), and ids were equal
+everywhere. In-prepare A/B savings: T = 1 5.73 / 6.50, T = 8 5.09 / 5.28, T = 16 4.96 / 4.61, T = 32 3.62 / 4.03 us
+(sliding / full).
+
+Box paired timing (box rule): pdl8d (7cb74240) against pdl8f in one session, in the order d, f, f, d, with the same router seed
+(106218864389449120) and the f931abf568544018 case seeds, 60 runs, net us, mean of the two runs per file (logs
+`pdl8f_pair_*.log`). In both of its runs the pdl8d control had T = 8 on with all six edges and T = 16 / 32 off, so the verify 1
+row compares the same T = 8 configuration.
+
+| cell | pdl8d (box) | pdl8f (box) | pdl8f - pdl8d |
+|---|---:|---:|---:|
+| decode 1 sliding | 68.59 | 68.44 | -0.15 |
+| decode 1 full | 74.51 | 74.27 | -0.24 |
+| decode 16 sliding | 137.77 | 131.45 | -6.32 |
+| decode 16 full | 209.72 | 202.59 | -7.13 |
+| verify 1 sliding | 104.78 | 104.80 | +0.02 |
+| verify 1 full | 112.61 | 111.75 | -0.86 |
+
+The decode 16 gain is the T = 16 PDL saving that pdl8d's rule dropped on this box draw. Caveat: in pdl8d's own T = 32 stress on
+the box, the PDL-off arm's ids changed between replays (2524 and 2668 mismatches). If the judge's T = 32 data does the same,
+pdl8f's ids-equal clause turns T = 32 off; that is the safe direction.
