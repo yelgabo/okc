@@ -126,6 +126,9 @@ computation. Cover finite and nonfinite FP8 inputs in the relevant test.
 
 ## Evidence rules
 
+- Leaderboard rows can have `rank: null`. Guard null ranks before numeric comparisons,
+  preserve the rows, and do not invent a rank or treat a rendering error as an empty board.
+
 - **Profile SGLang before optimizing a problem.** A normal run profiles only our submission.
   Copy `baseline.py` to `<problem>/baseline_profile/baseline.py` with the
   `# okc: problem=<problem>` header, run it as a check, and keep its result JSON there. That is

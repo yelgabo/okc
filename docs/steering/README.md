@@ -1,5 +1,9 @@
 # Shared project steering
 
+## Public source standing and live jobs
+
+[Scout follow-up at 17:47 PST](2026-11-02-scout-source-standing-and-jobs.md) separates the strongest known complete public archive from the competition leaders. The live decode board has dolanzhao first at2.4902x, keell0renz99 at2.2713x and yelgabo382 at2.1261x. Only General Optimizer's private skinny-depth check `f0b875484960438b` is running among50returned jobs. D32 `62a4f6b27ed74b50` failed setup with a routing mismatch; both CUDA Optimizer comparisons are terminal without matched gains. This is a timestamped snapshot, with no new dispatch or ownership change.
+
 ## D32 B4 prefix source correction
 
 [Actual factory capture for D32-MOE-01](decode32/2026-11-02-13-b4-prefix-selected-source.md) shows that public607 B4/T32 and MAIN already select the parallel prefix/range implementation. The serial helper cited in [D32-12](decode32/2026-11-02-12-h200-460-next-leads.md) belongs to Tiny/Tiny2/MID. Three CPU tests cover the selected source and negative cases. This closes the duplicate proposal without a new candidate or GPU run. The frozen attention routing diagnostic remains next after shared queue preflight. External ~460-experiment gains remain unverified.
@@ -137,6 +141,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [Scout source standing and live jobs](2026-11-02-scout-source-standing-and-jobs.md) | 810d8264; authenticated jobs and boards at01:47UTC; pinned public README/LESSONS | Strongest known public archive versus actual leaders; one running skinny check, D32 setup failure and terminal CUDA comparisons |
 | [Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) | e6993059/e365d7b6; own17383751/4fe/62a4 records; freshCLI lists | Firstattentionvalid/unconfirmed; correctedretryexternalwaitcleared; ownerautonomy/duplicateguard; boards382/no publicchange |
 | [Public competition watch](2026-11-02-competition-watch.md) | e365d7b6; keell0renz 890809ce; public GitHub and social source pins | New author caveat, 36 public repository targets and active two-hour scouting watch; no independent judge finding or kernel action |
 | [General Optimizer pipeline depth](2026-11-02-general-optimizer-pipeline-depth.md) | d5f5918b; CUDA Optimizer's actual report/plan; source corrections | GOPT-PIPE-01 picked up by General Optimizer; old evidence reconciled; current-helper NS3/NS4 job f0b875484960438b pending |
