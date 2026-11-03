@@ -1,0 +1,114 @@
+{
+  "b4-candidate": {
+    "resources": [
+      "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size",
+      "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size"
+    ],
+    "stack_spills": [
+      [
+        "8",
+        "4",
+        "32"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "8",
+        "4",
+        "32"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  "main-control": {
+    "resources": [
+      "Used 96 registers, used 16 barriers",
+      "Used 96 registers, used 16 barriers"
+    ],
+    "stack_spills": [
+      [
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  "b4-control": {
+    "resources": [
+      "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size",
+      "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size"
+    ],
+    "stack_spills": [
+      [
+        "8",
+        "4",
+        "32"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "8",
+        "4",
+        "32"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  "main-candidate": {
+    "resources": [
+      "Used 96 registers, used 16 barriers",
+      "Used 96 registers, used 16 barriers"
+    ],
+    "stack_spills": [
+      [
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ]
+    ]
+  }
+}

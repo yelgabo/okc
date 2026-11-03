@@ -10,4 +10,3 @@ SGLang kernels from the baseline-as-submission run in `muse_moe_w4a16/baseline_p
 | verify 1 bs=8 sharding=ep8 | 60 | 150.6 | 68.9 | 37.3 | 4.0x | 1.8x | okc::moe_fused<false> 69.9us 100% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 74.9us 64%<br>at::native::reduce_kernel<512, 1, at::native::Re 8.7us 7%<br>at::native::elementwise_kernel<128, 2, at::nativ 6.6us 6% |
 | verify 16 bs=128 sharding=ep8 | 60 | 464.7 | 828.7 | 101.3 | 4.6x | 8.2x | okc::moe_fused<true> 803.1us 100% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 420.5us 96%<br>_post_expert_norm_weighted_sum_kernel 5.1us 1%<br>sglang::act_and_mul_kernel<__nv_bfloat16, 3.5us 1% |
 | verify 32 bs=256 sharding=ep8 | 60 | 623.1 | 1006.2 | 108.9 | 5.7x | 9.2x | okc::moe_fused<true> 1012.1us 100% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 583.8us 96%<br>_post_expert_norm_weighted_sum_kernel 5.6us 1%<br>sglang::act_and_mul_kernel<__nv_bfloat16, 5.5us 1% |
-

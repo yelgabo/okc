@@ -1,0 +1,25 @@
+test_all_valid_and_padded_rows_match_original_stage_layout (test_moe_direct_input.DirectInput.test_all_valid_and_padded_rows_match_original_stage_layout) ... FAIL
+test_source_reverses_and_keeps_consumer_and_phase_b_protocol (test_moe_direct_input.DirectInput.test_source_reverses_and_keeps_consumer_and_phase_b_protocol) ... FAIL
+
+======================================================================
+FAIL: test_all_valid_and_padded_rows_match_original_stage_layout (test_moe_direct_input.DirectInput.test_all_valid_and_padded_rows_match_original_stage_layout)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_direct_input.py", line 10, in test_all_valid_and_padded_rows_match_original_stage_layout
+    self.assertTrue(path.is_file(),'direct-input mapping implementation required')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : direct-input mapping implementation required
+
+======================================================================
+FAIL: test_source_reverses_and_keeps_consumer_and_phase_b_protocol (test_moe_direct_input.DirectInput.test_source_reverses_and_keeps_consumer_and_phase_b_protocol)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_direct_input.py", line 36, in test_source_reverses_and_keeps_consumer_and_phase_b_protocol
+    self.assertTrue(path.is_file(),'direct-input native transform required')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : direct-input native transform required
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=2)

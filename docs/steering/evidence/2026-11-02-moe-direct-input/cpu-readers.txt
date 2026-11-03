@@ -1,0 +1,6 @@
+test_strict_source_record_coverage_and_target_entropy (test_moe_direct_input_read.Reader.test_strict_source_record_coverage_and_target_entropy) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 10.006s
+
+OK

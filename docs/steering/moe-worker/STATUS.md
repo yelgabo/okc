@@ -2,7 +2,7 @@ No active own GPU job. **Current public best4aa033ef23a142cd**, exact user-appro
 
 MOE-LUT-01 terminal loss, ownc985bbdb2980407a, paired542cd650/native8c2cfc7c, published5ff38524. Correctness5/6/6/all54cases passes, all6matched groups fail andall18affected cells regress. Official12337.764699us. Waiter73200ended0; full archive complete. Stop exact lookup without retry/LUT-size/layout/cache-policy sweep. [Decision and all six loads](../2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup).
 
-Next active source qualification is direct phase-A input staging, eliminating xA materialization. No GPU allocation yet. Preserve proxy ordering, input/graph lifetime, ring reuse and full correctness/regression gates. General retains WS; public approval covered5dfonly. Reminder stays paused.
+MOE-DIRECT-X-01 is locally qualified for one private screen, eliminating phase-A xA materialization. Paired1191e44c/350697bytes, nativec705df6a. Eight CPU tests, native CPU bit-copy witness and four local builds pass. No GPU allocation yet. [Frozen design/proof/gates](../2026-11-02-moe-direct-input.md). Preserve proxy ordering, input/graph lifetime, ring reuse and full correctness/regression gates. General retains WS; public approval covered5dfonly. Reminder stays paused.
 
 | Closed own experiment | Result and stop |
 |---|---|
