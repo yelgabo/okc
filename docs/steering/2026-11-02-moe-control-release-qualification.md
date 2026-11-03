@@ -23,3 +23,7 @@ The historical recovered fde6b1ee file and external5613.6us comparator remain in
 Prepared source SHA256 `5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e`,320466bytes. This replaces the undispatched425fc2a9 packaging after fallback review. The private phase source and accepted job remain unchanged. No exact-file target result yet. The source is ready for its registered private qualification after current job closure.
 
 TwoTorch CPU tests pass on the final release: independent ownership/forwarding and all three scale modes. Fallback selection and unchanged source/flags are checked, not target fallback math or latency. The exact-file H200 result remains required.
+
+Before exact-file dispatch, freeze the release recommendation screen: all5official tests/6benchmarks/6profiles, no flags, correct owning source/job and complete295s preparation; official score at least1% below6069.607719us and lower speedup interval above the old public point2.2157x. This screens a material cross-job release lead, not a matched estimate against the old public code. Disclose all six timings and any per-load change. A failed or immaterial exact-file result stops this source; no blind retry. Fresh jobs havezero live andMoE14private checks left. Exact remote/local5df257af bytes verified. DISPATCH_STARTED is recorded before the single POST.
+
+Exactlyone private POST accepted64f9998ef238476f for5df257af. [Accepted association](evidence/2026-11-02-moe-release/accepted.json). Target correctness, score and release decision are pending; no public submission.
