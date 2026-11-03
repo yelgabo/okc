@@ -26,6 +26,16 @@ None yet.
 - `tools/rv_knob.py`: one-knob variants of g1b4_rs.py (`rv_k_<name>.py`), each edit an exact string
   that must occur once.
 
+## Extension cache
+
+torch keys extension builds by name only, and the release family (g1b4_stage_release, g1b4_unp_release,
+g1b4_cg*_release, g1b4_f3) and the g1b4_rs family build `muse_att_v298w1pf_90a` and
+`dl_okc_bf16proj_v86y4_90a` from different sources, so a switch between families rebuilds both under the
+GPU lock (prepare 50 to 85 s instead of 14 s). Runs before 15:20 PT used the default cache for both
+families, mixed in one process for the mechanism runs (every arm passed its reference check); runs from
+then on give release-family jobs `TORCH_EXTENSIONS_DIR=/root/.cache/te_release` and g1b4_rs derivatives
+the default. Each row names the cache it used where it is not the default.
+
 ## The PDL8 gate is part of the control's variance
 
 g1b4_rs's in-prepare PDL8 gate picks its enable set per prepare, and the same bytes come up with
@@ -81,3 +91,4 @@ as a second arm, same set) are listed with each run; so far they are within thes
 | cgemv (C2 12-bit GEMV at T = 1) and the cgf front (pooler + FP32 router on a side stream), on the release and on the PDL base | rv_cgf_mech | ctl g1b4_pdl8c.py 6539d8d6; g1b4_pdl8 6c94513b; g1b4_pdl8cf ff3483da; release ba9e327c; g1b4_cg_release 440397ab; g1b4_cgf_release 11ccb8e9 (one decode-1-only run, sets differ but T = 1 is on in every set) | decode 1 sliding / full: release 77.14 / 83.54, cg_release 74.06 / 79.76, cgf_release 73.34 / 79.81; pdl8 68.72 / 74.98, pdl8c 71.42 / 76.61, pdl8cf 73.73 / 78.94 | cgemv wins about 3.1 / 3.8 us on the release and loses 2.7 / 1.6 on the PDL base (pdl8c against pdl8); the front adds 2.3 / 2.3 more on the PDL base. Same signs as the judge (eba613c023414ca8). Not ported; the PDL-secondary form (cgfe) is queued |
 | T = 1 knobs, one at a time on g1b4_rs: GLE_RC {1: 4} / {1: 16}; SL_CLUSTER_CONFIG[1] (4, 256) / (8, 128) / (4, 512) | rv_k1a | ctl {1, 8, 16, 32 on}; others mixed (T = 1 on in all) | decode 1 paired against ctl (sliding / full): ctl2 +0.43 / -0.78; gle4 -0.05 / -0.16; gle16 +0.29 / -0.19; cl4x256 +0.83 / -0.10; cl8x128 +0.50 / -0.58; cl4x512 +0.23 / -0.64. Loads: ctl2 -16.0, gle4 -22.4, gle16 -3.6, cl4x256 +20.2, cl8x128 +6.6, cl4x512 -0.2 | All inside this run's own null (ctl2 -16.0). gle4 repeated in rv_sk1 |
 | T = 1 knobs: SL_TILE_CONFIG[1] (8, 1, True) / (4, 2, True); attention full T = 1 n_splits 264 / 198 / 132 (file: 252) | rv_k1b | as above | paired (sliding / full): ctl2 +0.11 / -0.03; tile8w +0.24 / -0.16; tile2p +0.64 / +0.06; att264 +0.03 / -0.22; att198 +0.00 / +1.58; att132 +0.50 / +3.95. Loads: ctl2 -6.0, tile8w +0.3, tile2p +14.1, att264 -13.7, att198 +2.9, att132 +66.3 | 198 and 132 splits lose (the knob is live, 252 is at or near the best); others inside the null. att264 repeated in rv_sk1 |
+| T = 8 knobs on g1b4_rs: SL_TILE_CONFIG[8] (8, 4, True) / (4, 2, True) / (4, 8, True); SL_ROUTE_CONFIG[8] (8, 0, 0); SL_CLUSTER_CONFIG[8] (8, 1024) / (16, 512) | rv_k8a | ctl and every candidate {1, 16, 32 on}; ctl2 reached only {8, 32 on} (T = 1 off) after 6 prepares, so it is no null here | verify 1 paired against ctl (sliding / full): t8tile8w -0.11 / -0.03; t8tile2p -0.27 / +0.05; t8tile8p -0.38 / +0.43; t8route8w -0.24 / -0.38; t8cl8 -0.53 / -0.16; t8cl16x512 -0.08 / -0.06. Loads: -18.8, -25.9, -32.3, -11.4, -14.3, -23.3 (bar 86.8) | Every arm reads 0.2 to 0.5 us below ctl in the same direction, which points at the ctl arm rather than the knobs. None clears the bar; closed |
