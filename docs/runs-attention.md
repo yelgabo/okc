@@ -4441,3 +4441,51 @@ Gate for a split arm as a candidate: arm - ctrl at most -0.5 us cold on a cell o
 inputs and beyond |ctrl2 - ctrl|, no other of the four cells worse than the null, ABCHECK clean.
 A passing split set becomes a host-only `_one_plan` change; its confirming check is the full
 judge run of the clean file plus the strict fresh-input replay stress.
+
+### Result: acc16cee189246cd, timeline read, split counts already right
+
+Receipt `profiles/sltl.acc16cee189246cd.{json,log,dispatch.json}` (bench SHA256 6f097fcd, built
+at aea65e2e). Unchanged control passed 16/16 official tests, 2.517x (CI 2.480-2.568), no flags;
+ABCHECKSUM 4/0 on every correct-output arm (output against the control's, workspace clean).
+
+Split arms, cold / warm us, pooled over three held-out inputs (null ctrl2 - ctrl in brackets):
+
+| cell | ctrl cold | spA | spB | spC | null | ctrl warm | spA | spB | spC |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| decode 16 sliding (16 splits) | 12.86 | +2.24 (32) | +0.10 (11) | -0.03 (8) | +0.19 | 7.31 | +3.18 | +0.24 | +0.41 |
+| decode 32 sliding (8) | 15.65 | +2.59 (16) | +0.19 (11) | +0.80 (6) | +0.00 | 9.56 | +3.35 | +0.19 | +1.34 |
+| verify 16 sliding (8) | 15.62 | +0.61 (16) | +0.58 (11) | +0.64 (6) | +0.06 | 11.44 | +0.67 | +0.63 | +0.59 |
+| verify 32 sliding (4) | 19.84 | -0.42 (8) | +0.61 (6) | +2.21 (3) | +0.00 | 15.04 | +0.02 | +1.10 | +2.74 |
+
+No split arm passes the gate (spA at verify 32 is -0.42 cold on all three inputs but +0.02 warm).
+The plan's split counts are at or next to the optimum on our kernel too; closed in ruled-out.md.
+
+Timeline of the control-splits stamp build (TLSUM, medians of five cold calls; us from the first
+CTA entry; "crit" is the CTA that ends last, i.e. the finalizer that sets the kernel end; the
+verify tile-ready stamps were missing in this build because the q_len 8 loop has its own
+acquire, so its loop is read from s13 to s16; fixed in 986997b2):
+
+| point (crit CTA) | decode 16 | decode 32 | verify 16 | verify 32 |
+|---|---:|---:|---:|---:|
+| page indices landed (s4) | 1.06 | 1.06 | 0.96 | 1.28 |
+| prologue K/V issued (s6) | 1.86 | 2.11 | 1.38 | 1.73 |
+| query pass, new rows, patch done (s13) | 2.27 | 2.56 | 2.53 | 2.78 |
+| first tile ready (s24) | 4.10 | 4.35 | - | - |
+| tile loop end (s16) | 5.70 | 9.02 | 7.26 | 11.62 |
+| reds issued (s17) | 6.05 | 9.38 | 8.29 | 12.45 |
+| ticket / grid barrier passed | 7.65 | 10.05 | 10.21 | 14.37 |
+| finalize done = kernel end | 8.45 | 10.98 | 11.04 | 15.30 |
+| tiles per CTA | 2 | 4 | 5 | 9 |
+| median gap between tile-ready points | 1.19 | 1.19 | - | - |
+
+Attribution. Decode 16 (8.45 us span cold): 2.3 us to the end of the prologue (seq length and
+page-index round trip 1.0, the prologue cp.async issue 0.8, query work 0.4), 1.8 us waiting for
+the first tile from DRAM, 1.6 us for the two tiles, 2.75 us of merge tail (reds 0.35, ticket 1.6:
+the acq_rel atomic waits for the reds, finalize 0.8). Decode 32 adds two tiles at 1.2 us each:
+with STAGES 3 the ring holds two tiles in flight and the loop runs at one DRAM latency per two
+tiles. Verify minus decode: batch 16 +2.6 us = tile loop +1.3 (5 tiles at about 0.95 us against
+2), merge tail +1.0 (reds 1.0 against 0.35, grid barrier 1.9 against the ticket's 1.6),
+prologue +0.3 (q_len 8 query pass); batch 32 +4.3 = loop +2.4 (9 tiles at 0.98 us against 4 at
+1.2), tail +1.7. The stamp build cost +0.3-0.5 us per cell (tl_probe - ctrl).
+Next: check 2 tests ring depth (ONE_NSR8 / ONE_NSR1, 4 and 5 stages), which targets the loop at
+decode 32 and both verify cells.
