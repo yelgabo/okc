@@ -17,7 +17,8 @@
     "profiling.md",
     "validation.md",
     "application.md",
-    "references.md"
+    "references.md",
+    "part2.md"
   ],
   "sections": [
     {
@@ -305,7 +306,8 @@
         "scheduling.md",
         "profiling.md",
         "validation.md",
-        "application.md"
+        "application.md",
+        "part2.md"
       ]
     },
     {
@@ -324,7 +326,8 @@
       "normalize_lf": true,
       "notes": [
         "validation.md",
-        "application.md"
+        "application.md",
+        "part2.md"
       ]
     },
     {
@@ -493,13 +496,14 @@
     },
     {
       "path": "docs/ruled-out.md",
-      "sha256": "7b5683e919cc37df509a808e2bc365860a1e7a9b292d4a7369443ae4d4ece18a",
+      "sha256": "2a0d6b6b31f6c7374f31af042ddf83f91131c07eac3402218f8443c1e4a6de5b",
       "normalize_lf": true,
       "notes": [
         "pipelines.md",
         "scheduling.md",
         "validation.md",
-        "application.md"
+        "application.md",
+        "part2.md"
       ]
     },
     {
@@ -609,6 +613,14 @@
         "validation.md",
         "application.md"
       ]
+    },
+    {
+      "path": "docs/research/cuda-h200/part2-source.txt",
+      "sha256": "74d4615add14874542c814d6e93db98ba2db7091334bdda4e33ad126a47e0afd",
+      "normalize_lf": false,
+      "notes": [
+        "part2.md"
+      ]
     }
   ],
   "claims": {
@@ -626,6 +638,7 @@
         "805fa314e1f0b091be3f13bad15f8cf17f2d92b9375797da2609a0e518cb3c07",
         "fcd0b97df7eb38ace950bdd2944c347a84093263180f6b0b3d8caa44c39d329b",
         "1b208aadf49f409a5923ca29ba624fde5ec13850afeab3399a04e4fac52731d6",
+        "192356d866af4c74070733c93e331a8eddac4321c2c58798b2458f9fffb34fc9",
         "425622972c50e77bc422b90ae3f6df30040c346c2d5bd6e65801a3d1d9fc74cf",
         "076f72b91885dc541059e033fc9340a8dfdd82328e5582605a4c4df1230b0f25",
         "85eca9b5fd5c76a1e4437931887b034915d7b2ecf1a70a510b471c7d4bcd04da",
@@ -997,6 +1010,38 @@
         "https://github.com/NVIDIA/cutlass/blob/v3.8.0/examples/57_hopper_grouped_gemm/57_hopper_grouped_gemm.cu",
         "https://www.nvidia.com/en-us/data-center/h200/"
       ]
+    },
+    "part2.md": {
+      "units": [
+        "87f4ae8f7025470b593de6ad96da61c70d993998c39c52ea11168e5e15adf135",
+        "0e5f85ed9679e422dec7af322278493d7ad5de6ca757159916b950be7be5c79a",
+        "43d1788f4aab258369b39756a29e5ec2d828dda1871e27e5938aa208e5adebbc",
+        "079b9161041496f4113d9e4be67ebc6efa2376ea516fd1b09ae88d31990afad5",
+        "efb94c255ba3d2c497b5a59718cb6a80388db1224044d2bc7866014ed0c924c5",
+        "be1d16460b56f380572646e3f3f3cb7755e504be8ce54503800bebd365bdc78a",
+        "677d2bfdf11424491e29bcacc3eae8b719abd787d793b9d2dcf346e5be89fd15",
+        "5dcbf3519a4ba241402dfbf501800a4c37b31ea875340a60cfcde7ba2a96342d"
+      ],
+      "evidence": [
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "muse_moe_w4a16/submission.py",
+        "docs/ruled-out.md",
+        "docs/research/cuda-h200/part2-source.txt"
+      ],
+      "source_sections": [],
+      "supplement": "part2-source.txt"
     }
-  }
+  },
+  "supplements": [
+    {
+      "path": "part2-source.txt",
+      "sha256": "74d4615add14874542c814d6e93db98ba2db7091334bdda4e33ad126a47e0afd",
+      "note": "part2.md",
+      "repository_commit": "779b06ad6b5a1eefcd0a0006b6870668b987f2de",
+      "moe_blob": "96b5bf91433fc87154de1edc40ce7a31b5c4c025"
+    }
+  ],
+  "refresh_notes": [
+    "November 2: added the supplied correction supplement and its verified Git blob. Existing ruled-out rows are unchanged; one new issue-group compiler closure was appended. Earlier digest claims retain their dated scope."
+  ]
 }

@@ -1,0 +1,11 @@
+test_exact_source_and_reversible_edits (tools.test_cuda_issue_groups.IssueGroups) ... ok
+test_group_banks_and_deferred_boundary (tools.test_cuda_issue_groups.IssueGroups) ... ok
+test_host_and_publication_text_unchanged (tools.test_cuda_issue_groups.IssueGroups) ... ok
+test_rejects_changed_source (tools.test_cuda_issue_groups.IssueGroups) ... ok
+test_scale_change_preserves_host_and_only_removes_zero_dependency (tools.test_cuda_issue_groups.IssueGroups) ... ok
+test_scale_requires_verified_host_zero_assignment (tools.test_cuda_issue_groups.IssueGroups) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.305s
+
+OK

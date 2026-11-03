@@ -24,6 +24,16 @@ Earlier ownership statements below are retained as history and do not override D
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing correctness requirements and public-submission permissions remain in effect. A report is not an additional GPU dispatch.
 
+## CUDA part 2 independent experiments
+
+[Compiler experiments and registered standalone MoE measurement](2026-11-02-cuda-part2-experiments.md)
+record the optimizer's actual source and plan. Shape-specific larger WGMMA groups
+stop at a new-spill compiler result. A separate constant scale multiplier removes
+local B4 spills with matching WGMMA/wait/fence counts and proceeds toward one
+private matched MoE check. This is compiler evidence; target latency remains pending.
+The [part 2 source corrections](../research/cuda-h200/part2.md) are preserved.
+D32 Worker's attention confirmation and ownership remain separate.
+
 ## H200 playbook reference and validation repair
 
 [November 2 research intake and code application](2026-11-02-cuda-research-application.md)
@@ -91,6 +101,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [CUDA part 2 experiments](2026-11-02-cuda-part2-experiments.md) | f720ac61; c7 native control; two local compiler treatments | Larger issue groups stop at spills; constant multiplier has positive compiler evidence and one registered private MoE measurement; no target gain yet |
 | [D32 confirmation continuation and watch](decode32/2026-11-02-06-confirm-attention-and-progress-watch.md) | 779b06ad; own17383751; user watch request | Already-authorized matched confirmation; hourly conditional research watch; no proof of sleep or new measured gain |
 | [H200 research intake and application](2026-11-02-cuda-research-application.md) | ba9/c7 source; complete attachment; CPU regressions and local CUDA 12.8.1 build | Eight reference documents, full section/recommendation coverage, compiler-status repair; no runtime optimization or target gain claimed |
 | [CUDA optimizer alignment](2026-11-02-cuda-optimizer-alignment.md) | df237d36; native repair inventory; K128 terminal | Provisional guidance; named optimizer plan and exact CUDA report not retrieved; no candidate verdict or ownership change |

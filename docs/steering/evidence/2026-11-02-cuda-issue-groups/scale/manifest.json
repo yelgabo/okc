@@ -1,0 +1,15 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "candidate_native_sha256": "881874d470b8822b05a76df5b1efbc570eb558244b1557557274d830479ade6a",
+  "edits": [
+    [
+      "const uint32_t k16c = (OKC_SC6W ? 4u : 16u) + p.zero;  // opaque 16 (4 with SC6W): the scale decode's multiply stays an IMAD (FMA pipe)",
+      "const uint32_t k16c = (OKC_SC6W ? 4u : 16u);",
+      1
+    ]
+  ],
+  "exact_reverse": true,
+  "adapter": "Remove host tail, add declaration-only wgs_cta_of adapter and two compile-only launch references",
+  "gpu": false
+}

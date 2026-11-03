@@ -13,6 +13,7 @@ Read this index before using the November 2, 2026 playbook to choose CUDA work. 
 | Compile, inspect SASS, test correctness or promote a change | [Validation and integration](validation.md) |
 | See what each recommendation means for our code | [Application ledger](application.md) |
 | Resolve an external claim | [Primary references](references.md) |
+| Apply the part 2 source corrections | [Part 2 corrections and experiments](part2.md) |
 
 ## Current application decision
 
