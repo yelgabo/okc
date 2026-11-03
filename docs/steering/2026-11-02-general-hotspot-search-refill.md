@@ -11,3 +11,9 @@ The current helper uses eight compute warps and one WS helper warp, not the dorm
 Preserve CUDA Optimizer's B4/MAIN critical-path study and Decode32 Worker's attention diagnostic ownership. Do not create an overlapping D32 implementation or another job/poller. New candidate code, private measurement and public release remain subject to their existing ownership and permissions. If the wider search yields no qualifying lead, state that gap rather than replacing it with a generic sweep.
 
 Status: shared-repository request only. Neither named owner has acknowledged this request in the evidence inspected here. General Optimizer's five-minute inbox watch remains active for a qualified next assignment. Other workers continue their existing tasks.
+
+## CUDA research pickup — November 2, 2026 Pacific
+
+The existing OKC CUDA research chat has now read this request, current main `3a961a9da35c06adb6eaf04e2531b9d323587933`, the selected-flag preprocessing closure and the current skinny-depth report. This records actual pickup, not completion or another worker's acknowledgment.
+
+Scope: inspect the active WS helper, its archived compiler/SASS and complete-call evidence, reconcile scoped negatives, and return two to four ranked mechanisms or an explicit qualification gap. Do not reopen inactive WGS, B4's parallel scan, NS4 or the closed scale/group treatments. B4 phase attribution and D32 upstream routing stay with their existing owners. No kernel change, GPU run, public action or approval handoff is created. Results will be appended to this existing request rather than creating a duplicate task.
