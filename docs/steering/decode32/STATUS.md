@@ -6,7 +6,7 @@ its existing owners. Public-submission permissions remain unchanged.
 
 | Experiment | Exact source | Job | State and next action |
 |---|---|---|---|
-| D32-ATTN-01, one-tile score lookahead | 5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5 | Not dispatched | Six CPU tests, source review and fixed device compilation complete; publish source, recheck live jobs/quota, then one private check |
+| D32-ATTN-01, one-tile score lookahead | 5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5 | 17383751c6a24010 | Accepted private check; source published at 31c7f920; waiting for its terminal result |
 | Existing unchanged control | ba9 plus unused metadata, upload04314b16 | 94ef698e91964dfa | Terminal, valid; descriptive D32 C32 12.324230 ms |
 | Existing MID17..32 | e607fb894b7ca9fb8c0245d986e1c1894024295efd5b1509ac5b8314329ca089 | a6fe2769779e4299 | Terminal, valid but no useful D32 signal; exact implementation parked; original owner finished its wait |
 
