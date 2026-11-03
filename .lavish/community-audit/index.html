@@ -1,0 +1,348 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OKC community audit</title><style>
+:root{--bg:#f5f5f2;--surface:#fcfcfb;--fg:#0f0f0e;--muted:#52514e;--line:#e1e0d9;--accent:#334e8a}*{box-sizing:border-box;min-width:0}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 "IBM Plex Sans",system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:40px 28px 100px}h1{font-size:clamp(30px,4vw,46px);line-height:1.13;max-width:850px}h2{margin-top:54px;padding-top:20px;border-top:2px solid var(--fg);font-size:25px;line-height:1.3}h3{margin-top:32px;font-size:20px}p,li{max-width:86ch}a{color:var(--accent);overflow-wrap:anywhere}code{font-size:.85em;overflow-wrap:anywhere}table{border-collapse:collapse;table-layout:fixed;width:100%;background:var(--surface);font-size:14px}th,td{padding:12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);overflow-wrap:anywhere}th{background:#e7e9ef}nav{display:flex;flex-wrap:wrap;gap:10px;position:sticky;top:0;background:var(--bg);padding:12px 0;z-index:2}nav a{padding:5px 10px;border:1px solid var(--line);font-size:13px;text-decoration:none}aside{background:#e7e9ef;border-left:4px solid var(--accent);padding:15px 20px;color:var(--muted)}@media(max-width:650px){main{padding:20px 14px 60px}table{font-size:11px}th,td{padding:7px 4px}nav{position:static}}@media print{nav{display:none}body{background:white}h2{break-after:avoid}table{font-size:11px}}
+</style><main><nav><a href="#decision">Decision</a><a href="#current-scores-and-available-quota">Scores and quota</a><a href="#integration-manifest">Pending ports</a><a href="#completed-experiments-and-closed-mechanisms">Completed work</a><a href="#execution-and-stopping-plan">Next runs</a></nav><aside>Evidence snapshot 21be06d · October 29, 2026 · Documentation audit, no GPU runs. Design follows the repository's existing gap-analysis report.</aside><h1 id="community-research-audit-and-updated-steering-2026-10-29">Community research audit and updated steering, 2026-10-29</h1>
+<h2 id="decision">Decision</h2>
+<p>Finish integrating the measured component gains, close the specific correctness gaps, and run a repaired whole-layer comparison when check quota returns. Keep the current fused/hybrid design as the control. The uploaded research supplies useful audit questions, but its proposed experiment sequence is behind this repository's results and assumes quota that is exhausted.</p>
+<p>The layer remains <strong>1.964086x</strong>, with 13/13 judge tests passed. Attention's newer <strong>2.504129x</strong> and projections' <strong>1.443879x</strong> are component scores. They do not establish a faster integrated layer. Mode 37, sk8w3s, QKV8, the newer cgemv, and attention DCARRY/PK16/VHOIST all await layer integration at the evidence commit.</p>
+<p>Priorities are concrete:</p>
+<ol>
+<li>Freeze the incumbent and prepare the five port packages below. Repair comparison acceptance and the missing FIN8 targeted replay coverage.</li>
+<li>Inspect generated attention code for the reported timeout/trap compiler pattern. Audit PDL by data provenance and preserve timeout failure reporting and required fences.</li>
+<li>After quota reset, validate the integrated layer and compare it with the incumbent and a pinned public implementation under identical conditions.</li>
+<li>Give the already queued fat-MoE mode 43 mechanism one bounded comparison. Defer a new small-token sweep, asymmetric T32 design, and generic attention-prologue work until whole-layer evidence justifies them.</li>
+</ol>
+<p>These are recommendations for the implementation session. This audit changed documentation only and launched no check or scored submission. Publication authorization does not authorize <code>okc submit</code>.</p>
+<h2 id="scope-and-evidence-labels">Scope and evidence labels</h2>
+<p>Repository evidence is pinned to <a href="https://github.com/yelgabo/okc/commit/21be06df87e569cb514c3a951993a5d571b857d2"><code>21be06df87e569cb514c3a951993a5d571b857d2</code></a>, fetched from <code>origin/main</code>. Live account evidence was first captured at <strong>13:43 PDT, October 29</strong>, with component-board reads later in this audit. The <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/evidence/2026-10-29-community-audit/capture.json">capture record</a>, <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/evidence/2026-10-29-community-audit/quota.json">quota</a>, <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/evidence/2026-10-29-community-audit/jobs.json">recent jobs</a>, and saved status responses make the observations available to other sessions.</p>
+<p>The audited upload is <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/evidence/2026-10-29-community-audit/uploaded-research.txt">OKC Community Audit Verification and Judge-Run Execution Plan</a>, preserved verbatim. Its SHA256 is <code>af3fb11f71a6def3a739edad29286e4dc61274915064cb3dd7e7558f8cb9e948</code>. Its embedded search citation IDs are historical annotations, not independently usable source links. Direct links below identify what this audit actually consulted.</p>
+<ul>
+<li><strong>Verified source fact</strong> means inspected code, an official response, or an archived receipt. A receipt verifies what was recorded, not an independent rerun.</li>
+<li><strong>Recorded local measurement</strong> means committed benchmark output or a run log. It retains the named workload, control and instrumentation limits.</li>
+<li><strong>Externally reported claim</strong> means a participant or upstream author reports a result. Finding the original post verifies the attribution, not reproducibility on our code.</li>
+<li><strong>Proposal</strong> means work or an expected benefit without a completed result for that candidate.</li>
+<li><strong>Completed</strong> describes a specific implementation or test. It does not imply integration or submission.</li>
+</ul>
+<p>A separate read-only reviewer checked the local source, pending ports, harness defects and rejection register. No fresh CUDA compilation, H200 timing, sanitizer run or replay soak occurred in this audit.</p>
+<h2 id="current-scores-and-available-quota">Current scores and available quota</h2>
+<p>The <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/evidence/2026-10-29-community-audit/receipt-summary.json">receipt summary</a> is derived from the saved <code>okc status &lt;job&gt; --json</code> responses. The saved component-board responses confirm the current selected entries.</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Current board job</th>
+<th>Speedup and 95% interval</th>
+<th>Judge tests</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Whole layer</td>
+<td><code>9b921febc7ad4140</code></td>
+<td>1.964086x, 1.934624-1.993547</td>
+<td>13/13</td>
+<td>Incumbent, source <code>a923f11</code></td>
+</tr>
+<tr>
+<td>Attention</td>
+<td><code>e9085c86d89449c2</code></td>
+<td>2.504129x, 2.466567-2.541690</td>
+<td>16/16</td>
+<td>Scored benchmark file whose judged path is the PK16/VHOIST candidate</td>
+</tr>
+<tr>
+<td>Projections</td>
+<td><code>81254e8aed794eab</code></td>
+<td>1.443879x, 1.422221-1.465537</td>
+<td>9/9</td>
+<td>Candidate-only scored cgemv source <code>a35709c</code></td>
+</tr>
+<tr>
+<td>MoE</td>
+<td><code>6307d0c91c8d4ada</code></td>
+<td>2.159764x, 2.127367-2.192160</td>
+<td>5/5</td>
+<td>Scored mode-37 source <code>96f2c43</code></td>
+</tr>
+</tbody>
+</table>
+<p>Two other results must stay separate. <code>75bca9775f6f4b0b</code> scored 2.006267x, 5/5, while its appended comparison established the three-slot candidate's paired gains. That headline is not a score for a newly integrated sk8w3s layer. Diagnostic check <code>ca43908f02874886</code> scored 2.174297x, 5/5. It repaired wait attribution; it is neither a scored promotion nor a new production optimization. <a href="https://github.com/yelgabo/okc/blob/main/docs/runs-moe.md">MoE run log</a>.</p>
+<p>Attention's candidate-only run <code>569b233dfe08414f</code> passed 16/16 at 2.449x before the 2.504x repeat. The repeat used a faster machine on several unchanged rows. Credit the paired PK16/VHOIST measurements and their repeated full-verify improvements, not the entire headline-score difference. <a href="https://github.com/yelgabo/okc/blob/main/docs/runs-attention.md">Attention run log</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Checks left / daily limit</th>
+<th>Scored slots left / daily limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Whole layer</td>
+<td>0 / 20</td>
+<td>0 / 10</td>
+</tr>
+<tr>
+<td>MoE</td>
+<td>0 / 20</td>
+<td>0 / 10</td>
+</tr>
+<tr>
+<td>Attention</td>
+<td>0 / 20</td>
+<td>1 / 10</td>
+</tr>
+<tr>
+<td>Projections</td>
+<td>0 / 20</td>
+<td>4 / 10</td>
+</tr>
+<tr>
+<td>Prefill</td>
+<td>20 / 20</td>
+<td>10 / 10</td>
+</tr>
+</tbody>
+</table>
+<p>These are timestamped account observations, not reservations. Re-query before each run because other sessions share the quotas. The <a href="https://openkernelchallenge.dev/rules">official rules</a> state reset at 00:00 UTC, which is <strong>17:00 PDT on October 29</strong> for this allocation. Do not redirect decode experiments into prefill quota or spend the remaining component scored slots simply because checks are exhausted. Existing explicit user approval must cover any scored candidate; otherwise obtain it after preparing a reviewable candidate.</p>
+<p>The <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/evidence/2026-10-29-community-audit/overall-board.json">overall CLI snapshot</a> reports yelgabo at 229 of 1,612. It supplies ranks and labels its measure as rank across problems, but exposes no ranking formula. The <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/evidence/2026-10-29-community-audit/layer-board.json">decode-layer snapshot</a> also places yelgabo at 229, with rank 50 at 2.1885x and rank 100 at 2.1278x. These are board-specific observations. Neither the old 2.115x rank-100 snapshot nor 2x is a verified qualification threshold. Reaching the observed layer rank-50 score from 1.964086x would require about 11.4% more speedup, or 10.3% uniform latency reduction. This arithmetic is a scale estimate, not a forecast or an overall-ranking rule.</p>
+<h2 id="audit-of-the-uploaded-findings">Audit of the uploaded findings</h2>
+<table>
+<thead>
+<tr>
+<th>Research finding</th>
+<th>What is verified or reported</th>
+<th>Updated disposition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bounded wait plus <code>__trap()</code> serializes WGMMA</td>
+<td><a href="https://guild.1nterface.ai/t/18?credible=all">QuantIntellect's original post</a> reports nvcc 13.0, sm_90a, C7512, a 168-register cap and serialized HGMMA. This is participant evidence. Our attention source contains bounded trap paths in <code>mbar_wait</code> and <code>coop_barrier</code>.</td>
+<td>Keep a targeted generated-code audit. Source presence alone proves no compiler defect. Our recorded local SASS work uses CUDA 12.8.1, so it does not reproduce the reported toolchain. Preserve fail-fast behavior.</td>
+</tr>
+<tr>
+<td>Humming resource compaction</td>
+<td><a href="https://github.com/vllm-project/humming/blob/main/humming/tune/sm90_policies.py"><code>get_compact_moe_config</code></a> requires WNA16, non-dense WGMMA, warp specialization, eligible block/warp shapes and block-K 64. It accepts a refit only if tile, warp, residency and pipeline checks hold. Its single-warpgroup eligibility is broader than only the grouped branch.</td>
+<td>Use the resource checks as a heuristic. Our tiny path uses mma.sync. Its three-slot experiment has already completed; integrate that result before another sweep. The source changes several coupled resource choices, so it also does not justify a universal one-parameter-at-a-time rule.</td>
+</tr>
+<tr>
+<td>zhebrak above 2x</td>
+<td>The <a href="https://github.com/zhebrak/muse-spark-kernels/blob/ff4d55ab669977f15874943044d20312d98a44d1/winners/muse_decode_layer/result.json">pinned archived receipt</a> records job <code>3c4a470e51c4421e</code>, H200, passed, 2.014592x, interval 1.984374-2.044811, finished October 28.</td>
+<td>Receipt verified, no matched comparison against current yelgabo. It supports studying a concrete alternative, not copying its architecture or treating its score as a current target.</td>
+</tr>
+<tr>
+<td>zhebrak asymmetric MoE</td>
+<td>The <a href="https://github.com/zhebrak/muse-spark-kernels/blob/ff4d55ab669977f15874943044d20312d98a44d1/winners/muse_moe_w4a16/submission.py">pinned MoE source</a> contains separate GEMM entry points and shape-specialized dispatch. Its own summary distinguishes 1-7, 8-63 and 64+ token designs.</td>
+<td>T32 asymmetry remains a proposal here. Defer behind integration and measured T32 attribution. The local staged loss was at T128/256; it cannot reject every T32 asymmetric design.</td>
+</tr>
+<tr>
+<td>Attention prologue gains</td>
+<td><a href="https://github.com/flashinfer-ai/flashinfer/pull/6976">FlashInfer PR 6976</a> reports 0.5-1.8% versus its immediately preceding version for two BF16, head-dimension-128 sparse-attention programs on H100.</td>
+<td>Upstream measurements, not a Muse speedup prediction. Our current consumer/address improvements already have local evidence. Port those before inventing another prologue experiment.</td>
+</tr>
+<tr>
+<td>PDL ordering</td>
+<td><a href="https://github.com/flashinfer-ai/flashinfer/issues/7525">FlashInfer 7525</a> reports a non-coherent load and missing memory clobber on SM103a, without an observed wrong result. <a href="https://github.com/flashinfer-ai/flashinfer/issues/7526">7526</a> shows pre-wait metadata reads in SM100f cubins and a related GB300 counter failure.</td>
+<td>Useful provenance and ordering questions. Our observed layer waits already carry memory clobbers. A load is hazardous if its writer can still be live, not merely because its spelling is <code>ld.global.nc</code>. No corresponding H200 defect was demonstrated in this audit.</td>
+</tr>
+<tr>
+<td>Projection L2 prefetch loses</td>
+<td><a href="https://guild.1nterface.ai/?sort=top">Sudhendra's Guild report</a> reports 0-18% regressions. The warm-T1 0.3 us detail in the upload was not independently recovered here.</td>
+<td>The local bulk-hint and real-load experiments already lost, with job IDs below. Keep those mechanisms closed on their tested workloads regardless of the external anecdote.</td>
+</tr>
+<tr>
+<td>Replay-only bugs</td>
+<td><a href="https://guild.1nterface.ai/t/42">jakozaur's original post</a> reports barrier-storage reuse, missing async-proxy ordering and atomic-workspace failures under queued graph replay.</td>
+<td>Verify attribution, retain as external evidence. Our repository already has 2,000-replay tests. Extend the missing candidate/mode coverage instead of presenting replay validation as entirely new work.</td>
+</tr>
+<tr>
+<td>Other public repositories</td>
+<td><a href="https://github.com/NathenFernandes/muse-bf16-proj">NathenFernandes</a> reports 1.5186x; <a href="https://github.com/operatorstack/open-kernel-challenge-solutions">operatorstack</a> publishes solutions; <a href="https://github.com/infraax/okc-kernel-challenge/blob/main/HYPOTHESES.md">infraax</a> has a hypothesis log.</td>
+<td>These sources are available, but this audit establishes no new locally measured advantage from them. Nathen's headline alone does not prioritize a port over our completed gains.</td>
+</tr>
+<tr>
+<td>vjeux / ruwwww identity</td>
+<td>The upload explicitly leaves exact file/blob identity unverified.</td>
+<td>Keep it unverified. Do not depend on file-size similarity. Pin and hash the exact public file used by the repaired comparison.</td>
+</tr>
+</tbody>
+</table>
+<p>The research's fixed pipeline, from a small-T sweep to asymmetry to prologue to integration, should be replaced. It postpones the outcome that matters while repeating completed work. Integration and a controlled layer comparison eliminate several speculative steps. The strongest bounded research alternative already queued is mode 43, which addresses a measured wait boundary within the fused design.</p>
+<h2 id="integration-manifest">Integration manifest</h2>
+<p><code>git diff a923f11 21be06d -- muse_decode_layer/submission.py</code> is empty. The layer file's SHA256 is <code>3e9ba3df33f4b8e6fc5d26e17a33ad1c9c0e3ebd669b87e89c8681ce1eae5b16</code>. The judge receipt separately records payload content hash <code>8de7099397c558e9ac1a100ec6736ee113fea0d4bec9ddafcd477dbe05010a7f</code>. Preserve both identifiers; they are different hashes and must not be conflated.</p>
+<table>
+<thead>
+<tr>
+<th>Port package</th>
+<th>Completed evidence</th>
+<th>What remains in the layer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fat MoE mode 37</td>
+<td>Scored <code>6307d0c91c8d4ada</code>; ordering review; paired improvement over 28.</td>
+<td><code>tools/dl_moe_inline.py</code> still lists modes 0/16/26/28. Add 37 to the mode and name tables, regenerate, retain the earlier valid candidates, and validate the layer's PDL preamble.</td>
+</tr>
+<tr>
+<td>Skinny MoE sk8w3s</td>
+<td><code>75bca9775f6f4b0b</code>, 36/36 paired seeds faster across T1/8/16, layer and standalone routing. Layer-routing savings about 0.9/2.4/3.1 us.</td>
+<td>Regeneration includes the new mode-0 skinny candidate. Confirm actual selection and replay it with mixed-size calls on shared scratch. Do not force its T1/8/16 result onto T32.</td>
+</tr>
+<tr>
+<td>Attention DCARRY + PK16 + VHOIST</td>
+<td>DCARRY checks <code>f64e8680b3e441be</code> / <code>bf49eceb15a64f81</code>; PK16/VHOIST paired <code>025ccaf9c57a4ba2</code> and scored <code>569b233dfe08414f</code> / <code>e9085c86d89449c2</code>.</td>
+<td>Re-inline current <code>attn_one.cu</code> through <code>tools/dl_one_inline.py</code>. All three switches transfer without new ownership/interface fields. Keep the layer's dependency waits and fallbacks. Verify the source and generated switches.</td>
+</tr>
+<tr>
+<td>Eight-token QKV geometry</td>
+<td><code>826cab6b81aa4f81</code>, source <code>fee7249</code>; paired saving about 0.66-0.69 us.</td>
+<td>Layer still has the old qkv8 tuple. Regenerate matching packing and geometry together through <code>tools/dl_proj_inline.py</code>.</td>
+</tr>
+<tr>
+<td>New single-token cgemv</td>
+<td><code>a35709c</code>; paired <code>f6c80b4ba11048f3</code>, scored <code>81254e8aed794eab</code>. QKV improves 0.45-0.54 us, pooler 0.86-0.96, slice 0.22-0.35 in the paired passes; o is inconclusive.</td>
+<td>Port row-major byte/code planes, packer, helper, 32/40-register dispatch and device kernels together. Tensor shapes stayed the same while byte layout changed. The inliner also includes the pending qkv8 change, so inspect both rather than crediting one.</td>
+</tr>
+</tbody>
+</table>
+<p>Read <a href="https://github.com/yelgabo/okc/blob/main/docs/moe-port-guide.md">MoE</a>, <a href="https://github.com/yelgabo/okc/blob/main/docs/attention-port-guide.md">attention</a>, <a href="https://github.com/yelgabo/okc/blob/main/docs/proj-port-guide.md">projection</a> and the <a href="https://github.com/yelgabo/okc/blob/main/docs/runs.md">latest projection port steps</a>. Generate twice to check idempotence and inspect every unrelated diff. Keep attributable package controls, then test one coherent combined release. Do not require every coupled ingredient to win independently in the old design; PK16/VHOIST and the new cgemv already have combined evidence.</p>
+<p>FIN8, QKOV/EREL/PCHK/UNR2, PFAST, main-stream routing fusion, the earlier GEMV port, and large-token boundary selection are already in the incumbent. They are controls, not new ports. CUTLASS's standalone pooler gain is not an automatic layer port because the layer's large-token front uses concatenated pooler/router work. <a href="https://github.com/yelgabo/okc/blob/main/docs/runs-decode-layer.md">Layer run log</a>, <a href="https://github.com/yelgabo/okc/blob/main/docs/ruled-out.md">rejection register</a>.</p>
+<p>No combined score is predicted here. The previous approximate 1.98x transfer estimate predates sk8w3s, PK16/VHOIST and the latest cgemv. Summing newer component deltas would ignore selection, overlap and interactions. The next decision needs actual six-load layer timing.</p>
+<h2 id="correctness-and-measurement-work-that-remains">Correctness and measurement work that remains</h2>
+<h3 id="close-fin8s-actual-coverage-gap">Close FIN8's actual coverage gap</h3>
+<p>Existing replay tests cover several attention paths, and the incumbent passed the judge. However, the intended q_len8 FIN8 stress chose mode 15. The current <code>_one_stress</code> generates contexts around 1,500-5,000 and prints the plan without asserting mode 11 and eight copies. Its documentation claims stronger coverage than the test establishes. <a href="https://github.com/yelgabo/okc/blob/main/docs/runs-decode-layer.md">Layer run log</a>, <a href="https://github.com/yelgabo/okc/blob/main/muse_decode_layer/submission.py">layer source</a>.</p>
+<p>Select an input that actually chooses q_len8, mode 11, eight copies, assert the selection, then run queued replays, fresh-input comparisons, workspace/counter checks and the supported speculative-length fallback. Update the test's documentation with the asserted path. Keep the existing test coverage, including judged full verify-1 and self-test case 18, distinct from this missing stress.</p>
+<p>The cited replay post recommends bitwise comparisons, but allowed floating-point atomic order changes require task-appropriate tolerances. Use the independent reference and task bounds, strict same-candidate comparisons where justified, and exact counters/cache invariants. Report every retained output's check and batch synchronization interval. Two thousand replays are a coverage target, not proof of a memory-ordering argument. Since this Mac has no NVIDIA GPU, queued replay validation is not a zero-cost local step unless a separate H200 executor is actually available.</p>
+<h3 id="repair-the-whole-layer-comparison-before-spending-a-check">Repair the whole-layer comparison before spending a check</h3>
+<p><a href="https://github.com/yelgabo/okc/blob/main/tools/dl_make_bench_pub.py"><code>tools/dl_make_bench_pub.py</code></a> still compares outputs only for seed zero and prints <code>ABCHECK</code> differences without enforcing acceptance. Rotating then reversing the arm order repeats AB for a two-arm comparison. Arms also receive the same <code>data</code> object, including writable caches. These issues remain unresolved at the evidence commit.</p>
+<p>The next owner should implement acceptance against the independent reference and task routing tolerances, explicit AB/BA or seeded permutations, an ours-versus-ours null arm, and independent mutable cache/scratch state with identical starting inputs. Validate every measured seed, save routing agreement and local expert work counts, and add independent held-out seeds rather than relying on literal scored-case seeds.</p>
+<p>Compare frozen incumbent, integrated candidate and one pinned public layer. Cover decode B1/16/32 and verify B1/16/32, both sliding and full, with cold-L2 graph timing. Print a compact pass/shape/policy manifest that survives log truncation. If the prepare limit forces <code>ABSTOP</code>, enumerate omitted shapes and split the remaining work into another check. A partial result cannot establish the whole-layer score.</p>
+<p>Use load time <code>46 * sliding + 16 * full</code>, then the geometric mean of six baseline/candidate load ratios, as specified in <a href="https://github.com/yelgabo/okc/blob/main/muse_decode_layer/TASK.md">TASK.md</a>. Preserve paired samples and distinguish judge-derived times from raw medians. The attention log demonstrates a bimodal SGLang baseline in decode-32 full. A changing derived row is not automatically a regression in our unchanged kernel. Profile timelines locate dependencies; sums of kernel rows do not yield an idle-time budget.</p>
+<h3 id="bound-the-compiler-and-pdl-audit">Bound the compiler and PDL audit</h3>
+<p>Inspect the actual generated attention variants used by the candidate and layer, including mode 51. Record compiler version, sm_90a flags, warnings, resource use, and HGMMA/DEPBAR scheduling. Compare the trap-bearing path with the existing pipelined baseline. A 12.8.1 local compile is useful screening, but a nvcc 13.0 participant claim needs matching-toolchain evidence before reproduction is claimed. A missing C7512 warning alone is insufficient; inspect the instruction schedule too.</p>
+<p>Do not remove traps or replace a bounded timeout with an unbounded wait as a performance patch. If a change is needed, preserve deterministic failure reporting, test timeout behavior and retain the ordering proof. Existing C7512 mixed-shape dispatch and C7513 divergent lane-0 release losses are different mechanisms, already recorded in <a href="https://github.com/yelgabo/okc/blob/main/docs/ruled-out.md">ruled-out.md</a>.</p>
+<p>For PDL, enumerate each pre-wait load, its writer, and whether that writer may still be live. Layer waits observed in source already have <code>"memory"</code> clobbers. <code>LO_HELPER</code> reads <code>local_start</code> with <code>ld.global.nc</code>, but that is an input rather than route-produced state; the load form alone does not establish the FlashInfer hazard. Static weights and independent setup can precede waits. Predecessor-produced activations, metadata and counters require the actual dependency chain. A passing stress test does not authorize removing a proxy fence.</p>
+<h3 id="pinned-silu-source-check-completed-in-this-audit">Pinned SiLU source check completed in this audit</h3>
+<p>The prior mode-37 review consulted a newer SGLang revision. This audit read the baseline's actual pin, <code>a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f</code>. Its <a href="https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/activation/activation.py">activation wrapper</a> routes filtered SiLU through the default fast-math module. Its <a href="https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/utils/arch.py">architecture flags</a> enable fast math for Hopper. Its <a href="https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/csrc/elementwise/activation.cuh">device implementation</a> converts gate/up to FP32, performs SiLU and multiplication, and casts back to the tensor dtype on this path.</p>
+<p>This closes the source-version question about BF16 boundaries and fast-math policy. It does not prove bitwise equivalence between compiled division and mode 37's reciprocal. Keep numerical validation and the <a href="https://github.com/yelgabo/okc/blob/main/docs/review-mode37-ordering-2026-10-29.md">mode-37 ordering argument</a>. File hashes and matching source lines are saved in <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/evidence/2026-10-29-community-audit/pinned-sglang-source.json">pinned-sglang-source.json</a>.</p>
+<h2 id="completed-experiments-and-closed-mechanisms">Completed experiments and closed mechanisms</h2>
+<p>These entries reconcile the upload with <a href="https://github.com/yelgabo/okc/blob/main/docs/ruled-out.md">docs/ruled-out.md</a>. Preserve the tested mechanism, configuration and workload in every future rejection.</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Completed evidence</th>
+<th>Queue consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fat wait accounting</td>
+<td><code>3f67a45</code>, <code>ca43908f02874886</code>; first try_wait is now timed. Mode 41 adds 7.0/6.1 us at T128/256; mode 42 adds 1.1/2.3. Production SASS identity was recorded.</td>
+<td>Remove the repair from the queue. Waits are about 20% of stage-loop time, not zero. Per-warp waits are not additive SM or layer savings.</td>
+</tr>
+<tr>
+<td>Skinny ring/refill</td>
+<td>Three slots win in <code>75bca9775f6f4b0b</code>; refill-order changes and dropping the L2 hint lose.</td>
+<td>Integrate sk8w3s. No repeat of the same ring/refill study.</td>
+</tr>
+<tr>
+<td>Skinny ALU/barrier work</td>
+<td><code>e937013292b24906</code>, scale-decode and partial-buffer handoff are null; early release in <code>2c28a7256b004aa1</code> helps layer routing modestly but loses standalone.</td>
+<td>No blanket producer/resource sweep based only on Humming. A new candidate must cross a demonstrated resource threshold and beat the integrated control.</td>
+</tr>
+<tr>
+<td>Staged two-launch MoE</td>
+<td><code>e221858b020c4dee</code>, complete staged pair 277.3/311.6 us versus mode16 249.4/287.3 at T128/256, also recorded in the architecture tracker.</td>
+<td>Keep this decomposition closed. Asymmetric T32 tiling is different and remains deferred, not disproven.</td>
+</tr>
+<tr>
+<td>Fat volatile reload and paired stores</td>
+<td><code>c7db20e053254b52</code>, mode35 reduces spills but slows execution; <code>473d87d03de94e96</code>, mode39 improves an epilogue bucket but loses whole MoE.</td>
+<td>Fewer registers or store instructions alone do not justify promotion.</td>
+</tr>
+<tr>
+<td>Projection prefetch</td>
+<td><code>985732949c07474f</code> bulk hints, <code>34568f495b024c2f</code> real loads, no useful whole-layer win.</td>
+<td>Zero planned quota for the same side-stream design. Reopening needs a different footprint or measured idle bandwidth.</td>
+</tr>
+<tr>
+<td>Blanket PDL and boundaries</td>
+<td><code>179cecdac87b4872</code> / <code>e8b74a3519a94bc6</code> show no clear step gain from general early launch; <code>5285e58d978f42c6</code> / <code>7631043129f74b61</code> settle the boundary geometry.</td>
+<td>Do not repeat either as a new lead. Existing MoE pre-wait hints are a different bundled change, not an independently measured prefetch win.</td>
+</tr>
+<tr>
+<td>Attention copying and pair balancing</td>
+<td>KVFAST, block-index weighting and arrival-order weighting are recorded losses/nulls. Once-path diet loses in producer modes 51/115. PK16/VHOIST already reduces the consumer instruction cost.</td>
+<td>Port the winning code. The latest cold public gap is only about 2.2/3.5 us at full verify B16/B32 in <code>e9085c86d89449c2</code>; an unbounded prologue or balancing campaign is poorly justified.</td>
+</tr>
+<tr>
+<td>Wide concat front</td>
+<td><code>f88e278</code>, arithmetic using <code>8bea43d605c74546</code> puts the idealized proposal at 24.4 us versus 24.0 us measured cuBLAS control.</td>
+<td>Declined analytically, not a measured challenger loss. Reopen only with a materially faster streaming kernel.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-bounded-research-slot">The bounded research slot</h2>
+<p>The <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/2026-10-29-fat-moe-waits.md">fat-wait mechanism report</a> already proposes modes 43/44. They are unimplemented at this snapshot. Mode 43 combines smaller code groups with next-stage waits and the first code group under the current stage's last WGMMA group. This is a latency-hiding hypothesis grounded in the repaired measurements, not merely mode35's losing volatile reloads or a claim that register pressure is the bottleneck.</p>
+<p>Retain its gates: local SASS/resource screening first, no C7512/C7513 serialization, preserve production controls and ordering; then at most two MoE checks after reset. The first paired run targets T32/128/256 with layer routing and six seeds. Require at least 2 us mean improvement at T256, at least five of six seeds faster, at most 0.5 us mean regression at T32/128, and accepted numerical comparisons. Mode44 must reduce average cycles per wait by at least 30% against mode41's 209-231 cycles to support the proposed mechanism. If timing improves without the expected wait reduction, repeat before promotion and label attribution unresolved. If waits shrink without a timing win, stop that mechanism. The final candidate still needs held-out/skewed routing and layer evidence.</p>
+<p>This is the real bounded test of the strongest current alternative to simply porting gains. Keep its budget separate from integration. A loss or tie closes this hoist depth; it does not close all pipelining. If the repaired whole-layer comparison identifies a different dominant cost, revise the priority rather than forcing the queued idea into the release.</p>
+<p>A genuinely different T32 GEMM1/GEMM2 layout remains a reserve option. Before building it, show which phase loses on held-out T32 routings, how the candidate changes bytes/residency/readiness, and why its launch/finalization costs can fit within the recoverable layer time. One coherent asymmetric pair can be tested without demanding that each ingredient win in the old design. No such new experiment is claimed completed here.</p>
+<h2 id="execution-and-stopping-plan">Execution and stopping plan</h2>
+<p>Before reset, the implementation owner can freeze source and generated-code identifiers, prepare the integration, repair the harness, add explicit test-selection assertions, and inspect compilation. These actions do not require a scored submission. A failed ordering argument or incorrect output blocks promotion even when a timing improves.</p>
+<p>After reset, re-query account quota and coordinate a shared reservation. Proposed initial reservation, subject to actual capacity:</p>
+<table>
+<thead>
+<tr>
+<th>Allocation</th>
+<th>Purpose</th>
+<th>Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Layer check 1</td>
+<td>Integrated candidate, required self-tests, selected-mode assertions, queued replay coverage and all 13 judge tests</td>
+<td>Stop on any failure; retain incumbent</td>
+</tr>
+<tr>
+<td>Layer checks 2-3</td>
+<td>Repaired incumbent/candidate/public/null comparison across all 12 scored combinations; split only for time limits</td>
+<td>Missing shapes remain explicitly incomplete</td>
+</tr>
+<tr>
+<td>Layer check 4</td>
+<td>Confirmation of the release file or an interleaved control if exact-source deduplication prevents a useful repeat</td>
+<td>Whole-layer gain must exceed the measured null/noise and survive per-load review</td>
+</tr>
+<tr>
+<td>Layer checks 5-6</td>
+<td>Reserve for integration repair or follow-up evidence</td>
+<td>Leave unused unless needed</td>
+</tr>
+<tr>
+<td>MoE checks 1-2</td>
+<td>Queued mode43 comparison and held-out gate/repeat if warranted</td>
+<td>Independent of layer reservation; no automatic submission</td>
+</tr>
+<tr>
+<td>Attention/projection checks</td>
+<td>Only a specific port regression or correctness gap needing isolation</td>
+<td>No automatic rerun of already established component results</td>
+</tr>
+<tr>
+<td>Scored submissions</td>
+<td>Promotion of a concrete validated source</td>
+<td>Zero automatic allocation; explicit user approval and live quota required</td>
+</tr>
+</tbody>
+</table>
+<p>The reservation is a proposal, not consumed quota or an instruction to run every slot. Runtime limits may require repartitioning coverage. The upload's 5-7 layer checks and two scored runs are not an entitlement. Do not spend the last confirmation capacity on another sweep.</p>
+<p>For check dispatch, preserve the repository's job-identity rule: submit with <code>okc check &lt;file&gt; --no-wait --json</code>, capture that returned job ID, then read <code>okc status &lt;job&gt; --wait --json</code> and verify the problem and source hash. Save each result, selected policies, failures and fallbacks in its run log. Record every rejected experiment in <code>docs/ruled-out.md</code> with its precise scope.</p>
+<p>Promotion needs correct outputs, justified ordering, explicit changed-path replay coverage, a reproducible whole-layer benefit, and an explanation for any material per-load regression. A 2% row change is a useful investigation trigger, not proof of failure or permission to ignore smaller systematic losses. If the combined candidate is neutral, use attributable package controls to isolate the interaction. Stop after roughly three weak experiments and reconsider the mechanism and workload assumptions.</p>
+<p>The next handoff should contain the exact release source and payload identity, generated-source hashes, actual selected policies, coverage matrix, per-load paired results, and the next measured bottleneck. Until those exist, the current layer score stays 1.964086x.</p>
+<h2 id="audit-limits-and-handoff">Audit limits and handoff</h2>
+<p>The source audit and live receipts establish the current state and the work still required. They do not establish fresh GPU correctness, a new integrated score, compiler reproduction under nvcc 13.0, exact public-source identity, or a current overall qualification formula. The public web leaderboard was unavailable in the fetched page, while the CLI returned account and board data successfully.</p>
+<p>Older steering and architecture documents are dated snapshots. This report supersedes their active queue, while their original evidence stays intact. In particular, the fat-wait repair is completed, modes 43/44 remain proposals, and the latest attention result adds PK16/VHOIST to the pending ports. Read this report through the <a href="https://github.com/yelgabo/okc/blob/main/docs/steering/README.md">shared steering index</a>, then reconcile any commits newer than the evidence snapshot before starting work.</p></main></html>
