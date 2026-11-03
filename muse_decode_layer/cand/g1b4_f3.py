@@ -17142,7 +17142,9 @@ struct F3Args {
   const float* stream; const float* alpha; const float* beta; const float* alpha2; const __nv_bfloat16* pre;
   __nv_bfloat16* h; float* hr; float* s1; float* tail;
   __nv_bfloat16* out; float* outr; float* part; int* rcnt; const float* w32;
-  unsigned long long* cnt;   // [0] o arrivals, [1] boundary arrivals, [2 + t] token t's square partials; never reset
+  unsigned long long* cnt;   // [0] o done, [1] boundary done, [2 + t] token t's square partials; never reset, and
+                             // every launch adds 128, 128 and 8 x 8 (CTAs without the work arrive at once), so a
+                             // target is (launch index + 1) x that count whatever M the launch has
   float* lsq;                // [8][1024]: local squares of P per logical thread (the o epilogues write them)
   float* bsq;                // [8][2][32]: per logical warp, the boundary's sums of ns^2 and masked^2
   int* diag;
@@ -17291,11 +17293,13 @@ f3_kernel(const __grid_constant__ CUtensorMap xmap_o, const __grid_constant__ CU
       int xnext = 0;
       bool ready = false;
       unsigned long long target = 0;
+      unsigned polls = 0;
       auto poll = [&]() {
+        if (++polls > (1u << 24)) { atomicOr(a.diag, 1); ready = true; return; }   // bounded: fail closed, never hang
         if (target == 0) {
           const unsigned long long gen = *((volatile unsigned long long*)&s_gen);
           if (gen == ~0ull) return;
-          target = (gen + 1) * (unsigned long long)(8 * M);
+          target = (gen + 1) * (unsigned long long)NCTA;
         }
         if (f3_ld_acquire(a.cnt + 1) < target) return;
         asm volatile("fence.proxy.async.global;" ::: "memory");   // reader side: h / hr by TMA and bulk copies
@@ -17330,10 +17334,7 @@ f3_kernel(const __grid_constant__ CUtensorMap xmap_o, const __grid_constant__ CU
         }
         if (ready) { issue_x(st); xnext = st + 1; }
       }
-      for (unsigned it = 0; !ready; ++it) {
-        poll();
-        if (!ready) { __nanosleep(64); if (it >= (1u << 24)) { atomicOr(a.diag, 1); break; } }
-      }
+      while (!ready) { poll(); if (!ready) __nanosleep(64); }
       for (; xnext < NSTT; ++xnext) issue_x(xnext);
     }
     __syncwarp();
@@ -17515,6 +17516,10 @@ f3_kernel(const __grid_constant__ CUtensorMap xmap_o, const __grid_constant__ CU
   }
   named_bar(1, NC);
   const unsigned long long gen = *((volatile unsigned long long*)&s_gen);
+  if (tid == 0) {   // CTAs without boundary work arrive at once, so each counter grows by a fixed count per launch
+    if (cta >= 8 * M) f3_add_release(a.cnt + 1);
+    if (cta < 64 && (cta >> 3) >= M) f3_add_release(a.cnt + 2 + (cta >> 3));
+  }
 
   // ---------------- boundary: token t = cta / 8 on warps 0-3 of CTAs < 8 M (glue_cluster_boundary<4, 32, false, false,
   // true, M > 1>: logical thread rank * 128 + tid owns columns 4 l .. 4 l + 3 and 4096 + 4 l .. + 3)
@@ -17936,11 +17941,15 @@ def _f3_setup(state):
     state['f3_on'] = {}
     state['f3_log'] = []
     gen = torch.Generator(device=state["router_fp32"].device).manual_seed(2718281)
+    tested = {}
+    for T in (1, 8, 1, 8):   # alternating token counts: the counters' per-launch increments must not depend on M
+        if _f3_eligible(state, T):
+            tested[T] = _f3_selftest(state, T, gen)
     for T in F3_T:
         if not _f3_eligible(state, T):
             print(f"f3 T={T}: not eligible (picks / backend)", flush=True)
             continue
-        rel, cnt = _f3_selftest(state, T, gen)
+        rel, cnt = tested[T]
         dev = state["router_fp32"].device
         data = {'stream': torch.randn(T, HIDDEN, device=dev, generator=gen),
                 'local_start': torch.zeros(1, device=dev, dtype=torch.int32)}

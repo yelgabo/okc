@@ -1,0 +1,76 @@
+{
+  "board": "muse_decode_layer",
+  "call_id": "nyc3b:kc-43aa191eb94948a4",
+  "cluster": "nyc3b",
+  "content_hash": "aea4a6dd57ff7b2bf162f22682ea75191a38ef11f370b0c436235259f43ea67d",
+  "created_at": 1793694651.1647065,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793696054.3039815,
+  "id": "43aa191eb94948a4",
+  "mode": "check",
+  "output": {
+    "log": "/Users/gretchengabo/GitHub/okc/.claude/worktrees/agent-a7ab0a887829a6341/muse_decode_layer/cand/profiles/g1b4_f3.43aa191eb94948a4.log"
+  },
+  "payload_ref": "muse_decode_layer/aea4a6dd57ff7b2bf162f22682ea75191a38ef11f370b0c436235259f43ea67d.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "1ba270d841be831b06a5862f4094cd0d5072edfbd0f6e84b95f79248296367dd",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "60e242544d5f5a5fc143870461f7373b85accb677a536cb337581ded938c4a48",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:8c102d00529abd8b80898116ac64a9c8f66bbd256d56142be4b96fb626e89452"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True\nFORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off\nG1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]\nf3 tune T=1: off 62.56 on 61.06 us, median paired saving 1.28, wins 9/9, o max rel diff 5.98e-04 (3 elements) -\u003e on\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 132.29,
+        "power.limit": 700,
+        "temperature.gpu": 34
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 345,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 107.14,
+        "power.limit": 700,
+        "temperature.gpu": 32
+      },
+      "node": "n-o5mphtkowabtwvhzsez6jyzppv"
+    },
+    "passed": false,
+    "records": [],
+    "returncode": -9,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "timeout"
+  },
+  "started_at": 1793695048.0426948,
+  "status": "done",
+  "team": "yelgabo"
+}
