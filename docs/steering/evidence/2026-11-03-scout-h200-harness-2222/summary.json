@@ -1,0 +1,742 @@
+{
+  "triggered_at": "2026-11-03T22:22:25.068Z",
+  "packaged_at": "2026-11-03T22:37:03.333299+00:00",
+  "instructions_ref": "fdf1eba297ecf2eaaa32d1efe6288a5a31dedf92",
+  "decision": "NOTIFY",
+  "finding": "New public local-H200 harness and asynchronous service source. Target execution, observer cost and judge parity unverified.",
+  "source": {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "date": "2026-11-03T20:51:08Z",
+    "subject": "Async jobs: RunPod proxy cuts long requests",
+    "parents": [
+      {
+        "sha": "2697121f203095467bbd59cacc0f8b71e05062c4",
+        "url": "https://api.github.com/repos/mdzor/muse-decode-bench/commits/2697121f203095467bbd59cacc0f8b71e05062c4",
+        "html_url": "https://github.com/mdzor/muse-decode-bench/commit/2697121f203095467bbd59cacc0f8b71e05062c4"
+      }
+    ],
+    "changes": [
+      {
+        "path": "bench/service.py",
+        "status": "modified",
+        "blob": "a9eefe48b629c0991c72c7a07284824afd4e9371",
+        "additions": 51,
+        "deletions": 29
+      }
+    ],
+    "branches": [
+      {
+        "commit": {
+          "sha": "d13ad99b45faf05934ec35c041522bc825870687",
+          "url": "https://api.github.com/repos/mdzor/muse-decode-bench/commits/d13ad99b45faf05934ec35c041522bc825870687"
+        },
+        "name": "main",
+        "protected": false
+      }
+    ],
+    "forks": [],
+    "releases": []
+  },
+  "source_check": {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "source_files_verified": 27,
+    "source_execution": false,
+    "service_requests": false,
+    "hardware_inspected": false,
+    "measurement_reproduced": false,
+    "source_scope": "Service, score_all.time_shape, harness._timed_replay and optional judgeroute call; byte relationships for full tree.",
+    "limits": "No raw receipt digest binding to the current service; no local/judge parity or observer-cost proof. Generic module routing caveats do not override the wrapper call path."
+  },
+  "code_unique": 1720,
+  "new_code_blobs": 0,
+  "code_queries": [
+    {
+      "term": "muse_bf16_proj",
+      "query": "muse_bf16_proj -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels -repo:yelgabo/okc",
+      "pages": [
+        {
+          "page": 1,
+          "total": 743,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 2,
+          "total": 743,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 3,
+          "total": 743,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 4,
+          "total": 743,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 5,
+          "total": 743,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 6,
+          "total": 743,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 7,
+          "total": 743,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 8,
+          "total": 747,
+          "returned": 47,
+          "incomplete": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "term": "muse_attention_decode",
+      "query": "muse_attention_decode -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels -repo:yelgabo/okc",
+      "pages": [
+        {
+          "page": 1,
+          "total": 443,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 2,
+          "total": 443,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 3,
+          "total": 443,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 4,
+          "total": 426,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 5,
+          "total": 426,
+          "returned": 26,
+          "incomplete": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "term": "muse_moe_w4a16",
+      "query": "muse_moe_w4a16 -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels -repo:yelgabo/okc",
+      "pages": [
+        {
+          "page": 1,
+          "total": 474,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 2,
+          "total": 474,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 3,
+          "total": 474,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 4,
+          "total": 416,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 5,
+          "total": 416,
+          "returned": 16,
+          "incomplete": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "term": "muse_decode_layer",
+      "query": "muse_decode_layer -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels -repo:yelgabo/okc",
+      "pages": [
+        {
+          "page": 1,
+          "total": 323,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 2,
+          "total": 323,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 3,
+          "total": 323,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 4,
+          "total": 335,
+          "returned": 35,
+          "incomplete": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "term": "muse_prefill_layer",
+      "query": "muse_prefill_layer -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels -repo:yelgabo/okc",
+      "pages": [
+        {
+          "page": 1,
+          "total": 168,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 2,
+          "total": 180,
+          "returned": 80,
+          "incomplete": false,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "other_queries": [
+    {
+      "kind": "repositories",
+      "query": "muse_bf16_proj -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 4,
+      "returned": 4,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_bf16_proj -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 116,
+      "returned": 100,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": true
+    },
+    {
+      "kind": "issues",
+      "query": "muse_bf16_proj is:issue -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 1,
+      "returned": 1,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_bf16_proj is:pr -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 5,
+      "returned": 5,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "repositories",
+      "query": "muse_attention_decode -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 5,
+      "returned": 5,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_attention_decode -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 640,
+      "returned": 100,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": true
+    },
+    {
+      "kind": "issues",
+      "query": "muse_attention_decode is:issue -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 0,
+      "returned": 0,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_attention_decode is:pr -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 12,
+      "returned": 12,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "repositories",
+      "query": "muse_moe_w4a16 -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 2,
+      "returned": 2,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_moe_w4a16 -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 32,
+      "returned": 32,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "issues",
+      "query": "muse_moe_w4a16 is:issue -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 0,
+      "returned": 0,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_moe_w4a16 is:pr -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 3,
+      "returned": 3,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "repositories",
+      "query": "muse_decode_layer -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 4,
+      "returned": 4,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_decode_layer -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 1424,
+      "returned": 100,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": true
+    },
+    {
+      "kind": "issues",
+      "query": "muse_decode_layer is:issue -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 0,
+      "returned": 0,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_decode_layer is:pr -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 3,
+      "returned": 3,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "repositories",
+      "query": "muse_prefill_layer -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 2,
+      "returned": 2,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_prefill_layer -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 706,
+      "returned": 100,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": true
+    },
+    {
+      "kind": "issues",
+      "query": "muse_prefill_layer is:issue -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 0,
+      "returned": 0,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_prefill_layer is:pr -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 4,
+      "returned": 4,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "repositories",
+      "query": "\"Muse Spark Open Kernel Challenge\" -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 12,
+      "returned": 12,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "commits",
+      "query": "\"Muse Spark Open Kernel Challenge\" -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 5,
+      "returned": 5,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "issues",
+      "query": "\"Muse Spark Open Kernel Challenge\" is:issue -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 1,
+      "returned": 1,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "\"Muse Spark Open Kernel Challenge\" is:pr -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 5,
+      "returned": 5,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "repositories",
+      "query": "\"openkernelchallenge.dev\" -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 2,
+      "returned": 2,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "commits",
+      "query": "\"openkernelchallenge.dev\" -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 0,
+      "returned": 0,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "issues",
+      "query": "\"openkernelchallenge.dev\" is:issue -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 2,
+      "returned": 2,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "\"openkernelchallenge.dev\" is:pr -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 0,
+      "returned": 0,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "repositories",
+      "query": "\"Muse Spark\" kernel -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 21,
+      "returned": 21,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": false
+    },
+    {
+      "kind": "commits",
+      "query": "\"Muse Spark\" kernel -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 2254,
+      "returned": 100,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": true
+    },
+    {
+      "kind": "issues",
+      "query": "\"Muse Spark\" kernel is:issue -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 981,
+      "returned": 100,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": true
+    },
+    {
+      "kind": "pull_requests",
+      "query": "\"Muse Spark\" kernel is:pr -repo:yelgabo/okc",
+      "pages": [
+        1
+      ],
+      "total": 2514,
+      "returned": 100,
+      "incomplete": false,
+      "error": null,
+      "truncated_by_page_limit": true
+    }
+  ],
+  "noncode_first_page_limited": 7,
+  "search_limits": "Known large copied/example repositories and own repository excluded from code queries. Other queries exclude own repository. Totals change across pages; a miss does not establish absence.",
+  "transient_api_errors": [
+    {
+      "path": "/search/code?q=muse_bf16_proj+-repo%3Arohanarun%2FAuto-research-agent+-repo%3Alee101%2Fopenkernels+-repo%3Ayelgabo%2Fokc&per_page=100&page=4",
+      "retrieved_at": "2026-11-03T22:23:40.775991+00:00",
+      "error": "gh: API rate limit exceeded for user ID 286596290. If you reach out to GitHub Support for help, please include the request ID D223:349FE7:24BA22:344D1D:6AEA5EEC and timestamp 2026-11-03 22:23:40 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service) (HTTP 403)\n"
+    }
+  ],
+  "final_search_errors": [],
+  "previous_watched_default_heads_unchanged": 47,
+  "watch_comparisons": [
+    {
+      "file": "watched-branches.json",
+      "changes": []
+    },
+    {
+      "file": "branches-forks-releases.json",
+      "changes": []
+    },
+    {
+      "file": "sglang-current.json",
+      "changes": []
+    },
+    {
+      "file": "review-watch.json",
+      "changes": [
+        {
+          "path": "/repos/vllm-project/vllm/issues/64077/comments?per_page=100",
+          "detail": [
+            {
+              "id": 6536907472,
+              "html_url": "https://github.com/vllm-project/vllm/pull/64077#issuecomment-6536907472",
+              "body": "This pull request has merge conflicts that must be resolved before it can be\nmerged. Please rebase the PR, @djmmoss.\n\nhttps://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork\n",
+              "name": null,
+              "tag_name": null
+            },
+            {
+              "id": 6609580312,
+              "html_url": "https://github.com/vllm-project/vllm/pull/64077#issuecomment-6609580312",
+              "body": "/ci run",
+              "name": null,
+              "tag_name": null
+            },
+            {
+              "id": 6609590170,
+              "html_url": "https://github.com/vllm-project/vllm/pull/64077#issuecomment-6609590170",
+              "body": "\u2705 Triggered [Buildkite CI #99600](https://buildkite.com/vllm/ci/builds/99600) for commit `2ff66e62373e`.",
+              "name": null,
+              "tag_name": null
+            },
+            {
+              "id": 6616441561,
+              "html_url": "https://github.com/vllm-project/vllm/pull/64077#issuecomment-6616441561",
+              "body": "This pull request has merge conflicts that must be resolved before it can be\nmerged. Please rebase the PR, @djmmoss.\n\nhttps://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork\n",
+              "name": null,
+              "tag_name": null
+            }
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "file": "extra-watch.json",
+      "changes": []
+    }
+  ],
+  "source_credit_counts": [
+    15,
+    16,
+    21
+  ],
+  "guild_pages": 18,
+  "guild_public_fragments": 66,
+  "guild_new_fragments": 0,
+  "indexed_web_queries": 12,
+  "blog_hashes": [
+    {
+      "url": "https://memory-bound.vercel.app/blog/muse-spark-open-architecture/",
+      "status": 200,
+      "sha256": "ef811d714058bd00474af80226df82b1c951682371452c0c606754b3abb3dc15",
+      "unchanged": true,
+      "local": "blog-0.html"
+    },
+    {
+      "url": "https://thethings.ai/p/okc/muse-bf16-proj-report",
+      "status": 200,
+      "sha256": "2ffc8d25c755967edd6de060248ea8fc6d080529d8a0b77b9822bcf5e9e5e701",
+      "unchanged": true,
+      "local": "blog-1.html"
+    }
+  ],
+  "source_execution": false,
+  "service_requests": false,
+  "gpu_jobs": false,
+  "limits": [
+    "Current source pointers/hashes and bundled receipt committed; full captured source remains in the local scout archive.",
+    "Receipt names a local submission path with no code-hash binding to current service. It does not establish local/judge calibration.",
+    "Source read only; no numerical, compiled, hardware or timing qualification. Independent review unavailable under repository no-new-agents rule.",
+    "Cached social sources remain secondary; no authenticated Slack/Discord, restricted Guild bodies or encrypted messages accessed."
+  ]
+}

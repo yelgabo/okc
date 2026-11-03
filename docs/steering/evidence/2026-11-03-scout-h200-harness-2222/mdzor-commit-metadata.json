@@ -1,0 +1,34 @@
+{
+  "repository": "mdzor/muse-decode-bench",
+  "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+  "date": "2026-11-03T20:51:08Z",
+  "subject": "Async jobs: RunPod proxy cuts long requests",
+  "parents": [
+    {
+      "sha": "2697121f203095467bbd59cacc0f8b71e05062c4",
+      "url": "https://api.github.com/repos/mdzor/muse-decode-bench/commits/2697121f203095467bbd59cacc0f8b71e05062c4",
+      "html_url": "https://github.com/mdzor/muse-decode-bench/commit/2697121f203095467bbd59cacc0f8b71e05062c4"
+    }
+  ],
+  "changes": [
+    {
+      "path": "bench/service.py",
+      "status": "modified",
+      "blob": "a9eefe48b629c0991c72c7a07284824afd4e9371",
+      "additions": 51,
+      "deletions": 29
+    }
+  ],
+  "branches": [
+    {
+      "commit": {
+        "sha": "d13ad99b45faf05934ec35c041522bc825870687",
+        "url": "https://api.github.com/repos/mdzor/muse-decode-bench/commits/d13ad99b45faf05934ec35c041522bc825870687"
+      },
+      "name": "main",
+      "protected": false
+    }
+  ],
+  "forks": [],
+  "releases": []
+}

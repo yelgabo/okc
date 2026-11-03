@@ -1,0 +1,272 @@
+[
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": ".gitignore",
+    "blob": "1f081729f261ebe55d58c48871465b849a35c2ed",
+    "sha256": "670eb88f324c3030e46eb13d450d910c0292ad5f05db40c4de6c28a78050693b",
+    "bytes": 25,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/.gitignore",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/.gitignore"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "README.md",
+    "blob": "f2183d7d4d320f39eaacabf471ae7b0c22b1979e",
+    "sha256": "b501f9e6699ea8bfa9ca5768d25cce1373f4d1fa8931fd291282fbc8cb8f826f",
+    "bytes": 634,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/README.md",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/README.md"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "bench/service.py",
+    "blob": "a9eefe48b629c0991c72c7a07284824afd4e9371",
+    "sha256": "441581451dfe28df792f5e105100bae05f18307506701795f012805c5abc33d0",
+    "bytes": 5745,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/bench/service.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/bench/service.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/AGENTS.md",
+    "blob": "4d69f6867322a260a2784096ab38d3219139c5d4",
+    "sha256": "cd0a128be02be76956ac4b1e49ebea3dc287f1c9e6d3256e659b0b7772465fa8",
+    "bytes": 2712,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/AGENTS.md",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/AGENTS.md"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/TASK.md",
+    "blob": "fcf3c2e9c317578fe1b9edee0489d73e9aa85bfe",
+    "sha256": "22cae4f18fe204ab9d5a4aa34dae4e839363beb1f5967f33668a39d173507c46",
+    "bytes": 9853,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/TASK.md",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/TASK.md"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/baseline.py",
+    "blob": "7706aee5c085b4fc8819835e5a7ec4e3f59a0833",
+    "sha256": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+    "bytes": 18993,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/baseline.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/baseline.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/checks.py",
+    "blob": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+    "sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+    "bytes": 2484,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/checks.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/checks.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/nvfp4.py",
+    "blob": "aa688f50e4bdbf500c5a09e9f546ec37c68e3dad",
+    "sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+    "bytes": 5929,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/nvfp4.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/nvfp4.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/profiles/submission.d778b118bd014795.json",
+    "blob": "7fccdd1dcd7c9c1aacf26b8b33a4ed4179bd71ea",
+    "sha256": "f4decddf23a4840478137703939d2e6eed27abfab2d18b775df1a7f1a7ed56cf",
+    "bytes": 62657,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/profiles/submission.d778b118bd014795.json",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/profiles/submission.d778b118bd014795.json"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/profiles/submission.d778b118bd014795.log",
+    "blob": "3650f4a8565cfd0c5ae76bddfe0250f1a2611c95",
+    "sha256": "c062f6d5e76ce971a567d1c010035eb5ce6451981d1c441152ee323c828edca7",
+    "bytes": 55,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/profiles/submission.d778b118bd014795.log",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/profiles/submission.d778b118bd014795.log"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/profiles/submission.d778b118bd014795.txt",
+    "blob": "f09e18b0c14765b6fc2fe742284e5fd6c2221c3f",
+    "sha256": "b48bc359a5f514b9e3b29da964c83274956bce102e29f99a1427f6f1c5e4487a",
+    "bytes": 18403,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/profiles/submission.d778b118bd014795.txt",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/profiles/submission.d778b118bd014795.txt"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/reference.py",
+    "blob": "f92aa2db6ba064bc686ed5369f979cfe00d4ff44",
+    "sha256": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+    "bytes": 35035,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/reference.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/reference.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/submission.py",
+    "blob": "b7834c14757238409fe327e35847ff1657d29331",
+    "sha256": "175c1a7f3673558398810e2d1c862f7e533d6d608de4947e34efff4a873b35a8",
+    "bytes": 21931,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/submission.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/submission.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/submission_h1.py",
+    "blob": "12a83519ff65ec40c177729e276d813bd14cf26d",
+    "sha256": "f7b63cd7e09f8f02ef1c09b6c7db02f77442729705474ce370f03870a58d2d43",
+    "bytes": 22181,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/submission_h1.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/submission_h1.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/submission_h128.py",
+    "blob": "eab8aa67c48906e1d69a78045bbee98749282f30",
+    "sha256": "8382461db8fe7b53cecd2e29eab1c8eed59b14626724a11b93d063e1d53cea6e",
+    "bytes": 22160,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/submission_h128.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/submission_h128.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/submission_h16.py",
+    "blob": "546c03bcde00388b622706b9ed097695d7787ef3",
+    "sha256": "f49078250f2e857b11d4292d7aae920486e4ee57d66e58bd699097fd8b9985e8",
+    "bytes": 22182,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/submission_h16.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/submission_h16.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/submission_lkg2.py",
+    "blob": "430d2c405fcf40699dd2df3918cb748283c356e7",
+    "sha256": "e2ef40e00db35e146e0e6a3455eb01e8d6d9713a93a59c1d251f45a40ad3e027",
+    "bytes": 43603,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/submission_lkg2.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/submission_lkg2.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/submission_split1.py",
+    "blob": "3c13f1cd6f8ff12ce953643a92efc67303d2144b",
+    "sha256": "3f51af95e16320de5cf90e274ed37308b977cb2c72ed9bc4072fbf834f6400d3",
+    "bytes": 21953,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/submission_split1.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/submission_split1.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "problem/submission_split8.py",
+    "blob": "57af2182673d17cc6b922353e3a8251e01532435",
+    "sha256": "a79c7dd440e9921e9bb4badef1c44f67992343bdfbf250771a18fbd01d2ee768",
+    "bytes": 21953,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/problem/submission_split8.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/problem/submission_split8.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "tools/harness/check_verify.py",
+    "blob": "19a1150ba5add9e1a381595d51e34b20264edb94",
+    "sha256": "547a3ace63690ce43480bac63cb1597fbc18c92409d4d113e07d155df779928d",
+    "bytes": 1338,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/tools/harness/check_verify.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/tools/harness/check_verify.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "tools/harness/gate.py",
+    "blob": "4f8ea420a108bdaf36b6a15eec49c480c9411c01",
+    "sha256": "899aa774fa13cfa5cee47163ff12791f8a0ba10583e910157be391bca4f54002",
+    "bytes": 8088,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/tools/harness/gate.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/tools/harness/gate.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "tools/harness/harness.py",
+    "blob": "1431ce61e321bc3677b3e97fc26d2c81460c54a5",
+    "sha256": "cfe4db2029da2467221f897d73e9b4146ebfb43f6328dd34575a0aee09304b4e",
+    "bytes": 29385,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/tools/harness/harness.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/tools/harness/harness.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "tools/harness/judgeroute.py",
+    "blob": "e929b513c0d21a989a9a839cd1eb8978ee64012f",
+    "sha256": "0c7db25900b9d9b2efd125a38b6c474e72e9062e1a6a9e25987127815f021dad",
+    "bytes": 7893,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/tools/harness/judgeroute.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/tools/harness/judgeroute.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "tools/harness/probe_attn.py",
+    "blob": "354178aeda43c09556959cd5e8d475372eeaf076",
+    "sha256": "20feeea791f0141fa10f5c29c17e320918fbb56f3bcb3543816d43384a26660b",
+    "bytes": 3092,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/tools/harness/probe_attn.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/tools/harness/probe_attn.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "tools/harness/probe_w2mix.py",
+    "blob": "282690f64859b6efb131b593fe7a856dbd5d2fe1",
+    "sha256": "869d48d434170f1cf4439637820bded28916136a28227d6f454917b86e773ea0",
+    "bytes": 3097,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/tools/harness/probe_w2mix.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/tools/harness/probe_w2mix.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "tools/harness/profile_layer.py",
+    "blob": "7a1911a58e86238c08be3028f1697ea93aba1f22",
+    "sha256": "f3e6b052060a0f8fb6e95c2d2ef67e20cfb48625fe131cd7ac6293ce38a6d4af",
+    "bytes": 3257,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/tools/harness/profile_layer.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/tools/harness/profile_layer.py"
+  },
+  {
+    "repository": "mdzor/muse-decode-bench",
+    "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+    "path": "tools/harness/score_all.py",
+    "blob": "b7e264dc538145658c9ce372b4cd5bfc4f4a24bb",
+    "sha256": "9926021107f13d42d4cf4dedc4d5ac57f6509523ed0ddf191afe5efd2fe1b5dc",
+    "bytes": 7629,
+    "local": ".build/scout-2026-11-03-2222/mdzor-source/tools/harness/score_all.py",
+    "url": "https://github.com/mdzor/muse-decode-bench/blob/d13ad99b45faf05934ec35c041522bc825870687/tools/harness/score_all.py"
+  }
+]
