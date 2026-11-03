@@ -33,3 +33,9 @@ Next authorized action: publish exact source, recheck live jobs/quota, then one 
 ## Accepted private comparison
 
 Own job `b38a9ed6dc9743e9`, source revision `51d6286b`, payload `1e857ad4`/344267 bytes, is accepted for muse_moe_w4a16. Fresh shared preflight found17 remaining MoE checks and only Decode32's separately owned layer jobbd5776bdfcab42a7 running. Exact remote payload bytes and regeneration matched before dispatch. [Accepted identity](../../muse_moe_w4a16/profiles/gopt-ws-norm-2026-11-02/accepted.json), [intent and frozen source](../../muse_moe_w4a16/profiles/gopt-ws-norm-2026-11-02/intent.json). One owning waiter collects under ignored `.build/gopt-ws-norm/`; archive terminal output only after exit. No correctness or timing result is recorded yet.
+
+## Numerical and collection limits
+
+Each finite norm contribution is nonnegative. After per-input FTZ, a positive accumulator is either zero or at least the smallest normal value, so subsequent nonnegative additions cannot create a subnormal through cancellation. Explicit FTZ additions therefore preserve this flushing rule. Regrouping still changes rounding: with at most256 unit contributions and no overflow, the standard FP32 summation bound is gamma255 per ordering, where gamma255=(255*2^-24)/(1-255*2^-24). Comparing two such trees gives a conservative relative difference of about3.04e-5 against the exact flushed sum. This is an arithmetic bound, not proof of task-level output acceptance, nonfinite payload identity or measured error. Target finite-output, global/row and replay gates remain mandatory.
+
+The own-ID waiter is exec88484, started from ignored `.build/gopt-ws-norm/`. The five-minute inbox watch now names this active task/job and preserves its single waiter. Terminal source/receipt reading uses `tools/gopt_ws_norm_read.py`, which retains the existing strict source/job/log/capsule checks with this task's frozen affected-size contract. No new dispatch follows from polling.
