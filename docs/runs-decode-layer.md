@@ -1268,3 +1268,9 @@ gap in the audit (5.5 us): in the layer cgemv runs 0.9-1.1 us slower than on the
 kernel's x is the only activation in L2 and the weights stream from a quiet HBM, while in the layer the previous
 kernel's tail and write-back share the first microseconds. The score bar is set by the release's own
 draw-to-draw spread (1.3%), which is larger than the effect, so a single check of this size cannot clear it.
+| 2026-11-03 | ec6a1c7beb0f443e (check) | `g1b4_cgf_release.py` 11ccb8e9 (`tools/dl_cg_patch.py --front`) | check 2 plus, at T = 1, C2's `cgemv<512, 1>` pooler with the release's FP32 router GEMV on a side stream instead of the fused `sk2_kernel_gle`, picked by a prepare A/B (`CG_FRONT`) | 10,715.4 us, 2.111x (2.079-2.143) | Prepare A/B fused 22.40 / split 20.42 us, 15/15 rounds; gate pooled rel 7.95e-6, logits rel 2.02e-7. Profile: pooler cgemv 14.6 / 14.1 us, router 6.8 us on the side stream. d1 74.43 / 79.09 (check 2: 74.64 / 79.89), v1 115.31 / 120.37. Keep rule fails on the score; not kept; lane closed. |
+
+Combined reading of checks 2 and 3: decode 1 sliding / full sit at 74.4-74.6 / 79.1-79.9 us with the port against
+75.3-77.6 / 83.2-84.4 for ten release-byte draws, about 2.5 / 4.6 us lower (about 0.6% of score), and no other load
+moves. The six-load score of a single draw spreads 10,642-10,787 us on identical bytes, so the bar in the brief
+(below the release's draw range) needs about 1.4% of real gain, which this T = 1 change cannot supply on its own.
