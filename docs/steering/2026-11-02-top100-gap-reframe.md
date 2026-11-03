@@ -155,3 +155,32 @@ No timeline of the incumbent layer exists (the G-family timeline run `41788b39` 
 boundary cost per launch is the older 0.7 us figure. The layer's routing at decode 1 hits 1-2 local
 experts on the profiled input; the MoE floor at that load is therefore a range. The 3.0 TB/s target in
 section 4 is a hypothesis with one published comparable, not a measurement of our code.
+
+## Correction, 2026-11-03 01:10 Pacific: what the day's checks changed
+
+Evidence: BF16 793602020fd64ce9; MoE 19128cda79ca4e25, ab54144f6c4d4727, b45cce36b47f4e81, abc831c68f174b68;
+layer 4c2d5e3a8e1147bf, 0c35e5f5cc614806, c77b95102baf4232, 43aa191eb94948a4; attention c1becf5a66274d37.
+
+- Section 3's reading that the small GEMVs are "latency" that a persistent stream would remove is only half
+  right. A short cell's judged time carries about 2 us of fixed per-launch cost (BF16: the kernel got 0.9 us
+  faster in the profile and the judged cell did not move), and inside a graph a boundary costs about 0.7 to
+  1 us. Fusing stages replaces each boundary with an in-kernel cross-CTA dependency that costs about 1.2 us
+  per global round trip. Measured: fusing o + boundary + pooler/router saved 1.3 us at T = 1 (9 of 9 rounds);
+  fusing the unpooler slice and finish into the MoE tail lost 2.6 us because its tail is five dependent round
+  trips. Section 4's 3.0 TB/s target is withdrawn: the chain's kernels already stream at about 4 TB/s while
+  they stream, and the gaps between them are worth about one microsecond each when fused, not several. The
+  persistent post-attention kernel's realistic upside at decode 1 is 3 to 5 us (about 1% of the layer score),
+  and it is no longer the structural bet for the deadline.
+- Section 3's MoE reading was right about the size of the fixed cost (7 of 22.6 us at T = 1) and wrong about
+  its recoverability. The timeline shows the ramp is the first wave's bytes, the routing prologue is already
+  overlapped with the first fills, the final pass bounds a ticket finalizer at T = 8, and the 2.2 us A-to-B
+  handoff can be recovered but every extra instruction in the unit loop costs 20 to 30% per unit. Remaining
+  Tiny-build upside is about 1 us at T = 1 with a cleaner build; the MoE bar (+4.1%) is out of reach by kernel
+  work in the time left. Re-draws moved the row from 2.3232x to 2.3438x.
+- Section 6's attention ranking by value per microsecond missed the largest pool by room times value: the
+  q_len 8 full-context modes run 15% slower per byte than the q_len 1 modes on the same bytes (3.00 vs 3.57
+  TB/s at batch 16, 3.32 vs 3.73 at batch 32). Matching the q_len 1 rate is worth about 16 + 20 us, roughly
+  3.8% of the attention score, which clears that bar. That is now the attention lane; the batch-1 cluster
+  merge is closed (third cluster loss).
+- Section 6's BF16 small cells are closed: their gap to the byte floor is the fixed launch cost. The only
+  BF16 room with evidence is the m = 128 qkv kernel body (comparator 2.55 us faster); not assigned.
