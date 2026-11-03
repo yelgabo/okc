@@ -1,8 +1,4 @@
-"""Copy muse_attention_decode/attn_ws.cu into submission.py's _WS_SRC string.
-
-The judge sees only submission.py, so the warp-specialized q_len 8 kernel lives inline there;
-the .cu file is the copy that gets edited.
-"""
+"""The judge accepts one file, so keep the editable verify kernel inline."""
 
 import re
 from pathlib import Path

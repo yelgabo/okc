@@ -1,25 +1,4 @@
-"""Copy the projection kernels from muse_bf16_proj/submission.py into muse_decode_layer/submission.py.
-
-The source assembles its device code in sk_source(): the kernel template string _SK_SRC with
-the config dispatch expanded from SK_CONFIGS, plus GEMV_CUDA_SRC. This tool runs that assembly
-for the configs the layer uses (every SK_GEOM geometry, compressed and raw, and the two fused
-pooler + router configs; the standalone router configs stay out), writes the result as
-_SKP_SRC and _SKP_GEMV_SRC, the declarations as _SKP_CPP_SRC, the config table the dispatch was
-generated from as _SKP_CONFIGS, and copies the packing code (the 12-bit code, tile units,
-stage-major streams, escape tables, the balancing permutation, cgemv's row stream) and the
-geometry helpers verbatim between the @SKP_PY@ markers, with the constants they read. The
-kernel source itself is not patched. Its griddepcontrol sits behind SK_PDL (default 0, checked
-here); the layer builds with -DSK_PDL=1 only when PORT_SK_PDL is set, and then launches an sk
-config as a PDL secondary only when bit 16 of its cfg is set.
-
-The wide kernel (wd_source()) goes in as _SKP_WD_SRC, built for the configs in LAYER_WD only,
-with its geometry table as _SKP_WD_GEOM; the layer compiles it into the same extension after
-_SKP_SRC, whose helpers (mbarrier waits, named barriers, the tensor-map encoder) it uses.
-
-    python3 tools/dl_proj_inline.py [path/to/muse_bf16_proj/submission.py [TARGET_LAYER.py]]
-
-TARGET_LAYER.py defaults to muse_decode_layer/submission.py and is rewritten in place.
-"""
+"""Keep layer projection packing and compiled dispatch synchronized."""
 
 import ast
 import re
@@ -36,27 +15,25 @@ BUILD_NAMES = {"_SK_SRC", "_SK_CPP", "GEMV_CPP_DECLS", "GEMV_CUDA_SRC", "SK_GEOM
                "_WD_CPP", "SK_NOVOTE", "SK_NACC", "SK_FULL"}
 BUILD_FUNCS = {"_sk_configs", "_sk_smem", "_fit_stages", "_sk_targs", "wd_smem", "wd_geom",
                "wd_fits", "_wgmma_spec", "_wd_targs", "wd_source"}
-# Copied verbatim, in this order (constants first).
+
 COPY_CONSTS = ("EXP_WINDOW", "MAX_ESCAPE_DENOM", "BALANCE_GROUP", "BALANCED_LAYERS", "SK_USE",
                "FUSED_GEOM", "_LAYER_THREADS")
 COPY_FUNCS = ("_sk_geom", "_fused_router_geom", "bf16_bits", "tile_values", "window_base",
               "code_bits", "raw_units", "hilo_units", "comp_units", "stage_stream", "balance_perm",
-              "escape_table", "pack_layer", "slices_balanced", "pack_raw_layer", "pack_router",
+              "escape_table", "pack_layer", "slices_balanced", "pack_raw_layer",
               "pack_cgemv", "cgemv_threads", "bucket_of")
 
 LAYER_BUCKET_OF = """def bucket_of(m):
     return 8 if m <= 8 else 16 if m <= 16 else 32 if m <= 32 else None"""
 
-# The standalone fuses the router into the pooler at 8 and 16 tokens; the layer also does at 32
-# (the standalone problem's pooler has no router beside it to fuse).
+
 LAYER_FUSED_GEOM = ("pool8", "pool16", "pool32")
-LAYER_FUSED_GEOM_SRC = """# At 32 tokens the side-stream router stretched the pooler from 17 to 26 us (timeline in
-# check 181ab39f1bd84912); one launch for both took the front chain from 37.6 to 32.4 us
-# (5869cc624a394904).
+LAYER_FUSED_GEOM_SRC = """# Fuse T32 pooler/router to avoid the measured side-stream contention.
+# Evidence: checks 181ab39f1bd84912 and 5869cc624a394904.
+
 FUSED_GEOM = ("pool8", "pool16", "pool32")"""
 
-# The standalone's wide picks at 128 tokens (pooler and qkv_gate, check 39d6bfa9834f4a96). Each
-# is another cluster kernel instance in the layer's build, so the other wide configs stay out.
+
 LAYER_WD = ("b1n128c2s8h", "b1n128c3s8h")
 
 
@@ -74,7 +51,7 @@ def load(text):
     missing = [nm for nm in LAYER_WD if nm not in ns["WD_GEOM"]]
     if missing:
         raise SystemExit(f"wide configs missing from the source: {missing}")
-    # wd_source() and _wd_targs() read these as globals of ns, so the trimmed tables apply.
+
     ns["WD_POL"] = {nm for nm in LAYER_WD if nm in ns["WD_POL"]}
     ns["WD_GEOM"] = {nm: ns["WD_GEOM"][nm] for nm in LAYER_WD}
     ns["WD_ABL"] = {}
@@ -87,8 +64,8 @@ def load(text):
             for t in n.targets:
                 if getattr(t, "id", "") in COPY_CONSTS:
                     segments[t.id] = ast.get_source_segment(text, n)
-    # The standalone bucket_of also maps m > 32 to its wide-router buckets (WD_BUCKETS), which
-    # the layer does not have: the layer sends m > 32 to cuBLAS and needs None there.
+
+
     segments["bucket_of"] = LAYER_BUCKET_OF
     segments["FUSED_GEOM"] = LAYER_FUSED_GEOM_SRC
     missing = [n for n in COPY_CONSTS + COPY_FUNCS if n not in segments]
@@ -126,9 +103,7 @@ def device_code(ns):
 
 
 def check_sk_pdl(src):
-    """The sk source may carry griddepcontrol only behind SK_PDL (default 0, so the layer's
-    default build is unchanged): every non-comment use must sit inside an `if constexpr (PDL)`
-    block opened on one of the three lines before it, with PDL false unless SK_PDL is set."""
+    """PDL instructions must remain disabled unless SK_PDL explicitly enables them."""
     if "#ifndef SK_PDL\n#define SK_PDL 0\n#endif" not in src:
         if "griddepcontrol" in src:
             raise SystemExit("griddepcontrol in the sk source without the SK_PDL switch")

@@ -1,13 +1,4 @@
-"""Copy the warp-specialized q_len 8 attention kernel from muse_attention_decode/attn_ws.cu into
-muse_decode_layer/submission.py's _WS_SRC string.
-
-The decode layer builds one extension, so the device code goes into a nested `verify`
-namespace inside the anonymous one: its names (D, Params, cp_async16, ...) would otherwise
-collide with the other attention kernels'. The INSTANTIATE notes and the torch host function
-are dropped; the decode layer's own host wrapper (_WS_HOST_SRC) launches var 16 only.
-
-    python3 tools/dl_ws_inline.py [path/to/attn_ws.cu]
-"""
+"""Keep verify-attention symbols isolated inside the shared layer extension."""
 
 import re
 import sys

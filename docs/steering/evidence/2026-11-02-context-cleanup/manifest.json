@@ -1,0 +1,267 @@
+{
+  "base": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+  "removed": [
+    {
+      "path": "muse_attention_decode/bench.py",
+      "bytes": 235797,
+      "lines": 5430,
+      "sha256": "62f109ead68bfc7728c38b11c75ec1b8c08c548fbd483459c112428fc0ec52a2",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_attention_decode/bench.py",
+      "reason": "Generated attention benchmark, replaced by current generators."
+    },
+    {
+      "path": "muse_attention_decode/hist_diag.py",
+      "bytes": 260821,
+      "lines": 5960,
+      "sha256": "1abc7128abe879b372036545653b68a200ddc95f20a8a66701648d402025f605",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_attention_decode/hist_diag.py",
+      "reason": "Generated historical input-history diagnostic; generator retained."
+    },
+    {
+      "path": "muse_attention_decode/submission_a1.py",
+      "bytes": 117866,
+      "lines": 2761,
+      "sha256": "780f00ca5466b0f7ee4ff522df3c78cc6bbfcf335f4abdd4cb4c82af2a0f1665",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_attention_decode/submission_a1.py",
+      "reason": "Retired bounded-shift attention experiment; current dispatch uses its tested replacements."
+    },
+    {
+      "path": "muse_attention_decode/submission_528.py",
+      "bytes": 124372,
+      "lines": 2892,
+      "sha256": "e5a4138cff08b28baf1e0095bf4f9760a95c3121da39f1fe948ff3c6aaab9965",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_attention_decode/submission_528.py",
+      "reason": "Retired loader-audit submission snapshot; current attention source retained."
+    },
+    {
+      "path": "muse_moe_w4a16/bench.py",
+      "bytes": 89384,
+      "lines": 2091,
+      "sha256": "93a494de3bb01df6390e9fd45f51788b990aca668d9c333eae137545a3796f60",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_moe_w4a16/bench.py",
+      "reason": "Generated old MoE benchmark; current generator retained."
+    },
+    {
+      "path": "muse_bf16_proj/bench.py",
+      "bytes": 84481,
+      "lines": 1873,
+      "sha256": "81f696de8afafc4faf2c05c5cdb4fd1e4747847cc085661a1ce9a5ee3dfb8988",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_bf16_proj/bench.py",
+      "reason": "Generated old projection benchmark; current generator retained."
+    },
+    {
+      "path": "muse_decode_layer/experiments/pool32_old/submission.py",
+      "bytes": 583872,
+      "lines": 13345,
+      "sha256": "5036c912fe201df22c1fd2b681ac2f51a2125e79fcc148b4509e7a1d388c1749",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/experiments/pool32_old/submission.py",
+      "reason": "Historical pool32 attribution control; owning profiles and run log retained."
+    },
+    {
+      "path": "muse_decode_layer/experiments/x5_unpadded_boundary.py",
+      "bytes": 224831,
+      "lines": 5206,
+      "sha256": "a4559a1cb6fcc7521380d0c760c9c28dfe38202a1d025280fc0f5d6204197694",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/experiments/x5_unpadded_boundary.py",
+      "reason": "Superseded residual-boundary experiment recorded in context; no code consumer found."
+    },
+    {
+      "path": "muse_moe_w4a16/experiments/tma_and_large_tiles.py",
+      "bytes": 89451,
+      "lines": 2101,
+      "sha256": "4e9fedf0a2793ac041c78a793bbbde345d1a84b22e7ffcf083f41d76d494049c",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_moe_w4a16/experiments/tma_and_large_tiles.py",
+      "reason": "Retired isolated TMA/large-tile experiment; no code consumer found."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_g51.py",
+      "bytes": 840007,
+      "lines": 18984,
+      "sha256": "dacd4e0df21493b28aceb3fcde3cd1cb03c4ce89e3b29632c9908eee0184b49e",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_g51.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_g51b.py",
+      "bytes": 842232,
+      "lines": 19020,
+      "sha256": "acd2385ca9af687a2f53b8412c65cf83ea280cc0d4db8eb52bb5c2ad75dab222",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_g51b.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_hp.py",
+      "bytes": 850405,
+      "lines": 19170,
+      "sha256": "0efd553c60815db9c2f6650ddbc3a9e6762d05fa81ff56d802cd9cc12cb2ee6f",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_hp.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_m1rt.py",
+      "bytes": 848222,
+      "lines": 19145,
+      "sha256": "d695844971f2bc7ab85720ad3a464c3464fc7efb01182746b4a96bcf14be7269",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_m1rt.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_m1rt51c.py",
+      "bytes": 860423,
+      "lines": 19393,
+      "sha256": "1eda8ec96ded87b1298a8fed54e93583db73b85894eb1400fe4639680659d801",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_m1rt51c.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_m1rt51sc1g.py",
+      "bytes": 900542,
+      "lines": 20155,
+      "sha256": "a00a0efa0a761d990d7298a64340751e6a3979369aa8247a1f3d958f975c7480",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_m1rt51sc1g.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_mb1s.py",
+      "bytes": 867515,
+      "lines": 19549,
+      "sha256": "16feec526461b778e1d286b0b77b8d91cd945fe4515a8a9463455684d46fac6b",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_mb1s.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_mb2s.py",
+      "bytes": 870081,
+      "lines": 19590,
+      "sha256": "3aee22fd2b89de7072f5ff9362ef5fe1a120be3409e2377894869ea18bd2abcb",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_mb2s.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_mb3s.py",
+      "bytes": 870234,
+      "lines": 19591,
+      "sha256": "76da38c1c41e3bb71ae5a4c98399dc10bc530d8b28df4f0f9adecee0d51528aa",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_mb3s.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/layer_stable.py",
+      "bytes": 820502,
+      "lines": 18552,
+      "sha256": "752123dd325147b02788be99d411ece9a6c4137370655c6c768557549aaaf87c",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/layer_stable.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/cand/release_s.py",
+      "bytes": 820511,
+      "lines": 18552,
+      "sha256": "a45fae28aed1a7f2e47565301270487130f904b912acb09664d6d5202aba6ae6",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/cand/release_s.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    },
+    {
+      "path": "muse_decode_layer/release/edd71d3152a946fe.py",
+      "bytes": 800850,
+      "lines": 18181,
+      "sha256": "1355d39f6b8ddebcdae1cdee156a34873b647c26f4724cd8a3c049780f7655fb",
+      "recovery_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+      "recovery_command": "git show 3a961a9da35c06adb6eaf04e2531b9d323587933:muse_decode_layer/release/edd71d3152a946fe.py",
+      "reason": "Superseded self-contained layer snapshot; no filename references in remaining tracked Python/shell code outside archived evidence/profiles. Current G incumbent and referenced historical source inputs are retained."
+    }
+  ],
+  "deleted_bytes": 12002399,
+  "deleted_lines": 271541,
+  "tools": [
+    {
+      "path": "tools/dl_one_inline.py",
+      "before_bytes": 3910,
+      "after_bytes": 2403,
+      "before_lines": 85,
+      "after_lines": 64
+    },
+    {
+      "path": "tools/dl_ws_inline.py",
+      "before_bytes": 1782,
+      "after_bytes": 1298,
+      "before_lines": 47,
+      "after_lines": 38
+    },
+    {
+      "path": "tools/dl_attn_inline.py",
+      "before_bytes": 1785,
+      "after_bytes": 1303,
+      "before_lines": 47,
+      "after_lines": 38
+    },
+    {
+      "path": "tools/dl_moe_inline.py",
+      "before_bytes": 19485,
+      "after_bytes": 14436,
+      "before_lines": 345,
+      "after_lines": 297
+    },
+    {
+      "path": "tools/dl_proj_inline.py",
+      "before_bytes": 10202,
+      "after_bytes": 7765,
+      "before_lines": 185,
+      "after_lines": 160
+    },
+    {
+      "path": "tools/attn_inline_ws.py",
+      "before_bytes": 779,
+      "after_bytes": 636,
+      "before_lines": 27,
+      "after_lines": 23
+    }
+  ],
+  "unchanged_runtime_sources": {
+    "muse_decode_layer/cand/g1b4_stage_release.py": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "muse_decode_layer/submission.py": "b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49",
+    "muse_moe_w4a16/submission.py": "c7854a71ad4639ed1c0ef7ff3013a831765344bf82f27caba15f034a030e03d7",
+    "muse_attention_decode/submission.py": "0627edb55a4f28e8943c9e605246757287cde74f54ddc4306e0c8cca81457ea4",
+    "muse_bf16_proj/submission.py": "6a4ea57210e43e13f0d8b2c8419e0974102853be0152bc745ab4a8ef674f3d33",
+    "muse_prefill_layer/submission.py": "1e294bac7f86bfcde5368f690695569e6561b0f56f77a720b19b3d642793aeeb"
+  },
+  "historical_link_repairs": [],
+  "legacy_markdown_encodings_preserved": [
+    "docs/steering/2026-11-01-g-stage-observed-readiness.md"
+  ],
+  "consumer_search_scope": "Remaining tracked Python/shell files outside profiles/evidence were checked for the twelve additional historical layer basenames; no consumers found. Original nine outputs have retained writers, not known runtime readers. Arbitrary external CLI consumers are outside this bounded scan.",
+  "search_visibility": {
+    "default_files": 1193,
+    "tracked_files_at_base": 5316,
+    "scope": "Default ripgrep view excludes archived copies; Git inventories and explicit --no-ignore searches retain them."
+  },
+  "integration_base": "74f7f1c05066c78c0ba16fe54cb70d25d8627e07",
+  "index_archive_commit": "74f7f1c05066c78c0ba16fe54cb70d25d8627e07",
+  "catalog_mismatch": {
+    "preexisting": true,
+    "audited_base_hash": "b3bc424adeb66163229b160d9ef2e82aa6747c376a4c874d536d32209595e3d7",
+    "integration_hash": "5b9c06b28ec46d0996877a0d3ccb3bdaec551e131266e960e77c55def3606f36",
+    "current_hash": "5b9c06b28ec46d0996877a0d3ccb3bdaec551e131266e960e77c55def3606f36",
+    "changed_by_cleanup": false
+  }
+}

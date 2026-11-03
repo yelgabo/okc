@@ -1,0 +1,35 @@
+{
+  "observed_checks": [
+    {
+      "command": "python3 -m unittest discover -s tools -p prod_size_test_comments.py -v",
+      "tests": 6,
+      "passed": true,
+      "scope": "Comment/marker and lexer fixtures; optional Zig preprocessing was unavailable."
+    },
+    {
+      "command": "python3 tools/d32_b4_prefix_audit_test.py",
+      "tests": 3,
+      "passed": true,
+      "scope": "Selected factory source and negative cases."
+    },
+    {
+      "command": "python3 -m unittest tools.test_moe_compile_wrappers tools.test_cuda_research -v",
+      "tests": 12,
+      "passed": true,
+      "scope": "Compiler failure propagation/resources and research-catalog validator fixtures."
+    },
+    {
+      "command": "python3 docs/file-discovery-eval/evaluate.py --output .build/context-cleanup/discovery.json",
+      "cases": 8,
+      "passed": true
+    },
+    {
+      "command": "python3 tools/check_cuda_research.py",
+      "passed": false,
+      "preexisting": true,
+      "diagnostic": "Evidence changed: docs/ruled-out.md; review pipelines.md, scheduling.md, validation.md, application.md, part2.md"
+    }
+  ],
+  "gpu_execution": false,
+  "runtime_sources_unchanged": true
+}

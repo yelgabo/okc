@@ -1,0 +1,17 @@
+[
+  {
+    "generator": "make_bench",
+    "generated_parseable": true,
+    "bytes": 227518
+  },
+  {
+    "generator": "moe_make_bench",
+    "generated_parseable": true,
+    "bytes": 314090
+  },
+  {
+    "generator": "attn_make_bench_one",
+    "generated_parseable": true,
+    "bytes": 321578
+  }
+]

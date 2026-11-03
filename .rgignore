@@ -1,0 +1,12 @@
+# Historical copies obscure current source; explicit paths and --no-ignore retain access.
+**/profiles/
+/profiles/
+/docs/steering/evidence/
+/docs/steering/decode32/evidence/
+/docs/steering/index-history-*
+/tools/expert_top100_evidence/
+/tools/top100_profile_evidence/
+/muse_decode_layer/cand/*
+!/muse_decode_layer/cand/g1b4_stage_release.py
+/muse_decode_layer/release/
+/muse_decode_layer/forks/
