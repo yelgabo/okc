@@ -28,6 +28,8 @@ The Decode32 Worker owns its checks and job waits. Each other owner retains its 
 
 ## Latest audit
 
+[Driver monitor04:14UTC](2026-11-02-driver-monitor-0414.md): MoE whole-unit queue accepted; norm performance and identity routing/coverage closures; latest MoE/BF16 priorities and monitor reconciled.
+
 [November 2 steering compaction](2026-11-02-steering-compaction.md) records the moves, retained paths and verification.
 
 ## Report history

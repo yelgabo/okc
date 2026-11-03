@@ -1,0 +1,35 @@
+# Driver monitor: MoE worker executing; norm and identity trials closed
+
+November 2, 2026 Pacific; live snapshot November3 04:18:46UTC. Evidence base `d0d90113`, including human-priority reassignment `6ae72641`, worker pickup/closures `b56bd8f1` and accepted registration `d0d90113`; subsequent owner updates `9dab13cc`/`87fbff7f` record sole waiter56587 and receipt-binding tests, without a new target result. This monitor changes instructions and records evidence; no kernel edit, target dispatch, duplicate waiter or public submission.
+
+## Decisions and current owners
+
+**P0 standalone MoE, P1 BF16 projections, Decode32 P4** supersede earlier D32-first continuation. Former Decode32 Worker has actually picked up MoE B4/MAIN whole-expert scheduling/representation and submitted one private experiment. General retains the distinct MoE WS skinny lane; CUDA Optimizer is assigned BF16, with its actual pickup still unverified at this snapshot. Keep the former D32 worker's reminder **paused**. Its independent manual execution is evidenced by its committed source/accepted record, not by this monitor.
+
+| Item | Verified outcome | Next action and finite stop |
+|---|---|---|
+| **MOE-BQUEUE-01** `e044121f822d47b1` | Accepted, shared list queued. Frozen payload `4c8c470f408815616472746b99bcda4ae3bdcedb201bd0833284e15f29e685c5`,354612B; candidate native `99a6888d`, control `c7c201ae`; published `b56bd8f1`. No GPU result yet. | Original owner follows its one accepted ID and registered complete-call comparison. No root waiter/POST. Any registered benefit/correctness/coverage/admission/budget failure stops exact treatment; successful screen needs held-out confirmation. |
+| **General norm aggregation** `b38a9ed6dc9743e9` | Valid5tests/6benchmarks/6complete profiles; **0/6 matched groups pass** frozen1.01 benefit plus twice-null gate. | Retain original norm/NS3. Exact aggregation STOP; no confirmation, tuning or integration. Refill with a distinct selected-source mechanism. |
+| **D32 identity** `4a2a79bdac04499a` | Setup112 strict routing failure;27/36 partial rows, zero official tests/benchmarks/profiles, no full matched report or score. Original waiter ended and evidence is archived. | Exact candidate STOP under route/coverage gate; no confirmation/integration or further D32 experiment. |
+
+The accepted MoE experiment claims complete phase-B output units dynamically while retaining phase A and skinny paths. It tests elimination of B split/fixup/finisher work against extra CTA joins and reduced cross-unit lookahead. Local96-register/zero-spill device builds and five source/CPU-host tests establish neither target correctness nor speed. Its all-six1.01/twice-null/all-cross/all-bank/distribution gate, affected-regression gate, fresh replay/scratch checks and295s preparation cap are frozen; no posthoc mask or sweep. See the [owning implementation and contract](2026-11-02-moe-worker-queue-experiment.md), [accepted record](evidence/2026-11-02-moe-bqueue/accepted.json) and [live owner ledger](moe-worker/STATUS.md). The shell wrapper failed **after acceptance** on zsh's reserved `status` variable; that is not a judge failure and does not justify another POST.
+
+## Measured closures and limits
+
+Norm payload `1e857ad48100bb898512d28baccd25e6938067607754506d83fbbfb6e6484b21`,344267B: aggregate affected crosses0.979716624â€“1.017916071, geometric mean1.001544812;7/12 affected bank/load rows have at least1% regression crosses. Duplicate log nulls0.007367898â€“0.026832873; **no unchanged-load drift violation**. This is a qualified performance negative, not a drift-invalid run. Its official2.331049144x versus SGLang is not a matched treatment gain. The complete capsule retains54cases/36rows and cleanup. Do not retrofit the obsolete Driver1.005 planning reference. [Owning terminal analysis and receipts](2026-11-02-general-ws-norm-aggregation.md#terminal-decision-retain-baseline-stop-exact-aggregation).
+
+Identity failed at T128/full,seed1102031,initial replay,row53,placement2: experts175/68 swap ordered slots5/6, captured treatment selection **false**.27partial rows at150.244213s cannot satisfy36-row coverage or establish a causal identity-treatment loss, routing cause, or valid improvement. Strict ordering remains required. [Owning terminal analysis](decode32/evidence/D32-IDENTITY-01/terminal-analysis.json), [raw receipt](decode32/evidence/D32-IDENTITY-01/status-wait.raw.json), [terminal ledger](decode32/STATUS.md).
+
+## Live board, capacity and scope
+
+[Shared snapshot](evidence/2026-11-02-driver-monitor-0414/live.json): overall/layer **386**, MoE **433**, BF16 **369**. Public layer `607eb52bdaf24160` remains2.1261x/10639.426327us. No public change is evidenced. Private capacity: layer13,MoE16,BF1620; scored10 each. Shared list shows only new MoE `e044` queued. Quotas/list state can lag dispatch; unused capacity grants no public permission.
+
+Rank100 thresholds: layer9958.342878us/2.2715x, MoE5559.830241us, BF163051.712633us. Historical public MoE6069.607719us needs8.39885% time reduction; BF163161.918773us needs3.48542%. The queue comparison correctly uses the newer privately validated native MoE engine rather than the older tracked standalone architecture; private versus-SGLang scores and older public rows are descriptive across jobs, not matched gains or ready releases. A1% win alone neither closes8.4% nor predicts an additive layer benefit.
+
+The current official page references `assets/index-hNMNI-Nr.js`; refreshed asset SHA256 `a40d07775d2797cba5e81933f905fdc858a07025a89ba78b58a27d7444c7c207` still closes kernels **November5,2026 00:00 America/Los_Angeles**. [Schedule proof](evidence/2026-11-02-driver-monitor-0414/schedule.json). Campaign remains active.
+
+## Coordination and remaining gaps
+
+Root directly delivered one **scope delta to the existing acknowledged refill** in CUDA research chat `6ae73e93-f6c4-83e8-b3b2-d46416bcbc7d`: prioritize a distinct General WS-next and material BF16 C2/30-cell design; keep any MoE architecture-next distinct from accepted B queue. Delivery succeeded; acknowledgment/new findings are **not established** by sending. Scout remains addressed through the same [shared refill](2026-11-02-general-hotspot-search-refill.md); direct scout delivery is unverified. No duplicate worker/task was created. The old cluster O32~0.10% score-sensitivity lead is not a qualified top100-scale P1 experiment, and phase-A credit exposure is still unproven/unallocated.
+
+Corrected root AGENTS ownership to the latest human priorities; CLAUDE already loads it. Updated this existing hourly monitor, preserving schedule/thread/active state and the separate paused worker timer. It now follows P0/P1 owners and terminal closures instead of obsolete D32 continuation. Remaining decisions belong to the existing owners: current MoE result, distinct source-qualified General/BF16 opportunities, and actual CUDA BF16 pickup. No routine Driver reply/approval gate is added. Notify on measured outcomes/new accepted jobs/material movement/real blockers; stay quiet for unchanged queued/running state.
