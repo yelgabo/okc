@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T17:53:00-07:00",
-  "snapshot": "2ffc98c1",
+  "reviewed_at": "2026-11-02T18:33:00-07:00",
+  "snapshot": "77023d44",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public607 retains2.126083×. New control2.091748×; MID2.089423× parked. Attention2.128829× is an exploratory private result with matched4fe confirmation queued."
+    "note": "Public607 retains2.126083x. D32 attention remains exploratory after two matched setup failures. Constant WGS scales fail the component gate; grouping and skinny depth checks are pending."
   },
   "families": [
     {
@@ -82,17 +82,17 @@
       "metric": "−5.035 µs (−1.59%)",
       "unit": "Targeted D32 full-context layer cell, separate-run comparison",
       "summary": "Ordinary lookahead job17383751 passed timed-call reference checks. Unchanged sliding D32 improves more, so the observed gain remains inconclusive.",
-      "layer": "Layer-tested scheduling descendant inside G. Matched check4fece18b20a2447b is queued. Public G1b4 remains retained.",
+      "layer": "Layer-tested scheduling descendant inside G. Both matched4fe and corrected62a4 failed setup without timings. Public G1b4 remains retained.",
       "pending": [],
       "limit": "Source changes only full-context single-query batches17–32. Standard128/256 verify paths are unchanged. Earlier VP2 cell win and six-load failure remain recorded.",
-      "source": "steering/2026-11-02-1753-performance-review.md",
+      "source": "steering/2026-11-02-1833-performance-review.md",
       "outcomes": [
         "win",
         "loss",
         "inconclusive"
       ],
       "evaluation_pending": [
-        "Matched attention confirmation4fece18b20a2447b, payload109cdb07"
+        "Strict natural-routing diagnostic9e5e5d64, prepared without an accepted job"
       ]
     },
     {
@@ -123,12 +123,15 @@
       "label": "Retained layer • MID17–32 parked",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "MID passed official validity gates but D32 was3.473% slower than the new unchanged control in a separate run. Shared-A and direct-weight negatives remain closed.",
+      "summary": "Public G1b4 retained. Constant-scale component passes correctness and fails its performance gate. MID17–32 remains parked.",
       "layer": "Public607 retains2.126083×. New calibration94ef scores2.091748×. MID scores2.089423×, with no useful D32 signal.",
       "pending": [],
-      "evaluation_pending": [],
+      "evaluation_pending": [
+        "Corrected scale plus WGMMA groups,3c45788127e945c4",
+        "Current skinny helper NS4 versus NS3,f0b875484960438b"
+      ],
       "limit": "The128/256 MAIN paths are unchanged. Their faster cross-run observations do not establish MID gains. Decode32 Worker owns subsequent D32 checks directly.",
-      "source": "steering/2026-11-02-1753-performance-review.md",
+      "source": "steering/2026-11-02-1833-performance-review.md",
       "outcomes": [
         "win",
         "loss"
@@ -163,8 +166,13 @@
     },
     {
       "name": "D32 attention matched confirmation",
-      "label": "Accepted • queued • no timing verdict",
-      "summary": "Job4fece18b20a2447b uses payload109cdb07 against ba9. Ordinary first result remains exploratory; duplicate-control/cold-replay gates pending."
+      "label": "Two setup failures; strict diagnostic prepared",
+      "summary": "4fe failed on FP8 finiteness. Corrected62a4 failed exact routing equality. Neither produced matched timing. Diagnostic9e5e5d64 retains the strict gate."
+    },
+    {
+      "name": "G native component experiments",
+      "label": "Scale-only stopped; two checks accepted",
+      "summary": "Constant scales3aa pass correctness and fail performance. Corrected scale/groups3c45788127e945c4 and skinny NS4f0b875484960438b await target results."
     }
   ]
 }

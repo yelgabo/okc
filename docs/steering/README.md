@@ -4,6 +4,10 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Current performance evidence, November 2
+
+[18:33 Vancouver review](2026-11-02-1833-performance-review.md). Both D32 matched attempts stopped in setup without timing. Constant WGS scales pass correctness and fail their matched performance gate. Corrected grouping and current skinny depth checks remain pending.
+
 ## Current architecture diagrams, November 2
 
 [Incumbent layer and MoE diagrams with performance labels](../incumbent-architecture-2026-11-02.html). [In-layer activity labels and validation](2026-11-02-incumbent-inlayer-labels.md). The [initial diagram report](2026-11-02-incumbent-diagrams.md) is historical.

@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 17:53 MST. Evidence snapshot: `2ffc98c1`.
+Last review: 2026-11-02 18:33 MST. Evidence snapshot: `77023d44`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -16,9 +16,17 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled 256 case. New grouped-contiguous Humming proposal stopped before measurement. |
 | C. Owner-completes tiles | Earlier ownership gains retained | The complete private VP2 design wins its eight-token sliding cell. Both owned cluster implementations previously lost. | The comparison leaves the contribution of output ownership unresolved. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
-| E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Matched confirmation4fece18b20a2447b is accepted and queued. Fresh all-load/private-state/cold-replay qualification remains pending. |
+| E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Matched4fe and corrected62a4 both failed setup without timings. A strict routing diagnostic is prepared; fresh paired qualification remains pending. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained public layer2.126083×; MID17–32 parked | New unchanged control scores2.091748×. MID passes standard correctness but D32 is3.473% slower across separate runs. Earlier K128/shared-A/direct-weight losses remain scoped. | Attention scheduling descendant is tracked under E. Public adoption awaits its matched result. Decode32 Worker owns the D32 lane directly. |
+| G. Attributed keell0renz layer fork | Retained public layer2.126083×; MID17–32 parked | New unchanged control scores2.091748×. MID passes standard correctness but D32 is3.473% slower across separate runs. Earlier K128/shared-A/direct-weight losses remain scoped. | Attention E remains unconfirmed. Constant-scale component fails its gate; corrected scale/group and skinny NS4 checks are pending. Decode32 Worker owns D32 directly. |
+
+## November 2 review at 18:33 Vancouver time
+
+**Attention confirmation remains unresolved after two setup failures. Constant WGS scales pass correctness and fail promotion.** Job4fece18b20a2447b stopped at unsupported FP8 finiteness; corrected62a4f6b27ed74b50 stopped at an exact fresh-routing mismatch. Neither generated matched timings. A strict-gate diagnostic is prepared. The original5.035us full-D32 cross-run reduction remains inconclusive. [Failure and diagnostic](https://github.com/yelgabo/okc/blob/77023d44130f293acbd5f8f2d8165ae6e0eab2c2/docs/steering/decode32/2026-11-02-11-matched-routing-mismatch.md).
+
+G-native constant-scale job3aa3885f6b734f8c passes5/6/6 and all private replay checks, but all24 whole-six factors0.992411–1.004932 fail the1%/duplicate-null gate. The descriptive0.997953 mean includes unchanged-path drift. Its official2.341017x is versus SGLang, not an improvement over control. Sourceca588999/payloadccef8a76, three banks, normal/skewed EP8,8 repeats per placement. The [full review](steering/2026-11-02-1833-performance-review.md) records every cell's latency, delta, routing census and duplicate nulls, including128/256.
+
+Corrected scale/group job3c45788127e945c4 and current skinny NS4/NS3 jobf0b875484960438b are accepted, without a recorded target result. The grouping correction invalidates broad conclusions from the flawed earlier deferred-flush schedule; its actual spill observations remain scoped to that source. Skinny changes only T1/T8/T16, with T32/128/256 unchanged controls. Both are G component experiments. A remains ahead of the staged B implementations actually measured at128/256. Public G1b4 remains2.126083x; no new whole-layer gain is credited. [Exact candidates and checkpoint](steering/2026-11-02-1833-performance-review.md).
 
 ## November 2 review at 17:53 Vancouver time
 
@@ -2763,6 +2771,7 @@ paired differences.
 | G short serial policy, unchanged long paths | Fresh G1b4, separate run | +8.118 µs (+3.10%) | +10.431 µs (+2.97%) | `e4c8f00532b74d15` vs `cc474883117947c0`. Different seeds. Only 1/8-token cells exercised the treatment. [Exact comparison](https://github.com/yelgabo/okc/blob/fcf5452/docs/steering/2026-11-02-captain-serial-terminal-decision.md). |
 | G pre-gamma expert transport, standalone MoE | G incumbent controls, same process | +2.785 µs (+1.93%) | +2.779 µs (+1.41%) | `56e0c8b5634545e6`. Descriptive duplicate-placement means across three normal/skewed banks. [Source means](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/evidence/2026-11-02-worker-moe-component/descriptive-load-summary.json). |
 | G one-token expert split, unchanged large-token paths | Fused G control in same process | +0.339 µs (+0.23%) | +0.048 µs (+0.02%) | `28248eb5e5854041`. Means over duplicate placements and six routing cases. Only T1 changed. [Raw medians](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/evidence/2026-11-02-worker-t1-moe-check/frozen-reader-result.json). |
+| G: constant WGS scales, paired component | Same G native without constant folding | -0.101 us, -0.070% descriptive | -0.339 us, -0.172% descriptive | 3aa3885f6b734f8c; 3 banks x normal/skewed EP8,8 repeats/placement; correctness passes, aggregate gate fails; duplicate drift retained. [All cells](steering/2026-11-02-1833-performance-review.md). |
 
 
 ## Small-token results and rejected changes
@@ -2810,7 +2819,7 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
-The calibration and fixed MID-helper comparison have completed. MID is parked. Decode32 Worker owns the D32 lane directly, and attention matched confirmation4fece18b20a2447b is queued. Broad dense backing remains unallocated reserve. [Current D32 ledger](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md)
+The calibration and fixed MID-helper comparison have completed. MID is parked. Decode32 Worker owns the D32 lane directly, and both attention matched attempts failed setup. A strict-gate diagnostic is prepared. Broad dense backing remains unallocated reserve. [Current D32 ledger](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md)
 
 The earlier complete-engine review closed both reviewed proposals at the source stage. Reopening grouped-contiguous Humming requires an exact legal workload and credible net whole-layer opportunity. The canonical attention continuity source is frozen pending stronger opportunity evidence. [Decisions](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md).
 
@@ -2836,6 +2845,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- November2, 18:33 Vancouver. Inspected through `77023d44`. New terminal4fe/62a4 are setup failures,3aa passes correctness and fails performance gate. Pending3c45788127e945c4/f0b875484960438b. All18 local untracked profile JSONs remain provisional and untouched. [Full review](steering/2026-11-02-1833-performance-review.md)
 
 - November2, 17:53 Vancouver. Inspected through `2ffc98c1`. New control94ef, MIDa6fe and attention1738 terminal; matched4fe accepted/queued. [Ledger checkpoint](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md)
 
