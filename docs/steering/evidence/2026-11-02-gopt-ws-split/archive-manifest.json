@@ -1,0 +1,247 @@
+[
+  {
+    "path": "compile.json",
+    "sha256": "5d840c06502bf0ead7cdf5296ea99e692555e855aef246c0e68c2c238fade97a",
+    "bytes": 4825
+  },
+  {
+    "path": "cpu-tests.txt",
+    "sha256": "28cbd341bd284463bb7aed2274594bd1888c6abfe1208815642c2a2fc9464b16",
+    "bytes": 1586
+  },
+  {
+    "path": "helper.diff",
+    "sha256": "a32794ba958945b181a6621b61d283ea156be1b28bb5957f63a5587a8ef906eb",
+    "bytes": 4847
+  },
+  {
+    "path": "host-compile.json",
+    "sha256": "981dc4f098f5aeb55828680353bd340998bbdcfc2bd57b8b658b9f73c7a2f7fc",
+    "bytes": 3140
+  },
+  {
+    "path": "host-cxx17-local-failure.log",
+    "sha256": "0c75799388de97297dd94b97e67f0cfdbacc75de1aa1eb0e2ceca8f871e88317",
+    "bytes": 2265
+  },
+  {
+    "path": "host-mid-binding.o.gz",
+    "sha256": "eea2a45a9dda571353a73af27849c0e21aa631a358e514eecffa4d5a75cde97a",
+    "bytes": 397339
+  },
+  {
+    "path": "host-mid.cpp.gz",
+    "sha256": "c0cdaab253283d448d9c3a50a60b9525387da37f5d7ba30028b068f0e2dbf98e",
+    "bytes": 270
+  },
+  {
+    "path": "host-mid.cu.gz",
+    "sha256": "4916654fca84e4b5abecd3aaf3e6cb13b26adbc77749d4f74e4e0dda97e84447",
+    "bytes": 35753
+  },
+  {
+    "path": "host-mid.flags.json",
+    "sha256": "68d6c30c2fa2ccaa9b6922a6bb3111bbbb31f5a372949a2a511051cc5b3ebf2b",
+    "bytes": 705
+  },
+  {
+    "path": "host-mid.log",
+    "sha256": "4ad81c91347d58f7032cae7b7bb71166c322daaaeafd8d5e92ce94221c6027a7",
+    "bytes": 7135
+  },
+  {
+    "path": "host-mid.o.gz",
+    "sha256": "1e67dd682c90e9d1dd07e25a992d157233b95a1e855dae3194553fa8756400be",
+    "bytes": 146768
+  },
+  {
+    "path": "host-tiny-binding.o.gz",
+    "sha256": "790f5f40cc35937a7ea1ccf7af8dbb70eeb6e8e578127797a853e9a53cfd40a8",
+    "bytes": 397341
+  },
+  {
+    "path": "host-tiny.cpp.gz",
+    "sha256": "c0cdaab253283d448d9c3a50a60b9525387da37f5d7ba30028b068f0e2dbf98e",
+    "bytes": 270
+  },
+  {
+    "path": "host-tiny.cu.gz",
+    "sha256": "4916654fca84e4b5abecd3aaf3e6cb13b26adbc77749d4f74e4e0dda97e84447",
+    "bytes": 35753
+  },
+  {
+    "path": "host-tiny.flags.json",
+    "sha256": "373e719da77fe07c3461eacf98e3521c81d970219685da41f48cc2baacde7e8e",
+    "bytes": 689
+  },
+  {
+    "path": "host-tiny.log",
+    "sha256": "a827c907aa024adafe5a0d1eb8a154d4fa37784e20a2950deca3db1e1b05b1ed",
+    "bytes": 7140
+  },
+  {
+    "path": "host-tiny.o.gz",
+    "sha256": "2acdb706969cac4aa3814ae98a4f58bc80c0cd0afb26d7496436ec65165732d3",
+    "bytes": 145703
+  },
+  {
+    "path": "host-tiny2-binding.o.gz",
+    "sha256": "fa49b3394150f1d17bcb313c587a94218f25b52b7a4568f97a7ee4e381fa5bd2",
+    "bytes": 397319
+  },
+  {
+    "path": "host-tiny2.cpp.gz",
+    "sha256": "c0cdaab253283d448d9c3a50a60b9525387da37f5d7ba30028b068f0e2dbf98e",
+    "bytes": 270
+  },
+  {
+    "path": "host-tiny2.cu.gz",
+    "sha256": "4916654fca84e4b5abecd3aaf3e6cb13b26adbc77749d4f74e4e0dda97e84447",
+    "bytes": 35753
+  },
+  {
+    "path": "host-tiny2.flags.json",
+    "sha256": "33f150232200551321e2adfa5bc18f0d86cd38c7ae930ada23b0eb08f755aa93",
+    "bytes": 690
+  },
+  {
+    "path": "host-tiny2.log",
+    "sha256": "324193d55dcd34feb299a792044b595ffc62d0b2bdd8fb5f404727f36430fc61",
+    "bytes": 7145
+  },
+  {
+    "path": "host-tiny2.o.gz",
+    "sha256": "92012708ed0efce232400234ea0d938bf75ae094b5d8ba6036456d348ba7b35a",
+    "bytes": 146952
+  },
+  {
+    "path": "hotspots.md",
+    "sha256": "69223e86f5c515dee65e02065a1f09a74124b3e625691d1680b3f46160376f45",
+    "bytes": 2050
+  },
+  {
+    "path": "jobs-preflight.json",
+    "sha256": "df76fc2f7d608a4e5d2c29494cbf262034676ef1e1912bc4536ea438350ec3dc",
+    "bytes": 13741
+  },
+  {
+    "path": "local-resources.json",
+    "sha256": "effeb52f90f9c59a09236a30842e8bad18606538c1efe23b2e698b360433925c",
+    "bytes": 561
+  },
+  {
+    "path": "mid-candidate.cu.gz",
+    "sha256": "94ef3f81e88e68c14241bc95bdc8886a223d4eea41568d4e4817e84c0747e8d7",
+    "bytes": 33889
+  },
+  {
+    "path": "mid-candidate.log",
+    "sha256": "7626f73edf79b9aad2fe99a283dc07b4ae028785bca344496982009507286ed8",
+    "bytes": 2150
+  },
+  {
+    "path": "mid-candidate.sass.gz",
+    "sha256": "906b98303ac79bae232a28f2cf9ab031f4b75b531034f3241f7e7cc6b2f6692c",
+    "bytes": 170434
+  },
+  {
+    "path": "mid-control.cu.gz",
+    "sha256": "94ef3f81e88e68c14241bc95bdc8886a223d4eea41568d4e4817e84c0747e8d7",
+    "bytes": 33889
+  },
+  {
+    "path": "mid-control.log",
+    "sha256": "bf81585eee9ecd49c0fed10006b44b0ee0a4724da5cc7f09dc314c7e0bd39431",
+    "bytes": 1819
+  },
+  {
+    "path": "mid-control.sass.gz",
+    "sha256": "b8f9838c90c483622bcc2a55977328ae519fdd58efe2e04930225c2c74630d03",
+    "bytes": 180814
+  },
+  {
+    "path": "paired.manifest.json",
+    "sha256": "831c773516a4e9e42ebb4250eca2a48cd37630e050fea9c0f0c5576b34c21391",
+    "bytes": 13427
+  },
+  {
+    "path": "paired.py",
+    "sha256": "b4da948d317165b18df8a0c47dca3ca139dac1fbfa47ab7c964165a3bd91b41d",
+    "bytes": 352468
+  },
+  {
+    "path": "promotion-audit.json",
+    "sha256": "5c6aa38efcc74ba32dad2750991c6a76ae27b84db42ae09bbf27f84619317eb2",
+    "bytes": 23859
+  },
+  {
+    "path": "quota-preflight.json",
+    "sha256": "06d2a431ac712f15a9bcd77388c5bc80728317aa1ec8fd3ac90cf0c0f8f3ff24",
+    "bytes": 1547
+  },
+  {
+    "path": "source-tests.txt",
+    "sha256": "2b49d00fbbf24aa1c4d5e482c1c023e3094ca3ce6f5e11d05e89d86009ff99e5",
+    "bytes": 619
+  },
+  {
+    "path": "tiny-candidate.cu.gz",
+    "sha256": "94ef3f81e88e68c14241bc95bdc8886a223d4eea41568d4e4817e84c0747e8d7",
+    "bytes": 33889
+  },
+  {
+    "path": "tiny-candidate.log",
+    "sha256": "b434dcb17ea80ed422c11d213ae516711d3ba4fe2e9338526fa3e1a1740e4463",
+    "bytes": 2155
+  },
+  {
+    "path": "tiny-candidate.sass.gz",
+    "sha256": "e56100cb077cdcb54ac4b2ab25803a8b1564cac3a5d32828a1d998c8b18b5863",
+    "bytes": 169975
+  },
+  {
+    "path": "tiny-control.cu.gz",
+    "sha256": "94ef3f81e88e68c14241bc95bdc8886a223d4eea41568d4e4817e84c0747e8d7",
+    "bytes": 33889
+  },
+  {
+    "path": "tiny-control.log",
+    "sha256": "a385d1cd2a4b5ab2a7038ec0f7696ac57a7cc22d823929175eb65e8a8fc95d18",
+    "bytes": 1824
+  },
+  {
+    "path": "tiny-control.sass.gz",
+    "sha256": "2f31ea91c52fcff6c17ccb0b90c6cacd521a25be4dae6a64a8ef02979c349fb3",
+    "bytes": 183046
+  },
+  {
+    "path": "tiny2-candidate.cu.gz",
+    "sha256": "94ef3f81e88e68c14241bc95bdc8886a223d4eea41568d4e4817e84c0747e8d7",
+    "bytes": 33889
+  },
+  {
+    "path": "tiny2-candidate.log",
+    "sha256": "203e19a643cfde4974414e2473bf2104ee527dbb0e3a9bf2406fcc35b979dc8c",
+    "bytes": 2160
+  },
+  {
+    "path": "tiny2-candidate.sass.gz",
+    "sha256": "c0da08553ad2838831d74a6b468edd4018d828f3f155a068e7dfeef37b238bb1",
+    "bytes": 171973
+  },
+  {
+    "path": "tiny2-control.cu.gz",
+    "sha256": "94ef3f81e88e68c14241bc95bdc8886a223d4eea41568d4e4817e84c0747e8d7",
+    "bytes": 33889
+  },
+  {
+    "path": "tiny2-control.log",
+    "sha256": "55e31d5d9b3b7010bd9e6b47bb0c3d40a5db3562011107263f056645e05ebc89",
+    "bytes": 1829
+  },
+  {
+    "path": "tiny2-control.sass.gz",
+    "sha256": "b58ef231e2781ed0fe694374ae5e788c18f31292b02ff7ba53fda3aeaf674cc9",
+    "bytes": 185092
+  }
+]

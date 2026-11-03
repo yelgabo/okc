@@ -1,0 +1,17 @@
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+In file included from /usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/types.h:4,
+                 from /w/tiny.cu:1:
+/usr/local/lib/python3.12/dist-packages/torch/include/ATen/ATen.h:5:2: error: #error C++20 or later compatible compiler is required to use ATen.
+    5 | #error C++20 or later compatible compiler is required to use ATen.
+      |  ^~~~~
+In file included from /usr/local/lib/python3.12/dist-packages/torch/include/torch/extension.h:6,
+                 from /w/tiny.cu:2650:
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/all.h:5:2: error: #error C++20 or later compatible compiler is required to use PyTorch.
+    5 | #error C++20 or later compatible compiler is required to use PyTorch.
+      |  ^~~~~
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['nvcc', '-O3', '-gencode=arch=compute_90a,code=sm_90a', '-lineinfo', '-DOKC_NS=3', '-DOKC_FNST=4', '-DOKC_NSF=3', '-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_L2H=0', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=2', '-DOKC_FINPF=1', '-DOKC_WS_SPLIT=1', '-DOKC_PRMTSC=1', '-DOKC_DQ7=1', '-std=c++17', '-Xptxas=-v,--warn-on-spills', '-D__CUDA_NO_HALF_OPERATORS__', '-D__CUDA_NO_HALF_CONVERSIONS__', '-D__CUDA_NO_BFLOAT16_CONVERSIONS__', '-D__CUDA_NO_HALF2_OPERATORS__', '--expt-relaxed-constexpr', '-DTORCH_EXTENSION_NAME=gopt_ws_split_tiny', '-DTORCH_API_INCLUDE_EXTENSION_H', '-D_GLIBCXX_USE_CXX11_ABI=1', '-Xcompiler=-fPIC', '-I/usr/local/lib/python3.12/dist-packages/torch/include', '-I/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include', '-I/w/stub', '-I/usr/include/python3.12', '-c', '/w/tiny.cu', '-o', '/w/tiny.o']' returned non-zero exit status 1.

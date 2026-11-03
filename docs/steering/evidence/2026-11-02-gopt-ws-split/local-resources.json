@@ -1,0 +1,16 @@
+{
+  "scope": "ARM64 CUDA12.8.1 device-prefix observation only; no H200 build or performance equivalence",
+  "source_sha256": "b4da948d317165b18df8a0c47dca3ca139dac1fbfa47ab7c964165a3bd91b41d",
+  "producer_threads": 288,
+  "producer_dynamic_shared_bytes": 214784,
+  "producer_registers": [
+    145,
+    145,
+    145
+  ],
+  "finalizer_threads": 256,
+  "finalizer_registers": 64,
+  "spills": 0,
+  "disabled_control_sass_matches_archived_ns3": true,
+  "host_cxx20_adapter": "CPU Torch headers require C++20; full target linking/admission not established locally"
+}

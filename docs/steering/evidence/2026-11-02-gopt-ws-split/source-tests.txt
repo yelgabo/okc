@@ -1,0 +1,10 @@
+test_complete_six_load_gate_and_unchanged_drift (tools.test_gopt_ws_split.SourceAndModel) ... ok
+test_exported_positions_for_empty_and_mixed_routes (tools.test_gopt_ws_split.SourceAndModel) ... ok
+test_finalizer_interleaving_uses_immutable_generation (tools.test_gopt_ws_split.SourceAndModel) ... ok
+test_fixed_source_selection_and_internal_publication (tools.test_gopt_ws_split.SourceAndModel) ... ok
+test_retained_target_rows_and_entropy_fit_success_and_failure_bounds (tools.test_gopt_ws_split.SourceAndModel) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 12.817s
+
+OK
