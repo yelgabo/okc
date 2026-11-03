@@ -2441,3 +2441,19 @@ to ctrl2) -0.05 / -0.14 / -0.13 us against ctrl (53 / 65 / 57 of 100 faster; nul
 removing the reduction saves is not DSMEM load latency. Remaining named cause: the exit cluster
 barrier's release waits for the BF16 stores to drain (proj-port-guide "Split exit barrier", +0.58
 us at m = 128 on the router), tested next as QKV128-TSPLIT-01.
+
+Check `a1e8c702bd8446f6` (QKV128-TSPLIT-01, `qkv_tsplit.py` SHA256 f1df12f6): PASS, board run
+3,236.7 us (1.4925x; picks unchanged, so the board moves are run noise on unchanged kernels).
+Paired against ctrl, 3 inputs x 100 rounds, us (null +0.00 / -0.02 / +0.08, MAD 0.22-0.27): psplit
+(batched pull, arrive.release after the last DSMEM read, wait.acquire before exit, bitwise equal)
+-0.32 / -0.32 / -0.45, 75-77 of 100 faster, -0.40 / -0.26 / -0.42 against ctrl2; epi -0.18 / -0.13
+/ -0.05; g0_a2 floor -1.49 / -1.46 / -1.41. Decision: below the registered 0.5 us gate, no keep.
+The split exit is a consistent 0.3-0.45 us (about 0.09% of the board at verify 16), the other
+1.0-1.1 us of the reduction remains unattributed.
+
+Lane decision: stopped after four checks, two of the six budgeted returned. The control's body is
+its memory pipeline (no-wgmma ablation -0.5 us) and b1n128c3s8h at 8 stages is the fastest of
+twelve same-kernel geometries tested in one wave or two; the pull reduction is 1.5 us, of which
+0.3-0.45 is the exit drain. The comparator's 2.55 us comes with fewer weight bytes (12-bit codec
+at m = 128) and BF16-rounded K-split partials, neither of which this lane tested; at 0.248% per us
+the whole gap is about 0.6% of the board, short of the 3.5% to rank 100.
