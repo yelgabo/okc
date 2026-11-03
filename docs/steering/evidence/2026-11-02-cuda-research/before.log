@@ -1,0 +1,64 @@
+
+======================================================================
+FAIL: test_compiler_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) (wrapper='moe_compile_check.sh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_compile_wrappers.py", line 100, in test_compiler_failure_reaches_caller
+    self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
+AssertionError: 0 != 23 : 
+
+======================================================================
+FAIL: test_compiler_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) (wrapper='moe_compile_fused.sh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_compile_wrappers.py", line 100, in test_compiler_failure_reaches_caller
+    self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
+AssertionError: 0 != 23 : 
+
+======================================================================
+FAIL: test_compiler_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) (wrapper='moe_compile_w4.sh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_compile_wrappers.py", line 100, in test_compiler_failure_reaches_caller
+    self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
+AssertionError: 0 != 23 : 
+
+======================================================================
+FAIL: test_compiler_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) (wrapper='moe_compile_legacy.sh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_compile_wrappers.py", line 100, in test_compiler_failure_reaches_caller
+    self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
+AssertionError: 0 != 23 : 
+
+======================================================================
+FAIL: test_compiler_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) (wrapper='dl_moe_compile_check.sh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_compile_wrappers.py", line 100, in test_compiler_failure_reaches_caller
+    self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
+AssertionError: 0 != 23 : nvcc exit 23
+
+
+======================================================================
+FAIL: test_disassembler_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) (wrapper='moe_compile_fused.sh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_compile_wrappers.py", line 116, in test_disassembler_failure_reaches_caller
+    self.assertEqual(result.returncode, 29, result.stdout + result.stderr)
+AssertionError: 0 != 29 : Compiling entry function 'fixture'
+
+
+======================================================================
+FAIL: test_disassembler_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) (wrapper='moe_compile_w4.sh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_compile_wrappers.py", line 116, in test_disassembler_failure_reaches_caller
+    self.assertEqual(result.returncode, 29, result.stdout + result.stderr)
+AssertionError: 0 != 29 : Compiling entry function 'fixture'
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.167s
+
+FAILED (failures=7)

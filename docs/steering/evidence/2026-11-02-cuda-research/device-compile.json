@@ -1,0 +1,37 @@
+{
+  "source_path": "muse_moe_w4a16/submission.py",
+  "source_sha256": "c7854a71ad4639ed1c0ef7ff3013a831765344bf82f27caba15f034a030e03d7",
+  "wrapper": "tools/moe_compile_fused.sh",
+  "exit_code": 0,
+  "compiler_image": "nvidia/cuda:12.8.1-devel-ubuntu24.04",
+  "image_id": "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+  "platform": "linux/arm64",
+  "flags": [
+    "-O3",
+    "-std=c++17",
+    "-gencode=arch=compute_90a,code=sm_90a",
+    "-Xptxas",
+    "-v"
+  ],
+  "scope": "Standalone owned fused source assembled and all listed variants instantiated; device only, host wrappers removed. Not the scored fork-native source.",
+  "entries": [
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_328sk_8_3_016moe_fused_kernelILi1EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_328sk_8_4_116moe_fused_kernelILi1EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_329sk_16_4_016moe_fused_kernelILi1EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_328sk_8_4_016moe_fused_kernelILi1EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_3215moe_main_kernelILi51EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_3215moe_main_kernelILi47EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_3215moe_main_kernelILi37EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_3215moe_main_kernelILi28EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_3215moe_main_kernelILi26EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_3215moe_main_kernelILi16EEEvNS_6ParamsE",
+    "_ZN41_GLOBAL__N__dbbda534_6_moe_cu_376e8b9d_3215moe_main_kernelILi0EEEvNS_6ParamsE"
+  ],
+  "entry_count": 11,
+  "sass_sha256": "5e29b564aa3e33bd0768e9bee03225792bb918a3fdbb80b59b62a23e5e63d1d9",
+  "sass_bytes": 40076324,
+  "wgmma_warnings": 0,
+  "gpu_execution": false,
+  "h200_numerical_validation": false,
+  "performance_measured": false
+}

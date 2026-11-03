@@ -32,10 +32,19 @@ cuda = (prelude + cuda + "void compile_check_uses() {\n  Params p = {};\n"
 open(f"{sys.argv[2]}/moe.cu", "w").write(cuda)
 PY
 
+keep=${KEEP:-.build/moe_compile_fused.log}
+mkdir -p "$(dirname "$keep")"
+status=0
 docker run --rm --platform linux/arm64 -v "$work:/w" nvidia/cuda:12.8.1-devel-ubuntu24.04 \
-    sh -c "nvcc -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v ${NVCC_EXTRA:-} -c /w/moe.cu \
-        -o /w/moe.o 2>&1; cuobjdump -sass /w/moe.o > /w/moe.sass 2>&1 || true" \
-    | grep -E 'error|warning|Compiling entry|registers|spill|C75' | sed -E 's/ptxas info *: //'
+    sh -ec "nvcc -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v ${NVCC_EXTRA:-} -c /w/moe.cu \
+        -o /w/moe.o; cuobjdump -sass /w/moe.o > /w/moe.sass" > "$keep" 2>&1 || status=$?
+if [ "$status" -ne 0 ]; then
+    cat "$keep"
+    exit "$status"
+fi
+grep -E 'error|warning|Compiling entry|registers|spill|C75' "$keep" \
+    | sed -E 's/ptxas info *: //' || true
+printf 'Full compiler log: %s\n' "$keep"
 if [ $# -ge 2 ]; then
     cp "$work/moe.sass" "$2"
 fi

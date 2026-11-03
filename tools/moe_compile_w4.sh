@@ -29,10 +29,19 @@ cuda = prelude + cuda + "void compile_check_uses() {\n" + "\n".join(uses) + "\n}
 open(f"{sys.argv[2]}/w4.cu", "w").write(cuda)
 PY
 
+keep=${KEEP:-.build/moe_compile_w4.log}
+mkdir -p "$(dirname "$keep")"
+status=0
 docker run --rm --platform linux/arm64 -v "$work:/w" nvidia/cuda:12.8.1-devel-ubuntu24.04 \
-    sh -c 'nvcc -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v -c /w/w4.cu \
-        -o /w/w4.o 2>&1; cuobjdump -sass /w/w4.o > /w/w4.sass 2>&1 || true' \
-    | grep -E 'error|warning|Compiling entry|registers|spill' | sed -E 's/ptxas info *: //'
+    sh -ec 'nvcc -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v -c /w/w4.cu \
+        -o /w/w4.o; cuobjdump -sass /w/w4.o > /w/w4.sass' > "$keep" 2>&1 || status=$?
+if [ "$status" -ne 0 ]; then
+    cat "$keep"
+    exit "$status"
+fi
+grep -E 'error|warning|Compiling entry|registers|spill|C75' "$keep" \
+    | sed -E 's/ptxas info *: //' || true
+printf 'Full compiler log: %s\n' "$keep"
 if [ $# -ge 2 ]; then
     cp "$work/w4.sass" "$2"
 fi

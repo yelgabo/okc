@@ -54,6 +54,17 @@ is blocked, state the blocker rather than claiming it is checked in. An explicit
 for no repository writes takes precedence. This rule does not authorize kernel changes or
 scored submissions beyond the user's existing permissions.
 
+## CUDA research reference
+
+Before selecting CUDA work from the November 2 H200 playbook, read
+[the reference index](docs/research/cuda-h200/README.md), then the relevant topic
+and application-ledger rows. Run `python3 tools/check_cuda_research.py` before
+reusing its source claims. Reconcile changed evidence before refreshing hashes.
+The complete attachment and section coverage are preserved there. These notes
+do not reopen parked experiments or change D32 ownership or submission permission.
+Compiler checks must preserve the compiler's failure status and full diagnostics;
+successful output filtering is not build evidence.
+
 ## Research and execution principles
 
 Apply these principles when choosing work, reviewing results and handing off. Use the latest steering report for current priorities and reuse current dated evidence instead of repeating completed investigations.

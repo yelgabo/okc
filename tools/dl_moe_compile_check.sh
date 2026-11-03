@@ -25,14 +25,22 @@ PY
 mkdir -p "$work/stub/c10/cuda/impl"
 echo "#pragma once" > "$work/stub/c10/cuda/impl/cuda_cmake_macros.h"
 
-docker run --rm --platform linux/arm64 -v "$work:/w" okc-torch-headers sh -c '
+keep=${KEEP:-.build/dl_moe_compile_check.log}
+mkdir -p "$(dirname "$keep")"
+status=0
+docker run --rm --platform linux/arm64 -v "$work:/w" okc-torch-headers sh -ec '
 inc=$(python3 -c "import torch.utils.cpp_extension as c; print(\" \".join(\"-I\" + p for p in c.include_paths()))")
 inc="$inc -I/w/stub -I$(python3 -c "import sysconfig; print(sysconfig.get_paths()[\"include\"])")"
 nvcc -O3 -std=c++20 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v \
     -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ \
     -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr \
     -DTORCH_EXTENSION_NAME=dl_moe_check -DTORCH_API_INCLUDE_EXTENSION_H -D_GLIBCXX_USE_CXX11_ABI=1 \
-    -Xcompiler -fPIC $inc -c /w/ext.cu -o /w/ext.o > /w/nvcc.txt 2>&1
-echo "nvcc exit $?"
-grep -E "error|Compiling entry|registers|spill" /w/nvcc.txt | grep -v "#3189-D" \
-    | sed -E "s/ptxas info *: //"'
+    -Xcompiler -fPIC $inc -c /w/ext.cu -o /w/ext.o
+' > "$keep" 2>&1 || status=$?
+if [ "$status" -ne 0 ]; then
+    cat "$keep"
+    exit "$status"
+fi
+grep -E 'error|warning|Compiling entry|registers|spill|C75' "$keep" \
+    | sed -E 's/ptxas info *: //' || true
+printf 'Full compiler log: %s\n' "$keep"

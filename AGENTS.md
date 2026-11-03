@@ -70,6 +70,17 @@ The 2026-10-28 incident and reproducible before/after evaluation are recorded in
 `docs/file-discovery-eval/report.md`. This rule must remain in the root instruction file
 so future sessions load the correction without needing the original conversation.
 
+## CUDA research reference
+
+Before selecting CUDA work from the November 2 H200 playbook, read
+[the reference index](docs/research/cuda-h200/README.md), then the relevant topic
+and application-ledger rows. Run `python3 tools/check_cuda_research.py` before
+reusing its source claims. Reconcile changed evidence before refreshing hashes.
+The complete attachment and section coverage are preserved there. These notes
+do not reopen parked experiments or change D32 ownership or submission permission.
+Compiler checks must preserve the compiler's failure status and full diagnostics;
+successful output filtering is not build evidence.
+
 ## Research and execution principles
 
 Apply these principles when choosing work, reviewing results and handing off. Use the latest steering report for current priorities and reuse current dated evidence instead of repeating completed investigations.

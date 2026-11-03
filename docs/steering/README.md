@@ -16,6 +16,16 @@ Earlier ownership statements below are retained as history and do not override D
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing correctness requirements and public-submission permissions remain in effect. A report is not an additional GPU dispatch.
 
+## H200 playbook reference and validation repair
+
+[November 2 research intake and code application](2026-11-02-cuda-research-application.md)
+preserves the complete upload and maps every section and recommendation to
+[focused reference notes](../research/cuda-h200/README.md), selected source and
+earlier experiments. Five MoE compiler wrappers now propagate failures and retain
+logs. CPU regressions and a local CUDA 12.8.1 device build were checked. No runtime
+kernel, target-performance claim, GPU dispatch or D32 ownership change is included.
+Root instructions load the reference index for future CUDA work.
+
 ## D32 attention source and direct measurement
 
 D32-04 is read and execution continues directly. The [score-lookahead experiment](decode32/2026-11-02-01-full-decode-attention-experiment.md)
@@ -69,6 +79,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [H200 research intake and application](2026-11-02-cuda-research-application.md) | ba9/c7 source; complete attachment; CPU regressions and local CUDA 12.8.1 build | Eight reference documents, full section/recommendation coverage, compiler-status repair; no runtime optimization or target gain claimed |
 | [D32 attention experiment](decode32/2026-11-02-01-full-decode-attention-experiment.md) | ba9 control; 5a580c7a candidate; six CPU tests and fixed device builds | Direct private measurement under D32-04; target results pending |
 | [D32-04: research plans, worker executes](decode32/2026-11-02-04-research-plan-worker-execute.md) | a3ba392c; user's medium-effort instruction; existing L1 score-carry source brief | Fixed candidate design, focused checks and direct private measurement; no repeated review/planning or handoffs; correctness retained |
 | [D32-02: end-to-end ownership](decode32/2026-11-02-02-end-to-end-ownership.md) | 28346bf; latest user instruction; publication reconciled with65b94dcc | Batch32-only implementation through private checks and integration; no recurring handoffs; rest of project unchanged |
