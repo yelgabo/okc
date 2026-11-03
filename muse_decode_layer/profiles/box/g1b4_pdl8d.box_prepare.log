@@ -1,0 +1,33 @@
+START g1b4_pdl8d Tue Nov  3 21:13:23 UTC 2026
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BOX import 0.6 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.47 on 71.20 us, median paired saving 6.43, wins 9/9
+PDL8_STRESS T=1 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['1.31e-03', '1.69e-03', '0.00e+00'] (int mismatches 0), on ['1.31e-03', '1.69e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=1 full: off 84.32 on 77.18 us, median paired saving 7.23, wins 9/9
+PDL8_AB T=16 sliding: off 172.70 on 168.35 us, median paired saving 4.22, wins 9/9
+PDL8_STRESS T=16 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['4.03e-03', '5.91e-03', '0.00e+00'] (int mismatches 0), on ['4.03e-03', '5.91e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=16 full: off 229.25 on 224.19 us, median paired saving 4.80, wins 9/9
+PDL8_AB T=32 sliding: off 225.18 on 221.12 us, median paired saving 4.13, wins 9/9
+PDL8_AB T=32 full: off 360.29 on 355.87 us, median paired saving 4.77, wins 9/9
+PDL8_STRESS T=32 full: 2000 replays per arm, max rel diff to the PDL-off output off ['8.72e-03', '5.93e-03', '0.00e+00'] (int mismatches 0), on ['8.72e-03', '5.93e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8D_OFF T=8 full: 2000 replays, max rel diff to the PDL-off output ['7.35e-03', '4.91e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_OFF T=8 sliding: 2000 replays, max rel diff to the PDL-off output ['6.99e-03', '5.09e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_STRESS T=8 full all edges=attn+o+b1+pool+route+fin: on ['7.35e-03', '4.91e-03', '0.00e+00'] (int mismatches 0) against off ['7.35e-03', '4.91e-03', '0.00e+00']: clean (0.4 s)
+PDL8D T=8 chosen edges attn+o+b1+pool+route+fin; left serialized none
+PDL8D_OFF T=8 full repeat: ['7.35e-03', '4.91e-03', '0.00e+00'] (int mismatches 0), informational
+PDL8D_STRESS T=8 full final edges=attn+o+b1+pool+route+fin: on ['7.35e-03', '4.91e-03', '0.00e+00'] (int mismatches 0) against off ['7.35e-03', '4.91e-03', '0.00e+00']: clean (0.4 s)
+PDL8D_STRESS T=8 sliding final edges=attn+o+b1+pool+route+fin: on ['6.99e-03', '6.39e-03', '0.00e+00'] (int mismatches 0) against off ['6.99e-03', '5.09e-03', '0.00e+00']: DRIFT (0.4 s)
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin: off 119.90 on 115.26 us, median paired saving 4.54, wins 9/9
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin: off 134.78 on 129.25 us, median paired saving 5.38, wins 9/9
+PDL8D T=8 off: final stress DRIFT, weighted saving 4.76 us, edges attn+o+b1+pool+route+fin; stress times ['0.4', '0.4', '0.4'] s
+PDL8 weighted paired saving T=1: 6.64 us
+PDL8 weighted paired saving T=16: 4.37 us
+PDL8 weighted paired saving T=32: 4.29 us
+PDL8 six-load estimate +2.24% (enabled loads only); enabled {1: True, 8: False, 16: True, 32: True}
+BOX prepare 13.9 s; pdl8_on {1: True, 8: False, 16: True, 32: True} edges None
+EXIT g1b4_pdl8d rc=0 Tue Nov  3 21:13:40 UTC 2026
