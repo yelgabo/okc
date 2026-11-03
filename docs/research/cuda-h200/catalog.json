@@ -497,7 +497,7 @@
     },
     {
       "path": "docs/ruled-out.md",
-      "sha256": "bef11d3efb8f6194f555b0bc3c8d9e52422eb310da74fcef3e5fe9c3788d2ce5",
+      "sha256": "a96c876e67c41c5ddb8d9f010c8eb55433b696450b54374bc4e12cb97d99d85e",
       "normalize_lf": true,
       "notes": [
         "pipelines.md",
@@ -1113,6 +1113,7 @@
     "November 2: appended the compiler-only stable-SS-pointer identity result; prior experiment rows and their conclusions are unchanged.",
     "November 2 terminal: appended exact scale-only matched failure and corrected the scope of initial grouped compiler closures. Their equality condition skipped a first-stage flush at active FCI4; no grouped GPU source had run. Earlier research claims retain their dated scope.",
     "Concurrent D32 diagnostic closure appended during merge: FP8 isfinite setup failure is scoped to its exact diagnostic; preserved alongside optimizer closures. No CUDA research claim changes.",
-    "Part2 experiment digest now links the scale-only terminal failure, identical pointer code, caught grouping schedule defect and corrected pending combined test. No GPU speedup or promoted default is claimed."
+    "Part2 experiment digest now links the scale-only terminal failure, identical pointer code, caught grouping schedule defect and corrected pending combined test. No GPU speedup or promoted default is claimed.",
+    "Concurrent D32 job62a4f6b27ed74b50 natural-routing diagnostic closure reviewed and preserved. Its receipt does not identify the differing arms/load. This does not change MoE evidence or research conclusions."
   ]
 }
