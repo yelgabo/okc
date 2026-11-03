@@ -1,0 +1,6 @@
+test_failure_stays_failed_and_wrong_identity_is_rejected (tools.test_gopt_ws_split_read.PartialReader) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 7.937s
+
+OK

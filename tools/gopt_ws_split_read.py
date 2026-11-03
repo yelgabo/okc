@@ -2,6 +2,8 @@
 import argparse
 import base64
 import json
+import math
+import re
 from pathlib import Path
 import zlib
 
@@ -56,15 +58,6 @@ def read(folder, job):
     return result
 
 
-if __name__ == '__main__':
-    p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--folder',type=Path,required=True)
-    p.add_argument('--job',required=True)
-    a=p.parse_args()
-    r=read(a.folder,a.job)
-    print(json.dumps({key:r[key] for key in ('job','target_qualified','official_score_us','decision')},indent=2))
-
-
 def partial(folder, job):
     receipt = original.strict_json((folder/'status-wait.raw.json').read_text())
     manifest = original.strict_json((folder/'paired.manifest.json').read_text())
@@ -74,6 +67,9 @@ def partial(folder, job):
                      and receipt['mode']=='check' and receipt['board']=='muse_moe_w4a16'
                      and receipt['status']=='done', 'own terminal failure')
     original.require(sha(payload)==accepted['source_sha256']==manifest['source_sha256']==build()[1]['source_sha256'], 'partial source identity')
+    content = receipt['content_hash']
+    original.require(re.fullmatch('[a-f0-9]{64}', content) is not None and receipt['payload_ref']=='muse_moe_w4a16/'+content+'.py', 'server payload association')
+    original.require(job in Path(receipt['output']['log']).name, 'owning partial log')
     result = receipt['result']
     original.require(result['passed'] is False and result['returncode']!=0 and result['score_us'] is None, 'retain failed result')
     log = result['log_tail']
@@ -82,8 +78,33 @@ def partial(folder, job):
     data = original.strict_json(zlib.decompress(base64.b64decode(lines[0],validate=True)).decode())
     original.require(data['runtime_id']==manifest['runtime_id'] and data['status']=='FAILED_PARTIAL_NOT_QUALIFIED', 'failed capsule identity')
     original.require(len(data['rows'])<=36 and len({tuple(row[:3]) for row in data['rows']})==len(data['rows']), 'retained partial coverage')
+    env = {}
+    exec(contract_source(),env)
+    expected = {(seed,tokens,dist) for seed in env['BANKS'] for tokens in env['LOADS'] for dist in env['DISTRIBUTIONS']}
+    for row in data['rows']:
+        original.require(len(row)==7 and tuple(row[:3]) in expected and len(row[3])==4
+                         and len(row[4])==3 and len(row[5])==4 and len(row[6])==2, 'partial row schema')
+        for value in row[3]+row[5]: original.positive(value)
+        original.require(all(type(x)in(int,float) and math.isfinite(x) and x>=0 for x in row[6]), 'partial nulls')
+        total,occupied,maximum=row[4]
+        original.require(all(type(x)is int for x in row[4]) and 1<=occupied<=32
+                         and 1<=maximum<=row[1] and maximum<=total<=row[1]*8, 'partial census')
     report = dict(job=job,qualified=False,status='FAILED_PARTIAL_NOT_QUALIFIED',report=data,
                   receipt_returncode=result['returncode'],receipt_error=result['error'],
                   flags=result['flags'],source_sha256=manifest['source_sha256'])
     (folder/'partial-analysis.json').write_text(json.dumps(report,indent=2)+'\n')
     return report
+
+
+if __name__ == '__main__':
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--folder',type=Path,required=True)
+    p.add_argument('--job',required=True)
+    p.add_argument('--partial',action='store_true')
+    a=p.parse_args()
+    if a.partial:
+        r=partial(a.folder,a.job)
+        print(json.dumps({key:r[key] for key in ('job','status','receipt_returncode','receipt_error')},indent=2))
+    else:
+        r=read(a.folder,a.job)
+        print(json.dumps({key:r[key] for key in ('job','target_qualified','official_score_us','decision')},indent=2))
