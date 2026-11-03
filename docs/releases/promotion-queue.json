@@ -654,7 +654,12 @@
       "release_review_required": true,
       "lead_override_evidence_commit": "3c5b677e",
       "additional_user_exception_evidence": null,
-      "repeat_base_owner_report": "Lead records existing ignored repeat base changed to g1b4_rs; root did not inspect or modify helper."
+      "repeat_base_owner_report": "Lead records existing ignored repeat base changed to g1b4_rs; root did not inspect or modify helper.",
+      "newer_prospective_authorization": {
+        "commit": "1c332a23",
+        "scope": "User yes to option2: PDL8h on RS with build-time enable/coarse guard, box A/B then one private check; lead submits on its newly registered keep. Does not retroactively pass prior private confirmation.",
+        "keep": "six-load<10297.4us;allT on;verify1<109.7/122.6;decode16<127.1/211.4"
+      }
     }
   ]
 }
