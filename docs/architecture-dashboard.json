@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-03T00:23:00-07:00",
-  "snapshot": "c2187b69",
+  "reviewed_at": "2026-11-03T01:23:00-07:00",
+  "snapshot": "fa762950",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public layer607 and standalone4aa remain retained. Direct input, A+C full-K short ownership and factorized storage all miss matched gates. Factorized private5698.508us is a disclosed cross-job point, not a qualified replacement."
+    "note": "Public layer607 unchanged. Tiny observer is valid diagnostic evidence, not a gain. Cluster merge loses; BF16 short ramp and clean Factor-Y confirmation miss gates. Public MoE2821 is5737.989µs, physical source correspondence unverified here. Two separate Tiny balanced-range variants also miss cross-run endpoint gates."
   },
   "families": [
     {
@@ -21,10 +21,10 @@
       "label": "Combined layer gain; isolated A unresolved",
       "metric": "1.0052–1.0106×",
       "unit": "M1 + mode 51 paired layer ratios, two runs",
-      "summary": "Full-K row-owned T8/T16 passes correctness but loses all six matched groups. Original fused WS/NS3 retained. Historical combined layer gains remain scoped.",
+      "summary": "Full-K T8/T16 ownership loses. Tiny/Tiny2 observer passes its frozen diagnostic gates; per-CTA waits are not speedups. Original fused WS/NS3 retained. Separate16-warp/balanced and balanced-only short variants also miss cross-run endpoint gates.",
       "layer": "Earlier owned layer tests combine M1 and mode 51. The current retained layer belongs to G.",
       "pending": [],
-      "limit": "A+C changes ownership, packing and staging together. No isolated A/C effect or whole-family rejection; no qualified next General task.",
+      "limit": "A+C changes remain combined. Distributed A-ready publication is target-untested at this snapshot and is owned by the existing MoE worker; General export audit complete.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -131,11 +131,13 @@
       "label": "Public retained; ten component gates missed",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "Direct-input staging loses. A+C full-K short ownership loses. Factorized storage has a lower private official point but fails all six matched groups with drift.",
-      "layer": "Public layer607 unchanged2.126083×. Same approved standalone source5df257af passes public5/6/6 at2.323225×, CI2.288377–2.358073.",
+      "summary": "Ten matched component gates remain missed. The Tiny observer is valid diagnostic evidence, with no algorithm gain. Clean Factor-Y single-arm release confirmation fails its separate condition.",
+      "layer": "Public layer607 remains2.126083×. Public standalone MoE2821 is5737.988910µs/2.3438× in the08:11UTC board snapshot; physical source correspondence unverified here.",
       "pending": [],
-      "evaluation_pending": [],
-      "limit": "No new layer gain or qualified replacement. Prepared-gamma plus factorized storage is source work only; the lower private receipt has an explicit release disposition.",
+      "evaluation_pending": [
+        "MOE-SHORT-READY-01 distributed A-ready flags, target-untested"
+      ],
+      "limit": "No isolated family or whole-layer gain. Prepared-gamma/storage is parked under final-day short-load scope. Distributed A-ready flags are source-qualified, target-untested.",
       "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
@@ -196,9 +198,9 @@
       "summary": "bd5776bdfcab42a7 passes13/12/12. Changed sliding+3.818µs (+2.42%); unchanged full-12.148µs (-3.83%) across separate runs. No causal gain or routing repair established."
     },
     {
-      "name": "MoE/BF16-first research refill",
-      "label": "General full-K check closed; distinct refill needed",
-      "summary": "7f10243c98e74746 passes correctness and loses all six groups. General awaits a distinct short-path mechanism. MoE coupled prepared-gamma/storage work is source-only; BF16 remains independently assigned."
+      "name": "Final-day short-load scope",
+      "label": "Tiny source-qualified design; target-untested",
+      "summary": "T1/T8 only, T16 where the same change applies. Prepared-gamma/storage and BF16 large-M engineering parked. General independent export audit complete; existing owners retain implementation and jobs."
     },
     {
       "name": "Local compiler-only closures",
@@ -217,8 +219,8 @@
     },
     {
       "name": "Standalone MoE base promotion",
-      "label": "Public5/6/6 • exact source verified",
-      "summary": "Same5df257af private64f9 is5762.134395us; public4aa is5788.720720us/2.323225×, CI2.288377–2.358073. Public elapsed4.6278% lower cross-run. Layer unchanged. The same c7 engine already existed in the layer diagram; packaging/release adds no isolated kernel gain."
+      "label": "New public numeric draw; source correspondence unverified",
+      "summary": "Public2821:5737.988910µs/2.3438× at08:11UTC. Prior source-bound4aa/5df remains historical5788.720720µs. No new algorithm, isolated-family or layer gain inferred.16private leads have explicit promotion dispositions."
     },
     {
       "name": "G group16 pair lookup and lossless packing",
@@ -237,8 +239,28 @@
     },
     {
       "name": "Factorized output private point",
-      "label": "Lower cross-job score; matched gate fails",
-      "summary": "Provisional local7479372115c64702:5698.508us/2.360004×,95%CI2.324604–2.395404. Versus public5788.721us:1.558% lower across jobs, but0/6matched groups and2drifts. Explicit stopped/disclosed disposition; no public approval."
+      "label": "Published lower point; clean confirmation failed",
+      "summary": "7479candidate2:5698.508243µs/2.360004×,95%CI2.324604–2.395404,0/6matched groups. Clean9da6:5767.982645µs/2.331578×,95%CI2.296604–2.366551. Misses≤5760 and2%cell condition; no retry or delegate public action."
+    },
+    {
+      "name": "Tiny/Tiny2 native observer",
+      "label": "Valid diagnostic; no speedup established",
+      "summary": "f401 passes5/6/6 and frozen intrusion gates. General reproduces receipt and audits both T1/T8exports. Activation-ready waits median4.60/2.43µs per CTA; causal savings unresolved. Official5726.051478µs is unchanged control0, with explicit disposition."
+    },
+    {
+      "name": "Attention cluster merge mode136",
+      "label": "Measured loss; outside isolated E attribution",
+      "summary": "c1becf5a66274d37: T1sliding9.18→10.50µs, T8sliding10.94→13.54µs cold.3inputs×150rounds, all arms19/19. Exact8CTAcluster stopped, no candidate-only confirmation. Warm/cold results do not isolate causes."
+    },
+    {
+      "name": "BF16 short-load ramp",
+      "label": "Correctness pass; endpoint gate missed",
+      "summary": "793602020fd64ce9:9/30/30pass. O1changed5.036235→5.061534µs across jobs, +0.025299µs/+0.502%. Official1.524861× versus C2public1.527806×, overlapping CIs. No production change; other29picks unchanged."
+    },
+    {
+      "name": "Separate Tiny timeline and balanced-range lane",
+      "label": "Diagnostic plus two cross-run gate failures; closed",
+      "summary": "1912 dormant-instrument timeline is distinct from f401 and lacks matched intrusion qualification. ab54144f6c4d4727: T1/T8 +4.118/+3.990 µs versus public4aa. b45cce36b47f4e81: T1/T8 +0.998/+2.755 µs versus public4aa. All pass 5/6/6; no candidate ships. No isolated cause or ceiling established."
     }
   ]
 }

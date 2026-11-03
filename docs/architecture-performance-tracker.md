@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-03 00:23 MST. Evidence snapshot: `c2187b69`.
+Last review: 2026-11-03 01:23 MST. Evidence snapshot: `fa762950`.
 
 **Queue checkpoint:** the November 1 qualifier-repair backlog is historical. Use the [current shared owner queue](steering/README.md) and the dated review below for current tasks and outcomes. The old [backlog reconciliation](../archive/docs/steering/2026-11-01-immediate-backlog.md) is retained as history. No new GPU campaign is started by this tracker update.
 
@@ -20,13 +20,190 @@ named control, not changes in aggregate score. Families overlap; their gains can
 
 | Family | Current result | What has actually been measured | Visibility gap |
 |---|---|---|---|
-| A. Hybrid persistent/legacy MoE | Historical combined gain; new A+C skinny replacement loses | Full-K row-owned T8/T16 passes correctness and fails all six matched groups. Normal T8/T16: +25.843/+56.779 µs. | Original fused WS/NS3 retained; no isolated A or C effect. [Current evidence](#november-3-review-at-0023-vancouver-time). |
+| A. Hybrid persistent/legacy MoE | Historical combined gain; new A+C skinny replacement loses | Full-K row-owned T8/T16 passes correctness and fails all six matched groups. New Tiny observer passes diagnostic gates, with no treatment gain. | Original fused WS/NS3 retained; distributed ready flags remain target-untested. [Current evidence](#november-3-review-at-0123-vancouver-time). |
 | B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled 256 case. New grouped-contiguous Humming proposal stopped before measurement. |
 | C. Owner-completes output tiles | Historical wins; new A+C full-K short path loses | Full-K 64-row output ownership at T8/T16 is now tested with changed packing and staging. All 12 affected rows regress. Prior C+D queue loss remains scoped. | No isolated C rejection or layer gain. [Current evidence](#november-3-review-at-0023-vancouver-time). |
 | D. Dependency-aware scheduling | Historical wins; current C+D queue candidate loses | New whole-unit B claiming inside G fails all6 matched groups; old mode23 wins do not transfer. Phase-A and K=0 losses remain scoped. | Full ready-only queue remains untested. No isolated D effect or queue rescue is established. [Current result](#november-2-review-at-2200-vancouver-time). |
 | E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Lookahead and observer closures stand. Split-copy reduction is stopped. Identity4a2a79bdac04499a fails routing/coverage with27/36 partial rows, not a causal treatment loss. [Current evidence](#november-2-review-at-2200-vancouver-time). |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Public layer and standalone retained; ten component gates missed | Direct-input staging and A+C row ownership lose. Factorized output gives a lower official private point but fails its matched gate with drift. | No new layer gain or qualified replacement. Prepared-gamma combined alternative is source work only. [Current evidence](#november-3-review-at-0023-vancouver-time). |
+| G. Attributed keell0renz layer fork | Public layer and standalone retained; ten component gates missed | Direct-input staging and A+C row ownership lose. Factorized output gives a lower official private point but fails its matched gate with drift. | No new layer gain or qualified replacement. Clean Factor-Y release confirmation fails; valid Tiny observer supports a target-untested publication design. [Current evidence](#november-3-review-at-0123-vancouver-time). |
+
+## November 3 review at 01:23 Vancouver time
+
+The short-load observer is usable, but it establishes no optimization gain. The attention eight-CTA cluster loses on both target cells. BF16's selected O1 ramp has no qualifying endpoint gain. Factor-Y's clean single-arm confirmation fails its registered release condition. Two further Tiny variants miss cross-run endpoint gates, with no isolated causal loss. The public layer remains607 at 2.126083×. The newer public MoE number is a cross-run observation with physical source correspondence unverified here, not an isolated architectural improvement.
+
+### Tiny/Tiny2 observer: valid diagnostic, no treatment gain
+
+MOE-TINY-TIMELINE-01 `f4012a0531af4013` is terminal, source publication 05e3e875, physical payload 106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81, observer helper 8324f079 and runtimec80be1d4. It measures the G-hosted A-type skinny path without changing its arithmetic. Unchanged control 0 is the official judged arm. PASS 5 tests/6 benchmarks/6 profiles, return0/no flags;42 private observations,24 captures,768 cold timings,6 restores and cleanup pass. Preparation248.575311 s, worst paired global/row error0.000177868060. The 8634-character capsule fits12000 without compaction. Finished2026-11-03 07:52:13UTC. [Exact source, method and terminal evidence](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/2026-11-02-moe-tiny-timeline.md), [receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/evidence/2026-11-02-moe-tiny-timeline/status-wait.raw.json).
+
+General independently reproduced the strict reader on an ignored copy and checked both actual exports. T1/T8 include all 132 CTA summaries,1536/7680 total A+B units and the full unit streams for two sampled thread0 finishers per load. All six frozen observer-cost rows recompute exactly. This does not independently rerun raw native buffers or recover the other 130 CTA unit streams. Official unchanged control 0 is5726.051478 µs/2.348651606×,95%CI[2.313421832,2.383881380],100 SGLang pairs per cell. That CI describes the unchanged official arm versus SGLang. [Independent execution and hashes](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/2026-11-03-general-tiny-timeline-support.md#completed-target-export-audit-november-3-0116-vancouver-time).
+
+Same-process cold component medians, one EP8 normal bank 1102031, independent duplicate controls/observers. T1 has2 local experts/2 contributions; T8 has10 experts/13 contributions. Each placement/cell uses32 cold timings. Other four paths are unchanged. Positive differences are observer overhead, not algorithm losses. No paired CI is recorded.
+
+| Tokens | Control µs | Observer µs | Delta µs | Delta % | Max duplicate difference µs | Frozen cost gate |
+|---|---|---|---|---|---|---|
+| 1 | 31.072000 | 31.808000 | +0.736000 | +2.369% | 0.160001 | Pass |
+| 8 | 89.016000 | 89.576000 | +0.560001 | +0.629% | 0.495996 | Pass |
+| 16 | 124.391999 | 124.216000 | -0.175999 | -0.141% | 0.944003 | Pass |
+| 32 | 147.367999 | 148.056004 | +0.688005 | +0.467% | 1.071997 | Pass |
+| 128 | 200.688001 | 201.943997 | +1.255997 | +0.626% | 0.575997 | Pass |
+| 256 | 230.632000 | 230.487999 | -0.144001 | -0.062% | 0.560008 | Pass |
+
+
+The extra single cold trace at each short load gives per-CTA activation-ready waits median/max4.600/5.950 µs at T1 and2.430/4.380 µs at T8. Sampled thread0 trace spans29.024/85.248 µs; grid release28.416/84.512 µs; final sampled tails0.608/0.736 µs. For retainedT1 CTA2, A compute retirement16.22 µs, helper retirement20.51 µs and activation wait16.76–21.18 µs place a dependency wait across helper completion/publication. They leave helper math, store drain, atomic aggregation and scheduling unresolved. Unit compute includes partial-buffer/barrier waits; ring-ready is not TMA issue; B-end/finish are thread0 sample points. Overlapping CTA/phase intervals cannot be added into a causal saving. No whole-layer timing attribution follows.
+
+Current owner plan is MOE-SHORT-READY-01, distributed per-CTA A-ready flags with unchanged math, fences, ring and final barrier. It is a dependency-publication design inside skinny A/G, not a ready-job scheduler establishing family D. At this snapshot no candidate target job exists. The MoE owner retains implementation and one prospective matched complete-call gate, consistent≥2 µs at one short cell across every bank/distribution and all four crosses, beyond2×duplicate noise, no affected regression and unchanged-load drift guards. General's support audit is complete; it creates no second job or poller. [Source-qualified next design and frozen gates](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/2026-11-03-moe-short-ready-flags.md).
+
+### Context: attention cluster merge loses, separate from family E
+
+Private `c1becf5a66274d37`, source 49d778b5, benchSHAee7d00c8316694401f00b8187d74cfee050af097a63a2be9c2322ccba3b33019, tests mode136. One8-CTA cluster per KV head replaces workspace/ticket/cooperative merging with DSM merge. Only batch1 sliding q_len1 andq_len8 change, controls mode13/splits32 and mode15/splits33. Three held-out inputs, seed311201,150 cold rounds each and warm measurements; ctrl/cl/independent ctrl2 null. All arms19/19ABCHECK and workspace checks pass. Official unchanged control passes16/12/12 at 1448.391552 µs/2.600332759×,95%CI[2.561327768,2.639337751],60 SGLang pairs/cell. It is not the cluster's official score. Finished2026-11-03 08:04:44UTC. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_attention_decode/profiles/clmerge.c1becf5a66274d37.json), [full paired log](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_attention_decode/profiles/clmerge.c1becf5a66274d37.log), [registration, decision and stop](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/runs-attention.md).
+
+The table subtracts displayed pooled medians, which are rounded to0.01 µs. The log's separately rounded delta fields report T1+1.31/+1.53 µs cold/warm and T8+2.59/+2.46 µs; subtracting displayed medians gives the nearby values below. No paired CI is recorded. All other cells use unchanged code. Individual-input null drift reaches about0.45 µs at T8, so a pooled0.13 µs null is not a universal bound.
+
+| Tokens | Attention | Cache | Control µs | Cluster µs | Delta µs | Delta % | Displayed null µs |
+|---|---|---|---|---|---|---|---|
+| 1 | sliding | cold | 9.18 | 10.50 | +1.32 | +14.379% | -0.03 |
+| 1 | sliding | warm | 4.78 | 6.30 | +1.52 | +31.799% | -0.01 |
+| 1 | full | cold | 17.06 | 16.90 | -0.16 | -0.938% | +0.00 |
+| 1 | full | warm | 11.45 | 11.15 | -0.30 | -2.620% | -0.09 |
+| 16 | sliding | cold | 12.93 | 12.86 | -0.07 | -0.541% | +0.00 |
+| 16 | sliding | warm | 7.60 | 7.29 | -0.31 | -4.079% | -0.21 |
+| 16 | full | cold | 97.73 | 97.66 | -0.07 | -0.072% | -0.03 |
+| 16 | full | warm | 84.64 | 84.48 | -0.16 | -0.189% | -0.06 |
+| 32 | sliding | cold | 15.62 | 15.58 | -0.04 | -0.256% | -0.04 |
+| 32 | sliding | warm | 9.56 | 9.47 | -0.09 | -0.941% | +0.07 |
+| 32 | full | cold | 173.66 | 173.82 | +0.16 | +0.092% | +0.10 |
+| 32 | full | warm | 161.46 | 161.34 | -0.12 | -0.074% | -0.03 |
+| 8 | sliding | cold | 10.94 | 13.54 | +2.60 | +23.766% | -0.12 |
+| 8 | sliding | warm | 6.83 | 9.29 | +2.46 | +36.018% | +0.04 |
+| 8 | full | cold | 19.04 | 19.10 | +0.06 | +0.315% | +0.10 |
+| 8 | full | warm | 14.53 | 14.65 | +0.12 | +0.826% | +0.08 |
+| 128 | sliding | cold | 15.68 | 15.65 | -0.03 | -0.191% | +0.03 |
+| 128 | sliding | warm | 11.22 | 11.23 | +0.01 | +0.089% | -0.01 |
+| 128 | full | cold | 110.91 | 111.36 | +0.45 | +0.406% | +0.07 |
+| 128 | full | warm | 101.49 | 101.89 | +0.40 | +0.394% | +0.35 |
+| 256 | sliding | cold | 19.87 | 20.03 | +0.16 | +0.805% | +0.03 |
+| 256 | sliding | warm | 15.21 | 15.18 | -0.03 | -0.197% | -0.06 |
+| 256 | full | cold | 188.90 | 189.31 | +0.41 | +0.217% | -0.13 |
+| 256 | full | warm | 191.33 | 191.36 | +0.03 | +0.016% | +0.16 |
+
+
+Both changed cells fail the frozen≥0.5 µs cold saving on all inputs beyond the null. Stop this exact8-CTA cluster; no second check or promotion. The candidate-only official/fresh2000-input stress stage was conditional and did not run. Similar warm/cold losses do not isolate launch, barrier or16-SM pull costs, and a losing replacement does not bound removable merge time. This is an attention merge experiment, outside the specific producer-consumer family E attribution and outside MoE family C. HistoricalE conclusions remain unchanged.
+
+### Context: BF16 short-load ramp misses endpoint gate
+
+Private `793602020fd64ce9`, sourcea4699e78, physicalSHA81ac961719f9a0d61224898246625a9abeaf47ac6f41d6fb8d5d355552347183, `muse_bf16_proj/experiments/ramp_c2.py`, passes9 tests/30 benchmarks/30 profiles, return0/no flags, preparation 90.810528 s. Finished2026-11-03 07:57:23UTC. Its24-repetition same-process cold tuner selects O at M1 cgemv_r16c2,256 CTAs×544 threads, replacing4096 CTAs×96 threads. Other final picks remain C2. Local tuning~9.5→9.1 µs is not the official endpoint. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.json), [source](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_bf16_proj/experiments/ramp_c2.py), [tuner log](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.log).
+
+Official candidate3168.026870 µs/1.524860804×,95%CI[1.501987892,1.547733716], versus public C2 `9eba96894ee1402e`3161.918773 µs/1.527806483×,CI[1.504889386,1.550723580]. Each official cell has60 SGLang pairs; the comparison between these jobs uses different inputs and has no matched treatment CI. Only selected O1 changes. It is5.036235→5.061534 µs,+0.025299 µs/+0.502%. The remaining cells below are cross-run drift observations, including explicitM128/M256 coverage. They do not isolate causal gains/losses. [C2 control receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_bf16_proj/profiles/scored.9eba96894ee1402e.json).
+
+| M / tokens | Projection | C2 µs | Ramp µs | Delta µs | Delta % | Scope |
+|---|---|---|---|---|---|---|
+| 1 | qkv_gate | 9.058268 | 8.967388 | -0.090880 | -1.003% | Unchanged pick |
+| 1 | o | 5.036235 | 5.061534 | +0.025299 | +0.502% | Changed pick |
+| 1 | pooler | 13.515942 | 13.467934 | -0.048008 | -0.355% | Unchanged pick |
+| 1 | unpooler | 3.734385 | 3.652257 | -0.082128 | -2.199% | Unchanged pick |
+| 1 | router | 3.837787 | 3.801418 | -0.036368 | -0.948% | Unchanged pick |
+| 16 | qkv_gate | 9.740726 | 10.203086 | +0.462360 | +4.747% | Unchanged pick |
+| 16 | o | 5.366495 | 5.697219 | +0.330724 | +6.163% | Unchanged pick |
+| 16 | pooler | 13.800228 | 14.570623 | +0.770395 | +5.582% | Unchanged pick |
+| 16 | unpooler | 13.557459 | 13.826205 | +0.268746 | +1.982% | Unchanged pick |
+| 16 | router | 4.449168 | 4.899467 | +0.450299 | +10.121% | Unchanged pick |
+| 32 | qkv_gate | 10.556945 | 10.996629 | +0.439683 | +4.165% | Unchanged pick |
+| 32 | o | 5.869364 | 6.093928 | +0.224564 | +3.826% | Unchanged pick |
+| 32 | pooler | 15.083591 | 15.434092 | +0.350501 | +2.324% | Unchanged pick |
+| 32 | unpooler | 14.720666 | 14.655995 | -0.064672 | -0.439% | Unchanged pick |
+| 32 | router | 5.490421 | 5.314434 | -0.175988 | -3.205% | Unchanged pick |
+| 8 | qkv_gate | 9.770656 | 9.725190 | -0.045465 | -0.465% | Unchanged pick |
+| 8 | o | 5.476093 | 5.250497 | -0.225596 | -4.120% | Unchanged pick |
+| 8 | pooler | 13.418793 | 12.915384 | -0.503409 | -3.752% | Unchanged pick |
+| 8 | unpooler | 4.534868 | 4.359039 | -0.175829 | -3.877% | Unchanged pick |
+| 8 | router | 4.467660 | 3.749464 | -0.718196 | -16.075% | Unchanged pick |
+| 128 | qkv_gate | 14.664393 | 14.589870 | -0.074523 | -0.508% | Unchanged pick |
+| 128 | o | 6.811780 | 6.643983 | -0.167797 | -2.463% | Unchanged pick |
+| 128 | pooler | 19.994115 | 21.438719 | +1.444604 | +7.225% | Unchanged pick |
+| 128 | unpooler | 18.986628 | 18.948359 | -0.038269 | -0.202% | Unchanged pick |
+| 128 | router | 6.638868 | 6.871399 | +0.232531 | +3.503% | Unchanged pick |
+| 256 | qkv_gate | 16.941294 | 17.793060 | +0.851766 | +5.028% | Unchanged pick |
+| 256 | o | 8.337872 | 9.123271 | +0.785399 | +9.420% | Unchanged pick |
+| 256 | pooler | 24.434400 | 24.440892 | +0.006492 | +0.027% | Unchanged pick |
+| 256 | unpooler | 23.441369 | 23.270271 | -0.171098 | -0.730% | Unchanged pick |
+| 256 | router | 9.261433 | 9.464705 | +0.203272 | +2.195% | Unchanged pick |
+
+
+The complete result misses the≥1.5 µs summed decode1 or verify1 gain condition. Exact ramp stops, with no production change or second check. A shorter profiled kernel span is not an endpoint gain. Fixed-launch/DRAM-floor explanations remain hypotheses; this test does not reject all ramp designs or establish a ceiling. Projection work stays in context rather than A–E attribution.
+
+### Context: separate Tiny timeline and two cross-run endpoint failures
+
+A concurrent merge adds MOE-TL-01, MOE-NW16-BAL-01 and MOE-BAL-01. These belong to the separate short-load lane registered in the final-day directive, not the f401bounded observer or General's completed export audit. The timeline generator is `tools/moe_tiny_timeline_cta.py`, renamed on merge; `tools/moe_tiny_timeline.py` remains the distinct bounded observer. Source paths and own IDs below distinguish them. No new General dispatch follows.
+
+All three use official EP8 loads1/8/16/32/128/256 with100 SGLang pairs per cell. The reference is historical public 4aa/current_control_release5df; endpoint comparisons are across different jobs and routing inputs. There are no same-process independent duplicate treatment controls, matched treatment CIs or frozen unchanged-drift gates comparable to the f401diagnostic. The official CIs compare each judged file with SGLang. Unchanged-cell movement cannot automatically be declared inside noise from these CIs.
+
+**Dormant timeline**, job`19128cda79ca4e25`, physical sourceacfd73c5. PASS 5/6/6, return0/no flags, preparation 179.877738 s, finished 2026-11-03T07:46:48.014017+00:00. Official5845.912127 µs/2.300496434×,95%CI[2.265988987,2.335003880]. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/profiles/tiny_timeline.19128cda79ca4e25.status.json).
+
+| Tokens | Public4aa µs | This check µs | Delta µs | Delta % |
+|---|---|---|---|---|
+| 1 | 26.727990 | 26.567243 | -0.160747 | -0.601% |
+| 8 | 67.205227 | 69.524739 | +2.319512 | +3.451% |
+| 16 | 93.958463 | 94.846865 | +0.888402 | +0.946% |
+| 32 | 127.564857 | 125.614887 | -1.949970 | -1.529% |
+| 128 | 180.871585 | 177.456007 | -3.415577 | -1.888% |
+| 256 | 217.346150 | 213.143364 | -4.202786 | -1.934% |
+
+**16-warps + balanced ranges**, job`ab54144f6c4d4727`, physical sourceac8f7c9e. PASS 5/6/6, return0/no flags, preparation 180.861187 s, finished 2026-11-03T08:07:28.352866+00:00. Official6005.709429 µs/2.239285826×,95%CI[2.205696539,2.272875114]. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/profiles/tiny_nw16_bal.ab54144f6c4d4727.status.json).
+
+| Tokens | Public4aa µs | This check µs | Delta µs | Delta % |
+|---|---|---|---|---|
+| 1 | 26.727990 | 30.846182 | +4.118192 | +15.408% |
+| 8 | 67.205227 | 71.195541 | +3.990314 | +5.938% |
+| 16 | 93.958463 | 93.973922 | +0.015459 | +0.016% |
+| 32 | 127.564857 | 122.748548 | -4.816309 | -3.776% |
+| 128 | 180.871585 | 181.359968 | +0.488383 | +0.270% |
+| 256 | 217.346150 | 213.677665 | -3.668485 | -1.688% |
+
+**8-warps + balanced ranges**, job`b45cce36b47f4e81`, physical sourceafc514cb. PASS 5/6/6, return0/no flags, preparation 185.422842 s, finished 2026-11-03T08:17:48.875218+00:00. Official5831.987934 µs/2.305988996×,95%CI[2.271399161,2.340578831]. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/profiles/tiny_bal.b45cce36b47f4e81.status.json).
+
+| Tokens | Public4aa µs | This check µs | Delta µs | Delta % |
+|---|---|---|---|---|
+| 1 | 26.727990 | 27.725768 | +0.997778 | +3.733% |
+| 8 | 67.205227 | 69.959941 | +2.754714 | +4.099% |
+| 16 | 93.958463 | 93.194987 | -0.763476 | -0.813% |
+| 32 | 127.564857 | 124.621413 | -2.943444 | -2.307% |
+| 128 | 180.871585 | 181.666292 | +0.794708 | +0.439% |
+| 256 | 217.346150 | 215.279907 | -2.066243 | -0.951% |
+
+The dormant timeline adds optional globaltimer stamps in Tiny/Tiny2, with the instrument disabled in the timed path. Its official score is not an optimization. The logged extra judge calls observe2/6 local expert jobs at T1/T8, rather than f401's2/10; prepareT8 separately has7jobs/20routes. All 132 CTA aggregate summaries report sampled warp0 retire/wait markers. T1/T8 judge mean sampled exits22.6/52.9 µs, mean activation waits1.7/1.8 µs, mean phase-B weight waits0.2/0.5 µs and mean grid idle1.2/3.5 µs are descriptive instrumented observations. They lack the independent instrument-on/off cost gate, replay/failure/retained-unit export proof of f401. T1 output matches and T8maxdiff3.05e-5 is recorded. Those checks do not establish a 7.4 µs removable budget, a bandwidth or issue-rate ceiling, or an exact helper-fence cost. The phase means and CTA distributions cannot be added into causal endpoint savings. [Original log](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/profiles/tiny_timeline.19128cda79ca4e25.log).
+
+The 16-warp candidate combines544 threads, K256per warp, altered scale addressing/reduction and balanced per-CTA A+B unit counts. The 8-warp candidate changes balanced ranges alone, leaving original math/flags otherwise. Only Tiny/Tiny2 changes; MID/B4/MAIN remain source-identical in the owner audit. Both miss the prospective≥2 µs T1 or T8 saving against public 4aa. This is no qualified gain, with measured cross-run endpoint regressions at the changed cells. It does not isolate count imbalance, unit issue capacity, fence cost or CTA rate variance as a cause. Local registers/SASS and passing numerical tests answer different questions. The lane stops after its three checks, no candidate ships; broader mechanisms remain distinct from these exact failed implementations. Distributed-ready flags remain the other owner's separate source-qualified design. [Registration, all source details and finite closure](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/runs-moe.md), [Scoped negatives](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/ruled-out.md).
+
+### Context: Factor-Y release confirmation and public visibility
+
+The formerly provisional7479372115c64702 terminal evidence is now shared at 1454ac73 and retained here with its0/6 matched gate,13affected regressions and two unchanged drift breaches. Its official candidate2 point5698.508243 µs/2.360003606× remains a disclosed cross-run numerical lead, not a qualified matched win. [Published complete result](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/2026-11-02-moe-factorized-output.md).
+
+The separate user-approved release condition was tested once as `9da6e737a8264d52`, publicationb58cabc7, clean physicalsource9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a,322430 bytes, nativeecd1df11/helperb8ed8543. Single judged arm is the clean Factor-Y candidate. PASS 5/6/6, return0/no flags; official5767.982645 µs/2.331577751×,95%CI[2.296604084,2.366551417],100 SGLang pairs/cell. Finished2026-11-03 07:49:44UTC. Against the earlier7479candidate2, separate jobs/inputs, elapsed changes are descriptive with no paired candidate/control CI. [Clean source/manifest](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/cand/factor_y_release.manifest.json), [receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/profiles/factor_y_release.9da6e737a8264d52.receipt.json).
+
+| Tokens | 7479 candidate2 µs | Clean release µs | Delta µs | Delta % |
+|---|---|---|---|---|
+| 1 | 25.667095 | 26.236392 | +0.569296 | +2.218% |
+| 16 | 92.395482 | 94.026593 | +1.631111 | +1.765% |
+| 32 | 127.211936 | 124.122076 | -3.089860 | -2.429% |
+| 8 | 63.415118 | 67.114665 | +3.699548 | +5.834% |
+| 128 | 180.845263 | 181.182193 | +0.336931 | +0.186% |
+| 256 | 214.040825 | 218.060554 | +4.019729 | +1.878% |
+
+
+The condition required score ≤5760 µs and every cell within2% of7479. The score misses by7.982645 µs and T1/T8 regress 2.218%/5.834%. Disposition is `clean-release-failed`, no retry or delegate public submission. This is distinct from the original matched treatment decision. The current public board is already faster than this clean private draw, so it has no current numerical release lead. [Conditional authority and recorded failure](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/2026-11-02-final-day-directive.md), [Promotion ledger](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/releases/promotion-queue.json).
+
+All-five-board snapshots collected2026-11-03 08:11:09UTC show public MoE `2821fdb184d740b1` at 5737.988910 µs/2.3438×, rank 329. It is50.731810 µs/0.876% lower across jobs than4aa5788.720720 µs, after e8595751.372091 µs. The board reports rounded speedup and no CI; physical correspondence to the release bytes is unverified in this review. Do not label the numerical move as a new kernel, isolated family gain or layer gain. Layer607 remains10639.426327 µs/2.1261×, projection9eba3161.918773 µs/1.5278× and attention89141446.190595 µs/2.6043×. [Fresh all-board snapshot](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/evidence/2026-11-03-general-tiny-support/completed-audit/public-snapshots/snapshot.json).
+
+Required promotion check ran in the Documents checkout using these saved fresh public snapshots, current origin/main AGENTS, current owner ledger and private-promotion audit. It writes only ignored `.build/promotion-tracker/current.json`. Guard passes,16clean numerical private leads and zero disposition gaps. Newly completed observer control 0f4015726.051478 µs is11.937432 µs/0.208% below the current public draw, with the official CI above. It is explicitly `diagnostic-control-base-family-published`, original C7/helper uninstrumented control, not a new observer candidate.7479is explicitly stopped/lower-point disclosed, clean9da6confirmationfailed, external5613.6 µs remains an external comparator, and wrapper/contract blockers and user deferrals retain explicit dispositions. A treatment loss does not hide any control's independent release opportunity. [Saved guard](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/evidence/2026-11-03-general-tiny-support/completed-audit/promotion.json), [Promotion audit](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/2026-11-02-private-promotion-audit.md).
+
+### Family decision, pending work and evidence limits
+
+A versus B is unchanged. Retain the measured working MoE baseline; the tested staged/masked library losses still apply only to those implementations. The usable skinny observer identifies a dependency to test, not a newAwin, not anA+Cgain and not evidence thatBwould lose at T1/T8. HistoricalCownership andDclaiming wins remain distinct from failed combined descendants. Full ready-onlyD remains untested. The attention cluster loss changes context, not E's unresolved D32 lookahead conclusion. No new whole-layer component decomposition or isolated-family speedup is established.
+
+The final-day short-load directive supersedes larger-load queues. Prepared-gamma/factorized MOE-PARAM-Y and BF16M128/M256 engineering are parked; Tiny distributed-ready flags are the current MoE source-qualified design, target-untested at this snapshot. General's completed export audit is not another optimizer assignment. Other owners retain their jobs/files/collectors, and the user-paused formerD32reminder stays paused. [Latest owner scope](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/README.md), [Final-day directive](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/2026-11-02-final-day-directive.md).
+
+This review checks new commit/run/negative evidence fromc2187b69 throughfa762950, including native observer and cross-run receipts. All19untracked profile JSONs parse read-only; their already-logged evidence is not recounted, including the duplicate607receipt. The concurrent fa762950 merge also adds19128cda79ca4e25,ab54144f6c4d4727 andb45cce36b47f4e81, separately inspected above. No new chat-derived measurement is needed beyond the shared owner reports. Independent additional reviewer was unavailable under the no-agent instruction; exact source/number checks and the separate executed export audit are recorded above. No kernels, tuning policies, other-owner ledgers, active jobs or profiles were edited, and no benchmark, submission or tracker push ran.
 
 ## November 3 review at 00:23 Vancouver time
 
@@ -3102,7 +3279,21 @@ paired differences.
 
 | A+C full-K row ownership | Same-process duplicate current release controls | normal +0.088µs (+0.047%); skewed -0.416µs (-0.406%) | normal +0.595µs (+0.254%); skewed +1.109µs (+0.697%) | Unchanged large paths; 3 EP8 banks, 8 repetitions/placement, correctness passes, complete matched gate fails. [Owning result](https://github.com/yelgabo/okc/blob/c2187b692e4f09e5e715d4da8c4d9530f17039c1/docs/steering/2026-11-02-general-ws-row-owned.md). |
 | G direct phase-A input | Same-process duplicate current release controls | normal +151.853µs (+80.906%); skewed +70.560µs (+68.129%) | normal +223.104µs (+94.753%); skewed +123.547µs (+76.570%) | Changed large paths; 3 EP8 banks, 8 repetitions/placement, correctness passes, complete matched gate fails. [Owning result](https://github.com/yelgabo/okc/blob/c2187b692e4f09e5e715d4da8c4d9530f17039c1/docs/steering/2026-11-02-moe-direct-input.md). |
-| G factorized output, provisional | Same-process duplicate current release controls | normal +1.200µs (+0.646%); skewed +2.688µs (+2.619%) | normal +1.168µs (+0.507%); skewed +1.312µs (+0.827%) | Changed large paths; 3 EP8 banks, 8 repetitions/placement, correctness passes, complete matched gate fails. Terminal analysis is provisional in the local owner checkout. [Frozen source](https://github.com/yelgabo/okc/blob/c2187b692e4f09e5e715d4da8c4d9530f17039c1/docs/steering/evidence/2026-11-02-moe-factor-y/paired.py). |
+| G factorized output | Same-process duplicate current release controls | normal +1.200µs (+0.646%); skewed +2.688µs (+2.619%) | normal +1.168µs (+0.507%); skewed +1.312µs (+0.827%) | Changed large paths; 3 EP8 banks, 8 repetitions/placement, correctness passes, complete matched gate fails. Terminal analysis is now shared at1454ac73; no new result is counted. [Frozen source](https://github.com/yelgabo/okc/blob/c2187b692e4f09e5e715d4da8c4d9530f17039c1/docs/steering/evidence/2026-11-02-moe-factor-y/paired.py). |
+
+| Context attention cluster mode136, unchanged sliding | Same-process ctrl/ctrl2, displayed pooled medians | cold -0.03µs (-0.191%); warm +0.01µs (+0.089%) | cold +0.16µs (+0.805%); warm -0.03µs (-0.197%) | c1becf5a66274d37;3inputs,150cold rounds/input; all arms19/19, official unchanged control16/12/12. Only T1/T8sliding changes, which loses. Rounded drift, no isolated E result. [Paired log](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_attention_decode/profiles/clmerge.c1becf5a66274d37.log). |
+| Context attention cluster mode136, unchanged full | Same-process ctrl/ctrl2, displayed pooled medians | cold +0.45µs (+0.406%); warm +0.40µs (+0.394%) | cold +0.41µs (+0.217%); warm +0.03µs (+0.016%) | c1becf5a66274d37;3inputs,150cold rounds/input; all arms19/19, official unchanged control16/12/12. Only T1/T8sliding changes, which loses. Rounded drift, no isolated E result. [Paired log](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_attention_decode/profiles/clmerge.c1becf5a66274d37.log). |
+| Context BF16 ramp, unchanged qkv_gate | Public C2 9eba, different run/inputs | 14.664393→14.589870µs; -0.074523µs (-0.508%) | 16.941294→17.793060µs; +0.851766µs (+5.028%) | 793602020fd64ce9;9/30/30passes,60official SGLang pairs/cell. Only O1pick changes, gate misses. Cross-run drift, no paired treatment CI. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.json). |
+| Context BF16 ramp, unchanged o | Public C2 9eba, different run/inputs | 6.811780→6.643983µs; -0.167797µs (-2.463%) | 8.337872→9.123271µs; +0.785399µs (+9.420%) | 793602020fd64ce9;9/30/30passes,60official SGLang pairs/cell. Only O1pick changes, gate misses. Cross-run drift, no paired treatment CI. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.json). |
+| Context BF16 ramp, unchanged pooler | Public C2 9eba, different run/inputs | 19.994115→21.438719µs; +1.444604µs (+7.225%) | 24.434400→24.440892µs; +0.006492µs (+0.027%) | 793602020fd64ce9;9/30/30passes,60official SGLang pairs/cell. Only O1pick changes, gate misses. Cross-run drift, no paired treatment CI. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.json). |
+| Context BF16 ramp, unchanged unpooler | Public C2 9eba, different run/inputs | 18.986628→18.948359µs; -0.038269µs (-0.202%) | 23.441369→23.270271µs; -0.171098µs (-0.730%) | 793602020fd64ce9;9/30/30passes,60official SGLang pairs/cell. Only O1pick changes, gate misses. Cross-run drift, no paired treatment CI. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.json). |
+| Context BF16 ramp, unchanged router | Public C2 9eba, different run/inputs | 6.638868→6.871399µs; +0.232531µs (+3.503%) | 9.261433→9.464705µs; +0.203272µs (+2.195%) | 793602020fd64ce9;9/30/30passes,60official SGLang pairs/cell. Only O1pick changes, gate misses. Cross-run drift, no paired treatment CI. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.json). |
+| G Factor-Y clean release confirmation | Earlier7479candidate2, separate run/inputs | 180.845263→181.182193µs; +0.336931µs (+0.186%) | 214.040825→218.060554µs; +4.019729µs (+1.878%) | 9da6e737a8264d52/source9fd9b8cb;5/6/6passes,100SGLang pairs/cell. Registered clean-release gate fails; no retry/public action. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/profiles/factor_y_release.9da6e737a8264d52.receipt.json). |
+| G skinny diagnostic, unchanged large native paths | Same-process duplicate uninstrumented controls | 200.688001→201.943997µs; +1.255997µs (+0.626%) | 230.632000→230.487999µs; -0.144001µs (-0.062%) | f4012a0531af4013;EP8normal bank1102031,32cold timings/placement. Diagnostic intrusion gates pass; no treatment gain. Full native traces only T1/T8. [Analysis](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/docs/steering/evidence/2026-11-02-moe-tiny-timeline/analysis.json). |
+
+| G skinny dormant timeline, unchanged large native paths | Public4aa, separate jobs/inputs | 177.456007µs; -3.415577µs (-1.888%) | 213.143364µs; -4.202786µs (-1.934%) | 19128cda79ca4e25;EP8 official5/6/6,100SGLang pairs/cell. Cross-run drift only at128/256; no matched treatment CI. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/profiles/tiny_timeline.19128cda79ca4e25.status.json). |
+| G skinny 16-warps + balanced ranges, unchanged large native paths | Public4aa, separate jobs/inputs | 181.359968µs; +0.488383µs (+0.270%) | 213.677665µs; -3.668485µs (-1.688%) | ab54144f6c4d4727;EP8 official5/6/6,100SGLang pairs/cell. Cross-run drift only at128/256; no matched treatment CI. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/profiles/tiny_nw16_bal.ab54144f6c4d4727.status.json). |
+| G skinny 8-warps + balanced ranges, unchanged large native paths | Public4aa, separate jobs/inputs | 181.666292µs; +0.794708µs (+0.439%) | 215.279907µs; -2.066243µs (-0.951%) | b45cce36b47f4e81;EP8 official5/6/6,100SGLang pairs/cell. Cross-run drift only at128/256; no matched treatment CI. [Receipt](https://github.com/yelgabo/okc/blob/fa762950120345c75e32121ead879c97357f9d96/muse_moe_w4a16/profiles/tiny_bal.b45cce36b47f4e81.status.json). |
 
 ## Small-token results and rejected changes
 
@@ -3188,6 +3379,9 @@ review; codec and M-C one-token fusion ideas remain unbuilt. Never add component
 [projection evidence](runs.md), [F policy](../archive/docs/steering/2026-10-30-family-f-donor-baseline.md).
 
 ## Review history and checkpoint
+
+- 2026-11-03 01:23 MST (America/Vancouver): inspected c2187b69..fa762950; incorporated terminal f4012a0531af4013 diagnostic, c1becf5a66274d37 attention loss,793602020fd64ce9 projection gate failure,9da6e737a8264d52 clean-release failure and published7479closure without recounting it. Public snapshots08:11:09UTC include new2821board point; also incorporated separate1912timeline andab54/b45ccross-run losses from the concurrent merge. Promotion guard16leads/0gaps. General completed actual export audit first atf86a43c8. All19untracked JSONs parsed untouched; no new provisional measurement counted. Latest measured terminal08:17:48UTC, public evidence08:11:09UTC.
+
 
 - 2026-11-03 00:23 MST (America/Vancouver): reviewed9d251b73..c2187b69, own terminal7f10243c98e74746, direct-input94c57451574c4cd3, and provisional local factor7479372115c64702 at6b30fd15. Last terminal2026-11-03 07:09:31UTC. Own assignment closed and published before tracker work. Promotion guard20leads/zero gaps; public snapshots07:05UTC. All19untracked profile JSONs parsed untouched; the additional607file duplicates an already-counted public job.
 
