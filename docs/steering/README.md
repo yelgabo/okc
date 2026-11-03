@@ -44,6 +44,10 @@ logs. CPU regressions and a local CUDA 12.8.1 device build were checked. No runt
 kernel, target-performance claim, GPU dispatch or D32 ownership change is included.
 Root instructions load the reference index for future CUDA work.
 
+## D32 matched confirmation setup correction
+
+[Private check 4fece18b20a2447b](decode32/2026-11-02-09-pair-setup-failure.md) failed in setup because target PyTorch does not implement FP8 `isfinite`. No timing was produced. The corrected diagnostic casts FP8 only for this check and has CPU Torch finite/nonfinite coverage. A new private check follows source publication and live preflight.
+
 ## D32 matched confirmation payload
 
 [Attention confirmation payload](decode32/2026-11-02-08-confirmation-payload.md) `109cdb07` has generated-entry and real-CPU-Torch facade coverage. Target GPU correctness, 295-second preparation fit and paired timings are still open. One private check follows the normal job/quota preflight.

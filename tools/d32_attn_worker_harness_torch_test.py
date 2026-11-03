@@ -34,6 +34,13 @@ class AttentionHost(Host):
         self.namespace['_d32_attention_module'](data['config'], state)
         return super().layer(data, state)
 
+    def front(self, data, weights, *args):
+        result = super().front(data, weights, *args)
+        result['fp8_finite_probe'] = result['source'].to(torch.float8_e4m3fn)
+        if self.failure == 'fp8_nonfinite':
+            result['fp8_finite_probe'][0, 0] = float('nan')
+        return result
+
     def run(self):
         self.namespace['_EH_OFFLINE_HOLD'] = False
         self.log = io.StringIO()
@@ -66,7 +73,7 @@ class GeneratedHost(unittest.TestCase):
             self.assertEqual(row['selected'], [[False], [False], [target], [target]])
 
     def test_injected_failures_do_not_publish_a_report(self):
-        for failure in ('prepare', 'unknown_owner', 'output_alias', 'replay_output'):
+        for failure in ('prepare', 'unknown_owner', 'output_alias', 'replay_output', 'fp8_nonfinite'):
             with self.subTest(failure=failure):
                 host = AttentionHost(self.source, self.manifest, failure)
                 with self.assertRaises((RuntimeError, AssertionError)):

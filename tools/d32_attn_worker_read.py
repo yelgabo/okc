@@ -11,7 +11,7 @@ from dl_compare_receipts import validate
 PREFIX = 'D32_ATTENTION_PAIR_REPORT '
 CANDIDATE = '5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5'
 CONTROL = 'ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab'
-CORE = '302986ababc1d75286258715133dcd9a98802bd05dd71e5b251df4e041deddbd'
+CORE = '424812967711c72f0bbb0d4db19d4edbffc93f2c5e5305d6280e4db99aa14ea0'
 
 
 def report(log):

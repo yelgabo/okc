@@ -98,6 +98,12 @@ Apply these principles when choosing work, reviewing results and handing off. Us
 
 Use the coordinator's Research method for detailed execution. These principles preserve the existing external-code, correctness and submission requirements. Background and rationale are in docs/steering/2026-11-01-working-principles.md.
 
+## FP8 finiteness checks
+
+PyTorch may not implement `isfinite` for FP8 tensors. Cast FP8 values to FP32
+for diagnostic finiteness checks and preserve their original dtype in the actual
+computation. Cover finite and nonfinite FP8 inputs in the relevant test.
+
 ## Evidence rules
 
 - **Profile SGLang before optimizing a problem.** A normal run profiles only our submission.

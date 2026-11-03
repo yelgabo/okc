@@ -53,6 +53,8 @@ def build(private_check=False):
     core = replace_function(core, '_eh_routes', '''def _eh_routes(state,out,start):
     ids=out[2].long().sort(-1).values
     assert bool((ids[:,1:]!=ids[:,:-1]).all()),'D32_DUPLICATE_IDS' ''')
+    core = once(core, "if isinstance(value,torch.Tensor):assert bool(torch.isfinite(value).all()),'EXPERT_FRONT_NONFINITE'",
+                "if isinstance(value,torch.Tensor):assert bool(torch.isfinite(value.float() if value.dtype in (torch.float8_e4m3fn,torch.float8_e5m2) else value).all()),'EXPERT_FRONT_NONFINITE'")
     core = once(core, '        _expert_pair_bind(arm,i>=2)', '        _d32_pair_bind(arm,i>=2)')
     core = once(core, "        assert arms[0]['ma_ext'][key]._module is not arms[2]['ma_ext'][key]._module",
                 "        assert arms[0]['ma_ext'][key]._module is arms[2]['ma_ext'][key]._module")
