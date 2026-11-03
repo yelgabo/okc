@@ -1675,3 +1675,54 @@ PDL gates (pdl8d code): T = 1 on, T = 16 on, T = 32 on, T = 8 off (six-edge fina
 -1.8 / -1.5 (the judge's router draw and per-input routing differ from the box's). The other cells are a pdl8d draw with
 T = 8 off. Keep rule: score and decode 1 met; verify 1 full (122.6 against 118.7) and the T = 8 stress clause missed because
 pdl8d's own T = 8 gate aborted on this draw. Not submitted by the lane.
+
+## 2026-11-03 - PDL8h: PDL on at every T at build time behind a coarse guard (check `b6c0efcd06324246`)
+
+Source `muse_decode_layer/cand/g1b4_pdl8h.py` (SHA256 33c2353b52de29c5af341609de08a7e6f021e5395fc4ef633706978fecedf7cd),
+written by `tools/dl_pdl8h_patch.py` from g1b4_rs.py (the tool checks 01426b89 first). User decision: enable PDL at build
+time at T = 1, 8 (all six edges), 16 and 32, on the source audit, the bitwise attention bench 2c84c321b3bb4dbb and the clean
+T = 8 stages of 61c00906 / 9ae1d02f, and keep the in-prepare stress only as a guard against gross errors. Changes against
+g1b4_rs: `PDL8_HARD` has T = 8 on; the T = 1 / 16 / 32 stress decision and pdl8d's T = 8 edge search are replaced by one
+guard. Every CUDA source, launch attribute, edge wiring and the T = 1 routing slack are byte-identical (82 diff lines, all in
+the gate code and the header comment).
+
+Guard, per T on pdl8d's existing stress inputs (T = 1 sliding, T = 8 full and sliding, T = 16 sliding, T = 32 full; 2000
+graph replays per arm, PDL-off and PDL-on, against the PDL-off arm's first replay): the T stays on when the PDL-on routing ids
+mismatch on at most 2 x (off-arm mismatches) + 16 entries and every PDL-on output is within max(2e-2, the off arm's own drift).
+Otherwise that T aborts to off; any exception turns it off, as before. Sensitivity: the stale-read faults in the PDL8f table
+move outputs by 0.18 to 1.6 and flip 19 to 1165 ids, so they fail both clauses; a single stale new K row stays under the
+bound, as it did for every earlier gate, and is covered by the attention bench.
+
+Box (okc-h200, `flock /root/okc/.build/box/gpu.lock`, router seed 106218864389449120, f931abf568544018 case seeds; logs
+`muse_decode_layer/profiles/box/pdl8h/`). The two dry runs (pdl8h, then g1b4_rs) overlapped an unlocked box_rs_check job of
+another lane, so their in-prepare timings are not used; their gate outcomes are. Guard, identical in all four pdl8h prepares
+(dry run plus three A/B runs) except where noted (out / s2):
+
+| T | layer | ids off / on (limit) | off drift | on drift | decision |
+|---|---|---|---|---|---|
+| 1 | sliding | 0 / 0 (16) | 1.99e-3 / 3.16e-3 | 1.99e-3 / 3.16e-3 | on |
+| 8 | full | 0 / 0 (16) | 7.25e-3 / 6.89e-3 | 7.25e-3 / 6.89e-3 | on |
+| 8 | sliding | 0 / 0 (16) | 3.16e-3 / 3.98e-3 | 6.33e-3 / 6.09e-3 | on (pdl8d's own-drift rule fails this row) |
+| 16 | sliding | 0 / 0 (16) | 3.58e-3 / 4.08e-3 (dry 3.98e-3 / 4.19e-3) | up to 3.98e-3 / 4.19e-3 | on |
+| 32 | full | 0 / 0 (16) | 5.52e-3 / up to 6.41e-3 | 5.52e-3 / 6.41e-3 | on |
+
+Paired box A/B (box rule: box-candidate against box-control, same session and seeds, 60 fresh inputs per cell, run order
+ctl1, cand1, ctl2, cand2, ctl3, cand3; ctl3 / cand3 added after the coordinator's note that ctl1 overlapped unlocked jobs of
+another lane). Control PDL enable sets from their logs: ctl1 {1, 16, 32 on; 8 off}, ctl2 {1, 16, 32 on; 8 off}, ctl3
+{1, 8 on; 16, 32 off}. Every candidate run had {1, 8, 16, 32} on. Net us, candidate pooled over its three runs:
+
+| cell | ctl1 | ctl2 | ctl3 | median control | candidate | cand - median ctl | cand - ctl2 (most T on, unoverlapped) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 67.28 | 67.60 | 67.62 | 67.60 | 67.95 | +0.35 | +0.35 |
+| decode 1 full | 73.98 | 74.16 | 74.03 | 74.03 | 73.82 | -0.21 | -0.34 |
+| verify 1 sliding | 112.82 | 112.94 | 105.15 | 112.82 | 105.02 | -7.80 | -7.92 |
+| verify 1 full | 120.51 | 121.07 | 111.86 | 120.51 | 112.02 | -8.49 | -9.06 |
+| decode 16 sliding | 131.68 | 131.90 | 138.06 | 131.90 | 131.57 | -0.33 | -0.34 |
+| decode 16 full | 203.33 | 202.93 | 210.45 | 203.33 | 202.89 | -0.44 | -0.04 |
+| decode 32 sliding | 147.63 | 147.87 | 153.39 | 147.87 | 147.50 | -0.37 | -0.38 |
+| decode 32 full | 298.91 | 299.39 | 305.02 | 299.39 | 298.32 | -1.07 | -1.07 |
+
+The deltas decompose by enable set: where a control run had a T on, the candidate matches it within 1.1 us (verify 1 against
+ctl3: -0.13 / +0.16; decode 16 / 32 against ctl1 and ctl2: within 1.07); where the control's gate had turned a T off, the
+candidate is 5.9 to 9.1 us faster (verify 1 against ctl1 / ctl2, decode 16 / 32 against ctl3). pdl8h does not change the
+speed of any configuration; it removes the draw that turns a T off.
