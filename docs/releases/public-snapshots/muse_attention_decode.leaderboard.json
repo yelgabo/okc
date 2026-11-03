@@ -2,6 +2,13 @@
   "board": "muse_attention_decode",
   "measure": "speedup over SGLang; higher ranks higher",
   "ranked": 1285,
+  "leader": {
+    "rank": 1,
+    "team": "pjmullin3",
+    "speedup": 3.3389,
+    "first": true,
+    "ahead": 0
+  },
   "you": {
     "rank": 263,
     "team": "yelgabo",
@@ -22,5 +29,5 @@
     }
   ],
   "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
-  "raw_snapshot_sha256": "d1f320ee78f8fc4526108226dc28bcddc3c774c7a810ddc07e5ee64a49cd35da"
+  "raw_snapshot_sha256": "d1e8d1e80b2643d117b99bab4c1278072b832c01d6f53c75a2886ec1534e7879"
 }

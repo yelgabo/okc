@@ -1,0 +1,117 @@
+{
+  "scope": "Local CUDA12.8.1 SM90a device-only build, not target parity",
+  "resources": {
+    "b4-candidate": {
+      "used": [
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size",
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size"
+      ],
+      "properties": [
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    "main-control": {
+      "used": [
+        "Used 96 registers, used 16 barriers",
+        "Used 96 registers, used 16 barriers"
+      ],
+      "properties": [
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    "b4-control": {
+      "used": [
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size",
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size"
+      ],
+      "properties": [
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    "main-candidate": {
+      "used": [
+        "Used 96 registers, used 16 barriers",
+        "Used 96 registers, used 16 barriers"
+      ],
+      "properties": [
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    }
+  }
+}

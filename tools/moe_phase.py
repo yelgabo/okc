@@ -8,11 +8,13 @@ from cuda_issue_groups import generate, compile_pair
 FIELDS = 24
 HELPERS = r'''
 template<int FIELD>
+__device__ __forceinline__ void ph_single(const Params& p) {
+  asm volatile("{ .reg .u64 t; mov.u64 t, %%globaltimer; st.global.u64 [%0], t; }"
+               ::"l"(p.dbg + blockIdx.x * 24 + FIELD):"memory");
+}
+template<int FIELD>
 __device__ __forceinline__ void ph_mark(const Params& p) {
-  if (threadIdx.x == 0) {
-    asm volatile("{ .reg .u64 t; mov.u64 t, %%globaltimer; st.global.u64 [%0], t; }"
-                 ::"l"(p.dbg + blockIdx.x * 24 + FIELD):"memory");
-  }
+  if (threadIdx.x == 0) ph_single<FIELD>(p);
 }
 template<int FIRST>
 __device__ __forceinline__ void ph_wg(const Params& p) {
@@ -62,9 +64,9 @@ def transform(native):
     once('  DBG(4);\n  // phases A and B', '  DBG(4);\n  ph_mark<12>(p);\n  // phases A and B')
     once('  DBG(5);  // nothing', '  ph_mark<13>(p);\n  DBG(5);  // nothing')
     anchor='      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_da(p, S) + j * 16 + st) < 8) __nanosleep(32); }'
-    once(anchor,'      if (pb && i == 0) ph_mark<14>(p);\n'+anchor+'\n      if (pb && i == 0) ph_mark<15>(p);')
+    once(anchor,'      if (pb && i == 0) ph_single<14>(p);\n'+anchor+'\n      if (pb && i == 0) ph_single<15>(p);')
     anchor='      if (++ws == WGS_NS) { ws = 0; wph ^= 1; }\n    }\n  }\n}'
-    once(anchor,'      if (pb && i == 0) ph_mark<17>(p);\n      if (++ws == WGS_NS) { ws = 0; wph ^= 1; }\n    }\n    if (!pb) ph_mark<16>(p);\n  }\n}')
+    once(anchor,'      if (pb && i == 0) ph_single<17>(p);\n      if (++ws == WGS_NS) { ws = 0; wph ^= 1; }\n    }\n    if (!pb) ph_single<16>(p);\n  }\n}')
     return native, edits
 
 

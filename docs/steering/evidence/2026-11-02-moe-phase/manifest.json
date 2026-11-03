@@ -1,0 +1,65 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "candidate_native_sha256": "365c9eab767b956e33188876f5eb46be03e6e07ed6d24aa8a30440961763bf78",
+  "edits": [
+    [
+      "__device__ void wgs_wproducer(",
+      "\ntemplate<int FIELD>\n__device__ __forceinline__ void ph_single(const Params& p) {\n  asm volatile(\"{ .reg .u64 t; mov.u64 t, %%globaltimer; st.global.u64 [%0], t; }\"\n               ::\"l\"(p.dbg + blockIdx.x * 24 + FIELD):\"memory\");\n}\ntemplate<int FIELD>\n__device__ __forceinline__ void ph_mark(const Params& p) {\n  if (threadIdx.x == 0) ph_single<FIELD>(p);\n}\ntemplate<int FIRST>\n__device__ __forceinline__ void ph_wg(const Params& p) {\n  if ((threadIdx.x & 127) == 0) {\n    asm volatile(\"{ .reg .u64 t; mov.u64 t, %%globaltimer; st.global.u64 [%0], t; }\"\n                 ::\"l\"(p.dbg + blockIdx.x * 24 + FIRST + (threadIdx.x >> 7)):\"memory\");\n  }\n}\n__device__ __forceinline__ void ph_init(const Params& p) {\n  if (threadIdx.x == 0) {\n    for (int i=14;i<18;++i) p.dbg[blockIdx.x * 24+i]=0;\n    unsigned sm; asm volatile(\"mov.u32 %0, %%smid;\":\"=r\"(sm));\n    p.dbg[blockIdx.x * 24+18]=sm;\n  }\n  ph_mark<0>(p);\n}\n__device__ __forceinline__ void ph_meta(const Params& p,const Smem& S) {\n  if (threadIdx.x == 0) {\n    p.dbg[blockIdx.x * 24+19]=S.njF+S.njS;\n    for(int i=0;i<4;++i)p.dbg[blockIdx.x * 24+20+i]=S.wgr[i];\n  }\n  ph_mark<2>(p);\n}\n\n__device__ void wgs_wproducer(",
+      1
+    ],
+    [
+      "  asm volatile(\"griddepcontrol.wait;\\n\" ::: \"memory\");",
+      "  asm volatile(\"griddepcontrol.wait;\\n\" ::: \"memory\");\n  ph_init(p);",
+      1
+    ],
+    [
+      "  DBG(1);",
+      "  DBG(1);\n  ph_mark<1>(p);",
+      1
+    ],
+    [
+      "  DBG(6);",
+      "  DBG(6);\n  ph_meta(p, S);",
+      1
+    ],
+    [
+      "    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);",
+      "    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);\n    ph_wg<3>(p);",
+      1
+    ],
+    [
+      "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);",
+      "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);\n    ph_wg<7>(p);",
+      1
+    ],
+    [
+      "    int* bc = p.ctr + 4 + (S.gen & 1);",
+      "    ph_mark<11>(p);\n    int* bc = p.ctr + 4 + (S.gen & 1);",
+      1
+    ],
+    [
+      "  DBG(4);\n  // phases A and B",
+      "  DBG(4);\n  ph_mark<12>(p);\n  // phases A and B",
+      1
+    ],
+    [
+      "  DBG(5);  // nothing",
+      "  ph_mark<13>(p);\n  DBG(5);  // nothing",
+      1
+    ],
+    [
+      "      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_da(p, S) + j * 16 + st) < 8) __nanosleep(32); }",
+      "      if (pb && i == 0) ph_single<14>(p);\n      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_da(p, S) + j * 16 + st) < 8) __nanosleep(32); }\n      if (pb && i == 0) ph_single<15>(p);",
+      1
+    ],
+    [
+      "      if (++ws == WGS_NS) { ws = 0; wph ^= 1; }\n    }\n  }\n}",
+      "      if (pb && i == 0) ph_single<17>(p);\n      if (++ws == WGS_NS) { ws = 0; wph ^= 1; }\n    }\n    if (!pb) ph_single<16>(p);\n  }\n}",
+      1
+    ]
+  ],
+  "exact_reverse": true,
+  "adapter": "Remove host tail, add declaration-only wgs_cta_of adapter and two compile-only launch references",
+  "gpu": false
+}
