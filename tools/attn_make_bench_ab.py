@@ -516,6 +516,8 @@ def _ab_summary():
 
 
 _ST_BASE, _ST_W = 1024, 16
+# ONE_STAMP=2 timeline rows (attn_one.cu TL_BASE / TL_W).
+_TL_BASE, _TL_W = _ST_BASE + 512 * _ST_W, 256
 # Per (shape, arm): statistic -> one value per repetition; STSUM prints their medians at the end
 # of the log, where the judge's 16,000-character tail keeps them.
 _ST_SUM = {}
@@ -621,6 +623,78 @@ def _ab_pubstamps(reps=5):
             torch.cuda.empty_cache()
 
 
+def _ab_tl(tag, sname, rep, rec, tl, ref, ghz):
+    """ONE_STAMP=2 timeline of the flat q_len 8 producer build. Per CTA: warpgroup 0 / 1 full
+    barrier pass and producer empty-slot pass of every fourth tile, warpgroup 0's running wait.
+    Pair rates use each SM's two CTAs: A ends its loop first; a = A's tiles per us, b_co = B's
+    tiles per us until A ends, b_solo = B's rate after. pred_end is the SM end if both CTAs kept
+    their co-run rates to a common end (a model, not a measurement)."""
+    def us(x):
+        return float((((int(x) - ref + (1 << 31)) % (1 << 32)) - (1 << 31)) / 1000.0)
+    n = rec.shape[0]
+    tiles = [int(rec[c, 6]) for c in range(n)]
+    lend = [us(rec[c, 3]) for c in range(n)]
+    first = [us(rec[c, 2]) for c in range(n)]
+    ser = []
+    for c in range(n):
+        k_n = min(64, (tiles[c] + 3) // 4)
+        t0 = [us(tl[c, k]) for k in range(k_n)]
+        t1 = [us(tl[c, 64 + k]) for k in range(k_n)]
+        tp = [us(tl[c, 128 + k]) for k in range(k_n)]
+        fw = [float(tl[c, 194 + k]) / (ghz * 1000.0) for k in range(min(k_n, 62))]
+        ser.append((t0, t1, tp, fw))
+    skew, lead, busy, ahead = [], [], [], []
+    for c in range(n):
+        t0, t1, tp, fw = ser[c]
+        skew += [t1[k] - t0[k] for k in range(len(t0))]
+        lead += [t0[k] - tp[k] for k in range(len(t0))]
+        for k in range(1, len(fw)):
+            busy.append(((t0[k] - t0[k - 1]) - (fw[k] - fw[k - 1])) / 4.0)
+        for k in range(len(t0)):
+            ahead.append(4 * sum(1 for x in tp if x <= t0[k]) - 4 * k)
+    by_sm = {}
+    for c in range(n):
+        by_sm.setdefault(int(rec[c, 15]), []).append(c)
+    ra, rbc, rbs, solo, pred, act = [], [], [], [], [], []
+    for v in by_sm.values():
+        if len(v) != 2:
+            continue
+        a_, b_ = sorted(v, key=lambda c: lend[c])
+        ea = lend[a_]
+        nb = 4 * sum(1 for x in ser[b_][0] if x <= ea)
+        nb = min(nb, tiles[b_])
+        a = tiles[a_] / max(ea - first[a_], 1e-3)
+        bco = nb / max(ea - first[b_], 1e-3)
+        bso = (tiles[b_] - nb) / max(lend[b_] - ea, 1e-3)
+        ra.append(a)
+        rbc.append(bco)
+        rbs.append(bso)
+        solo.append(lend[b_] - ea)
+        st = 0.5 * (first[a_] + first[b_])
+        pred.append(st + (tiles[a_] + tiles[b_]) / max(a + bco, 1e-3))
+        act.append(lend[b_])
+
+    def q(xs):
+        xs = sorted(xs)
+        if not xs:
+            return "-"
+        return "{:.2f}/{:.2f}/{:.2f}".format(xs[len(xs) // 10], xs[len(xs) // 2],
+                                             xs[(9 * len(xs)) // 10])
+    ratio = [s_ / max(c_, 1e-3) for s_, c_ in zip(rbs, rbc)]
+    _st_add(tag, sname, tl_skew_med=_st_q(skew)[1], tl_lead_med=_st_q(lead)[1],
+            tl_busy_med=_st_q(busy)[1] if busy else 0, tl_ahead_med=_st_q(ahead)[1],
+            tl_a=_st_q(ra)[1] if ra else 0, tl_bco=_st_q(rbc)[1] if rbc else 0,
+            tl_bsolo=_st_q(rbs)[1] if rbs else 0, tl_solo_ratio=_st_q(ratio)[1] if ratio else 0,
+            tl_solo_us=_st_q(solo)[1] if solo else 0,
+            tl_pred_max=max(pred) if pred else 0, tl_act_max=max(act) if act else 0,
+            tl_pred_med=_st_q(pred)[1] if pred else 0, tl_act_med=_st_q(act)[1] if act else 0)
+    print(f"TLINE {tag} {sname} rep={rep} p10/p50/p90 wg1_minus_wg0_us={q(skew)} "
+          f"slot_to_full_us={q(lead)} cons_busy_per_tile_us={q(busy)} prod_tiles_ahead={q(ahead)} "
+          f"a={q(ra)} b_co={q(rbc)} b_solo={q(rbs)} solo_over_co={q(ratio)} solo_us={q(solo)} "
+          f"pred_end={q(pred)} max={max(pred) if pred else 0:.1f} act_end={q(act)} "
+          f"max={max(act) if act else 0:.1f}", flush=True)
+
+
 def _ab_stamps(reps=5):
     """Per-CTA records of the ONE_STAMP build on the flat full-context shapes, cold calls.
     Fields: 0 start, 1 partition done, 2 first tile ready, 3 tile loops done (q_len 1: the last
@@ -641,7 +715,7 @@ def _ab_stamps_one(sname, reps):
         data = _ob_inputs(batch, 80000, "tp8", layer, q_len, "agentic", "coherent", 1, 1.0)
         tag = f"b={batch:2d} {layer:7s} L={q_len}"
         for r in range(reps):
-            buf = torch.zeros(_ST_BASE + 512 * _ST_W, dtype=torch.int32, device="cuda")
+            buf = torch.zeros(_TL_BASE + 512 * _TL_W, dtype=torch.int32, device="cuda")
             flush.zero_()
             with _ab_ctx(sname):
                 _one(data, dbg=buf)
@@ -681,6 +755,9 @@ def _ab_stamps_one(sname, reps):
                   f"fullwait_us={q(us[:, 0])} prologue_us={q(us[:, 1])} "
                   f"loop_us={q(us[:, 2])} prod_emptywait_us={q(us[:, 3])} "
                   f"prod_life_us={q(us[:, 4])} {_ob_elapsed()}", flush=True)
+            tl = buf[_TL_BASE:_TL_BASE + n * _TL_W].view(n, _TL_W).cpu().long()
+            if q_len == 8 and int((tl[:, :64] != 0).sum()) > 0:
+                _ab_tl(tag, sname, r, rec, tl, ref, ghz)
             if r == 0:
                 # Loop-end time next to tiles, so imbalance can be told from per-tile speed.
                 order = sorted(range(n), key=lambda i: float(ns[i, 3]))
