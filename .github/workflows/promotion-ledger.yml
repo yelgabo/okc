@@ -1,0 +1,12 @@
+name: Promotion evidence ledger
+on: [push, pull_request]
+jobs:
+  private-receipt-disposition:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python3 -m unittest discover -s tools -p test_release_audit.py -v
+      - run: python3 tools/release_audit.py --tracked-only --snapshots docs/releases/public-snapshots --out /tmp/release-audit.json --ledger docs/releases/promotion-queue.json --check

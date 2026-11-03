@@ -1,0 +1,9 @@
+{
+  "promotion_gaps": [
+    {
+      "job": "46aafddc195c4c57",
+      "reason": "missing promotion disposition"
+    }
+  ],
+  "leads": 23
+}

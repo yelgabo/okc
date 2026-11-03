@@ -12,6 +12,10 @@
 
 Read your owner's row, then its linked record. Check newer commits before acting on a dated job state. The scored whole-layer control is public607, SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`. [Incumbent source](../../muse_decode_layer/cand/g1b4_stage_release.py)
 
+## Private results and public promotion
+
+[All23 better private score receipts and release dispositions](2026-11-02-private-promotion-audit.md) are now indexed across all five problems. The recovered5,725.7us MoE file is a release-qualification lead; the5,613.6us MoE point is an external comparator. A treatment loss versus a newer control cannot erase that control's public-release gap. Before closing another report or choosing new tuning, run the required [promotion ledger check](../releases/promotion-queue.json) from AGENTS. CI checks new tracked receipts for a visible disposition. Public submission still requires the user's approval after a concrete release is prepared.
+
 ## Current work
 
 | Owner | Assignment and next decision |

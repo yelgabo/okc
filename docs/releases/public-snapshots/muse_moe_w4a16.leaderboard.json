@@ -1,0 +1,26 @@
+{
+  "board": "muse_moe_w4a16",
+  "measure": "speedup over SGLang; higher ranks higher",
+  "ranked": 1342,
+  "you": {
+    "rank": 434,
+    "team": "yelgabo",
+    "speedup": 2.2157,
+    "first": false,
+    "ahead": 433,
+    "to_first": 1.2476
+  },
+  "rows": [
+    {
+      "attempts": 25,
+      "job": "abe7651dbaa44458",
+      "rank": 434,
+      "speedup": 2.2157,
+      "submitted_at": 1793321438.0973241,
+      "team": "yelgabo",
+      "value": 6069.607719056422
+    }
+  ],
+  "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
+  "raw_snapshot_sha256": "8c597910c2507d956838b67dc0822db28563391bcae5460311969335afae42b5"
+}

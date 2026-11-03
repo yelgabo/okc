@@ -1,0 +1,8 @@
+test_disposition_requires_owner_evidence_and_user_facing_report (test_release_audit.PromotionAudit.test_disposition_requires_owner_evidence_and_user_facing_report) ... ok
+test_failed_or_flagged_official_run_is_excluded (test_release_audit.PromotionAudit.test_failed_or_flagged_official_run_is_excluded) ... ok
+test_failed_treatment_does_not_hide_better_official_arm (test_release_audit.PromotionAudit.test_failed_treatment_does_not_hide_better_official_arm) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK

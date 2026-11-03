@@ -1,0 +1,26 @@
+{
+  "board": "muse_prefill_layer",
+  "measure": "speedup over SGLang; higher ranks higher",
+  "ranked": 827,
+  "you": {
+    "rank": 637,
+    "team": "yelgabo",
+    "speedup": 1.2166,
+    "first": false,
+    "ahead": 636,
+    "to_first": 1.7259
+  },
+  "rows": [
+    {
+      "attempts": 3,
+      "job": "1530ec79d50a4f69",
+      "rank": 637,
+      "speedup": 1.2166,
+      "submitted_at": 1793513800.5948975,
+      "team": "yelgabo",
+      "value": 318441.9905489318
+    }
+  ],
+  "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
+  "raw_snapshot_sha256": "105a1f20d3be3be14e073b0fc3eaaf77bff02e6ab51c0b91ce641a3c36f4da17"
+}

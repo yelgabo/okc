@@ -1,0 +1,26 @@
+{
+  "board": "muse_decode_layer",
+  "measure": "speedup over SGLang; higher ranks higher",
+  "ranked": 1217,
+  "you": {
+    "rank": 387,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 386,
+    "to_first": 1.1713
+  },
+  "rows": [
+    {
+      "attempts": 42,
+      "job": "607eb52bdaf24160",
+      "rank": 387,
+      "speedup": 2.1261,
+      "submitted_at": 1793534312.3883686,
+      "team": "yelgabo",
+      "value": 10639.426326569794
+    }
+  ],
+  "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
+  "raw_snapshot_sha256": "1911d2ad488cc535a08cf440dea5444c8c2fa43e2037a2a196840c4199132966"
+}

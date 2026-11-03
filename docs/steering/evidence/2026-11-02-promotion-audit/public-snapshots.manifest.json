@@ -1,0 +1,37 @@
+[
+  {
+    "board": "muse_prefill_layer",
+    "raw_sha256": "105a1f20d3be3be14e073b0fc3eaaf77bff02e6ab51c0b91ce641a3c36f4da17",
+    "raw_gzip": "docs/steering/evidence/2026-11-02-promotion-audit/muse_prefill_layer.leaderboard.json.gz",
+    "compact": "docs/releases/public-snapshots/muse_prefill_layer.leaderboard.json",
+    "compact_sha256": "1eb670744439767c217cc032583583cfc23dc3fd295c7c8a9bf92fa4b3c35c19"
+  },
+  {
+    "board": "muse_moe_w4a16",
+    "raw_sha256": "8c597910c2507d956838b67dc0822db28563391bcae5460311969335afae42b5",
+    "raw_gzip": "docs/steering/evidence/2026-11-02-promotion-audit/muse_moe_w4a16.leaderboard.json.gz",
+    "compact": "docs/releases/public-snapshots/muse_moe_w4a16.leaderboard.json",
+    "compact_sha256": "9983d41d0286a7af51e9540fc1c0189fcb2744d6e187685ba42c671054e09ce6"
+  },
+  {
+    "board": "muse_bf16_proj",
+    "raw_sha256": "6c8da0865fe8ca545ce080a51482bffab86993fb617f170296845806cdf21595",
+    "raw_gzip": "docs/steering/evidence/2026-11-02-promotion-audit/muse_bf16_proj.leaderboard.json.gz",
+    "compact": "docs/releases/public-snapshots/muse_bf16_proj.leaderboard.json",
+    "compact_sha256": "f940d97bd67abd09932c3e831f9e1be9e548a601cf4b1c30c6da2d622b471d85"
+  },
+  {
+    "board": "muse_attention_decode",
+    "raw_sha256": "d1f320ee78f8fc4526108226dc28bcddc3c774c7a810ddc07e5ee64a49cd35da",
+    "raw_gzip": "docs/steering/evidence/2026-11-02-promotion-audit/muse_attention_decode.leaderboard.json.gz",
+    "compact": "docs/releases/public-snapshots/muse_attention_decode.leaderboard.json",
+    "compact_sha256": "e450f61ab6eced83e26c127d8cfae19f354c41aa6834c71ba92be8878ab03db5"
+  },
+  {
+    "board": "muse_decode_layer",
+    "raw_sha256": "1911d2ad488cc535a08cf440dea5444c8c2fa43e2037a2a196840c4199132966",
+    "raw_gzip": "docs/steering/evidence/2026-11-02-promotion-audit/muse_decode_layer.leaderboard.json.gz",
+    "compact": "docs/releases/public-snapshots/muse_decode_layer.leaderboard.json",
+    "compact_sha256": "c29c7a6c0697394b5f099d61c721c14fb4f5fc6c4402bce8322e520d47b5fed8"
+  }
+]

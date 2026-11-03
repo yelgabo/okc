@@ -44,6 +44,11 @@ After integration and before ceiling claims, check whether a parked family's rev
 
 ## Evidence and release
 
+Private experiment decisions and public promotion decisions are separate. A treatment loss against a newer control does not erase that control's improvement over the public entry. Every clean passing receipt with a lower official elapsed score than the current public result must enter [the promotion queue](docs/releases/promotion-queue.json), with exact job/source, actual judged arm, owner, evidence, release state and a reason visible in a user-facing report. External comparators, benchmark controls, noise, correctness/ordering gaps, user deferrals and public-use limits must be named, not silently discarded.
+
+Before starting another optimization cycle or closing an owner report, refresh public board snapshots and run `python3 tools/release_audit.py --snapshots docs/releases/public-snapshots --out .build/release-audit/current.json --ledger docs/releases/promotion-queue.json --check`. CI repeats the offline tracked-receipt check. Missing dispositions block completion. Present material better private results to the user with their exact file, result, uncertainty and remaining release requirements. Prepare and validate a concrete release before asking for public approval. Never treat approval as a reason to leave that preparation undone. Public submissions still require the user's go-ahead; this rule grants no submission authority.
+
+
 Profile SGLang before optimizing: copy its baseline with the `# okc: problem=<problem>` header to `<problem>/baseline_profile/baseline.py`, run a private check and keep its JSON. Find receipts with `rg --files <problem>/baseline_profile`; job IDs belong to their problem.
 
 Run `tools/hotspots.py` on the latest run with `--baseline` before choosing a kernel. Append a table to [hotspots](docs/hotspots.md) when a new best lands. Commit every check's profiles and log date, job, source commit, change, score/95%CI and losses in [projection](docs/runs.md), [MoE](docs/runs-moe.md), [attention](docs/runs-attention.md) or [layer](docs/runs-decode-layer.md) runs.
