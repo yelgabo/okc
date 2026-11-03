@@ -1,0 +1,14 @@
+{
+  "checked_at": "2026-11-03T17:42:32.016929+00:00",
+  "leads": 15,
+  "promotion_gaps": [],
+  "public_layer": {
+    "job": "f931abf568544018",
+    "score_us": 10374.616018194523,
+    "rank": 364,
+    "speedup": 2.1804,
+    "snapshot": ".build\\driver-monitor-1733\\public-snapshots\\muse_decode_layer.leaderboard.json"
+  },
+  "ledger": "docs/releases/promotion-queue.json",
+  "result": "PASS disposition inventory; separate publicf931 selection/approval-condition review remains open"
+}
