@@ -504,7 +504,10 @@
         "source": "27b5f252",
         "report": "docs/steering/2026-11-03-driver-monitor-2144.md",
         "decision": "PDL8e fails frozen keep; separately authorized PDL8f proceeds with existing owner."
-      }
+      },
+      "superseded_public_job": "9d80ae2494334136",
+      "supersession_report": "docs/steering/2026-11-03-driver-monitor-2240.md",
+      "historical_review_preserved": true
     },
     {
       "job": "00005928fed6437b",
@@ -576,6 +579,82 @@
         "Matched clean complete-call comparison to exactC2 with duplicate controls/fresh outputs/regressions under owning bounded private allocation",
         "Concrete reviewable release before any new publicapproval request"
       ]
+    },
+    {
+      "problem": "muse_decode_layer",
+      "owner": "Existing routing-slack implementation owner / final-day release lead",
+      "source_identity": "muse_decode_layer/cand/g1b4_rs.py;canonical Git SHA256 01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07;912377B",
+      "source_sha256": "01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07",
+      "artifact": "muse_decode_layer/cand/g1b4_rs.py",
+      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-2240.md",
+      "public_submission_approved": true,
+      "public_submission_approval_scope": "Conditional permission recorded at7799e111: valid private check, score below public-file check, every PDL stress clean, routing margins satisfied. Additional waiver of failed private condition not located.",
+      "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
+      "job": "f8a55f1043804158",
+      "score_us": 10297.394859538828,
+      "judged_arm": "routing-slack T1 candidate; prepared PDL on T1/T16/T32, off T8 after final full stress drift",
+      "evidence": "muse_decode_layer/cand/profiles/g1b4_rs.f8a55f1043804158.json",
+      "release_state": "same-source-public-release-private-keep-failed",
+      "reason": "Valid13/12/12 at10297.394860us, below current public10343.105996us descriptively. T1 routing changed, private T8PDL disabled after final drift. Frozen every-PDL-stress-clean and verify1full<118.7us conditions failed. Same physical source later publicly submitted by lead; public selected a different T8mask. Not a qualified private keep or separate automatically releasable candidate; no retry/confirmation allocated.",
+      "private_keep_gate_passed": false,
+      "public_submission_condition_satisfied": false,
+      "public_job": "9d80ae2494334136",
+      "private_prepared_PDL_T": [
+        1,
+        16,
+        32
+      ],
+      "private_T8_final_stress": {
+        "on": [
+          0.00514,
+          0.0058
+        ],
+        "off": [
+          0.00171,
+          0.00179
+        ],
+        "ids_mismatches": 0
+      },
+      "review_required": true
+    },
+    {
+      "problem": "muse_decode_layer",
+      "owner": "Existing routing-slack implementation owner / final-day release lead",
+      "source_identity": "muse_decode_layer/cand/g1b4_rs.py;canonical Git SHA256 01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07;912377B",
+      "source_sha256": "01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07",
+      "artifact": "muse_decode_layer/cand/g1b4_rs.py",
+      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-2240.md",
+      "public_submission_approved": true,
+      "public_submission_approval_scope": "Conditional permission recorded at7799e111: valid private check, score below public-file check, every PDL stress clean, routing margins satisfied. Additional waiver of failed private condition not located.",
+      "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
+      "job": "9d80ae2494334136",
+      "score_us": 10343.105996394634,
+      "judged_arm": "single-arm public routing-slack T1 source; prepared PDL on T1/T8/T16/T32, all six T8edges",
+      "evidence": "muse_decode_layer/cand/profiles/g1b4_rs.9d80ae2494334136.json",
+      "release_state": "public-release-confirmation-review-open",
+      "reason": "Public own receipt and board verify13/12/12 at10343.105996us,0.30372%below prior public descriptively. Public all-six T8stress passed inherited relative-off gate. Conditional private confirmation had failed every-PDL-stress-clean and verify1full clauses. Lead3c5b677e recorded submission despite misses using safe fallback/unchanged-other-T/best-run reasoning; no additional user exception is retained. Public success does not retroactively pass private condition. Existing release lead owns one explicit permission/qualification disposition. No observed judged wrong-output failure, root withdrawal, resubmission or new approval chain is inferred.",
+      "public_submission_condition_satisfied": null,
+      "private_confirmation_conditions_satisfied": false,
+      "private_qualification_job": "f8a55f1043804158",
+      "public_board_verified": true,
+      "public_prepared_PDL_T": [
+        1,
+        8,
+        16,
+        32
+      ],
+      "public_prepared_T8_edges": [
+        "attn",
+        "o",
+        "b1",
+        "pool",
+        "route",
+        "fin"
+      ],
+      "release_review_required": true,
+      "lead_override_evidence_commit": "3c5b677e",
+      "additional_user_exception_evidence": null,
+      "repeat_base_owner_report": "Lead records existing ignored repeat base changed to g1b4_rs; root did not inspect or modify helper."
     }
   ]
 }
