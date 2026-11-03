@@ -1,0 +1,76 @@
+{
+  "audited_at": "2026-11-03T08:16:23.901001+00:00",
+  "evidence_commit": "287ae028",
+  "job": "f4012a0531af4013",
+  "source_sha256": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+  "runtime_id": "c80be1d4a327041969c25c92651af8222d5eabbcb8c34a516e70710c0ddc4acd",
+  "receipt_reader_matches": true,
+  "exported_cases": [
+    {
+      "tokens": 1,
+      "schema_valid": true,
+      "phase_gain_qualified": false,
+      "jobs": 2,
+      "ctas": 132,
+      "units": 1536,
+      "retained_cta_details": [
+        2,
+        3
+      ],
+      "limit": "Only two CTA unit streams selected by thread0 finish survive export. B-end is thread0 return, not CTA completion. No critical-path gain is established."
+    },
+    {
+      "tokens": 8,
+      "schema_valid": true,
+      "phase_gain_qualified": false,
+      "jobs": 10,
+      "ctas": 132,
+      "units": 7680,
+      "retained_cta_details": [
+        18,
+        16
+      ],
+      "limit": "Only two CTA unit streams selected by thread0 finish survive export. B-end is thread0 return, not CTA completion. No critical-path gain is established."
+    }
+  ],
+  "cost_gate_matches": true,
+  "algorithm_gain": false,
+  "files": {
+    "hotspots.md": "b0ac64eb86ea9661093bf308765ed4aef298f50a81d1db61bc9eda18d30e9830",
+    "summary.json": "180b0b4ccbdebd021aa2d0e61e3356b1a619383fe222bc786137ce7709bc8688",
+    "cpu-short-gate.txt": "c577c26e95c7676959bc77f112e7a568eff2496a866282ae50d09c389d42c6a8",
+    "accepted.json": "e94777a7c5e4802b01f3237429dc7d0b746d1e68c951807585efd0f2e33fd9a0",
+    "status-wait.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "accepted-response.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status-wait.raw.json": "0cf774ceb0139560ee434c6c40c6156c4c019a75873a3b533d9a04dfe6face40",
+    "cpu.txt": "39f69a58ee577e017a689de698063dc86450304b53d40292e803ed0def2c8350",
+    "independent-export-audit.json": "fdd9c184f1cc74aeb60d12c326809642120b8345d87141d62eeddc779db2b7dc",
+    "paired.manifest.json": "f198252307213bba0d8a3ced14f2ab5e4b7bbeb195e472169f6b41094a075d65",
+    "preflight-quota.json": "e5b73db8bcdef3102b670bde8a7775e1b4d5c0664799570cba72fb4111501a4f",
+    "collector-exit.json": "2a7d466121ed9f2fb3563ff9a96f43bad33232f3287bd9aa0f698e70fee0c432",
+    "dispatch-started.json": "98fe63a60bfc7e2f751a676578903ccfeb0e780f91aaa2613e2292ac9fb875ee",
+    "public-terminal.json": "e82124f129ad2e663a526efcc58c70813f50fdbc82b1eda2f7a1d9e8deac54ad",
+    "capsule.json": "ad19c1543afb6c08fbebfb0f0a47cd0961aa252406a03d4a04e3c8537d965490",
+    "preflight-jobs.json": "c4e4753d1d95e6568685f2854d77b01007585619b079f953e2fe74d9b6bc81c2",
+    "analysis.json": "6cbf3503d093afb44cdde6c5da97d90b5b70080a01a28b17867865ae749016d9",
+    "paired.py": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+    "reader.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "accepted-response.raw.json": "5269082e917577743eb27cd22384eab50a5a870d6d1de46c72bad20a50f7844d",
+    "waiter.json": "33fc29b2d3bade5000f3772485cd1e2cf3b77cedda11e69525e0a22eed1b5784",
+    "compile/tiny2-observer.sass": "b56631dd70a60f83e8d683536c7f21538bd0fb418a6a1f5670119e100959acae",
+    "compile/control.cu": "ac4e2e658aacd1b4d50f3e98d196f25ddf7e9c0f615d8e4a9f0c09dedf717209",
+    "compile/tiny2-observer.log": "e2b061106944d4364a386ff4acbd5c29396f794d6fba6312920e1b53956753eb",
+    "compile/observer.cu": "e2e87d9f2d8a977965061364a18e5e43ffe133a5765f9ed9291fab6c73db3c8a",
+    "compile/tiny-control.sass": "8a3e870b5138fa322a9b425eacfbf0533ada897ab715b27cf3c785e4844c237e",
+    "compile/resources.json": "05bbceea8cd20529b14d41dc8f51c8ca9824ffc37fb2353e90e7cd4208948c0f",
+    "compile/tiny-observer.sass": "799a5361fe794dde0fa8df0ff9b8cbd2797bb7cbbfcafbd41da541c6227c481f",
+    "compile/tiny-observer.log": "3cad56a61fec3358fbbd8d4f6e3c100cf584c4135e1cffe9db2115480488c524",
+    "compile/tiny2-control.log": "2deb8c68a896ba2fc1c2f6663fdd0d0f565f49d48488adf7b0e5cb6aa2a24753",
+    "compile/tiny2-control.sass": "e45ba576c15229bc8f5f4201bb8722ce58bafd985628e5d1a1e0c6bb8963752f",
+    "compile/tiny-control.log": "9d8d8fe6a40680b8277ef3401bec94cf5bbabf8c2f8881e3640bcfedc9c4e2ba",
+    "compile/compile.json": "c5ea04f52d932188e487b97e3b5c48db68256cf6ff0e1d0eeb4e723ded3b6387",
+    "profiles/paired.f4012a0531af4013.json": "f8d1d269e6df0ef8de1e63f82f8199023726471067973cffc362e1d5c67fe917",
+    "profiles/paired.f4012a0531af4013.log": "e0e67d01c34be4c039b61f7359ed95a862c40f6d96f087e004c3336f42449adb",
+    "profiles/paired.f4012a0531af4013.txt": "a79b0c946d39d72294e169a5543682fecdab8459aa6175018be4a3be8a272f43"
+  }
+}

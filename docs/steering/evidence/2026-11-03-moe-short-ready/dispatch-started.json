@@ -1,0 +1,45 @@
+{
+  "experiment": "MOE-SHORT-READY-01",
+  "state": "DISPATCH_STARTED",
+  "at": "2026-11-03T08:24:34.150770+00:00",
+  "source_sha256": "b6107a783c8ded6dc626f6cfa99e7e1b53201e5225bd2073f736c69125f16964",
+  "source_bytes": 490593,
+  "source_commit": "73ab76cf",
+  "reconciliation_commit": "8fad06be",
+  "private": true,
+  "problem": "muse_moe_w4a16",
+  "quota": {
+    "scored": {
+      "per_day": 10,
+      "used": 6,
+      "left": 4
+    },
+    "checks": {
+      "per_day": 20,
+      "used": 17,
+      "left": 3
+    }
+  },
+  "shared_live": [
+    {
+      "job_id": "bc64cccd82724db4",
+      "problem": "muse_moe_w4a16",
+      "mode": "run",
+      "status": "queued"
+    },
+    {
+      "job_id": "b5ad766554c44928",
+      "problem": "muse_decode_layer",
+      "mode": "run",
+      "status": "queued"
+    },
+    {
+      "job_id": "c3d6ff96f765462e",
+      "problem": "muse_attention_decode",
+      "mode": "run",
+      "status": "running"
+    }
+  ],
+  "controls": "two original C7/helper-b8 owners, two ready-flag helper974 owners",
+  "stop": "single complete matched screen, same short cell >=2us at every bank/cross, all other loads preserved; no sweep or blind retry"
+}

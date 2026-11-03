@@ -12,6 +12,8 @@ General Optimizer reads the newest queue and active assignment on every user/sch
 
 Write live collector output under ignored `.build/` and archive after exit. In zsh collectors, use task-specific exit variables such as `moe_check_rc`; `status` is read-only. Rebase can replace a tracked redirect target's inode; recover ended output by its own job ID instead of resubmitting.
 
+A returned exec session is still running. Resume it and verify exit status before reading or staging its output or starting a dependent action. A nonzero tool exit code does not throw; check it before a commit or POST.
+
 Other owners retain unrelated work. Preserve accepted jobs/files, shared quota and single pollers. Never duplicate, cancel or resubmit another owner's job. Check live jobs/quota before a private run. No new agents or project-wide takeover. Publication, pickup and execution are separate facts. Escalate concrete access, technical or permission blockers.
 
 ## Code and context

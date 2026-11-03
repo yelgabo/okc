@@ -1,0 +1,15 @@
+{
+  "promotion.json": "11572371f2d1e61049fb5310a8172fd1ffa2947b031af49d8fef0dba9ecc7028",
+  "independent-audit.json": "258fe079e9a0e4e6a0b9591017c505ab3f0ef904284ea28cd35ad5a69e8b244e",
+  "public-snapshots/muse_prefill_layer.leaderboard.json": "57751b2a073e106ffd1d6a2b479acf24dee73271527d12b8660aba16f5d0b7b9",
+  "public-snapshots/muse_prefill_layer.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "public-snapshots/muse_attention_decode.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "public-snapshots/muse_bf16_proj.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "public-snapshots/snapshot.json": "3fb7d8d5bb33f98fabd8247a8aa598aeb858a03c3b1d4210584b42c5b45b63a9",
+  "public-snapshots/muse_moe_w4a16.leaderboard.json": "03dee28342930d00d7589955784e3b8ba9ba939db749ab03b991c1a8ea161421",
+  "public-snapshots/muse_moe_w4a16.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "public-snapshots/muse_bf16_proj.leaderboard.json": "351be138e4eb5f6b404e5cf44b19d245fb424b0f87b9d4554d2e60c1a05be801",
+  "public-snapshots/muse_attention_decode.leaderboard.json": "2038520595ae625d7bd7f7dee26e6281da0df68475e9b0de315d5ffda94dcb71",
+  "public-snapshots/muse_decode_layer.leaderboard.json": "d4098f197db87260024a0ed402a741c55fd08fbdfb3c4711b48211bdabb41dbe",
+  "public-snapshots/muse_decode_layer.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,15 @@
+{
+  "source_sha256": "abc7b308567ab9eeacce66d8e4424493c8a687f4a0dd67f36dcecf42812588d5",
+  "construction": "Candidate helper prefix before Torch include, followed by compile_entries instantiating both existing entries. Full helper and flags are pinned in paired.manifest.json.",
+  "control_source": "docs/steering/evidence/2026-11-02-moe-tiny-timeline/compile/control.cu",
+  "control_objects": {
+    "tiny": "1e9a58ae812607cb3f23b29e1916faf337bc7a4fbbf5e944c308dff753c0a1c3",
+    "tiny2": "92c74a14ec652022a161498bcefb702b72cfde418f653c40f1081203e0b404c4"
+  },
+  "sass_sha256": {
+    "tiny": "7671d2c6daad4269c14efefa45680b8cd9fa216ddbf399b2545275760e2eda7a",
+    "tiny2": "5288dd23670dd25b7b1f032198cbb8ba62ccd06b15dd80a9a53772f680b4cc91"
+  },
+  "gpu": false,
+  "target_parity": false
+}
