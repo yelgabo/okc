@@ -1,32 +1,34 @@
 # Decode32 task inbox
 
-## Current instruction: one owner, end to end, batch32 only
+## Latest user instruction: research plans, medium-effort worker executes
 
-**[D32-02: Decode32 Worker owns batch-32 optimization end to end](2026-11-02-02-end-to-end-ownership.md)** is the latest direct user instruction. Decode32 Worker owns D32 research/selection, implementation, compilation, correctness tests, private GPU checks, result analysis, iteration, integration and commits. **No routine Driver/Developer handoffs or per-step captain approval.** This does not transfer the rest of the project or unrelated benchmarks.
+**[D32-04: fixed design and implement/check/measure checklist](2026-11-02-04-research-plan-worker-execute.md)** is the current instruction. The user set Decode32 Worker to medium effort and asked okc research to supply the deeper design decisions. **Research owns architecture/experiment planning; Decode32 Worker owns implementation through private measurement, analysis, confirmation, integration and commits.** This is not a return to approval or Driver handoffs.
+
+Continue the already-picked-up D32-ATTN-01 **within-request next-tile QK score-carry** implementation. The brief fixes the intended mechanism, invariants, test path and result branches. Do not restart a literature survey, independent-review chain, ownership audit or general harness. Finish one conforming candidate, run the focused checks, send an ordinary private full-layer check yourself, and report D32 timings. A concrete correctness/progress/access blocker is still a stop; an unproved speedup is not a reason to delay an exploratory measurement.
+
+## Execution owner: end to end, batch32 only
+
+**[D32-02: Decode32 Worker owns batch-32 optimization end to end](2026-11-02-02-end-to-end-ownership.md)** remains the execution authority. Its research/selection language is refined by D32-04 above; its private-check, result-analysis, iteration and integration authority is unchanged. **No routine Driver/Developer handoffs or per-step captain approval.** This does not transfer the rest of the project or unrelated benchmarks.
 
 Scope: decode batch32 / T32 / q_len1, both contexts; `C32 = 46*sliding_us + 16*full_us`. Prioritize actual improvements to this load and preserve the other five loads. Existing correctness and public-submission permissions remain.
 
 ## Completed pre-existing job
 
-[MIDa6fe2769779e4299 is terminal, archived and parked](2026-11-02-03-mid-result.md). Driver's one-time accepted-job exception is complete: no second poller/resubmit or approval/handoff gate. D32C32=12.752280ms, no usefulsignal versus freshcontrol12.324230ms; fullsource/selection/replay/score/raw evidence is linked. New D32 owner continues directly under D32-02. The older pending-job text below describes its pre-terminal checkpoint and is superseded by this result.
+[MID a6fe2769779e4299 is terminal, archived and parked](2026-11-02-03-mid-result.md). Driver's one-time accepted-job exception is complete: no second poller/resubmit or approval/handoff gate. D32 C32=12.752280ms, no useful signal versus fresh control12.324230ms; full source/selection/replay/score/raw evidence is linked. Do not wait for or duplicate this completed test. The old accepted-job report below is historical, not a live-job instruction.
 
-## Current work
+## Current work and reusable evidence
 
-Continue **[D32-ATTN-01](2026-11-02-01-full-decode-attention.md)** from the [acknowledged 23:55 UTC pickup](2026-11-02-01-full-decode-attention-status.md), but take it through measurement and integration yourself. Its historical source-only/no-check/Driver-handoff wording is superseded by D32-02. A candidate/tests handoff is no longer completion.
+Continue **[D32-ATTN-01](2026-11-02-01-full-decode-attention.md)** from the [acknowledged 23:55 UTC pickup](2026-11-02-01-full-decode-attention-status.md), using **D32-04's fixed design and direct execution path**. Its historical source-only/no-check/Driver-handoff wording is superseded. A candidate/tests handoff is no longer completion. Record actual pickup of the new instruction in the existing status file and proceed; acknowledgment is not another gate.
 
-Reuse existing [MID-at-T32 work and calibration](../2026-11-02-driver-d32-control-terminal-and-mid-gate.md). Concurrent publication confirmed [MID check a6fe2769779e4299 was already accepted](../2026-11-02-driver-d32-mid-first-check.md): its original owner finishes that exact frozen job/archive, without cancellation, duplicate submission or a second poller. After inspecting the latest shared ledger and quota, Decode32 Worker owns subsequent D32 submissions. This one-time existing-job exception is not a recurring handoff gate. OK Driver/OKC Developer retain unrelated tasks and must not open new overlapping D32 assignments.
+Reuse the existing [MID implementation and calibration](../2026-11-02-driver-d32-control-terminal-and-mid-gate.md) as evidence, not a fresh allocation. [MID accepted-job registration](../2026-11-02-driver-d32-mid-first-check.md) is preserved as history; its terminal result above controls. Decode32 Worker checks current shared quota/jobs and owns subsequent D32 submissions. OK Driver/OKC Developer retain unrelated tasks and must not open new overlapping D32 assignments.
 
-Record acknowledgment of D32-02 and the current candidate/job in a short status update here. Do not wait for another research task to begin the authorized end-to-end cycle. This publication is not itself evidence that the expanded role has been read or executed.
+[Driver's L1 score-carry/source/lifetime notes](2026-11-02-02-driver-attention-source-feedback.md), added in7afce310, distinguish existing load overlap from next-tile score carry and record lifetime/softmax obligations and scoped prior receipts. Keep this technical feedback; its old root-only dispatch/handoff restriction is superseded. It is not a second implementation task.
 
-## Useful concurrent source work, preserved
-
-[Driver's L1 score-carry/source/lifetime notes](2026-11-02-02-driver-attention-source-feedback.md), added in7afce310, distinguish existing load overlap from next-tile score carry and record lifetime/softmax obligations and prior scoped receipts. Keep this technical feedback; only its old root-only dispatch/handoff restriction is superseded. It is not a second implementation task.
-
-[Existing MID confirmation-tool reuse and blockers](../2026-11-02-worker-mid-matched-reuse.md), published65b94dcc, records the completed source investigation. It is not a ready paired payload. Reuse valid pieces rather than rebuild a framework: arm-local16/32policy, route/source witnesses, independent controls and prospectiveD32/all-five-regression gates still matter. Decode32 Worker owns the subsequent work under D32-02, without another Driver allocation requirement. Concurrent source reports and commits are preserved unchanged.
+[Existing MID confirmation-tool reuse and blockers](../2026-11-02-worker-mid-matched-reuse.md), published65b94dcc, records a completed investigation, not a ready paired payload or reason to build confirmation for the parked MID candidate. Reuse relevant valid infrastructure only when a new promising result needs confirmation; do not create a general framework first.
 
 ## Inbox convention and preserved evidence
 
-Add dated Markdown tasks, status and result records here. Preserve earlier tasks/results; newer explicit user instructions supersede conflicting historical ownership. Record source and job identities, what actually ran, its result and the next decision. No general framework or repeated ownership review is needed.
+Add dated Markdown tasks, status and result records here. Preserve earlier tasks/results; newer explicit user instructions supersede conflicting historical ownership. Report `source -> job -> correctness -> D32 timings -> next action`. One terminal result or one specific blocker is more useful than a readiness report after every local check. Publication is not proof of worker acknowledgment or execution.
 
 Background:
 - [D32 weighted targets](../2026-11-02-decode32-priority.md).
@@ -34,4 +36,4 @@ Background:
 - [MID comparison design](../2026-11-02-driver-d32-mid-comparison.md).
 - [Inbox setup and monitoring contract](../2026-11-02-decode32-inbox.md).
 
-The recorded monitor checks this folder before work/between bounded work units and periodically through the desktop scheduler, including committed `origin/main` updates and the two documented local checkouts. That is periodic checking, not proof of an instantaneous notification or pickup. Preserve local work when fetching and push completed code/results under the normal repository workflow.
+The recorded worker monitor checks this folder before work/between bounded work units and periodically through its desktop scheduler, including committed `origin/main` updates and the two documented local checkouts. That is periodic checking, not proof of an instantaneous notification or pickup. Preserve local work when fetching and push completed code/results under the normal repository workflow. This research chat has not created or changed that monitor.
