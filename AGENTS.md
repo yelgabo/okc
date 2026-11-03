@@ -1,31 +1,33 @@
 # okc: Open Kernel Challenge work
 
-## P0 user directive: decode batch 32 (2026-11-02)
+## P0 user directive: Decode32 Worker owns the D32 lane end to end (2026-11-02)
 
-The user explicitly reiterated: **"make it priority for them please"**.
-**OK Driver and OKC Developer: improving decode batch 32 is the primary next
-performance assignment**, not optional background research. This means T=32,
-q_len=1, with `46 * sliding_us + 16 * full_us`; it is not verify32/T256.
-Read [the owner directive](docs/steering/2026-11-02-decode32-owner-directive.md)
-and record actual pickup there. Preserve local work when fetching updates.
+The user explicitly removed handoffs for **batch-32 optimization only**, not the
+whole project. **Decode32 Worker owns D32 implementation, compilation, validation,
+private GPU checks, result analysis, iteration, integration and commits.** It does
+not need OK Driver/OKC Developer to approve or execute each step. Read the latest
+[scoped owner directive](docs/steering/decode32/2026-11-02-02-end-to-end-ownership.md)
+and [watched task inbox](docs/steering/decode32/README.md).
 
-The [decode32 task inbox](docs/steering/decode32/README.md) receives assignments
-and direction from research. Read its new files before D32 work and between
-bounded work units. Reconcile task ownership with the current captain allocation.
+Scope is decode T32/q_len1, sliding and full, optimizing
+`46 * sliding_us + 16 * full_us`, not verify32/T256. Preserve other load winners.
+First milestone is reproducible 2x from the recorded1.8632x, then2.1-2.2x;
+these are targets, not promised gains. Continue the already-picked-up attention
+work and reuse the existing MID implementation rather than rebuilding it.
 
-OK Driver remains sole dispatcher. Finish/reconcile accepted job
-`0b684a4065354fc5` without duplicate submission, and report its two D32 cells
-and weighted total first. Deliver this priority to OKC Developer through the
-existing coordination channel and record delivery and acknowledgment separately.
-OKC Developer prioritizes the T32/B4 expert path in both contexts, then D32
-full-context attention, keeping other load winners unchanged. Pause new
-unrelated T1/T8 or T128/256-only performance work unless it is a necessary
-correctness/measurement dependency or the user changes priority. The first
-milestone is a reproducible D32 2.0x from the recorded 1.8632x, then 2.1-2.2x;
-these are targets, not promised gains. Existing correctness, frozen-run stop
-rules and submission permissions remain. This directive does not authorize a
-second dispatcher, new agents, duplicate jobs or public submission. A commit
-is not evidence of direct delivery or agent acknowledgment.
+This supersedes older Driver-only dispatch, attention-only/source-only and
+measurement-handoff restrictions **for D32 only**. OK Driver/OKC Developer keep
+unrelated work; do not start new overlapping D32 assignments. Existing accepted
+jobs finish under their original owner without cancellation, duplicate submission
+or a second poller. Decode32 Worker checks the live shared job/quota ledger before
+new private runs and records its exact source/job. A one-time existing-job overlap
+is not a recurring handoff gate. No new agents or project-wide takeover.
+
+Technical correctness, source attribution, graph lifetime and regression gates
+remain. Existing public/scored-submission permissions are unchanged; no blanket
+new public authorization is implied. The same D32 owner performs approved release
+work directly. Record actual pickup separately from publication; escalate only
+real access/technical/permission blockers, not routine implementation checkpoints.
 
 Background and decisions: `docs/context.md`. Coordinator working method (agents, quota,
 submits, porting, traps): `.claude/agents/okc-coordinator.md`. Every run: `docs/runs.md` (bf16_proj),
