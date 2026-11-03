@@ -31,7 +31,26 @@ CUDA_EDITS = [
   float* sout; __nv_bfloat16* hout;                           // [M][2 HD] outputs
   int* ucnt;    // [4]: final items done, slice units done, each by launch generation like the barrier counters
   int nU;       // slice units in this launch (UNP_UNITS) or 0
+  unsigned long long* ustamp;   // diagnostics: per-CTA globaltimer stamps [grid][8] of the tail (null in production)
 };
+"""),
+    ("ustamp", """#define DBG(k) do { if (OKC_DEBUG && TIDX == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (k)] = gtimer(); } while (0)
+""", """#define DBG(k) do { if (OKC_DEBUG && TIDX == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (k)] = gtimer(); } while (0)
+#define USTAMP(k) do { if (OKC_UNP && p.ustamp && TIDX == 0) p.ustamp[blockIdx.x * 8 + (k)] = gtimer(); } while (0)
+"""),
+    ("stamp_entry", """  asm volatile("griddepcontrol.wait;\\n" ::: "memory");
+#if OKC_WS
+  if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }
+""", """  asm volatile("griddepcontrol.wait;\\n" ::: "memory");
+  USTAMP(6);
+#if OKC_WS
+  if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }
+"""),
+    ("stamp_barrier", """  CTA_SYNC();
+  DBG(4);
+""", """  CTA_SYNC();
+  DBG(4);
+  USTAMP(7);
 """),
     ("wsr", """  int wsr[4];                          // WS: this CTA's phase A and phase B unit ranges
 """, """  int wsr[6];                          // WS: this CTA's phase A, phase B and (UNP) slice unit ranges
@@ -45,10 +64,11 @@ CUDA_EDITS = [
 """),
     ("constants", """constexpr int UNIT_CODES = 32768, UNIT_SC = 4096, UNIT_BYTES = UNIT_CODES + UNIT_SC;
 """, """constexpr int UNIT_CODES = 32768, UNIT_SC = 4096, UNIT_BYTES = UNIT_CODES + UNIT_SC;
-// UNP: a slice unit is 4 unpooler rows x HD bf16 = 32 KB in a ring slot; a boundary item is one token x NT * 4 columns
-constexpr int UNP_ROWS = 1024, UNP_UR = 4, UNP_UNITS = UNP_ROWS / UNP_UR, UNP_UB = UNP_UR * HD * 2;
+// UNP: a slice unit is 4 unpooler rows x HD bf16 = 32 KB in a ring slot, rows 32 B apart in bank terms (conflict-free
+// B-fragment loads); a boundary item is one token x NT * 4 columns
+constexpr int UNP_ROWS = 1024, UNP_UR = 4, UNP_UNITS = UNP_ROWS / UNP_UR, UNP_UB = UNP_UR * HD * 2, UNP_RP = HD * 2 + 32;
 constexpr int UNP_FSEG = HD / (NT * 4), HD2 = 2 * HD, UNP_FB = NT * 4, UNP_NSEG = HD2 / UNP_FB;
-static_assert(UNP_UB <= UNIT_BYTES && UNP_ROWS == NT * 4, "UNP: a slice unit fits a ring slot; one thread per 4 head columns");
+static_assert(UNP_UR * UNP_RP <= UNIT_BYTES && UNP_ROWS == NT * 4, "UNP: a slice unit fits a ring slot; one thread per 4 head columns");
 """),
     ("issue_u", """template <bool PB>
 __device__ __forceinline__ void ring_issue_all(const Params& p, const Smem& S, int v, unsigned char* slot, uint64_t* bar) {
@@ -63,8 +83,10 @@ __device__ __forceinline__ void ring_issue_all(const Params& p, const Smem& S, i
 __device__ __forceinline__ void ring_issue_u(const Params& p, int u, unsigned char* slot, uint64_t* bar) {
   const unsigned char* src = reinterpret_cast<const unsigned char*>(p.unp) + (size_t)u * UNP_UB;
   asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n" ::"r"(smem_u32(bar)), "r"(UNP_UB) : "memory");
-  asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\\n"
-               ::"r"(smem_u32(slot)), "l"(src), "r"(UNP_UB), "r"(smem_u32(bar)) L2H_ARG : "memory");
+#pragma unroll
+  for (int r = 0; r < UNP_UR; ++r)   // one copy per row: the rows land UNP_RP apart
+    asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\\n"
+                 ::"r"(smem_u32(slot + r * UNP_RP)), "l"(src + (size_t)r * (HD * 2)), "r"(HD * 2), "r"(smem_u32(bar)) L2H_ARG : "memory");
 }
 #endif
 """),
@@ -159,11 +181,13 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
 // phase loops' fence.proxy.async.shared::cta (PTX ISA 9.7.12.4, membar/fence: generic-proxy before async-proxy).
 __device__ void unp_tail(const Params& p, Smem& S, unsigned char* ring, int nfin) {
   const int tid = TIDX, lane = tid & 31, warp = WARP_IDX(tid);
+  USTAMP(0);
   int* fin = p.ucnt + (S.gen & 1);
   int* ucnt = p.ucnt + 2 + (S.gen & 1);
   const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);
   const int u0 = S.wsr[4], nU = S.wsr[5] - u0;
   const int M = p.M;
+  const int g = lane >> 2, t4 = lane & 3;
   if (nfin > 0) {  // this CTA's final items are published
     CTA_SYNC();
     if (tid == 0) { __threadfence(); atomicAdd(fin, nfin); }
@@ -171,72 +195,53 @@ __device__ void unp_tail(const Params& p, Smem& S, unsigned char* ring, int nfin
   if (nU > 0) {
     if (tid == 0) { while (ld_acquire(fin) < M * UNP_FSEG) __nanosleep(64); }
     CTA_SYNC();
-    uint4 xr[16];  // out rows: this warp's 512-K slice of every token, 16 bf16 per lane (rows >= M are zero)
+    USTAMP(1);
+    // mma m16n8k16 per warp over its 512-K range: A = out rows (token g; rows >= M and g + 8 are zero), B = the unit's
+    // rows (n = g < 4, the rest zero). K is permuted the same way on both sides: the k indices (2t, 2t+1, 2t+8, 2t+9)
+    // of step s are k = warp * 512 + 16 s + 4 t + (0, 1, 2, 3), so each lane's A pair and B pair are one 8-byte load.
+    uint2 xa[32];
+    {
+      const bool act = g < M;
+      const __nv_bfloat16* xrow = p.out + (size_t)(act ? g : 0) * HD + warp * 512 + 4 * t4;
 #pragma unroll
-    for (int t = 0; t < 8; ++t) {
-      if (t < M) {
-        const uint4* src = reinterpret_cast<const uint4*>(p.out + (size_t)t * HD + warp * 512 + lane * 16);
-        xr[2 * t] = __ldcg(src); xr[2 * t + 1] = __ldcg(src + 1);
-      } else {
-        xr[2 * t] = make_uint4(0u, 0u, 0u, 0u); xr[2 * t + 1] = make_uint4(0u, 0u, 0u, 0u);
-      }
+      for (int s = 0; s < 32; ++s) xa[s] = act ? __ldcg(reinterpret_cast<const uint2*>(xrow + 16 * s)) : make_uint2(0u, 0u);
     }
+    USTAMP(2);
     for (int i = 0; i < nU; ++i) {
       const int q = N + i, sl = q % OKC_NS;
       mbar_wait(S.bars + sl, (uint32_t)((q / OKC_NS) & 1));
-      const unsigned char* slot = ring + sl * UNIT_BYTES;
-      float acc[UNP_UR][8];
+      const unsigned char* brow = ring + sl * UNIT_BYTES + (g < UNP_UR ? g : 0) * UNP_RP + (warp * 512 + 4 * t4) * 2;
+      float d[4] = {0.f, 0.f, 0.f, 0.f};
 #pragma unroll
-      for (int r = 0; r < UNP_UR; ++r)
-#pragma unroll
-        for (int t = 0; t < 8; ++t) acc[r][t] = 0.f;
-#pragma unroll
-      for (int r = 0; r < UNP_UR; ++r) {
-        const uint4 w0 = *reinterpret_cast<const uint4*>(slot + r * (HD * 2) + warp * 1024 + lane * 32);
-        const uint4 w1 = *reinterpret_cast<const uint4*>(slot + r * (HD * 2) + warp * 1024 + lane * 32 + 16);
-        const uint32_t ww[8] = {w0.x, w0.y, w0.z, w0.w, w1.x, w1.y, w1.z, w1.w};
-#pragma unroll
-        for (int t = 0; t < 8; ++t) {
-          const uint32_t xx[8] = {xr[2 * t].x, xr[2 * t].y, xr[2 * t].z, xr[2 * t].w,
-                                  xr[2 * t + 1].x, xr[2 * t + 1].y, xr[2 * t + 1].z, xr[2 * t + 1].w};
-#pragma unroll
-          for (int k = 0; k < 8; ++k) {
-            acc[r][t] = fmaf(__uint_as_float(ww[k] << 16), __uint_as_float(xx[k] << 16), acc[r][t]);
-            acc[r][t] = fmaf(__uint_as_float(ww[k] & 0xffff0000u), __uint_as_float(xx[k] & 0xffff0000u), acc[r][t]);
-          }
-        }
+      for (int s = 0; s < 32; ++s) {
+        const uint2 b = g < UNP_UR ? *reinterpret_cast<const uint2*>(brow + 32 * s) : make_uint2(0u, 0u);
+        mma_bf16(d, xa[s].x, 0u, xa[s].y, 0u, b.x, b.y);
       }
-      float mine = 0.f;  // lane (r, t) = (lane >> 3, lane & 7) keeps that pair's sum over the warp's K range
-#pragma unroll
-      for (int r = 0; r < UNP_UR; ++r)
-#pragma unroll
-        for (int t = 0; t < 8; ++t) {
-          float v = acc[r][t];
-#pragma unroll
-          for (int o = 16; o > 0; o >>= 1) v += __shfl_xor_sync(0xffffffffu, v, o);
-          mine = (lane == r * 8 + t) ? v : mine;
-        }
-      const int bb = i & 1;
-      S.red[bb][warp][lane][0] = mine;
+      const int bb = i & 1;   // d0, d1: token g, unit rows 2 t4, 2 t4 + 1 (this warp's K share)
+      *reinterpret_cast<float2*>(&S.red[bb][warp][lane][0]) = make_float2(d[0], d[1]);
       asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");  // this warp's generic reads of the slot precede its refill
       CTA_SYNC();
       if (tid == 0 && q + OKC_NS < N + nU) ws_issue(p, S, q + OKC_NS, nA, S.wsr[0], S.wsr[2], ring);
-      if (warp == 0) {
-        float s = 0.f;
+      if (warp == 0 && t4 < 2 && g < M) {
+        float2 sm = make_float2(0.f, 0.f);
 #pragma unroll
-        for (int w = 0; w < NW; ++w) s += S.red[bb][w][lane][0];
-        const int r = lane >> 3, t = lane & 7;
-        if (t < M) p.P[(size_t)t * UNP_ROWS + (u0 + i) * UNP_UR + r] = __float2bfloat16_rn(s);
+        for (int w = 0; w < NW; ++w) {
+          const float2 v = *reinterpret_cast<const float2*>(&S.red[bb][w][lane][0]);
+          sm.x += v.x; sm.y += v.y;
+        }
+        *reinterpret_cast<__nv_bfloat162*>(p.P + (size_t)g * UNP_ROWS + (u0 + i) * UNP_UR + 2 * t4) = __floats2bfloat162_rn(sm.x, sm.y);
       }
     }
     CTA_SYNC();
     if (tid == 0) { __threadfence(); atomicAdd(ucnt, nU); }
+    USTAMP(3);
   }
   // the boundary: item = (token, UNP_FB columns), thread = 4 columns; both row reductions run per item
   const int nitems = M * UNP_NSEG;
   if ((int)blockIdx.x >= nitems) return;
   if (tid == 0) { while (ld_acquire(ucnt) < p.nU) __nanosleep(64); }
   CTA_SYNC();
+  USTAMP(4);
   float* fr = &S.red[2][0][0][0];
   const int c4 = tid * 4;
   for (int it = blockIdx.x; it < nitems; it += gridDim.x) {
@@ -289,6 +294,7 @@ __device__ void unp_tail(const Params& p, Smem& S, unsigned char* ring, int nfin
     *reinterpret_cast<uint2*>(p.hout + (size_t)tk * HD2 + o) = make_uint2(hw[0], hw[1]);
     CTA_SYNC();  // fr is reused by the next item
   }
+  USTAMP(5);
 }
 #endif
 
@@ -325,7 +331,7 @@ void okc_run(std::vector<torch::Tensor> w, std::vector<torch::Tensor> scratch, t
 void okc_run_unp(std::vector<torch::Tensor> w, std::vector<torch::Tensor> scratch, torch::Tensor x, torch::Tensor ids,
                  torch::Tensor tw, torch::Tensor out, int64_t lo, int64_t nloc, int64_t grid, torch::Tensor unp,
                  torch::Tensor P, torch::Tensor carry, torch::Tensor tail, torch::Tensor beta, torch::Tensor post,
-                 torch::Tensor nextw, torch::Tensor sout, torch::Tensor hout) {
+                 torch::Tensor nextw, torch::Tensor sout, torch::Tensor hout, torch::Tensor ustamp) {
 #if OKC_UNP
   const int64_t M = x.size(0);
   TORCH_CHECK(M >= 1 && M <= 8, "okc_run_unp: M <= 8");
@@ -347,6 +353,10 @@ void okc_run_unp(std::vector<torch::Tensor> w, std::vector<torch::Tensor> scratc
   p.post = (const __nv_bfloat16*)post.data_ptr(); p.nextw = (const __nv_bfloat16*)nextw.data_ptr();
   p.sout = (float*)sout.data_ptr(); p.hout = (__nv_bfloat16*)hout.data_ptr();
   p.nU = okc::UNP_UNITS;
+  if (ustamp.numel() > 0) {
+    TORCH_CHECK(ustamp.scalar_type() == torch::kInt64 && ustamp.numel() >= grid * 8 && ustamp.is_contiguous(), "okc_run_unp: ustamp int64 [grid * 8]");
+    p.ustamp = (unsigned long long*)ustamp.data_ptr();
+  }
   okc_launch(w, scratch, x, ids, tw, out, lo, nloc, grid, p);
 #else
   TORCH_CHECK(false, "okc_run_unp: this build has no fused tail");
@@ -364,7 +374,7 @@ std::vector<int64_t> okc_attrs();
 void okc_run_unp(std::vector<torch::Tensor> w, std::vector<torch::Tensor> scratch, torch::Tensor x, torch::Tensor ids,
                  torch::Tensor tw, torch::Tensor out, int64_t lo, int64_t nloc, int64_t grid, torch::Tensor unp,
                  torch::Tensor P, torch::Tensor carry, torch::Tensor tail, torch::Tensor beta, torch::Tensor post,
-                 torch::Tensor nextw, torch::Tensor sout, torch::Tensor hout);
+                 torch::Tensor nextw, torch::Tensor sout, torch::Tensor hout, torch::Tensor ustamp);
 \"\"\"
 """),
     ("functions", """            functions=["okc_run", "okc_set_pdl"] + (["okc_attrs"] if "okc_attrs" in src else []),
@@ -396,16 +406,36 @@ def _unp_fused(state, T, ext):
     return UNP_FUSED and T in SL_CLUSTER_CONFIG and state.get("unp_fused", {}).get(T, False) and hasattr(ext, "okc_run_unp")
 
 
-def _unp_tail_run(ext, state, xm, lids, wts, m, s1, tail, g, P=None):
+def _unp_tail_run(ext, state, xm, lids, wts, m, s1, tail, g, P=None, stamps=None):
     dev = xm.device
     T = xm.shape[0]
     if P is None:
         P = torch.empty((T, 1024), device=dev, dtype=torch.bfloat16)
+    if stamps is None:
+        stamps = state["unp_nostamp"]
     s2 = torch.empty((T, HIDDEN), device=dev, dtype=torch.float32)
     out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
     ext.okc_run_unp(state["ma_w"], state["ma_scratch"], xm, lids, wts, m, 0, 32, state["nsm"],
-                    state["unpool_slice"], P, s1, tail, g["beta2"], g["post2"], g["pre2"], s2, out)
+                    state["unpool_slice"], P, s1, tail, g["beta2"], g["post2"], g["pre2"], s2, out, stamps)
     return out, s2
+
+
+def _unp_timeline(stamps, nsm):
+    """Per-stage median / max over CTAs, us from the earliest kernel entry: entry, barrier, tail entry, final items
+    published (fin acquired), x loaded, slice units done, boundary start (ucnt acquired), boundary done."""
+    st = stamps[:nsm * 8].view(nsm, 8).cpu()
+    t0 = int(st[:, 6].min())
+    names = ((6, "entry"), (7, "barrier"), (0, "tail"), (1, "fin"), (2, "x"), (3, "units"), (4, "ucnt"), (5, "done"))
+    parts = []
+    for k, name in names:
+        v = st[:, k]
+        v = v[v > 0]
+        if v.numel() == 0:
+            parts.append(f"{name} -")
+            continue
+        us = (v - t0).double() / 1000.0
+        parts.append(f"{name} {float(us.median()):.1f}/{float(us.max()):.1f}")
+    return " ".join(parts)
 
 
 def _unp_err(a, b):
@@ -428,6 +458,7 @@ def _unp_self_test(state, deadline=None):
         print("UNP_GATE off: native MoE or graft path unavailable", flush=True)
         return
     dev = state["unpool_slice"].device
+    state["unp_nostamp"] = torch.empty(0, dtype=torch.int64, device=dev)
     g = state["graft"]
     gen = torch.Generator(device=dev).manual_seed(20261102)
     flush = torch.ones(16 * 1024 * 1024, dtype=torch.float32, device=dev)   # 64 MB read sweep between timed replays
@@ -511,15 +542,30 @@ def _unp_self_test(state, deadline=None):
                 judge(cgot, refs[i], ctrl, ce)
             worst_elem = we[0]
             ok = all(worst[k] <= UNP_BOUNDS[k] for k in worst) and worst_elem <= UNP_BOUNDS["elem"]
-            load(0)
-            t_sep = min(_graph_time(lambda: sep()[3], flush, reps=15), _graph_time(lambda: sep()[3], flush, reps=15))
-            t_fused = min(_graph_time(lambda: fused()[3], flush, reps=15), _graph_time(lambda: fused()[3], flush, reps=15))
             del graph, cgraph
+            # timeline on the judge-like routing (routes[2]: about one local route per token), one warm eager call
+            load(2)
+            stamps = torch.zeros(state["nsm"] * 8, dtype=torch.int64, device=dev)
+            for _ in range(2):
+                stamps.zero_()
+                _unp_tail_run(ext, state, xm, lids, wts, torch.empty_like(xm), s1, tail, g, stamps=stamps)
+                torch.cuda.synchronize()
+            print(f"UNP_TL T={T} {_unp_timeline(stamps, state['nsm'])}", flush=True)
+            # both tails as graphs with a cold L2: hot routing (8 local routes per token) and the judge-like one; the
+            # pick follows the judge-like routing
+            times = {}
+            for ri, name in ((0, "hot"), (2, "judge")):
+                load(ri)
+                t_sep = min(_graph_time(lambda: sep()[3], flush, reps=15), _graph_time(lambda: sep()[3], flush, reps=15))
+                t_fused = min(_graph_time(lambda: fused()[3], flush, reps=15), _graph_time(lambda: fused()[3], flush, reps=15))
+                times[name] = (t_sep, t_fused)
+            t_sep, t_fused = times["judge"]
             win = t_fused <= t_sep + UNP_LOSS_US
             picks[T] = bool(ok and win)
             print(f"UNP_GATE T={T} {'ok' if ok else 'FAIL'} fused rel m {worst['m']:.1e} P {worst['P']:.1e} s2 {worst['s2']:.1e} "
                   f"out {worst['out']:.1e} elem {worst_elem:.1e} | control replay rel m {ctrl['m']:.1e} P {ctrl['P']:.1e} "
-                  f"s2 {ctrl['s2']:.1e} out {ctrl['out']:.1e} elem {ce[0]:.1e} | tails us sep {t_sep:.1f} fused {t_fused:.1f} "
+                  f"s2 {ctrl['s2']:.1e} out {ctrl['out']:.1e} elem {ce[0]:.1e} | tails us hot sep {times['hot'][0]:.1f} "
+                  f"fused {times['hot'][1]:.1f}, judge-like sep {t_sep:.1f} fused {t_fused:.1f} "
                   f"-> {'fused' if picks[T] else 'separate'}", flush=True)
         except Exception as exc:  # noqa: BLE001
             picks[T] = False
