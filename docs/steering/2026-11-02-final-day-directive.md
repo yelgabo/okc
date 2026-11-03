@@ -48,4 +48,4 @@ hash, affected cells before and after, decision. Chat-only results do not count.
 
 ## Ledger
 
-(empty at creation)
+- Layer owner, 2026-11-03 00:10 PT: check 1 of the expert-to-unpooler fusion slice, job `4c2d5e3a8e1147bf`, source `g1b4_unp_release.py` d0c537ec (patch tool `tools/dl_unp_patch.py` on ba9e327c). PASS 13/13, 2.117x. The fused tail passed its fresh-input gate at T = 1 and 8 but timed 6 us slower than the separate launches in prepare (75.1 vs 81.2 us at T = 1, 126.7 vs 132.6 at T = 8, cold L2, 8 local routes per token), so the gate kept the separate path: d1 77.6 / 85.4 us, v1 113.7 / 122.1 against 76.75 / 83.73 and 115.43 / 117.60 (607eb52), a control-equivalent run. Decision: not a candidate; the FMA slice GEMV and the hot-routing pick are the named causes; mma tail plus timeline in check 2. Details in docs/runs-decode-layer.md.
