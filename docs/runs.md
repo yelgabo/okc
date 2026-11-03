@@ -2267,3 +2267,37 @@ Terminal2b537518091248f1 PUBLIC PASS9/30benchmarks/30profiles,checks.ok/no flags
 - Exact30-cell/6-load score reconstruction passes; replacing only10 cells into archived C2 gives factor0.9263484356405296, explicitly an unpaired sensitivity scenario. Seeds/baselines/overhead/tuner differ; weight identity was not shared or established.
 - Canonical rawreceipt/profile/log/txt are root-owned under `muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.*`; decoded all30/6loads/40vectors/capacities/hashmanifest and report `archive/docs/steering/2026-11-01-projection-stage-xor-terminal.md`. Six synthetic reader tests and3 independent terminal-data tests pass.
 - CLOSE exact stage-local BEFORE-A variant alongside global-record BEFORE-A loss; no automatic retry, cap/tile/stage/placement sweep, target dropping or layer port. No candidate promotion. Reopen only distinct dataflow/instruction evidence with credible full30>=1% paired opportunity and unchanged correctness/order/resource gates.
+
+### 2026-11-02 ramp candidates on the short o / slice / qkv cells (final-day directive, BF16 owner)
+
+Preregistration before dispatch. Source: the rebuilt C2 (`tools/proj_sk_xor_control.py`, SHA256
+5610b8a6, job 9eba96894ee1402e, 1.5278x) plus tuner candidates in
+`muse_bf16_proj/experiments/ramp_c2.py`; every judged pick stays in the file and the tuner chooses per
+(layer, m) as before.
+
+Hypothesis. o at m = 1 runs cgemv<64, 1> over 4096 CTAs of 96 threads (3 KB of weights each, 1.5
+waves at 21 CTAs per SM). Its judged cold time (5.04 us) equals its warm profile time (5.0 us), while
+every other GEMV cell is 0.6-1.3 us faster warm (slice 3.73 vs 2.4, router 3.84 vs 2.8, qkv 9.06 vs
+8.0): o is limited by CTA launch and retire, not by HBM. The fixed-cost fit over the other cells
+(t = 0.84 us + bytes / 3.95 TB/s) predicts 4.0 us for its 12.6 MB, so about 1 us is on the table
+(0.47% of the score per microsecond at decode 1).
+
+Mechanism. `cgemv_body<NTH, CPT, RPC>`: RPC row pairs per CTA, compute warps grouped per pair, one
+escape warp with 32 / RPC lanes per pair (segmented shuffle sums), threads 0..RPC-1 store. RPC 1 is
+the judged form. Candidates: o `cgemv_r8c2` (32 threads x 2 chunks x 8 pairs: 512 CTAs of 288
+threads at 40 registers, 24 KB each, one wave at 5 CTAs per SM), `cgemv_r4c2` (1024 x 160),
+`cgemv_r16c2` (256 x 544), `cgemv_r4` (64 x 1 x 4: 1024 x 288 at 32 registers); slice `cgemv_r2`
+(256 x 288) and `cgemv_r4` (128 x 544); qkv_gate `cgemv_r2` (576 x 544). rd for o with the whole
+K in flight at entry in a different shape: `rdo8r2` (32 rows, 256 CTAs x 512 threads), `rdo8k4`
+(4 warps x 4 units, all prefetched); and the rd family at 16 / 32 tokens (`rdo16`, `rdo16k4`,
+`rdo32k4`), where o16 / o32 stream K = 1024 through a 3-slot ring. rdo8 already compiles to 48
+registers (5 CTAs per SM, one wave), so a min-blocks variant of it was dropped before dispatch.
+
+Controls: the judged C2 cells (status JSON of 9eba96894ee1402e); the tuner lines show every
+candidate against the judged pick in the same process. Affected loads: decode 1 (o, unpooler,
+qkv_gate), verify 1 (o), decode 16 / 32 (o). Acceptance (directive): decode 1 or verify 1 improves
+by 1.5 us summed over the targeted cells with no other cell losing more than noise; the o m = 1
+cell alone is expected to give 0.5-1.0 us. Stop: at most four checks for this owner; one check
+for this candidate set, a second only to repeat a result inside the noise of the first.
+Prepare budget: 106 s judged for C2; the additions are 7 GEMV self-tests at m = 1, 6 rd self-tests
+and about 20 extra tuner arms.
