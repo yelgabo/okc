@@ -1,0 +1,11 @@
+{
+  "screen_job": "e3e2495464f34b2c",
+  "source_sha256": "b6107a783c8ded6dc626f6cfa99e7e1b53201e5225bd2073f736c69125f16964",
+  "screen_passed": false,
+  "confirmation_sha256": "70da64b41ee2eb84935ae34600a1bac47f611af90277f010bd4ee98d68b47bbb",
+  "release_draft_sha256": "00f13180418ac5f3e00a08c7765b7edacbe4a91d7c71ee9d295401be0348034f",
+  "confirmation_dispatched": false,
+  "release_check_dispatched": false,
+  "public_submission": false,
+  "disposition": "Park both conditional drafts: failed registered screen. No qualification or public approval."
+}

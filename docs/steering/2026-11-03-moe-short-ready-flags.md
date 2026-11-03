@@ -55,3 +55,30 @@ Own e3e2495464f34b2c accepted once for pairedb6107a78/490593bytes, published73ab
 Tools/moe_short_ready_confirm.py fixes held-out banks2203011/2203017/2203029, disjoint from the screen and its fresh97offset banks. Its two CPU tests establish that only BANKS and runtime identity change, the exact helper/compiler requests remain, and the original screen/gate module stays immutable. No seed search or alternate held-out bank is allowed. No confirmation is dispatched unless the complete frozen screen passes.
 
 Tools/moe_short_ready_release.py prepares a single-arm draft from exact approved5df257af, preserving the original MID/B4/MAIN, quantized weights, packing, scale fallbacks, operator checks and three-buffer ABI. Both changed short compiler requests equal those of the active paired candidate; the other three equal the original public file. Two CPU tests check contract identity and actual preparation/forwarding. This source is not GPU-qualified or public-approved. Conditional manifests/test output are archived; generated draft payloads stay ignored until their gates permit use.
+
+## Terminal decision: stop exact flags and retain the incumbent
+
+Own e3e2495464f34b2c is complete. PASS5tests/6benchmarks/6profiles, no flags, return0. Strict source/job/manifest reader accepts full54cases/36timed rows,378observations/216captures/1152cold replays/54restores, all seven compiler requests and1512zeroed flag observations. Prepare252.570135seconds; worst global/row paired errors0.000085418680/0.000300182204. Collector95504 ended0 before archival. This establishes the tested correctness and coverage, separately from memory-model inference and speed.
+
+The frozen performance gate fails. No short cell qualifies;0/6bank/distribution groups resolve a whole-six gain,11affected rows breach the regression gate and one unchanged T128/normal bank1102037 row breaches its drift envelope. Across all24owner-cross/bank/distribution comparisons, median T1 savings are negative1.079999us and T8 negative0.592000us. Thus the candidate is slower at both target medians. Unchanged-path drift limits precise attribution; it does not repair the failed benefit gate.
+
+| Tokens | Savings min us | Savings median us | Savings max us | Official adjusted median us |
+|---|---:|---:|---:|---:|
+|1|-1.791999|-1.079999|0.304000|27.365950|
+|8|-1.567999|-0.592000|0.656001|65.509585|
+|16|-1.248002|0.015997|1.184000|99.167387|
+|32|-1.744002|0.208000|1.104005|124.499396|
+|128|-2.191998|0.504002|2.335995|182.574146|
+|256|-1.872003|0.031997|1.711994|216.281217|
+
+Positive savings mean faster. The matched table and official score measure different inputs/timing procedures; they are not pooled. Official candidate2 is5815.571639us/2.312498381x, CI[2.277810905,2.347185857]. It is above the verified terminal public-board point5737.988910us, job2821fdb184d740b1, rank330 at this snapshot. Physical source attribution of that other owner's public run remains with its owner. The user's fixed5559.8us target is still178.188910us below the board point.
+
+Stop this exact readiness representation and retain the original job-counter helper. Do not retry, change flag layouts/lanes/epochs/granularity, remove fences, select favorable masks or infer a general distributed-flag loss. The result does not identify whether scan/issue overhead, publication timing or another cost caused the loss. The original observed dependency wait is not a recovered speedup. No near-ceiling claim follows.
+
+The prepared held-out70da64b4 and pure release00f13180 drafts remain unsubmitted, unqualified and unintegrated because their screen condition failed. No public action follows and no public permission was requested for a losing file. All raw receipt/profiles, strict analysis and the conditional disposition are archived in evidence/2026-11-03-moe-short-ready.
+
+## Qualified refill required
+
+There is no qualified next kernel treatment in the current owner queue. The finite short-load endpoint allocation is complete; unused quota does not reopen it. The precise gap is a source-backed way to remove at least2us at T1/T8 while preserving the BF16 boundaries, writer/proxy fences, progress, graph lifetime and other four loads. The two timelines do not separate helper arithmetic, store-drain/publication cost and issue/partial-buffer delay well enough to select another correction. The flag comparison supplies no isolated causal split either.
+
+Research refill should identify the actual selected helper/flags, a concrete removable or reorganized dependency or work item, its credible complete-call microsecond benefit and one decisive matched test. An instruction-count or local spill observation alone cannot supply H200 speed. Do not refill with the stopped NW16/BAL/row-owned/final-counter/flag variants, old WGS observers, a prefetch already present, large-load/PARAM-Y work or the deferred megakernel. This is a scoped missing-evidence request in the shared inbox, not a claim of delivery, a new approval gate or task completion at5559.8us.
