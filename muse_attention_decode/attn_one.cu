@@ -247,6 +247,18 @@ constexpr int TL_W = 256;
 #ifndef ONE_HSPLIT
 #define ONE_HSPLIT 0
 #endif
+// ONE_PSTEAL (mode 51): CTAs split and split + ceil(G / 2) share one virtual range (two adjacent
+// shares) and split it at run time. The first walks its tiles upward, the second downward; each
+// owns its first PS_OWN tiles and claims the rest with one relaxed RMW per tile on the pair's
+// counter ([CNT_PAIR + pair], low half the upward count, high half the downward one). A tile
+// belongs to the walk whose claim saw it unclaimed, so the walks never overlap and leave no gap
+// (docs/runs-attention.md, PSTEAL). Consumer thread 0 claims; the producer reads the result and
+// tells the consumers each stage's request and position (and the walk's end) in shared memory,
+// published by one extra arrival on the full barrier. 1: walk loop unrolled twice; 2: not.
+// Stamps of 8ac6563343f74bcd: with equal tiles one CTA of each SM ends 12 / 23 us before the other.
+#ifndef ONE_PSTEAL
+#define ONE_PSTEAL 0
+#endif
 
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
 // |4 = at most one tile per CTA (straight-line prologue), |8 = the sequence length is taken
@@ -326,6 +338,12 @@ constexpr int CNT_EPOCH = 8192;
 constexpr int CNT_FLAT = 16384;
 // [CNT_SMR + smid]: ONE_WAVE's per-SM rank counters, zero between launches.
 constexpr int CNT_SMR = CNT_FLAT + 4096;
+// [CNT_PAIR + pair]: ONE_PSTEAL's claim counters, zero between launches.
+constexpr int CNT_PAIR = CNT_FLAT + 8192;
+// ONE_PSTEAL: tiles each walk owns before it claims. Consumer thread 0 claims walk tile w + 5
+// while it reads tile w and publishes the result before it releases tile w + 1, the release the
+// producer waits on before it copies tile w + 5; the first claimed tile is then 5.
+constexpr int PS_OWN = 5;
 constexpr int CNT_INTS = 32768;
 
 struct Params {
@@ -388,13 +406,19 @@ struct Smem {
     // Producer mode: NS full and NS empty mbarriers (per KV head under ONE_HSPLIT).
     static constexpr int BAR = OFF + 2304;
     static constexpr int NBAR = ONE_HSPLIT && L == 8 && NS == 4 ? 2 : 1;
+    // ONE_PSTEAL (ints): [0, 16) stage records {request, pos0, lo, hi}; [16, 32) the producers'
+    // tile ring {request, pos0}; [36, 40) the walk cursor; [40] tiles, [41] owned, [42] middle;
+    // [48, 56) claim results by walk tile.
+    static constexpr bool PSR = ONE_PSTEAL && L == 8 && NS == 4;
+    static constexpr int PSEG = (BAR + 2 * NS * 8 * NBAR + 15) / 16 * 16;
     // ONE_PBULK: PB_SLOTS page-index windows (16-byte aligned, up to 68 entries each) and one
     // mbarrier per window.
     static constexpr int PSL = (BAR + 2 * NS * 8 + 127) / 128 * 128;
     static constexpr int PBAR = PSL + PB_SLOTS * PB_SLOT_BYTES;
     // ONE_PBULK=2: a "free" mbarrier per window (the producers' reads done) after the full ones.
     static constexpr int PFREE = PBAR + PB_SLOTS * 8;
-    static constexpr int BYTES = PB ? PFREE + PB_SLOTS * 8 : BAR + 2 * NS * 8 * NBAR;
+    static constexpr int BYTES = PB ? PFREE + PB_SLOTS * 8
+                                    : (PSR ? PSEG + 256 : BAR + 2 * NS * 8 * NBAR);
     static_assert(Q % 1024 == 0 && VT % 1024 == 0, "swizzled tiles need 1024-byte bases");
 };
 
@@ -544,6 +568,17 @@ __device__ __forceinline__ int atom_add_acq_rel(int* p, int v) {
                  : "=r"(old) : "l"(p), "r"(v) : "memory");
     return old;
 }
+
+#if ONE_PSTEAL
+// Relaxed RMW written as PTX: with atomicAdd the q_len 8 producer arm made ptxas wrap both
+// roles in one convergence region (consumers capped at 80 registers, 500 bytes of spills).
+__device__ __forceinline__ unsigned atom_add_relaxed(unsigned* p, unsigned v) {
+    unsigned old;
+    asm volatile("atom.relaxed.gpu.global.add.u32 %0, [%1], %2;\n"
+                 : "=r"(old) : "l"(p), "r"(v) : "memory");
+    return old;
+}
+#endif
 
 __device__ __forceinline__ int ld_acquire(const int* p) {
     int v;
@@ -1040,6 +1075,12 @@ attn_one_kernel(const Params p) {
     const uint32_t full0 = smem_base + S::BAR;
     const uint32_t empty0 = full0 + NS * S::NBAR * 8;
     constexpr bool HSPLIT = S::NBAR == 2 && PROD;
+    constexpr bool PST = S::PSR && PROD && FLAT && COOP && !SOLO;
+    static_assert(!(PST && HSPLIT), "ONE_PSTEAL is written on the shared ring");
+#if ONE_PSTEAL
+    int* const pq = reinterpret_cast<int*>(smem + S::PSEG);
+    int pm = 0, prk = 0;
+#endif
     // Only the plans whose layer successor is the skinny o projection (T <= 32: q_len 1, and
     // q_len 8 at batch 1); above 32 tokens o runs on cuBLAS and mode 51's schedule stays as judged.
     if constexpr (ONE_TRIG != 0 && (L == 1 || SPEC)) {
@@ -1199,7 +1240,7 @@ attn_one_kernel(const Params p) {
             if constexpr (PROD) {
 #pragma unroll
                 for (int s = 0; s < NS * S::NBAR; ++s) {
-                    mbar_init(full0 + 8 * s, HSPLIT ? 64 : 128);
+                    mbar_init(full0 + 8 * s, HSPLIT ? 64 : (PST ? 129 : 128));
                     mbar_init(empty0 + 8 * s, HSPLIT ? 128 : NC);
                 }
                 if constexpr (PBULK) {
@@ -1223,6 +1264,14 @@ attn_one_kernel(const Params p) {
             const long long wg = wsum(G);
             v0 = static_cast<int>(total_v * wsum(slot) / wg);
             v1 = static_cast<int>(total_v * wsum(slot + 1) / wg);
+#if ONE_PSTEAL
+        } else if constexpr (PST) {
+            const int H = (G + 1) >> 1;
+            pm = split % H;
+            prk = split / H;
+            v0 = static_cast<int>(total_v * (2 * pm) / G);
+            v1 = static_cast<int>(total_v * min(2 * pm + 2, G) / G);
+#endif
         } else {
             v0 = static_cast<int>(total_v * split / G);
             v1 = static_cast<int>(total_v * (split + 1) / G);
@@ -1250,6 +1299,40 @@ attn_one_kernel(const Params p) {
         __syncthreads();
         b_first = flag[1];
         b_last = flag[2];
+#if ONE_PSTEAL
+        if constexpr (PST) {
+            // The pair's tile count, before the roles split: computed inside the producer
+            // branch, this loop made ptxas join both roles' exits (consumers capped at 80
+            // registers, wgmma serialized).
+            if (warp == 0) {
+                int n = 0;
+                for (int bb = b_first + lane; bb <= b_last; bb += 32) {
+                    const int a = offs[bb];
+                    const int n_b = offs[bb + 1] - a - SEGK;
+                    const int s0 = max(v0, a) - a;
+                    const int s1 = min(v1, a + n_b) - a;
+                    const int lo_k = s0 > 0 ? (s0 & ~(BN - 1)) : 0;
+                    const int hi_k = s1 < n_b ? (s1 & ~(BN - 1)) : n_b;
+                    n += hi_k > lo_k ? (hi_k - lo_k + BN - 1) >> 6 : 0;
+                }
+                n = __reduce_add_sync(0xffffffffu, n);
+                if (lane == 0) {
+                    // Each walk owns its first PS_OWN tiles and claims the rest of the middle
+                    // (pq[42] tiles). Both CTAs then have keys whenever either claims, so each
+                    // reaches the grid barrier after its last claim. A pair without a second
+                    // CTA (odd grid) owns all its tiles.
+                    const bool pair2 = pm + ((G + 1) >> 1) < G;
+                    const int own = !pair2 ? n
+                                    : n >= 2 * PS_OWN ? PS_OWN
+                                                      : (prk ? n >> 1 : (n + 1) >> 1);
+                    pq[40] = n;
+                    pq[41] = own;
+                    pq[42] = pair2 && n >= 2 * PS_OWN ? n - 2 * PS_OWN : 0;
+                }
+            }
+            __syncthreads();
+        }
+#endif
         if constexpr (STAMPS) {
             if (tid == 0) {
                 srec(1, snow());
@@ -1293,6 +1376,156 @@ attn_one_kernel(const Params p) {
             const bool fast32 = ONE_PFAST && p.off32 != 0;
             long long s_emw = 0;
             const long long s_p0 = STAMPS ? clock64() : 0;
+#if ONE_PSTEAL
+            if constexpr (PST) {
+                // Request bb's tile range inside the pair's virtual range (seg_bounds' rounding).
+                auto pseg = [&](int bb, int& lo_k, int& hi_k) {
+                    const int a = offs[bb];
+                    const int n_b = offs[bb + 1] - a - SEGK;
+                    const int s0 = max(v0, a) - a;
+                    const int s1 = min(v1, a + n_b) - a;
+                    lo_k = s0 > 0 ? (s0 & ~(BN - 1)) : 0;
+                    hi_k = s1 < n_b ? (s1 & ~(BN - 1)) : n_b;
+                    hi_k = max(hi_k, lo_k);
+                };
+                // Thread 0 only: own tile t of the walk into tq[t & 7], (-1, 0) past its end.
+                // The cursor {request, first pair index, lo, tiles} moves one way per walk.
+                auto map_store = [&](int t) {
+                    const int n = pq[40];
+                    int bb = -1;
+                    int pos0 = 0;
+                    if (t < n) {
+                        const int i = prk ? n - 1 - t : t;
+                        int j = pq[36];
+                        int cj = pq[37];
+                        int lj = pq[38];
+                        int nj = pq[39];
+                        int hj = 0;
+                        while (i >= cj + nj) {
+                            cj += nj;
+                            ++j;
+                            pseg(j, lj, hj);
+                            nj = (hj - lj + BN - 1) >> 6;
+                        }
+                        while (i < cj) {
+                            --j;
+                            pseg(j, lj, hj);
+                            nj = (hj - lj + BN - 1) >> 6;
+                            cj -= nj;
+                        }
+                        pq[36] = j;
+                        pq[37] = cj;
+                        pq[38] = lj;
+                        pq[39] = nj;
+                        bb = j;
+                        pos0 = lj + (i - cj) * BN;
+                    }
+                    pq[16 + 2 * (t & 7)] = bb;
+                    pq[17 + 2 * (t & 7)] = pos0;
+                };
+                // Tile t of the walk is copied when t < pq[41] (owned outright) or when the
+                // consumers' claim for it succeeded (pq[48 + (t & 7)], written before their
+                // release of tile t - 4, so the empty-slot wait below orders the read).
+                const int own = pq[41];
+                const bool claims = pq[42] > 0;
+                if (ptid == 0) {
+                    int lk = 0, hk = 0;
+                    const int j0 = prk ? b_last : b_first;
+                    if (j0 >= 0 && j0 < B) {
+                        pseg(j0, lk, hk);
+                    }
+                    const int nj = (hk - lk + BN - 1) >> 6;
+                    pq[36] = j0;
+                    pq[37] = prk ? pq[40] - nj : 0;
+                    pq[38] = lk;
+                    pq[39] = nj;
+                    map_store(0);
+                    map_store(1);
+                }
+                named_sync(4, 128);
+                // Page entries of the next tile, loaded while the empty slot is awaited.
+                int pe[4];
+                auto load_pe = [&](int t) {
+                    const int bb = pq[16 + 2 * (t & 7)];
+                    const int pos0 = pq[17 + 2 * (t & 7)];
+                    const int sq = bb >= 0 ? offs[bb + 1] - offs[bb] - SEGK - L : 0;
+                    const int* ptb = p.page_table + static_cast<size_t>(max(bb, 0)) * p.pt_stride;
+#pragma unroll
+                    for (int i = 0; i < 4; ++i) {
+                        const int pos = pos0 + r0 + 16 * i;
+                        pe[i] = pos < sq ? __ldg(ptb + (pos >> p.lp)) : 0;
+                    }
+                };
+                load_pe(0);
+                // The slot of tile t is awaited before tile t's claim is read, so the end record
+                // goes into a slot already free.
+                mbar_wait(emptyp + 8 * pst, pph ^ 1u);
+                bool go = 0 < own || (claims && pq[48] != 0);
+                for (int t = 0; go; ++t) {
+                    const int bb = pq[16 + 2 * (t & 7)];
+                    const int pos0 = pq[17 + 2 * (t & 7)];
+                    const int n_b = offs[bb + 1] - offs[bb] - SEGK;
+                    const int sq = n_b - L;
+                    const uint32_t kdst = smem_base + S::KV + pst * 2 * TILE_BYTES;
+                    const uint32_t vdst = kdst + TILE_BYTES;
+                    if (fast32 && pos0 + BN <= sq) {
+#pragma unroll
+                        for (int i = 0; i < 4; ++i) {
+                            const int r = r0 + 16 * i;
+                            const uint32_t row = (static_cast<uint32_t>(pe[i]) << p.lp)
+                                                 + (static_cast<uint32_t>(pos0 + r) & (psize - 1));
+                            const uint32_t off = (row << 7) + ch * 16;
+                            cp_async16(kdst + r * ROWB + k_swz<L>(ch, r) * 16, p.k_cache + off, CPB);
+                            cp_async16(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off, CPB);
+                        }
+                    } else {
+#pragma unroll
+                        for (int i = 0; i < 4; ++i) {
+                            const int r = r0 + 16 * i;
+                            const int pos = pos0 + r;
+                            const uint32_t kd = kdst + r * ROWB + k_swz<L>(ch, r) * 16;
+                            const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
+                            if (pos < sq) {
+                                const int64_t row = (static_cast<int64_t>(pe[i]) << p.lp)
+                                                    + (pos & (psize - 1));
+                                const int64_t off = row * ROWB + ch * 16;
+                                cp_async16(kd, p.k_cache + off, CPB);
+                                cp_async16(vd, p.v_cache + off, CPB);
+                            } else if (pos >= n_b) {
+                                cp_async16(kd, p.k_cache, 0);
+                                cp_async16(vd, p.v_cache, 0);
+                            }
+                        }
+                    }
+                    cp_async_mbar_arrive_noinc(fullp + 8 * pst);
+                    if (ptid == 0) {
+                        int lk, hk;
+                        pseg(bb, lk, hk);
+                        *reinterpret_cast<int4*>(pq + 4 * pst) = make_int4(bb, pos0, lk, hk);
+                        // Release: the record above precedes the consumers' full-barrier pass.
+                        mbar_arrive(fullp + 8 * pst);
+                        map_store(t + 2);
+                    }
+                    if (++pst == NS) {
+                        pst = 0;
+                        pph ^= 1u;
+                    }
+                    named_sync(4, 128);
+                    load_pe(t + 1);
+                    mbar_wait(emptyp + 8 * pst, pph ^ 1u);
+                    go = t + 1 < own || (claims && pq[48 + ((t + 1) & 7)] != 0);
+                }
+                cp_async_mbar_arrive_noinc(fullp + 8 * pst);
+                if (ptid == 0) {
+                    *reinterpret_cast<int4*>(pq + 4 * pst) = make_int4(-1, 0, 0, 0);
+                    mbar_arrive(fullp + 8 * pst);
+                }
+                if (++pst == NS) {
+                    pst = 0;
+                    pph ^= 1u;
+                }
+            } else
+#endif
             if constexpr (PBULK) {
                 // Tile g (counted over all segments) reads window g % PB_SLOTS, filled by ptid 0
                 // PBD tiles ahead. A window is refilled only after every producer has read its
@@ -1781,6 +2014,17 @@ attn_one_kernel(const Params p) {
     // Ring position of the consumers in producer mode: continuous over segments.
     int cst = 0;
     uint32_t cph = 0;
+    // ONE_PSTEAL: pos0 of the segment's first tile (read by the walk loop), and the keys of
+    // the segment's tiles.
+#if ONE_PSTEAL
+    int pnext = 0;
+    int dyn_keys = 0;
+    // Consumer thread 0's claims: walk tile index, and the counter values returned for tiles
+    // ps_w + 4 (issued one tile earlier) and ps_w + 5.
+    int ps_w = 0;
+    unsigned ps_r4 = 0xffffffffu;
+    unsigned ps_r5 = 0xffffffffu;
+#endif
 
     // One (request, range) segment: loads, query and new-token preparation, the tile loop
     // and the reds into the workspace. Returns false when SPEC found the segment empty.
@@ -2049,7 +2293,11 @@ attn_one_kernel(const Params p) {
         // common: the caller knows the tile holds none of the block's own rows (ONE_DCARRY).
         const uint32_t fullc = full0 + (HSPLIT ? (tid >> 7) * NS * 8 : 0);
         const uint32_t emptyc = empty0 + (HSPLIT ? (tid >> 7) * NS * 8 : 0);
+#if ONE_PSTEAL
+        auto acquire = [&](int it, int st, bool common = false, int pos0_dyn = 0) {
+#else
         auto acquire = [&](int it, int st, bool common = false) {
+#endif
             if constexpr (PROD) {
                 const long long s_w0 = STAMPS ? clock64() : 0;
                 mbar_wait(fullc + 8 * st, cph);
@@ -2079,7 +2327,11 @@ attn_one_kernel(const Params p) {
                 if constexpr (L == 8 && ONE_PROBE != 2) {
                     fence_proxy_async();
                 }
+#if ONE_PSTEAL
+                const int pos0 = PST ? pos0_dyn : lo + it * BN;
+#else
                 const int pos0 = lo + it * BN;
+#endif
                 if (common) {
                     if (it == 0) {
                         csync();
@@ -2591,12 +2843,42 @@ attn_one_kernel(const Params p) {
                 vd_lo ^= vd_x;
             } else if constexpr (QKOV || EREL || PCHK || UNR8 > 1) {
                 int st = PROD ? cst : 0;
+#if ONE_PSTEAL
+                auto one_tile = [&](int it) -> bool {
+                    int pos0 = lo + it * BN;
+                    if constexpr (PST) {
+                        // The walk's next stage: the outer loop has read the first record.
+                        pos0 = pnext;
+                        if (it > 0) {
+                            mbar_wait(full0 + 8 * cst, cph);
+                            const int2 m2 = *reinterpret_cast<const int2*>(pq + 4 * cst);
+                            if (m2.x != b) {
+                                return false;
+                            }
+                            pos0 = m2.y;
+                        }
+                        dyn_keys += min(BN, end - pos0);
+                        if (tid == 0) {
+                            const int k = ps_w + 5 - pq[41];
+                            ps_r5 = k >= 0 && k < pq[42]
+                                        ? atom_add_relaxed(reinterpret_cast<unsigned*>(
+                                                               p.ws_cnt + CNT_PAIR + pm),
+                                                           prk ? 0x10000u : 1u)
+                                        : 0xffffffffu;
+                        }
+                    }
+                    const bool common =
+                        DCARRY && (PST ? !p.window && pos0 + BN <= seq : it < it_c);
+                    acquire(it, st, common, pos0);
+                    const uint8_t* vs = smem + S::KV + st * 2 * TILE_BYTES + TILE_BYTES;
+#else
 #pragma unroll (UNR8)
                 for (int it = 0; it < ntiles; ++it) {
                     const bool common = DCARRY && it < it_c;
                     acquire(it, st, common);
                     const uint8_t* vs = smem + S::KV + st * 2 * TILE_BYTES + TILE_BYTES;
                     const int pos0 = lo + it * BN;
+#endif
                     const bool interior =
                         common
                         || (pos0 + BN - 1 <= seq && (!p.window || pos0 >= seq + L - p.window));
@@ -2660,6 +2942,22 @@ attn_one_kernel(const Params p) {
                         wg_wait<0>();
                         reg_fence(s);
                     }
+#if ONE_PSTEAL
+                    if constexpr (PST) {
+                        static_assert(EREL, "claims are published at the early release");
+                        if (tid == 0) {
+                            // Tile ps_w + 4's claim, before this thread's arrival on the empty
+                            // barrier the producer waits on before it copies that tile.
+                            const int k = ps_w + 4 - pq[41];
+                            const int other =
+                                static_cast<int>(prk ? (ps_r4 & 0xffffu) : (ps_r4 >> 16));
+                            pq[48 + ((ps_w + 4) & 7)] =
+                                k >= 0 && k < pq[42] && ps_r4 != 0xffffffffu && k + other < pq[42];
+                            ps_r4 = ps_r5;
+                        }
+                        ++ps_w;
+                    }
+#endif
                     if constexpr (EREL) {
                         // Every read of the stage is done: the Q.K wgmma's by the wait above, this
                         // thread's ldmatrix of V before it in program order. P.V reads V^T only.
@@ -2793,7 +3091,28 @@ attn_one_kernel(const Params p) {
                         vd_lo ^= vd_x;
                     }
                     st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
+#if ONE_PSTEAL
+                    return true;
+                };
+                if constexpr (PST && ONE_PSTEAL == 1) {
+                    // Unrolled by hand: the walk ends at a stage record, not a known count.
+                    for (int it = 0;; it += 2) {
+                        if (!one_tile(it) || !one_tile(it + 1)) {
+                            break;
+                        }
+                    }
+                } else if constexpr (PST) {
+                    for (int it = 0; one_tile(it); ++it) {
+                    }
+                } else {
+#pragma unroll (UNR8)
+                    for (int it = 0; it < ntiles; ++it) {
+                        one_tile(it);
+                    }
                 }
+#else
+                }
+#endif
             } else if constexpr (PRQ != 0) {
                 constexpr bool TOV = (PRQ & 1) != 0;
                 constexpr bool QKF = (PRQ & 2) != 0;
@@ -3208,7 +3527,42 @@ attn_one_kernel(const Params p) {
         const int ep = COOP ? __ldcg(p.ws_cnt + CNT_FLAT + 2) : 0;
         const float v_scale_g = __ldg(p.v_scale);
         int mine_total = 0;
+#if ONE_PSTEAL
+        if constexpr (PST) {
+            // Segments in walk order, as the producer's stage records give them; the end record
+            // is released like a tile so the producer's drain completes.
+            for (;;) {
+                mbar_wait(full0 + 8 * cst, cph);
+                const int4 pmt = *reinterpret_cast<const int4*>(pq + 4 * cst);
+                if (pmt.x < 0) {
+                    mbar_arrive(empty0 + 8 * cst);
+                    if (++cst == NS) {
+                        cst = 0;
+                        cph ^= 1u;
+                    }
+                    break;
+                }
+                b = pmt.x;
+                pt = p.page_table + static_cast<size_t>(b) * p.pt_stride;
+                end = offs[b + 1] - offs[b] - SEGK;
+                seq = end - L;
+                start = 0;
+                n_keys = end;
+                lo = pmt.z;
+                hi = pmt.w;
+                pnext = pmt.y;
+                ntiles = (hi - lo + BN - 1) >> 6;
+                dyn_keys = 0;
+                run_segment();
+                mine_total += dyn_keys;
+            }
+        }
+#endif
+#if ONE_PSTEAL
+        for (b = b_first; !PST && b <= b_last; ++b) {
+#else
         for (b = b_first; b <= b_last; ++b) {
+#endif
             if (!seg_bounds(b)) {
                 continue;
             }
@@ -3256,6 +3610,14 @@ attn_one_kernel(const Params p) {
             csync();
             coop_barrier<NC>(p.ws_cnt + CNT_FLAT, p.ws_cnt + CNT_FLAT + 2, ep, mine_total,
                              keys_all, tid, p.dbg);
+#if ONE_PSTEAL
+            if constexpr (PST) {
+                // Both walks' claims precede their CTAs' arrivals at the grid barrier.
+                if (prk == 0 && tid == 0) {
+                    atomicExch(p.ws_cnt + CNT_PAIR + pm, 0);
+                }
+            }
+#endif
             if constexpr (STAMPS) {
                 if (tid == 0) {
                     srec(4, snow());

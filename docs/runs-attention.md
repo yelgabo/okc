@@ -4493,3 +4493,81 @@ cooperative barrier) whose extra merges and ring breaks at chunk boundaries eat 
 microseconds. No candidate check is dispatched from this lane; three of its four checks are
 returned. If the q_len 8 lane's pair split (ONE_PSTEAL, mode 51) wins, its mechanism is the one to
 port to mode 49, sized against the 3.1 / 6.2 us pair gap above.
+
+## 2026-11-03 run-time pair split in mode 51 (ONE_PSTEAL, verify 16 / 32 full), registered before dispatch
+
+Owner: attention, verify 16 / 32 full lane (user-sanctioned exception to the final-day rule).
+Base: worktree commit bd252c8f-equivalent control (c1126e80 sources, `ONE_PSTEAL 0`).
+Hypothesis (from 4c0b0674c46d4ec2): the partner CTA of each SM runs alone for 11.4 / 21.9 us at
+1.0-1.2 tiles/us; a run-time split of each pair's keys that ends both CTAs together models at
+-4.8 / -6.2 us at the kernel end. Earlier static or arrival-order splits (block-index weights,
+`ONE_WAVE`) lost because neither knows which CTA the scheduler favours; this split needs no
+such knowledge.
+
+Mechanism (`ONE_PSTEAL`, mode 51 only, default 0):
+- CTAs `s` and `s + ceil(G/2)` share shares `2s` and `2s + 1` of the flat partition. The first
+  walks the pair's tiles upward, the second downward. Each owns its first `PS_OWN = 5` tiles;
+  every other tile is claimed by one relaxed RMW on the pair's word `ws_cnt[CNT_PAIR + pair]`
+  (low 16 bits the upward claims, high 16 the downward). A claim of middle tile k succeeds when
+  k plus the other walk's count is below the middle size, so the walks never overlap and leave
+  no gap (CPU model: 25,800 random interleavings over 0-304 tiles, exact cover every time).
+- Consumer thread 0 claims walk tile w + 5 when it starts tile w and publishes the result in
+  shared memory before its early release of tile w + 1; the producer reads it after waiting on
+  that release (the empty barrier of tile w + 5's stage), so the empty barrier orders it. The
+  producer writes each stage's {request, pos0, lo, hi} record and the walk's end record, published
+  by one extra arrival on the full barrier (count 129). Consumers run segments in walk order and
+  count the keys they actually processed for the grid barrier.
+- Reset: after the grid barrier, the first CTA of the pair zeroes the word (atomicExch). Both
+  CTAs of a pair that claims own at least 5 tiles, so each arrives at the grid barrier after its
+  last claim, and the reset follows every claim.
+- Why claims sit in the consumers: any returning global atomic in the q_len 8 producer arm made
+  ptxas wrap both roles in one convergence region (one shared EXIT, consumers capped at 80
+  registers, 300-500 bytes of spills; bisected locally over about 40 builds). The producer loop
+  also has to wait the slot before testing the walk's end (a loop that tested it after the wait
+  and broke out caused the same join).
+- Every fence and barrier of mode 51 is kept: consumers still fence the async proxy after the
+  full wait, the producer still publishes with `cp.async.mbarrier.arrive.noinc`.
+
+Local sm_90a build (CUDA 12.8.1): `ONE_PSTEAL=0` SASS-identical to c1126e80 for all 15
+instances. `ONE_PSTEAL=1` 8/51: 4,544 instructions, consumer region to R101, producer R26,
+56 bytes of spill (31 local ops, about 8 per tile pair in the loop). `ONE_PSTEAL=2` (loop not
+unrolled): 3,928 instructions, 36 bytes of spill (19 local ops). With the switch on, 8/115 compiles
+differently (the loop body becomes a lambda) but takes no PSTEAL path; no other instance changes.
+Dynamic smem per CTA grows by about 256 bytes, still two CTAs per SM.
+
+Check: `tools/attn_make_q8_ps.py` (arms ctrl, ctrl2 null, ps = ONE_PSTEAL=1, ps2 = ONE_PSTEAL=2;
+verify 16 / 32 full timed, two held-out inputs, 120 cold rounds, seed 311302; ABCHECK on both
+scored shapes plus tp8 tests 5 (batch 2, 100K, page 1) and 7 (batch 4, 6K, edges, page 64);
+resource gate before and after timing).
+Gate: ps or ps2 minus ctrl at most -2 us cold on at least one cell, beyond |ctrl2 - ctrl|, the
+other cell not worse than the null, and ABCHECK clean with the workspace zero. Pass: a release
+file with the switch on, one confirmation check. Fail: ruled-out row; stop (lane stop rule).
+
+### Result: b5ebbf462a5841b0, run-time pair split loses on both cells
+
+Receipt `profiles/q8ps.b5ebbf462a5841b0.{json,log,txt}` (board muse_attention_decode, bench source
+84ab85ac from `tools/attn_make_q8_ps.py`, SHA256 7ef2d9a6). Unchanged control passed 16/16
+official tests, 2.540742x (95% CI 2.502631-2.578853), checks.ok, no flags. ABCHECK 4/4 for every
+arm (both scored shapes plus tp8 tests 5 and 7; ps / ps2 against the control 3.8e-03 to 7.8e-03
+relative L2, workspace rows, tickets and parity counters zero after every call, so the pair
+counters reset). Resource gate before and after timing: ctrl / ctrl2 107,104 bytes, ps / ps2
+107,360 bytes, two CTAs per SM, 264 resident.
+
+| cell, cold us | ctrl | ctrl2 | null | ps (unrolled) | ps2 (not unrolled) | ps / ps2 - ctrl by input |
+|---|---:|---:|---:|---:|---:|---|
+| verify 16 full | 114.08 | 114.46 | +0.38 | 147.74 (+33.66) | 138.88 (+24.80) | +31.8 / +35.3, +22.7 / +26.8 |
+| verify 32 full | 194.34 | 194.11 | -0.22 | 266.53 (+72.19) | 246.02 (+51.68) | +72.0 / +72.4, +51.3 / +52.6 |
+
+Warm: ps +45.1 / +94.5 us, ps2 +36.0 / +74.7. Both arms lose by 25-72 us cold, far beyond the
+null and the -4.8 / -6.2 us the split was modelled to recover. Closed (docs/ruled-out.md); the lane
+stops here with checks unspent.
+
+What the build changed besides the split, none separated by this check: the consumer loop spills
+(ps 56 bytes, 31 local ops, about 8 per unrolled tile pair; ps2 36 bytes, 19 local ops) where the
+control has none; ps runs the shared tile body as a lambda called twice per iteration. The PSTEAL
+producer also prefetches page entries one tile ahead instead of three, reads each stage's request
+and position from shared memory, and synchronizes its four warps with a named barrier per tile;
+consumer thread 0 issues one global RMW per tile and every consumer passes the full barrier twice
+per tile. That ps2 (no lambda unroll, fewer spills) still loses 25 / 52 us says the unroll is not
+the main cost; the warm loss exceeding the cold one points at per-tile serialization in the loop,
+not at memory. These are hypotheses.
