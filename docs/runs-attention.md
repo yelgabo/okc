@@ -4407,3 +4407,52 @@ pair's 1.7-1.8 together, so the SM runs under capacity for 11 / 22 us. A run-tim
 pair's keys that holds the co-run rates to a common end models at -4.8 / -6.2 us on the last SM
 (the kernel end) and -5.1 / -7.0 us at the median SM; it does not touch the cross-SM spread
 (model median to max 5.7 / 6.1 us).
+
+## 2026-11-03 run-time pair split in mode 51 (ONE_PSTEAL, verify 16 / 32 full), registered before dispatch
+
+Owner: attention, verify 16 / 32 full lane (user-sanctioned exception to the final-day rule).
+Base: worktree commit bd252c8f-equivalent control (c1126e80 sources, `ONE_PSTEAL 0`).
+Hypothesis (from 4c0b0674c46d4ec2): the partner CTA of each SM runs alone for 11.4 / 21.9 us at
+1.0-1.2 tiles/us; a run-time split of each pair's keys that ends both CTAs together models at
+-4.8 / -6.2 us at the kernel end. Earlier static or arrival-order splits (block-index weights,
+`ONE_WAVE`) lost because neither knows which CTA the scheduler favours; this split needs no
+such knowledge.
+
+Mechanism (`ONE_PSTEAL`, mode 51 only, default 0):
+- CTAs `s` and `s + ceil(G/2)` share shares `2s` and `2s + 1` of the flat partition. The first
+  walks the pair's tiles upward, the second downward. Each owns its first `PS_OWN = 5` tiles;
+  every other tile is claimed by one relaxed RMW on the pair's word `ws_cnt[CNT_PAIR + pair]`
+  (low 16 bits the upward claims, high 16 the downward). A claim of middle tile k succeeds when
+  k plus the other walk's count is below the middle size, so the walks never overlap and leave
+  no gap (CPU model: 25,800 random interleavings over 0-304 tiles, exact cover every time).
+- Consumer thread 0 claims walk tile w + 5 when it starts tile w and publishes the result in
+  shared memory before its early release of tile w + 1; the producer reads it after waiting on
+  that release (the empty barrier of tile w + 5's stage), so the empty barrier orders it. The
+  producer writes each stage's {request, pos0, lo, hi} record and the walk's end record, published
+  by one extra arrival on the full barrier (count 129). Consumers run segments in walk order and
+  count the keys they actually processed for the grid barrier.
+- Reset: after the grid barrier, the first CTA of the pair zeroes the word (atomicExch). Both
+  CTAs of a pair that claims own at least 5 tiles, so each arrives at the grid barrier after its
+  last claim, and the reset follows every claim.
+- Why claims sit in the consumers: any returning global atomic in the q_len 8 producer arm made
+  ptxas wrap both roles in one convergence region (one shared EXIT, consumers capped at 80
+  registers, 300-500 bytes of spills; bisected locally over about 40 builds). The producer loop
+  also has to wait the slot before testing the walk's end (a loop that tested it after the wait
+  and broke out caused the same join).
+- Every fence and barrier of mode 51 is kept: consumers still fence the async proxy after the
+  full wait, the producer still publishes with `cp.async.mbarrier.arrive.noinc`.
+
+Local sm_90a build (CUDA 12.8.1): `ONE_PSTEAL=0` SASS-identical to c1126e80 for all 15
+instances. `ONE_PSTEAL=1` 8/51: 4,544 instructions, consumer region to R101, producer R26,
+56 bytes of spill (31 local ops, about 8 per tile pair in the loop). `ONE_PSTEAL=2` (loop not
+unrolled): 3,928 instructions, 36 bytes of spill (19 local ops). With the switch on, 8/115 compiles
+differently (the loop body becomes a lambda) but takes no PSTEAL path; no other instance changes.
+Dynamic smem per CTA grows by about 256 bytes, still two CTAs per SM.
+
+Check: `tools/attn_make_q8_ps.py` (arms ctrl, ctrl2 null, ps = ONE_PSTEAL=1, ps2 = ONE_PSTEAL=2;
+verify 16 / 32 full timed, two held-out inputs, 120 cold rounds, seed 311302; ABCHECK on both
+scored shapes plus tp8 tests 5 (batch 2, 100K, page 1) and 7 (batch 4, 6K, edges, page 64);
+resource gate before and after timing).
+Gate: ps or ps2 minus ctrl at most -2 us cold on at least one cell, beyond |ctrl2 - ctrl|, the
+other cell not worse than the null, and ABCHECK clean with the workspace zero. Pass: a release
+file with the switch on, one confirmation check. Fail: ruled-out row; stop (lane stop rule).
