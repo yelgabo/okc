@@ -20,12 +20,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import box_run  # noqa: E402
 
 
-def skippable(ref, biased, ls):
+def skippable(ref, biased, ls, km=0.0, wm=0.0, cm=0.0):
     best = biased.topk(ref.TOP_K + 16, dim=-1)
     top, vals = best.indices[:, :ref.TOP_K], best.values
     ninth = vals[:, ref.TOP_K:ref.TOP_K + 1]
     eighth = vals[:, ref.TOP_K - 1:ref.TOP_K]
-    keep_tol = ref.KEEP_TOL[0] if len(top) <= ref.KEEP_TOKENS else ref.KEEP_TOL[1]
+    keep_tol = (ref.KEEP_TOL[0] if len(top) <= ref.KEEP_TOKENS else ref.KEEP_TOL[1]) - km
     is_local = lambda e: (e - ls) % ref.N_EXPERTS < ref.LOCAL_EXPERTS  # noqa: E731
     routes = int(is_local(top).sum())
     experts = sorted(set(int(e) for e in top[is_local(top)].tolist()))
@@ -36,14 +36,14 @@ def skippable(ref, biased, ls):
         ok = False
         for j in range(ref.TOP_K, ref.TOP_K + 16):
             e = int(best.indices[t, j])
-            if float(eighth[t] - vals[t, j]) > ref.ROUTE_TOL:
+            if float(eighth[t] - vals[t, j]) > ref.ROUTE_TOL - wm:
                 break
             if not is_local(torch.tensor(e)):
                 ok = True
                 break
         has_repl.append(ok)
-    min_routes = routes * (1 - ref.LOCAL_SLACK[0]) - ref.LOCAL_SLACK[1]
-    min_distinct = distinct * (1 - ref.DISTINCT_SLACK[0]) - ref.DISTINCT_SLACK[1]
+    min_routes = routes * (1 - ref.LOCAL_SLACK[0]) - ref.LOCAL_SLACK[1] + cm
+    min_distinct = distinct * (1 - ref.DISTINCT_SLACK[0]) - ref.DISTINCT_SLACK[1] + cm
     toks = {e: [(t, s) for t in range(len(top)) for s in range(ref.TOP_K) if int(top[t, s]) == e] for e in experts}
     skipped, cur_routes, cur_distinct, used = [], routes, distinct, set()
     for e in sorted(experts, key=lambda e: len(toks[e])):
@@ -65,6 +65,7 @@ def main():
     ap.add_argument("--judge", nargs="*", default=[])
     ap.add_argument("--loads", default="decode 1,verify 1")
     ap.add_argument("--runs", type=int, default=60)
+    ap.add_argument("--margins", default="0,0,0", help="keep, window and count margins, as a file would use")
     a = ap.parse_args()
     pdir = os.path.abspath("muse_decode_layer")
     sys.path.insert(0, pdir)
@@ -81,10 +82,10 @@ def main():
                 c = {**case, "seed": case["seed"] + j}
                 ls = ref.case_fields(c, weights)["local_start"]
                 front = ref.ref_front(ref.generate_input(**{**c, "local_start": ls}), weights)
-                rows.append(skippable(ref, front["biased"], ls))
+                rows.append(skippable(ref, front["biased"], ls, *(float(x) for x in a.margins.split(","))))
             d = [r[0] for r in rows]
             k = [r[1] for r in rows]
-            print(f"SLACK {case['load']} {case['layer']}: mean distinct {statistics.mean(d):.2f}, mean skippable "
+            print(f"SLACK {case['load']} {case['layer']} margins {a.margins}: mean distinct {statistics.mean(d):.2f}, mean skippable "
                   f"{statistics.mean(k):.2f}, inputs with >= 1 skippable {sum(x > 0 for x in k)} / {len(k)}, "
                   f"histogram {dict(sorted({x: k.count(x) for x in set(k)}.items()))}", flush=True)
 

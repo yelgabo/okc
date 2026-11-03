@@ -1,0 +1,37 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.66 on 71.65 us, median paired saving 6.50, wins 9/9
+PDL8_STRESS T=1 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0), on ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=1 full: off 79.58 on 72.58 us, median paired saving 7.10, wins 9/9
+PDL8_AB T=16 sliding: off 200.42 on 194.56 us, median paired saving 5.28, wins 9/9
+PDL8_STRESS T=16 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['3.58e-03', '4.08e-03', '0.00e+00'] (int mismatches 0), on ['3.58e-03', '4.08e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=16 full: off 277.98 on 272.29 us, median paired saving 5.66, wins 9/9
+PDL8_AB T=32 sliding: off 330.91 on 324.77 us, median paired saving 6.02, wins 9/9
+PDL8_AB T=32 full: off 452.54 on 446.50 us, median paired saving 6.72, wins 9/9
+PDL8_STRESS T=32 full: 2000 replays per arm, max rel diff to the PDL-off output off ['5.52e-03', '6.41e-03', '0.00e+00'] (int mismatches 0), on ['5.52e-03', '6.41e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8D_OFF T=8 full: 2000 replays, max rel diff to the PDL-off output ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_OFF T=8 sliding: 2000 replays, max rel diff to the PDL-off output ['3.16e-03', '3.98e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_STRESS T=8 full all edges=attn+o+b1+pool+route+fin: on ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0) against off ['7.25e-03', '6.89e-03', '0.00e+00']: clean (0.4 s)
+PDL8D T=8 chosen edges attn+o+b1+pool+route+fin; left serialized none
+PDL8D_OFF T=8 full repeat: ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0), informational
+PDL8D_STRESS T=8 full final edges=attn+o+b1+pool+route+fin: on ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0) against off ['7.25e-03', '6.89e-03', '0.00e+00']: clean (0.4 s)
+PDL8D_STRESS T=8 sliding final edges=attn+o+b1+pool+route+fin: on ['6.33e-03', '6.09e-03', '0.00e+00'] (int mismatches 0) against off ['3.16e-03', '3.98e-03', '0.00e+00']: DRIFT (0.4 s)
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin: off 126.46 on 121.41 us, median paired saving 4.74, wins 9/9
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin: off 134.18 on 128.80 us, median paired saving 5.57, wins 9/9
+PDL8D T=8 off: final stress DRIFT, weighted saving 4.95 us, edges attn+o+b1+pool+route+fin; stress times ['0.4', '0.4', '0.4'] s
+PDL8 weighted paired saving T=1: 6.65 us
+PDL8 weighted paired saving T=16: 5.38 us
+PDL8 weighted paired saving T=32: 6.20 us
+PDL8 six-load estimate +2.51% (enabled loads only); enabled {1: True, 8: False, 16: True, 32: True}
+RSCHECK decode 16 sliding: 50/50 pass; distinct ref 7.68 -> picked 7.32; routes ref 26.90 -> 26.50; inputs with a drop 19; min margins: keep 0.0164 win 0.0364 routes 3.92 distinct 1.20; max score err near the top 6.18e-03 (p99 5.77e-03, all experts 1.61e-02)
+RSERR decode 16 sliding: lead-over-9th error max 7.88e-03 median 1.89e-03; below-8th error max 5.98e-03 median 2.23e-03; near-top score error by token [0.0038, 0.0017, 0.0038, 0.0058, 0.0023, 0.0025, 0.0028, 0.0027, 0.004, 0.004, 0.0029, 0.0062, 0.0031, 0.0024, 0.0019, 0.0024]
+RSCHECK decode 16 full: 50/50 pass; distinct ref 7.88 -> picked 7.30; routes ref 26.86 -> 26.22; inputs with a drop 23; min margins: keep 0.0168 win 0.0371 routes 2.84 distinct 0.50; max score err near the top 7.18e-03 (p99 2.72e-03, all experts 9.56e-03)
+RSERR decode 16 full: lead-over-9th error max 5.13e-03 median 1.83e-03; below-8th error max 8.93e-03 median 2.11e-03; near-top score error by token [0.0026, 0.002, 0.002, 0.0072, 0.0027, 0.002, 0.0018, 0.0021, 0.0017, 0.0016, 0.0017, 0.0021, 0.002, 0.0022, 0.0018, 0.002]
+RSCHECK decode 32 sliding: 50/50 pass; distinct ref 9.04 -> picked 8.90; routes ref 51.80 -> 51.66; inputs with a drop 14; min margins: keep 0.0201 win 0.0413 routes 6.00 distinct 1.50; max score err near the top 5.59e-03 (p99 4.15e-03, all experts 9.89e-03)
+RSERR decode 32 sliding: lead-over-9th error max 6.18e-03 median 2.39e-03; below-8th error max 7.40e-03 median 2.82e-03; near-top score error by token [0.0033, 0.0018, 0.0017, 0.0029, 0.0026, 0.0016, 0.0023, 0.0021, 0.0056, 0.0025, 0.0033, 0.0025, 0.0029, 0.0021, 0.0015, 0.0026, 0.0038, 0.0022, 0.0024, 0.0021, 0.003, 0.0031, 0.0018, 0.0023, 0.0028, 0.003, 0.0035, 0.0036, 0.0018, 0.0024, 0.0027, 0.0042]
+RSCHECK decode 32 full: 50/50 pass; distinct ref 9.18 -> picked 9.04; routes ref 51.02 -> 50.88; inputs with a drop 12; min margins: keep 0.0188 win 0.0429 routes 6.40 distinct 1.65; max score err near the top 3.61e-03 (p99 3.60e-03, all experts 8.46e-03)
+RSERR decode 32 full: lead-over-9th error max 5.02e-03 median 1.97e-03; below-8th error max 5.02e-03 median 2.51e-03; near-top score error by token [0.0019, 0.002, 0.0024, 0.0018, 0.0024, 0.0017, 0.0034, 0.0018, 0.0014, 0.0019, 0.0036, 0.0016, 0.0026, 0.0019, 0.0028, 0.0026, 0.0021, 0.0026, 0.0031, 0.002, 0.0021, 0.0034, 0.0017, 0.0024, 0.0016, 0.0019, 0.002, 0.0027, 0.002, 0.0036, 0.0026, 0.0026]

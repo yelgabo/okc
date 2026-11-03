@@ -1,0 +1,12 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+SLACK decode 16 sliding margins 0.016,0.021,0.25: mean distinct 7.49, mean skippable 0.95, inputs with >= 1 skippable 130 / 200, histogram {0: 70, 1: 79, 2: 42, 3: 9}
+SLACK decode 16 full margins 0.016,0.021,0.25: mean distinct 7.63, mean skippable 1.14, inputs with >= 1 skippable 143 / 200, histogram {0: 57, 1: 72, 2: 57, 3: 14}
+SLACK decode 32 sliding margins 0.016,0.021,0.25: mean distinct 9.05, mean skippable 1.08, inputs with >= 1 skippable 140 / 200, histogram {0: 60, 1: 78, 2: 47, 3: 15}
+SLACK decode 32 full margins 0.016,0.021,0.25: mean distinct 9.21, mean skippable 1.23, inputs with >= 1 skippable 151 / 200, histogram {0: 49, 1: 76, 2: 55, 3: 20}
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+SLACK decode 16 sliding margins 0.010,0.015,0.25: mean distinct 7.49, mean skippable 1.35, inputs with >= 1 skippable 166 / 200, histogram {0: 34, 1: 77, 2: 74, 3: 15}
+SLACK decode 16 full margins 0.010,0.015,0.25: mean distinct 7.63, mean skippable 1.43, inputs with >= 1 skippable 159 / 200, histogram {0: 41, 1: 59, 2: 74, 3: 26}
+SLACK decode 32 sliding margins 0.010,0.015,0.25: mean distinct 9.05, mean skippable 1.52, inputs with >= 1 skippable 169 / 200, histogram {0: 31, 1: 64, 2: 74, 3: 31}
+SLACK decode 32 full margins 0.010,0.015,0.25: mean distinct 9.21, mean skippable 1.59, inputs with >= 1 skippable 171 / 200, histogram {0: 29, 1: 66, 2: 62, 3: 43}

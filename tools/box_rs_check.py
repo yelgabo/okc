@@ -75,6 +75,36 @@ def gap_errors(ref, ours, b):
                 tok_err=[float(x) for x in (ours - b).abs().masked_fill(~near, 0).max(-1).values])
 
 
+class _Tap:
+    """Wraps a route kernel so an eager call appends the FP32 router logits it reads to mod._RS_DEBUG."""
+
+    def __init__(self, mod, kern):
+        self.mod, self.kern = mod, kern
+
+    def __getitem__(self, grid):
+        launch = self.kern[grid]
+
+        def run(*args, **kw):
+            if self.mod._RS_DEBUG is not None:
+                a = args[1]
+                if not kw.get("SPLIT", True):
+                    T = grid[0]
+                    v = a.view(T, 4608)
+                    a = v[:, 4096:4352] + v[:, 4352:4608]
+                self.mod._RS_DEBUG.append(a.clone())
+            return launch(*args, **kw)
+        return run
+
+
+def tap_route(mod):
+    """The base route programs (every T the file's own _rs_route_launch does not record) also record their logits."""
+    if not hasattr(mod, "_RS_DEBUG"):
+        mod._RS_DEBUG = None
+    for name in ("_sl_tile_route_cg", "_sl_tile_route"):
+        if hasattr(mod, name):
+            setattr(mod, name, _Tap(mod, getattr(mod, name)))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("submission")
@@ -84,6 +114,7 @@ def main():
     ap.add_argument("--inputs", type=int, default=100, help="fresh inputs per cell at T <= 8")
     ap.add_argument("--big-inputs", type=int, default=10, help="fresh inputs per cell at T > 8")
     ap.add_argument("--exact", action="store_true")
+    ap.add_argument("--set", nargs="*", default=[], help="NAME=VALUE module constants set before prepare")
     ap.add_argument("--tests", action="store_true", help="also TASK.md's 13 test shapes")
     ap.add_argument("--test-inputs", type=int, default=20)
     ap.add_argument("--e4m3", action="store_true", help="also compare the scores with the E4M3-query reference")
@@ -104,8 +135,14 @@ def main():
     mod = box_run.load_module("okc_submission", a.submission)
     if a.exact:
         mod.RS_KEEP_MARGIN, mod.RS_WIN_MARGIN, mod.RS_RANK_EPS, mod.RS_COUNT_MARGIN = 0.0, 0.0, 0.0, 0.0
+        if hasattr(mod, "RS2_KEEP_MARGIN"):
+            mod.RS2_KEEP_MARGIN, mod.RS2_WIN_MARGIN, mod.RS2_RANK_EPS, mod.RS2_COUNT_MARGIN = 0.0, 0.0, 0.0, 0.0
+    for kv in a.set:
+        name, val = kv.split("=")
+        setattr(mod, name, type(getattr(mod, name))(val))
     state = mod.prepare(weights)
     torch.cuda.synchronize()
+    tap_route(mod)
     bias = weights["router_bias"].float()
     rows = []
     for case in cases:
