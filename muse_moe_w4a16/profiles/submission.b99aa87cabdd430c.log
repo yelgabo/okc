@@ -1,0 +1,104 @@
+TEST sk8w4s bs=1 normal: vs fp32 3.90e-03, worst row 3.90e-03
+TEST sk8w4s bs=1 skewed: vs fp32 3.89e-03, worst row 3.89e-03
+TEST sk8w4s bs=4 normal: vs fp32 3.93e-03, worst row 4.00e-03
+TEST sk8w4s bs=4 skewed: vs fp32 3.83e-03, worst row 3.85e-03
+TEST sk8w4s bs=8 normal: vs fp32 3.93e-03, worst row 4.14e-03
+TEST sk8w4s bs=8 skewed: vs fp32 3.92e-03, worst row 4.01e-03
+TEST sk8w4s bs=16 normal: vs fp32 3.84e-03, worst row 4.07e-03
+TEST sk8w4s bs=16 skewed: vs fp32 3.85e-03, worst row 4.04e-03
+TEST sk8w4s worst rel err vs fp32 3.93e-03, spin flags 0
+TEST sk16w4s bs=1 normal: vs fp32 3.90e-03, worst row 3.90e-03
+TEST sk16w4s bs=1 skewed: vs fp32 3.89e-03, worst row 3.89e-03
+TEST sk16w4s bs=4 normal: vs fp32 3.93e-03, worst row 4.00e-03
+TEST sk16w4s bs=4 skewed: vs fp32 3.83e-03, worst row 3.85e-03
+TEST sk16w4s bs=8 normal: vs fp32 3.93e-03, worst row 4.14e-03
+TEST sk16w4s bs=8 skewed: vs fp32 3.92e-03, worst row 4.01e-03
+TEST sk16w4s bs=16 normal: vs fp32 3.84e-03, worst row 4.07e-03
+TEST sk16w4s bs=16 skewed: vs fp32 3.85e-03, worst row 4.04e-03
+TEST sk16w4s worst rel err vs fp32 3.93e-03, spin flags 0
+TEST main-d2 bs=32 normal: vs fp32 3.88e-03, worst row 4.12e-03
+TEST main-d2 bs=32 skewed: vs fp32 3.87e-03, worst row 4.12e-03
+TEST main-d2 bs=33 normal: vs fp32 3.87e-03, worst row 4.12e-03
+TEST main-d2 bs=33 skewed: vs fp32 3.88e-03, worst row 4.16e-03
+TEST main-d2 bs=128 normal: vs fp32 3.89e-03, worst row 4.09e-03
+TEST main-d2 bs=128 skewed: vs fp32 3.86e-03, worst row 4.16e-03
+TEST main-d2 bs=257 normal: vs fp32 3.86e-03, worst row 4.31e-03
+TEST main-d2 bs=257 skewed: vs fp32 3.87e-03, worst row 4.14e-03
+TEST main-d2 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-m2-ar2-ub bs=32 normal: vs fp32 3.88e-03, worst row 4.12e-03
+TEST main-m2-ar2-ub bs=32 skewed: vs fp32 3.87e-03, worst row 4.12e-03
+TEST main-m2-ar2-ub bs=33 normal: vs fp32 3.87e-03, worst row 4.12e-03
+TEST main-m2-ar2-ub bs=33 skewed: vs fp32 3.88e-03, worst row 4.16e-03
+TEST main-m2-ar2-ub bs=128 normal: vs fp32 3.89e-03, worst row 4.09e-03
+TEST main-m2-ar2-ub bs=128 skewed: vs fp32 3.86e-03, worst row 4.16e-03
+TEST main-m2-ar2-ub bs=257 normal: vs fp32 3.86e-03, worst row 4.31e-03
+TEST main-m2-ar2-ub bs=257 skewed: vs fp32 3.87e-03, worst row 4.13e-03
+TEST main-m2-ar2-ub worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-own bs=32 normal: vs fp32 3.88e-03, worst row 4.12e-03
+TEST main-own bs=32 skewed: vs fp32 3.87e-03, worst row 4.11e-03
+TEST main-own bs=33 normal: vs fp32 3.87e-03, worst row 4.12e-03
+TEST main-own bs=33 skewed: vs fp32 3.88e-03, worst row 4.16e-03
+TEST main-own bs=128 normal: vs fp32 3.89e-03, worst row 4.09e-03
+TEST main-own bs=128 skewed: vs fp32 3.86e-03, worst row 4.16e-03
+TEST main-own bs=257 normal: vs fp32 3.86e-03, worst row 4.31e-03
+TEST main-own bs=257 skewed: vs fp32 3.87e-03, worst row 4.13e-03
+TEST main-own worst rel err vs fp32 3.89e-03, spin flags 0
+TEST legacy32 bs=32 normal: vs fp32 4.26e-03, worst row 4.50e-03
+TEST legacy32 bs=32 skewed: vs fp32 4.25e-03, worst row 4.41e-03
+TEST legacy32 bs=33 normal: vs fp32 4.26e-03, worst row 4.47e-03
+TEST legacy32 bs=33 skewed: vs fp32 4.25e-03, worst row 4.50e-03
+TEST legacy32 bs=128 normal: vs fp32 4.27e-03, worst row 4.50e-03
+TEST legacy32 bs=128 skewed: vs fp32 4.24e-03, worst row 4.55e-03
+TEST legacy32 bs=257 normal: vs fp32 4.25e-03, worst row 4.58e-03
+TEST legacy32 bs=257 skewed: vs fp32 4.24e-03, worst row 4.51e-03
+TEST legacy32 worst rel err vs fp32 4.27e-03, spin flags 0
+TEST legacy128 bs=32 normal: vs fp32 4.26e-03, worst row 4.50e-03
+TEST legacy128 bs=32 skewed: vs fp32 4.25e-03, worst row 4.41e-03
+TEST legacy128 bs=33 normal: vs fp32 4.26e-03, worst row 4.47e-03
+TEST legacy128 bs=33 skewed: vs fp32 4.26e-03, worst row 4.50e-03
+TEST legacy128 bs=128 normal: vs fp32 4.27e-03, worst row 4.50e-03
+TEST legacy128 bs=128 skewed: vs fp32 4.24e-03, worst row 4.55e-03
+TEST legacy128 bs=257 normal: vs fp32 4.25e-03, worst row 4.57e-03
+TEST legacy128 bs=257 skewed: vs fp32 4.24e-03, worst row 4.51e-03
+TEST legacy128 worst rel err vs fp32 4.27e-03, spin flags 0
+TEST legacy256 bs=32 normal: vs fp32 4.26e-03, worst row 4.50e-03
+TEST legacy256 bs=32 skewed: vs fp32 4.25e-03, worst row 4.41e-03
+TEST legacy256 bs=33 normal: vs fp32 4.26e-03, worst row 4.47e-03
+TEST legacy256 bs=33 skewed: vs fp32 4.25e-03, worst row 4.50e-03
+TEST legacy256 bs=128 normal: vs fp32 4.27e-03, worst row 4.50e-03
+TEST legacy256 bs=128 skewed: vs fp32 4.24e-03, worst row 4.55e-03
+TEST legacy256 bs=257 normal: vs fp32 4.25e-03, worst row 4.58e-03
+TEST legacy256 bs=257 skewed: vs fp32 4.24e-03, worst row 4.51e-03
+TEST legacy256 worst rel err vs fp32 4.27e-03, spin flags 0
+GATE bs=128 main-m2-ar2-ub:248.2 main-own:246.1 us (mean of 6 seeds)
+GATE bs=128 main-own minus main-m2-ar2-ub per seed -1.9 -1.3 -3.3 +2.0 -6.8 -1.5 (mean -2.1)
+GATE bs=128 output of main-own vs 16, rel L2 per seed 9.5e-05 1.0e-04 1.4e-04 1.3e-04 1.8e-04 1.3e-04
+GATE bs=256 main-m2-ar2-ub:286.4 main-own:282.1 us (mean of 6 seeds)
+GATE bs=256 main-own minus main-m2-ar2-ub per seed -11.7 -8.3 +6.0 -6.8 -0.1 -5.3 (mean -4.3)
+GATE bs=256 output of main-own vs 16, rel L2 per seed 1.9e-04 1.6e-04 1.7e-04 1.7e-04 1.9e-04 1.9e-04
+GATE spin flags 0
+BENCH bs=1 sk8w4s-loads:39.8 sk8w4s:42.0 sk16w4s:44.4 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=8 sk8w4s-loads:70.1 sk8w4s:74.2 sk16w4s:75.2 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=16 sk8w4s-loads:105.1 sk8w4s:107.8 sk16w4s:114.3 legacy32:119.6 legacy128:125.3 legacy256:126.5 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=32 main-loads:141.4 sk8w4s-loads:146.6 sk8w4s:151.4 legacy32:157.1 sk16w4s:161.3 legacy128:163.2 legacy256:165.3 main-own:181.8 main-m2-ar2-ub:182.3 main-d2:189.5 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=128 main-loads:191.2 main-own:246.5 main-m2-ar2-ub:248.4 legacy128:249.8 legacy256:252.9 main-d2:253.9 sk8w4s-loads:255.9 sk8w4s:263.2 legacy32:275.0 sk16w4s:283.9 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-loads:203.7 main-own:270.3 main-m2-ar2-ub:278.6 main-d2:283.8 legacy256:359.4 legacy128:387.4 sk8w4s-loads:404.2 sk8w4s:431.0 sk16w4s:468.6 legacy32:469.0 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w4s, 8: sk8w4s, 16: sk8w4s, 32: sk8w4s, 128: main-own, 256: main-own}
+TEST policy bs=1 normal: vs fp32 3.90e-03, worst row 3.90e-03
+TEST policy bs=1 skewed: vs fp32 3.89e-03, worst row 3.89e-03
+TEST policy bs=4 normal: vs fp32 3.93e-03, worst row 4.00e-03
+TEST policy bs=4 skewed: vs fp32 3.83e-03, worst row 3.85e-03
+TEST policy bs=8 normal: vs fp32 3.93e-03, worst row 4.14e-03
+TEST policy bs=8 skewed: vs fp32 3.92e-03, worst row 4.01e-03
+TEST policy bs=16 normal: vs fp32 3.84e-03, worst row 4.07e-03
+TEST policy bs=16 skewed: vs fp32 3.85e-03, worst row 4.04e-03
+TEST policy bs=32 normal: vs fp32 3.88e-03, worst row 4.12e-03
+TEST policy bs=32 skewed: vs fp32 3.87e-03, worst row 4.12e-03
+TEST policy bs=33 normal: vs fp32 3.87e-03, worst row 4.12e-03
+TEST policy bs=33 skewed: vs fp32 3.88e-03, worst row 4.16e-03
+TEST policy bs=128 normal: vs fp32 3.89e-03, worst row 4.09e-03
+TEST policy bs=128 skewed: vs fp32 3.86e-03, worst row 4.16e-03
+TEST policy bs=257 normal: vs fp32 3.86e-03, worst row 4.31e-03
+TEST policy bs=257 skewed: vs fp32 3.87e-03, worst row 4.13e-03
+TEST policy worst rel err vs fp32 3.93e-03, spin flags 0
+PREPARE repack 0.8 s, build 136.2 s, self-test 0.9 s, bench 0.6 s, smem 228480 B, ok True, main True

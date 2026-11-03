@@ -1,0 +1,37 @@
+prepare: SGLang state built (0.1 s)
+extension build: on (35.3 s)
+moe self-test: worst rel diff vs SGLang path 2.71e-04
+moe: on (1.2 s)
+router self-test: ok
+router: on (0.0 s)
+proj self-test: ok
+proj: on (0.0 s)
+attn self-test case 0 1x1 sliding page 1 _attn_prep: output rel diff 3.95e-03
+attn self-test case 1 3x1 full page 1 _attn_prep: output rel diff 1.12e-02
+attn self-test case 2 5x1 sliding page 1 _attn_prep: output rel diff 1.81e-02
+attn self-test case 3 2x8 sliding page 1 _attn_prep: output rel diff 3.55e-02
+attn self-test case 4 3x8 full page 1 _attn_prep: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_prep: output rel diff 2.06e-02
+attn self-test case 6 2x8 sliding page 64 _attn_prep: output rel diff 2.82e-02
+attn self-test case 7 33x1 full page 1 _attn_prep: output rel diff 1.30e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_prep: output rel diff 1.32e-02
+attn self-test case 10 16x1 full page 1 _attn_prep: output rel diff 1.16e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.55e-02, new cache rows 2.76e-02
+attn prep: on (0.5 s)
+attn self-test case 0 1x1 sliding page 1 _attn_fused: output rel diff 1.45e-02
+attn self-test case 1 3x1 full page 1 _attn_fused: output rel diff 1.98e-02
+attn self-test case 2 5x1 sliding page 1 _attn_fused: output rel diff 3.61e-02
+attn self-test case 3 2x8 sliding page 1 _attn_prep: output rel diff 3.55e-02
+attn self-test case 4 3x8 full page 1 _attn_prep: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_fused: output rel diff 2.09e-02
+attn self-test case 6 2x8 sliding page 64 _attn_prep: output rel diff 2.82e-02
+attn self-test case 7 33x1 full page 1 _attn_fused: output rel diff 1.81e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_fused: output rel diff 2.11e-02
+attn self-test case 10 16x1 full page 1 _attn_fused: output rel diff 1.78e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.61e-02, new cache rows 2.76e-02
+attn fused: on (0.0 s)
+prepare: done (37.2 s)
