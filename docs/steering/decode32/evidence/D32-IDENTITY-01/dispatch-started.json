@@ -1,0 +1,11 @@
+{
+  "state": "dispatch-started",
+  "at": "2026-11-03T03:50:23.099600+00:00",
+  "source_sha256": "f7a5d1fb7fba3365f52285ef84f7d888e6f4b347280f257833469f85382bef9a",
+  "source_commit": "590112842dab015f5301b67e1051071fe5c4a2d5",
+  "problem": "muse_decode_layer",
+  "mode": "check",
+  "other_live": [
+    "b38a9ed6dc9743e9"
+  ]
+}
