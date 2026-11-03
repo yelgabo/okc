@@ -4456,3 +4456,32 @@ resource gate before and after timing).
 Gate: ps or ps2 minus ctrl at most -2 us cold on at least one cell, beyond |ctrl2 - ctrl|, the
 other cell not worse than the null, and ABCHECK clean with the workspace zero. Pass: a release
 file with the switch on, one confirmation check. Fail: ruled-out row; stop (lane stop rule).
+
+### Result: b5ebbf462a5841b0, run-time pair split loses on both cells
+
+Receipt `profiles/q8ps.b5ebbf462a5841b0.{json,log,txt}` (board muse_attention_decode, bench source
+84ab85ac from `tools/attn_make_q8_ps.py`, SHA256 7ef2d9a6). Unchanged control passed 16/16
+official tests, 2.540742x (95% CI 2.502631-2.578853), checks.ok, no flags. ABCHECK 4/4 for every
+arm (both scored shapes plus tp8 tests 5 and 7; ps / ps2 against the control 3.8e-03 to 7.8e-03
+relative L2, workspace rows, tickets and parity counters zero after every call, so the pair
+counters reset). Resource gate before and after timing: ctrl / ctrl2 107,104 bytes, ps / ps2
+107,360 bytes, two CTAs per SM, 264 resident.
+
+| cell, cold us | ctrl | ctrl2 | null | ps (unrolled) | ps2 (not unrolled) | ps / ps2 - ctrl by input |
+|---|---:|---:|---:|---:|---:|---|
+| verify 16 full | 114.08 | 114.46 | +0.38 | 147.74 (+33.66) | 138.88 (+24.80) | +31.8 / +35.3, +22.7 / +26.8 |
+| verify 32 full | 194.34 | 194.11 | -0.22 | 266.53 (+72.19) | 246.02 (+51.68) | +72.0 / +72.4, +51.3 / +52.6 |
+
+Warm: ps +45.1 / +94.5 us, ps2 +36.0 / +74.7. Both arms lose by 25-72 us cold, far beyond the
+null and the -4.8 / -6.2 us the split was modelled to recover. Closed (docs/ruled-out.md); the lane
+stops here with checks unspent.
+
+What the build changed besides the split, none separated by this check: the consumer loop spills
+(ps 56 bytes, 31 local ops, about 8 per unrolled tile pair; ps2 36 bytes, 19 local ops) where the
+control has none; ps runs the shared tile body as a lambda called twice per iteration. The PSTEAL
+producer also prefetches page entries one tile ahead instead of three, reads each stage's request
+and position from shared memory, and synchronizes its four warps with a named barrier per tile;
+consumer thread 0 issues one global RMW per tile and every consumer passes the full barrier twice
+per tile. That ps2 (no lambda unroll, fewer spills) still loses 25 / 52 us says the unroll is not
+the main cost; the warm loss exceeding the cold one points at per-tile serialization in the loop,
+not at memory. These are hypotheses.
