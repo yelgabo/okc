@@ -108,7 +108,11 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, November 2 16:50 Vancouver time
+## Latest hourly report, November 2 17:53 Vancouver time
+
+[Calibration, MID terminal and D32 attention confirmation](2026-11-02-1753-performance-review.md).
+
+## Previous hourly report, November 2 16:50 Vancouver time
 
 [Shared-A and direct-weight terminal losses; D32 priority](2026-11-02-1650-performance-review.md).
 

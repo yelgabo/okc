@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 16:50 MST. Evidence snapshot: `bdbf35bf`.
+Last review: 2026-11-02 17:53 MST. Evidence snapshot: `2ffc98c1`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -16,9 +16,135 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled 256 case. New grouped-contiguous Humming proposal stopped before measurement. |
 | C. Owner-completes tiles | Earlier ownership gains retained | The complete private VP2 design wins its eight-token sliding cell. Both owned cluster implementations previously lost. | The comparison leaves the contribution of output ownership unresolved. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
-| E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | VP2 only changes the eight-token target. A later half-merge-preserving continuity source passed CPU checks and is frozen before H200 testing. |
+| E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Matched confirmation4fece18b20a2447b is accepted and queued. Fresh all-load/private-state/cold-replay qualification remains pending. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained layer 2.126083×; shared-A/direct-weight parked | Both new whole-layer checks pass 13 tests and lose their continuation screens. Shared-A adds 205.381 / 277.062 µs at 128/256; direct weight adds 74.259 / 91.717 µs against fresh control in separate runs. Earlier K128, short-counter, G224 and SiLU losses remain scoped. | Current-service calibration and T32 MID comparison are allocated without accepted job IDs. Broad dense backing is unallocated reserve. Four-cell verify and outgoing setup failures remain unresolved. |
+| G. Attributed keell0renz layer fork | Retained public layer2.126083×; MID17–32 parked | New unchanged control scores2.091748×. MID passes standard correctness but D32 is3.473% slower across separate runs. Earlier K128/shared-A/direct-weight losses remain scoped. | Attention scheduling descendant is tracked under E. Public adoption awaits its matched result. Decode32 Worker owns the D32 lane directly. |
+
+## November 2 review at 17:53 Vancouver time
+
+**The fixed MID17–32 expert route is parked. The new D32 attention lookahead has an exploratory whole-layer signal, with matched confirmation queued.** Public G1b4 remains the retained 2.126083× layer. The new attention run is an E scheduling descendant inside G, with the existing producer ring, page TMA, half merge and finalizer preserved. It changes full-context, single-query batches 17–32. MID is a separate G expert-route comparison. [MID terminal](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/2026-11-02-driver-d32-mid-terminal.md) · [Attention first result](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/2026-11-02-05-attention-first-result.md)
+
+### D32 result and drift
+
+| Run | Sliding µs | Full µs | C32 ms | Own D32 ratio against SGLang |
+|---|---:|---:|---:|---:|
+| Unchanged control94ef | 157.621 | 317.105 | 12.324230 | 1.811791× |
+| Fixed MID17–32 | 166.129 | 319.397 | 12.752280 | 1.713503× |
+| One-tile score lookahead | 149.764 | 312.070 | 11.882275 | 1.839755× |
+
+`C32_ms = (46 * sliding_us + 16 * full_us) / 1000`. MID is 3.473% slower than the new unchanged control. Attention C32 is 0.441955 ms lower, or 3.586%, in a separate run. The changed full-context D32 cell falls by 5.035 µs (1.588%). Unchanged sliding D32 falls by 7.856 µs (4.984%). Its weighted difference accounts for about 81.8% of the observed C32 reduction. This is an arithmetic decomposition of cross-run observations. It cannot isolate the lookahead contribution. [Attention comparison](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/evidence/D32-ATTN-01/comparison.json)
+
+### Correctness and measurement scope
+
+All three new receipts pass 13 official tests, 12 benchmarks and 12 profiles, with clean checks and return code0. The task checks every timed call against the reference, including outputs and new cache entries. The attention D32-full benchmark reports pass, supporting ordinary timed-cell reference acceptance. The inherited 56 private replays exercise experts. They do not establish the new attention variant’s matched cold-replay, neighboring-shape or independent-state coverage. Those gates belong to confirmation. [Task reference-check contract](https://github.com/yelgabo/okc/blob/2ffc98c1/muse_decode_layer/TASK.md) · [Attention owning receipt](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/evidence/D32-ATTN-01/status-wait.raw.json)
+
+### Unchanged current-service calibration
+
+Private H200 job `94ef698e91964dfa`, source `5b4a729a / physical04314b16`, completed 2026-11-02 23:53:59 UTC. Official score **2.091748×**, within-run 95% CI 2.060371–2.123124×. Preparation took 114.752 seconds. [Owning receipt](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/evidence/2026-11-02-driver-current-incumbent-control/terminal-canonical.utf8.json)
+
+The following normalized endpoints use `(46 * sliding + 16 * full) / 62` against `cc474883117947c0`. This is an unchanged-source calibration, so differences measure cross-run drift.
+
+| Load | Tokens | Candidate µs | Control µs | Delta µs | Delta % |
+|---|---:|---:|---:|---:|---:|
+| decode 1 | 1 | 79.074 | 78.765 | +0.310 | +0.39% |
+| decode 16 | 16 | 157.437 | 152.016 | +5.421 | +3.57% |
+| decode 32 | 32 | 198.778 | 191.898 | +6.880 | +3.59% |
+| verify 1 | 8 | 120.705 | 112.682 | +8.023 | +7.12% |
+| verify 16 | 128 | 274.180 | 261.713 | +12.467 | +4.76% |
+| verify 32 | 256 | 356.045 | 351.080 | +4.965 | +1.41% |
+
+Per-cell repeat standard deviations are in candidate/control order. Decode1 has 60 repeats per arm; other cells have20. No paired treatment interval is recorded.
+
+| Tokens / context | Candidate µs | Control µs | Repeat SD µs, candidate / control |
+|---|---:|---:|---:|
+| 1 / sliding | 77.208 | 77.036 | 4.203 / 3.912 |
+| 1 / full | 84.440 | 83.733 | 4.380 / 4.155 |
+| 16 / sliding | 138.048 | 133.037 | 8.270 / 8.072 |
+| 16 / full | 213.179 | 206.582 | 10.322 / 11.385 |
+| 32 / sliding | 157.621 | 150.875 | 11.126 / 7.812 |
+| 32 / full | 317.105 | 309.839 | 10.270 / 8.874 |
+| 8 / sliding | 118.645 | 110.761 | 12.335 / 10.201 |
+| 8 / full | 126.628 | 118.204 | 10.662 / 10.824 |
+| 128 / sliding | 251.282 | 237.040 | 11.363 / 9.045 |
+| 128 / full | 340.013 | 332.647 | 10.052 / 10.321 |
+| 256 / sliding | 314.988 | 308.622 | 7.015 / 8.556 |
+| 256 / full | 474.084 | 473.149 | 9.117 / 8.212 |
+
+### Fixed MID17–32, parked
+
+Private H200 job `a6fe2769779e4299`, source `28346bf5 / physicale607fb89`, completed 2026-11-03 00:07:00 UTC. Official score **2.089423×**, within-run 95% CI 2.058082–2.120765×. Preparation took 104.090 seconds. [Owning receipt](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/evidence/2026-11-02-driver-d32-mid-first-check/terminal-canonical.utf8.json)
+
+The following normalized endpoints use `(46 * sliding + 16 * full) / 62` against `94ef698e91964dfa`. These jobs have different seeds and nodes, so the deltas are descriptive.
+
+| Load | Tokens | Candidate µs | Control µs | Delta µs | Delta % |
+|---|---:|---:|---:|---:|---:|
+| decode 1 | 1 | 78.547 | 79.074 | -0.528 | -0.67% |
+| decode 16 | 16 | 151.610 | 157.437 | -5.827 | -3.70% |
+| decode 32 | 32 | 205.682 | 198.778 | +6.904 | +3.47% |
+| verify 1 | 8 | 113.603 | 120.705 | -7.102 | -5.88% |
+| verify 16 | 128 | 258.150 | 274.180 | -16.031 | -5.85% |
+| verify 32 | 256 | 352.253 | 356.045 | -3.792 | -1.06% |
+
+Per-cell repeat standard deviations are in candidate/control order. Decode1 has 60 repeats per arm; other cells have20. No paired treatment interval is recorded.
+
+| Tokens / context | Candidate µs | Control µs | Repeat SD µs, candidate / control |
+|---|---:|---:|---:|
+| 1 / sliding | 77.009 | 77.208 | 3.925 / 4.203 |
+| 1 / full | 82.969 | 84.440 | 3.970 / 4.380 |
+| 16 / sliding | 132.218 | 138.048 | 8.810 / 8.270 |
+| 16 / full | 207.360 | 213.179 | 9.820 / 10.322 |
+| 32 / sliding | 166.129 | 157.621 | 11.729 / 11.126 |
+| 32 / full | 319.397 | 317.105 | 7.447 / 10.270 |
+| 8 / sliding | 111.186 | 118.645 | 10.955 / 12.335 |
+| 8 / full | 120.552 | 126.628 | 13.658 / 10.662 |
+| 128 / sliding | 235.869 | 251.282 | 8.375 / 11.363 |
+| 128 / full | 322.207 | 340.013 | 11.137 / 10.052 |
+| 256 / sliding | 313.012 | 314.988 | 8.621 / 7.015 |
+| 256 / full | 465.071 | 474.084 | 8.164 / 9.117 |
+
+### D32 attention one-tile lookahead, inconclusive
+
+Private H200 job `17383751c6a24010`, source `31c7f920 / physical5a580c7a`, completed 2026-11-03 00:29:58 UTC. Official score **2.128829×**, within-run 95% CI 2.096897–2.160762×. Preparation took 141.737 seconds. [Owning receipt](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/evidence/D32-ATTN-01/status-wait.raw.json)
+
+The following normalized endpoints use `(46 * sliding + 16 * full) / 62` against `94ef698e91964dfa`. These jobs have different seeds and nodes, so the deltas are descriptive.
+
+| Load | Tokens | Candidate µs | Control µs | Delta µs | Delta % |
+|---|---:|---:|---:|---:|---:|
+| decode 1 | 1 | 78.610 | 79.074 | -0.464 | -0.59% |
+| decode 16 | 16 | 155.106 | 157.437 | -2.330 | -1.48% |
+| decode 32 | 32 | 191.650 | 198.778 | -7.128 | -3.59% |
+| verify 1 | 8 | 114.094 | 120.705 | -6.611 | -5.48% |
+| verify 16 | 128 | 266.789 | 274.180 | -7.391 | -2.70% |
+| verify 32 | 256 | 352.146 | 356.045 | -3.898 | -1.09% |
+
+Per-cell repeat standard deviations are in candidate/control order. Decode1 has 60 repeats per arm; other cells have20. No paired treatment interval is recorded.
+
+| Tokens / context | Candidate µs | Control µs | Repeat SD µs, candidate / control |
+|---|---:|---:|---:|
+| 1 / sliding | 76.576 | 77.208 | 3.555 / 4.203 |
+| 1 / full | 84.459 | 84.440 | 3.659 / 4.380 |
+| 16 / sliding | 134.568 | 138.048 | 9.925 / 8.270 |
+| 16 / full | 214.154 | 213.179 | 8.850 / 10.322 |
+| 32 / sliding | 149.764 | 157.621 | 8.207 / 11.126 |
+| 32 / full | 312.070 | 317.105 | 11.426 / 10.270 |
+| 8 / sliding | 111.784 | 118.645 | 8.168 / 12.335 |
+| 8 / full | 120.733 | 126.628 | 9.616 / 10.662 |
+| 128 / sliding | 245.223 | 251.282 | 8.707 / 11.363 |
+| 128 / full | 328.791 | 340.013 | 8.926 / 10.052 |
+| 256 / sliding | 310.867 | 314.988 | 7.179 / 7.015 |
+| 256 / full | 470.824 | 474.084 | 10.055 / 9.117 |
+
+### Attribution, controls and pending confirmation
+
+The new control and MID use H200/nyc3b/driver580.159.03 with matching evaluator files, but different input seeds and nodes. The attention comparison likewise matches evaluator/driver identity but has different seeds and nodes. Workloads use soft routing, 80k context and agentic spread on multibatch loads. Exact routing histograms are absent. MID changes the T17–32 expert selection; attention changes only full-context q_len1/page1 attention at batches17–32. The standard128/256 verify paths retain the original implementation in both candidates. Their faster cross-run rows supply no isolated family gains. [MID source and scope](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/2026-11-02-worker-d32-mid-family.md) · [Attention source and scope](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/2026-11-02-01-full-decode-attention-experiment.md)
+
+The first attention result remains inconclusive for an isolated E gain. Matched private job `4fece18b20a2447b` is accepted for payload `109cdb07`, 928942 bytes, source commit `c7e13600`. It embeds treatment5a580c7a and ba9 control. The published contract uses three seed banks, all12 cells, two control and two treatment placements,24 cold replays and a256MiB flush, with numerical/cache/state and duplicate-control/regression gates. There is no matched terminal result or performance verdict at this pin. [Accepted job](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/evidence/D32-ATTN-02/accepted.json) · [Payload and scope](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/2026-11-02-08-confirmation-payload.md) · [Prospective contract](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/2026-11-02-07-confirmation-contract.md)
+
+Decode32 Worker owns D32 implementation, checks, analysis and integration directly under the scoped user instruction. Driver’s pre-existing MID wait is complete, and its one-time exception is retired. Routine Driver handoffs are superseded for D32. The read-only local chat snapshot reported the matched check still queued under the owner’s progress watch. No messages were sent to that chat. [Current D32 ledger](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md)
+
+A remains ahead of the staged B implementations tested at128/256. The E lookahead changes an existing attention schedule and supplies no new A-versus-B evidence. Broad dense backing remains unallocated reserve. The new CUDA source-correction supplement is source-only context, with no new GPU measurement or performance gain. [Source-correction scope](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/2026-11-02-cuda-source-corrections-intake.md)
+
+Checkpoint `2ffc98c1`. New terminal jobs94ef698e91964dfa, a6fe2769779e4299 and17383751c6a24010 are counted once. Matched4fece18b20a2447b is pending, with dispatch beginning2026-11-03 00:49:30 UTC. Read-only owner snapshot cursor `1cba8e71-65d3-4a48-b3c2-f00e5feaafa6:3` reports queued. Parsed 18 untracked historical profile JSONs without staging or modifying them. Integer seeds in the MID CP1252 raw receipt match its labeled UTF-8 canonical derivative. Independent review verified raw identities, source hashes, endpoint calculations and correctness scope.
 
 ## November 2 review at 16:50 Vancouver time
 
@@ -33,7 +159,7 @@ D32 is 32 tokens with q_len=1. The new user priority targets a reproducible 2.0�
 | Shared BF16 A producer | 264.996 | 408.819 | 18.730900 | 1.184293× |
 | Direct global weight-to-register delivery | 180.848 | 337.856 | 13.724704 | 1.613539× |
 
-C32 is `46 * sliding + 16 * full`, expressed in milliseconds. Unchanged G1b4 control `cc474883117947c0` measured 11.897664 ms. The shared-A and direct-weight normalized D32 endpoints were respectively 110.213 µs slower (+57.43%) and 29.468 µs slower (+15.36%) than that control in separate runs. [Direct D32 scorecard](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-d32-mid-comparison.md)
+`C32_ms = (46 * sliding_us + 16 * full_us) / 1000`. Unchanged G1b4 control `cc474883117947c0` measured 11.897664 ms. The shared-A and direct-weight normalized D32 endpoints were respectively 110.213 µs slower (+57.43%) and 29.468 µs slower (+15.36%) than that control in separate runs. [Direct D32 scorecard](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-d32-mid-comparison.md)
 
 ### Shared BF16 A producer
 
@@ -2629,6 +2755,8 @@ paired differences.
 | Retained G versus upstream G0 | Earlier independent official runs | +10.676 µs (+4.13%) | +8.500 µs (+2.42%) | Weighted verify latency. Cross-run reconstruction of existing jobs, no isolated repair timing. [Source records](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/evidence/2026-11-01-g-integration-gap/cross-job-gap.json). |
 | G224 gather schedule | Historical public G1b4 | Weighted verify latency +14.617% | +20.564% | `e1271ad5e5e34b24`, independent run, all 13 tests passed. [Source](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-g224-terminal-decision.md). |
 | Fully timed G SiLU table | Historical public G1b4 | 275.449 vs 269.347 µs, +6.102 µs (+2.27%) | 358.496 vs 359.297 µs, −0.802 µs (−0.22%) | `dc62cff972934f54`, one private check, affected loads, unmatched seeds and nodes. [Reconstruction](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md). |
+| G MID17–32, unchanged verify paths | Fresh G1b4 94ef, separate run | -16.031 µs (-5.85%) | -3.792 µs (-1.06%) | `a6fe2769779e4299`. Source-unchanged128/256 observations, not family gains. [Current result](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md) |
+| E lookahead inside G, unchanged verify paths | Fresh G1b4 94ef, separate run | -7.391 µs (-2.70%) | -3.898 µs (-1.09%) | `17383751c6a24010`. Source-unchanged128/256 observations, not family gains. [Current result](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md) |
 | G shared-a, whole layer | Fresh G1b4, separate run | +205.381 µs (+78.48%) | +277.062 µs (+78.92%) | `5adf172986ff43dc`, revision `dcb24972`. [Receipt and calculations](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/evidence/2026-11-02-driver-shared-a-first-check/terminal-analysis.json) |
 | G direct-weight, whole layer | Fresh G1b4, separate run | +74.259 µs (+28.37%) | +91.717 µs (+26.12%) | `0b684a4065354fc5`, revision `368b85c9`. [Receipt and calculations](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/evidence/2026-11-02-driver-direct-weight-first-check/terminal-analysis.json) |
 | G fixed two-front K128, whole layer | Fresh G1b4, separate run | +57.584 µs (+22.00%) | +67.965 µs (+19.36%) | One private check per arm, different inputs and hardware environments. [Endpoint calculations](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/evidence/2026-11-02-driver-k128-first-check/terminal-analysis.json) |
@@ -2667,6 +2795,8 @@ Losses matter as much as wins:
 
 ## Whole-layer outcome and attribution
 
+The E lookahead’s ordinary whole-layer run has an exploratory cross-run signal, with larger drift on unchanged sliding D32. Matched confirmation is pending. The MID17–32 expert route is parked. [Current results](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md)
+
 Shared-A and direct-weight expert variants have valid unfavorable whole-layer outcomes. Public G1b4 remains retained. [Latest terminal reconciliation](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-direct-weight-terminal-and-dense-backing.md)
 
 Four-cell public job `1fad70bbe3854cbc` returned an infrastructure error and a refund. It supplies no H200 qualification at 128/256 tokens. The matched common-control trial `c5e4f89672f743bb` closed the short-counter treatment. Its official 2.112499× score measures the repaired control. The matched OFF/ON timings determine the counter decision. [Terminal analysis](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-rmw-legal-fixture-terminal.md)
@@ -2680,7 +2810,7 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
-The fixed K128, shared-A and direct-weight checks are closed. The next allocation prioritizes D32 through an unchanged-incumbent calibration and a fixed MID-helper comparison at 17–32 tokens. Broad dense backing remains unallocated reserve. [Current decision](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-d32-mid-comparison.md)
+The calibration and fixed MID-helper comparison have completed. MID is parked. Decode32 Worker owns the D32 lane directly, and attention matched confirmation4fece18b20a2447b is queued. Broad dense backing remains unallocated reserve. [Current D32 ledger](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md)
 
 The earlier complete-engine review closed both reviewed proposals at the source stage. Reopening grouped-contiguous Humming requires an exact legal workload and credible net whole-layer opportunity. The canonical attention continuity source is frozen pending stronger opportunity evidence. [Decisions](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md).
 
@@ -2706,6 +2836,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- November2, 17:53 Vancouver. Inspected through `2ffc98c1`. New control94ef, MIDa6fe and attention1738 terminal; matched4fe accepted/queued. [Ledger checkpoint](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md)
 
 - November 2, 16:50 Vancouver. Inspected through `bdbf35bf`, including shared-A terminal 23:03:31 UTC, direct-weight terminal 23:26:37 UTC and D32 owner-priority pickup. [Current source checkpoint](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-decode32-owner-directive.md)
 

@@ -13,7 +13,7 @@ D32 is 32 tokens with q_len=1. The new user priority targets a reproducible 2.0�
 | Shared BF16 A producer | 264.996 | 408.819 | 18.730900 | 1.184293× |
 | Direct global weight-to-register delivery | 180.848 | 337.856 | 13.724704 | 1.613539× |
 
-C32 is `46 * sliding + 16 * full`, expressed in milliseconds. Unchanged G1b4 control `cc474883117947c0` measured 11.897664 ms. The shared-A and direct-weight normalized D32 endpoints were respectively 110.213 µs slower (+57.43%) and 29.468 µs slower (+15.36%) than that control in separate runs. [Direct D32 scorecard](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-d32-mid-comparison.md)
+`C32_ms = (46 * sliding_us + 16 * full_us) / 1000`. Unchanged G1b4 control `cc474883117947c0` measured 11.897664 ms. The shared-A and direct-weight normalized D32 endpoints were respectively 110.213 µs slower (+57.43%) and 29.468 µs slower (+15.36%) than that control in separate runs. [Direct D32 scorecard](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-d32-mid-comparison.md)
 
 ## Shared BF16 A producer
 

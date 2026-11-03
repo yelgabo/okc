@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T16:50:00-07:00",
-  "snapshot": "bdbf35bf",
+  "reviewed_at": "2026-11-02T17:53:00-07:00",
+  "snapshot": "2ffc98c1",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public607 retains2.126083×. Shared-A and direct-weight checks passed correctness but lost. D32 is the next priority. New control/MID accepted IDs are unestablished."
+    "note": "Public607 retains2.126083×. New control2.091748×; MID2.089423× parked. Attention2.128829× is an exploratory private result with matched4fe confirmation queued."
   },
   "families": [
     {
@@ -77,20 +77,23 @@
     {
       "id": "E",
       "name": "Attention producer / consumer",
-      "status": "win",
-      "label": "VP2 cell win, full-score gate missed",
-      "metric": "−0.616 µs (−5.71%)",
-      "unit": "Private VP2 versus owned control, eight-token sliding attention",
-      "summary": "Across three held-outs, VP2 averaged 10.168 µs versus 10.784 µs for the owned control. All four six-load factors were below 1.01.",
-      "layer": "Private standalone comparison. Layer adoption closed for this variant.",
+      "status": "inconclusive",
+      "label": "D32 lookahead • isolated gain unconfirmed",
+      "metric": "−5.035 µs (−1.59%)",
+      "unit": "Targeted D32 full-context layer cell, separate-run comparison",
+      "summary": "Ordinary lookahead job17383751 passed timed-call reference checks. Unchanged sliding D32 improves more, so the observed gain remains inconclusive.",
+      "layer": "Layer-tested scheduling descendant inside G. Matched check4fece18b20a2447b is queued. Public G1b4 remains retained.",
       "pending": [],
-      "limit": "The half-merge-preserving continuity candidate passed CPU source checks and is frozen before H200 testing. Its 0.560% scenario assumes a 7 µs saving on each of four cells.",
-      "source": "runs-attention.md",
+      "limit": "Source changes only full-context single-query batches17–32. Standard128/256 verify paths are unchanged. Earlier VP2 cell win and six-load failure remain recorded.",
+      "source": "steering/2026-11-02-1753-performance-review.md",
       "outcomes": [
         "win",
-        "loss"
+        "loss",
+        "inconclusive"
       ],
-      "evaluation_pending": []
+      "evaluation_pending": [
+        "Matched attention confirmation4fece18b20a2447b, payload109cdb07"
+      ]
     },
     {
       "id": "F",
@@ -117,17 +120,15 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Retained layer • shared-A and direct-weight parked",
+      "label": "Retained layer • MID17–32 parked",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "Shared-A scored 1.612794× and direct weight scored 1.926424×. Both passed correctness and lost their cross-run whole-layer continuation screens.",
-      "layer": "Public G1b4 retains 2.126083×. At128/256, shared-A was 78.48%/78.92% slower and direct weight 28.37%/26.12% slower than fresh control in separate runs.",
+      "summary": "MID passed official validity gates but D32 was3.473% slower than the new unchanged control in a separate run. Shared-A and direct-weight negatives remain closed.",
+      "layer": "Public607 retains2.126083×. New calibration94ef scores2.091748×. MID scores2.089423×, with no useful D32 signal.",
       "pending": [],
-      "evaluation_pending": [
-        "Fixed MID helper at metadata17–32, after unchanged-incumbent calibration"
-      ],
-      "limit": "D32 also regressed descriptively by57.43%/15.36%. Different seeds, nodes and drivers prevent matched causal attribution. Stops apply to these exact implementations.",
-      "source": "steering/2026-11-02-1650-performance-review.md",
+      "evaluation_pending": [],
+      "limit": "The128/256 MAIN paths are unchanged. Their faster cross-run observations do not establish MID gains. Decode32 Worker owns subsequent D32 checks directly.",
+      "source": "steering/2026-11-02-1753-performance-review.md",
       "outcomes": [
         "win",
         "loss"
@@ -156,14 +157,14 @@
       "summary": "Grouped-contiguous Humming lacks a qualified whole-layer path. Prepared BF16 expansion conflicts with the stored NVFP4 requirement. The earlier one-token and pre-gamma component losses remain recorded."
     },
     {
-      "name": "D32 fixed MID-helper comparison",
-      "label": "Allocated • unmeasured",
-      "summary": "Existing helper at17–32 tokens, MAIN at33. Current-service control first. Accepted job IDs and developer pickup remain unestablished."
-    },
-    {
       "name": "Broad dense-bank generic backing",
       "label": "Unallocated reserve",
       "summary": "Superseded before delivery by the D32 priority. No implementation or performance result is credited."
+    },
+    {
+      "name": "D32 attention matched confirmation",
+      "label": "Accepted • queued • no timing verdict",
+      "summary": "Job4fece18b20a2447b uses payload109cdb07 against ba9. Ordinary first result remains exploratory; duplicate-control/cold-replay gates pending."
     }
   ]
 }
