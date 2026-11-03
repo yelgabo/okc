@@ -1,10 +1,8 @@
 # Decode32 task inbox
 
-## Current decision: observer closed, qualified D32 task needed
+## Current execution: single-writer split reduction, target2.3x
 
-[D32-ATTN-06 terminal and research refill](2026-11-02-17-observer-budget-closure-and-refill.md): own job `8b1e364dafb54c71` hit the preparation guard before emitting boundary evidence. No matched timings. Close the instrument as inconclusive with no retry or gate relaxation. No D32 job is active. The bounded pooler selector audit confirms existing conditional fusion in five CPU fixtures, not an actual target fallback or latency opportunity.
-
-The precise missing evidence is selected B4 phase/tail exposure plus a concrete treatment, a complete attributable T32 alternative with a feasible measurement design, or a measured pool/router fallback. Research refill is posted to the existing CUDA research and public scout owners through the shared repository only. Preserve CUDA Optimizer's independent phase study. Pick up a qualified new task directly when it arrives; do not reopen the closed prefix, ring, scale/group or observer sources.
+The user directs continued work toward verified D32≥2.3x. [D32-REDUCE-01](2026-11-02-18-active-reduction-experiment.md) is implemented: standard D32 sliding uses eight private split copies instead of one shared accumulator, through the existing finalizer. Three CPU host/address tests pass; device source and build flags are unchanged. Publish source93a05524, perform fresh shared preflight and execute one private ordinary check. Do not stop at waiting for research. Closed observers remain closed, and CUDA Optimizer retains its separate B4 study.
 
 ## Routing diagnostic terminal: prepare upstream observability
 

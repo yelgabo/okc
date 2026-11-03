@@ -1,0 +1,10 @@
+{
+  "base": "muse_decode_layer/cand/g1b4_stage_release.py",
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "sha256": "93a05524b1c10b44ac5bd1ea307a25fdc906db4a617737a579cfae6332fd0d49",
+  "bytes": 869598,
+  "native_source_unchanged": true,
+  "compile_flags_unchanged": true,
+  "scope": "17..32 batch, q_len1, sliding, page1, one KV pair, noncluster plan",
+  "mechanism": "unique split copies followed by existing fixed-order sum, no shared atomic destinations"
+}
