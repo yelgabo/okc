@@ -227,7 +227,8 @@ def cut(s, start, end, new):
     return s[:a] + new + s[b:]
 
 
-def main():
+def make_block():
+    """The appended pdl8b block, built from the pinned release; returns (release text, block text)."""
     raw = A.SRC.read_bytes()
     if hashlib.sha256(raw).hexdigest() != A.PIN:
         sys.exit("source is not the pinned public layer file")
@@ -269,6 +270,11 @@ def main():
             + copy("_sl_cluster_finish", A.FINISH_CG) + "\n\n\n" + copy("_graft_row_boundary_pre", ROW_CG) + "\n\n\n"
             + copy("_sl_tile_after_attention", A.AFTER) + "\n\n\n" + copy("_graft_after_attention", GRAFT_AFTER) + "\n\n\n"
             + copy("_decode_attention7", A.ATTN) + tail)
+    return s, body
+
+
+def main():
+    s, body = make_block()
     DST.write_text(s.rstrip("\n") + "\n" + body)
     py_compile.compile(str(DST), doraise=True)
     print(DST, hashlib.sha256(DST.read_bytes()).hexdigest(), len(DST.read_bytes()))
