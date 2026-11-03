@@ -675,6 +675,20 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // mbarrier.arrive (release) pairs with the x producer's try_wait (acquire) before its bulk copy,
 // all in the async proxy ("Ordering of the ring slot releases"). docs/runs-moe.md, "Earlier x
 // slot release (mode 86)".
+// Mode 87 (timing only) is 51 with 55's light and gather stamps plus per-CTA producer counters
+// (prod_st), the consumers untouched: each producer's cycles waiting for an empty slot and for its
+// inputs (x: xready per phase A job, the claim posted in S.bq and done_as per phase B stage; the
+// weights producer: the claim counter's atomic), with stage counts, phase A and phase B apart,
+// accumulated in registers and written once at each producer's end to p.inter as int64 from
+// kPcOff, kPcPer words per CTA. Mode 88 is 51 with the x copies carrying an L2 evict_last hint
+// (the weights keep evict_first): an x tile is re-read by every CTA that streams its job, while a
+// weights stage is read once. docs/runs-moe.md, "Producer waits and the x copies' L2 hint".
+__host__ __device__ constexpr bool prod_st(int mode) {
+    return mode == 87;
+}
+__host__ __device__ constexpr bool x_keep(int mode) {
+    return mode == 88;
+}
 __host__ __device__ constexpr bool early_x(int mode) {
     return mode == 86;
 }
@@ -692,7 +706,7 @@ __host__ __device__ constexpr bool fixed_ring(int mode) {
 }
 __host__ __device__ constexpr int mma_max(int mode) {
     return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
-                   || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 86)
+                   || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 88)
                ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
@@ -707,7 +721,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
     return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 29)
-           || (mode >= 31 && mode <= 86);
+           || (mode >= 31 && mode <= 88);
 }
 
 // Modes 17 to 20 are mode 16 (two mma.sync chains, unit-aligned phase B) with one change each:
@@ -718,7 +732,7 @@ __host__ __device__ constexpr bool fence_ar(int mode) {
 // 22 is 20 with the stamps of 17. 23 is 20 with phase B units claimed at run time (dyn_b) and
 // both phases walked largest n-tile count first; 24 is 23 with the stamps.
 __host__ __device__ constexpr bool dual_chain(int mode) {
-    return mode == 14 || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 86);
+    return mode == 14 || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 88);
 }
 __host__ __device__ constexpr bool is_diag(int mode) {
     return mode == 11 || mode == 17 || mode == 22 || mode == 24;
@@ -730,7 +744,8 @@ __host__ __device__ constexpr bool is_light(int mode) {
     return mode == 25 || mode == 27 || mode == 29 || mode == 31 || mode == 33 || mode == 38
            || mode == 40 || mode == 41 || mode == 42 || mode == 44 || mode == 48 || mode == 49
            || mode == 54 || mode == 55 || mode == 56 || mode == 58 || mode == 61 || mode == 64
-           || mode == 65 || mode == 67 || mode == 70 || mode == 71 || mode == 73 || mode == 75;
+           || mode == 65 || mode == 67 || mode == 70 || mode == 71 || mode == 73 || mode == 75
+           || mode == 87;
 }
 // Modes 26 and 27 (27 with the light stamps) are 23 with the setup of the public kernel's
 // route(): every warp counts its slice of the routes once (match_any), the routing warp sums
@@ -739,7 +754,7 @@ __host__ __device__ constexpr bool is_light(int mode) {
 // put setup at 7 / 11 / 16 us of routing at 32 / 128 / 256 tokens against 2-3 us for the
 // public kernel (check d1f587760b1241dc).
 __host__ __device__ constexpr bool fast_setup(int mode) {
-    return (mode >= 26 && mode <= 29) || (mode >= 31 && mode <= 86);
+    return (mode >= 26 && mode <= 29) || (mode >= 31 && mode <= 88);
 }
 // Modes 28 and 29 (29 with the light stamps) are 26 with a leaner consumer stage. The stage
 // loop was 389 instructions against the public kernel's 322 for the same dequant and MMA core
@@ -755,7 +770,7 @@ __host__ __device__ constexpr bool fast_setup(int mode) {
 // release after __syncwarp at the moved point makes ptxas serialize the wgmma groups (C7513,
 // 400 instructions per stage), so that variant was dropped.
 __host__ __device__ constexpr bool lean_stage(int mode) {
-    return mode == 28 || mode == 29 || (mode >= 31 && mode <= 86);
+    return mode == 28 || mode == 29 || (mode >= 31 && mode <= 88);
 }
 // Modes 31 and 33 (timing only) are 28 and 32 with the light stamps plus phase A counters per
 // consumer warp (S.dg rows 0-15): cycles spent in weights and x waits, cycles from a unit's
@@ -787,7 +802,7 @@ __host__ __device__ constexpr bool pb_diag(int mode) {
 // "Ordering of the ring slot releases"; the moved release under "Code groups with the next
 // stage hoisted").
 __host__ __device__ constexpr bool grp_codes(int mode) {
-    return mode == 43 || mode == 44 || (mode >= 47 && mode <= 86);
+    return mode == 43 || mode == 44 || (mode >= 47 && mode <= 88);
 }
 // Mode 47 is 43 without the hoist: the code groups as 43, the waits and the first group at the
 // stage's start as 37. In check 9d94ac75f4724b52, 43 beat 37 by 2.7 us at 256 tokens while
@@ -818,7 +833,7 @@ __host__ __device__ constexpr bool skew_st(int mode) {
 // stamps, d47c78bdc130424b) with no split between the stores, the fences and the release.
 __host__ __device__ constexpr bool gather_st(int mode) {
     return mode == 55 || mode == 56 || mode == 58 || mode == 61 || mode == 64 || mode == 65
-           || mode == 67 || mode == 70 || mode == 71 || mode == 73 || mode == 75;
+           || mode == 67 || mode == 70 || mode == 71 || mode == 73 || mode == 75 || mode == 87;
 }
 // Modes 60 and 61 (61 with 55's light and gather stamps, timing only) are 51 without the
 // gathering threads' __threadfence (fence.sc.gpu) between their fence.proxy.async.global and the
@@ -863,7 +878,7 @@ __host__ __device__ constexpr bool gx_st16(int mode) {
 // gap to the public kernel summed over 128 and 256 tokens (+2.9 and +7.3 us). The final pass
 // then takes one token per CTA iteration and reads its rows twice, the second time from L2.
 __host__ __device__ constexpr bool final_ss(int mode) {
-    return mode >= 50 && mode <= 86;
+    return mode >= 50 && mode <= 88;
 }
 // Mode 51 is 50 with the final-pass sums only from kFinssMinM tokens up, 47's path below. In
 // 50's gate (8a7051fa926e43e1) 50 minus 47 was -4.1 to -8.3 us at 128 and 256 tokens but +0.7 at
@@ -871,7 +886,7 @@ __host__ __device__ constexpr bool final_ss(int mode) {
 // The choice is uniform per launch (p.M), so the epilogue and the final pass agree on it.
 constexpr int kFinssMinM = 64;
 __host__ __device__ constexpr bool finss_by_m(int mode) {
-    return mode >= 51 && mode <= 86;
+    return mode >= 51 && mode <= 88;
 }
 template <int MODE>
 __device__ __forceinline__ bool finss_on(int m) {
@@ -960,7 +975,7 @@ __host__ __device__ constexpr bool vol_regs(int mode) {
 // themselves (the chain in docs/runs-moe.md, "Proxy ordering of the x tiles", steps 2-3).
 // Each writer keeps its fence.proxy.async.global.
 __host__ __device__ constexpr bool bar_release_a(int mode) {
-    return mode == 34 || mode == 37 || (mode >= 39 && mode <= 86);
+    return mode == 34 || mode == 37 || (mode >= 39 && mode <= 88);
 }
 // Modes 36 to 38 are 28 with SiLU's reciprocal as one MUFU.RCP (rcp.approx.ftz, as the public
 // kernel's __fdividef): __frcp_rn compiles to MUFU.RCP plus a range check that branches to a
@@ -971,7 +986,7 @@ __host__ __device__ constexpr bool bar_release_a(int mode) {
 // loops, check ca43908f02874886.] 37 is 36 without the per-thread fence_gpu (as 34), 38 is 36
 // with the phase A counters (timing only).
 __host__ __device__ constexpr bool fast_silu(int mode) {
-    return mode >= 36 && mode <= 86;
+    return mode >= 36 && mode <= 88;
 }
 // Modes 39 and 40 (40 with the counters) are 37 with the SwiGLU outputs stored in pairs: in
 // the xb layout a warp owns two adjacent bf16 of each 16-byte token row, held by lanes g and
@@ -987,7 +1002,8 @@ __host__ __device__ constexpr bool a_only(int mode) {
 }
 __host__ __device__ constexpr bool own_a(int mode) {
     return mode == 19 || mode == 20 || (mode >= 22 && mode <= 29) || (mode >= 31 && mode <= 45)
-           || (mode >= 47 && mode <= 71) || (mode >= 76 && mode <= 78) || abl(mode) || mode == 86;
+           || (mode >= 47 && mode <= 71) || (mode >= 76 && mode <= 78) || abl(mode)
+           || (mode >= 86 && mode <= 88);
 }
 // Modes 72 and 73 (73 with 55's light and gather stamps plus fix_st, timing only) are 51 with
 // phase A dealt as mode 16 deals it: each CTA a contiguous range of equal cost under the stage
@@ -1049,7 +1065,7 @@ __host__ __device__ constexpr bool fix_st(int mode) {
 // snake deal walks S.ord) at the front, so claimed units find their inputs ready.
 __host__ __device__ constexpr bool dyn_b(int mode) {
     return (mode >= 23 && mode <= 29) || (mode >= 31 && mode <= 44)
-           || (mode >= 46 && mode <= 78) || abl(mode) || mode == 86;
+           || (mode >= 46 && mode <= 78) || abl(mode) || (mode >= 86 && mode <= 88);
 }
 // Segment groups by n-tile count are walked largest first (consumers and both producers).
 __host__ __device__ constexpr bool walk_desc(int mode) {
@@ -1152,6 +1168,8 @@ constexpr int kSkQ = 256;
 constexpr int kSkRow = kNC * 4 + 2;
 constexpr int kSkPer = 8 + kSkQ * kSkRow;
 constexpr long long kSkOff = 1ll << 20;
+constexpr long long kPcOff = 1ll << 20;
+constexpr int kPcPer = 24;
 
 __device__ __forceinline__ long long* sk_cta(const Params& p) {
     return reinterpret_cast<long long*>(p.inter) + kSkOff
@@ -1345,6 +1363,12 @@ __device__ __forceinline__ int bq_get(const SmemMain& S, int i, int* ctr) {
         }
     }
     return m;
+}
+
+__device__ __forceinline__ uint64_t policy_evict_last() {
+    uint64_t p;
+    asm volatile("createpolicy.fractional.L2::evict_last.b64 %0, 1.0;" : "=l"(p));
+    return p;
 }
 
 __device__ __forceinline__ void bulk_load_plain(void* dst, const void* src, unsigned bytes,
@@ -2880,6 +2904,8 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
                                           uint64_t pol) {
     long long twe = 0;
     long long pwe = 0;
+    constexpr bool kPc = prod_st(MODE);
+    long long pc[8] = {kPc ? clock64() : 0, 0, 0, 0, 0, 0, 0, 0};
     Ring rg = {0, 0, 0, 0};
     for (int ph = 0; ph < (dyn_b(MODE) || a_only(MODE) ? 1 : 2); ++ph) {
         const int ns = seg_n<MODE>(S, ph);
@@ -2902,11 +2928,17 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
             for (int st = gb & 15; st < st_e; ++st) {
                 const int ws = rg.ws;
                 if (rg.wlap > 0) {
-                    const long long c0 = is_diag(MODE) ? clock64() : 0;
+                    const long long c0 = is_diag(MODE) || kPc ? clock64() : 0;
                     pwe += mbar_wait_m<MODE, 0>(&S.wempty[ws], (rg.wlap - 1) & 1, p.ctr, 16);
                     if (is_diag(MODE)) {
                         twe += clock64() - c0;
                     }
+                    if constexpr (kPc) {
+                        pc[2] += clock64() - c0;
+                    }
+                }
+                if constexpr (kPc) {
+                    ++pc[3];
                 }
                 sk_stamp<MODE>(p, rg.wlap * S.nsw + ws, kNC * 4, true);
                 mbar_expect_tx(&S.wfull[ws], kUnitBytes);
@@ -2934,13 +2966,20 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
         const int na = S.njobs * (kUAM / 16) - s0;
         for (int i = 0; i < kBqMax; ++i) {
             if (rg.wlap > 0) {
-                const long long c0 = is_diag(MODE) ? clock64() : 0;
+                const long long c0 = is_diag(MODE) || kPc ? clock64() : 0;
                 mbar_wait_to(&S.wempty[rg.ws], (rg.wlap - 1) & 1, p.ctr, 16);
                 if (is_diag(MODE)) {
                     twe += clock64() - c0;
                 }
+                if constexpr (kPc) {
+                    pc[4] += clock64() - c0;
+                }
             }
+            const long long cc = kPc ? clock64() : 0;
             int m = i < kBqMax - 1 ? atomicAdd(claim, 1) : na + units + xs;
+            if constexpr (kPc) {
+                pc[5] += clock64() - cc;
+            }
             if (m >= na + units + xs) {
                 m = -1;
             }
@@ -2984,11 +3023,17 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
             for (int st = c.st_b; st < c.st_e; ++st) {
                 const int ws = rg.ws;
                 if (st > c.st_b && rg.wlap > 0) {
-                    const long long c0 = is_diag(MODE) ? clock64() : 0;
+                    const long long c0 = is_diag(MODE) || kPc ? clock64() : 0;
                     mbar_wait_to(&S.wempty[ws], (rg.wlap - 1) & 1, p.ctr, 16);
                     if (is_diag(MODE)) {
                         twe += clock64() - c0;
                     }
+                    if constexpr (kPc) {
+                        pc[4] += clock64() - c0;
+                    }
+                }
+                if constexpr (kPc) {
+                    ++pc[6];
                 }
                 sk_stamp<MODE>(p, rg.wlap * S.nsw + ws, kNC * 4, true);
                 mbar_expect_tx(&S.wfull[ws], kUnitBytes);
@@ -3001,6 +3046,15 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
     if (is_diag(MODE)) {
         S.dg[16][0] = twe;
     }
+    if constexpr (kPc) {
+        pc[1] = clock64();
+        long long* o = reinterpret_cast<long long*>(p.inter) + kPcOff
+                       + static_cast<long long>(cta) * kPcPer;
+#pragma unroll
+        for (int k = 0; k < 8; ++k) {
+            o[k] = pc[k];
+        }
+    }
 }
 
 // Phase A stages come from the gathered x rows once the job's rows are all in; phase B
@@ -3012,6 +3066,9 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
     long long tda = 0;
     long long txr = 0;
     long long pxe = 0;
+    constexpr bool kPc = prod_st(MODE);
+    long long pc[10] = {kPc ? clock64() : 0, 0, 0, 0, 0, 0, 0, 0, 0, kPc ? gtimer() : 0};
+    const uint64_t xpol = x_keep(MODE) ? policy_evict_last() : 0;
     for (int ph = 0; ph < (dyn_b(MODE) || a_only(MODE) ? 1 : 2); ++ph) {
         const int ns = seg_n<MODE>(S, ph);
         for (int n = 1; n <= 8; ++n) {
@@ -3030,10 +3087,13 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                                         + static_cast<size_t>(S.job_xo[j]) * 65536;
             long long c0 = kDiag ? clock64() : 0;
             if (ph == 0 && MODE != 1 && MODE != 4) {
-                const long long c = pa_diag(MODE) ? clock64() : 0;
+                const long long c = pa_diag(MODE) || kPc ? clock64() : 0;
                 spin_ge(p.xready + j, S.job_n[j], p.ctr, 32);
                 if (pa_diag(MODE)) {
                     pxe += clock64() - c;
+                }
+                if constexpr (kPc) {
+                    pc[2] += clock64() - c;
                 }
                 if (gather_st(MODE) && S.dg[16][7] == 0) {
                     S.dg[16][7] = gtimer();
@@ -3049,8 +3109,13 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                 if (kDiag) {
                     c0 = clock64();
                 }
+                const long long ce = kPc ? clock64() : 0;
                 if (rg.xlap > 0) {
                     pxe += mbar_wait_m<MODE, 0>(&S.xempty[xs], (rg.xlap - 1) & 1, p.ctr, 64);
+                }
+                if constexpr (kPc) {
+                    pc[3] += clock64() - ce;
+                    ++pc[4];
                 }
                 if (kDiag) {
                     const long long c1 = clock64();
@@ -3068,8 +3133,14 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                 }
                 sk_stamp<MODE>(p, rg.xlap * kNSX + xs, kNC * 4 + 1, true);
                 mbar_expect_tx(&S.xfull[xs], bytes);
-                bulk_load_plain(S.rings + S.xoff + xs * S.xsz,
-                                base + static_cast<size_t>(st) * bytes, bytes, &S.xfull[xs]);
+                if constexpr (x_keep(MODE)) {
+                    bulk_load(S.rings + S.xoff + xs * S.xsz,
+                              base + static_cast<size_t>(st) * bytes, bytes, &S.xfull[xs],
+                              xpol);
+                } else {
+                    bulk_load_plain(S.rings + S.xoff + xs * S.xsz,
+                                    base + static_cast<size_t>(st) * bytes, bytes, &S.xfull[xs]);
+                }
                 ring_next_x(rg);
             }
         }
@@ -3082,7 +3153,11 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
         const int s0 = a_static<MODE>(S.njobs, G);
         const int na = S.njobs * (kUAM / 16) - s0;
         for (int i = 0; i < kBqMax; ++i) {
+            const long long cq = kPc ? clock64() : 0;
             const int m = bq_get(S, i, p.ctr);
+            if constexpr (kPc) {
+                pc[5] += clock64() - cq;
+            }
             if (m < 0) {
                 break;
             }
@@ -3111,28 +3186,42 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                                         + static_cast<size_t>(S.job_xo[j]) * 65536;
             for (int st = c.st_b; st < c.st_e; ++st) {
                 const int xs = rg.xs;
-                long long c0 = is_diag(MODE) ? clock64() : 0;
+                long long c0 = is_diag(MODE) || kPc ? clock64() : 0;
                 if (rg.xlap > 0) {
                     mbar_wait_to(&S.xempty[xs], (rg.xlap - 1) & 1, p.ctr, 64);
+                }
+                if constexpr (kPc) {
+                    pc[6] += clock64() - c0;
+                    ++pc[8];
                 }
                 if (is_diag(MODE)) {
                     const long long c1 = clock64();
                     txe += c1 - c0;
                     c0 = c1;
                 }
+                const long long cr = kPc ? clock64() : 0;
                 if (!ca) {
                     if (!b_only(MODE)) {
                         spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
                     }
                     fence_proxy_async_global();
                 }
+                if constexpr (kPc) {
+                    pc[7] += clock64() - cr;
+                }
                 if (is_diag(MODE)) {
                     tda += clock64() - c0;
                 }
                 sk_stamp<MODE>(p, rg.xlap * kNSX + xs, kNC * 4 + 1, true);
                 mbar_expect_tx(&S.xfull[xs], bytes);
-                bulk_load_plain(S.rings + S.xoff + xs * S.xsz,
-                                base + static_cast<size_t>(st) * bytes, bytes, &S.xfull[xs]);
+                if constexpr (x_keep(MODE)) {
+                    bulk_load(S.rings + S.xoff + xs * S.xsz,
+                              base + static_cast<size_t>(st) * bytes, bytes, &S.xfull[xs],
+                              xpol);
+                } else {
+                    bulk_load_plain(S.rings + S.xoff + xs * S.xsz,
+                                    base + static_cast<size_t>(st) * bytes, bytes, &S.xfull[xs]);
+                }
                 ring_next_x(rg);
             }
         }
@@ -3141,6 +3230,16 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
         S.dg[17][0] = txe;
         S.dg[17][1] = tda;
         S.dg[17][2] = txr;
+    }
+    if constexpr (kPc) {
+        pc[1] = clock64();
+        long long* o = reinterpret_cast<long long*>(p.inter) + kPcOff
+                       + static_cast<long long>(cta) * kPcPer + 8;
+#pragma unroll
+        for (int k = 0; k < 10; ++k) {
+            o[k] = pc[k];
+        }
+        o[10] = gtimer();
     }
 }
 
@@ -3265,7 +3364,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
             S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 29) || (MODE >= 31 && MODE <= 78)
-                                || abl(MODE) || MODE == 86
+                                || abl(MODE) || (MODE >= 86 && MODE <= 88)
                         ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
@@ -6671,7 +6770,8 @@ def _vname(v):
                 77: "main-finss64-fin4", 78: "main-finss64-psc-fin4",
                 79: "main-finss64-skab", 83: "ablate-nofence",
                 84: "ablate-raw", 85: "ablate-ring3",
-                86: "main-finss64-xearly"}[m]
+                86: "main-finss64-xearly",
+                87: "main-finss64-pcst", 88: "main-finss64-xkeep"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     tags = ('', '-loads', '-stamps', '-er', '-er-stamps', '-sf', '-hand', '-sfh', '-sfh-stamps')
     flags = "".join(t for b, t in ((32, "-rf"), (64, "-nh"), (16, "-us")) if mode & b)
