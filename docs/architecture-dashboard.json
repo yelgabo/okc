@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T21:04:00-07:00",
-  "snapshot": "fdb935f6",
+  "reviewed_at": "2026-11-02T22:00:00-07:00",
+  "snapshot": "2f8ae539",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public607 retains2.126083×. New T8/T16 norm aggregation passes correctness and fails all6 matched groups; original updates/NS3 stay. D32 identity remains pending. Priorities: MoE P0, BF16 P1, Decode32 P4."
+    "note": "Public607 retains2.126083× and original norm/NS3. Complete-unit B queue fails matched gates; identity screen fails routing/coverage. No accepted candidate or new layer gain. MoE P0, BF16 P1, D32 P4."
   },
   "families": [
     {
@@ -24,7 +24,7 @@
       "summary": "Owned hybrid baseline retained. Position map, locality, decoder and direct/cached band variants fail gates. New G-hosted skinny-helper norm aggregation also fails its matched performance gate.",
       "layer": "Earlier owned layer tests combine M1 and mode 51. The current retained layer belongs to G.",
       "pending": [],
-      "limit": "Historical skinny/main47 progress qualification remains open; both disabled repairs spill. G-hosted T8/T16 norm aggregation passes correctness but yields no repeatable benefit above duplicate noise.",
+      "limit": "Historical skinny/main47 progress qualification remains open. Repair spills were observed locally; their H200 performance is untested, not rejected. G-hosted norm aggregation has a valid target correctness pass and failed matched performance gate.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -49,10 +49,10 @@
       "id": "C",
       "name": "Owner-completes tiles",
       "status": "win",
-      "label": "Historical owner-tile wins; G uses stage cuts",
+      "label": "Historical wins; C+D queue loses in G",
       "metric": "−2.1 / −3.8 µs",
       "unit": "128 / 256 tokens: mode 20 versus mode 16",
-      "summary": "Historical whole-unit ownership wins remain recorded. Both owned attention cluster alternatives lose; VP2 leaves the isolated ownership contribution unresolved.",
+      "summary": "New complete-unit B ownership plus dynamic claiming inside G passes correctness and fails all6 matched groups. Historical whole-unit and VP2 results remain scoped; no isolated C loss.",
       "layer": "Large-token G uses split stages and fixups. Earlier owned layer descendants used whole phase-A units.",
       "pending": [],
       "limit": "The private VP2 target win and owned cluster losses leave the contribution of output ownership unresolved.",
@@ -61,43 +61,46 @@
         "win",
         "loss"
       ],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-11-02-historical-wins-transfer-audit.md"
+      "evidence_url": "https://github.com/yelgabo/okc/blob/2f8ae539434804b43af456ef070a10ab2b576471/docs/steering/2026-11-02-moe-worker-queue-experiment.md#terminal-decision-november-2-pacific"
     },
     {
       "id": "D",
       "name": "Dependency-aware scheduling",
       "status": "partial",
-      "label": "Historical claim wins; G uses static ranges",
-      "metric": "−16 to −23 µs",
-      "unit": "dynamic phase B claiming versus mode 20",
-      "summary": "Owned mode23 dynamic B claiming won historically. Current G instead balances static stage ranges. Later phase-A claim layouts on the owned baseline lost.",
-      "layer": "Earlier owned descendants used dynamic B claims. Current retained G uses weighted static stage ranges.",
+      "label": "Historical claim wins; new C+D queue loses",
+      "metric": "+3.592 / +4.957 µs",
+      "unit": "128 /256 normal routing, complete-MoE queue versus current G splits",
+      "summary": "Whole-unit B claiming inside G fails all6 matched groups; all24 whole-six factors0.954109–0.995527. Earlier owned mode23 wins remain historical, with no transfer established.",
+      "layer": "Component test only. Current G weighted static split ranges retained. Ownership and queue changes were combined.",
       "pending": [],
-      "limit": "Full ready-only queue untested. Phase-A claiming modes 62/63 lose; K=0 controls 66/69 also lose. Lean claimed mode 68 not timed. Mechanism remains open after code-layout failure.",
+      "limit": "No isolated D loss or general scheduling rejection. Full ready-only queue remains untested. Old phase-A/K=0 losses and no-work reset trigger remain scoped to that owned baseline.",
       "source": "steering/2026-11-02-1854-performance-review.md",
-      "evidence_url": "https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-11-02-historical-wins-transfer-audit.md"
+      "evidence_url": "https://github.com/yelgabo/okc/blob/2f8ae539434804b43af456ef070a10ab2b576471/docs/steering/2026-11-02-moe-worker-queue-experiment.md#terminal-decision-november-2-pacific",
+      "outcomes": [
+        "win",
+        "loss",
+        "partial"
+      ]
     },
     {
       "id": "E",
       "name": "Attention producer / consumer",
       "status": "inconclusive",
-      "label": "Lookahead unresolved; split-copy stopped",
+      "label": "Lookahead unresolved; identity screen failed",
       "metric": "−5.035 µs (−1.59%)",
       "unit": "Earlier lookahead D32 full cell, separate run; unconfirmed",
       "summary": "Lookahead remains unconfirmed. Sliding eight-copy reduction passes13/12/12 but its changed cell is+3.818µs (+2.42%) in a separate run; unchanged full improves more. Exact treatment stopped.",
-      "layer": "Public G1b4 retained. Distinct full-context identity-rescale job4a2a79bdac04499a accepted; no target correctness or timing verdict.",
+      "layer": "Identity4a2a79bdac04499a fails routing at an unchanged128/full cell. Only27/36 private rows survive; no complete matched result, official score or integration.",
       "pending": [],
-      "limit": "Prior lookahead instruments remain closed. Split-copy source changes sliding B17..32 only;128/256 differences are drift. Identity screen retains all complete-layer routing, budget and regression gates.",
+      "limit": "All D32 attempts are closed. Identity partial medians include six D32 rows but do not qualify any gain;128 full and256 timing coverage is absent. Failure occurs with treatment inactive, so no causal identity loss follows.",
       "source": "architecture-performance-tracker.md#november-2-review-at-1959-vancouver-time",
       "outcomes": [
         "win",
         "loss",
         "inconclusive"
       ],
-      "evaluation_pending": [
-        "Full-context identity-rescale4a2a79bdac04499a, payloadf7a5d1fb"
-      ],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/3e11a37ed53424bf7ccfab2a74461124e05e9c9e/docs/steering/decode32/2026-11-02-19-reduction-result-identity-next.md"
+      "evaluation_pending": [],
+      "evidence_url": "https://github.com/yelgabo/okc/blob/2f8ae539434804b43af456ef070a10ab2b576471/docs/steering/2026-11-02-moe-worker-queue-experiment.md#decode32-accepted-job-discharged"
     },
     {
       "id": "F",
@@ -125,20 +128,20 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Retained layer; four component gates fail",
+      "label": "Retained layer; five component gates fail",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "Public G1b4 and original norm updates/NS3 retained. Scales/groups, NS4 and T8/T16 explicit-FTZ norm aggregation pass correctness and fail performance gates.",
+      "summary": "Public G1b4, original norm and NS3 retained. Scale-only, scales/groups, NS4, norm aggregation and new C+D B queue fail matched gates after correctness passes.",
       "layer": "Public607 retains2.126083×. New calibration94ef scores2.091748×. MID scores2.089423×, with no useful D32 signal.",
       "pending": [],
       "evaluation_pending": [],
-      "limit": "Norm jobb38a9ed6dc9743e9 completes all36 rows and replay checks; all6 affected groups fail. Earlier-credit reserve needs exposed-wait evidence. New MoE/BF16 task requested; D32 remains separately owned.",
+      "limit": "No new layer gain. MoE Worker owns B4/MAIN architecture; General owns WS skinny; CUDA Optimizer moves to BF16. New mechanisms need exposed-cost evidence or a stronger compatible complete comparator.",
       "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss"
       ],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/fdb935f66f7e953357f4a0c43d408da95a888280/docs/steering/2026-11-02-general-ws-norm-aggregation.md#terminal-decision-retain-baseline-stop-exact-aggregation"
+      "evidence_url": "https://github.com/yelgabo/okc/blob/2f8ae539434804b43af456ef070a10ab2b576471/docs/steering/2026-11-02-moe-worker-queue-experiment.md#terminal-decision-november-2-pacific"
     }
   ],
   "context_pending": [
@@ -169,8 +172,8 @@
     },
     {
       "name": "D32 attention matched confirmation",
-      "label": "New identity screen pending",
-      "summary": "Lookahead instruments remain closed. Distinct full-context identity4a2a79bdac04499a is accepted after local compiler/host qualification; complete-layer target gates remain untested."
+      "label": "Routing/coverage failure • closed",
+      "summary": "Identity4a2a79bdac04499a retains27/36 rows, then fails128/full ordered routing with treatment inactive. No complete timing verdict; stop exact source, no D32 retry."
     },
     {
       "name": "G native component experiments",
@@ -195,7 +198,17 @@
     {
       "name": "MoE/BF16-first research refill",
       "label": "Priority override • qualified next task missing",
-      "summary": "Standalone MoE P0, BF16 projections P1, Decode32 P4. Earlier-credit reserve lacks exposed-wait evidence. Seek a distinct complete-call mechanism or stronger comparator; preserve accepted jobs."
+      "summary": "MoE Worker owns B4/MAIN, General owns WS skinny, CUDA moves to BF16; D32 P4 reminder remains paused. WS split finalization and BF16 register-A decoding lack net-cost qualification. No immediate GPU-ready task."
+    },
+    {
+      "name": "Local compiler-only closures",
+      "label": "Target-performance rejection withdrawn",
+      "summary": "Local spills/registers or identical SASS do not establish H200 ineligibility or speed. Stable-pointer/group-only and repair cuts remain target-untested; independent source bugs and measured H200 losses retain their scope."
+    },
+    {
+      "name": "Whole-unit B queue inside G",
+      "label": "C+D combined component loss",
+      "summary": "e044121f822d47b1 passes5/6/6 and54 private cases; all6 matched groups fail,15 affected regression rows. Retain G static splits; no confirmation, mask or integration."
     }
   ]
 }
