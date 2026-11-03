@@ -21,11 +21,13 @@ every FP64 / probe / captured-replay gate. Only the qkv_gate m = 128 bucket is t
 QKV128-GEO-02 (--set geo2) repeats the test with one-wave clusters only: check 1 showed every
 6- and 7-CTA cluster grid needs 18 clusters where the judge GPU co-schedules 15-17, so b2c4 /
 b2c5 (128-row CTAs, 72 / 90 CTAs), mc2 (x multicast, 72 CTAs) and ring depths 6 / 7.
+QKV128-TSPLIT-01 (--set tsplit) adds the split exit barrier to the batched pull: arrive right after
+the last DSMEM read, BF16 stores, then the cluster wait before exit (WV_PSPLIT).
 QKV128-EPI-01 (--set epi) keeps the control geometry and changes only the cluster pull reduction
 (VAR bit WV_PULLB): every DSMEM load of a thread is issued before any is summed or stored, in
 place of one cluster round trip per item; sums in the same rank order, so outputs are bitwise.
 
-    python3 tools/proj_make_bench_qkv_geo.py [--set geo1|geo2|epi] out.py
+    python3 tools/proj_make_bench_qkv_geo.py [--set geo1|geo2|epi|tsplit] out.py
 """
 import ast
 from pathlib import Path
@@ -38,6 +40,7 @@ import proj_sk_xor_control  # noqa: E402
 
 # name -> (WG, BN, CLK, CLR, HL, NSTAGE); every arm carries the L2 policy like the production pick.
 WV_PULLB = 1048576
+WV_PSPLIT = 2097152
 GEO1 = {
     "g0": (1, 128, 3, 1, False, 8),
     "b2c6": (2, 128, 6, 1, False, 6),
@@ -58,6 +61,8 @@ SETS = {
     "epi": dict(geo={"g0": G0, "epi": G0, "epis7": (1, 128, 3, 1, False, 7)},
                 abl={"g0_a2": ("g0", 2)}, var={"epi": WV_PULLB, "epis7": WV_PULLB}, patch=True,
                 equal=["epi", "epis7"]),
+    "tsplit": dict(geo={"g0": G0, "epi": G0, "psplit": G0}, abl={"g0_a2": ("g0", 2)},
+                   var={"epi": WV_PULLB, "psplit": WV_PULLB | WV_PSPLIT}, patch=True, equal=["epi", "psplit"]),
 }
 GEO, ABL = GEO1, ABL1
 
@@ -69,6 +74,7 @@ PULL_NEW = """    const int tb = rk * BN / CLK;
     constexpr int C4 = C::BM / 4;
     constexpr bool PULLB = (VAR & WV_PULLB) != 0;
     static_assert(!PULLB || (CL > 1 && !C::GRED), "wd: PULLB is the cluster pull reduction");
+    static_assert((VAR & WV_PSPLIT) == 0 || PULLB, "wd: PSPLIT arrives after PULLB's batched loads");
     if constexpr (PULLB && (ABL & 2) == 0) {
         // Every DSMEM load of this thread is in flight before the first sum: the per-item loop
         // below waits one cluster round trip per item (QKV128-EPI-01). Same rank order.
@@ -84,6 +90,12 @@ PULL_NEW = """    const int tb = rk * BN / CLK;
             for (int p = 0; p < CLK; ++p) {
                 u[j][p] = wd_ld_cluster(wd_mapa(a, (uint32_t)(p + CLK * rr)));
             }
+        }
+        if constexpr ((VAR & WV_PSPLIT) != 0) {
+            // Split exit barrier (docs/proj-port-guide.md): this CTA's last read of peer partials
+            // is above, so it arrives here and its BF16 stores no longer drain inside the release.
+            __syncwarp();
+            tail_arrive<false>();
         }
 #pragma unroll
         for (int j = 0; j < NIT; ++j) {
@@ -116,6 +128,20 @@ PULL_NEW = """    const int tb = rk * BN / CLK;
     for (int it = tid; it < (((ABL & 2) || PULLB) ? 0 : (((rk + 1) * BN / CLK) - tb) * C4); it += C::THREADS) {
 """
 CONST_OLD = "constexpr int WV_GZERO = 131072;\n"
+EXIT_OLD = """    // No CTA may exit while a peer still reads its partials.
+    if constexpr (CL > 1) {
+        wd_cluster_sync();
+    }
+}
+"""
+EXIT_NEW = """    // No CTA may exit while a peer still reads its partials.
+    if constexpr (CL > 1 && (VAR & WV_PSPLIT) != 0 && (ABL & 2) == 0) {
+        cluster_wait();
+    } else if constexpr (CL > 1) {
+        wd_cluster_sync();
+    }
+}
+"""
 
 INFO = r'''
 #include <vector>
@@ -347,7 +373,8 @@ def prepare(weights):
 def wd_patched(source):
     wd = next(ast.literal_eval(n.value) for n in ast.parse(source).body if isinstance(n, ast.Assign)
               and any(isinstance(t, ast.Name) and t.id == "_WD_SRC" for t in n.targets))
-    for old, new in ((PULL_OLD, PULL_NEW), (CONST_OLD, CONST_OLD + f"constexpr int WV_PULLB = {WV_PULLB};\n")):
+    for old, new in ((PULL_OLD, PULL_NEW), (EXIT_OLD, EXIT_NEW),
+                     (CONST_OLD, CONST_OLD + f"constexpr int WV_PULLB = {WV_PULLB};\nconstexpr int WV_PSPLIT = {WV_PSPLIT};\n")):
         assert wd.count(old) == 1, old[:60]
         wd = wd.replace(old, new)
     return wd

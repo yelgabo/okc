@@ -2422,3 +2422,22 @@ control: removing every wgmma saves only 0.5 us, so the body is its memory pipel
 raw of 20.5); the cluster pull reduction plus BF16 stores cost 1.5 us. Next: one-wave 128-row and
 multicast geometries at cluster 4 / 5 (QKV128-GEO-02) and a latency-batched pull reduction
 (QKV128-EPI-01).
+
+Check `d2fdfbb8f0ae43df` (QKV128-GEO-02, `qkv_geo2.py` SHA256 06a5fc7e): PASS, board run 3,191.3 us
+(1.5137x), picks unchanged. All arms one wave (cluster 5: 22 co-resident of 18 needed, cluster 4:
+30 of 18). Medians of paired deltas against ctrl over 3 inputs x 100 rounds, us (null ctrl2-ctrl
+-0.03 / -0.03 / 0.00, MAD 0.19-0.29): b2c5 +1.86 / +1.94 / +1.92, b2c4 +3.42 / +3.46 / +3.46, mc2
++3.62 / +3.78 / +3.74, g0s7 +1.41 / +1.41 / +1.44, g0s6 +2.06 / +2.08 / +2.21 (both bitwise equal to
+ctrl2), b2c5_a1 (no wgmma) +1.20 / +1.06 / +1.09, b2c5_a2 (no reduction) -0.29 / -0.38 / -0.16,
+mc2_a1 +2.11 / +1.95 / +2.10; every candidate 0-2 of 100 rounds faster. Reading: the 128-row and
+multicast geometries cut x bytes per SM but their memory pipelines are 1.6-2.6 us slower than the
+control's on 90 / 72 SMs, and a 5-rank cluster reduction costs 2.2 us. Ring depth 8 is the optimum
+of 6 / 7 / 8 / 9 for this geometry. No keep.
+
+Check `66b657915f2d4f78` (QKV128-EPI-01, `qkv_epi.py` SHA256 812e48ad): PASS, board run 3,180.7 us
+(1.5188x), picks unchanged. epi (all 15 DSMEM loads of a thread before the first sum, bitwise equal
+to ctrl2) -0.05 / -0.14 / -0.13 us against ctrl (53 / 65 / 57 of 100 faster; null 0.00 / -0.08 /
+0.00); epis7 +1.41 / +1.28 / +1.38; g0_a2 floor -1.28 / -1.54 / -1.54. No keep: the 1.5 us that
+removing the reduction saves is not DSMEM load latency. Remaining named cause: the exit cluster
+barrier's release waits for the BF16 stores to drain (proj-port-guide "Split exit barrier", +0.58
+us at m = 128 on the router), tested next as QKV128-TSPLIT-01.
