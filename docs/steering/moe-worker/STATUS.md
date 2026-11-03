@@ -1,6 +1,6 @@
-**MOE-TINY-TIMELINE-01 frozen 106a05c5**, selected Tiny/Tiny2 helper8324f079. Six CPU tests and four local builds pass. No own active job. Shared preflight has four unrelated queued jobs, so no POST. [Source, bounds and next action](../2026-11-02-moe-tiny-timeline.md).
+**Active own MOE-TINY-TIMELINE-01 f4012a0531af4013**, exact106a05c5/492113bytes, helper8324f079, source05e3e875/registration6485937b. Accepted once; sole foreground waiter exec95489 writes ignored .build/moe-tiny-timeline/status-wait.raw.json. Six CPU tests and four local builds pass. No target outcome or exposed bubble yet. Follow only this ID; no duplicate POST, other-ID polling or new public action. [Frozen observer and stop](../2026-11-02-moe-tiny-timeline.md).
 
-No active own GPU job. **Current public best4aa033ef23a142cd**, exact user-approved5df257af, PASS5/6/6,5788.720720us/2.323224880x CI[2.288376507,2.358073253],verified rank373from434. Target5559.8us remains228.920720us away. Waiter10826ended0. [Scored result and board proof](../2026-11-02-moe-control-release-qualification.md#public-result-verified). Prior private64f9998ef238476f was5762.134395us; keep the points separate.
+**Public base4aa033ef23a142cd**, exact user-approved5df257af, PASS5/6/6,5788.720720us/2.323224880x CI[2.288376507,2.358073253],verified rank373from434. Target5559.8us remains228.920720us away. Waiter10826ended0. [Scored result and board proof](../2026-11-02-moe-control-release-qualification.md#public-result-verified). Prior private64f9998ef238476f was5762.134395us; keep the points separate.
 
 MOE-LUT-01 terminal loss, ownc985bbdb2980407a, paired542cd650/native8c2cfc7c, published5ff38524. Correctness5/6/6/all54cases passes, all6matched groups fail andall18affected cells regress. Official12337.764699us. Waiter73200ended0; full archive complete. Stop exact lookup without retry/LUT-size/layout/cache-policy sweep. [Decision and all six loads](../2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup).
 
@@ -8,7 +8,7 @@ MOE-DIRECT-X-01 terminal loss94c57451574c4cd3, paired1191e44c/nativec705df6a pub
 
 MOE-FACTOR-Y-01 terminal7479372115c64702, correctness5/6/6/all54cases passes. **Lower private point5698.508243us**, disclosed and ledgered; **matched0/6groups/13regressions/two unchanged drifts** against the already-public5df/C7 control. Stop exact storage-only source; no public permission. Waiter72800ended0 and full archive complete. [Score and matched decision](../2026-11-02-moe-factorized-output.md#terminal-decision-lower-point-with-failed-matched-gate).
 
-**MOE-PARAM-Y-01 parked under final-day short-load directive**, target-untested. It combines the baseline's untimed BF16 gamma parameter with factorized storage. Raw/derived slot7/14 and14argument mapping need full qualification before one new screen. [New contract](../2026-11-02-moe-prepared-gamma.md). General's7f10243c98e74746 is separate and remains with its owner. No duplicate polling; fresh shared preflight before dispatch. Reminder stays paused.
+**MOE-PARAM-Y-01 parked under final-day short-load directive**, target-untested. It combines the baseline's untimed BF16 gamma parameter with factorized storage. Raw/derived slot7/14 and14argument mapping need full qualification before one new screen. [New contract](../2026-11-02-moe-prepared-gamma.md). General's7f10243c98e74746 is terminal and stopped under its separate owner. No duplicate polling; fresh shared preflight before dispatch. Reminder stays paused.
 
 | Closed own experiment | Result and stop |
 |---|---|

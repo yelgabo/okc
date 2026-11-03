@@ -1,0 +1,8 @@
+{
+  "job_id": "f4012a0531af4013",
+  "exec_session": 95489,
+  "path": ".build/moe-tiny-timeline/status-wait.raw.json",
+  "state": "foreground-active",
+  "source_sha256": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+  "recorded_at": "2026-11-03T07:44:17.578153+00:00"
+}

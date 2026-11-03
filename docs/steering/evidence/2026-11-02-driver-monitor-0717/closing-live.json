@@ -1,0 +1,343 @@
+{
+  "time": "2026-11-03T07:49:12.150764+00:00",
+  "scope": "Closing shared list/quota/all-five boards. New publicMoEf9f row is board-verified; owning repeat receipt/source binding not available in this checkout. No status polling or root dispatch.",
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 2,
+            "left": 8
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 1,
+            "left": 9
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 3,
+            "left": 7
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 15,
+            "left": 5
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 2,
+            "left": 8
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 7,
+            "left": 13
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      }
+    ]
+  },
+  "shared_live_jobs": [
+    {
+      "flags": [],
+      "job_id": "793602020fd64ce9",
+      "mode": "check",
+      "passed": null,
+      "problem": "muse_bf16_proj",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793692064.3347409
+    },
+    {
+      "flags": [],
+      "job_id": "9ada85eddc094c34",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_decode_layer",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793692054.4263394
+    },
+    {
+      "flags": [],
+      "job_id": "937390df9d4b4d33",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_bf16_proj",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793692053.6984735
+    },
+    {
+      "flags": [],
+      "job_id": "cdba0f57f78049c9",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_attention_decode",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793692002.8598325
+    },
+    {
+      "flags": [],
+      "job_id": "f4012a0531af4013",
+      "mode": "check",
+      "passed": null,
+      "problem": "muse_moe_w4a16",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "running",
+      "submitted_at": 1793691824.051383
+    },
+    {
+      "flags": [],
+      "job_id": "e859eddb768c4194",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_moe_w4a16",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "running",
+      "submitted_at": 1793691748.0235765
+    },
+    {
+      "flags": [],
+      "job_id": "9da6e737a8264d52",
+      "mode": "check",
+      "passed": null,
+      "problem": "muse_moe_w4a16",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "running",
+      "submitted_at": 1793691637.6524553
+    }
+  ],
+  "overall": {
+    "rank": 391,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 390
+  },
+  "boards": {
+    "muse_moe_w4a16": {
+      "you": {
+        "rank": 354,
+        "team": "yelgabo",
+        "speedup": 2.3323,
+        "first": false,
+        "ahead": 353,
+        "to_first": 1.1852
+      },
+      "own": [
+        {
+          "attempts": 27,
+          "job": "f9f37b46225b4980",
+          "rank": 354,
+          "speedup": 2.3323,
+          "submitted_at": 1793691071.943615,
+          "team": "yelgabo",
+          "value": 5766.121615464463
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 13,
+          "job": "8997cf3666d7462a",
+          "rank": 100,
+          "screened_speedup": 2.36240302413021,
+          "speedup": 2.4196,
+          "submitted_at": 1793201937.301997,
+          "team": "deepak-foundryai",
+          "value": 5558.059632625665
+        }
+      ]
+    },
+    "muse_bf16_proj": {
+      "you": {
+        "rank": 369,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 368,
+        "to_first": 1.0994
+      },
+      "own": [
+        {
+          "attempts": 35,
+          "job": "9eba96894ee1402e",
+          "rank": 369,
+          "speedup": 1.5278,
+          "submitted_at": 1793509752.4725015,
+          "team": "yelgabo",
+          "value": 3161.918773020326
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 14,
+          "job": "37a94e7335bd4663",
+          "rank": 100,
+          "speedup": 1.5833,
+          "submitted_at": 1793597938.702026,
+          "team": "i098",
+          "value": 3051.053498463442
+        }
+      ]
+    },
+    "muse_attention_decode": {
+      "you": {
+        "rank": 263,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 262,
+        "to_first": 1.2821
+      },
+      "own": [
+        {
+          "attempts": 26,
+          "job": "8914751e3b9f468b",
+          "rank": 263,
+          "speedup": 2.6043,
+          "submitted_at": 1793510570.8706555,
+          "team": "yelgabo",
+          "value": 1446.1905945986007
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 1,
+          "job": "ead00eb40423495f",
+          "rank": 100,
+          "speedup": 2.6828,
+          "submitted_at": 1793467843.2819989,
+          "team": "waseemshahwan",
+          "value": 1403.8616761137264
+        }
+      ]
+    },
+    "muse_decode_layer": {
+      "you": {
+        "rank": 391,
+        "team": "yelgabo",
+        "speedup": 2.1261,
+        "first": false,
+        "ahead": 390,
+        "to_first": 1.1713
+      },
+      "own": [
+        {
+          "attempts": 44,
+          "job": "607eb52bdaf24160",
+          "rank": 391,
+          "speedup": 2.1261,
+          "submitted_at": 1793534312.3883686,
+          "team": "yelgabo",
+          "value": 10639.426326569794
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 22,
+          "job": "2a5f58e15fa841ea",
+          "rank": 100,
+          "speedup": 2.2764,
+          "submitted_at": 1793592586.8098872,
+          "team": "atkamel",
+          "value": 9936.978918975596
+        }
+      ]
+    },
+    "muse_prefill_layer": {
+      "you": {
+        "rank": 642,
+        "team": "yelgabo",
+        "speedup": 1.2166,
+        "first": false,
+        "ahead": 641,
+        "to_first": 1.7468
+      },
+      "own": [
+        {
+          "attempts": 3,
+          "job": "1530ec79d50a4f69",
+          "rank": 642,
+          "speedup": 1.2166,
+          "submitted_at": 1793513800.5948975,
+          "team": "yelgabo",
+          "value": 318441.9905489318
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 3,
+          "job": "de4b5f3c7cb8458f",
+          "rank": 100,
+          "speedup": 1.8953,
+          "submitted_at": 1793635594.999423,
+          "team": "afrog33k",
+          "value": 204404.09095492857
+        }
+      ]
+    }
+  }
+}

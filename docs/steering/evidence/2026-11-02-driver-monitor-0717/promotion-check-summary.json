@@ -166,5 +166,49 @@
       "score_us": 306796.6918581915,
       "elapsed_reduction_pct": 3.656960776644469
     }
-  ]
+  ],
+  "closing_check": {
+    "observed_at": "2026-11-03T07:49:13.151632+00:00",
+    "leads": 19,
+    "promotion_gaps": [],
+    "exit_code": 0,
+    "public": {
+      "muse_moe_w4a16": {
+        "job": "f9f37b46225b4980",
+        "score_us": 5766.121615464463,
+        "rank": 354,
+        "speedup": 2.3323,
+        "snapshot": ".build\\driver-monitor-0717\\final-public-snapshots\\muse_moe_w4a16.leaderboard.json"
+      },
+      "muse_bf16_proj": {
+        "job": "9eba96894ee1402e",
+        "score_us": 3161.918773020326,
+        "rank": 369,
+        "speedup": 1.5278,
+        "snapshot": ".build\\driver-monitor-0717\\final-public-snapshots\\muse_bf16_proj.leaderboard.json"
+      },
+      "muse_attention_decode": {
+        "job": "8914751e3b9f468b",
+        "score_us": 1446.1905945986007,
+        "rank": 263,
+        "speedup": 2.6043,
+        "snapshot": ".build\\driver-monitor-0717\\final-public-snapshots\\muse_attention_decode.leaderboard.json"
+      },
+      "muse_decode_layer": {
+        "job": "607eb52bdaf24160",
+        "score_us": 10639.426326569794,
+        "rank": 391,
+        "speedup": 2.1261,
+        "snapshot": ".build\\driver-monitor-0717\\final-public-snapshots\\muse_decode_layer.leaderboard.json"
+      },
+      "muse_prefill_layer": {
+        "job": "1530ec79d50a4f69",
+        "score_us": 318441.9905489318,
+        "rank": 642,
+        "speedup": 1.2166,
+        "snapshot": ".build\\driver-monitor-0717\\final-public-snapshots\\muse_prefill_layer.leaderboard.json"
+      }
+    },
+    "snapshot_folder": ".build/driver-monitor-0717/final-public-snapshots"
+  }
 }

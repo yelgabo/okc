@@ -1,0 +1,55 @@
+{
+  "experiment": "MOE-TINY-TIMELINE-01",
+  "state": "DISPATCH_STARTED",
+  "at": "2026-11-03T07:43:06.591323+00:00",
+  "source_sha256": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+  "source_bytes": 492113,
+  "published_source_commit": "05e3e875",
+  "problem": "muse_moe_w4a16",
+  "private": true,
+  "quota": {
+    "scored": {
+      "per_day": 10,
+      "used": 2,
+      "left": 8
+    },
+    "checks": {
+      "per_day": 20,
+      "used": 13,
+      "left": 7
+    }
+  },
+  "shared_live": [
+    {
+      "job_id": "9da6e737a8264d52",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "status": "queued"
+    },
+    {
+      "job_id": "c8e08f7c4cbb48ae",
+      "problem": "muse_bf16_proj",
+      "mode": "run",
+      "status": "queued"
+    },
+    {
+      "job_id": "38c1f41ea20440dd",
+      "problem": "muse_decode_layer",
+      "mode": "run",
+      "status": "queued"
+    },
+    {
+      "job_id": "19128cda79ca4e25",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "status": "running"
+    },
+    {
+      "job_id": "faab43192d584e83",
+      "problem": "muse_attention_decode",
+      "mode": "run",
+      "status": "running"
+    }
+  ],
+  "coordination": "One distinct private timeline queued behind authorized public repeats and separate lead release check. No cancellation, duplicate or other-ID waiter."
+}
