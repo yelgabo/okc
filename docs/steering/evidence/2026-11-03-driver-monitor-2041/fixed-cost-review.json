@@ -1,0 +1,123 @@
+{
+  "job": "24068e6fd73e4240",
+  "receipt": "muse_bf16_proj/experiments/profiles/fixed_cost.24068e6fd73e4240.json",
+  "source": "muse_bf16_proj/experiments/fixed_cost.py",
+  "source_sha256": "e12b40973e77418e774c283cd2533a4f689d1ab88ccb851f246b3d0db5d79a29",
+  "source_bytes": 239038,
+  "official_summary": {
+    "error": null,
+    "passed": true,
+    "score_us": 3162.7875003960266,
+    "speedup": 1.527386838159413,
+    "speedup_ci": [
+      1.5044760355870217,
+      1.5502976407318039
+    ],
+    "status": "ok",
+    "tests": 9,
+    "tests_passed": 9
+  },
+  "judged_path": "incumbent; kernel entry and picks unchanged",
+  "small_case_calibrations": [
+    {
+      "projection": "qkv_gate",
+      "m": 1,
+      "one_ns": 4991.999827325344,
+      "two_ns": 6144.000217318535,
+      "overhead_ns": 3839.9994373321533,
+      "adjusted_one_us": 1.1520003899931908,
+      "two_minus_one_us": 1.1520003899931908
+    },
+    {
+      "projection": "o",
+      "m": 1,
+      "one_ns": 5119.999870657921,
+      "two_ns": 6175.999995321035,
+      "overhead_ns": 4063.9997459948063,
+      "adjusted_one_us": 1.0560001246631145,
+      "two_minus_one_us": 1.0560001246631145
+    },
+    {
+      "projection": "pooler",
+      "m": 1,
+      "one_ns": 4927.999805659056,
+      "two_ns": 5919.999908655882,
+      "overhead_ns": 3935.9997026622295,
+      "adjusted_one_us": 0.9920001029968262,
+      "two_minus_one_us": 0.9920001029968262
+    },
+    {
+      "projection": "unpooler",
+      "m": 1,
+      "one_ns": 4927.999805659056,
+      "two_ns": 6080.0001956522465,
+      "overhead_ns": 3775.999415665865,
+      "adjusted_one_us": 1.1520003899931908,
+      "two_minus_one_us": 1.1520003899931908
+    },
+    {
+      "projection": "router",
+      "m": 1,
+      "one_ns": 4927.999805659056,
+      "two_ns": 6016.000173985958,
+      "overhead_ns": 3839.9994373321533,
+      "adjusted_one_us": 1.0880003683269024,
+      "two_minus_one_us": 1.0880003683269024
+    },
+    {
+      "projection": "qkv_gate",
+      "m": 8,
+      "one_ns": 5152.000114321709,
+      "two_ns": 6207.999773323536,
+      "overhead_ns": 4096.000455319881,
+      "adjusted_one_us": 1.0559996590018272,
+      "two_minus_one_us": 1.0559996590018272
+    },
+    {
+      "projection": "o",
+      "m": 8,
+      "one_ns": 5311.999935656786,
+      "two_ns": 6399.999838322401,
+      "overhead_ns": 4224.000032991171,
+      "adjusted_one_us": 1.087999902665615,
+      "two_minus_one_us": 1.087999902665615
+    },
+    {
+      "projection": "pooler",
+      "m": 8,
+      "one_ns": 5216.000135987997,
+      "two_ns": 6335.999816656113,
+      "overhead_ns": 4096.000455319881,
+      "adjusted_one_us": 1.1199996806681156,
+      "two_minus_one_us": 1.1199996806681156
+    },
+    {
+      "projection": "unpooler",
+      "m": 8,
+      "one_ns": 5183.999892324209,
+      "two_ns": 6304.000038653612,
+      "overhead_ns": 4063.9997459948063,
+      "adjusted_one_us": 1.120000146329403,
+      "two_minus_one_us": 1.120000146329403
+    },
+    {
+      "projection": "router",
+      "m": 8,
+      "one_ns": 4991.999827325344,
+      "two_ns": 6111.999973654747,
+      "overhead_ns": 3871.999680995941,
+      "adjusted_one_us": 1.120000146329403,
+      "two_minus_one_us": 1.120000146329403
+    }
+  ],
+  "adjusted_one_us_range": [
+    0.9920001029968262,
+    1.1520003899931908
+  ],
+  "raw_preparation_empty_graph_us": 2.91,
+  "raw_preparation_tiny_kernel_us": 4.86,
+  "paired_raw_increment_us": 1.92,
+  "raw_increment_is_not_adjusted_judge_node_cost": true,
+  "stream_control_is_a_bandwidth_floor": false,
+  "interpretation": "Real kernels beat simple streams; bandwidth/intercept/residual budgets are estimates,not isolated recoverable time. One valid diagnostic stops,smallarmMAD<=0.10below0.30repeattrigger."
+}

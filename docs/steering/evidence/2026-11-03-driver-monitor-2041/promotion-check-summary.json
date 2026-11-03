@@ -1,0 +1,14 @@
+{
+  "checked_at": "2026-11-03T20:43:31.282561+00:00",
+  "leads": 16,
+  "promotion_gaps": [],
+  "public_layer": {
+    "job": "f931abf568544018",
+    "score_us": 10374.616018194523,
+    "rank": 370,
+    "speedup": 2.1804,
+    "snapshot": ".build\\driver-monitor-2041\\public-snapshots\\muse_decode_layer.leaderboard.json"
+  },
+  "ledger": "docs/releases/promotion-queue.json",
+  "result": "PASS; FCcontrolpoint is above publicBF16; existingselectedtwinlead retained"
+}

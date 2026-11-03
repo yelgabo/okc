@@ -1,0 +1,249 @@
+{
+  "checked_at": "2026-11-03T20:43:29.019149+00:00",
+  "source_snapshot": "05cf5286e7fd65d74275a9a9ac931aa8de089b1d",
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 8,
+            "left": 2
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 13,
+            "left": 7
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 8,
+            "left": 2
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 10,
+            "left": 10
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 8,
+            "left": 2
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 20,
+            "left": 0
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 10,
+            "left": 0
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 20,
+            "left": 0
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      }
+    ]
+  },
+  "live_jobs": [],
+  "boards": {
+    "muse_moe_w4a16": {
+      "you": {
+        "rank": 354,
+        "team": "yelgabo",
+        "speedup": 2.3438,
+        "first": false,
+        "ahead": 353,
+        "to_first": 1.1794
+      },
+      "own_row": {
+        "attempts": 33,
+        "job": "2821fdb184d740b1",
+        "rank": 354,
+        "speedup": 2.3438,
+        "submitted_at": 1793692238.0244794,
+        "team": "yelgabo",
+        "value": 5737.988910262929
+      },
+      "rank100": {
+        "attempts": 17,
+        "job": "b61fddc7ff9b4123",
+        "rank": 100,
+        "speedup": 2.4261,
+        "submitted_at": 1793435691.8671665,
+        "team": "amaralenzo",
+        "value": 5543.146786020296
+      }
+    },
+    "overall": {
+      "you": {
+        "rank": 370,
+        "team": "yelgabo",
+        "first": false,
+        "ahead": 369
+      },
+      "own_row": {
+        "rank": 370,
+        "solved": 4,
+        "team": "yelgabo"
+      },
+      "rank100": {
+        "rank": 100,
+        "solved": 4,
+        "team": "akorite"
+      }
+    },
+    "muse_attention_decode": {
+      "you": {
+        "rank": 287,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 286,
+        "to_first": 1.2821
+      },
+      "own_row": {
+        "attempts": 33,
+        "job": "8914751e3b9f468b",
+        "rank": 287,
+        "speedup": 2.6043,
+        "submitted_at": 1793510570.8706555,
+        "team": "yelgabo",
+        "value": 1446.1905945986007
+      },
+      "rank100": {
+        "attempts": 14,
+        "job": "acb4838619f24bb1",
+        "rank": 100,
+        "speedup": 2.6879,
+        "submitted_at": 1793526880.4869123,
+        "team": "bri-prism",
+        "value": 1401.2207780174278
+      }
+    },
+    "muse_prefill_layer": {
+      "you": {
+        "rank": 662,
+        "team": "yelgabo",
+        "speedup": 1.2166,
+        "first": false,
+        "ahead": 661,
+        "to_first": 1.8512
+      },
+      "own_row": {
+        "attempts": 3,
+        "job": "1530ec79d50a4f69",
+        "rank": 662,
+        "speedup": 1.2166,
+        "submitted_at": 1793513800.5948975,
+        "team": "yelgabo",
+        "value": 318441.9905489318
+      },
+      "rank100": {
+        "attempts": 3,
+        "job": "e96b561ee8c040f8",
+        "rank": 100,
+        "speedup": 1.9086,
+        "submitted_at": 1793558844.8583274,
+        "team": "Harshil-Gupta",
+        "value": 202980.00524592475
+      }
+    },
+    "muse_bf16_proj": {
+      "you": {
+        "rank": 392,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 391,
+        "to_first": 1.1088
+      },
+      "own_row": {
+        "attempts": 41,
+        "job": "9eba96894ee1402e",
+        "rank": 392,
+        "speedup": 1.5278,
+        "submitted_at": 1793509752.4725015,
+        "team": "yelgabo",
+        "value": 3161.918773020326
+      },
+      "rank100": {
+        "attempts": 29,
+        "job": "d96d1d339d7f4c6a",
+        "rank": 100,
+        "speedup": 1.5861,
+        "submitted_at": 1793615208.6051085,
+        "team": "ZhYGuoL",
+        "value": 3045.6902909633127
+      }
+    },
+    "muse_decode_layer": {
+      "you": {
+        "rank": 370,
+        "team": "yelgabo",
+        "speedup": 2.1804,
+        "first": false,
+        "ahead": 369,
+        "to_first": 1.1574
+      },
+      "own_row": {
+        "attempts": 52,
+        "job": "f931abf568544018",
+        "rank": 370,
+        "speedup": 2.1804,
+        "submitted_at": 1793726515.533823,
+        "team": "yelgabo",
+        "value": 10374.616018194523
+      },
+      "rank100": {
+        "attempts": 19,
+        "job": "9743b6e71fbd42fd",
+        "rank": 100,
+        "speedup": 2.2837,
+        "submitted_at": 1793666239.4322,
+        "team": "akorite",
+        "value": 9905.129372300073
+      }
+    }
+  }
+}

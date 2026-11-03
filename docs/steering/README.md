@@ -4,11 +4,15 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 18:36 UTC](2026-11-03-driver-monitor-1836.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 20:41 UTC](2026-11-03-driver-monitor-2041.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
+
+## November 3 20:41 UTC calibration and H200 continuity
+
+[Current monitor](2026-11-03-driver-monitor-2041.md): FC-01 closes after one valid diagnostic. Raw1.92us node increment and adjusted M1/M8calibration0.992–1.152us are different quantities; simple streams do not establish a bandwidth floor or recoverable-time ceiling. Lead's H200worker is calibrating four current public files; user chose continuous~16h,overriding stop-between-bursts. No published parity yet. BF16selected-twin clean release remains the existing owner's priority; layer/MoEreset slots preserved. NewAravindsource is distinct but unqualified. Publicscores unchanged,audit16leads/zero gaps.
 
 ## November 3 18:36 UTC mechanism evidence and next gates
 
@@ -59,6 +63,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 [Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.
 
 ## Audits and monitors, November 2 to 3
+
+[Driver monitor20:41UTC](2026-11-03-driver-monitor-2041.md): fixed-cost quantities/limits,H200parityownership/continuous-runtime preference,sourcelead disposition and fresh boards/quota.
 
 [Public scout: Aravind's compact MoE source](2026-11-03-scout-aravind-moe-2022.md) pins `dcf3ee7c`, verifies all 31 files and checks the final dispatch plus raw-ID/custom-norm guard. Author reports 1.8696x without a raw receipt and explicitly declines to attribute the noisy v35 increase to unselected WGMMA variants. Source reference only; current owners retain their queue.
 
