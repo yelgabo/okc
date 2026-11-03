@@ -35,3 +35,5 @@ D32-ATTN-02 private check `4fece18b20a2447b` accepted for source `109cdb07`, pub
 [Setup failure and corrected payload](2026-11-02-09-pair-setup-failure.md).
 
 Corrected matched payload `f397bca8c869b775fe79a4bc7d2c2749fba0542702d740431cbd7028e78908b3` is published in `f90da774`. Retry has not been submitted: fresh preflight found another problem's check `3aa3885f6b734f8c` running. Recheck the shared job list and quota before dispatch; do not poll that other owner's job.
+
+Corrected matched retry `62a4f6b27ed74b50` was accepted for source `f397bca8`; fresh preflight found no live jobs and 18 private checks available. Follow this own ID; do not submit another copy.
