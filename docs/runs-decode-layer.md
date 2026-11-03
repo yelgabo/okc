@@ -1112,3 +1112,137 @@ Scope: every kernel of the T <= 8 chain of `g1b4_stage_release.py` (ba9e327c) th
 The qkv sk2 kernel is the first launch of the step and reads only the layer input. Counts: eight consumer kernels; five of them hold plain or `__ldg` reads of a same-replay predecessor's output (attention gate rows, b1 branch, route pooled / logits, MoE ids / weights / x, finish P / s1 / tail), on 29 source lines; none is live in the release. The three projection kernels and the fused pooler / router read their predecessor's output only through TMA or bulk copies.
 
 Fix, kept out of the release: `tools/dl_pdl_ldcg_patch.py` writes `muse_decode_layer/cand/g1b4_pdl_ldcg.py` from the pinned release with every site above switched to `__ldcg`, `ld.global.cg` (a new `glbcg` helper for the b1 branch) or `tl.load(..., cache_modifier='.cg')`; exact replacement counts are asserted, and the result passes `py_compile`. It was not compiled for sm_90 (this machine has no nvcc) and has no job. It changes SASS in five of the nine kernels with no correctness benefit while PDL stays off, so it belongs only in a build that turns PDL on for these edges, and it is not a release candidate by itself.
+
+
+## 2026-11-03 - Component parity audit of the public layer (no quota)
+
+Inputs: the public layer profile `g1-stage-release.607eb52bdaf24160.txt` (ba9e327c, 10,639.4 us), the PDL lane's
+check `g1b4_pdl8.8f6acddaca2e4c50.txt` (PDL on at T = 1, copied into `muse_decode_layer/profiles/`), and the
+best judged component profiles: BF16 `9eba96894ee1402e` (C2, source 3044ee7), attention `8914751e3b9f468b`,
+MoE public draw `2821fdb184d740b1` (5,738.0 us, copied as `muse_moe_w4a16/profiles/scored-draw2.2821fdb184d740b1.txt`).
+Every number is a single profiled replay (judge `GPU time`), so a row's gap carries the profile's run-to-run
+spread (about 0.2-0.5 us on the small kernels, tens of us on the MoE row). The tool is `tools/dl_parity_audit.py`
+(`table`, `rank`, `glue` modes). The value column is 46 or 16 divided by 372 (six loads of 62) divided by the
+cell's endpoint, in percent of score per microsecond; the two decode 1 cells sum to the directive's 0.212%.
+
+Kernel identity per cell comes from the sk2 template prefixes (`SK2` in the tool) and, at 128 / 256 tokens,
+from the BF16 board's cuBLASLt picks for the same shapes; at verify 16 the two 128x64 calls are o and the
+unpooler together. The pooler + router component is the board's pooler plus its router; at T <= 8 the board's
+router takes BF16 x, while the layer routes on the FP32 router input with FP32 weights, so that row is an
+upper bound on what a port can recover. The MoE rows compare different routings (the layer's own router
+against the board's fixture) and are not a parity measurement: the layer runs the same `c7c201ae` engine.
+
+| cell | kernel | layer us (607eb52) | layer us (pdl8 8f6acdd) | component us | gap us | % score per us | weighted gap, % score |
+|---|---|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | moe | 29.8 | 22.6 | 29.6 | 0.2 | 0.161 | 0.032 |
+| decode 1 sliding | pooler+router | 17.9 | 18.0 | 16.3 | 1.6 | 0.161 | 0.258 |
+| decode 1 sliding | qkv_gate | 10.5 | 10.1 | 8.0 | 2.5 | 0.161 | 0.403 |
+| decode 1 sliding | o | 6.0 | 6.1 | 5.0 | 1.0 | 0.161 | 0.161 |
+| decode 1 sliding | attention | 5.4 | 5.3 | 4.5 | 0.9 | 0.161 | 0.145 |
+| decode 1 sliding | unpooler | 4.4 | 4.4 | 2.4 | 2.0 | 0.161 | 0.322 |
+| decode 1 full | moe | 42.8 | 23.1 | 29.6 | 13.2 | 0.051 | 0.678 |
+| decode 1 full | pooler+router | 17.9 | 19.1 | 16.3 | 1.6 | 0.051 | 0.082 |
+| decode 1 full | attention | 12.1 | 11.7 | 10.5 | 1.6 | 0.051 | 0.082 |
+| decode 1 full | qkv_gate | 10.6 | 10.5 | 8.0 | 2.6 | 0.051 | 0.134 |
+| decode 1 full | o | 5.9 | 5.8 | 5.0 | 0.9 | 0.051 | 0.046 |
+| decode 1 full | unpooler | 4.5 | 4.5 | 2.4 | 2.1 | 0.051 | 0.108 |
+| verify 1 sliding | moe | 71.6 | 65.2 | 84.0 | -12.4 | 0.107 | -1.328 |
+| verify 1 sliding | pooler+router | 18.7 | 19.2 | 17.2 | 1.5 | 0.107 | 0.161 |
+| verify 1 sliding | qkv_gate | 9.1 | 9.2 | 7.6 | 1.5 | 0.107 | 0.161 |
+| verify 1 sliding | attention | 7.4 | 7.3 | 6.3 | 1.1 | 0.107 | 0.118 |
+| verify 1 sliding | o | 6.0 | 5.9 | 4.9 | 1.1 | 0.107 | 0.118 |
+| verify 1 sliding | unpooler | 4.7 | 4.6 | 3.6 | 1.1 | 0.107 | 0.118 |
+| verify 1 full | moe | 58.8 | 51.1 | 84.0 | -25.2 | 0.037 | -0.922 |
+| verify 1 full | pooler+router | 18.6 | 18.8 | 17.2 | 1.4 | 0.037 | 0.051 |
+| verify 1 full | attention | 15.0 | 14.8 | 14.4 | 0.6 | 0.037 | 0.022 |
+| verify 1 full | qkv_gate | 9.3 | 9.3 | 7.6 | 1.7 | 0.037 | 0.062 |
+| verify 1 full | o | 6.1 | 5.9 | 4.9 | 1.2 | 0.037 | 0.044 |
+| verify 1 full | unpooler | 4.5 | 4.5 | 3.6 | 0.9 | 0.037 | 0.033 |
+| decode 16 sliding | moe | 77.0 | 60.2 | 93.1 | -16.1 | 0.089 | -1.436 |
+| decode 16 sliding | pooler+router | 18.9 | 18.4 | 18.1 | 0.8 | 0.089 | 0.071 |
+| decode 16 sliding | unpooler | 14.9 | 14.7 | 13.4 | 1.5 | 0.089 | 0.134 |
+| decode 16 sliding | qkv_gate | 10.6 | 9.8 | 9.1 | 1.5 | 0.089 | 0.134 |
+| decode 16 sliding | attention | 8.0 | 8.1 | 7.1 | 0.9 | 0.089 | 0.080 |
+| decode 16 sliding | o | 6.1 | 5.9 | 4.4 | 1.7 | 0.089 | 0.152 |
+| decode 16 full | attention | 87.5 | 89.5 | 84.7 | 2.8 | 0.020 | 0.056 |
+| decode 16 full | moe | 65.2 | 65.6 | 93.1 | -27.9 | 0.020 | -0.559 |
+| decode 16 full | pooler+router | 17.3 | 17.5 | 18.1 | -0.8 | 0.020 | -0.016 |
+| decode 16 full | unpooler | 14.6 | 14.4 | 13.4 | 1.2 | 0.020 | 0.024 |
+| decode 16 full | qkv_gate | 10.4 | 9.7 | 9.1 | 1.3 | 0.020 | 0.026 |
+| decode 16 full | o | 6.1 | 6.0 | 4.4 | 1.7 | 0.020 | 0.034 |
+| decode 32 sliding | moe | 70.6 | 74.1 | 126.2 | -55.6 | 0.080 | -4.441 |
+| decode 32 sliding | pooler+router | 20.4 | 21.4 | 19.7 | 0.7 | 0.080 | 0.056 |
+| decode 32 sliding | unpooler | 16.0 | 16.2 | 15.1 | 0.9 | 0.080 | 0.072 |
+| decode 32 sliding | qkv_gate | 11.4 | 10.9 | 10.2 | 1.2 | 0.080 | 0.096 |
+| decode 32 sliding | attention | 9.6 | 9.3 | 9.2 | 0.4 | 0.080 | 0.032 |
+| decode 32 sliding | o | 6.2 | 6.2 | 5.1 | 1.1 | 0.080 | 0.088 |
+| decode 32 full | attention | 170.0 | 170.6 | 160.3 | 9.7 | 0.014 | 0.140 |
+| decode 32 full | moe | 87.6 | 63.7 | 126.2 | -38.6 | 0.014 | -0.557 |
+| decode 32 full | pooler+router | 19.6 | 20.4 | 19.7 | -0.1 | 0.014 | -0.001 |
+| decode 32 full | unpooler | 15.9 | 15.0 | 15.1 | 0.8 | 0.014 | 0.012 |
+| decode 32 full | qkv_gate | 11.4 | 10.8 | 10.2 | 1.2 | 0.014 | 0.017 |
+| decode 32 full | o | 6.2 | 6.3 | 5.1 | 1.1 | 0.014 | 0.016 |
+| verify 16 sliding | moe | 155.3 | 136.4 | 179.3 | -24.0 | 0.050 | -1.201 |
+| verify 16 sliding | o+unpooler | 28.5 | 29.7 | 24.2 | 4.3 | 0.050 | 0.215 |
+| verify 16 sliding | pooler+router | 25.4 | 25.1 | 26.8 | -1.4 | 0.050 | -0.070 |
+| verify 16 sliding | qkv_gate | 16.9 | 16.8 | 13.9 | 3.0 | 0.050 | 0.150 |
+| verify 16 sliding | attention | 11.8 | 11.9 | 10.8 | 1.0 | 0.050 | 0.050 |
+| verify 16 full | moe | 178.1 | 130.3 | 179.3 | -1.2 | 0.013 | -0.015 |
+| verify 16 full | attention | 104.1 | 102.1 | 99.6 | 4.5 | 0.013 | 0.058 |
+| verify 16 full | o+unpooler | 28.6 | 28.6 | 24.2 | 4.4 | 0.013 | 0.057 |
+| verify 16 full | pooler+router | 24.9 | 26.3 | 26.8 | -1.9 | 0.013 | -0.025 |
+| verify 16 full | qkv_gate | 16.8 | 17.6 | 13.9 | 2.9 | 0.013 | 0.037 |
+| verify 32 sliding | moe | 204.8 | 201.4 | 227.8 | -23.0 | 0.039 | -0.899 |
+| verify 32 sliding | pooler+router | 31.5 | 31.2 | 33.3 | -1.8 | 0.039 | -0.070 |
+| verify 32 sliding | unpooler | 25.6 | 25.6 | 23.5 | 2.1 | 0.039 | 0.082 |
+| verify 32 sliding | qkv_gate | 20.7 | 20.3 | 20.4 | 0.3 | 0.039 | 0.012 |
+| verify 32 sliding | attention | 15.4 | 15.4 | 14.8 | 0.6 | 0.039 | 0.023 |
+| verify 32 sliding | o | 9.1 | 8.9 | 8.1 | 1.0 | 0.039 | 0.039 |
+| verify 32 full | moe | 203.3 | 195.5 | 227.8 | -24.5 | 0.009 | -0.218 |
+| verify 32 full | attention | 186.2 | 185.6 | 178.6 | 7.6 | 0.009 | 0.068 |
+| verify 32 full | pooler+router | 31.8 | 31.1 | 33.3 | -1.5 | 0.009 | -0.013 |
+| verify 32 full | unpooler | 25.4 | 25.2 | 23.5 | 1.9 | 0.009 | 0.017 |
+| verify 32 full | qkv_gate | 20.5 | 19.9 | 20.4 | 0.1 | 0.009 | 0.001 |
+| verify 32 full | o | 9.0 | 8.9 | 8.1 | 0.9 | 0.009 | 0.008 |
+
+Largest gaps, weighted (both cells of a load summed, MoE excluded):
+
+| rank | kernel at load | gap us (sliding + full) | % of score | portable? | what blocks it |
+|---|---|---:|---:|---|---|
+| 1 | qkv_gate at decode 1 | 5.1 | 0.54 | yes | Same 12-bit lossless code and the same BF16 [1, 8192] input and BF16 [1, 2304] output at the boundary; only the weight layout differs (C2's cgemv reads two row-major planes, the layer's sk2 reads tile units), so a second packed copy (28 MB) at prepare is the whole cost. The layer has no cgemv at all (the G fork never carried it). |
+| 2 | unpooler slice at decode 1 | 4.1 | 0.43 | yes | As above: C2 `cgemv40<128, 2>` on the 1024-row slice, BF16 MoE output in, BF16 out; 6.3 MB second copy. |
+| 3 | pooler + router at decode 1 | 3.2 | 0.34 (upper bound) | partly | The pooler half is portable (C2 `rd_kernel<1, 2, 16, 8, 1>`, 13.5 us, BF16 x), but C2's router reads BF16 x and the layer must route on FP32 x with FP32 weights at T <= 8, and the layer fuses the two into one launch (`sk2_kernel_gle`, 17.9 us). A port means the rd source (larger than cgemv) plus a separate FP32 router launch beside it; the fused-versus-split choice already exists in the layer's tuner (`bfpf` against `bfp`). |
+
+Next: o at decode 1 (1.9 us, 0.21%, same cgemv port, C2 `cgemv_kernel<64, 1>`); qkv_gate and pooler + router at
+verify 1 (0.22% and 0.21%, C2's sk geometries differ from sk2's: `sk_kernel<1, 8, 3, 1, 4, 4, 4>` at 7.6 us
+against the narrow sk2 at 9.1); attention at decode 1 (2.5 us, 0.23%, our `attn_one_kernel` against the G fork's
+`attn_kernel`; blocked by a different kernel family and ABI in the G layer and by the BF16 output boundary
+noted in ruled-out row "G #303 full-context attention").
+
+Glue per cell (judge GPU time of the glue launches only; the launch boundaries themselves are not in these rows):
+
+| cell | boundary 1 | route | finish | row boundaries | glue sum (607eb52) | glue sum (pdl8) | % score per us | glue, % score |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 3.4 | 2.0 | 2.3 | - | 7.7 | 7.3 | 0.161 | 1.241 |
+| decode 1 full | 3.3 | 2.0 | 1.9 | - | 7.2 | 7.2 | 0.051 | 0.370 |
+| verify 1 sliding | 3.0 | 1.9 | 1.7 | - | 6.6 | 6.7 | 0.107 | 0.707 |
+| verify 1 full | 3.2 | 2.0 | 1.9 | - | 7.1 | 7.0 | 0.037 | 0.260 |
+| decode 16 sliding | 3.1 | 2.0 | 3.4 | - | 8.5 | 8.8 | 0.089 | 0.758 |
+| decode 16 full | 3.5 | 2.1 | 3.7 | - | 9.3 | 9.3 | 0.020 | 0.186 |
+| decode 32 sliding | - | 2.1 | - | 6.9 | 9.0 | 8.8 | 0.080 | 0.719 |
+| decode 32 full | - | 2.1 | - | 7.5 | 9.6 | 9.4 | 0.014 | 0.139 |
+| verify 16 sliding | - | 2.8 | - | 9.7 | 12.5 | 12.0 | 0.050 | 0.625 |
+| verify 16 full | - | 2.8 | - | 9.4 | 12.2 | 12.2 | 0.013 | 0.157 |
+| verify 32 sliding | - | 3.6 | - | 13.6 | 17.2 | 17.5 | 0.039 | 0.672 |
+| verify 32 full | - | 3.6 | - | 13.4 | 17.0 | 18.3 | 0.009 | 0.151 |
+
+At decode 1 the glue is 7.2-7.7 us per cell (1.6% of score over both cells). The donor's T = 1 front
+(`muse_decode_layer.3a5f879df0d44825.txt`) spends `_gle_route` 2.6 us where we spend boundary 3.4 plus route
+2.0, but it gets there by moving boundary 1 into the o epilogue with deferred normalization, which moves the
+BF16 rounding of the pre-FFN activation and reads producer partials before the PDL wait
+(`tools/dl_build_attributed_fork.py` sets `GLE_T = {}` for exactly that reason). Boundary 1 and the route
+cannot share a launch without that deferral, because the pooler GEMM sits between them. The bitwise-identical
+alternatives (last-arriver counters in the o, pooler or unpooler kernels) are the F3, C-1 and expert-to-unpooler
+slices in docs/ruled-out.md, which measured 0.45-1.3 us per removed launch at best and lost or tied as built.
+Decision for today's checks: the cgemv port (gaps 1, 2 and the o row, one hypothesis) goes first; no glue fusion
+check is spent unless that port lands and a concrete single-round-trip design remains.
