@@ -14,7 +14,7 @@ Frozen physical source: `evidence/2026-11-02-worker-timed-silu-table/generated/c
 
 Authenticated `yelgabo` preflight immediately before the one ordinary `okc check muse_decode_layer ... --no-wait --json` found four private checks left and no live layer job. CLI returned exactly own ID `dc62cff972934f54`; subsequent accepted/running/terminal receipts agree on board `muse_decode_layer`, mode `check`, team `yelgabo` and server content hash **9d81f93b5c66212041d7864224fd5538c39df2a8b3b196c3a29e75892f8d5b7f**. Server payload reference is `muse_decode_layer/9d81f93b5c66212041d7864224fd5538c39df2a8b3b196c3a29e75892f8d5b7f.py`. This server identity is not the physical file SHA256. Association is the exact dispatch input plus its owning receipt; no independent server payload download is claimed. No uncertain acceptance or blind retry occurred. Postaccept quota: seven used, three left; all remaining checks reserved.
 
-Raw intent, authentication/quota/jobs snapshots, acceptance association, status observations, terminal receipt, CLI-generated full profile JSON/text/log copies, compact decision and all twelve CSV rows are under [owned evidence](evidence/2026-11-02-worker-timed-silu-check/). Original implementation report and all prior reports remain unchanged. Captain owns README/shared-ledger reconciliation.
+Raw intent, authentication/quota/jobs snapshots, acceptance association, status observations, terminal receipt, CLI-generated full profile JSON/text/log copies, compact decision and all twelve CSV rows are under [owned evidence](evidence/2026-11-02-worker-timed-silu-check). Original implementation report and all prior reports remain unchanged. Captain owns README/shared-ledger reconciliation.
 
 ## Measured timing and target coverage
 

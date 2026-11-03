@@ -20,7 +20,7 @@ Raw source/job inputs remain in their existing owned archives. [Audit JSON](../.
 
 ## Read-only live state
 
-Existing access recipe `docs/steering/2026-10-31-post-login-experiments.md` identifies `wsl -d Ubuntu --exec okc`. Local help confirmed the supported read commands. No token/config contents were read or printed.
+Existing access recipe `archive/docs/steering/2026-10-31-post-login-experiments.md` identifies `wsl -d Ubuntu --exec okc`. Local help confirmed the supported read commands. No token/config contents were read or printed.
 
 At **15:28:26–15:28:29 UTC**, authenticated CLI receipts report:
 

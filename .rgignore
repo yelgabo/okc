@@ -1,4 +1,5 @@
 # Historical copies obscure current source; explicit paths and --no-ignore retain access.
+/archive/
 **/profiles/
 /profiles/
 /docs/steering/evidence/

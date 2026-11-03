@@ -22,6 +22,8 @@ Generated benchmarks belong in ignored output paths; recover retired snapshots f
 
 Preserve original encodings during bulk document edits. Some historical Markdown is CP1252; never decode with replacement.
 
+Historical docs live in `archive/docs/`, outside default searches. Consult its move manifest or use `rg --files --no-ignore archive` when following older evidence. Keep files consumed by current tools at their existing paths.
+
 ## Research and experiments
 
 Before substantial research, read [working principles](docs/steering/2026-11-01-working-principles.md) and the [coordinator method](.claude/agents/okc-coordinator.md). Follow the [standing hotspot goal](docs/steering/2026-11-02-incumbent-hotspot-goal.md) and current owner queue.

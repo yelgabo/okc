@@ -12,7 +12,7 @@ Keep current execution ownership: OK Driver is captain/sole judge dispatcher; th
 
 ## 1. Identify the row correctly
 
-The [layer task](../../muse_decode_layer/TASK.md) weights 46 sliding and 16 full layers in each load. The user's row matches the retained public `607eb52bdaf24160` rounded per-cell data in [stage-shapes.md](evidence/2026-11-01-g-public/stage-shapes.md):
+The [layer task](../../muse_decode_layer/TASK.md) weights 46 sliding and 16 full layers in each load. The user's row matches the retained public `607eb52bdaf24160` rounded per-cell data in [stage-shapes.md](../../archive/docs/steering/evidence/2026-11-01-g-public/stage-shapes.md):
 
 | D32 cell | SGLang us/call | Our us/call | Count | Our aggregate contribution |
 |---|---:|---:|---:|---:|

@@ -2,11 +2,11 @@
 
 ## Decision and objective
 
-STOP the exact corrected-storage G2/24 implementation under its registered zero-stack/zero-spill resource gate. Do not package, sweep registers/rings/shapes, run a target check or change production. This is not a measured slowdown or a rejection of all two-CTA designs. Incumbent public607eb52bdaf24160 remains unchanged; zero new performance-qualified winners. The last rank snapshot is 07:14UTC in [the objective checkpoint](2026-11-01-captain-rank0714-next-gate.md), not a newly refreshed rank.
+STOP the exact corrected-storage G2/24 implementation under its registered zero-stack/zero-spill resource gate. Do not package, sweep registers/rings/shapes, run a target check or change production. This is not a measured slowdown or a rejection of all two-CTA designs. Incumbent public607eb52bdaf24160 remains unchanged; zero new performance-qualified winners. The last rank snapshot is 07:14UTC in [the objective checkpoint](../../archive/docs/steering/2026-11-01-captain-rank0714-next-gate.md), not a newly refreshed rank.
 
 ## Independently verified evidence
 
-Worker publication 04e08381919c1c1be9b54326f80101bbd71418c8: all28 changed path blobs match authenticated fetched origin/main; all27 manifest entries match canonical Git bytes, SHA256, size and blob identity. [Verification receipt](evidence/2026-11-01-captain-g2-compile-review/verification.json). [Owning report](2026-11-01-worker-g2-24-route-prefix.md), including its final resource addendum, supersedes historical tooling STOP746f937 without erasing it.
+Worker publication 04e08381919c1c1be9b54326f80101bbd71418c8: all28 changed path blobs match authenticated fetched origin/main; all27 manifest entries match canonical Git bytes, SHA256, size and blob identity. [Verification receipt](../../archive/docs/steering/evidence/2026-11-01-captain-g2-compile-review/verification.json). [Owning report](../../archive/docs/steering/2026-11-01-worker-g2-24-route-prefix.md), including its final resource addendum, supersedes historical tooling STOP746f937 without erasing it.
 
 Actual generated CUDA SHA256 ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f. Fixed secondary NVRTC13/PTXAS13, not target NVCC or runtime:
 
@@ -21,7 +21,7 @@ Both complete selected families were compiled; B4 failure was not extrapolated t
 
 The earlier unsupported NVRTC offsetof assertions were an instrument limitation, not an algorithm failure. The narrowly attested compiler-only adapter preserves the actual generated/native assertions and emits five same-Smem layout probes. Both selected families pass wc1248, wcp1248, wcpB2272, sizeof(wc)1024 and sizeof(Smem)23096. This reaches actual resource evidence rather than stopping on a broken witness. The shared layout correction saves640B/CTA; shared fit alone is insufficient.
 
-The captain's [pinned header-equation model](evidence/2026-11-01-captain-g2-compile-review/registers.py) corrects the naive102-register ceiling to96 under its explicit320-thread/65536-register/256-register-per-warp-granularity/four-subpartition assumptions.97..102 round to3328registers/warp and model only one block, versus3072 and two blocks at96. This is conditional CPU accounting, not an authoritative target occupancy query. Raising the cap is therefore not an established rescue.
+The captain's [pinned header-equation model](../../archive/docs/steering/evidence/2026-11-01-captain-g2-compile-review/registers.py) corrects the naive102-register ceiling to96 under its explicit320-thread/65536-register/256-register-per-warp-granularity/four-subpartition assumptions.97..102 round to3328registers/warp and model only one block, versus3072 and two blocks at96. This is conditional CPU accounting, not an authoritative target occupancy query. Raising the cap is therefore not an established rescue.
 
 ## Remaining gaps and ownership
 

@@ -13,7 +13,7 @@ The canonical measured report and all limitations remain [the terminal report](2
 
 ## Fresh read-only service observations
 
-Authenticated CLI identity: **yelgabo**. Executed only okc whoami, okc problems --json, okc jobs --json, okc leaderboard --json, and okc leaderboard muse_decode_layer --json. Each returned exit 0. Exact per-command start/finish UTC, stdout and stderr are retained in the owned [refresh evidence](evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/).
+Authenticated CLI identity: **yelgabo**. Executed only okc whoami, okc problems --json, okc jobs --json, okc leaderboard --json, and okc leaderboard muse_decode_layer --json. Each returned exit 0. Exact per-command start/finish UTC, stdout and stderr are retained in the owned [refresh evidence](evidence/2026-11-02-worker-short-serial-v2/read-only-refresh).
 
 | Observation | Fresh returned value |
 |---|---|

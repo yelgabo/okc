@@ -212,7 +212,7 @@ with the programmatic-serialization attribute when bit 16 of `cfg` is set. For t
 re-inline with `tools/dl_proj_inline.py`, build the skp extension with `-DSK_PDL=1`, set the bit
 only on the o (and front) calls at T <= 32, and pair it with `ONE_TRIG=1` in `attn_one.cu` so
 attention triggers its dependents early. Rationale, compile gate and stop rule:
-[docs/steering/2026-10-29-v1-d32-breakdown.md](steering/2026-10-29-v1-d32-breakdown.md).
+[archive/docs/steering/2026-10-29-v1-d32-breakdown.md](../archive/docs/steering/2026-10-29-v1-d32-breakdown.md).
 
 ## Direct cuBLASLt plans (`LT_CPP`, m = 128 / 256 dense, 2026-10-30)
 

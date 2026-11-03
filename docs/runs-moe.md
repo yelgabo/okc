@@ -821,7 +821,7 @@ One check spent; no more dispatched. See steering/2026-11-01-moe-architecture-co
 
 ## F-MOE-0 (Family F donor comparison), 2026-10-31 UTC (2026-10-30 PDT)
 
-Question (docs/steering/2026-10-30-family-f-donor-baseline.md, track F-MOE): is the complete
+Question (archive/docs/steering/2026-10-30-family-f-donor-baseline.md, track F-MOE): is the complete
 alygg77 standalone MoE file faster than our frozen release under matched controls, and if so,
 on which token counts and through which mechanism? User decision relayed by the coordinator on
 2026-10-31: Family F is measurement and learning only. A donor win means "re-implement
@@ -988,7 +988,7 @@ F2 hybrid. Both are now re-implementation work in our own file, not donor candid
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
-Question (docs/plan-2026-10-29-steering.md, step 4): standalone, mode 16 beats the W4 chain
+Question (archive/docs/plan-2026-10-29-steering.md, step 4): standalone, mode 16 beats the W4 chain
 (legacy128) at 128 tokens, while the layer's prepare-time bench keeps the W4 chain there
 (e87fcb1ed5c64a62). Candidates: L2 state left by neighbouring kernels, overlap with
 neighbours, tuner noise, input differences. Three layer checks of a snapshot (the layer at
@@ -1853,7 +1853,7 @@ is recomputed from S.ord and the unit's round, not carried in shared state.
 
 ## Fat-path waits with the first try timed, 2026-10-29
 
-Defect (steering report docs/steering/2026-10-29-overnight.md, section 2). `mbar_wait_cyc`, the
+Defect (steering report archive/docs/steering/2026-10-29-overnight.md, section 2). `mbar_wait_cyc`, the
 wait counter of the phase A diagnostic modes (31, 33, 38, 40), returned 0 when the first
 `mbarrier.try_wait.parity` succeeded and started its clock only after a failed first try. The
 instruction is potentially blocking (PTX ISA 9.4, mbarrier.test_wait / mbarrier.try_wait): a try
@@ -1948,13 +1948,13 @@ Reading.
   (rank correlation 0.76 / 0.84), and the epilogue numbers of modes 33, 38 and 40 were timed by
   wall clock, so they stand.
 
-Next mechanism: see docs/steering/2026-10-29-fat-moe-waits.md (recommendation only, nothing
+Next mechanism: see archive/docs/steering/2026-10-29-fat-moe-waits.md (recommendation only, nothing
 built).
 [2026-10-29, later: built as modes 43 and 44, see "Code groups with the next stage hoisted".]
 
 ## Code groups with the next stage hoisted, 2026-10-29
 
-Brief: docs/steering/2026-10-29-fat-moe-waits.md, "Recommendation: one mechanism". Mode 41 put
+Brief: archive/docs/steering/2026-10-29-fat-moe-waits.md, "Recommendation: one mechanism". Mode 41 put
 the consumers' mbarrier waits at about 20% of the stage loops, 210-230 cycles each, while the
 producers found the ring full for 70% of phase A (check ca43908f02874886). H1 there: every stage
 starts with a serial path on each warp (the try_wait round trip, then the shared loads of the
@@ -2191,7 +2191,7 @@ coordinator for a scored run.
 
 ## Warp skew and the gap to the public kernel after mode 47, 2026-10-30
 
-Brief: docs/steering/2026-10-29-fat-moe-waits.md, next action 3 (per-warp stage-start skew, H2)
+Brief: archive/docs/steering/2026-10-29-fat-moe-waits.md, next action 3 (per-warp stage-start skew, H2)
 and a re-attribution of the same-process gap to the public kernel on mode 47.
 
 ### Method
@@ -2429,7 +2429,7 @@ other seeds; the two runs do not compare the modes directly.
 
 ## Phase attribution at 32 tokens against the public kernel, 2026-10-30
 
-Brief: the layer report (docs/steering/2026-10-30-layer-release-attribution.md, item 3) put our MoE
+Brief: the layer report (archive/docs/steering/2026-10-30-layer-release-attribution.md, item 3) put our MoE
 at about 102 us exposed against the public's 88 at decode 32 sliding, with nobody holding phase
 stamps at 32 tokens; mode 50 failed its gate there and 51 runs 47's code below 64 tokens.
 
@@ -5304,7 +5304,7 @@ empty scheduler guard. Private attributed comparator only, no public submit.
 Preregistered1% whole-six-load BOTHpaired ratios plus2x bothduplicate null, per-case
 regression <=max(.5us,1%), official math/fresh replay/empty/resource gates.
 Independent today_proj source/host clearance on exactfile,2source+4TorchCPUtestsPASS.
-Full registration: docs/steering/2026-11-01-moe-sc6-controlled.md.
+Full registration: archive/docs/steering/2026-11-01-moe-sc6-controlled.md.
 
 Terminal addendum05e51ddeb7014dd9: H200 DONE/PASS5, official BYTE path2.2593108797x
 (95%CI2.2254212165-2.2932005429), prepare116.574s. All48normal/48fresh/48empty
@@ -5338,7 +5338,7 @@ admissionandBF16effectivegamma inbotharms. Currenttrackedc785source, historical
 abe765DISPATCHonly(skinny<=32/main47>=128), notclaimedhistoricalpublicbytes.
 4privatepacks/scratch/inputs/captures,2binaries,18normalcases/seeds9919971009,
 FP32fresh/skew/allremote/post gates, all4cross+EVERYseed whole-six-load>=1% and2xnull.
-No publicsubmit. Fullregisteredproof/gates: docs/steering/2026-11-01-owned-multiply-decode.md.
+No publicsubmit. Fullregisteredproof/gates: archive/docs/steering/2026-11-01-owned-multiply-decode.md.
 
 Terminal835253441a214a1c: H200 PASS5, officialCOMMONCONTROL2.189649236x
 (CI2.156804498-2.222493975), prepare46.253s. Reportedchecks72normal+72fresh+24skew+
@@ -5362,7 +5362,7 @@ All216 registered normal/fresh/skew/remote/restored math checks passed
 attribution gates FAIL: whole4.91–9.54%, phase10.26–14.90% displacement.
 No causal weight/X/retire bottleneck conclusion, no candidate win, no rerun.
 Root owns canonical profiles g-stage-check.f147d06a64504c1e.{json,log,txt}.
-Derived completecapsule/report: docs/steering/2026-11-01-g-stage-observed-readiness.md.
+Derived completecapsule/report: archive/docs/steering/2026-11-01-g-stage-observed-readiness.md.
 New H200 route census yields conditional proportional three-pair six-load
 scenario1.012567/1.004403/1.004607, not measured gain/HBM/timing bound.
 ## Owned fixed-band32 private paired check, 2026-11-01
@@ -5377,7 +5377,7 @@ or packing change. Seeds preregistered993701/993703/993709, all18cells required;
 four-cross pooled AND perseed1%/2xnull, percell regression, resource/math/fresh
 replay/empty/spin/budget/11KB gates. SevenTorchCPUhosttests PASS, localdevice
 compilation belongs topatcher; no H200result claimed. Fullsourcepins/costs:
-docs/steering/2026-11-01-owned-moe-band32-registration.md. Root owns exactjob
+archive/docs/steering/2026-11-01-owned-moe-band32-registration.md. Root owns exactjob
 status/receipt/profile archival; no publicsubmit, production unchanged.
 
 
@@ -5390,7 +5390,7 @@ allseed/1pct/2xnull/regression gates FAIL, KEEPfalse. Actual all4skinny resource
 130regs/0local/0static/155520dynamic/1CTA/288threads; MAIN47 identical96regs/8local.
 Exact493d1678 source unchanged, no production/pure qualification/public submission.
 Root owns canonical receipt/log/profile; independent decoded report and closure:
-docs/steering/2026-11-01-owned-moe-band32-terminal.md. Fixedband32 and offline
+archive/docs/steering/2026-11-01-owned-moe-band32-terminal.md. Fixedband32 and offline
 153reg identity shortcut closed; no automatic band/cache/cap/credit sweep.
 
 
@@ -5406,7 +5406,7 @@ all18rows/396mathchecks required; fourcrossctrl-vs-cached pooledANDallseed1pct/2
 regression/resource/finiteFP32ref/fresh32/skew/remote/post/spin/budget/11KB gates.
 Directcomparatordescriptiveonly. SevenactualTorchCPUhosttestsPASS, realistic
 transport4419B; no H200successclaim. Fullsourcepins/registration:
-docs/steering/2026-11-01-owned-cached-band32-registration.md. Rootownsstatus/raw
+archive/docs/steering/2026-11-01-owned-cached-band32-registration.md. Rootownsstatus/raw
 receipt/log/profilearchive; nochildGPU, no publiccandidate unlessstrongfullscorewin.
 
 
@@ -5419,7 +5419,7 @@ M32ctrl137.653333/cached139.448001/direct160.367999us. Cached-vs-direct1.043792.
 1.046898 is recoveryfromfailedvariant, NOTwinvsbaseline. Actualcached128regs/
 0local/156928dynamic vsctrl/direct130/0/155520, all288threads/1CTA;MAINexact96regs/
 8local/228736dynamic. Independentactual_bc_summary recomputation matchesallgates
-exactly. Fullterminal/decoded: docs/steering/2026-11-01-owned-cached-band32-terminal.md.
+exactly. Fullterminal/decoded: archive/docs/steering/2026-11-01-owned-cached-band32-terminal.md.
 Closecachedrepresentation/directband/CPUidentity; no purequalification/public
 candidate/automaticknobsweep. Rootowns canonicalrawarchive, productionunchanged.
 
