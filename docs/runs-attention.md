@@ -4407,3 +4407,37 @@ pair's 1.7-1.8 together, so the SM runs under capacity for 11 / 22 us. A run-tim
 pair's keys that holds the co-run rates to a common end models at -4.8 / -6.2 us on the last SM
 (the kernel end) and -5.1 / -7.0 us at the median SM; it does not touch the cross-SM spread
 (model median to max 5.7 / 6.1 us).
+
+## 2026-11-03 batch 16 / 32 sliding timeline and split arms (modes 1 and 3), registered before dispatch
+
+Owner: third attention lane, final-day exception for the four batch 16 / 32 sliding cells
+(decode 16 / 32 mode 1, verify 16 / 32 mode 3). Base: the 8914751e3b9f468b control body
+(worktree commit 62376d7e). Judged medians of 8914751e: decode 16 / 32 sliding 7.83 / 10.09 us,
+verify 16 / 32 sliding 11.45 / 15.60 us.
+
+What is already measured: the phase exits of 1c861d3944f149a0 (cold, ours / public) put decode
+16 sliding at prologue 10.34 / tile loop 0.99 / reds 0.38 / ticket 0.83 / finalize 0.96 us and
+verify 16 / 32 sliding at prologue 8.93 / 9.18, loop 4.35 / 8.13, reds 0.74 / 0.74, barrier
+1.21 / 1.28, finalize 0.77 / 1.09. Most of verify minus decode is the q_len 8 tile loop (+3.4 us
+at batch 16, +4.6 at batch 32): verify runs 5 / 9 sequential tiles per CTA (33 tiles over 8 / 4
+splits, 7 / 4 active CTAs per request) at about 0.9 us per tile, one CTA per SM, against 2 / 4
+tiles per CTA at decode. The split counts equal the public kernel's (static table, 10-28), but
+they were copied, not swept on our kernel. A phase exit drains the copies, so its "prologue"
+includes the first tiles' DRAM fetch; the new stamps separate them.
+
+Source change (default off, all 13 judged instances SASS-identical to 62376d7e when off, local
+sm_90a compile): `ONE_STAMP=3` (bench only), thread 0 of every per-request CTA writes globaltimer
+and clock64 at the existing ONE_DIAG stamp points plus entry, each tile's ready point, the grid
+barrier and the finalize slice end (`PR_BASE` in attn_one.cu). Stamp build: 114 / 115 registers at
+1/1 and 8/3, no spills.
+
+Check: `tools/attn_make_sl_tl.py` (arms ctrl, ctrl2 null, tl_probe and tlA_probe (stamps, control
+and spA splits), spA / spB / spC (the control module with its own state, splits per request
+overridden on the host): spA 32 / 16 / 16 / 8, spB 11 / 11 / 11 / 6, spC 8 / 6 / 6 / 3 at decode
+16 / decode 32 / verify 16 / verify 32; control 16 / 8 / 8 / 4). Only the four cells are timed;
+3 held-out inputs, 150 cold rounds plus warm graphs, seed 311401. Reading: TLSL per call and TLSUM
+medians (phase lengths, critical CTA timeline), ABSUM / ABIN per arm.
+Gate for a split arm as a candidate: arm - ctrl at most -0.5 us cold on a cell on all three
+inputs and beyond |ctrl2 - ctrl|, no other of the four cells worse than the null, ABCHECK clean.
+A passing split set becomes a host-only `_one_plan` change; its confirming check is the full
+judge run of the clean file plus the strict fresh-input replay stress.

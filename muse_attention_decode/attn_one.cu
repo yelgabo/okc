@@ -237,6 +237,14 @@ constexpr int STAMP_W = 16;
 // warpgroup 1's full-barrier wait cycles, [194, 256) warpgroup 0's running wait cycles.
 constexpr int TL_BASE = STAMP_BASE + 512 * STAMP_W;
 constexpr int TL_W = 256;
+// ONE_STAMP=3 (bench-only, per-request modes): thread 0 of every CTA writes %globaltimer (low 32
+// bits) at each stamp(k) point into dbg[PR_BASE + (blockIdx.y * gridDim.x + blockIdx.x) * PR_W
+// + k] and the low 32 bits of clock64 at + PR_CLK + k. Points: 0 entry, 1-20 the ONE_DIAG
+// stamp points, 21 grid barrier passed, 22 finalize slice done, 24 + i tile i ready (i < 16);
+// fields 44 SM id, 45 tiles, 46 the ticket's last-CTA flag.
+constexpr int PR_BASE = TL_BASE + 512 * TL_W;
+constexpr int PR_W = 96;
+constexpr int PR_CLK = 48;
 // ONE_HSPLIT (flat q_len 8 producer builds): one full and one empty mbarrier per KV head and
 // stage. The producer threads of chunks 4h .. 4h + 3 fill head h's half of every row and the
 // warpgroup of head h releases it, so the two heads' rings run independently instead of
@@ -1049,17 +1057,27 @@ attn_one_kernel(const Params p) {
     if (ONE_DIAG && p.phase_limit == (k)) { cp_wait<0>(); return false; }
     // Diagnostic stamps: thread 0 of CTA (0, 0) records the time in microseconds at point k
     // into dbg[1 + k] when a dbg buffer is given (the judge's timed path passes none).
+    constexpr bool PSTAMP = ONE_STAMP == 3 && !FLAT;
+    int* const prow = PSTAMP && p.dbg != nullptr
+                          ? p.dbg + PR_BASE + (blockIdx.y * gridDim.x + split) * PR_W
+                          : nullptr;
     auto stamp = [&](int k) {
         if constexpr (ONE_DIAG) {
             if (p.dbg != nullptr && split == 0 && blockIdx.y == 0 && tid == 0) {
                 p.dbg[1 + k] = static_cast<int>(globaltimer_ns() / 1000u);
             }
         }
+        if constexpr (PSTAMP) {
+            if (prow != nullptr && tid == 0) {
+                prow[k] = static_cast<int>(globaltimer_ns() & 0xffffffffull);
+                prow[PR_CLK + k] = static_cast<int>(clock64());
+            }
+        }
     };
     // ONE_STAMP: record k of this CTA's row (thread 0 of the consumers, or of the producers for
     // their fields). Times are %globaltimer ns (low 32 bits, comparable across SMs); the *_cyc
     // sums are clock64 cycles of one thread.
-    constexpr bool STAMPS = ONE_STAMP && PROD;
+    constexpr bool STAMPS = (ONE_STAMP == 1 || ONE_STAMP == 2) && PROD;
     int* const srow = STAMPS && p.dbg != nullptr ? p.dbg + STAMP_BASE + split * STAMP_W : nullptr;
     auto srec = [&](int k, long long v) {
         if constexpr (STAMPS) {
@@ -1991,6 +2009,11 @@ attn_one_kernel(const Params p) {
         }
 
         stamp(13);
+        if constexpr (PSTAMP) {
+            if (prow != nullptr && tid == 0) {
+                prow[45] = ntiles;
+            }
+        }
         PHASE_EXIT(9)
         const float sl2k = (L == 1 ? 1.f : p.sl2) * k_scale;
         const int copy = p.nc > 1 ? split % p.nc : 0;
@@ -2056,6 +2079,11 @@ attn_one_kernel(const Params p) {
                 __syncthreads();
                 if (it == 0) {
                     stamp(15);
+                }
+                if constexpr (PSTAMP) {
+                    if (it < 16) {
+                        stamp(24 + it);
+                    }
                 }
                 if constexpr (!ONE) {
                     if (it + STAGES - 1 < ntiles) {
@@ -3102,6 +3130,11 @@ attn_one_kernel(const Params p) {
         }
         stamp(19);
         csync();
+        if constexpr (PSTAMP) {
+            if (prow != nullptr && tid == 0) {
+                prow[46] = *flag;
+            }
+        }
         if (ONE_DIAG && p.phase_limit == 12) {
             return;
         }
@@ -3122,6 +3155,14 @@ attn_one_kernel(const Params p) {
     };
 
     if constexpr (!FLAT) {
+        stamp(0);
+        if constexpr (PSTAMP) {
+            if (prow != nullptr && tid == 0) {
+                uint32_t smid;
+                asm volatile("mov.u32 %0, %%smid;\n" : "=r"(smid));
+                prow[44] = static_cast<int>(smid);
+            }
+        }
         seq = SPEC ? p.pt_stride - L : seq_real;
         derive();
         if (!SPEC && lo >= end) {
@@ -3147,11 +3188,13 @@ attn_one_kernel(const Params p) {
             if (ONE_DIAG && p.phase_limit == 12) {
                 return;
             }
+            stamp(21);
             const int r_lo = split * rows_per;
             const int r_hi = min(ROWS, r_lo + rows_per);
             if (r_lo < r_hi) {
                 finalize_rows<L, NC, FIN8>(p, b * ROWS + r_lo, b * ROWS + r_hi, v_scale, tid);
             }
+            stamp(22);
         }
     } else {
         // The previous launch wrote this epoch (stream order makes it visible); a coherent
