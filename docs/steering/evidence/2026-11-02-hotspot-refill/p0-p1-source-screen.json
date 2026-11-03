@@ -1,0 +1,91 @@
+{
+  "scope": "Same hotspot-refill request: P0 WS and P1 BF16 source/binary/economic screens; no qualified new GPU candidate",
+  "start_main": "9dab13cc2758c456da2c8e5ca332560803b68ce1",
+  "reconciled_main": "a0a60c53453e491874538186947451b46d2bb5a8",
+  "local_archive_snapshot": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+  "user_local_uncommitted_checkout_access": false,
+  "ownership": {
+    "General Optimizer": "P0 standalone WS skinny T1/T8/T16",
+    "MoE Worker": "P0 standalone whole-expert B4/MAIN; own e044121f822d47b1 now terminal loss, no retry",
+    "CUDA Optimizer": "P1 standalone BF16 C2; pickup not verified",
+    "Decode32": "P4; no revived experiment or reminder"
+  },
+  "ws": {
+    "layer_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+    "factory": "final _fork_native_moe / _ma_ext selecting _MA_ALT_SRCS['moe_helper0']",
+    "common_flags": ["-O3", "-gencode=arch=compute_90a,code=sm_90a", "-lineinfo", "-DOKC_NS=3", "-DOKC_FNST=4", "-DOKC_NSF=3", "-DOKC_NW=8", "-DOKC_TINY=1", "-DOKC_EPI4=0", "-DOKC_FAST1=2", "-DOKC_NACC=4", "-DOKC_UWARP=0", "-DOKC_WS=1", "-DOKC_WSB=1", "-DOKC_WSBL=2", "-DOKC_FINPF=1", "-DOKC_PRMTSC=1", "-DOKC_DQ7=1"],
+    "flag_differences": {
+      "tiny": ["-DOKC_WSBLK=2", "-DOKC_L2H=0"],
+      "tiny2": ["-DOKC_WSBLK=1", "-DOKC_CPF=0"],
+      "mid": ["-DOKC_WSBLK=2", "-DOKC_CPF=0", "-DOKC_SPLIT=1"]
+    },
+    "preprocessor": "OKC_WGS=0 default; WGS implementation excluded; original norm and NS3 retained",
+    "archived_resources": {"threads": 288, "dynamic_shared_bytes": 214784, "registers_tiny_tiny2_mid": [145,145,152], "spills": false},
+    "source_final_join_lines": [14880,15025],
+    "final_output_ctas": "4*M at M=1,8,16, versus the current 132-CTA producer grid",
+    "binary": [
+      {"name":"tiny", "sass_sha256":"b45ec5dc426463812cf0ce9aab209748e7501c6cf45b1c456503d210367862ec", "final_MEMBAR_ALL_GPU":"0xd9a0", "final_poll_NANOSLEEP":"0xdb80", "both_bool_entries_checked":true},
+      {"name":"tiny2", "sass_sha256":"bec5c3b67ded5e18f8ea1ee19606e157f4a5a183c693b0aa08a85df1b90c7e93", "final_MEMBAR_ALL_GPU":"0xdab0", "final_poll_NANOSLEEP":"0xdc90", "both_bool_entries_checked":true},
+      {"name":"mid", "sass_sha256":"39ed3c89b46c8ef6487b04f2573f56deecefb0d6eb500d379d132347baf28e99", "final_MEMBAR_ALL_GPU":"0xd2b0", "final_poll_NANOSLEEP":"0xd450", "both_bool_entries_checked":true}
+    ],
+    "binary_source": "docs/steering/evidence/2026-11-02-gopt-skinny-depth/{tiny,tiny2,mid}-control.sass.gz at archive snapshot",
+    "normal_control_us_illustrative": {"1":34.02133333333334,"8":78.69066666666667,"16":116.904},
+    "control_method": "Average published norm-check control values over three normal-routing banks; not the official public score",
+    "conditional_equal_six_sensitivity": [
+      {"net_saved_us_each_short_call":0.5,"factor":1.0042533832665128},
+      {"net_saved_us_each_short_call":1,"factor":1.0085722344766463},
+      {"net_saved_us_each_short_call":2,"factor":1.017414233342629},
+      {"net_saved_us_each_short_call":3,"factor":1.0265427180653628}
+    ],
+    "sensitivity_formula": "product(t/(t-d) for t in T1,T8,T16)**(1/6); other three loads fixed; descriptive sensitivity, not a qualification statistic",
+    "hypothesis": "Keep A+B fused; replace only terminal global wait/finalization with one ordinary same-stream finalizer launch",
+    "readiness": "GAP: no measured exposed terminal wait or priced added launch/reload cost; no candidate compile/progress proof",
+    "negative": "28248eb5e5854041 three-launch T1 valid loss retained; no automatic split-family reopening"
+  },
+  "bf16": {
+    "control_job": "9eba96894ee1402e",
+    "control_source": "3044ee7:muse_bf16_proj/submission.py plus retained scored-control comment",
+    "raw_source_sha256": "5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4",
+    "reported_speedup": 1.5278064829557674,
+    "reported_score_us": 3161.918773020326,
+    "reported_baseline_us": 4830.8,
+    "adjusted_five_operator_sums_us": {"1":35.18261665185721,"8":37.66806931485635,"16":46.91407552731611,"32":51.72098772193554,"128":67.09578548704545,"256":82.41636891736353},
+    "raw_62x_geomean_of_adjusted_sums_us": 3167.5371769313037,
+    "raw_aggregation_is_reported_score": false,
+    "score_note": "Use the receipt's reported score and paired-baseline aggregation, not raw 62*GM as its substitute. Conditional within-load replacement factors hold the other loads/baselines fixed.",
+    "selected_families": {"owned_WGMMA_cells":3,"large_cuBLASLt_cells":7,"short_cells":20},
+    "owned_WGMMA": [
+      {"cell":"qkv_gate128","entry":"wd<1,128,3,1,false,8>","registers":90,"wait1":"0xd90","terminal_wait0":"0xe20"},
+      {"cell":"router128","entry":"wd<1,64,8,1,true,8>","registers":58,"wait1":"0x11d0","terminal_wait0":"0x1230"},
+      {"cell":"router256","entry":"wd<1,128,8,1,true,6>","registers":90,"wait1":"0x12c0","terminal_wait0":"0x1320"}
+    ],
+    "owned_build_flags": ["-O3","-gencode=arch=compute_90a,code=sm_90a"],
+    "archived_device_sha256": "f86b8064b33c1f516144392e4633bf54a2bdffc6985662f022cf86cd23292b66",
+    "archived_sass_sha256": "dc152bf2b5ddabfce737c2943aa91c514342a85c734f5e023c14e3726e0f01fa",
+    "vendor_SASS_available": false,
+    "target_M128_control_us": {"pooler":19.99411536533393,"unpooler":18.986628441617082},
+    "byte_model": "0.5*N*K fewer bytes for 16-bit to ideal 12-bit encoding; one exposed weight read, zero escape/decode/geometry cost; divide by assumed 4.2 or 4.45 TB/s",
+    "pooler_plus_unpooler_M128_gross_saving_us": [7.540321797752809,7.989150476190476],
+    "pair_M128_only_sixload_factors": [1.0200675649283129,1.0213544866718278],
+    "pair_M128_only_elapsed_reduction_pct": [1.9672780135620904,2.0908006916788735],
+    "all_four_BF16_M128_gross_saving_us": [10.603577528089888,11.234742857142857],
+    "all_four_M128_only_elapsed_reduction_pct": [2.8262674883794747,3.0080629881887866],
+    "net_M128_saving_for_sixload_factor_1_01_us": 3.888520463335939,
+    "net_M128_saving_for_3_43pct_elapsed_reduction_us": 12.677026947564224,
+    "hypothesis": "Restore exact compressed BF16 weights into register-A WGMMA fragments with activations in shared B, avoiding shared BF16 expansion",
+    "readiness": "GAP: raw RS complete call not demonstrated competitive with selected Lt; lifetime/resources/escape costs unproved; M128 byte-only scenario insufficient for 3.43% elapsed target",
+    "negative": "4922f366a0c142ca shared-expansion P3 loss; raw-near-Lt and decoder net-cost reopening condition not met"
+  },
+  "limits": [
+    "Archived baseline SASS, not a new or target-parity compilation",
+    "Byte model uses an explicitly assumed stream rate from the user-supplied experiment account, not a measured rate of these cells or a universal ceiling",
+    "Static operations, bytes and poll instructions do not establish exposed time or future speedup",
+    "WS final-join exposure and added graph-node/reload costs are unmeasured",
+    "Exact C2 scored raw source was restored from its retained sparse-release prefix and hash checked",
+    "Newer owning BQUEUE terminal report was read, not polled or redispatched",
+    "No candidate compilation, GPU execution or production modification occurred"
+  ],
+  "kernel_modified": false,
+  "gpu_execution": false
+}
