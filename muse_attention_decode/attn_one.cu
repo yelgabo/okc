@@ -107,7 +107,10 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // (consumer-bound time, wrong output); ONE_PROBE=2 drops the consumers' per-tile
 // fence.proxy.async after the full barrier (its cost, ordering not guaranteed); ONE_PROBE=3
 // (q_len 1 flat) zero-fills as 1 and the consumers release each stage without computing on it
-// (the producer-bound pace).
+// (the producer-bound pace). Mode 49 gather attribution: 6 reads the cache rows and the
+// consumers release each stage untouched; 7 reads rows (request base + position) in place of the
+// page-table rows, compute kept; 8 is 7 untouched; 9 copies each 128-byte K or V row by one
+// cp.async.bulk completing on the full barrier, untouched.
 #ifndef ONE_STAMP
 #define ONE_STAMP 0
 #endif
@@ -1262,6 +1265,8 @@ attn_one_kernel(const Params p) {
                 return __ldg(pt + (psize == 1 ? pos : pos / psize));
             };
             constexpr uint32_t CPB = ONE_PROBE == 1 || ONE_PROBE == 3 ? 0u : 16u;
+            constexpr bool PR_SEQ = L == 1 && (ONE_PROBE == 7 || ONE_PROBE == 8);
+            constexpr bool PR_BULK = L == 1 && ONE_PROBE == 9;
             const bool fast32 = ONE_PFAST && p.off32 != 0;
             long long s_emw = 0;
             const long long s_p0 = STAMPS ? clock64() : 0;
@@ -1419,6 +1424,43 @@ attn_one_kernel(const Params p) {
                 if (!seg_bounds(bb)) {
                     continue;
                 }
+                const int vb = PR_SEQ ? offs[bb] - bb * SEGK : 0;
+                if constexpr (PR_BULK) {
+                    const int rr = ptid & 63;
+                    const uint8_t* src0 = ptid < 64 ? p.k_cache : p.v_cache;
+                    int peb[PF];
+#pragma unroll
+                    for (int u = 0; u < PF; ++u) {
+                        peb[u] = entry(u, rr);
+                    }
+                    for (int base = 0; base < ntiles; base += PF) {
+#pragma unroll
+                        for (int u = 0; u < PF; ++u) {
+                            const int t = base + u;
+                            if (t >= ntiles) {
+                                break;
+                            }
+                            mbar_wait(empty0 + 8 * pst, pph ^ 1u);
+                            const uint32_t bar = full0 + 8 * pst;
+                            const uint32_t dst = smem_base + S::KV + pst * 2 * TILE_BYTES
+                                                 + (ptid < 64 ? 0 : TILE_BYTES) + rr * ROWB;
+                            fence_proxy_async();
+                            if (lo + t * BN + rr < seq) {
+                                mbar_expect_tx(bar, ROWB);
+                                bulk_g2s(dst, src0 + (static_cast<size_t>(peb[u]) << 7), ROWB,
+                                         bar);
+                            } else {
+                                mbar_arrive(bar);
+                            }
+                            peb[u] = entry(t + PF, rr);
+                            if (++pst == NS) {
+                                pst = 0;
+                                pph ^= 1u;
+                            }
+                        }
+                    }
+                    continue;
+                }
                 int pe[PF][4];
 #pragma unroll
                 for (int u = 0; u < PF; ++u) {
@@ -1442,6 +1484,12 @@ attn_one_kernel(const Params p) {
                         const int pos0 = lo + t * BN;
                         const uint32_t kdst = smem_base + S::KV + pst * 2 * TILE_BYTES;
                         const uint32_t vdst = kdst + TILE_BYTES;
+                        if constexpr (PR_SEQ) {
+#pragma unroll
+                            for (int i = 0; i < 4; ++i) {
+                                pe[u][i] = vb + pos0 + r0 + 16 * i;
+                            }
+                        }
                         if (fast32 && pos0 + BN <= seq) {
                             // Every row is cached (pos0 + BN <= seq < hi).
 #pragma unroll
@@ -2058,7 +2106,8 @@ attn_one_kernel(const Params p) {
             int st = PROD ? cst : 0;
             for (int it = 0; it < ntiles; ++it) {
                 acquire(it, st);
-                if constexpr (ONE_PROBE == 3 && PROD) {
+                if constexpr ((ONE_PROBE == 3 || ONE_PROBE == 6 || ONE_PROBE == 8
+                               || ONE_PROBE == 9) && PROD) {
                     release(st);
                     st = cst;
                     continue;

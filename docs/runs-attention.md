@@ -4315,3 +4315,39 @@ cluster launch and barriers plus the 16-SM pull, not DRAM. No second check, no p
 closed in docs/ruled-out.md. The mode stays in attn_one.cu behind `ONE_CL` (default 0: no
 instance is built and every judged instance's register count is unchanged, local sm_90a
 compile). The candidate-only gate generator `tools/attn_make_cl_gate.py` is retained unused.
+
+## 2026-11-03 mode 49 gather attribution probes (decode 16 / 32 full), registered before dispatch
+
+Owner: attention, q_len 1 full-context lane (modes 49 at decode 16 / 32 full). Base: the
+8914751e3b9f468b control body (worktree HEAD source, `ONE_LATE_TID 0`, `ONE_CL 0`).
+
+Note on 3f44f891d0ef47db: the wait-trace receipts in this worktree are the 2026-11-01 check
+already recorded above (every row failed its perturbation gate, descriptive only). No check of
+this lane was spent before this one today. Its descriptive medians still agree with the static
+picture: a stage takes about 2.4 us from copy issue to full barrier against about 0.64 us of
+consumer work and a 1.15 us tile cadence, so the ring is full and the consumers mostly wait for
+data. It cannot say whether the gather itself or the overlap with compute sets the pace, which is
+what this check measures.
+
+Static attribution from the judged cells: d32 - d16 full is 77.5 us for 303 MB of extra K and V,
+a marginal rate of 3.91 TB/s, and the intercept is about 7.5 us (launch, first fill, tail, pair
+spread; the 10-30 stamps put the tail after the loop at 1.3 / 2.4 us median / max and the pair gap
+at 3.1 / 6.2 us). Most of the distance to the 4.8 TB/s floor is the steady-state rate, not the
+prologue or the tail. Bytes in flight per SM are 2 CTAs x 3 stages x 16 KB = 96 KB, above the
+36 KB Little's-law minimum, and rings of 4-6 stages were slower (42c4739cf6b247c4).
+
+Probes (`ONE_PROBE`, mode 49 only, default 0 leaves every instance unchanged): 6 reads the
+page-table rows and the consumers release each stage untouched (gather-bound pace); 7 reads
+rows `request base + position` in place of the page-table rows with compute kept; 8 is 7
+untouched (streaming pace of this producer); 9 copies each 128-byte K or V row with one
+`cp.async.bulk` completing on the full barrier, untouched. Check file from
+`tools/attn_make_q1_gather.py` (arms ctrl, ctrlb null, nc_probe = ONE_PROBE 1, g6-g9; only
+decode 16 / 32 full timed, two held-out inputs, 120 cold rounds, seed 311401; non-control
+builds compile only instance 1/49).
+
+Reading, decided before dispatch: g6 within 3 us of ctrl on both cells means the random 128-byte
+gather sets the pace and compute is hidden; then only the intercept is left (pair split, tail),
+unless g9 beats g6 by 3 us or more, which makes a bulk-copy producer the candidate. g6 at least
+5 us under ctrl means the consumer side costs that much and the candidate cuts consumer work per
+tile. g8 - g6 prices the randomness of the rows (the layout is fixed by the problem); g7 - g8
+prices compute at the streaming rate.
