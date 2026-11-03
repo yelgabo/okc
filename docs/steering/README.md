@@ -61,6 +61,10 @@ logs. CPU regressions and a local CUDA 12.8.1 device build were checked. No runt
 kernel, target-performance claim, GPU dispatch or D32 ownership change is included.
 Root instructions load the reference index for future CUDA work.
 
+## D32 matched routing failure
+
+[Corrected matched check 62a4f6b27ed74b50](decode32/2026-11-02-11-matched-routing-mismatch.md) stopped in setup on unequal natural routing during fresh replay; no matched timing was produced. A bounded diagnostic keeps the gate strict and records the load, seed and differing placements. The result does not identify a kernel loss.
+
 ## D32 matched confirmation setup correction
 
 [Private check 4fece18b20a2447b](decode32/2026-11-02-09-pair-setup-failure.md) failed in setup because target PyTorch does not implement FP8 `isfinite`. No timing was produced. The corrected diagnostic casts FP8 only for this check and has CPU Torch finite/nonfinite coverage. A new private check follows source publication and live preflight.

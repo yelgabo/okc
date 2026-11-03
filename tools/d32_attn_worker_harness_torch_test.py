@@ -85,6 +85,22 @@ class GeneratedHost(unittest.TestCase):
                 self.assertIs(host.namespace['_fork_native_moe'], host.original['_EH_NATIVE'])
                 self.assertTrue(host.torch.backends.cuda.matmul.allow_tf32)
 
+    def test_route_diagnostic_keeps_strict_gate(self):
+        host = AttentionHost(self.source, self.manifest)
+        check = host.namespace['_d32_require_same_routes']
+        ids = torch.tensor([[1, 2], [3, 4]], dtype=torch.int32)
+        outputs = [(None, None, ids.clone()) for _ in range(4)]
+        arms = [dict(_d32_pair_arm=i >= 2, _d32_probe_seen=[i >= 2]) for i in range(4)]
+        check(outputs, arms, 32, 'full', 1102031, 'initial')
+        outputs[2][2][1, 0] = 7
+        log = io.StringIO()
+        with contextlib.redirect_stdout(log), self.assertRaisesRegex(AssertionError, 'ROUTING_MISMATCH'):
+            check(outputs, arms, 32, 'full', 1102031, 'fresh-0')
+        event = json.loads(log.getvalue().split('D32_ROUTE_MISMATCH ')[1])
+        self.assertEqual((event['tokens'], event['context'], event['stage']), (32, 'full', 'fresh-0'))
+        self.assertEqual(event['mismatches'][0]['placement'], 2)
+        self.assertEqual(event['mismatches'][0]['rows'], [1])
+
 
 if __name__ == '__main__':
     unittest.main()

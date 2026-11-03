@@ -1,0 +1,19 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+D32_ATTN_PREPARED eligible=True source_sha256= 3de8f5caac947c54af133fd83b157e3d1f1ab16ebcee8d61bcd0573f8ad0b26d capability= 9 0 sms= 132
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-l9md3ark/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-l9md3ark/run/worker.py", line 322, in _setup_op
+    state["prep"] = prepare(weights)
+                    ^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-l9md3ark/run/submission.py", line 18114, in prepare
+    with torch.inference_mode(False),torch.no_grad():report=_eh_private(weights,state)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-l9md3ark/run/submission.py", line 18069, in _eh_private
+    assert all(torch.equal(outputs[0][2],out[2]) for out in outputs[1:]),'EXPERT_FRESH_ROUTING_MISMATCH'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: EXPERT_FRESH_ROUTING_MISMATCH
