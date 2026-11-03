@@ -48,4 +48,4 @@ hash, affected cells before and after, decision. Chat-only results do not count.
 
 ## Ledger
 
-(empty at creation)
+- MoE worker, step 1: timeline check `19128cda79ca4e25`, source `muse_moe_w4a16/cand/tiny_timeline.py` (acfd73c5) from the release 5df257af; Tiny / Tiny2 stamps gated off in the timed path, B4 / MAIN bytes unchanged. Cells before (public 4aa033ef23a142cd): T1 26.73, T8 67.21 us. Result pending; see docs/runs-moe.md "MOE-TL-01".
