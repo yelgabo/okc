@@ -1,0 +1,86 @@
+{
+  "resources": {
+    "b4-control": {
+      "entries": [
+        [
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "8",
+          "4",
+          "32"
+        ]
+      ],
+      "used": [
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size",
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size"
+      ]
+    },
+    "b4-candidate": {
+      "entries": [
+        [
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "used": [
+        "Used 96 registers, used 16 barriers",
+        "Used 96 registers, used 16 barriers"
+      ]
+    },
+    "main-control": {
+      "entries": [
+        [
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "used": [
+        "Used 96 registers, used 16 barriers",
+        "Used 96 registers, used 16 barriers"
+      ]
+    },
+    "main-candidate": {
+      "entries": [
+        [
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "used": [
+        "Used 96 registers, used 16 barriers",
+        "Used 96 registers, used 16 barriers"
+      ]
+    }
+  },
+  "scope": "CUDA12.8.1 device-only SM90a; no H200 runtime check",
+  "source_sha256": "4c8c470f408815616472746b99bcda4ae3bdcedb201bd0833284e15f29e685c5"
+}

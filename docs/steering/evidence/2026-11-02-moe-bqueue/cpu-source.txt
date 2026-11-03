@@ -1,0 +1,8 @@
+test_replay_counter_ownership (test_moe_bqueue.BQueue.test_replay_counter_ownership) ... ok
+test_selected_source_and_reverse (test_moe_bqueue.BQueue.test_selected_source_and_reverse) ... ok
+test_unit_ownership_and_retirement (test_moe_bqueue.BQueue.test_unit_ownership_and_retirement) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.582s
+
+OK
