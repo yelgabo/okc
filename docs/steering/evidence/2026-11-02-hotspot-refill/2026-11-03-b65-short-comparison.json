@@ -1,0 +1,102 @@
+{
+  "scope": "One source-only T1/T8 comparison on the existing refill; no kernel build or target allocation",
+  "inspected_main": "a466014323ba130fb120b556bb0f5455a531fe15",
+  "decision": "STOP this bounded search without a new candidate: a real T8 issuer difference exists, but the inspected evidence does not establish a credible >=2us complete-call opportunity after required repairs and competing costs",
+  "current": {
+    "path": "muse_moe_w4a16/cand/current_control_release.py",
+    "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+    "bytes": 320466,
+    "reconstructed_and_hashed_locally": true,
+    "reconstruction": "Archived adapter19aeaf35 at3a961a9d plus current tools/moe_control_release.py; actual source generator and CPU factory capture, not a local uncommitted checkout",
+    "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+    "main_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "compiler_requests": 5,
+    "short_common_flags": ["-O3", "-gencode=arch=compute_90a,code=sm_90a", "-lineinfo", "-DOKC_NS=3", "-DOKC_FNST=4", "-DOKC_NSF=3", "-DOKC_NW=8", "-DOKC_TINY=1", "-DOKC_EPI4=0", "-DOKC_FAST1=2", "-DOKC_NACC=4", "-DOKC_UWARP=0", "-DOKC_WS=1", "-DOKC_WSB=1", "-DOKC_WSBL=2", "-DOKC_FINPF=1", "-DOKC_PRMTSC=1", "-DOKC_DQ7=1"],
+    "tiny_extra": ["-DOKC_L2H=0", "-DOKC_WSBLK=2"],
+    "tiny2_extra": ["-DOKC_CPF=0", "-DOKC_WSBLK=1"],
+    "routes": {"1":"tiny", "8":"tiny2", "16":"mid", "32":"b4", "128":"main", "256":"main"},
+    "short_threads": 288,
+    "short_helper_physical_warp": 0,
+    "short_ring_slots": 3,
+    "unit_bytes": 36864,
+    "weight_bytes_per_le8_token_job": 28311552,
+    "official_job": "4aa033ef23a142cd",
+    "official_score_us": 5788.7207203627,
+    "prepare_s": 184.048388058
+  },
+  "comparator": {
+    "repository": "keell0renz/muse-open-kernel-challenge",
+    "commit": "8e30e1be994db4310794b8d04e90d18d895deb84",
+    "path": "kernels/muse_moe_w4a16.py",
+    "git_blob": "521611ff84a1df48cc3e106e9d8a595e39688d8a",
+    "recorded_raw_sha256": "2d931f09133d058053dda833b51f1867ea06cdcac0c912521ad37e8f7853185c",
+    "raw_hash_independently_recomputed_this_pass": false,
+    "identity_evidence": "Pinned primary file fetched through GitHub; byte-identical b65/file binding retained in docs/steering/2026-11-01-moe-architecture-comparison.md at3a961a9d; owning receipt and normalized measurements read",
+    "job": "b65c4c878014416c",
+    "server_payload_id_not_file_sha": "fa4dc1e969565b30ec3a76a7481d9f46b3b612c4bc457f1671ef107461431214",
+    "score_us": 5613.592490285424,
+    "speedup": 2.3957029341323293,
+    "prepare_s": 92.030831116,
+    "T1_selection": "TINY + @var, DF=0, unrotated helper",
+    "T8_selection": "Final PS_SHAPES[8] -> tiny2/@t2_wsi, not the earlier base kernel_fn",
+    "T8_threads": 320,
+    "T8_mechanism": "Eight compute warps, one epilogue helper, one dedicated weight issuer; each compute warp releases a consumed weight slot before accumulator folding/partial store/CTA barrier; issuer refills after all warp arrivals",
+    "T8_author_claim_speed_factor": [1.012,1.017],
+    "author_claim_is_not_our_matched_measurement": true,
+    "short_scale_compression": false,
+    "one_fused_launch_in_both_short_paths": true
+  },
+  "unmatched_adjusted_us": [
+    {"tokens":1,"donor_b65":25.113530035620172,"current_4aa":26.72799011159},
+    {"tokens":8,"donor_b65":63.251860976261675,"current_4aa":67.2052271542108},
+    {"tokens":16,"donor_b65":91.1491972374206,"current_4aa":93.95846278390749},
+    {"tokens":32,"donor_b65":122.31450949897351,"current_4aa":127.56485713119083},
+    {"tokens":128,"donor_b65":176.50464441082414,"current_4aa":180.87158456182152},
+    {"tokens":256,"donor_b65":211.11460167816674,"current_4aa":217.34614978666218}
+  ],
+  "same_helper_later_official_control_point": {
+    "job": "f4012a0531af4013",
+    "judged_arm": "unchanged control0, not observer",
+    "T1_us": 25.204540,
+    "T8_us": 63.954341,
+    "unmatched_gap_to_b65_us": [0.091009964379827,0.702480023738325],
+    "limitation": "Different runs/inputs; neither earlier nor later cross-job gaps isolate issuer cost, repair cost or a reproducible hybrid"
+  },
+  "complete_costs": [
+    "Same 36KiB skinny units, codec, local routing and fused A+B/finalization; no removed weight bytes or launch",
+    "Issuer adds32threads per CTA plus per-warp release arrivals, polling and final join; registers/admission/scheduling can change",
+    "A safe issuer must retain all-reader generic-to-async overwrite ordering, full stage retirement and checked progress",
+    "Normal-input copy normalization differs in host wrappers; graph replay does not credit untimed preparation/compiler/context work as a GPU kernel gain",
+    "Reported preparation92.0 versus184.0s is not a matched timed-call saving"
+  ],
+  "required_repairs_not_free_to_revert": [
+    "BF16 gate/up before SiLU and existing BF16 SwiGLU",
+    "BF16 scaled down result before gamma and BF16 effective gamma under the retained baseline-parity contract",
+    "All-reader shared proxy bridges, global generic-to-async edges where used, full-grid publication/acquire and safe stage retirement",
+    "Actual cooperative admission, serialized private mutable state, empty-route and replay lifetime/reset guarantees"
+  ],
+  "chosen_policies_not_universal_requirements": [
+    "Physical helper rotation and absence of the donor's dedicated M8 issuer",
+    "Conservative PDL-off policy; an alternative edge still needs a complete progress/publication proof",
+    "Guarded scratch, eager module preparation and supported-input adapter restrictions; no measured replay cost assigned",
+    "WGS MFIN/YBF/SC6 and MID sentinel differences are not selected T1/T8 savings"
+  ],
+  "non_prmt_fallback_contract_gap": {
+    "method": "Execute actual Python factory capture with ma_sfx=(),ma_sc6=False; g++ -E on actual native macro/guard prefix and captured flags. No CUDA compile or target execution",
+    "short_guard_exits": [0,0,0],
+    "main_guard_exit": 1,
+    "diagnostic": "FORK_MOE_UNPROVEN_FALLBACK_select_owned_or_Marlin_adapter",
+    "cause": "Actual prepare eagerly binds MAIN. Non-PRMT MAIN_FALLBACK_DEFINES sets neither WS nor WGS; native defaults both0 and reaches the intentional guard before short execution",
+    "distinct_from": "PRMT-valid but SC6-ineligible byte-scale weights, and the passing official PRMT-valid cases",
+    "disposition": "Source contract limitation recorded; no guard removal, repair task, experiment or performance attribution"
+  },
+  "conditional_score_sizing": {
+    "T1_2us_whole_six_speedup_percent": 1.304697,
+    "T8_2us_whole_six_speedup_percent": 0.504793,
+    "T8_author_claim_at_4aa_saving_us": [0.796900,1.123390],
+    "T8_author_claim_whole_six_speedup_percent": [0.199007,0.281346],
+    "limit": "Sensitivity only, not forecast or ceiling. Dated byte floor and overlapping trace spans supply no exposed removable budget"
+  },
+  "remaining_gap": "No source-bound >=2us complete-call contribution is isolated for a legal repaired issuer endpoint. Only a complete repaired WS-versus-WSI endpoint comparison would settle the remaining speed question; this finite source pass neither selects nor allocates it, and does not impose a prove-win-before-build rule",
+  "preserved": ["e3 ready-flag terminal loss and unresolved publication proof", "all exact short-path closures", "active attention q_len8 ownership; no polling", "FactorY failed confirmation", "BF16 and UNP scoped closures", "D32 P4 and paused timers", "no new check or public authority"]
+}
