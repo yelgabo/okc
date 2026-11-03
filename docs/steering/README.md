@@ -1,5 +1,9 @@
 # Shared project steering
 
+## FINAL-DAY RULE OF LAW, November 2 late Pacific
+
+[Final-day directive](2026-11-02-final-day-directive.md): short loads only (decode 1, verify 1, decode 16 where it falls out). Owner table and stop rules inside; supersedes the queues below for the remaining day.
+
 ## Top-100 gap reframe, November 2 late Pacific
 
 [Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.

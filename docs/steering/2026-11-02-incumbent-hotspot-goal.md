@@ -1,5 +1,9 @@
 # GOAL-OKC-HOTSPOT: keep execution flowing against incumbent bottlenecks
 
+## Superseded for the final day
+
+The [final-day directive](2026-11-02-final-day-directive.md) (user decision, November 2 late Pacific) replaces every queue row in this file until the deadline: short loads only.
+
 ## Worker reassignment supersedes the earlier queue table
 
 [New owner lanes](2026-11-02-worker-repurpose-moe-bf16.md): the user repurposed the former Decode32 Worker to **P0 standalone MoE**, and CUDA Optimizer to **P1 standalone BF16 projections**. General Optimizer retains separate MoE WS skinny work. Decode32 as a problem stays **P4**, but its former worker must not be re-tasked there by default. Its already accepted identity-rescale job, if unresolved, needs safe same-owner closure first. The user paused that worker's local self-reminder; **do not resume it or assume GitHub publication wakes the paused worker**. The older owner queue below is superseded; use the current `docs/steering/README.md` and this handoff. Existing hourly research steering is separate and must respect the new owner split.
