@@ -4821,3 +4821,44 @@ processes", 422; it ran cuobjdump). The dispatched file 879f5506 compares the ma
 .text sections in each extension's embedded cubin in process instead; locally that parser finds
 the same 15 functions identical in the two Docker cubins and in an nvcc -fatbin image
 (uncompressed, one ELF). The SHA above is the dispatched file's.
+
+### Result: a4900aad5398426d, main's attn_one.cu is the public kernel
+
+Receipt `muse_attention_decode/profiles/main_cert.a4900aad5398426d.{json,log,txt}` (file SHA256
+879f5506). Judged arm (public bytes) PASS 16/16, 1,499.1 us, 2.512x (CI 2.475-2.550), no flags:
+a control draw inside the day-1 repeat range (1,449.7-1,497.1 us) plus this file's two extra
+extension builds in the import phase; not a candidate, nothing for the promotion queue.
+
+Machine code at the judge: `main` and `ctrl2` each match ctrl in all 15 functions of the
+one-launch cubin (13/13 attn_one_kernel instances, kernel digest 5983a332ea668d3c for all three
+builds). The judge-style FP32 check passes for ctrl and main on the four batch-1 cells with
+identical errors.
+
+Bitwise, held-out seeds 1000 / 1001, twelve cells: written K and V cache rows equal in every case.
+Outputs: ctrl2 (same code) equals ctrl on 12 of 24 inputs and main on 14 of 24; every difference
+is 1 to 4 elements at 1 BF16 ulp, the FP32 atomic merge order. The registered clause (main equal
+wherever ctrl2 is equal) misses on one input (decode 32 full in=1: ctrl2 equal, main 1 element at
+1 ulp); with byte-identical machine code and a null that differs on half the inputs, this is
+run-to-run order, not a code difference.
+
+Cold paired main - ctrl, median us [bootstrap 95%], null ctrl2 - ctrl:
+
+| cell | ctrl | main - ctrl | ctrl2 - ctrl |
+|---|---:|---:|---:|
+| decode 1 sliding | 9.25 | -0.19 [-0.22, +0.00] | -0.19 [-0.22, -0.03] |
+| decode 1 full | 17.18 | -0.22 [-0.32, -0.13] | -0.26 [-0.35, -0.16] |
+| decode 16 sliding | 12.93 | +0.03 [-0.06, +0.16] | -0.06 [-0.16, +0.03] |
+| decode 16 full | 100.51 | -0.13 [-0.29, +0.00] | -0.06 [-0.22, +0.10] |
+| decode 32 sliding | 15.74 | +0.00 [-0.10, +0.10] | +0.03 [-0.10, +0.16] |
+| decode 32 full | 179.42 | +0.00 [-0.26, +0.22] | +0.00 [-0.19, +0.29] |
+| verify 1 sliding | 10.88 | +0.00 [+0.00, +0.10] | +0.00 [+0.00, +0.06] |
+| verify 1 full | 18.98 | -0.03 [-0.13, +0.06] | +0.00 [-0.10, +0.06] |
+| verify 16 sliding | 15.58 | +0.06 [-0.06, +0.19] | -0.06 [-0.16, +0.06] |
+| verify 16 full | 112.61 | +0.16 [-0.13, +0.45] | +0.19 [-0.06, +0.45] |
+| verify 32 sliding | 19.71 | -0.03 [-0.16, +0.03] | -0.10 [-0.22, +0.00] |
+| verify 32 full | 192.38 | +0.16 [-0.29, +0.54] | -0.06 [-0.58, +0.22] |
+
+Every main - ctrl sits within 0.13 us of the null. At decode 1 both in-process copies run about
+0.2 us faster than the judged module, so that offset comes from the arm and not from the code.
+Decision: certified. The merged attn_one.cu at defaults builds the public kernel, and no source
+fix was needed. One check spent; the second was not used.

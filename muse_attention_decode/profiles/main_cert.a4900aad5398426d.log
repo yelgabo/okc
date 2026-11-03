@@ -1,0 +1,79 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+CERTBUILD ctrl2 loaded so=/tmp/muse_attention_decode-0io_jz84/sandbox/cache/torch_extensions/null_okc_attn_one_v1/null_okc_attn_one_v1.so t=38s
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+CERTBUILD main loaded so=/tmp/muse_attention_decode-0io_jz84/sandbox/cache/torch_extensions/cert_okc_attn_one_v1/cert_okc_attn_one_v1.so t=76s
+CERTSASS ctrl2_vs_ctrl functions=15/15 identical=15 differing=0 attn_one_kernel_identical=13/13 ctrl_kernel_digest=5983a332ea668d3c
+CERTSASS main_vs_ctrl functions=15/15 identical=15 differing=0 attn_one_kernel_identical=13/13 ctrl_kernel_digest=5983a332ea668d3c
+CERTBIT b= 1 sliding L=1 in=0 ctrl2=EQUAL out_diff_elems=0/1024 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/1024 krows_eq=True vrows_eq=True
+CERTBIT b= 1 sliding L=1 in=1 ctrl2=EQUAL out_diff_elems=0/1024 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/1024 krows_eq=True vrows_eq=True
+CERTBIT b= 1 full    L=1 in=0 ctrl2=EQUAL out_diff_elems=0/1024 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/1024 krows_eq=True vrows_eq=True
+CERTBIT b= 1 full    L=1 in=1 ctrl2=EQUAL out_diff_elems=0/1024 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/1024 krows_eq=True vrows_eq=True
+CERTBIT b=16 sliding L=1 in=0 ctrl2=EQUAL out_diff_elems=0/16384 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/16384 krows_eq=True vrows_eq=True
+CERTBIT b=16 sliding L=1 in=1 ctrl2=DIFF out_diff_elems=2/16384 max_ulp=1.0 max_abs=7.6e-06 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/16384 krows_eq=True vrows_eq=True
+CERTBIT b=16 full    L=1 in=0 ctrl2=DIFF out_diff_elems=2/16384 max_ulp=1.0 max_abs=9.8e-04 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=2/16384 max_ulp=1.0 max_abs=9.8e-04 krows_eq=True vrows_eq=True
+CERTBIT b=16 full    L=1 in=1 ctrl2=EQUAL out_diff_elems=0/16384 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/16384 krows_eq=True vrows_eq=True
+CERTBIT b=32 sliding L=1 in=0 ctrl2=DIFF out_diff_elems=3/32768 max_ulp=1.0 max_abs=2.4e-04 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=1/32768 max_ulp=1.0 max_abs=1.2e-04 krows_eq=True vrows_eq=True
+CERTBIT b=32 sliding L=1 in=1 ctrl2=DIFF out_diff_elems=2/32768 max_ulp=1.0 max_abs=2.0e-03 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=1/32768 max_ulp=1.0 max_abs=2.0e-03 krows_eq=True vrows_eq=True
+CERTBIT b=32 full    L=1 in=0 ctrl2=EQUAL out_diff_elems=0/32768 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/32768 krows_eq=True vrows_eq=True
+CERTBIT b=32 full    L=1 in=1 ctrl2=EQUAL out_diff_elems=0/32768 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=1/32768 max_ulp=1.0 max_abs=2.0e-03 krows_eq=True vrows_eq=True
+CERTBIT b= 1 sliding L=8 in=0 ctrl2=EQUAL out_diff_elems=0/8192 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/8192 krows_eq=True vrows_eq=True
+CERTBIT b= 1 sliding L=8 in=1 ctrl2=EQUAL out_diff_elems=0/8192 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/8192 krows_eq=True vrows_eq=True
+CERTBIT b= 1 full    L=8 in=0 ctrl2=EQUAL out_diff_elems=0/8192 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/8192 krows_eq=True vrows_eq=True
+CERTBIT b= 1 full    L=8 in=1 ctrl2=DIFF out_diff_elems=1/8192 max_ulp=1.0 max_abs=2.4e-04 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/8192 krows_eq=True vrows_eq=True
+CERTBIT b=16 sliding L=8 in=0 ctrl2=DIFF out_diff_elems=4/131072 max_ulp=1.0 max_abs=7.8e-03 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=4/131072 max_ulp=1.0 max_abs=2.0e-03 krows_eq=True vrows_eq=True
+CERTBIT b=16 sliding L=8 in=1 ctrl2=DIFF out_diff_elems=2/131072 max_ulp=1.0 max_abs=2.4e-04 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=2/131072 max_ulp=1.0 max_abs=2.4e-04 krows_eq=True vrows_eq=True
+CERTBIT b=16 full    L=8 in=0 ctrl2=DIFF out_diff_elems=2/131072 max_ulp=1.0 max_abs=2.4e-04 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=1/131072 max_ulp=1.0 max_abs=7.6e-06 krows_eq=True vrows_eq=True
+CERTBIT b=16 full    L=8 in=1 ctrl2=DIFF out_diff_elems=2/131072 max_ulp=1.0 max_abs=1.2e-04 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=1/131072 max_ulp=1.0 max_abs=1.5e-08 krows_eq=True vrows_eq=True
+CERTBIT b=32 sliding L=8 in=0 ctrl2=EQUAL out_diff_elems=0/262144 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/262144 krows_eq=True vrows_eq=True
+CERTBIT b=32 sliding L=8 in=1 ctrl2=DIFF out_diff_elems=2/262144 max_ulp=1.0 max_abs=1.9e-06 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=2/262144 max_ulp=1.0 max_abs=1.9e-06 krows_eq=True vrows_eq=True
+CERTBIT b=32 full    L=8 in=0 ctrl2=DIFF out_diff_elems=1/262144 max_ulp=1.0 max_abs=4.9e-04 krows_eq=True vrows_eq=True ; main=EQUAL out_diff_elems=0/262144 krows_eq=True vrows_eq=True
+CERTBIT b=32 full    L=8 in=1 ctrl2=DIFF out_diff_elems=1/262144 max_ulp=1.0 max_abs=3.8e-06 krows_eq=True vrows_eq=True ; main=DIFF out_diff_elems=3/262144 max_ulp=1.0 max_abs=3.8e-06 krows_eq=True vrows_eq=True
+CERTBIT summary ctrl2=equal12/diff12 main=equal14/diff10
+CERTCHK PASS ctrl b= 1 sliding L=1 err=4.910e-03 bound=0.150 worst_row=7.824e-03 k=0.00e+00 v=0.00e+00
+CERTCHK PASS main b= 1 sliding L=1 err=4.910e-03 bound=0.150 worst_row=7.824e-03 k=0.00e+00 v=0.00e+00
+CERTCHK PASS ctrl b= 1 full    L=1 err=2.521e-03 bound=0.056 worst_row=6.246e-03 k=0.00e+00 v=0.00e+00
+CERTCHK PASS main b= 1 full    L=1 err=2.521e-03 bound=0.056 worst_row=6.246e-03 k=0.00e+00 v=0.00e+00
+CERTCHK PASS ctrl b= 1 sliding L=8 err=6.963e-02 bound=0.150 worst_row=1.813e-01 k=0.00e+00 v=0.00e+00
+CERTCHK PASS main b= 1 sliding L=8 err=6.963e-02 bound=0.150 worst_row=1.813e-01 k=0.00e+00 v=0.00e+00
+CERTCHK PASS ctrl b= 1 full    L=8 err=2.102e-02 bound=0.068 worst_row=1.053e-01 k=0.00e+00 v=0.00e+00
+CERTCHK PASS main b= 1 full    L=8 err=2.102e-02 bound=0.068 worst_row=1.053e-01 k=0.00e+00 v=0.00e+00
+CERTORDER seed=20261103 rounds=100 inputs=2 arms=['ctrl', 'ctrl2', 'main']
+CERTCOLD b= 1 sliding L=1 ctrl=9.25 ctrl2=9.02 main=9.02 ctrl2-ctrl=-0.192 [-0.224,-0.032] main-ctrl=-0.192 [-0.224,+0.000] t=77s
+CERTCOLD b= 1 full    L=1 ctrl=17.18 ctrl2=16.96 main=16.96 ctrl2-ctrl=-0.256 [-0.352,-0.160] main-ctrl=-0.224 [-0.320,-0.128] t=77s
+CERTCOLD b=16 sliding L=1 ctrl=12.93 ctrl2=12.90 main=12.99 ctrl2-ctrl=-0.064 [-0.160,+0.032] main-ctrl=+0.032 [-0.064,+0.160] t=77s
+CERTCOLD b=16 full    L=1 ctrl=100.51 ctrl2=100.61 main=100.42 ctrl2-ctrl=-0.064 [-0.224,+0.096] main-ctrl=-0.128 [-0.288,+0.000] t=77s
+CERTCOLD b=32 sliding L=1 ctrl=15.74 ctrl2=15.74 main=15.68 ctrl2-ctrl=+0.032 [-0.096,+0.160] main-ctrl=+0.000 [-0.096,+0.096] t=77s
+CERTCOLD b=32 full    L=1 ctrl=179.42 ctrl2=179.55 main=179.49 ctrl2-ctrl=+0.000 [-0.192,+0.288] main-ctrl=+0.000 [-0.256,+0.224] t=77s
+CERTCOLD b= 1 sliding L=8 ctrl=10.88 ctrl2=10.88 main=10.85 ctrl2-ctrl=+0.000 [+0.000,+0.064] main-ctrl=+0.000 [+0.000,+0.096] t=78s
+CERTCOLD b= 1 full    L=8 ctrl=18.98 ctrl2=18.94 main=18.88 ctrl2-ctrl=+0.000 [-0.096,+0.064] main-ctrl=-0.032 [-0.128,+0.064] t=78s
+CERTCOLD b=16 sliding L=8 ctrl=15.58 ctrl2=15.55 main=15.62 ctrl2-ctrl=-0.064 [-0.160,+0.064] main-ctrl=+0.064 [-0.064,+0.192] t=78s
+CERTCOLD b=16 full    L=8 ctrl=112.61 ctrl2=112.86 main=112.58 ctrl2-ctrl=+0.192 [-0.064,+0.448] main-ctrl=+0.160 [-0.128,+0.448] t=78s
+CERTCOLD b=32 sliding L=8 ctrl=19.71 ctrl2=19.58 main=19.65 ctrl2-ctrl=-0.096 [-0.224,+0.000] main-ctrl=-0.032 [-0.160,+0.032] t=78s
+CERTCOLD b=32 full    L=8 ctrl=192.38 ctrl2=192.19 main=192.32 ctrl2-ctrl=-0.064 [-0.576,+0.224] main-ctrl=+0.160 [-0.288,+0.544] t=78s
+CERTDONE t=78s
+CERTSUM b= 1 sliding L=1 ctrl=9.25 ctrl2=9.02 main=9.02 ctrl2-ctrl=-0.192 [-0.224,-0.032] main-ctrl=-0.192 [-0.224,+0.000]
+CERTSUM b= 1 full    L=1 ctrl=17.18 ctrl2=16.96 main=16.96 ctrl2-ctrl=-0.256 [-0.352,-0.160] main-ctrl=-0.224 [-0.320,-0.128]
+CERTSUM b=16 sliding L=1 ctrl=12.93 ctrl2=12.90 main=12.99 ctrl2-ctrl=-0.064 [-0.160,+0.032] main-ctrl=+0.032 [-0.064,+0.160]
+CERTSUM b=16 full    L=1 ctrl=100.51 ctrl2=100.61 main=100.42 ctrl2-ctrl=-0.064 [-0.224,+0.096] main-ctrl=-0.128 [-0.288,+0.000]
+CERTSUM b=32 sliding L=1 ctrl=15.74 ctrl2=15.74 main=15.68 ctrl2-ctrl=+0.032 [-0.096,+0.160] main-ctrl=+0.000 [-0.096,+0.096]
+CERTSUM b=32 full    L=1 ctrl=179.42 ctrl2=179.55 main=179.49 ctrl2-ctrl=+0.000 [-0.192,+0.288] main-ctrl=+0.000 [-0.256,+0.224]
+CERTSUM b= 1 sliding L=8 ctrl=10.88 ctrl2=10.88 main=10.85 ctrl2-ctrl=+0.000 [+0.000,+0.064] main-ctrl=+0.000 [+0.000,+0.096]
+CERTSUM b= 1 full    L=8 ctrl=18.98 ctrl2=18.94 main=18.88 ctrl2-ctrl=+0.000 [-0.096,+0.064] main-ctrl=-0.032 [-0.128,+0.064]
+CERTSUM b=16 sliding L=8 ctrl=15.58 ctrl2=15.55 main=15.62 ctrl2-ctrl=-0.064 [-0.160,+0.064] main-ctrl=+0.064 [-0.064,+0.192]
+CERTSUM b=16 full    L=8 ctrl=112.61 ctrl2=112.86 main=112.58 ctrl2-ctrl=+0.192 [-0.064,+0.448] main-ctrl=+0.160 [-0.128,+0.448]
+CERTSUM b=32 sliding L=8 ctrl=19.71 ctrl2=19.58 main=19.65 ctrl2-ctrl=-0.096 [-0.224,+0.000] main-ctrl=-0.032 [-0.160,+0.032]
+CERTSUM b=32 full    L=8 ctrl=192.38 ctrl2=192.19 main=192.32 ctrl2-ctrl=-0.064 [-0.576,+0.224] main-ctrl=+0.160 [-0.288,+0.544]
+CERTSUM sass_ctrl2 ctrl2_vs_ctrl functions=15/15 identical=15 differing=0 attn_one_kernel_identical=13/13 ctrl_kernel_digest=5983a332ea668d3c
+CERTSUM sass_main main_vs_ctrl functions=15/15 identical=15 differing=0 attn_one_kernel_identical=13/13 ctrl_kernel_digest=5983a332ea668d3c
+CERTSUM bit ctrl2=equal12/diff12 main=equal14/diff10
+CERTSUM chk failing=0
