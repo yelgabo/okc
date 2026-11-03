@@ -4,12 +4,18 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 21:44 UTC](2026-11-03-driver-monitor-2144.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 22:40 UTC](2026-11-03-driver-monitor-2240.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 3 22:40 UTC — new public routing release and exact confirmation history
+
+[Current monitor](2026-11-03-driver-monitor-2240.md): own public `9d80ae2494334136`/`g1b4_rs.py`01426b89 is board-verified **10343.105996us/2.186992960x**, PASS13/12/12, overall/layer355;0.30372% lower elapsed than priorPDL8d, not matched whole-layer attribution. OnlyT1routing changes. Privatef8a10297.394860us disabledT8 after final stress drift and missed its frozen stress/verify1full clauses; public preparation instead passed its inherited relative gate with allT1/T8/T16/T32 on and all sixT8edges. Commit7799 conditionally approved submission, while3c5 records lead submission despite private misses; no separate user waiver is retained. Existing lead owns one explicit condition disposition; root does not withdraw/resubmit or add a reply gate. PDL8f failed its keep and8g stopped on the box with no judge check; lane closed. BF16 clean selected-twin task remains open. Audit reader now binds CLI exports to a fresh own-job index, rather than silently skipping the new receipt format:11tests pass, corrected17leads/zero gaps, with469older/unlisted exports explicitly excluded. Source/approval history and older checkpoints remain below.
+
+Incoming14:47Pacific **1c332a23** supersedes the ongoing PDL stop prospectively: user chose build-timePDL enablement plus a coarse abort guard, and lead opened existing-owner **PDL8h onRS**, box A/B first then one layer check. Keep<10297.4us, allT on, verify1<109.7/122.6, decode16<127.1/211.4; lead submits on that keep without another ask. No accepted8hjob/result is established. This does not rewrite old frozen outcomes or the historical routing-confirmation disposition. See the current monitor's incoming addendum.
 
 ## November 3 14:15 PT — PDL8f closed, one final gate, and routing release authority reconciled
 

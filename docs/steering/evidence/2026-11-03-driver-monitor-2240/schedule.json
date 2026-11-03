@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-11-03T22:40:29.414164+00:00",
+  "page": "https://openkernelchallenge.dev/",
+  "assets": [
+    {
+      "asset": "https://openkernelchallenge.dev/theme-init.js",
+      "sha256": "64d9f7767b081d8e388e4ae17f6a677a0b7d1b3bd47e88ed897534095f566dd7",
+      "schedule_snippets": []
+    },
+    {
+      "asset": "https://openkernelchallenge.dev/assets/index-DsBuz7Qf.js",
+      "sha256": "c2b75cb752eaf76ecbc305e067dfe54d3733984549efff4d8c10db2157cfbd51",
+      "schedule_snippets": [
+        "step:[`muse_bf16_proj`,`muse_moe_w4a16`,`muse_attention_decode`,`muse_decode_layer`],schedule:{launch:`2026-10-22T11:00:00-07:00`,kernels_closes:`2026-11-05T00:00:00-08:00`,serving_opens:`2026-11-05T12:00:00-08:00`,serving_closes:`2026-11-20T00:00:00-08:00`},problems:[{name:`muse_bf16_proj`,gpu:`H200`,t",
+        "`;return`${Ln(t)}, ${i}`}function Bn(e,t,n){let r=Date.now();return{text:e,live:r>=t.getTime()&&r<n.getTime()}}var Vn=j.launch&&j.kernels_closes&&j.serving_opens&&j.serving_closes?{kernels:Bn(`${j.launch.length>10?zn(j.launch):Ln(In(j.launch))} \u2013 ${zn(j.kernels_closes)} PT`,j.launch.length>10?In(j.launc",
+        "h):new Date(In(j.launch).getTime()-432e5),In(j.kernels_closes)),serving:Bn(`${zn(j.serving_opens)} \u2013 ${zn(j.serving_closes)} PT`,In(j.serving_opens),In(j.serving_closes))}:{},Hn=600,Un=238,Wn=24,Gn=552,Kn=572,qn=8e4,Jn=20"
+      ]
+    }
+  ]
+}

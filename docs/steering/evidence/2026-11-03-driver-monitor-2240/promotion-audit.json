@@ -1,0 +1,112 @@
+{
+  "observed_at": "2026-11-03T22:46:57.572172+00:00",
+  "command": [
+    "python",
+    "tools/release_audit.py",
+    "--snapshots",
+    ".build\\driver-monitor-2240\\public-snapshots",
+    "--own-jobs",
+    ".build\\driver-monitor-2240\\own-jobs.json",
+    "--out",
+    ".build\\driver-monitor-2240\\release-audit-bound.json",
+    "--ledger",
+    "docs/releases/promotion-queue.json",
+    "--check"
+  ],
+  "exit_code": 0,
+  "initial_raw_only_check": {
+    "lower_private_leads": 16,
+    "promotion_gaps": [],
+    "limitation": "CLI exports silently excluded by prior reader; not full receipt coverage"
+  },
+  "corrected_result": {
+    "promotion_gaps": [],
+    "leads": 17,
+    "scope": "Saved JSON, including archives and ignored files. CLI exports included only for clean matching jobs in the explicitly supplied 50-job index; unlisted exports excluded. This is not full historical CLI coverage. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+    "cli_export_coverage": {
+      "own_jobs_index": ".build\\driver-monitor-2240\\own-jobs.json",
+      "indexed_jobs": 50,
+      "exports_seen": 498,
+      "bound_clean_exports": 29,
+      "excluded_no_index": 0,
+      "excluded_unlisted": 469,
+      "excluded_unclean_job": 0,
+      "distinct_bound_jobs": 28
+    }
+  },
+  "public": {
+    "muse_moe_w4a16": {
+      "job": "2821fdb184d740b1",
+      "score_us": 5737.988910262929,
+      "rank": 355,
+      "speedup": 2.3438,
+      "snapshot": ".build\\driver-monitor-2240\\public-snapshots\\muse_moe_w4a16.leaderboard.json"
+    },
+    "muse_bf16_proj": {
+      "job": "9eba96894ee1402e",
+      "score_us": 3161.918773020326,
+      "rank": 252,
+      "speedup": 1.5278,
+      "snapshot": ".build\\driver-monitor-2240\\public-snapshots\\muse_bf16_proj.leaderboard.json"
+    },
+    "muse_attention_decode": {
+      "job": "8914751e3b9f468b",
+      "score_us": 1446.1905945986007,
+      "rank": 288,
+      "speedup": 2.6043,
+      "snapshot": ".build\\driver-monitor-2240\\public-snapshots\\muse_attention_decode.leaderboard.json"
+    },
+    "muse_decode_layer": {
+      "job": "9d80ae2494334136",
+      "score_us": 10343.105996394634,
+      "rank": 355,
+      "speedup": 2.187,
+      "snapshot": ".build\\driver-monitor-2240\\public-snapshots\\muse_decode_layer.leaderboard.json"
+    },
+    "muse_prefill_layer": {
+      "job": "1530ec79d50a4f69",
+      "score_us": 318441.9905489318,
+      "rank": 657,
+      "speedup": 1.2166,
+      "snapshot": ".build\\driver-monitor-2240\\public-snapshots\\muse_prefill_layer.leaderboard.json"
+    }
+  },
+  "clean_passing_receipts": 238,
+  "new_cli_lead": {
+    "job": "f8a55f1043804158",
+    "problem": "muse_decode_layer",
+    "mode": "check",
+    "score_us": 10297.394859538828,
+    "speedup": 2.1967012344919494,
+    "ci": [
+      2.16375071597457,
+      2.2296517530093283
+    ],
+    "finished_at": null,
+    "content_hash": null,
+    "payload_ref": null,
+    "markers": [],
+    "receipt_format": "cli-export",
+    "ownership_basis": "explicit own-jobs index",
+    "record_counts": {
+      "test": 13,
+      "benchmark": 12,
+      "profile": 12
+    },
+    "record_count_basis": {
+      "test": "export summary; individual test records unavailable",
+      "benchmark": "export records",
+      "profile": "export records"
+    },
+    "receipt_paths": [
+      "muse_decode_layer\\cand\\profiles\\g1b4_rs.f8a55f1043804158.json"
+    ],
+    "receipt_formats": [
+      "cli-export"
+    ],
+    "public_job": "9d80ae2494334136",
+    "public_score_us": 10343.105996394634,
+    "elapsed_reduction_pct": 0.44194787205834585,
+    "numerical_lead_only": true
+  }
+}
