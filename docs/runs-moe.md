@@ -5546,3 +5546,59 @@ ATOMG counts (12 / 11 / 4 / 47 / 11 / 9); instructions 5,420 against 5,228 and 5
 Own private check `19128cda79ca4e25`, accepted 2026-11-02 23:4x PT (8 MoE checks were left; another
 owner's public MoE run f9f37b46225b4980 was queued at the time and is not ours). Sole waiter writes
 `muse_moe_w4a16/profiles/tiny_timeline.19128cda79ca4e25.status.json` and `.log`. Result pending.
+
+MOE-TL-01 terminal `19128cda79ca4e25`: PASS 5 tests / 6 benchmarks, prepare 179.9 s, no flags. Score 5,845.9 us
+(2.3005x, CI 2.266-2.335); medians T1 26.57 / T8 69.52 / T16 94.85 / T32 125.61 / T128 177.46 / T256 213.14 us
+against the public release's 26.73 / 67.21 / 93.96 / 127.56 / 180.87 / 217.35: every cell inside the judge's
+noise, as expected for a dormant instrument (not a candidate). The instrumented launch's output equals the plain
+launch's at T = 1 (same=1) and differs by 3.05e-5 at T = 8 (the FP32 sum-of-squares atomics' order). Status and
+log: `muse_moe_w4a16/profiles/tiny_timeline.19128cda79ca4e25.status.json`, `.log`. `globaltimer` resolution:
+the smallest unit interval seen is 1.120 us with every per-unit stamp a multiple of 32 ns.
+
+Timelines on the judge's own inputs (us from the first CTA's entry; min / mean / max over the 132 CTAs):
+
+| T = 1, 2 local jobs, 1,536 units, nA 7-8, nB 3-4 per CTA | min | mean | max |
+|---|---:|---:|---:|
+| routing and ranges done | 2.2 | 2.3 | 2.5 |
+| first ring slot full (2 units preissued at entry) | 2.8 | 3.1 | 3.8 |
+| last phase A unit retired | 12.4 | 13.5 | 14.1 |
+| helper's doneA credit | 13.5 | 14.8 | 15.3 |
+| doneA wait start / end | 12.8 / 15.6 | 14.0 / 15.7 | 14.5 / 15.9 |
+| last phase B unit retired | 19.4 | 20.5 | 20.9 |
+| grid barrier arrive / release | 20.0 / 22.3 | 21.1 / 22.4 | 21.5 / 22.6 |
+| exit | 22.5 | 22.6 | 23.1 |
+
+Per unit (warp 0's retire interval): phase A 1.2 us (1.1-1.3), phase B 1.1 (1.0-1.3). Warp 0's total wait for
+weights: 0.6 us in A (0.4-1.3), 0.2 in B; for a free partial buffer 0.4 in A, 0.2 in B. Mean CTA: ramp 3.1,
+A 10.4, A end to dependency released 2.2 (wait 1.7), B 4.8, B end to barrier arrive 0.7, barrier idle 1.2 (0.9-2.4),
+final pass 0.2.
+
+| T = 8, 6 local jobs, 4,608 units, nA 23-24, nB 11-12 per CTA | min | mean | max |
+|---|---:|---:|---:|
+| routing and ranges done | 2.3 | 2.5 | 2.7 |
+| first ring slot full | 3.1 | 3.5 | 4.9 |
+| last phase A unit retired | 31.5 | 32.5 | 34.4 |
+| helper's doneA credit | 32.4 | 33.5 | 35.2 |
+| doneA wait start / end | 31.9 / 34.1 | 32.9 / 34.7 | 34.9 / 35.8 |
+| last phase B unit retired | 46.8 | 48.4 | 50.8 |
+| grid barrier arrive / release | 47.5 / 52.4 | 49.1 / 52.5 | 51.6 / 52.7 |
+| exit | 52.6 | 52.9 | 53.5 |
+
+Per unit: A 1.2 us (1.2-1.7), B 1.1 (1.0-1.2); warp 0's weights wait 2.0 us over 23.5 A units (1.6-3.2), 0.5 in B;
+buffer wait 1.2 in A, 0.4 in B. Mean CTA: ramp 3.5, A 29.0, handoff 2.2 (wait 1.8), B 13.7, B end to arrive 0.7,
+barrier idle 3.5 (1.0-5.2), final 0.4. The synthetic prepare-time runs (cold, after the build) show the same
+shape with a longer ramp (3.9) and more A waiting (2.5 us at T = 1, 2.7 at T = 8).
+
+Reading (measured): the unit loop runs at 1.1-1.2 us per 36,864-byte unit whether the data waited in the ring
+or not (phase B's units are in smem before the wait ends and still take 1.1 us), and warp 0 waits for weights
+under 0.1 us per unit, so at T <= 8 the compute warps' issue rate and the 3-slot stream (about 1.0 us per unit,
+"Skinny weight stream" above) bound the loop at the same rate; the stream is at 4.1-4.3 TB/s aggregate while it
+runs. The exposed non-stream time at T = 1 is 7.4 us of 22.6: ramp 3.1 (the first wave of 264 units, 9.7 MB, is
+bandwidth-bound), handoff 2.2 (1.3 of it the helper's fence and credit after the compute warps' last A unit, the
+rest the slowest CTA of the job), tail 2.1 (finish spread 1.5 from the 10-12 unit per-CTA counts and rate
+variance, 0.9 barrier latency). At T = 8 the tail is 4.2 us (spread 4.1, counts 34-36 per CTA), the handoff 2.2,
+the ramp 3.5. The phase B weights wait is 0.2-0.5 us, so an L2 prefetch of phase B units across the handoff
+(the directive's first expected candidate) has nothing to recover and was not dispatched. Candidates in order of
+measured exposure: (1) a balanced per-CTA A + B unit count (OKC_BAL: phase B ranges chosen so every CTA carries
+11-12 units at T = 1 and 34-35 at T = 8, 1 unit less spread, about 1 us), (2) more issue capacity in the unit
+loop (16 compute warps) if the stream can run faster than 1.1 us per unit, (3) the helper's credit lag.

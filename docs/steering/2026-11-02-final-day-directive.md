@@ -48,4 +48,4 @@ hash, affected cells before and after, decision. Chat-only results do not count.
 
 ## Ledger
 
-- MoE worker, step 1: timeline check `19128cda79ca4e25`, source `muse_moe_w4a16/cand/tiny_timeline.py` (acfd73c5) from the release 5df257af; Tiny / Tiny2 stamps gated off in the timed path, B4 / MAIN bytes unchanged. Cells before (public 4aa033ef23a142cd): T1 26.73, T8 67.21 us. Result pending; see docs/runs-moe.md "MOE-TL-01".
+- MoE worker, step 1: timeline check `19128cda79ca4e25`, source `muse_moe_w4a16/cand/tiny_timeline.py` (acfd73c5) from the release 5df257af; Tiny / Tiny2 stamps gated off in the timed path, B4 / MAIN bytes unchanged. Cells before (public 4aa033ef23a142cd): T1 26.73, T8 67.21 us; after (dormant instrument, not a candidate) 26.57 / 69.52, score 5,845.9. Timeline: T1 kernel 22.6 us = ramp 3.1 + A 10.4 + handoff 2.2 + B 4.8 + tail 2.1; T8 52.9 us with a 4.1 us finish spread; unit loop 1.1-1.2 us per unit with almost no weights waits, so no L2-prefetch candidate. Next: balanced per-CTA unit counts (+16 compute warps if it compiles). See docs/runs-moe.md "MOE-TL-01".
