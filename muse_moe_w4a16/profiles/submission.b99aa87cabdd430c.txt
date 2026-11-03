@@ -1,0 +1,47 @@
+okc run b99aa87cabdd430c on muse_moe_w4a16
+submission  /Users/gretchengabo/GitHub/okc/muse_moe_w4a16/submission.py
+status      ok
+passed      true
+speedup     2.0336764430862564
+speedup_ci  [2.0031712964399624 2.06418158973255]
+score_us    6612.900516067783
+tests       5/5 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+bs=1 load=decode 1 sharding=ep8                               78.50      28.60   2.744x      11.42  
+bs=16 load=decode 16 sharding=ep8                            187.46      97.73   1.918x      52.52  
+bs=32 load=decode 32 sharding=ep8                            212.29     138.25   1.535x      70.76  
+bs=8 load=verify 1 sharding=ep8                              140.85      66.92   2.105x      37.32  
+bs=128 load=verify 16 sharding=ep8                           472.22     244.62   1.930x     101.34  
+bs=256 load=verify 32 sharding=ep8                           612.85     284.51   2.154x     108.94  
+
+profile 0: bs=1 load=decode 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_8_4_0::moe_fused_kernel<1>...      38.7 µs 100.0%      1
+total                                                             38.7 µs
+
+profile 1: bs=16 load=decode 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_8_4_0::moe_fused_kernel<1>...      81.8 µs 100.0%      1
+total                                                             81.8 µs
+
+profile 2: bs=32 load=decode 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_8_4_0::moe_fused_kernel<1>...     113.7 µs 100.0%      1
+total                                                            113.7 µs
+
+profile 3: bs=8 load=verify 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_8_4_0::moe_fused_kernel<1>...      87.9 µs 100.0%      1
+total                                                             87.9 µs
+
+profile 4: bs=128 load=verify 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe_main_kernel<20>((anonymou...     207.8 µs 100.0%      1
+total                                                            207.8 µs
+
+profile 5: bs=256 load=verify 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe_main_kernel<20>((anonymou...     295.2 µs 100.0%      1
+total                                                            295.2 µs

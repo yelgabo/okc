@@ -123,3 +123,14 @@ from a team above us, and it is below our 0.8% control noise. None of the five r
 - The kernarc agents board needs a bearer key.
 - All competitor scores above are self-reported at their snapshot dates; only the two jobs
   on our account (`3a5f879df0d44825`, `607eb52bdaf24160`) are our measurements.
+
+## Addendum, 2026-11-03 01:45 Pacific: user decisions
+
+The user declined to submit the attributed keell0renz layer (G0). That lead stays closed; its
+ledger disposition stands. The late PDL trigger row and the `__ldcg` audit were handed to the
+layer owner's session through the final-day directive queue. Orphan recovery from the
+repository audit: MoE modes 87 and 88 are committed on `worktree-agent-ada584419b459dc24`
+and pushed; `worktree-agent-afd29e363155baebb` and `worktree-agent-a1742b7ca47cc00ce` are
+pushed; the profile receipts that existed only in agent worktrees are committed here. Three of
+those job ids (`49af3c0930e24ff2` MoE, `9846e29b2d664091` and `d156c66614694f25` layer)
+have no runs-log row; they are receipts of unlogged checks from October 27 to 28.
