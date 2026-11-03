@@ -63,3 +63,6 @@ The sole foreground collector is exec session56587, `okc status e044121f822d47b1
 
 
 While the accepted job waits, an additional strict-reader CPU test passes on a synthetic capsule using the archived official receipt schema. It validates complete source binding and rejects wrong-job, changed-runtime, missing timing-row and short-capture cases. This test is reader coverage, not a target result. [Reader check](evidence/2026-11-02-moe-bqueue/cpu-reader.txt).
+
+
+An offline SASS count confirms512HGMMA instructions,48 full WGMMA drains and84 async fences per bool entry in both arms. Candidate LDL/STL arezero; B4 control has8/1. Counts are code-generation evidence, not an ordering proof or timing result. [Operation audit](evidence/2026-11-02-moe-bqueue/sass-operation-audit.json). Root ownership instructions now load the user's MoE/BF16 reassignment and paused-reminder rule automatically.
