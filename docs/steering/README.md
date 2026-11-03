@@ -2,7 +2,7 @@
 
 ## D32 upstream routing observer
 
-[D32-ATTN-06](decode32/2026-11-02-16-explicit-route-observer.md) replaces frame inspection with explicit source tags after an HTTP422 pre-acceptance rejection. Six CPU Torch tests pass and device compiler inputs are unchanged. One private diagnostic follows exact-source publication and fresh shared preflight. The strict route gate remains; this instrument cannot qualify a timing gain. B4 phase attribution remains with CUDA Optimizer.
+[D32-ATTN-06](decode32/2026-11-02-16-explicit-route-observer.md) replaces frame inspection with explicit source tags after an HTTP422 pre-acceptance rejection. Six CPU Torch tests pass and device compiler inputs are unchanged. Private diagnostic `8b1e364dafb54c71`, source `00193aa2` published in `a7e08ee4`, is accepted after fresh no-live/16-check preflight. Decode32 Worker owns its single waiter. The strict route gate remains; this instrument cannot qualify a timing gain. B4 phase attribution remains with CUDA Optimizer.
 
 ## Monitoring snapshot: routing diagnostic terminal, next observer defined
 

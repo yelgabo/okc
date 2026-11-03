@@ -2,7 +2,7 @@
 
 ## Current execution: corrected observer ready for one private check
 
-[D32-ATTN-06](2026-11-02-16-explicit-route-observer.md) replaces frame inspection with fixed source call-site labels after the first observer was rejected before job acceptance. Source `00193aa2` has six passing CPU Torch tests and unchanged device compiler inputs. Execute one private diagnostic after publication and fresh shared preflight. It preserves the strict route gate and cannot qualify timing. There is no qualified next D32 kernel mechanism yet. Research needs selected B4 phase/tail exposure and a concrete treatment, or a measured T32 pool/router fallback; CUDA Optimizer retains the independent phase study.
+[D32-ATTN-06](2026-11-02-16-explicit-route-observer.md) replaces frame inspection with fixed source call-site labels after the first observer was rejected before job acceptance. Source `00193aa2` has six passing CPU Torch tests and unchanged device compiler inputs. Private diagnostic `8b1e364dafb54c71` is accepted for source `00193aa2` from `a7e08ee4`. Follow the existing own-ID waiter, exec session `17959`; do not submit another copy. It preserves the strict route gate and cannot qualify timing. There is no qualified next D32 kernel mechanism yet. Research needs selected B4 phase/tail exposure and a concrete treatment, or a measured T32 pool/router fallback; CUDA Optimizer retains the independent phase study.
 
 ## Routing diagnostic terminal: prepare upstream observability
 

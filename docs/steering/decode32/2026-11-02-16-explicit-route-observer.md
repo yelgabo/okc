@@ -21,3 +21,7 @@ Publish and verify these exact bytes, check fresh shared jobs/quota, then submit
 ## Next optimization queue
 
 There is no qualified new D32 kernel treatment after this technical investigation. The precise missing evidence is selected-path exposure at the incumbent's B4 entry, A-to-B handoff or tail, plus a concrete treatment and C32 budget. CUDA Optimizer owns that independent attribution study. The observer will also record the actual T32 pool/router choice, which is required before proposing another fusion. Existing prefix, NS4, scale and grouping closures remain. Research should refill the D32 inbox with a source-qualified mechanism rather than another tuning sweep. This missing optimization evidence does not block the already implemented routing diagnostic.
+
+## Accepted private diagnostic
+
+Own check `8b1e364dafb54c71` was accepted for source `00193aa2`, published in `a7e08ee4`. [Accepted receipt](evidence/D32-ATTN-06/accepted.json) and fresh preflight are archived beside the payload. No jobs were live and 16 private layer checks were available. The existing foreground waiter is exec session `17959`, writing `status-wait.raw.json`. Follow that session and own ID only. Target outcome is pending; neither the rejection nor this acceptance establishes a kernel gain.
