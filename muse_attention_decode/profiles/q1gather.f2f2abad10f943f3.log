@@ -1,0 +1,81 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+ABBUILD ctrlb ['-DONE_ATTRIB_ONLY=1'] own_state=True loaded t=34s
+ABBUILD nc_probe ['-DONE_PROBE=1', '-DONE_ATTRIB_ONLY=1'] own_state=True loaded t=68s
+ABBUILD g6_probe ['-DONE_PROBE=6', '-DONE_ATTRIB_ONLY=1'] own_state=True loaded t=102s
+ABBUILD g7_probe ['-DONE_PROBE=7', '-DONE_ATTRIB_ONLY=1'] own_state=True loaded t=136s
+ABBUILD g8_probe ['-DONE_PROBE=8', '-DONE_ATTRIB_ONLY=1'] own_state=True loaded t=169s
+ABBUILD g9_probe ['-DONE_PROBE=9', '-DONE_ATTRIB_ONLY=1'] own_state=True loaded t=203s
+Q1RESOURCE ctrl ok=True L,mode,resident,dynamic_bytes,blocks_per_sm=[[1, 49, 264, 58960, 2]]
+Q1RESOURCE ctrlb ok=True L,mode,resident,dynamic_bytes,blocks_per_sm=[[1, 49, 264, 58960, 2]]
+Q1RESOURCE nc_probe ok=True L,mode,resident,dynamic_bytes,blocks_per_sm=[[1, 49, 264, 58960, 2]]
+Q1RESOURCE g6_probe ok=True L,mode,resident,dynamic_bytes,blocks_per_sm=[[1, 49, 264, 58960, 2]]
+Q1RESOURCE g7_probe ok=True L,mode,resident,dynamic_bytes,blocks_per_sm=[[1, 49, 264, 58960, 2]]
+Q1RESOURCE g8_probe ok=True L,mode,resident,dynamic_bytes,blocks_per_sm=[[1, 49, 264, 58960, 2]]
+Q1RESOURCE g9_probe ok=True L,mode,resident,dynamic_bytes,blocks_per_sm=[[1, 49, 264, 58960, 2]]
+ABCHECK PASS ctrl b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] err=1.788e-03 bound=0.052 worst_row=8.310e-03 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrlb b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/16384 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE nc_probe b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=1.1e+00 diff_elems=16378/16384 max_ulp=496.0 max_abs=3.8e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE g6_probe b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=1.0e+00 diff_elems=16384/16384 max_ulp=255.0 max_abs=2.6e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE g7_probe b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=3.2e-01 diff_elems=16239/16384 max_ulp=501.0 max_abs=2.3e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE g8_probe b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=1.0e+00 diff_elems=16384/16384 max_ulp=255.0 max_abs=2.6e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE g9_probe b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=1.0e+00 diff_elems=16384/16384 max_ulp=255.0 max_abs=2.6e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b32 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] err=1.889e-03 bound=0.055 worst_row=1.685e-02 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrlb b32 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/32768 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE nc_probe b32 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=1.1e+00 diff_elems=32756/32768 max_ulp=505.0 max_abs=3.5e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE g6_probe b32 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=1.0e+00 diff_elems=32768/32768 max_ulp=255.0 max_abs=2.6e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE g7_probe b32 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=3.2e-01 diff_elems=32536/32768 max_ulp=500.0 max_abs=3.4e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE g8_probe b32 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=1.0e+00 diff_elems=32768/32768 max_ulp=255.0 max_abs=2.6e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE g9_probe b32 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=1.0e+00 diff_elems=32768/32768 max_ulp=255.0 max_abs=2.6e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK done: 0 failing t=204s
+ABORDER seed=311401 rounds=120 inputs=2 timing_seeds=[1000, 1001] arms=['ctrl', 'ctrlb', 'nc_probe', 'g6_probe', 'g7_probe', 'g8_probe', 'g9_probe']
+ABPLAN b=16 full    L=1 ctrl=[splits=264,nc=1,mode=49] ctrlb=[splits=264,nc=1,mode=49] nc_probe=[splits=264,nc=1,mode=49] g6_probe=[splits=264,nc=1,mode=49] g7_probe=[splits=264,nc=1,mode=49] g8_probe=[splits=264,nc=1,mode=49] g9_probe=[splits=264,nc=1,mode=49]
+ABCOLD b=16 full    L=1 in=0 ctrl=100.54 ctrlb=100.54 nc_probe=76.03 g6_probe=98.05 g7_probe=93.66 g8_probe=91.36 g9_probe=110.37 cap0=g9_probe t=204s
+ABWARM b=16 full    L=1 in=0 ctrl=87.54 ctrlb=87.49 nc_probe=70.75 g6_probe=85.45 g7_probe=81.73 g8_probe=79.27 g9_probe=99.60 t=204s
+ABCOLD b=16 full    L=1 in=1 ctrl=101.15 ctrlb=101.06 nc_probe=75.62 g6_probe=98.59 g7_probe=93.92 g8_probe=91.97 g9_probe=111.04 cap0=nc_probe t=204s
+ABWARM b=16 full    L=1 in=1 ctrl=88.05 ctrlb=88.05 nc_probe=71.06 g6_probe=86.15 g7_probe=81.80 g8_probe=79.94 g9_probe=100.15 t=204s
+ABCOLD b=16 full    L=1 pooled ctrl=100.90 ctrlb=100.80 nc_probe=75.87 g6_probe=98.34 g7_probe=93.79 g8_probe=91.71 g9_probe=110.69
+ABWARM b=16 full    L=1 pooled ctrl=87.87 ctrlb=87.79 nc_probe=71.04 g6_probe=85.86 g7_probe=81.74 g8_probe=79.77 g9_probe=99.97
+ABPLAN b=32 full    L=1 ctrl=[splits=264,nc=1,mode=49] ctrlb=[splits=264,nc=1,mode=49] nc_probe=[splits=264,nc=1,mode=49] g6_probe=[splits=264,nc=1,mode=49] g7_probe=[splits=264,nc=1,mode=49] g8_probe=[splits=264,nc=1,mode=49] g9_probe=[splits=264,nc=1,mode=49]
+ABCOLD b=32 full    L=1 in=0 ctrl=178.91 ctrlb=179.04 nc_probe=137.06 g6_probe=175.30 g7_probe=165.79 g8_probe=162.08 g9_probe=199.90 cap0=g7_probe t=205s
+ABWARM b=32 full    L=1 in=0 ctrl=166.24 ctrlb=166.23 nc_probe=132.22 g6_probe=162.66 g7_probe=153.38 g8_probe=149.50 g9_probe=189.23 t=205s
+ABCOLD b=32 full    L=1 in=1 ctrl=180.10 ctrlb=180.10 nc_probe=138.21 g6_probe=176.42 g7_probe=165.34 g8_probe=162.53 g9_probe=201.31 cap0=g9_probe t=205s
+ABWARM b=32 full    L=1 in=1 ctrl=167.50 ctrlb=167.33 nc_probe=133.04 g6_probe=164.12 g7_probe=153.28 g8_probe=150.09 g9_probe=190.21 t=206s
+ABCOLD b=32 full    L=1 pooled ctrl=179.42 ctrlb=179.65 nc_probe=137.66 g6_probe=175.94 g7_probe=165.60 g8_probe=162.34 g9_probe=200.67
+ABWARM b=32 full    L=1 pooled ctrl=167.09 ctrlb=167.02 nc_probe=132.79 g6_probe=163.87 g7_probe=153.32 g8_probe=149.89 g9_probe=189.96
+ABADDR ctrl:acc=0x75d2a000000,l=0x75d1c82e000,cnt=0x75d1c86e000 ctrlb:acc=0x75ce2000000,l=0x75d1c89e000,cnt=0x75d1c8de000 nc_probe:acc=0x75ce3000000,l=0x75d1c8fe000,cnt=0x75d1c93e000 g6_probe:acc=0x75ce4000000,l=0x75d1c95e000,cnt=0x75d1c99e000 g7_probe:acc=0x75ce5000000,l=0x75d1c9be000,cnt=0x75ddfa08200 g8_probe:acc=0x75ce6000000,l=0x75ddfa28200,cnt=0x75ddfa68200 g9_probe:acc=0x75ce7000000,l=0x75ddfa88200,cnt=0x75ddfac8200
+ABSUM cold b=16 full    L=1 ctrl=100.90 ctrlb=100.80 nc_probe=75.87 g6_probe=98.34 g7_probe=93.79 g8_probe=91.71 g9_probe=110.69 d:ctrlb=-0.10 d:nc_probe=-25.02 d:g6_probe=-2.56 d:g7_probe=-7.10 d:g8_probe=-9.18 d:g9_probe=+9.79
+ABSUM warm b=16 full    L=1 ctrl=87.87 ctrlb=87.79 nc_probe=71.04 g6_probe=85.86 g7_probe=81.74 g8_probe=79.77 g9_probe=99.97 d:ctrlb=-0.08 d:nc_probe=-16.83 d:g6_probe=-2.01 d:g7_probe=-6.12 d:g8_probe=-8.09 d:g9_probe=+12.11
+ABSUM cold b=32 full    L=1 ctrl=179.42 ctrlb=179.65 nc_probe=137.66 g6_probe=175.94 g7_probe=165.60 g8_probe=162.34 g9_probe=200.67 d:ctrlb=+0.22 d:nc_probe=-41.76 d:g6_probe=-3.49 d:g7_probe=-13.82 d:g8_probe=-17.09 d:g9_probe=+21.25
+ABSUM warm b=32 full    L=1 ctrl=167.09 ctrlb=167.02 nc_probe=132.79 g6_probe=163.87 g7_probe=153.32 g8_probe=149.89 g9_probe=189.96 d:ctrlb=-0.07 d:nc_probe=-34.30 d:g6_probe=-3.22 d:g7_probe=-13.77 d:g8_probe=-17.20 d:g9_probe=+22.87
+ABIN b=16 full    L=1 in=0 ctrlb=+0.00
+ABIN b=16 full    L=1 in=1 ctrlb=-0.10
+ABIN b=32 full    L=1 in=0 ctrlb=+0.13
+ABIN b=32 full    L=1 in=1 ctrlb=+0.00
+ABCHECKSUM ctrl=2/0/0 ctrlb=2/0/0 nc_probe=0/0/2 g6_probe=0/0/2 g7_probe=0/0/2 g8_probe=0/0/2 g9_probe=0/0/2 (pass/fail/probe)
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:02:00 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop

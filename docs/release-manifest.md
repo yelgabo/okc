@@ -1,9 +1,26 @@
 # Decode-layer release manifest
 
+## Current public board entries (2026-11-03)
+
+One current public entry per problem, read from the judge receipts and `tools/release_audit.py`
+on 2026-11-03. Every other job named in this file is history.
+
+| problem | current public job | speedup | file |
+|---|---|---|---|
+| muse_decode_layer | 607eb52bdaf24160 | 2.1261x (95% CI 2.0942-2.1580), scored 2026-11-01 | `muse_decode_layer/cand/g1b4_stage_release.py`, 869,076 bytes, SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab` |
+| muse_moe_w4a16 | 4aa033ef23a142cd | 2.3232x, 5,788.7 us, scored 2026-11-02 | `muse_moe_w4a16/cand/current_control_release.py`, 320,466 bytes, SHA256 `5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e` (docs/runs-moe.md, "November2 approved standalone base release") |
+| muse_bf16_proj | 9eba96894ee1402e | 1.5278x (C2) | see the retained-best table in the decode-layer section below |
+| muse_attention_decode | 8914751e3b9f468b | 2.6043x | see the retained-best table in the decode-layer section below |
+| muse_prefill_layer | 1530ec79d50a4f69 | 1.2166x | docs/runs-prefill.md |
+
+The detailed current decode-layer section is "Current decode-layer entry 607eb52bdaf24160" below.
+Sections after it are dated history.
+
 ## November1 subsequent eligibility update
 
-Historical standalone MoE bestabe7651dbaa44458 remains the recorded public
-2.215711562x point, but it is **not a source-clear recommendation for a new
+Historical standalone MoE bestabe7651dbaa44458 was, as of November 1, the recorded public
+2.215711562x point (scored 2026-10-30; replaced on the board 2026-11-02 by 4aa033ef23a142cd at
+2.323224880x, see the table at the top), and it was **not a source-clear recommendation for a new
 submission**. Exactec565a7/b35d3217 source and its owning policy/six profiles
 show ordinary launches plus software-grid joins and nonfatal watchdogs in
 both selected skinny and main47 paths. Passing historical tests do not
@@ -18,7 +35,7 @@ progress audit, not a new performance or complete vendor-library proof.
 Layer607e remains the retained recommendation. New public single-arm
 layer1fad70bbe3854cbc is running and is not promoted by this update.
 
-## November 1 current recommendation (18:19 UTC snapshot)
+## Current decode-layer entry 607eb52bdaf24160 (2.1261x): November 1 recommendation (18:19 UTC snapshot)
 
 The current layer board entry is **607eb52bdaf24160**, not the historical
 October31 entry retained below. Use
@@ -35,19 +52,28 @@ Do not substitute the older root submission.py or unqualified private hybrid.
 | Layer |607eb52bdaf24160|2.1260826764x|Exact candidate above|
 | Projection |9eba96894ee1402e|1.5278064830x|C2 at3044ee7; tools/proj_sk_xor_control.py restores exact216576B/SHA5610b8a6 submitted file|
 | Attention |8914751e3b9f468b|2.6042902049x|d3eeeda plus repeatcomment2, SHA b296c13ad2745336e97488e297fcde751a5fc10c818c92b6f2250656369efe75; owning row in docs/runs-attention.md|
+| MoE |4aa033ef23a142cd|2.323224880x|`muse_moe_w4a16/cand/current_control_release.py`,320466B/SHA 5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e; scored 2026-11-02, owning row in docs/runs-moe.md, "November2 approved standalone base release"|
+
+The MoE row was updated on 2026-11-03. Historical MoE row, as this table read on November 1
+(scored 2026-10-30, replaced on the board 2026-11-02):
+
+| Board | Public job until 2026-11-02 | Score | Reproducible source |
+|---|---|---:|---|
 | MoE |abe7651dbaa44458|2.2157115620x|ec565a7:muse_moe_w4a16/submission.py,235700B/SHA b35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14|
 
 Projection's tracked submission.py is C3 and is not the best public C2 source.
 Do not choose it just because of its filename. Global repair2b537518 is closed
 as a measured loss; stage-local measurementdfcfdd01d6f04525 passed all9 official tests but
 scored1.419146839x and is also closed as a loss. Neither is promoted. New source/code/compiler/bit-test clearance alone does not establish
-a release improvement. Prefill remains excluded. The complete historical
+a release improvement. Prefill remains excluded from this recommendation (its public entry is
+in the table at the top). The complete historical
 manifest follows unchanged.
 
-## Board entry verified October31 PDT: attention port on stable M1+51+C1
+## Historical board entry, verified October 31 PDT: 8f2780d7382047e6 (2.022870x), attention port on stable M1+51+C1
 
 Job `8f2780d7382047e6`, scored **2.022870x**,95%CI1.992527–2.053214,13/13tests.
-Official public board was read and selects this job, replacing7b84ed4346d5497b (2.018705x).
+Official public board was read on October 31 and selected this job, replacing7b84ed4346d5497b (2.018705x);
+cb71acec29d141c6 replaced it on November 1 (section at the end of this file).
 Candidate `muse_decode_layer/cand/layer_attn31s.py`, SHA256
 `585d46e2cd059ea7ea76c25110fd199bb228d2ee7f96239b44ae0bfb8025893b`, sourceaea73a1.
 Only the owned attention device source was refreshed from the stable prior candidate;
@@ -65,7 +91,14 @@ on14launches; unchanged-shape1x1 gates skipped as authorized. SUMMARY reports3no
 issues: sensitivity control on unpicked main-m2-ar2-ub@256, sensitivity route-side@128,
 and skf-r@1 fresh-input rejection (T1 usesfp32). Do not erase these by saying every diagnostic
 passed. Selected official path passes; full receipt retained in profiles/scored.8f2780d7382047e6.json.
-Main submission.py remains the older clean control; use the explicit candidate for this entry.
+Main submission.py remained (October 31) the older clean control; use the explicit candidate for this entry.
+
+## October 30 to November 1 history: scored files, policy, candidates and board entries
+
+Everything from here to the end of the file is the October 30 to November 1 record, kept as
+written apart from dated headings and tense. In it, "the board entry", "the release" and "the
+incumbent" mean 3fbb3ad027e84c6b (2.014x, the entry of October 30) unless a section says
+otherwise. None of these is the current entry; that is the table at the top.
 
 The scored layer files, identified by full SHA256 of the file as submitted, with the source
 commit, build switches, the policies prepare() selected in the receipt run, and the receipt.
@@ -178,7 +211,7 @@ Scored run d6c30f88c617438b: 2.013x (1.983-2.043), 13/13, prepare 154.8 s. M1's 
 failed at 1x1 sliding (one replay of 2000 at relative 3.2e-4, control bitwise), so M1 was off
 for the run. At one token M1 changes no launch; analysis and the after-reset reproduction in
 archive/docs/steering/2026-10-30-m1-1x1s-gate-failure.md. Mode 51 ran at 32 / 128 / 256 and every
-MoE gate passed. The board entry is unchanged.
+MoE gate passed. The board entry (3fbb3ad027e84c6b) was unchanged at the time.
 
 layer_m1rt plus MoE mode 51: the combination four-arm bench 40b9b3f795f84073 measured as "cand
 faster" (coordinator's request after layer_m1rt went out as scored run b68bdcd7a1ba464c).
@@ -195,7 +228,7 @@ faster" (coordinator's request after layer_m1rt went out as scored run b68bdcd7a
 | expected effect | 40b9b3f795f84073 measured this combination (pooled 1.0162, +1.2% net of the A/A offset; M1 about +0.4%, 51 about +0.7%). One scored run can resolve neither part |
 | prepare time | not measured; the timed build reached ABEND at 166 s with two prepares of it plus two of the release, and the enforced gate doubles M1's replays |
 
-## Release candidate (2026-10-30): layer_m1rt (scored run b68bdcd7a1ba464c, 2.013x; board entry unchanged)
+## Release candidate (2026-10-30): layer_m1rt (scored run b68bdcd7a1ba464c, 2.013x; board entry 3fbb3ad027e84c6b unchanged at the time)
 
 Scored 2.013x (1.983-2.043), passed 13/13, prepare 143 s, against the board entry's 2.014x. Its log tail lost the SUMMARY (see layer_m1rt51), so whether M1 was on is unknown. The build recipe below is `tools/dl_gate_patch.py` as at dd1777e; at later commits the tool also moves the SUMMARY after the timeline.
 
@@ -230,7 +263,7 @@ Scored 2.013x (1.983-2.043), passed 13/13, prepare 143 s, against the board entr
 | gate coverage | MoE stress and route PDL test, and `_route_variant_check`'s replay part (user decision); still on 1e-4: `_one_stress`, the norm and route side-stream tests |
 | unpatched judge check of this exact file | none (the bench ran it comment-stripped; compiled code identical). a438b82ff2c141c2 checked the first gate version |
 
-## Current board entry: 3fbb3ad027e84c6b (2.014x)
+## Historical board entry, October 30: 3fbb3ad027e84c6b (2.014x)
 
 | field | value |
 |---|---|
@@ -248,7 +281,7 @@ Scored 2.013x (1.983-2.043), passed 13/13, prepare 143 s, against the board entr
 | per shape us (s / f) | d1 77.3 / 82.9, d16 140.8 / 215.7, d32 159.1 / 311.3, v1 121.6 / 130.3, v16 264.0 / 352.5, v32 358.9 / 518.7 |
 | other readings of this file | checks c2ba945496ab47b4 2.006x, 86ced49f092a48d8 1.991x (bench cand arm), 50c4c1328ab742f4 2.003x (bench cand arm), f5ee8632e1f64bf2 (bench cand arm); same process against the release +1.8% (null 0.9987, 50c4c1328ab742f4) |
 
-## Previous board entry: edd71d3152a946fe (1.982x)
+## Historical board entry, October 30, before 3fbb3ad027e84c6b: edd71d3152a946fe (1.982x)
 
 | field | value |
 |---|---|
@@ -261,4 +294,7 @@ Scored 2.013x (1.983-2.043), passed 13/13, prepare 143 s, against the board entr
 | front | 1: fp32; 8 / 16 / 32: skf-r; 128 / 256: concat-r |
 | attention boundary | 1 / 8: c8x256; 16: sglang; 32: c1x1024; 128: sglang; 256: c1x512 |
 | per shape us (s / f) | d1 76.8 / 84.6, d16 138.2 / 221.2, d32 171.3 / 327.9, v1 122.6 / 122.4, v16 270.0 / 356.4, v32 366.5 / 514.3 |
-2026-11-01 new owned layer release: muse_decode_layer/cand/layer_lt_boundary.py SHA256 851c46951e1940b6874d35314d8ff7cc00a966a4718094881c764135ef13392a, paired 828974e3bbcc4d9b, clean 47bec92021ef4bbe, scored cb71acec29d141c6 PASS13 at 2.043438469x. Official board selects this job at rank 373. Separate from Family G.
+
+## Historical board entry, November 1: cb71acec29d141c6 (2.043x, layer_lt_boundary)
+
+2026-11-01 new owned layer release: muse_decode_layer/cand/layer_lt_boundary.py SHA256 851c46951e1940b6874d35314d8ff7cc00a966a4718094881c764135ef13392a, paired 828974e3bbcc4d9b, clean 47bec92021ef4bbe, scored cb71acec29d141c6 PASS13 at 2.043438469x. Official board selected this job at rank 373 on November 1, replacing 8f2780d7382047e6 (2.022870x). Separate from Family G. Superseded the same day by 607eb52bdaf24160 (2.1261x), the current entry; see docs/runs-decode-layer.md, 2026-11-01 rows.
