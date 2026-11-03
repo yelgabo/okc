@@ -64,6 +64,8 @@ For WGMMA grouping, read active constants, prove deferred flush conditions reach
 
 ## Document discovery and publication
 
+Architecture diagrams must label editable scope separately from performance groups. Dense projections covers QKV/gate, O, pooler, unpooler and router GEMMs. Whole-layer scope also includes routing, norms and residual boundaries, with fusion allowed under its numerical and execution contract. A missing speedup badge does not exclude a stage. Cross-GPU communication is outside this layer benchmark. See [scope clarification](docs/steering/2026-11-02-diagram-customization-scope.md).
+
 Filename-unknown requests require checkout/remote confirmation and `rg --files` plus `git ls-files` before content search. Include HTML for visual documents. Widen to hidden/ignored files before a scoped miss; distinguish errors/truncation from empty results. Verify title/content, change retrieval method after user corrections and return searched ref plus verified path/link. Follow [the protocol](docs/repository-file-discovery.md). Keep this root rule for the [October28 correction/evaluation](docs/file-discovery-eval/report.md).
 
 Every substantive steering/audit response belongs in `docs/steering/YYYY-MM-DD-topic.md`, with evidence commit/jobs, measurements versus hypotheses, priorities, next actions, validation/stop criteria and gaps. Update the index/history, preserve old reports and use dated corrections. Commit, push and verify remote files in the same task; return report path and commit. Chat-only answers do not complete handoff. An explicit no-write request overrides this rule.

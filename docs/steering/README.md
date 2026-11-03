@@ -16,6 +16,8 @@ The scored layer remains [public607 source](../../muse_decode_layer/cand/g1b4_st
 
 ## Latest audit
 
+[Diagram customization scope](2026-11-02-diagram-customization-scope.md) separates green performance badges from editable scope. Pooler/router, O, unpooler and all norm/residual boundaries are within the whole-layer problem; the standalone projections problem includes all five dense/router GEMMs.
+
 [Historical documentation archive](2026-11-02-docs-archive.md) moves 1,229 older records outside working `docs/`, with dependency exceptions and repaired citations. Search [archive/docs](../../archive/docs/) explicitly for earlier evidence; its [manifest](../../archive/manifest-2026-11-02.json) maps every moved path.
 
 [Context cleanup](2026-11-02-context-cleanup.md) removes retired source copies, shortens instruction entry points and limits default searches to useful working files. Frozen sources and run evidence remain intact. The [recovery manifest](evidence/2026-11-02-context-cleanup/manifest.json) pins every removed snapshot.
@@ -32,6 +34,7 @@ Publish substantive steering with evidence, source/job pins, decision, next acti
 
 | Report | Evidence and scope |
 |---|---|
+| [Diagram customization scope](2026-11-02-diagram-customization-scope.md) | Live official specs match local task files; performance badges do not define editable scope; no new GPU run |
 | [Historical documentation archive](2026-11-02-docs-archive.md) | 1,229 moved files, preserved raw payloads, 2,270 link targets checked; current reader dependencies retained |
 | [D32 observer budget closure and refill](decode32/2026-11-02-17-observer-budget-closure-and-refill.md) | Own8b1e364dafb54c71/00193aa2, no observer capsule or timing; five conditional pooler selector fixtures; precise D32 research gap |
 | [Context cleanup](2026-11-02-context-cleanup.md) | Base3a961a9d; removed snapshots recoverable from Git; unchanged current sources; verification in owning report |
