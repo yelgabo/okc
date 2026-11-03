@@ -2386,3 +2386,74 @@ Tuner, incumbent vs stream-K (compressed / raw): m = 8 13.7 vs 18.0, raw 15.8 vs
 Judged cells: picks unchanged (qkv8 / qkv16 / qkv32), qkv_gate 9.77 / 9.74 / 10.56 -> 9.69 / 10.11 / 10.88, noise on unchanged kernels. Cells outside noise: o decode 16 +0.51 (unchanged o16 pick), o verify 16 (m = 128) +1.06 (the cuBLASLt stable pick stayed on base this run; C2 had f0), qkv_gate verify 32 (m = 256) +1.77 (same Lt pref pick). None of them runs a new kernel.
 
 Decision: the lane closes and nothing ships. The premise that filling the idle SMs at the 24-row geometry lowers the time is rejected for this kernel: the arm with no reduction at all is slower than 96 CTAs at every bucket, so the per-SM byte count is not what limits qkv at m <= 32, and any join only adds to that. Not attributed (hypothesis): the stage-major stream is laid out so that all CTAs read one contiguous region per stage, while the stream-K CTAs read 128 regions at different k stages at once, which may cost DRAM locality; each CTA also pays the ring fill and the table copies for 6 or 12 stages instead of 8 or 16. Rows in docs/ruled-out.md.
+
+### 2026-11-03 qkv_gate m = 128 wd body (final-day BF16 lane, QKV128-GEO / EPI)
+
+The comparator gap at qkv_gate m = 128 is in the kernel body: C2's tuner picks wd b1n128c3s8h
+in every log (19.2 us in-process vs cuBLAS 21.4, five Lt finalists 19.4-19.6) and three C2-based
+profiles time that kernel at 13.9-14.3 us against 11.6 us for comparator 3c6a2baf's rq (12-bit
+weights, 128-row CTAs, K split 7 with BF16-rounded partials). At m = 256 both files run the same
+nvjet_sm90_tst_72x64 kernel (17.4 vs 17.7-20.0 us): no body gap there.
+
+Check `361d5130d70b48e1` (QKV128-GEO-01, `muse_bf16_proj/experiments/qkv_geo.py` SHA256 317f09b1,
+generator `tools/proj_make_bench_qkv_geo.py` at 8e9192c3): PASS, control-equivalent board run
+3,173.8 us (1.5221x), picks unchanged. Bench build 11.0 s, prepare 91.7 s, bench done at 103 s.
+Resources: every arm 90 regs, 0 local; cluster 3 grids get 39 co-resident clusters (36 needed),
+but cluster 6 gets 17 (18 needed) and cluster 7 gets 15 (18 needed), so b2c6, b2c7, b2c6s7 and mc3
+ran in two waves. Paired cold-L2 graph medians, 100 rounds per input, us:
+
+| arm | in0 raw | d ctrl | in1 d ctrl | in2 d ctrl | faster/100 |
+|---|---:|---:|---:|---:|---:|
+| ctrl (pick) | 20.576 | 0 | 0 | 0 | - |
+| ctrl2 (null) | 20.544 | -0.016 | -0.032 | -0.064 | 50 / 52 / 55 |
+| b2c6 | 33.056 | +12.50 | +12.48 | +12.38 | 0 |
+| b2c7 | 32.224 | +11.62 | +11.71 | +11.68 | 0 |
+| b2c6s7 | 32.704 | +12.16 | +11.94 | +12.21 | 0 |
+| mc3 | 32.352 | +11.78 | +11.73 | +11.81 | 0 |
+| g0s9 | 21.600 | +1.06 | +1.01 | +1.07 | 6 / 8 / 4 |
+| g0_a1 (no wgmma) | 20.096 | -0.51 | -0.45 | -0.51 | 82 / 80 / 81 |
+| g0_a2 (no reduction, no stores) | 19.088 | -1.50 | -1.57 | -1.50 | 99 / 99 / 100 |
+| b2c6_a1 | 28.880 | +8.32 | +8.22 | +8.35 | 0 |
+| b2c6_a2 | 28.640 | +8.06 | +8.00 | +8.24 | 0 |
+
+Null MAD 0.26-0.32 us. Decision: no keep. The 6- and 7-CTA cluster geometries are untested as
+designs (they never ran in one wave on this GPU); a ninth stage loses 1.0 us. Attribution of the
+control: removing every wgmma saves only 0.5 us, so the body is its memory pipeline (about 20 us
+raw of 20.5); the cluster pull reduction plus BF16 stores cost 1.5 us. Next: one-wave 128-row and
+multicast geometries at cluster 4 / 5 (QKV128-GEO-02) and a latency-batched pull reduction
+(QKV128-EPI-01).
+
+Check `d2fdfbb8f0ae43df` (QKV128-GEO-02, `qkv_geo2.py` SHA256 06a5fc7e): PASS, board run 3,191.3 us
+(1.5137x), picks unchanged. All arms one wave (cluster 5: 22 co-resident of 18 needed, cluster 4:
+30 of 18). Medians of paired deltas against ctrl over 3 inputs x 100 rounds, us (null ctrl2-ctrl
+-0.03 / -0.03 / 0.00, MAD 0.19-0.29): b2c5 +1.86 / +1.94 / +1.92, b2c4 +3.42 / +3.46 / +3.46, mc2
++3.62 / +3.78 / +3.74, g0s7 +1.41 / +1.41 / +1.44, g0s6 +2.06 / +2.08 / +2.21 (both bitwise equal to
+ctrl2), b2c5_a1 (no wgmma) +1.20 / +1.06 / +1.09, b2c5_a2 (no reduction) -0.29 / -0.38 / -0.16,
+mc2_a1 +2.11 / +1.95 / +2.10; every candidate 0-2 of 100 rounds faster. Reading: the 128-row and
+multicast geometries cut x bytes per SM but their memory pipelines are 1.6-2.6 us slower than the
+control's on 90 / 72 SMs, and a 5-rank cluster reduction costs 2.2 us. Ring depth 8 is the optimum
+of 6 / 7 / 8 / 9 for this geometry. No keep.
+
+Check `66b657915f2d4f78` (QKV128-EPI-01, `qkv_epi.py` SHA256 812e48ad): PASS, board run 3,180.7 us
+(1.5188x), picks unchanged. epi (all 15 DSMEM loads of a thread before the first sum, bitwise equal
+to ctrl2) -0.05 / -0.14 / -0.13 us against ctrl (53 / 65 / 57 of 100 faster; null 0.00 / -0.08 /
+0.00); epis7 +1.41 / +1.28 / +1.38; g0_a2 floor -1.28 / -1.54 / -1.54. No keep: the 1.5 us that
+removing the reduction saves is not DSMEM load latency. Remaining named cause: the exit cluster
+barrier's release waits for the BF16 stores to drain (proj-port-guide "Split exit barrier", +0.58
+us at m = 128 on the router), tested next as QKV128-TSPLIT-01.
+
+Check `a1e8c702bd8446f6` (QKV128-TSPLIT-01, `qkv_tsplit.py` SHA256 f1df12f6): PASS, board run
+3,236.7 us (1.4925x; picks unchanged, so the board moves are run noise on unchanged kernels).
+Paired against ctrl, 3 inputs x 100 rounds, us (null +0.00 / -0.02 / +0.08, MAD 0.22-0.27): psplit
+(batched pull, arrive.release after the last DSMEM read, wait.acquire before exit, bitwise equal)
+-0.32 / -0.32 / -0.45, 75-77 of 100 faster, -0.40 / -0.26 / -0.42 against ctrl2; epi -0.18 / -0.13
+/ -0.05; g0_a2 floor -1.49 / -1.46 / -1.41. Decision: below the registered 0.5 us gate, no keep.
+The split exit is a consistent 0.3-0.45 us (about 0.09% of the board at verify 16), the other
+1.0-1.1 us of the reduction remains unattributed.
+
+Lane decision: stopped after four checks, two of the six budgeted returned. The control's body is
+its memory pipeline (no-wgmma ablation -0.5 us) and b1n128c3s8h at 8 stages is the fastest of
+twelve same-kernel geometries tested in one wave or two; the pull reduction is 1.5 us, of which
+0.3-0.45 is the exit drain. The comparator's 2.55 us comes with fewer weight bytes (12-bit codec
+at m = 128) and BF16-rounded K-split partials, neither of which this lane tested; at 0.248% per us
+the whole gap is about 0.6% of the board, short of the 3.5% to rank 100.

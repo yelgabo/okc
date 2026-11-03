@@ -1,0 +1,139 @@
+.3 s
+tune o         m= 1: o8 10.1, o8raw 10.4, rdo8 9.5, cgemv 9.3, cublas 10.8 -> cgemv
+tune o         m= 8: o8 9.9, o8raw 10.5, rdo8 9.5, cublas 10.8 -> rdo8
+tune o         m=16: o16 9.9, o16raw 10.5, cublas 10.7 -> o16
+tune o         m=32: o32 10.2, o32raw 11.1, cublas 11.0 -> o32
+tune o         m=64: cublas 11.4, b1n64c2 12.8, m64k2r4 18.0, m64k1r8 14.0 -> cublas
+tune o         m=128: cublas 11.6, b1n64c2 18.8, b1n128c2 14.1, m64k2r4 23.2, m64k1r8 21.5, m128k2r4 20.1, m128k1r4 15.4, m128k1r8 15.6, m128k2r8 20.4, m128k4r2 22.9, b1n128c2s8h 17.2, b1n128c3s8h 24.7 -> cublas
+tune o         m=256: cublas 13.3, b1n128c2 21.7, b2n256c2 17.4, m128k2r4 26.9, m128k1r4 23.5, m128k1r8 24.5, m128k2r8 27.6, m128k4r2 34.8, m256k2r4 29.2, m256k1r4 25.1, m256k1r8 25.7, m256k2r8 30.0, m256k2r2 29.0, b1n128c2s8h 29.2, b1n128c3s8h 39.8 -> cublas
+tune pooler    m= 1: pool8 18.6, pool8raw 22.0, rdp8 17.7, cgemv 17.9, cublas 25.2 -> rdp8
+tune pooler    m= 8: pool8 18.5, pool8raw 22.2, rdp8 17.7, cublas 25.1 -> rdp8
+tune pooler    m=16: pool16 19.0, pool16raw 22.0, cublas 24.5 -> pool16
+tune pooler    m=32: pool32 19.3, pool32raw 22.0, cublas 25.2 -> pool32
+tune pooler    m=64: cublas 26.4, b1n64c2 25.3, m64k2r4 30.1, m64k1r8 39.6 -> b1n64c2
+tune pooler    m=128: cublas 30.0, b1n64c2 32.1, b1n128c2 30.1, m64k2r4 50.9, m64k1r8 49.9, m128k2r4 34.8, m128k1r4 48.4, m128k1r8 50.5, m128k2r8 36.6, m128k4r2 39.7, b1n128c2s8h 26.0, b1n128c3s8h 32.7 -> b1n128c2s8h
+tune pooler    m=256: cublas 35.3, b1n128c2 37.5, b2n256c2 49.6, m128k2r4 61.4, m128k1r4 52.4, m128k1r8 54.0, m128k2r8 64.5, m128k4r2 60.2, m256k2r4 59.2, m256k1r4 53.0, m256k1r8 55.0, m256k2r8 61.6, m256k2r2 59.3, b1n128c2s8h 48.3, b1n128c3s8h 57.8, cut128x64 31.0 -> cut128x64
+tune qkv_gate  m= 1: qkv8 13.6, qkv8raw 15.3, cgemv 12.7, cublas 17.8 -> cgemv
+tune qkv_gate  m= 8: qkv8 14.1, qkv8raw 16.2, cublas 18.4 -> qkv8
+tune qkv_gate  m=16: qkv16 13.9, qkv16raw 16.3, cublas 18.4 -> qkv16
+tune qkv_gate  m=32: qkv32 15.0, qkv32raw 16.1, cublas 18.8 -> qkv32
+tune qkv_gate  m=64: cublas 19.2, b1n64c2 23.0, m64k2r4 23.8 -> cublas
+tune qkv_gate  m=128: cublas 21.2, b1n64c2 27.5, b1n128c2 28.1, m64k2r4 29.7, m128k2r4 29.0, m128k1r4 46.9, m128k4r2 22.9, b1n128c2s8h 22.3, b1n128c3s8h 19.4 -> b1n128c3s8h
+tune qkv_gate  m=256: cublas 23.3, b1n128c2 33.0, b2n256c2 48.8, m128k2r4 32.7, m128k1r4 46.8, m128k4r2 39.5, m256k2r4 32.2, m256k1r4 51.3, m256k2r2 31.9, b1n128c2s8h 39.9, b1n128c3s8h 33.4 -> cublas
+tune router    m= 1: rgemv 8.0, router8 9.5, rt8w8 8.4, rt16w8 8.5, rt16w8p8 8.5, baseline 15.4 -> rgemv
+tune router    m= 8: router8 9.6, rt8w8 8.6, rt16w8 8.5, rt16w8p8 8.5, baseline 30.9 -> rt16w8p8
+tune router    m=16: router16 9.3, rt8w8 9.0, rt16w8 8.8, rt16w8p8 8.8, baseline 20.3 -> rt16w8p8
+tune router    m=32: router32 9.9, rt8w8 11.8, rt16w8 9.6, rt16w8p8 9.7, baseline 21.1 -> rt16w8
+tune router    m=64: baseline 21.6, r64c8 13.2, r64c16 11.3, r64c8s8 11.8, r64c4s8 15.7, rm64k4r4 18.6, r64c8s8k 11.0, r64c4s8a 14.7 -> r64c8s8k
+tune router    m=128: baseline 22.1, r64c8 13.3, r64c16 14.1, r128c8 14.6, r128c16 13.2, r64c8s8 11.9, r64c4s8 15.7, r128c8s6 14.3, rm64k4r4 18.8, rm128k4r4 21.5, r64c8s8k 11.1, r128c8s6k 13.4, r64c4s8a 14.5 -> r64c8s8k
+tune router    m=256: baseline 23.2, r64c8 14.9, r64c16 19.8, r128c8 14.9, r128c16 20.5, r64c8s8 19.2, r64c4s8 16.1, r128c8s6 14.5, rm64k4r4 18.9, rm128k4r4 21.6, r64c8s8k 17.7, r128c8s6k 13.7, r64c4s8a 14.9 -> r128c8s6k
+tune unpooler  m= 1: slice8 8.7, slice8raw 8.9, cgemv 7.6, sgemv 7.9, cublas 11.3 -> cgemv
+tune unpooler  m= 8: slice8 8.7, slice8raw 8.8, cublas 11.3 -> slice8
+tune unpooler  m=16: unp16 18.1, unp16raw 21.8, cublas 22.2 -> unp16
+tune unpooler  m=32: unp32 18.7, unp32raw 22.9, cublas 22.4 -> unp32
+tune unpooler  m=64: cublas 23.5, b1n64c2 24.6, m64k2r4 35.7, m64k1r8 30.3 -> cublas
+tune unpooler  m=128: cublas 23.9, b1n64c2 43.0, b1n128c2 25.7, m64k2r4 52.8, m64k1r8 48.5, m128k2r4 37.4, m128k1r4 34.5, m128k1r8 35.7, m128k2r8 39.9, m128k4r2 39.1, b1n128c2s8h 29.6, b1n128c3s8h 38.7 -> cublas
+tune unpooler  m=256: cublas 28.8, b1n128c2 46.7, b2n256c2 32.8, m128k2r4 60.0, m128k1r4 60.0, m128k1r8 62.9, m128k2r8 62.0, m128k4r2 65.5, m256k2r4 54.3, m256k1r4 58.0, m256k1r8 59.5, m256k2r8 56.8, m256k2r2 54.2, b1n128c2s8h 53.3, b1n128c3s8h 65.5 -> cublas
+lt build 16.2 s, cublasLt 130101, torch cuda 13.0
+lt qkv_gate m=128: 64 heuristic, 792 swept, 205 other, screen best L1:a66t15s35k1r0z0c0i0g6w0v0.55 19.1, L3:a66t15s35k1r0z0c0i0g6w0v0.55 19.2, L1:a66t15s35k1r0z0c2i0g6w0v0.55 19.3, L3:a66t15s35k1r0z0c2i0g6w0v0.55 19.5, L1:a66t15s35k1r0z0c3i0g6w0v0.55 19.5
+ltune qkv_gate  m=128: base 19.0, f0=L1:a66t15s35k1r0z0c0i0g6w0v0.55 19.4, f1=L3:a66t15s35k1r0z0c0i0g6w0v0.55 19.5, f2=L1:a66t15s35k1r0z0c2i0g6w0v0.55 19.7, f3=L3:a66t15s35k1r0z0c2i0g6w0v0.55 19.5, f4=L1:a66t15s35k1r0z0c3i0g6w0v0.55 19.7; pref base margin 0.30 f0 -0.38/0 f1 -0.54/0 f2 -0.58/0 f3 -0.54/0 f4 -0.80/0 -> base
+lt o m=128: 32 heuristic, 788 swept, 227 other, screen best L3:a66t18s35k1r0z0c0i0g2w0v0.97 10.7, L1:a66t18s35k1r0z0c5i0g2w0v0.97 10.7, L1:a66t18s35k1r0z0c0i0g5w0v0.97 10.8, L3:a66t18s35k1r0z0c4i0g2w0v0.97 10.8, L3:a66t18s35k1r0z0c6i0g5w0v0.97 10.8
+ltune o         m=128: base 11.5, f0=L3:a66t18s35k1r0z0c0i0g2w0v0.97 11.1, f1=L1:a66t18s35k1r0z0c5i0g2w0v0.97 11.2, f2=L1:a66t18s35k1r0z0c0i0g5w0v0.97 11.1, f3=L3:a66t18s35k1r0z0c4i0g2w0v0.97 11.1, f4=L3:a66t18s35k1r0z0c6i0g5w0v0.97 11.3; pref base margin 0.32 f0 +0.35/7 f1 +0.29/9 f2 +0.32/7 f3 +0.38/9 f4 +0.13/7 -> f3
+lt pooler m=128: 60 heuristic, 792 swept, 198 other, screen best L2:a66t124s35k1r0z0c0i0g4w0v0.86 24.6, L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.9, L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.9, L0:a66t134s35k1r0z0c2i0g7w0v0.79 25.1, L0:a66t124s35k1r0z0c0i0g4w0v0.86 25.3
+ltune pooler    m=128: base 25.8, pref=L1:a66t15s35k1r0z0c4i0g2w0v0.97 25.7, f0=L2:a66t124s35k1r0z0c0i0g4w0v0.86 24.7, f1=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.8, f2=L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.9, f3=L0:a66t134s35k1r0z0c2i0g7w0v0.79 25.0, f4=L0:a66t124s35k1r0z0c0i0g4w0v0.86 24.5; pref pref margin 0.32 base -0.19/2 f0 +0.93/9 f1 +0.77/9 f2 +0.83/9 f3 +0.58/8 f4 +1.15/9 -> f4
+lt unpooler m=128: 44 heuristic, 788 swept, 227 other, screen best L1:a66t18s35k1r0z0c5i0g5w0v0.97 22.4, L1:a66t18s35k1r0z0c4i0g2w0v0.97 22.5, L3:a66t18s35k1r0z0c2i0g5w0v0.97 22.6, L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.6, L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.6
+ltune unpooler  m=128: base 23.5, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 22.6, f0=L1:a66t18s35k1r0z0c5i0g5w0v0.97 22.9, f1=L1:a66t18s35k1r0z0c4i0g2w0v0.97 22.8, f2=L3:a66t18s35k1r0z0c2i0g5w0v0.97 22.6, f3=L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.5, f4=L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.4; pref pref margin 0.30 base -0.99/2 f0 -0.10/4 f1 -0.29/3 f2 +0.00/4 f3 +0.00/4 f4 +0.16/6 -> pref
+lt qkv_gate m=256: 60 heuristic, 792 swept, 204 other, screen best L0:a66t124s35k1r0z0c0i0g2w0v0.97 20.8, L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.4, L2:a66t134s35k1r0z0c0i0g9w0v0.88 21.8, L0:a66t134s35k1r0z0c0i0g9w0v0.88 21.9, L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.1
+ltune qkv_gate  m=256: base 23.3, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.2, f0=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.4, f1=L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.7, f2=L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.0, f3=L0:a66t134s35k1r0z0c0i0g9w0v0.88 21.9, f4=L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.0; pref pref margin 0.30 base -1.76/0 f0 +0.06/5 f1 -0.26/3 f2 -0.77/2 f3 -0.61/2 f4 -0.64/3 -> pref
+lt o m=256: 32 heuristic, 788 swept, 207 other, screen best L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.6, L1:a66t20s35k1r0z0c4i0g2w0v0.97 12.7, L0:a66t20s35k1r0z0c5i0g3w0v0.97 12.8, L2:a66t20s35k1r0z0c5i0g3w0v0.97 12.8, L1:a66t20s35k1r0z0c4i0g5w0v0.97 12.9
+ltune o         m=256: base 13.0, pref=L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.8, f0=L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.8, f1=L1:a66t20s35k1r0z0c4i0g2w0v0.97 12.9, f2=L0:a66t20s35k1r0z0c5i0g3w0v0.97 13.1, f3=L2:a66t20s35k1r0z0c5i0g3w0v0.97 13.0, f4=L1:a66t20s35k1r0z0c4i0g5w0v0.97 13.1; pref pref margin 0.30 base -0.16/2 f0 +0.06/6 f1 +0.00/4 f2 -0.26/2 f3 -0.16/2 f4 -0.16/1 -> pref
+lt pooler m=256: 50 heuristic, 790 swept, 219 other, screen best L1:a66t17s35k1r0z0c0i0g2w0v0.97 27.6, L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.8, L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.8, L3:a66t17s35k1r0z0c0i0g2w0v0.97 28.1, L0:a66t18s35k1r0z0c0i0g2w0v0.97 28.6
+ltune pooler    m=256: base 30.8, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.9, f0=L1:a66t17s35k1r0z0c0i0g2w0v0.97 28.4, f1=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.7, f2=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.9, f3=L3:a66t17s35k1r0z0c0i0g2w0v0.97 28.2, f4=L0:a66t18s35k1r0z0c0i0g2w0v0.97 29.0; pref pref margin 0.32 base -2.94/0 f0 -0.26/3 f1 +0.22/7 f2 +0.10/7 f3 -0.22/4 f4 -0.86/0 -> pref
+lt unpooler m=256: 32 heuristic, 788 swept, 210 other, screen best L3:a66t20s35k1r0z0c4i0g5w0v0.97 27.8, L1:a66t20s35k1r0z0c4i0g5w0v0.97 27.9, L1:a66t20s35k1r0z0c0i0g3w0v0.97 27.9, L3:a66t20s35k1r0z0c4i0g3w0v0.97 28.0, L0:a66t20s35k1r0z0c4i0g3w0v0.97 28.0
+ltune unpooler  m=256: base 28.9, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.7, f0=L3:a66t20s35k1r0z0c4i0g5w0v0.97 27.8, f1=L1:a66t20s35k1r0z0c4i0g5w0v0.97 27.9, f2=L1:a66t20s35k1r0z0c0i0g3w0v0.97 28.4, f3=L3:a66t20s35k1r0z0c4i0g3w0v0.97 27.9, f4=L0:a66t20s35k1r0z0c4i0g3w0v0.97 28.2; pref pref margin 0.30 base -1.09/0 f0 -0.19/3 f1 -0.06/3 f2 -0.67/1 f3 -0.19/3 f4 -0.26/0 -> pref
+ablate pooler m=128: m128k2r4 35.6, m128k2r4_a1 30.6, m128k2r4_a3 28.5
+ablate o m=256: m256k1r4 25.4, m256k1r4_a1 23.2, m256k1r4_a3 18.6
+prepare done 93.4 s
+QG build 11.3 s
+QGRES g0 regs=90 local=0 static=0 dyn=197760 blocks/SM=1 maxclusters=39 grid=108 cluster=3 one-wave
+QGRES epi regs=90 local=0 static=0 dyn=197760 blocks/SM=1 maxclusters=39 grid=108 cluster=3 one-wave
+QGRES psplit regs=90 local=0 static=0 dyn=197760 blocks/SM=1 maxclusters=39 grid=108 cluster=3 one-wave
+QGRES g0_a2 regs=90 local=0 static=0 dyn=197760 blocks/SM=1 maxclusters=39 grid=108 cluster=3 one-wave
+QGCHECK FP64+probe m=65/100/127/128 bitwise=['epi', 'psplit'] PASS ['ctrl', 'ctrl2', 'epi', 'psplit']
+QGREPLAY 3 fresh captured inputs PASS ['ctrl', 'ctrl2', 'epi', 'psplit']
+QGNULL in0 ctrl2-ctrl=+0.000 MAD=0.224 ctrl=20.256
+QGTIME in0 ctrl2 raw=20.288 d_ctrl=+0.000 d_ctrl2=+0.000 faster=47/100
+QGTIME in0 epi raw=20.064 d_ctrl=-0.176 d_ctrl2=-0.224 faster=64/100
+QGTIME in0 psplit raw=19.904 d_ctrl=-0.320 d_ctrl2=-0.400 faster=76/100
+QGTIME in0 g0_a2 raw=18.736 d_ctrl=-1.488 d_ctrl2=-1.440 faster=97/100
+QGNULL in1 ctrl2-ctrl=-0.016 MAD=0.240 ctrl=20.288
+QGTIME in1 ctrl2 raw=20.192 d_ctrl=-0.016 d_ctrl2=+0.000 faster=50/100
+QGTIME in1 epi raw=20.160 d_ctrl=-0.128 d_ctrl2=-0.032 faster=61/100
+QGTIME in1 psplit raw=19.968 d_ctrl=-0.320 d_ctrl2=-0.256 faster=77/100
+QGTIME in1 g0_a2 raw=18.784 d_ctrl=-1.456 d_ctrl2=-1.440 faster=99/100
+QGNULL in2 ctrl2-ctrl=+0.080 MAD=0.272 ctrl=20.224
+QGTIME in2 ctrl2 raw=20.272 d_ctrl=+0.080 d_ctrl2=+0.000 faster=41/100
+QGTIME in2 epi raw=20.128 d_ctrl=-0.048 d_ctrl2=-0.112 faster=56/100
+QGTIME in2 psplit raw=19.840 d_ctrl=-0.448 d_ctrl2=-0.416 faster=75/100
+QGTIME in2 g0_a2 raw=18.784 d_ctrl=-1.408 d_ctrl2=-1.504 faster=98/100
+QGDONE elapsed=104.9 s
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 11:18:35 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
