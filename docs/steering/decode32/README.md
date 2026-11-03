@@ -1,5 +1,9 @@
 # Decode32 task inbox
 
+## Current execution: upstream observer ready for one private check
+
+[D32-ATTN-05](2026-11-02-15-upstream-route-observer.md) implements the next bounded technical step after the terminal routing diagnostic. Source `a0998224` has five passing CPU Torch tests and unchanged native compiler inputs. One T32 sliding bank, four owners and eight fresh replays localize upstream differences while preserving the exact route gate. Its observations change tensor retention, so timings are ineligible. Execute once after publication and fresh shared preflight; stop after evidence or one inconclusive result. No new B4 kernel mechanism is qualified here.
+
 ## Routing diagnostic terminal: prepare upstream observability
 
 [Own job 5909739e8a4445b2](2026-11-02-14-routing-order-diagnostic.md) failed setup at D32 sliding with an order swap of experts93/153 in one row. The captured attention treatment was inactive in that placement. No matched timings exist. Preserve the strict route gate and stop this exact source. Next prepare branch, upstream tensor and same-graph replay observations with CPU forwarding/ownership/negative tests before considering one new diagnostic source. This is technical investigation under existing D32 ownership, without a Driver handoff or public authorization.

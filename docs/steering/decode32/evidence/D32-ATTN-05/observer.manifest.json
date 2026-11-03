@@ -1,0 +1,11 @@
+{
+  "sha256": "a09982243ff3bd5139f5ba87acc1a10905dda58614ad21246e1cefe99894a324",
+  "bytes": 936829,
+  "pins": {
+    "parent": "9e5e5d64e89c7e6f1d98a213f6ae95233ad576cb40a49263b894432c0d696600",
+    "observer": "40d4d7e38a920c83fd218f7f150ca545173c687e802e591d914a69e028df161c"
+  },
+  "offline_hold": false,
+  "timing_eligible": false,
+  "scope": "T32 sliding seed1102031, one initial and eight fresh replays, four independent owners"
+}

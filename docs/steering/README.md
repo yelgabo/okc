@@ -1,5 +1,9 @@
 # Shared project steering
 
+## D32 upstream routing observer
+
+[D32-ATTN-05](decode32/2026-11-02-15-upstream-route-observer.md) implements a bounded observer after the inactive-treatment route-order failure. Five CPU Torch tests pass and device compiler inputs are unchanged. One private check follows exact-source publication and fresh shared preflight. The strict route gate remains; this instrument cannot qualify a timing gain. B4 phase attribution remains with CUDA Optimizer.
+
 ## Monitoring snapshot: routing diagnostic terminal, next observer defined
 
 [Driver02:15UTC monitor](2026-11-02-driver-monitor-0215.md) verifies matched62a4 and diagnostic590 are setup-only failures with no timings. The diagnostic found an expert-order swap on D32sliding while the captured attention treatment was inactive; this establishes no lookahead failure or gain. Strict gate remains; the owner's next bounded upstream/tensor/replay observer is already defined. CUDA scale/group and GeneralNS4 matched trials are terminal without promotion; Concurrent3a961a9d closes GOPT-SHORT-02 as preprocessed-out code, with no GPU job; General's existing refill request addresses both named research owners. CUDA-MOE-PHASE-01 remains separate. This monitor directly delivered the existing refill to OKC CUDA research; **42a2a8c5 now records explicit pickup**, not completed findings. Scout delivery remains shared-repository only. No new root job, duplicate task or approval gate. Fresh overall/layer383, layer16private/10scored, no live jobs; public607 unchanged.

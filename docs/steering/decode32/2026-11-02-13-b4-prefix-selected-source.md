@@ -4,6 +4,10 @@ November 2, 2026 Pacific. Picked up after the user asked for B4 prefix work whil
 
 The pinned B4/T32 build already runs the all-lane prefix scan and four-lane range lookup. The serial code cited by D32-12 belongs to the helper literal used by Tiny, Tiny2 and MID. Creating the prescribed B4 treatment would repeat existing work or change the active cost model. Close this exact serial-to-parallel proposal as already implemented. There is no new candidate or GPU allocation.
 
+## Helper execution correction, November 2
+
+[General Optimizer's selected-flag preprocessing](../2026-11-02-general-short-prefix-result.md), published in `3a961a9d`, shows that Tiny/Tiny2/MID compile out the helper's serial WGS functions under `OKC_WGS=0`. The helper entries below identify raw literal contents, not an executed serial scan. B4's parallel-scan conclusion remains unchanged. Future execution claims require preprocessing with the captured flags.
+
 ## Source and factory evidence
 
 [Reproducible factory audit](../../../tools/d32_b4_prefix_audit.py) executes the final `_fork_native_moe`, `_main_defines` and `_ma_ext` definitions with a CPU stand-in for `load_inline`. It uses the selected private state with PRMTSC and SC6 enabled. It records the actual compiler inputs and token selections in [selected-source.json](evidence/D32-MOE-01/selected-source.json).

@@ -90,4 +90,4 @@ if __name__ == "__main__":
     result = audit(source)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2) + "\n")
-    print("B4 and MAIN select the existing parallel scan; three helper builds select the serial scan")
+    print("B4 and MAIN contain the parallel scan; three helper literals contain serial WGS text, subject to preprocessing")
