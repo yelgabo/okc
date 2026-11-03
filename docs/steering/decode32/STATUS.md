@@ -33,3 +33,5 @@ D32-ATTN-02 matched payload: `109cdb07dbe04fe6a9723b816a8fa5942969ce0150310dcdc0
 D32-ATTN-02 private check `4fece18b20a2447b` accepted for source `109cdb07`, published at `c7e13600`. Terminal setup failure: target PyTorch lacks FP8 `isfinite`. No timing was collected. The diagnostic was corrected and covered by a CPU Torch regression; the new payload is being prepared for one private retry.
 
 [Setup failure and corrected payload](2026-11-02-09-pair-setup-failure.md).
+
+Corrected matched payload `f397bca8c869b775fe79a4bc7d2c2749fba0542702d740431cbd7028e78908b3` is published in `f90da774`. Retry has not been submitted: fresh preflight found another problem's check `3aa3885f6b734f8c` running. Recheck the shared job list and quota before dispatch; do not poll that other owner's job.
