@@ -5,11 +5,12 @@ import json
 import random
 import unittest
 import zlib
+from pathlib import Path
 
 from expert_top100_moe_harness_contract import decision
 from moe_phase_analysis import observer_decision,phase_trace
 from moe_phase_harness import build
-from moe_phase_read import capsule
+from moe_phase_read import capsule,read_partial
 from test_moe_phase import synthetic_trace
 
 
@@ -62,6 +63,15 @@ class Reader(unittest.TestCase):
                 return round(value,2) if isinstance(value,float) else value
             report[key]=compact(varied(report[key]))
         self.assertLess(len(encode(report)),12000)
+
+    def test_real_failed_capsule_cannot_be_a_qualified_result(self):
+        folder=Path(__file__).resolve().parents[1]/'docs/steering/evidence/2026-11-02-moe-phase'
+        result=read_partial(folder,'6028cae5d12f4afb')
+        self.assertFalse(result['qualified'])
+        self.assertFalse(result['observer_valid'])
+        self.assertEqual(result['valid_rows'],13)
+        self.assertEqual(result['counters']['timed_replays'],4608)
+        with self.assertRaises(RuntimeError):read_partial(folder,'wrong-own-job')
 
 
 if __name__=='__main__':unittest.main()

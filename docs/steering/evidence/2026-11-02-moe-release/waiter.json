@@ -1,0 +1,6 @@
+{
+  "job": "64f9998ef238476f",
+  "exec_session": 52146,
+  "output": ".build/moe-release/status-wait.raw.json",
+  "state": "SOLE_FOREGROUND_WAITER"
+}

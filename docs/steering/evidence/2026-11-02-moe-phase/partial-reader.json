@@ -1,0 +1,22 @@
+{
+  "job": "6028cae5d12f4afb",
+  "terminal": "FAILED_PARTIAL_NOT_QUALIFIED",
+  "qualified": false,
+  "source_sha256": "77ca05dc3bd9cc4c0dcd1f1533bc37295fa7d303427b99334f8fa03a28d38b26",
+  "observer_valid": false,
+  "valid_rows": 13,
+  "total_rows": 18,
+  "counters": {
+    "observations": 378,
+    "restorations": 54,
+    "captures": 216,
+    "timed_replays": 4608,
+    "worst": [
+      8.790503488853574e-05,
+      0.00022601184900850058
+    ],
+    "trace_replays": 180
+  },
+  "log_sha256": "531cc6c2802f26cca35b160ee14fa0fceb11de8251513e0b25354fc270ca9f65",
+  "scope": "Failed owning receipt; complete retained private rows only, no official score or phase qualification"
+}

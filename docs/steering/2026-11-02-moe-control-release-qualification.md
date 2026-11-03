@@ -27,3 +27,5 @@ TwoTorch CPU tests pass on the final release: independent ownership/forwarding a
 Before exact-file dispatch, freeze the release recommendation screen: all5official tests/6benchmarks/6profiles, no flags, correct owning source/job and complete295s preparation; official score at least1% below6069.607719us and lower speedup interval above the old public point2.2157x. This screens a material cross-job release lead, not a matched estimate against the old public code. Disclose all six timings and any per-load change. A failed or immaterial exact-file result stops this source; no blind retry. Fresh jobs havezero live andMoE14private checks left. Exact remote/local5df257af bytes verified. DISPATCH_STARTED is recorded before the single POST.
 
 Exactlyone private POST accepted64f9998ef238476f for5df257af. [Accepted association](evidence/2026-11-02-moe-release/accepted.json). Target correctness, score and release decision are pending; no public submission.
+
+Sole foreground collector exec52146 waits only on64f9998ef238476f, writing ignored `.build/moe-release/status-wait.raw.json`. No second poller.

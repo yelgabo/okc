@@ -88,8 +88,47 @@ def read(folder,job):
     return result
 
 
+def read_partial(folder,job):
+    receipt=original.strict_json((folder/'status-wait.raw.json').read_text())
+    manifest=original.strict_json((folder/'paired.manifest.json').read_text())
+    accepted=original.strict_json((folder/'accepted.json').read_text())
+    require(receipt['id']==accepted['job_id']==job and receipt['team']=='yelgabo'
+            and receipt['mode']=='check' and receipt['board']=='muse_moe_w4a16'
+            and receipt['status']=='done','own terminal partial receipt')
+    result=receipt['result']
+    require(result['passed'] is False and result['returncode']!=0 and result['score_us'] is None
+            and not result['flags'] and result['checks']['ok'],'failed partial remains failed')
+    payload=(folder/'paired.py').read_bytes()
+    require(original.sha(payload)==accepted['source_sha256']==manifest['source_sha256']==build()[1]['source_sha256'],'partial source binding')
+    log=(folder/'profiles'/Path(receipt['output']['log']).name).read_text()
+    require(log==result['log_tail'],'complete owning partial log')
+    lines=[x[len('MOE_PHASE_PARTIAL '):] for x in log.splitlines() if x.startswith('MOE_PHASE_PARTIAL ')]
+    require(len(lines)==1 and len(lines[0])<12000,'bounded unique partial')
+    data=original.strict_json(zlib.decompress(base64.b64decode(lines[0],validate=True)).decode())
+    require(data['runtime_id']==manifest['runtime_id'] and data['status']=='FAILED_PARTIAL_NOT_QUALIFIED','partial runtime/status')
+    decision(data['rows'])
+    gate=observer_decision(data['rows'],data['sampling'])
+    counts=data['counters']
+    require(tuple(counts[k] for k in ('observations','restorations','captures','timed_replays','trace_replays'))
+            ==(378,54,216,4608,180),'complete retained private coverage')
+    expected={tuple(r[:3]) for r in data['rows'] if r[1] in (32,128,256)}
+    require(len(data['phases'])==len(data['repeated'])==18
+            and {tuple(r[:3]) for r in data['phases']}==expected
+            and {tuple(r[:3]) for r in data['repeated']}==expected,'retained diagnostic coverage')
+    require(data['raw_trace'] is None and data['raw_trace_omitted_for_failure_bound'] is True,'raw omission disclosed')
+    return dict(job=job,terminal='FAILED_PARTIAL_NOT_QUALIFIED',qualified=False,
+                source_sha256=manifest['source_sha256'],observer_valid=gate['valid'],
+                valid_rows=sum(r['valid'] for r in gate['rows']),total_rows=18,counters=counts,
+                log_sha256=original.sha(log),scope='Failed owning receipt; complete retained private rows only, no official score or phase qualification')
+
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--folder',type=Path,required=True);parser.add_argument('--job',required=True)
-    args=parser.parse_args();data=read(args.folder,args.job)
-    print(json.dumps(dict(job=args.job,official_arm='control0',official_score_us=data['official_score_us'],observer_valid=data['observer_valid']),indent=2))
+    parser.add_argument('--partial',action='store_true')
+    args=parser.parse_args()
+    if args.partial:data=read_partial(args.folder,args.job)
+    else:
+        result=read(args.folder,args.job)
+        data=dict(job=args.job,official_arm='control0',official_score_us=result['official_score_us'],observer_valid=result['observer_valid'])
+    print(json.dumps(data,indent=2))
