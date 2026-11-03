@@ -49,3 +49,9 @@ The other timeline reports about1.7–1.8us ready waiting on its judge-input obs
 ## Accepted private check
 
 Own e3e2495464f34b2c accepted once for pairedb6107a78/490593bytes, published73ab76cf/reconciled8fad06be, dispatch intent9e778ae6. Fresh quota had3checks left; shared live jobs were recorded before the POST. Accepted ID persisted before collection or other measurement. One own-ID foreground waiter writes ignored .build/moe-short-ready/status-wait.raw.json. No target outcome yet.
+
+## Conditional follow-through prepared while the screen runs
+
+Tools/moe_short_ready_confirm.py fixes held-out banks2203011/2203017/2203029, disjoint from the screen and its fresh97offset banks. Its two CPU tests establish that only BANKS and runtime identity change, the exact helper/compiler requests remain, and the original screen/gate module stays immutable. No seed search or alternate held-out bank is allowed. No confirmation is dispatched unless the complete frozen screen passes.
+
+Tools/moe_short_ready_release.py prepares a single-arm draft from exact approved5df257af, preserving the original MID/B4/MAIN, quantized weights, packing, scale fallbacks, operator checks and three-buffer ABI. Both changed short compiler requests equal those of the active paired candidate; the other three equal the original public file. Two CPU tests check contract identity and actual preparation/forwarding. This source is not GPU-qualified or public-approved. Conditional manifests/test output are archived; generated draft payloads stay ignored until their gates permit use.
