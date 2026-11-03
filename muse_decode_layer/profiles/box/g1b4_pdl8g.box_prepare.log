@@ -1,0 +1,39 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BOX import 0.6 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 76.90 on 71.36 us, median paired saving 6.27, wins 9/9
+PDL8G_INPUT T=1 sliding x0: min 8th-9th gap 2.79e-03 after 0 resample rounds; ids stable over 50 PDL-off replays
+PDL8G_INPUT T=1 sliding x1: min 8th-9th gap 1.21e-03 after 0 resample rounds; ids stable over 50 PDL-off replays
+PDL8F_STRESS T=1 sliding det: off ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8F_STRESS T=1 sliding det_fresh: off ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '4.36e-06', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8F_STRESS T=1 sliding fresh: off ['1.31e-03', '1.69e-03', '0.00e+00'] (int mismatches 0), on ['1.31e-03', '1.69e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8F_STRESS T=1 sliding fixed: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8_AB T=1 full: off 90.69 on 84.16 us, median paired saving 6.69, wins 9/9
+PDL8_AB T=16 sliding: off 167.42 on 161.98 us, median paired saving 5.18, wins 9/9
+PDL8G_INPUT T=16 sliding x0: min 8th-9th gap 1.39e-03 after 1 resample rounds; ids stable over 50 PDL-off replays
+PDL8G_INPUT T=16 sliding x1: min 8th-9th gap 1.08e-03 after 1 resample rounds; ids stable over 50 PDL-off replays
+PDL8F_STRESS T=16 sliding det: off ['0.00e+00', '8.61e-06', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '8.61e-06', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8F_STRESS T=16 sliding det_fresh: off ['2.58e-03', '2.73e-03', '0.00e+00'] (int mismatches 0), on ['2.58e-03', '2.73e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8F_STRESS T=16 sliding fresh: off ['9.62e-03', '8.53e-03', '0.00e+00'] (int mismatches 0), on ['9.62e-03', '8.53e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8F_STRESS T=16 sliding fixed: off ['5.15e-03', '4.99e-03', '0.00e+00'] (int mismatches 0), on ['5.15e-03', '4.99e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8_AB T=16 full: off 246.30 on 241.28 us, median paired saving 5.06, wins 9/9
+PDL8_AB T=32 sliding: off 238.02 on 234.46 us, median paired saving 3.81, wins 9/9
+PDL8_AB T=32 full: off 373.22 on 368.90 us, median paired saving 4.32, wins 9/9
+PDL8G_INPUT T=32 full x0: min 8th-9th gap 1.08e-03 after 2 resample rounds; ids stable over 50 PDL-off replays
+PDL8G_INPUT T=32 full x1: min 8th-9th gap 1.16e-03 after 1 resample rounds; ids stable over 50 PDL-off replays
+PDL8F_STRESS T=32 full det: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8F_STRESS T=32 full det_fresh: off ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0), on ['0.00e+00', '0.00e+00', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8F_STRESS T=32 full fresh: off ['5.62e-03', '6.07e-03', '0.00e+00'] (int mismatches 0), on ['5.62e-03', '6.07e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8F_STRESS T=32 full fixed: off ['5.62e-03', '6.07e-03', '0.00e+00'] (int mismatches 0), on ['5.62e-03', '6.07e-03', '0.00e+00'] (int mismatches 0); bound max(2e-02, off): clean; ids mismatch on/off 0/0
+PDL8G_INPUT T=8 full x0: min 8th-9th gap 1.69e-03 after 0 resample rounds; ids stable over 50 PDL-off replays
+PDL8E T=8 off: RuntimeError('ids moved on 52 entries over 50 PDL-off replays')
+PDL8 weighted paired saving T=1: 6.38 us
+PDL8 weighted paired saving T=16: 5.15 us
+PDL8 weighted paired saving T=32: 3.94 us
+PDL8 six-load estimate +2.24% (enabled loads only); enabled {1: True, 8: False, 16: True, 32: True}
+BOX prepare 22.2 s; pdl8_on {1: True, 8: False, 16: True, 32: True} edges None
+EXIT rc=0
