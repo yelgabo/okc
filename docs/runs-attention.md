@@ -4489,3 +4489,24 @@ prologue +0.3 (q_len 8 query pass); batch 32 +4.3 = loop +2.4 (9 tiles at 0.98 u
 1.2), tail +1.7. The stamp build cost +0.3-0.5 us per cell (tl_probe - ctrl).
 Next: check 2 tests ring depth (ONE_NSR8 / ONE_NSR1, 4 and 5 stages), which targets the loop at
 decode 32 and both verify cells.
+
+## 2026-11-03 per-request ring depth (ONE_NSR8 / ONE_NSR1), registered before dispatch
+
+Mechanism: the consumer-copy instances 8/3 (verify 16 / 32 sliding) and 1/1 (decode 16 / 32
+sliding) hold STAGES = 3 stages, so two tiles are in flight; acc16cee189246cd shows the tile
+loop pacing at one DRAM latency per two tiles (1.2 us per tile at decode 32, about 1 us at
+verify). ONE_NSR8 / ONE_NSR1 = 4 or 5 give those two instances 3 or 4 tiles in flight with the
+same commit-group arithmetic (prologue SR - 1 tiles, wait_group SR - 2 per tile, page indices
+2 SR - 2 tiles ahead in the 8-entry ring). Smem 8/3: 107 KB at 4 (two CTAs per SM), 123 KB at
+5 (one CTA per SM, 132 resident for 128 cooperative CTAs); 1/1: 75 / 91 KB. All 13 instances
+SASS-identical at the defaults; 8/3 and 1/1 at 5: 111 / 108 registers, no spills (local sm_90a).
+Prior against: EARLY (ruled-out.md) lost 0.8-1.1 us at verify 16 / 32 sliding with three tiles
+in flight, but it moved the stage release behind a CTA-wide barrier; this keeps the judged loop
+and only deepens the ring.
+
+Check: `tools/attn_make_sl_tl.py OUT nsr` (arms ctrl, ctrl2 null, tl_probe (stamps, now with the
+q_len 8 tile stamps), n4, n5, n4s (n4's build with 16 / 8 splits at verify 16 / 32), tln5_probe
+(stamps on n5)); the four cells only, 3 held-out inputs, 150 cold rounds, seed 311402; bench
+SHA256 f514d70a. Gate: arm - ctrl at most -0.5 us cold on a targeted cell on all three inputs
+and beyond the null, warm not worse, no other of the four cells worse than the null. Expected
+(hypothesis): decode 32 -1.5 to -2.5 us, verify 32 -2 to -4, verify 16 -1 to -2, decode 16 flat.

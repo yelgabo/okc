@@ -7,7 +7,7 @@ splits), tlA_probe (the same build at spA's splits) and spA / spB / spC (the con
 own state, other splits per request; host-only plan change). The stamp build compiles only
 instances 1/1 and 8/3. ABCHECK keeps only the four timed shapes.
 
-    python3 tools/attn_make_sl_tl.py OUT.py
+    python3 tools/attn_make_sl_tl.py OUT.py [split|nsr]
 """
 from pathlib import Path
 import subprocess
@@ -22,6 +22,21 @@ SPLITS = {
     "spC": {(16, 1): 8, (32, 1): 6, (16, 8): 6, (32, 8): 3},
 }
 SPLITS["tlA_probe"] = SPLITS["spA"]
+
+# Variant "nsr" (check 2): ring depth of the per-request instances (ONE_NSR8 at verify,
+# ONE_NSR1 at decode), the control's splits except n4s.
+NSR = "-DONE_SL_ONLY=1"
+VARIANTS = {
+    "split": (["tl_probe@own=-DONE_STAMP=3,-DONE_SL_ONLY=1",
+               "tlA_probe@own=-DONE_STAMP=3,-DONE_SL_ONLY=1",
+               "spA@own=", "spB@own=", "spC@own="], SPLITS, "311401"),
+    "nsr": (["tl_probe@own=-DONE_STAMP=3,-DONE_SL_ONLY=1",
+             "n4@own=-DONE_NSR8=4,-DONE_NSR1=4," + NSR,
+             "n5@own=-DONE_NSR8=5,-DONE_NSR1=5," + NSR,
+             "n4s@own=-DONE_NSR8=4,-DONE_NSR1=4," + NSR,
+             "tln5_probe@own=-DONE_STAMP=3,-DONE_NSR8=5,-DONE_NSR1=5," + NSR],
+            {"n4s": {(16, 8): 16, (32, 8): 8}}, "311402"),
+}
 
 ONLY = ('#if ONE_DETM\n#define ONE_INSTANCES(X) X(1, 49)\n',
         '#if defined(ONE_SL_ONLY) && ONE_SL_ONLY\n#define ONE_INSTANCES(X) X(1, 1) X(8, 3)\n'
@@ -150,12 +165,10 @@ def _sl_sum():
 
 def main():
     out = Path(sys.argv[1])
-    arms = ["tl_probe@own=-DONE_STAMP=3,-DONE_SL_ONLY=1",
-            "tlA_probe@own=-DONE_STAMP=3,-DONE_SL_ONLY=1",
-            "spA@own=", "spB@own=", "spC@own="]
+    arms, splits, seed = VARIANTS[sys.argv[2] if len(sys.argv) > 2 else "split"]
     subprocess.run([sys.executable, str(ROOT / "tools/attn_make_bench_ab.py"), str(out),
                     "--null", "--shapes", "sliding", "--inputs", "3", "--rounds", "150",
-                    "--seed", "311401", *arms], check=True, cwd=ROOT)
+                    "--seed", seed, *arms], check=True, cwd=ROOT)
     subprocess.run([sys.executable, str(ROOT / "tools/attn_inline_one.py"), str(out)],
                    check=True, cwd=ROOT)
     src = out.read_text()
@@ -182,7 +195,7 @@ def main():
         "            return _ob_plan_str(data).replace(\" \", \",\") + "
         "(f\",splits_override={n}\" if n else \"\")\n    except")
     marker = "# Own-state arms: a private _ONE_STATE dict per arm, swapped in around each call."
-    sub(marker, HELPERS.replace("@@SPLITS@@", repr(SPLITS)) + marker)
+    sub(marker, HELPERS.replace("@@SPLITS@@", repr(splits)) + marker)
     sub("        try:\n            _ab_bench()\n",
         "        try:\n            _sl_stamps()\n        except Exception as _exc:\n"
         "            print(f\"TLSL failed: {type(_exc).__name__}: {_exc}\", flush=True)\n"
