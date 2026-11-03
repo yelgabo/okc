@@ -1,0 +1,23 @@
+{
+  "exit_code": 0,
+  "flags": [
+    "-O3",
+    "-gencode=arch=compute_90a,code=sm_90a",
+    "-lineinfo",
+    "-DOKC_NS=3",
+    "-DOKC_FNST=4",
+    "-DOKC_NSF=3",
+    "-DOKC_NW=4",
+    "-DOKC_TINY=1",
+    "-DOKC_WS=1",
+    "-DOKC_WGS=0",
+    "-DOKC_FAST1=0",
+    "-DOKC_SPLIT=1",
+    "-DOKC_FINPF=1",
+    "-DOKC_PRMTSC=1",
+    "-DOKC_DQ7=1",
+    "-std=c++17",
+    "-Xptxas=-v,--warn-on-spills"
+  ],
+  "native_sha256": "896b5350238b5d82880bcc9af0682051b7914e84b51164c68e9c249e3e3b5aac"
+}

@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "rows": 36,
+  "bytes": 5844,
+  "bound": 12000,
+  "fixture": "actual 3e6852d30c5c4535 rows with independently randomized timestamps/ratios/nulls"
+}

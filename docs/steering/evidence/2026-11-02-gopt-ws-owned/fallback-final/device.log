@@ -1,0 +1,49 @@
+/w/device.cu(121): warning #177-D: variable "okc::NRB" was declared but never referenced
+  constexpr int NRB = 1 ? 4 : 2;
+                ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/w/device.cu(129): warning #177-D: variable "okc::NCH" was declared but never referenced
+  constexpr int NCH = 64 / NW;
+                ^
+
+/w/device.cu(132): warning #177-D: variable "okc::RED_W" was declared but never referenced
+  constexpr int RED_W = 8 > 8 ? 8 : 4;
+                ^
+
+/w/device.cu(136): warning #177-D: variable "okc::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+/w/device.cu(136): warning #177-D: variable "okc::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+/w/device.cu(139): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;
+                ^
+
+/w/device.cu(145): warning #177-D: variable "okc::XP_SK" was declared but never referenced
+  constexpr int XP_SK = HD + 8;
+                ^
+
+/w/device.cu(147): warning #177-D: variable "okc::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;
+                ^
+
+/w/device.cu(148): warning #177-D: variable "okc::NST" was declared but never referenced
+  constexpr int NST = 3;
+                ^
+
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 3 barriers
+ptxas info    : Compile time = 366.192 ms
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 3 barriers
+ptxas info    : Compile time = 243.210 ms

@@ -1,0 +1,26 @@
+test_byte_permutation_and_every_consumer_fragment (test_gopt_ws_owned.SourceAndModel) ... ok
+test_complete_score_and_unchanged_guards (test_gopt_ws_owned.SourceAndModel) ... ok
+test_disabled_builds_and_exact_affected_dispatch (test_gopt_ws_owned.SourceAndModel) ... ok
+test_native_ordering_and_lifetimes_are_present (test_gopt_ws_owned.SourceAndModel) ... ok
+test_partition_credits_and_replay_ring_parities (test_gopt_ws_owned.SourceAndModel) ... ok
+test_gopt_ws_owned_host (unittest.loader._FailedTest) ... ERROR
+test_failure_stays_failed_and_wrong_identity_is_rejected (test_gopt_ws_owned_read.PartialReader) ... ok
+
+======================================================================
+ERROR: test_gopt_ws_owned_host (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_gopt_ws_owned_host
+Traceback (most recent call last):
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/gretchengabo/GitHub/okc-gopt-pipeline-depth/tools/test_gopt_ws_owned_host.py", line 10, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 11.928s
+
+FAILED (errors=1)

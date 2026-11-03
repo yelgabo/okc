@@ -1,0 +1,14 @@
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/repo/tools/test_gopt_ws_owned_host.py", line 40, in run_entry
+    with contextlib.redirect_stdout(log):state,_=prepare_small(ns)
+                                                 ^^^^^^^^^^^^^^^^^
+  File "/repo/tools/expert_top100_moe_test.py", line 95, in prepare_small
+    state = namespace[entry]({})
+            ^^^^^^^^^^^^^^^^^^^^
+  File "<complete-generated-moe-harness>", line 6679, in prepare
+  File "<complete-generated-moe-harness>", line 6626, in _ws_prepare_inner
+  File "<complete-generated-moe-harness>", line 6158, in _expert_moe_prepare
+RuntimeError: (True, {'main', 'b4', 'owned', 'tiny'}, {'tiny2', 'main', 'mid', 'b4', 'tiny'}, ('-DOKC_PRMTSC=1',))

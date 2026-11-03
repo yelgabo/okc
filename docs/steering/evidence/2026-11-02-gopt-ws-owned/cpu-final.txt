@@ -1,0 +1,17 @@
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_byte_permutation_and_every_consumer_fragment (test_gopt_ws_owned.SourceAndModel.test_byte_permutation_and_every_consumer_fragment) ... ok
+test_complete_score_and_unchanged_guards (test_gopt_ws_owned.SourceAndModel.test_complete_score_and_unchanged_guards) ... ok
+test_disabled_builds_and_exact_affected_dispatch (test_gopt_ws_owned.SourceAndModel.test_disabled_builds_and_exact_affected_dispatch) ... ok
+test_native_ordering_and_lifetimes_are_present (test_gopt_ws_owned.SourceAndModel.test_native_ordering_and_lifetimes_are_present) ... ok
+test_partition_credits_and_replay_ring_parities (test_gopt_ws_owned.SourceAndModel.test_partition_credits_and_replay_ring_parities) ... ok
+test_actual_packing_on_cpu_and_corruption_detection (test_gopt_ws_owned_host.Host.test_actual_packing_on_cpu_and_corruption_detection) ... ok
+test_complete_release_dispatch_ownership_and_replay (test_gopt_ws_owned_host.Host.test_complete_release_dispatch_ownership_and_replay) ... ok
+test_failure_rows_and_primary_error_survive_cleanup (test_gopt_ws_owned_host.Host.test_failure_rows_and_primary_error_survive_cleanup) ... ok
+test_probe_decoder_matches_problem_nvfp4 (test_gopt_ws_owned_host.Host.test_probe_decoder_matches_problem_nvfp4) ... ok
+test_failure_stays_failed_and_wrong_identity_is_rejected (test_gopt_ws_owned_read.PartialReader.test_failure_stays_failed_and_wrong_identity_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 60.566s
+
+OK

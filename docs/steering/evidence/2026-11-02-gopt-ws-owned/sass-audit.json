@@ -1,0 +1,28 @@
+{
+  "native_sha256": "896b5350238b5d82880bcc9af0682051b7914e84b51164c68e9c249e3e3b5aac",
+  "sass_sha256": "0c5f77e2efaa925b7f5a9ceb088d2da6813af0e14f965d71a1cf7ad57b2ed269",
+  "local_only": true,
+  "entries": [
+    {
+      "name": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+      "mma_sites": 128,
+      "bulk_sites": 8,
+      "gpu_fences": 3,
+      "async_proxy_fences": 3,
+      "generic_strong_loads": 21,
+      "consumer_syncs": 11,
+      "all_thread_syncs": 4
+    },
+    {
+      "name": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+      "mma_sites": 128,
+      "bulk_sites": 8,
+      "gpu_fences": 3,
+      "async_proxy_fences": 3,
+      "generic_strong_loads": 21,
+      "consumer_syncs": 11,
+      "all_thread_syncs": 4
+    }
+  ],
+  "activation_load": "ld.global.v4.u32, coherent generic, not ld.global.nc"
+}

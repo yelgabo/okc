@@ -7,3 +7,6 @@ docs/steering/evidence/2026-11-02-moe-release/profiles/*.txt -whitespace
 docs/steering/evidence/2026-11-02-moe-public/profiles/*.txt -whitespace
 docs/steering/evidence/2026-11-02-moe-pairlut/profiles/*.txt -whitespace
 docs/steering/evidence/2026-11-02-moe-direct-input/profiles/*.txt -whitespace
+docs/steering/evidence/2026-11-02-gopt-ws-owned/compile-final/ptx.log -whitespace
+docs/steering/evidence/2026-11-02-gopt-ws-owned/full-host-final/owned.cu -whitespace
+docs/steering/evidence/2026-11-02-gopt-ws-owned/hotspots.md -whitespace
