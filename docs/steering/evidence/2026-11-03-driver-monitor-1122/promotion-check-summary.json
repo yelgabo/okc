@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-11-03T11:28:13.128939+00:00",
+  "public_layer_job": "fefd7f7b8e834bd7",
+  "public_layer_score_us": 10419.876725867654,
+  "leads": 15,
+  "promotion_gaps": [],
+  "result": "PASS after disposition reconciliation and all-five-board refresh",
+  "initial_check": {
+    "leads": 18,
+    "missing_dispositions": [
+      "0cb69c8b68bd4d89",
+      "8f6acddaca2e4c50"
+    ]
+  },
+  "ledger": "docs/releases/promotion-queue.json"
+}
