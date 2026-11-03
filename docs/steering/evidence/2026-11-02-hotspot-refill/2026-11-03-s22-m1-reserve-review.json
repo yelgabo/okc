@@ -1,0 +1,87 @@
+{
+  "scope": "One source-only Autoclicker S22 M1 reserve qualification in the SAME existing refill; not the completed b5 census or selector screen",
+  "read_main": "67e2a191b4c83c65bd1110d5679e27c29f333c35",
+  "decision": "SEMANTIC_COST_QUALIFICATION_GAP: distinct and repairable complete architecture, but no substantiated >=2us net M1 reserve or selected graft",
+  "priority": "Existing MoE short-bench owner sb_bclm2/57751b94 remains FIRST at the user-stated reset. No implementation or target allocation is created.",
+  "source_identity": {
+    "foreign_repository": "AutoclickerI/muse-spark-open-kernels",
+    "foreign_commit": "85aed1fb1365877b615542dd44980646816d6b26",
+    "selected_M1": "final/muse_decode_layer/src/RVC_NFIDX0_CUDA.cu",
+    "M1_sha256_scout_verified": "244c4d089f5979e2e79f45a681ee14a58bd57cc02d7c20001af4f1c3c7cb8040",
+    "M1_git_blob": "ad9b39c7f28b8eabc0dc913dca1fa65fd930d474",
+    "M1_flags": 95,
+    "selected_M8_not_a_target": "RVC_NBASE1_CUDA.cu / 5b6ae2c3611b71e102238719c69cbed6cd6b1d3566bbcf3765788fc787619fb6 / flags69",
+    "selector": "Root's layer.py7320-7326 final binding accepted; not repeated as a discovery",
+    "current_release": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+    "current_main_native": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "current_helper_independently_hashed": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+    "current_helper_bytes": 139768,
+    "current_helper_provenance": "Extracted as a string literal from locally mounted archived public607 ba9e327c; not a local user checkout or uncommitted code",
+    "foreign_hash_limit": "Scout/user SHA256 identities retained. This pass read foreign code via GitHub but did not independently download/re-hash those bytes. Container HTTPS failed DNS. No foreign code was imported or executed."
+  },
+  "actual_selected_comparison": {
+    "current_M1": "WS1/WGS0/NW8/NS3/FAST1=2/WSB1/WSBL2/WSBLK2/FINPF1/PRMTSC1/DQ7/L2H0; 288 threads, 132 cooperative CTAs on the inspected H200 control; helper plus separately owned late-B epilogues; four 1024-column finalizer items",
+    "foreign_M1": "F_Z|F_SLOT|F_ZOUT|F_RSQ|F_NREG|F_PDL, no LAST/TRACE/NT2; 256 all-compute threads, eight K-splitting warps, two weight slots and nominal264 CTA cap, two 2048-column finalizer items",
+    "not_novel": "Thread zero issuing bulk copies already exists. This is not a new issuer-only mechanism.",
+    "genuine_difference": "Direct routing-slot order and no full routing/job table in M1; in-compute epilogues instead of a separate helper; register-held norm across each CTA/expert segment and two norm shards",
+    "full_call_bytes": "Both read 27MiB of packed expert weights/scales per touched unique M1 expert; same useful two-GEMM computation. No required-byte reduction is established.",
+    "packing": "v9_prepare then _prepare_recoded_bank/_repack_recoded build 32 local experts, W13 row pairs and W2 rows, one-LOP3 bit layout, sign/zero scale recoding; _encode_scales checks finite magnitudes and reconstruction. One full packed bank is864MiB. Existing-bank reuse or extra immutable-bank retention must be accounted separately; do not call representation equality a timed speedup.",
+    "host_and_graph": "rvc_nfidx0_bind allocates zeroed64-int counters in prepare and cancellation metadata. Timed rvc_nfidx0_experts obtains contiguous x/ids/tw, allocates inter/y/ss/out, checks selected-entry occupancy and launches. M1 temporary capacity is204864bytes (64KiB BF16 inter,128KiB FP32 y,64B ss,8KiB output). This is allocation capacity, not a measured HBM/replay charge. torch.empty is not a zero-fill node; graph-owned lifetime and dtype/contiguity-copy behavior must be retained.",
+    "foreign_receipt_limit": "Historical whole-layer1.889x/11973.410us is unmatched and neither qualifies nor disproves the M1 mechanism. No foreign component speedup is projected."
+  },
+  "required_repairs_vs_choices": {
+    "numerical_required": [
+      "At NFIDX0:583-598, round each scaled gate and up to BF16 before the preserved SiLU/product, then store BF16 intermediate.",
+      "At NFIDX0:602-616, restore actual down global scale and BF16 down-result boundary; compute gamma=BF16(1+raw_norm_w), then its FP32 product with the BF16 down result.",
+      "Remove cancel_norm at107-110 and its717 use/cancel_meta parameter substitution. Form RMS from the reconstructed FP32 per-column products with unchanged epsilon and top-k slot0..7 output order. Algebraic scale cancellation cannot restore componentwise BF16 rounding.",
+      "NBASE1:565-603 restores explicit scaling but still omits required rounding, so it is not a conforming repair to transplant.",
+      "Review register regrouping, possible FMA contraction, subnormal behavior and final two-shard addition under unchanged numerical bounds. Do not claim norm-bit identity; the earlier T8/T16 aggregation loss is not a blanket M1 ban."
+    ],
+    "publication_progress_required": [
+      "Close all-writer-to-leader publication for phase-A and the terminal barrier/generation path. The source fences before a CTA join and then uses leader atomicAdd; the existing cross-lane release-pattern question is not resolved by passing tests. This is a proof obligation, not an observed bad execution.",
+      "A correct revised publication must aggregate writers before a covering leader release/acquire chain, with matching consumers; no removal of existing fences on tests alone.",
+      "Audit TMA full-barrier completion and generic-read-to-async-overwrite retirement before empty-slot reuse, including priming, tail and zero work. Activation intermediates are generic stores/coherent __ldcg reads here, not a reason to invent a global TMA-activation fence.",
+      "Replace unsupported ordinary occupancy-sized software-grid-barrier assumptions with an actual cooperative residency/launch proof for the repaired selected entry. Exact admission and counter reset/epoch correctness remain mandatory.",
+      "Retain private mutable ownership, same-stream reset-before-replay, empty-local zero output, valid local range/scale fallbacks and legal source attribution."
+    ],
+    "chosen_not_required_by_math": [
+      "Retaining256 all-compute threads, two resident CTAs/SM, two slots, two norm shards and two finalizer CTAs is a performance hypothesis, not a required numerical repair. Restored math may change resources/cost.",
+      "A standalone M1 comparison should not create a PDL edge or claim the layer's predecessor overlap; ordinary same-stream cooperative integration is separate from layer porting.",
+      "Retaining donor single accumulator order rather than the control's four chains needs unchanged numerical validation; bit-identical dot accumulation is not assumed.",
+      "Using persistent per-state temporary owners instead of timed torch.empty calls is optional integration policy; neither form may reuse input-derived outputs or outlive its graph ownership."
+    ]
+  },
+  "independent_CPU_findings": {
+    "foreign_code_executed": false,
+    "model_sha256": "5784dee4719f888ae7b8e304bf12576d65050dd3d1680fa76a96bd44b3e8a839",
+    "model_result_sha256": "62ceb0c626a3f823681dbf469577e8715066b5aa884d8215ec141795b434cb7c",
+    "gate_witness": "gate1.00390625/up1: required gate/up BF16 then SiLU/product BF16 yields0.73046875; omitted gate rounding yields0.734375 in the independent CPU model",
+    "gamma_witness": "BF16 raw norm weight0.00390625: BF16(1+w)=1.0, while unrounded addition=1.00390625",
+    "down_cancellation_witness": "A4096-row repeating [1.0,1.001953125], down scale1.3: required rounded down pair=[1.296875,1.3046875]; normalized final BF16 pair=[0.99609375,1.0], whereas ideal scalar cancellation gives[1.0,1.0]. CPU reference witness, not CUDA execution or a tolerance-failure claim.",
+    "FTZ_witness": "Two positive unit contributions with FP32 bits00400000 each vanish in separate global-atomic FTZ models but aggregate to00800000 before one atomic. Regrouping is not bit-identical.",
+    "counts_assumptions": "Distinct top-k IDs; P local M1 experts; G132 control/G264 foreign. Actual repaired residency is unknown. Counts are not exposed-time measurements.",
+    "selected_counts": [
+      {"P":1,"norm_atomics_control":256,"norm_atomics_foreign":256,"A_publications_control":132,"A_publications_foreign":264,"control_helper_B_units":0},
+      {"P":2,"norm_atomics_control":512,"norm_atomics_foreign":264,"A_publications_control":132,"A_publications_foreign":264,"control_helper_B_units":248},
+      {"P":3,"norm_atomics_control":768,"norm_atomics_foreign":264,"A_publications_control":132,"A_publications_foreign":264,"control_helper_B_units":504}
+    ],
+    "one_expert_implication": "At P1, each control CTA owns at most two B units; WSBLK2 already puts every B epilogue on compute warps. There is no helper-B norm queue to remove in this case.",
+    "direct_slot_graft_hazard": "Current FAST1 takes experts in mask order; donor SLOT takes them in top-k slot order. Example slots[7,2]: first sorted expert2 differs from first slot expert7. A graft must adapt early issuance and position mapping together or preserve the control's expert order; copying only the route bypass is not correct."
+  },
+  "complete_cost_and_decision": {
+    "benefit_hypothesis": "Less routing-table work and a different inline-epilogue/CTA execution schedule can be useful; register norm can reduce atomic count for multiple experts. Their overlap and net benefit have not been priced.",
+    "competing_costs": "Same weight bytes; more resident/grid participants and A publication operations, inline epilogues on the compute path, restoration of BF16/scale/gamma work, possible spills/changed admission, synchronization repairs, two rather than four finalizer CTAs, extra format preparation and complete host/graph state costs.",
+    "why_no_graft": "Direct routing does not remove a launch and current FAST1 already overlaps initial table work with weight issue. Norm-only changes interact with WSBL2 ownership and offer zero atomic-count saving for P1 at the donor grid. No >=2us complete-call budget follows.",
+    "sensitivity_not_forecast": "At dated T1=26.7us,2us net is1.013061x whole-six with other loads fixed. Neither the11.4us ideal-byte floor nor f401's overlapping waits supplies that saving.",
+    "one_reopening_observation": "Source-bound evidence from a complete boundary-correct M1 endpoint that the changed all-compute/direct-slot dependency path repays its inline-epilogue, publication and finalizer costs on the one-local-expert case as well as multi-expert M1. Existing helper-wait intervals do not isolate it. This identifies the missing observation; it does not allocate a diagnostic or impose a measured-win-before-build gate.",
+    "future_discriminator_only": "A later owner-authorized source-correct fixed M1 build can precede timing knowledge. Decide by its whole callable versus exact5df/b8 on fresh normal/skewed routes, independent duplicate states and all-six coverage; include preparation/packing/allocations/resets in their correct budgets. Retain>=2us M1/noise/unchanged-load and all numerical/order/progress/lifetime gates. No T8/MID expansion, ring/warp/geometry rescue, public or target action is requested.",
+    "existing_owner_if_reopened": "Existing MoE short-bench implementation owner, behind BCLM's priority; no new owner or reply gate",
+    "stop": "This one reserve qualification ends with the documented semantic/cost gap. No current reserve implementation or target candidate is allocated."
+  },
+  "primary_semantics": [
+    "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#memory-consistency-model",
+    "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-atom",
+    "https://docs.nvidia.com/cuda/archive/12.8.1/cuda-c-programming-guide/index.html#grid-synchronization"
+  ],
+  "actions": {"new_native_builds":0,"foreign_imports":0,"GPU_jobs":0,"other_owner_polls":0,"default_changes":0,"public_actions":0,"timer_changes":0}
+}
