@@ -32,6 +32,9 @@ def main():
     ap.add_argument("--no-check", action="store_true")
     ap.add_argument("--out", default="")
     ap.add_argument("--router-seed", type=int, required=True)
+    ap.add_argument("--pdl8-tries", type=int, default=5, help="prepares per arm to reach the control's PDL8 enable set")
+    ap.add_argument("--pdl8-want", default="", help="the control's PDL8 enable set as printed, e.g. "
+                    "'{1: True, 8: False, 16: True, 32: True}'")
     a = ap.parse_args()
 
     arms = [s.split("=", 1) for s in a.arms]
@@ -48,14 +51,34 @@ def main():
     weights = ref.generate_weights(ref.WEIGHTS_SEED, router_seed=a.router_seed)
     torch.cuda.synchronize()
 
-    impl = {}
-    for arm, path in arms:
-        t0 = time.monotonic()
+    impl, pdl = {}, {}
+    for idx, (arm, path) in enumerate(arms):
         mod = br.load_module(f"okc_rv_{arm}", path)
-        state = mod.prepare(weights) if hasattr(mod, "prepare") else None
-        torch.cuda.synchronize()
-        impl[arm] = (mod.kernel_fn, state)
-        print(f"RV {arm} {path} import+prepare {time.monotonic() - t0:.1f} s", flush=True)
+        for attempt in range(a.pdl8_tries):
+            t0 = time.monotonic()
+            impl.pop(arm, None)
+            state = None
+            torch.cuda.empty_cache()
+            state = mod.prepare(weights) if hasattr(mod, "prepare") else None
+            torch.cuda.synchronize()
+            impl[arm] = (mod.kernel_fn, state)
+            # the PDL8 gate picks its enable set per prepare, so two preparations of the same bytes can time
+            # different paths (verify 1 and decode 16 / 32 move by 6 to 8 us); arms are compared on one set
+            pdl[arm] = state.get("pdl8_on") if isinstance(state, dict) else None
+            print(f"RV {arm} {path} import+prepare {time.monotonic() - t0:.1f} s; pdl8_on {pdl[arm]}"
+                  f" (attempt {attempt + 1})", flush=True)
+            on = pdl[arm]
+            if not isinstance(on, dict):
+                break
+            if idx == 0:
+                if a.pdl8_want and str(on) != a.pdl8_want:
+                    continue
+                if any(on.get(t) for t in (8, 16, 32)):
+                    break
+            elif on == pdl[arms[0][0]]:
+                break
+        else:
+            print(f"RV {arm}: pdl8_on {pdl[arm]} after {a.pdl8_tries} prepares does not match", flush=True)
 
     timer = br.Timer()
     rows, loads = [], {}
@@ -115,7 +138,7 @@ def main():
               f"{names[0]}/{arm} {gm:.4f}", flush=True)
     if a.out:
         with open(a.out, "w") as f:
-            json.dump(dict(problem=name, arms=arms, rows=rows, loads=loads), f)
+            json.dump(dict(problem=name, arms=arms, pdl8_on={k: str(v) for k, v in pdl.items()}, rows=rows, loads=loads), f)
 
 
 if __name__ == "__main__":
