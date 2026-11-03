@@ -1,0 +1,113 @@
+{
+  "release_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+  "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "builds": {
+    "1": {
+      "key": "tiny",
+      "control_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "tail_warps": 2
+    },
+    "8": {
+      "key": "tiny2",
+      "control_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "tail_warps": 1
+    }
+  },
+  "anchors": {
+    "kernel_entry": {
+      "line": 2205,
+      "anchor": "const int tid = TIDX;"
+    },
+    "fast_prefill_issue": {
+      "line": 2298,
+      "anchor": "const unsigned char* src = p.wAu + ((size_t)e * RB_A + (v & (RB_A - 1))) * (size_t)UNIT_BYTES;"
+    },
+    "later_refill_issue": {
+      "line": 1506,
+      "anchor": "if (q < nA) ring_issue<false>(p, S, a0 + q, ring + sl * UNIT_BYTES, S.bars + sl);"
+    },
+    "ring_ready": {
+      "line": 1431,
+      "anchor": "mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));"
+    },
+    "consumer_partial_join": {
+      "line": 1464,
+      "anchor": "CTA_SYNC();"
+    },
+    "phase_b_job_wait": {
+      "line": 1424,
+      "anchor": "if (lane == 0) { while (ld_acquire(p.doneA + j) < RB_A) __nanosleep(64); }"
+    },
+    "compute_tail": {
+      "line": 1471,
+      "anchor": "if (PB && warp < OKC_WSBLK && warp < nU) {"
+    },
+    "helper_count": {
+      "line": 1519,
+      "anchor": "const int Nh = (OKC_WSB && OKC_WSBL) ? N - min(OKC_WSBLK, b1 - b0) : N;"
+    },
+    "a_credit": {
+      "line": 1558,
+      "anchor": "atomicAdd(p.doneA + jj, b - a);"
+    },
+    "helper_fenced_exit": {
+      "line": 1583,
+      "anchor": "WS_JOIN();  // every epilogue store of this CTA is done before the grid barrier"
+    },
+    "final_join": {
+      "line": 2405,
+      "anchor": "WS_JOIN();  // the helper's last epilogue stores are visible"
+    },
+    "grid_wait": {
+      "line": 2433,
+      "anchor": "while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+    },
+    "finish": {
+      "line": 2586,
+      "anchor": "DBG(5);  // nothing to reset at exit: the flags were zeroed after the barrier, ss is double buffered"
+    }
+  },
+  "gpu": false
+}

@@ -1,0 +1,12 @@
+test_exported_missing_witness_and_unit_corruption (test_gopt_tiny_trace_contract.Contract) ... ok
+test_frozen_owner_cost_and_duplicate_caps (test_gopt_tiny_trace_contract.Contract) ... ok
+test_lossless_budget_fails_without_deleting_raw_records (test_gopt_tiny_trace_contract.Contract) ... ok
+test_native_range_tail_and_dependency_corruption (test_gopt_tiny_trace_contract.Contract) ... ok
+test_occupied_and_empty_buffers_and_actual_export (test_gopt_tiny_trace_contract.Contract) ... ok
+test_router_duplicate_and_wrong_token_size (test_gopt_tiny_trace_contract.Contract) ... ok
+test_selected_flags_and_native_anchors (test_gopt_tiny_trace_contract.Contract) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.539s
+
+OK

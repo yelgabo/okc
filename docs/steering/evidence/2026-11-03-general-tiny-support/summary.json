@@ -1,0 +1,36 @@
+{
+  "scope": "Synthetic source/CPU review only, no GPU timestamps",
+  "published_observer_payload": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+  "source_map_points": 13,
+  "native_units": {
+    "1": {
+      "schema_valid": true,
+      "phase_gain_qualified": false,
+      "jobs": 8,
+      "ctas": 132,
+      "units": 6144,
+      "retained_cta_details": [
+        85,
+        113
+      ],
+      "limit": "Only two final-CTA unit streams survive export. B-end is compute-thread0 return, not CTA completion. No critical-path gain is established."
+    },
+    "8": {
+      "schema_valid": true,
+      "phase_gain_qualified": false,
+      "jobs": 32,
+      "ctas": 132,
+      "units": 24576,
+      "retained_cta_details": [
+        122,
+        107
+      ],
+      "limit": "Only two final-CTA unit streams survive export. B-end is compute-thread0 return, not CTA completion. No critical-path gain is established."
+    }
+  },
+  "full_raw_export_failure": "TINY_TRACE: payload 312295 exceeds 12000; no records may be silently dropped",
+  "owner_encoded_bytes": 7540,
+  "owner_status": "complete",
+  "owner_detail_compacted": false,
+  "private_gpu_job": null
+}

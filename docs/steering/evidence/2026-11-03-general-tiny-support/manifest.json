@@ -1,0 +1,30 @@
+{
+  "scope": "CPU/source support, synthetic timestamp fixture, no GPU job",
+  "published_observer_payload": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+  "files": {
+    "summary.json": "50b4a228fad5fbc33df9b90d735ca4ebe62a22f789bacf2c90950ad98353e491",
+    "synthetic-owner-report.json": "49a35feb0ba0eca968c164bb8fc83f8f73146f177d1f344d4ead124ab6313a88",
+    "public-moe-status.json": "45f27af6ef949dc473fc8910d82474f82b618e1c1eaeaf59116b2be122a2840e",
+    "promotion.json": "0ef1a768a954233f91624cf7ed2b6b35c857ebfb7025cf576c88650f8482c1fb",
+    "source-map.json": "7f7537a6ee21d23667f4aa7c70080dca6dba7cdd45f0dadb8b2b0beb4e2e8366",
+    "cpu-tests.txt": "39a109f1f589fdc3fc7ed0df11034583834bae1e9d26f4b38a1103fd05859390",
+    "public-snapshots/muse_prefill_layer.leaderboard.json": "98b6bae10bc2c5165fd2657b3e17eb49090a8e7280a634ed988bfe9a64c2477c",
+    "public-snapshots/muse_prefill_layer.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "public-snapshots/muse_attention_decode.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "public-snapshots/muse_bf16_proj.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "public-snapshots/snapshot.json": "feb0dcc7328503013f0b38c9853d41e534a0c4b22f40cb12ea9f05aa74664b66",
+    "public-snapshots/muse_moe_w4a16.leaderboard.json": "e82124f129ad2e663a526efcc58c70813f50fdbc82b1eda2f7a1d9e8deac54ad",
+    "public-snapshots/muse_moe_w4a16.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "public-snapshots/muse_bf16_proj.leaderboard.json": "3c111d40e1fe790485542f0b689927e2563e84edad755982ee33c77d26e60e89",
+    "public-snapshots/muse_attention_decode.leaderboard.json": "03fe1cac7f1340c16df8e28ec0d3cb2923ebf9c6288bfae5cc8389b194100e11",
+    "public-snapshots/muse_decode_layer.leaderboard.json": "17e8cca7efa33f6bdd50cb0a7dcc8bddc7140778af5abf6c5ead84a05489d250",
+    "public-snapshots/muse_decode_layer.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "reviewed_sources": {
+    "tools/gopt_tiny_trace_contract.py": "29f8862bf820d1a352d744bcede2ca21f5353d5b35f1cf067d0bd3e0866c81be",
+    "tools/test_gopt_tiny_trace_contract.py": "d912b40741d7347cb51476e7bfe566567c945db5ac232144027620a6541f7018",
+    "tools/moe_tiny_timeline.py": "ab3509005839ee1869fda629c1c49d28628dbfbc23ae1fe4392793eff32bb34a",
+    "tools/moe_tiny_timeline_harness.py": "0e4f5b9a70c03618fdf4177cb2824c1ea555d3358c7e23775e5350f51b4e9e6e",
+    "tools/moe_tiny_timeline_result.py": "0d9bf72da596a44a54b7185ee19ff224cee3f245b331754cdbb2215a314c8bd5"
+  }
+}
