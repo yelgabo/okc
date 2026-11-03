@@ -1513,3 +1513,47 @@ row compares the same T = 8 configuration.
 The decode 16 gain is the T = 16 PDL saving that pdl8d's rule dropped on this box draw. Caveat: in pdl8d's own T = 32 stress on
 the box, the PDL-off arm's ids changed between replays (2524 and 2668 mismatches). If the judge's T = 32 data does the same,
 pdl8f's ids-equal clause turns T = 32 off; that is the safe direction.
+
+### PDL8f check `9ae1d02f0c2e4244` (g1b4_pdl8f.py c4164566)
+
+**Result: VALID 13/13, 10,549.1 us, 2.144x (95% CI 2.112 to 2.176)** against pdl8e's check 10,441.7 (61c009066a5d40a6). PDL was
+on at T = 1, 8 (all six edges) and 32, but **T = 16 turned off on the ids clause**. In its fresh stage the PDL-off arm itself
+changed routing ids between replays (52 mismatches against the reference of the same input) and the PDL-on arm changed 184; the
+float values were equal (5.59e-3 / 4.29e-3 in both arms). Every other stage was clean (out / s2; ids 0 unless noted):
+
+| T | layer | det | det_fresh | fresh | fixed |
+|---|---|---|---|---|---|
+| 1 | sliding | 2.40e-3 / 2.41e-3 both arms | same as det | 9.30e-3 / 7.96e-3 both | same as fresh |
+| 8 | full | 2.02e-3 / 1.52e-3 both | 3.82e-3 / 3.87e-3 both | 8.00e-3 / 7.29e-3 both | 5.73e-3 / 6.18e-3 both |
+| 8 | sliding | 3.33e-3 / 2.79e-3 both | same as det | off 1.66e-3 / 2.59e-3, on 6.62e-3 / 5.59e-3 | off 6.82e-4 / 7.30e-4, on 3.97e-3 / 5.57e-3 |
+| 16 | sliding | 2.79e-3 / 2.70e-3 both | 3.01e-3 / 2.80e-3 both | 5.59e-3 / 4.29e-3 both, **ids off 52, on 184: T off** | not run |
+| 32 | full | 0 / 0 both | 0 / 0 both | 6.10e-3 / 6.78e-3 both | 6.06e-3 / 6.78e-3 both |
+
+In-prepare A/B savings: T = 1 5.66 / 7.14, T = 8 4.61 / 5.76, T = 32 4.29 / 5.54 us (sliding / full).
+
+| cell | 9ae1d02f0c2e4244 | pdl8e 61c009066a5d40a6 | pdl8d 4a737387f88b4d7d |
+|---|---:|---:|---:|
+| decode 1 sliding | 70.05 | 71.03 | 70.8 |
+| decode 1 full | 77.43 | 78.22 | 77.0 |
+| decode 16 sliding | 136.69 | 133.05 | 127.7 |
+| decode 16 full | 211.01 | 210.28 | 205.2 |
+| decode 32 sliding | 152.66 | 142.54 | 149.4 |
+| decode 32 full | 302.00 | 299.32 | 306.8 |
+| verify 1 sliding | 107.47 | 112.21 | 112.9 |
+| verify 1 full | 112.33 | 115.51 | 118.7 |
+| verify 16 sliding | 243.62 | 250.00 | 245.1 |
+| verify 16 full | 322.85 | 332.46 | 336.9 |
+| verify 32 sliding | 310.15 | 308.05 | 321.0 |
+| verify 32 full | 473.31 | 483.94 | 483.9 |
+
+Keep rule (six-load below 10,441.7, every stage clean with PDL on at T = 1 / 8 / 16 / 32, decode 16 at or below 127.7 / 205.2):
+**not met** on all three clauses. T = 16 was off and decode 16 is 136.69 / 211.01. The six-load of 10,549.1 is higher, even though
+every cell except decode 16 / 32 sliding is at or below pdl8e's check, because the SGLang column of this draw differs (for example
+verify 16 sliding SGLang 503.5 against 540.3 in pdl8e's draw) and the score is the paired ratio. Verify 1 is the lowest of the
+three checks (107.47 / 112.33), with both attention edges on. Per the lead's stop rule, no further check.
+
+Finding: routing ids also move with merge-order noise. At T = 16 under alternating inputs, the PDL-off arm flipped ids on 52
+entries by itself, so "ids equal" is the same kind of draw as "within the off arm's own drift". A gate that does not flip on
+noise needs an ids criterion relative to the off arm (for example on mismatches no larger than a multiple of the off arm's,
+with the float bound applied only to rows whose ids match), or a stress input whose routing has no near ties.
+Receipts: `muse_decode_layer/cand/profiles/g1b4_pdl8f.9ae1d02f0c2e4244.{json,log,txt}`.
