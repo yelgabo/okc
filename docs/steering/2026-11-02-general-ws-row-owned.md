@@ -2,7 +2,7 @@
 
 Current decision: retain the original fused WS kernel. The fixed row-owned replacement passed correctness and failed all six matched performance groups. Stop this exact topology.
 
-Actual pickup: 2026-11-03 06:39 UTC, November 2 23:39 America/Vancouver. General Optimizer read origin/main `55298ac7883795d23d272a6da20ab7dc529ca3db` and accepted the [fixed build brief](2026-11-02-general-hotspot-search-refill.md#post-split-research-decision-full-k-output-row-ownership--november-2-2026-pacific). Four-hour build deadline: 2026-11-03 10:39 UTC. No GPU job has been dispatched.
+Actual pickup: 2026-11-03 06:39 UTC, November 2 23:39 America/Vancouver. General Optimizer read origin/main `55298ac7883795d23d272a6da20ab7dc529ca3db` and accepted the [fixed build brief](2026-11-02-general-hotspot-search-refill.md#post-split-research-decision-full-k-output-row-ownership--november-2-2026-pacific). Four-hour build deadline: 2026-11-03 10:39 UTC. No GPU job had been dispatched at pickup.
 
 ## Selected design and decision
 
@@ -12,13 +12,13 @@ The benefit is a hypothesis: remove cross-warp K partial writes, reads and reduc
 
 ## Execution and gates
 
-Next action is native implementation plus byte-permutation, fragment, publication, lifetime and admission checks. Preserve all finite stops in the brief. A runnable qualified candidate receives at most the authorized private same-process comparison against two independent release controls. Three fresh normal/skewed EP8 banks, all nine correctness sizes, all six scored loads, cold replay, exact source/job identity, input/scratch guards and cumulative bounded partial records are required. Freeze complete-six factor >=1.01, greater than twice duplicate noise for all four crosses in every bank/distribution, no affected 1% regression, and unchanged-load drift <=max(1%, twice null). No topology/shape/ring sweep or automatic retry.
+The registered next action at pickup was native implementation plus byte-permutation, fragment, publication, lifetime and admission checks. Preserve all finite stops in the brief. A runnable qualified candidate receives at most the authorized private same-process comparison against two independent release controls. Three fresh normal/skewed EP8 banks, all nine correctness sizes, all six scored loads, cold replay, exact source/job identity, input/scratch guards and cumulative bounded partial records are required. Freeze complete-six factor >=1.01, greater than twice duplicate noise for all four crosses in every bank/distribution, no affected 1% regression, and unchanged-load drift <=max(1%, twice null). No topology/shape/ring sweep or automatic retry.
 
 Live outputs stay in ignored `.build/gopt-ws-owned/`; archive after collection ends. No public submission or production promotion is authorized. MoE Worker's direct-input job and CUDA Optimizer's BF16 work remain separate. Independent review is unavailable under the no-new-agents instruction; source, model, compiler and target checks will be identified separately.
 
 ## Progress
 
-- Pickup recorded; implementation and qualification underway.
+- Pickup, implementation, qualification and the bounded target decision are complete. The terminal stop is recorded below.
 
 ## Frozen build qualification, 06:59 UTC
 
@@ -40,11 +40,11 @@ Every phase-A writer executes a device fence before the 128-consumer join. The p
 
 Before any timings, the target adapter must independently verify every GPU-packed code/scale slice against its original, run both affected sizes against a full FP32 one-local-expert MoE reference with TF32 disabled and restored, and observe actual launch admission. The existing three-bank normal/skewed tests then cover the full routed endpoint and replay transitions. No partial or selected-bank result can qualify a gain.
 
-The fresh preflight public MoE snapshot remains4aa033ef23a142cd at5788.720720us. Its observed rank372 and rank1005558.603217us are timestamped board observations, not changed kernel timings. The saved promotion ledger check has19leads and zero gaps. No new result or public-release opportunity is claimed here. Next action is the one private own-ID dispatch, after fresh quota/job checks. No public action, production edit or other-owner job is included.
+The fresh preflight public MoE snapshot remains4aa033ef23a142cd at5788.720720us. Its observed rank372 and rank1005558.603217us are timestamped board observations, not changed kernel timings. The saved promotion ledger check has19leads and zero gaps. No new result or public-release opportunity is claimed here. The next action at this build checkpoint was the one private own-ID dispatch, after fresh quota/job checks. No public action, production edit or other-owner job is included.
 
 ## Private check accepted
 
-Private own-ID job `7f10243c98e74746` was accepted for `muse_moe_w4a16` at 2026-11-03 07:01:27 UTC. Frozen source revision `37964e414aaa36a52937c09418626ff4776c7406`, physical payload `f31b652f2bf315465072f8c43771befd9a16101354d8bf131d34de8999b173a5`,389590bytes, native896b5350. Official judged arm is candidate2, with only T8/T16 changed. No target result is recorded yet.
+Private own-ID job `7f10243c98e74746` was accepted for `muse_moe_w4a16` at 2026-11-03 07:01:27 UTC. Frozen source revision `37964e414aaa36a52937c09418626ff4776c7406`, physical payload `f31b652f2bf315465072f8c43771befd9a16101354d8bf131d34de8999b173a5`,389590bytes, native896b5350. Official judged arm is candidate2, with only T8/T16 changed. No target result was available at acceptance.
 
 The sole waiter is exec86811, writing ignored `.build/gopt-ws-owned/status-wait.raw.json` and retaining its own exit status. Do not create another poller, redispatch or archive its live output. Collection will end before receipt/profile archival and strict identity/coverage/gate analysis. Fresh quota reports ten MoE private checks remaining before this dispatch. MoE Worker's independently accepted factorized-output job7479372115c64702 is separate and remains with that owner.
 
