@@ -1,6 +1,6 @@
 """Port the BF16 board's m = 1 GEMVs (C2, public 9eba96894ee1402e) into the public decode layer.
 
-Usage: python3 tools/dl_cg_patch.py RELEASE C2 OUT
+Usage: python3 tools/dl_cg_patch.py RELEASE C2 OUT [--front]
   RELEASE  muse_decode_layer/cand/g1b4_stage_release.py (ba9e327c, public 607eb52bdaf24160)
   C2       git show 3044ee7:muse_bf16_proj/submission.py (b2c4c096, public 9eba96894ee1402e)
 
@@ -171,7 +171,7 @@ def pieces(c2):
     return '\n\n'.join(out)
 
 
-def build(release, c2):
+def build(release, c2, front=False):
     if hashlib.sha256(release).hexdigest() != RELEASE_SHA:
         raise ValueError('release bytes changed')
     if hashlib.sha256(c2).hexdigest() != C2_SHA:
@@ -186,12 +186,111 @@ def build(release, c2):
         if need not in src:
             raise ValueError(f'release lacks {need}')
     block = BLOCK.replace('@@PIECES@@', pieces(c2s))
+    if front:
+        for need in ('def _pool_router_fp32(', 'def _gle_frt(', 'router_fp32_launch'):
+            if need not in src:
+                raise ValueError(f'release lacks {need}')
+        block = block.replace('CG_LAYERS = ("qkv_gate", "o", "unpooler")',
+                              'CG_LAYERS = ("qkv_gate", "o", "unpooler", "pooler")')
+        block += FRONT
     return (src.rstrip('\n') + '\n' + block).encode()
+
+
+FRONT = r'''
+
+# T = 1 front: C2's cgemv pooler with the release's FP32 router GEMV on a side stream, against the fused
+# pooler + FP32 router launch (sk2_kernel_gle); a prepare-time A/B picks it.
+CG_FRONT = {}
+CG_FRONT_MIN_US = 0.3
+_cg_side = None
+
+
+def _cg_front(h, hr, state):
+    global _cg_side
+    if _cg_side is None:
+        _cg_side = torch.cuda.Stream()
+    cur = torch.cuda.current_stream()
+    logits = torch.empty((1, 256), dtype=torch.float32, device=h.device)
+    _cg_side.wait_stream(cur)
+    rc = state['router_fp32_ext'].router_fp32_launch(hr.data_ptr(), state['router_fp32'].data_ptr(),
+                                                     logits.data_ptr(), 1, _cg_side.cuda_stream)
+    if rc:
+        raise RuntimeError(f'FP32 router launch failed: {rc}')
+    pooled = _cg_call(state["bfp"]["cg"]["pooler"], h, 8192)
+    cur.wait_stream(_cg_side)
+    return pooled, logits
+
+
+_cgf_prior_pool_router_fp32 = _pool_router_fp32
+def _pool_router_fp32(h, hr, T, state, ppick):
+    bst = state.get("bfp")
+    if (CG_FRONT.get(T) and T == 1 and bst is not None and "pooler" in bst.get("cg", {}) and hr is not None
+            and ppick in ("bfp", "bfpf") and h.is_contiguous() and hr.is_contiguous() and h.data_ptr() % 16 == 0
+            and state.get("router_fp32_ext") is not None):
+        return _cg_front(h, hr, state), -1
+    return _cgf_prior_pool_router_fp32(h, hr, T, state, ppick)
+
+
+def _cg_front_ab(state):
+    CG_FRONT.clear()
+    bst = state.get("bfp")
+    if bst is None or "pooler" not in bst.get("cg", {}) or state.get("router_fp32_ext") is None:
+        print("CG_FRONT off: no cgemv pooler", flush=True)
+        return
+    dev = state["qkv"].device
+    g = torch.Generator(device=dev).manual_seed(24680)
+    hr = torch.randn(1, 8192, generator=g, device=dev).contiguous()
+    h = hr.to(torch.bfloat16)
+    pa, la = _gle_frt(h, hr, state)
+    pb, lb = _cg_front(h, hr, state)
+    torch.cuda.synchronize()
+    rp = ((pb.double() - pa.double()).norm() / pa.double().norm()).item()
+    rl = ((lb.double() - la.double()).norm() / la.double().norm()).item()
+    flush = torch.ones(60 * 1000 * 1000, dtype=torch.float32, device=dev)
+    sink = torch.zeros((), dtype=torch.float32, device=dev)
+    graphs = []
+    for fn in (lambda: _gle_frt(h, hr, state), lambda: _cg_front(h, hr, state)):
+        fn()
+        torch.cuda.synchronize()
+        gr = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(gr):
+            fn()
+        graphs.append(gr)
+    ts = ([], [])
+    for r in range(15):
+        for i in ((0, 1) if r % 2 == 0 else (1, 0)):
+            sink.copy_(flush.sum())
+            a = torch.cuda.Event(enable_timing=True)
+            b = torch.cuda.Event(enable_timing=True)
+            a.record()
+            graphs[i].replay()
+            b.record()
+            torch.cuda.synchronize()
+            ts[i].append(a.elapsed_time(b) * 1000.0)
+    med = [sorted(v)[len(v) // 2] for v in ts]
+    wins = sum(1 for x, y in zip(ts[0], ts[1]) if y < x)
+    ok = rp < CG_GATE_REL and rl < 1e-5
+    CG_FRONT[1] = bool(ok and med[1] + CG_FRONT_MIN_US < med[0])
+    print(f"CG_FRONT T=1 fused {med[0]:.2f} split {med[1]:.2f} us, split faster {wins}/15, pooled rel {rp:.2e}, "
+          f"logits rel {rl:.2e}, gate {'ok' if ok else 'FAIL'} -> {'split' if CG_FRONT[1] else 'fused'}", flush=True)
+    del graphs, flush
+
+
+_cgf_prior_prepare = prepare
+def prepare(weights):
+    state = _cgf_prior_prepare(weights)
+    try:
+        _cg_front_ab(state)
+    except Exception as ex:  # noqa: BLE001
+        CG_FRONT.clear()
+        print("CG_FRONT failed:", repr(ex)[:200], flush=True)
+    return state
+'''
 
 
 def main():
     rel, c2, out = sys.argv[1:4]
-    data = build(open(rel, 'rb').read(), open(c2, 'rb').read())
+    data = build(open(rel, 'rb').read(), open(c2, 'rb').read(), front='--front' in sys.argv[4:])
     ast.parse(data.decode())
     open(out, 'wb').write(data)
     print(out, hashlib.sha256(data).hexdigest(), len(data))
