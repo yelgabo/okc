@@ -1,153 +1,77 @@
-# okc: Open Kernel Challenge work
+# Open Kernel Challenge
 
-## General Optimizer wake-up check
+## Start and ownership
 
-OKC General Optimizer reads the newest shared steering queue and its active
-assignment before resuming on every user wake or scheduled wake. An active
-implementation/measurement assignment takes precedence over routine architecture
-tracker maintenance. Record actual pickup, the selected source/job and the next
-authorized action in the owned report. Preserve other workers' jobs and files.
+Read [shared steering](docs/steering/README.md), the latest applicable report and newer origin/main commits/run logs. Read only the records needed for the current decision. [Context](docs/context.md) is historical.
 
+Decode32 Worker owns T32/q_len1 sliding/full implementation, compilation, correctness, private checks, own-job analysis, integration and commits. Optimize `46*sliding_us + 16*full_us`; preserve other loads. The current user target is verified D32 speedup of at least2.3x. Research owns architectural choices and concrete experiments. No routine Driver approval or handoff. Read the [directive](docs/steering/decode32/2026-11-02-02-end-to-end-ownership.md), [inbox](docs/steering/decode32/README.md) and [status](docs/steering/decode32/STATUS.md). Continue selected work and reuse existing MID evidence.
 
-## P0 user directive: Decode32 Worker owns the D32 lane end to end (2026-11-02)
+User continuation, November2: keep D32 execution moving toward2.3x. An empty research queue does not justify becoming only a polling monitor. Qualify bounded, nonoverlapping source-backed experiments while research continues; preserve closed variants and technical gates. [Current reduction experiment](docs/steering/decode32/2026-11-02-18-active-reduction-experiment.md).
 
-The user explicitly removed handoffs for **batch-32 optimization only**, not the
-whole project. **Decode32 Worker owns D32 implementation, compilation, validation,
-private GPU checks, result analysis, iteration, integration and commits.** It does
-not need OK Driver/OKC Developer to approve or execute each step. Read the latest
-[scoped owner directive](docs/steering/decode32/2026-11-02-02-end-to-end-ownership.md)
-and [watched task inbox](docs/steering/decode32/README.md).
+General Optimizer reads the newest queue and active assignment on every user/scheduled wake. Implementation and measurement precede tracker maintenance. Record actual pickup, selected source/job and next action.
 
-Scope is decode T32/q_len1, sliding and full, optimizing
-`46 * sliding_us + 16 * full_us`, not verify32/T256. Preserve other load winners.
-First milestone is reproducible 2x from the recorded1.8632x, then2.1-2.2x;
-these are targets, not promised gains. Continue the already-picked-up attention
-work and reuse the existing MID implementation rather than rebuilding it.
+Write live collector output under ignored `.build/` and archive after exit. Rebase can replace a tracked redirect target's inode; recover ended output by its own job ID instead of resubmitting.
 
-This supersedes older Driver-only dispatch, attention-only/source-only and
-measurement-handoff restrictions **for D32 only**. OK Driver/OKC Developer keep
-unrelated work; do not start new overlapping D32 assignments. Existing accepted
-jobs finish under their original owner without cancellation, duplicate submission
-or a second poller. Decode32 Worker checks the live shared job/quota ledger before
-new private runs and records its exact source/job. A one-time existing-job overlap
-is not a recurring handoff gate. No new agents or project-wide takeover.
+Other owners retain unrelated work. Preserve accepted jobs/files, shared quota and single pollers. Never duplicate, cancel or resubmit another owner's job. Check live jobs/quota before a private run. No new agents or project-wide takeover. Publication, pickup and execution are separate facts. Escalate concrete access, technical or permission blockers.
 
-Technical correctness, source attribution, graph lifetime and regression gates
-remain. Existing public/scored-submission permissions are unchanged; no blanket
-new public authorization is implied. The same D32 owner performs approved release
-work directly. Record actual pickup separately from publication; escalate only
-real access/technical/permission blockers, not routine implementation checkpoints.
+## Code and context
 
-Background and decisions: `docs/context.md`. Coordinator working method (agents, quota,
-submits, porting, traps): `.claude/agents/okc-coordinator.md`. Every run: `docs/runs.md` (bf16_proj),
-`docs/runs-moe.md`, `docs/runs-attention.md`.
+Trace dispatch, generators, imports and file reads before deleting code. Scored-shape inactivity alone does not establish dead code. Preserve fallback/neighbor behavior, frozen active sources, attribution and numerical/order/progress/lifetime guarantees.
 
-## Steering reports and cross-session handoffs
+Comments explain a non-obvious reason in at most two lines. Remove narration, banners and stale experiment histories. Preserve legal notices, shebangs, tool directives and generation markers. Longer explanations belong in maintained docs.
 
-User preference, 2026-10-29: every substantive project-steering or audit response must be
-checked into this repository so the other sessions can read it. Start steering work by
-reading `docs/steering/README.md` and its latest report, then reconcile with newer commits
-and run logs rather than repeating completed experiments.
+Generated benchmarks belong in ignored output paths; recover retired snapshots from exact Git pins. [.rgignore](.rgignore) omits historical copies from default searches. Use explicit paths or `rg --files --hidden --no-ignore -g '!.git'` for archived material. Keep current incumbent source and tests discoverable.
 
-Write the full report to `docs/steering/YYYY-MM-DD-<topic>.md` (add a time or sequence suffix
-when needed), pin its evidence commit and run identifiers, distinguish measured results from
-hypotheses, and include priorities, next actions, validation/stopping criteria and gaps.
-Update `docs/steering/README.md` with the latest link and report history. Preserve old reports;
-use explicit dated addenda or a new report for corrections and subsequent progress.
+Preserve original encodings during bulk document edits. Some historical Markdown is CP1252; never decode with replacement.
 
-Commit and push the report and index during the same task using the normal repository
-workflow. Preserve concurrent work; do not force-push or overwrite another session's changes.
-Verify the remote files before reporting completion, and return the report path and commit.
-A chat-only answer or sandbox attachment alone does not complete the handoff. If publishing
-is blocked, state the blocker rather than claiming it is checked in. An explicit user request
-for no repository writes takes precedence. This rule does not authorize kernel changes or
-scored submissions beyond the user's existing permissions.
+Historical docs live in `archive/docs/`, outside default searches. Consult its move manifest or use `rg --files --no-ignore archive` when following older evidence. Keep files consumed by current tools at their existing paths.
 
-## Repository file discovery
+## Research and experiments
 
-For filename-unknown document requests, follow `docs/repository-file-discovery.md`.
-Confirm the checkout and remote, enumerate repository paths with `rg --files` and
-`git ls-files`, then inspect candidate contents. Include HTML when the user describes
-diagrams or a visual document. Search misses establish only that a search found no
-matches. Before reporting a scoped miss, widen the path inventory, account for hidden
-and ignored files, and distinguish errors from empty results. Stay in the requested
-repository unless evidence warrants a different source. Verify the title and relevant
-content before recommending a candidate. User corrections require a different retrieval
-method. Record the searched checkout or ref and return the verified path or link.
+Before substantial research, read [working principles](docs/steering/2026-11-01-working-principles.md) and the [coordinator method](.claude/agents/okc-coordinator.md). Follow the [standing hotspot goal](docs/steering/2026-11-02-incumbent-hotspot-goal.md) and current owner queue.
 
-The 2026-10-28 incident and reproducible before/after evaluation are recorded in
-`docs/file-discovery-eval/report.md`. This rule must remain in the root instruction file
-so future sessions load the correction without needing the original conversation.
+Search independently by problem/challenge identifiers, later pages, handles, forks and credits. Record date, queries, coverage and access limits. A miss establishes only that search's result. Choose by complete-call benefit, cost, uncertainty and quota; compare a complete alternative before fragment adoption. Our base must earn retention.
 
-## CUDA research reference
+Pin full source, preparation/packing, dispatch, build flags, epilogues, attribution and precision. Separate team rows, exact-file receipts and matched comparisons. Preserve per-workload winners and measure the complete dispatcher instead of adding isolated gains.
 
-Before selecting CUDA work from the November 2 H200 playbook, read
-[the reference index](docs/research/cuda-h200/README.md), then the relevant topic
-and application-ledger rows. Run `python3 tools/check_cuda_research.py` before
-reusing its source claims. Reconcile changed evidence before refreshing hashes.
-The complete attachment and section coverage are preserved there. These notes
-do not reopen parked experiments or change D32 ownership or submission permission.
-Compiler checks must preserve the compiler's failure status and full diagnostics;
-successful output filtering is not build evidence.
-Local SM90a cross-compilation is not a replica of the H200 execution environment.
-Label its resources as local compiler observations until the target toolchain,
-full build and generated binary are verified. Remote GPU results stand separately.
-When changing WGMMA grouping, read the active constants from the selected native
-literal. Nearby helper literals and old comments can differ. Test that deferred
-flush conditions remain reachable for every selected group size, and inspect
-compiled publication operations before any GPU run. Record rounded flush timing
-explicitly rather than claiming an unchanged boundary.
+Register hypothesis, controls, affected loads, acceptance threshold and stop before dispatch. Use matched fresh inputs/routing, independent mutable states, duplicate controls, graph replay, captured-output checks and priced observer cost. Compiler success, numerical agreement, ordering proof and measured speed establish different things.
 
-## Research and execution principles
+Private observers must retain bounded partial evidence on budget/failure exits and preserve the failure status. Account for server log-tail eviction: cumulative bounded failure capsules must retain completed rows; a stream of last-row progress alone can lose earlier evidence. Register preparation/observation cost and a finite stop; an empty budget-failure report is inconclusive. See [D32 observer closure](docs/steering/decode32/2026-11-02-17-observer-budget-closure-and-refill.md).
 
-Apply these principles when choosing work, reviewing results and handing off. Use the latest steering report for current priorities and reuse current dated evidence instead of repeating completed investigations.
+Read [ruled-out variants](docs/ruled-out.md) before proposing work; reopening requires stated new evidence. Record every loss in that file and its run log. If a port loses while its full comparator wins, retain receipts, competing explanations, owner and a distinguishing test, or document the stronger priority. Use waiting time for relevant implementation, compilation or correctness work; avoid repeated readiness reviews.
 
-1. **Own discovery.** Search for stronger methods independently of user-supplied names. Search challenge/problem identifiers, inspect later result pages, and follow leaderboard handles, forks, upstream credits and primary research. Record queries, date, scope, access limits and useful pins. A search miss establishes only the result of that search. Distinguish independent discoveries from user-supplied leads.
-2. **Choose by the user's objective.** Compare plausible end-to-end benefit, implementation cost, uncertainty and quota with the strongest alternative before another experiment round. Reconsider the roadmap when evidence changes. A backlog entry or interesting local improvement does not establish priority. State what observation would change the choice.
-3. **Let evidence choose the starting point.** Our implementation must earn its place as the base. Compare a complete alternative before deciding to graft isolated ideas onto ours; choose a different base or a measured hybrid when evidence and the user's adoption policy support it. Identify necessary computation, bytes moved, producer/consumer dependencies and actual selected routes. Derive a materially different design before renewing local tuning and size its contribution to the real weighted score. Profiler totals, peak hardware rates and logical duplicate bytes alone do not establish exposed time that can be saved.
-4. **Compare complete implementations and choose per workload.** Pin and reproduce the full file, including preparation, packing, dispatch, scheduling and epilogues, before selecting individual ideas. A route may win on one workload and lose on another. Compare the actual choices per shape, preserve standalone and layer decisions, then measure the complete combined dispatcher rather than adding isolated gains. Shared ancestry does not establish performance parity. Separate a team's best leaderboard row, a published file's own result and a fresh matched comparison. Read active build flags and selected code paths. Record attribution, precision and ordering obligations before adoption.
-5. **Preserve performance during integration.** Begin with the smallest justified changes to a working reference. Inventory each change, distinguish required properties from conservative implementation choices, and measure the cost of changed groups and relevant interactions. If our port loses while the complete comparator wins, record the losing variant and keep the discrepancy open with receipts, affected loads, competing explanations, an owner and a distinguishing test. Investigate it or document why another task has greater expected impact.
-6. **Make experiments decide a question.** Before dispatch, write the hypothesis, controls, affected workloads, acceptance threshold and stopping condition. Hold unrelated choices fixed, use matched inputs and independently prepared duplicate controls, and inspect actual compiled code and resources where relevant. Separate measured effects from causal explanations, estimates and hypotheses. Report inconclusive results explicitly.
-7. **Validate the measuring instrument.** Verify selected paths, source/job identity, private mutable state, fresh inputs, graph replay and observer overhead. Inspect captured outputs after replay. Compiler success, numerical agreement, ordering/progress proofs and measured speed answer different questions. Test the harness's real entry points and negative cases when they could change the decision.
-8. **Preserve correctness while questioning its implementation.** Keep required numerical boundaries, publication, lifetime and progress guarantees explicit. Seek faster implementations of those properties. Passing tests alone cannot establish memory ordering, and a conservative repair's full cost cannot be declared necessary without evidence. Keep private diagnostic and public release eligibility distinct.
-9. **Scope failures to exact implementations.** A failed version of a technique does not disprove the whole design family or a different working public implementation. Record the conditions and mechanism each loss rules out, reuse relevant public negative evidence, and state what new evidence would justify reopening. Read those scoped closures before proposing another variant. Develop independent relevant hypotheses and source proofs in parallel. Track ideas, implemented treatments, controls, qualified results and shippable candidates separately; source snapshots, audits and factorial combinations do not create independent candidates. Parallel work must respect ownership and current user priorities.
-10. **Turn learning into execution.** While a judge job runs or service is unavailable, advance relevant analysis, implementation, compilation or correctness work. Use authorized scored measurements for eligible candidates when private checks are exhausted; recheck live jobs/quota and keep one dispatch owner. Existing submission permission and release rules still apply. At handoff, record the evidence that changed the next decision, actual outcome, remaining unknowns, owner and next gate in the repository. A written lesson is validated by better subsequent decisions and verified outcomes.
+After integration and before ceiling claims, check whether a parked family's revisit trigger has landed and compare against the current incumbent.
 
-Use the coordinator's Research method for detailed execution. These principles preserve the existing external-code, correctness and submission requirements. Background and rationale are in docs/steering/2026-11-01-working-principles.md.
+## Evidence and release
 
-## FP8 finiteness checks
+Profile SGLang before optimizing: copy its baseline with the `# okc: problem=<problem>` header to `<problem>/baseline_profile/baseline.py`, run a private check and keep its JSON. Find receipts with `rg --files <problem>/baseline_profile`; job IDs belong to their problem.
 
-PyTorch may not implement `isfinite` for FP8 tensors. Cast FP8 values to FP32
-for diagnostic finiteness checks and preserve their original dtype in the actual
-computation. Cover finite and nonfinite FP8 inputs in the relevant test.
+Run `tools/hotspots.py` on the latest run with `--baseline` before choosing a kernel. Append a table to [hotspots](docs/hotspots.md) when a new best lands. Commit every check's profiles and log date, job, source commit, change, score/95%CI and losses in [projection](docs/runs.md), [MoE](docs/runs-moe.md), [attention](docs/runs-attention.md) or [layer](docs/runs-decode-layer.md) runs.
 
-## Evidence rules
+Use `okc check <file> --no-wait --json`, retain its ID and wait only on that ID. Confirm problem/job/source before using results. Never `okc submit` without the user's go-ahead. Cleanup grants no new scored/public permission. Source snapshots and audits are not independent performance candidates.
 
-- **Profile SGLang before optimizing a problem.** A normal run profiles only our submission.
-  Copy `baseline.py` to `<problem>/baseline_profile/baseline.py` with the
-  `# okc: problem=<problem>` header, run it as a check, and keep its result JSON there. That is
-  the hotspot map: which SGLang kernels take the time, per shape.
-  Discover its receipt with `rg --files <problem>/baseline_profile`; baseline job IDs
-  belong to their problem and must not be copied from another problem's path.
-- **Find the hotspot, then attack it.** Before writing a kernel, run `tools/hotspots.py` on the
-  latest run (with `--baseline`) and pick the target from the gap between each kernel's time and
-  the floor. Append the table to `docs/hotspots.md` whenever a new best lands.
-- **Keep every run's breadcrumbs.** Commit `profiles/*` for every check, and log each run in the
-  problem's runs file (date, job id, commit, change, score with 95% CI, notes), including the
-  ones that lose.
-- **Wait on your own job id.** With several checks in flight from this machine, `okc check` can
-  return another problem's job. Use `okc check <file> --no-wait --json`, then
-  `okc status <job> --wait --json`, and confirm the problem and job id before using a number.
-- **Never `okc submit` without the user's go-ahead.** It posts publicly under their GitHub name.
-  `okc check` is free of that.
-- **Never drop a memory-ordering fence or barrier for speed on test results alone.** Passing
-  tests do not prove an ordering safe. Keep the documented pattern (e.g. `fence.proxy.async` on
-  the writing side before an mbarrier arrive, when generic stores feed wgmma or TMA reads)
-  unless the PTX memory model shows the alternative is correct, and cite that section. The
-  attention verify variants with bit 2 (var 2, 18) do this; submissions use the fenced ones.
-- **Keep audit attribution exact.** Verify every cited run ID against its owning receipt or
-  run-log row. Distinguish what an uploaded report says from what its cited sources say;
-  do not attribute a source recommendation to the upload without checking the upload text.
-- **Record losers in `docs/ruled-out.md`.** Every experiment that loses or is closed gets a row
-  there (evidence with job id, and what it rules out), in addition to its runs-log entry. Read
-  it before proposing an experiment; reopening one needs new evidence, stated explicitly.
+Never remove a fence/barrier for speed on tests alone. Preserve writing-side `fence.proxy.async` before publication when generic stores feed WGMMA/TMA unless the applicable PTX memory-model proof supports a cited alternative. Retain mathematical boundaries, graph lifetime and progress guarantees.
+
+Cast FP8 values to FP32 for diagnostic finiteness checks, retain FP8 computation and cover finite/nonfinite inputs. Guard `rank: null` before numeric leaderboard comparisons; retain rows and distinguish rendering errors from empty results.
+
+Use explicit source tags for private diagnostic call-site labels. Never inspect Python frames, including `sys._getframe`; the service rejects harness-frame access.
+
+## CUDA source
+
+Before using the November2 H200 playbook, read its [index](docs/research/cuda-h200/README.md), relevant topic/application rows and run `python3 tools/check_cuda_research.py`. Reconcile changed evidence before refreshing hashes. Reference notes do not reopen parked experiments or change ownership.
+
+Resolve native code through the final factory and preprocessed flags. Public607 B4/MAIN already select the parallel prefix in `MOE_CUDA_SRC`. Tiny/Tiny2/MID use WS=1/WGS=0, excluding their helper's serial WGS prefix. Reproduce with `tools/d32_b4_prefix_audit.py`, `tools/gopt_short_prefix_audit.py` and the [source correction](docs/steering/decode32/2026-11-02-13-b4-prefix-selected-source.md).
+
+For WGMMA grouping, read active constants, prove deferred flush conditions reachable for every selected group size, inspect compiled publication operations and disclose rounded flush timing. Preserve compiler failure status and complete diagnostics; output filtering is not build evidence.
+
+## Document discovery and publication
+
+Architecture diagrams must label editable scope separately from performance groups. Dense projections covers QKV/gate, O, pooler, unpooler and router GEMMs. Whole-layer scope also includes routing, norms and residual boundaries, with fusion allowed under its numerical and execution contract. A missing speedup badge does not exclude a stage. Cross-GPU communication is outside this layer benchmark. See [scope clarification](docs/steering/2026-11-02-diagram-customization-scope.md).
+
+Filename-unknown requests require checkout/remote confirmation and `rg --files` plus `git ls-files` before content search. Include HTML for visual documents. Widen to hidden/ignored files before a scoped miss; distinguish errors/truncation from empty results. Verify title/content, change retrieval method after user corrections and return searched ref plus verified path/link. Follow [the protocol](docs/repository-file-discovery.md). Keep this root rule for the [October28 correction/evaluation](docs/file-discovery-eval/report.md).
+
+Every substantive steering/audit response belongs in `docs/steering/YYYY-MM-DD-topic.md`, with evidence commit/jobs, measurements versus hypotheses, priorities, next actions, validation/stop criteria and gaps. Update the index/history, preserve old reports and use dated corrections. Commit, push and verify remote files in the same task; return report path and commit. Chat-only answers do not complete handoff. An explicit no-write request overrides this rule.
+
+Preserve concurrent work; never force-push or claim blocked publication succeeded. Verify cited runs against their owning receipts/logs and distinguish uploaded claims from checked sources. Plans/specs live under `docs/`; Superpowers specs use `docs/superpowers/specs/`.
+
+Local SM90a cross-compilation is not a replica of the H200 execution environment. Label resources as local compiler observations until target toolchain, full build and binary parity are verified. Remote GPU correctness and timing results stand separately.

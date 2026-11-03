@@ -1,0 +1,83 @@
+{
+  "observed_utc": "2026-11-03T03:54:20.671369+00:00",
+  "limits": {
+    "muse_moe_w4a16": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 4,
+        "left": 16
+      }
+    },
+    "muse_decode_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 7,
+        "left": 13
+      }
+    }
+  },
+  "live_jobs": [
+    {
+      "job_id": "4a2a79bdac04499a",
+      "problem": "muse_decode_layer",
+      "mode": "check",
+      "status": "queued"
+    },
+    {
+      "job_id": "b38a9ed6dc9743e9",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "status": "running"
+    }
+  ],
+  "accepted_owner_jobs": [
+    {
+      "job_id": "b38a9ed6dc9743e9",
+      "problem": "muse_moe_w4a16",
+      "status": "running",
+      "passed": null,
+      "result_status": null
+    },
+    {
+      "job_id": "bd5776bdfcab42a7",
+      "problem": "muse_decode_layer",
+      "status": "done",
+      "passed": true,
+      "result_status": "ok"
+    }
+  ],
+  "overall": {
+    "rank": 386,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 385
+  },
+  "layer": {
+    "rank": 386,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 385,
+    "to_first": 1.1713
+  },
+  "layer100": {
+    "attempts": 70,
+    "job": "3f053a35987b4d61",
+    "rank": 100,
+    "speedup": 2.2715,
+    "submitted_at": 1793586526.5452619,
+    "team": "chafreaky",
+    "value": 9958.441684859845
+  },
+  "source": "Fresh shared CLI lists only; no own-ID status polling by root."
+}

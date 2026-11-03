@@ -1,0 +1,30 @@
+{
+  "job": "b38a9ed6dc9743e9",
+  "source_revision": "51d6286b",
+  "source_sha256": "1e857ad48100bb898512d28baccd25e6938067607754506d83fbbfb6e6484b21",
+  "returncode": 0,
+  "official_passed": true,
+  "component_pass": false,
+  "profile_hashes": {
+    "intent.json": "4e49868d4cee54df7831b923177f4019b6cfdaf08687e39db3793666a46739d7",
+    "accepted.json": "88adc7cf096ced35680304946a7eb7f8554cf8e75443bb404be554ffdaa6c074",
+    "status-wait.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status-wait.raw.json": "6761f19192b6df0b83decd683718a1cbd353e39d273e0da00db0d02bcb25feae",
+    "upload-association.json": "3d9c9f380815d8148674035f4e86d7623bfd877d5fb6ff0cc09aff80e915beee",
+    "paired.manifest.json": "2d7a22dd5ad989ccfc745428b1779133d1e1988be0eb4b623677da0762824eb6",
+    "descriptive-summary.json": "fe9476e1f53c44e0756999ce9e9cc4bb455b313850e5b704af752eab2ce9cda2",
+    "preflight-quota.json": "dbf03dfd1093f110faece5c05f590888b5678dab078b055ea700489e5860f1dd",
+    "preflight-jobs.json": "b144fa69a24711dd81112cf51253bd715877d798e99be6fa398c76d267a1a90d",
+    "log-attestation.json": "679bde490a1027f8e9beacd516905e12df59203ee4a218f00589ccbb95e42cdd",
+    "analysis.json": "a637bc3df5ecbca9e21e4ef2a831eff4103fceeb9275a6e02c38c37f75bc5b5d",
+    "owning.log": "660f00132cb034f19e68802a750bdf2901ace86302dfca6666d05f4b11a614fe",
+    "dispatch.raw.json": "ddebcc7a2b13b2356f919a413332f1cca00b599bb68247724926a2cff45a4ff4",
+    "paired.py": "1e857ad48100bb898512d28baccd25e6938067607754506d83fbbfb6e6484b21",
+    "profiles/paired.b38a9ed6dc9743e9.log": "660f00132cb034f19e68802a750bdf2901ace86302dfca6666d05f4b11a614fe",
+    "profiles/paired.b38a9ed6dc9743e9.json": "bac57a692dfc55cdea9e0ca28aa694d50ad1e9487223130396fac93488078f3e",
+    "profiles/paired.b38a9ed6dc9743e9.txt": "bd9d87407dbe0c525f8fd4d783ca79ffd6029584688744cca7bd65028d84f346"
+  },
+  "receipt_log_without_12_profiler_USDT_lines_equals_owning_log": true,
+  "completed_rows": 36,
+  "retained_progress_count": 11
+}

@@ -1,0 +1,17 @@
+{
+  "canonical_commit": "1e068258",
+  "WS_builds_verified": 3,
+  "D32_identity_FMUL_sites": 16,
+  "finite_CPU_identity_cases": 1061391,
+  "finite_CPU_identity_pass": true,
+  "norm_FTZ_counterexample": {
+    "per_unit_input_bits": "00400000",
+    "two_global_FTZ_updates_from_zero": "00000000",
+    "plain_register_batch_bits": "00800000",
+    "scope": "CPU model of documented FTZ semantics, not a GPU result"
+  },
+  "gpu_execution": false,
+  "new_kernel_compilation": false,
+  "tracked_artifact_changes": false,
+  "portability": "Ran existing verifier on exact Git blob bytes in ignored .build; Windows checkout CRLF hash mismatch recorded separately; no manifest alteration."
+}

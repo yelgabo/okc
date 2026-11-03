@@ -1,0 +1,31 @@
+{
+  "observed_utc": "2026-11-03T03:29:20.436690+00:00",
+  "evidence_commit": "9f8fa34a991f63a26f53cccefbeade39b045f353",
+  "proposal_origin": "Existing OKC CUDA research chat, initial General refill; CPUcounts7c1d1086. Fullreport append reportedblocked; this is independent narrow source/codegen qualification.",
+  "control_LF_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "selected_flags": "WS1/WGS0; existing gopt-short-prefix/audit.json exact preprocessing",
+  "source": "muse_decode_layer/cand/g1b4_stage_release.py",
+  "ws_helper_line": 13990,
+  "helper_norm_lines": [
+    14043,
+    14058
+  ],
+  "preserved_tail_line": 13978,
+  "archive": "docs/steering/evidence/2026-11-02-gopt-skinny-depth/mid-control.sass.gz",
+  "archive_sha256": "b8f9838c90c483622bcc2a55977328ae519fdd58efe2e04930225c2c74630d03",
+  "uncompressed_sha256": "39ed3c89b46c8ef6487b04f2573f56deecefb0d6eb500d379d132347baf28e99",
+  "helper_ATOM_sites": [
+    "0x11ae0",
+    "0x11e50"
+  ],
+  "preserved_tail_ATOM_sites": [
+    "0xc670",
+    "0xca30"
+  ],
+  "loop_backedge": "0x12020->0x10890",
+  "both_bool_entries": true,
+  "independent_review": "next_material_measurement, read-only; no edits/GPU/jobs",
+  "root_verified_archive_hashes": true,
+  "limits": "Static selected code proves repeated atomic work, not exposed time, dynamic route counts, target treatment admission, numerical equivalence or speedup."
+}

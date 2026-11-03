@@ -1,0 +1,131 @@
+{
+  "job": "bd5776bdfcab42a7",
+  "source_sha256": "93a05524b1c10b44ac5bd1ea307a25fdc906db4a617737a579cfae6332fd0d49",
+  "server_content_hash": "d21bcb3318ba193076e06febe291a9136b2a06065d93460f2ceaa266b0526e9d",
+  "score": 2.1192138982637805,
+  "ci": [
+    2.0874256897898236,
+    2.151002106737737
+  ],
+  "loads": {
+    "d1": {
+      "adjusted_weighted_us": 4838.918661072875,
+      "raw_weighted_us": 5011.328026652336,
+      "baseline_weighted_us": 10812.03200481832,
+      "speedup": 2.234390111120632
+    },
+    "d16": {
+      "adjusted_weighted_us": 9964.41604530176,
+      "raw_weighted_us": 10197.15204834938,
+      "baseline_weighted_us": 19465.856192633506,
+      "speedup": 1.953537076747382
+    },
+    "d32": {
+      "adjusted_weighted_us": 12305.489629451904,
+      "raw_weighted_us": 12597.631752491,
+      "baseline_weighted_us": 22334.399675019085,
+      "speedup": 1.8149947988712318
+    },
+    "v1": {
+      "adjusted_weighted_us": 7258.184908497244,
+      "raw_weighted_us": 7474.239930510521,
+      "baseline_weighted_us": 16559.679685160514,
+      "speedup": 2.2815180232972434
+    },
+    "v16": {
+      "adjusted_weighted_us": 16891.972571811082,
+      "raw_weighted_us": 17105.95181584358,
+      "baseline_weighted_us": 36452.22297310829,
+      "speedup": 2.1579612930427605
+    },
+    "v32": {
+      "adjusted_weighted_us": 22171.325016490293,
+      "raw_weighted_us": 22383.231550455093,
+      "baseline_weighted_us": 51489.279094152145,
+      "speedup": 2.3223365791560107
+    }
+  },
+  "cells": {
+    "d1s": {
+      "adjusted_us": 76.42066646771268,
+      "raw_us": 79.29600030183792,
+      "baseline_us": 171.96799907833338,
+      "seed": 8156569080562603861
+    },
+    "d1f": {
+      "adjusted_us": 82.72300022238069,
+      "raw_us": 85.23200079798698,
+      "baseline_us": 181.34400295093656,
+      "seed": 8156740316303090804
+    },
+    "d16s": {
+      "adjusted_us": 141.85040667347246,
+      "raw_us": 145.7120031118393,
+      "baseline_us": 269.8880070820451,
+      "seed": 8156911552043577748
+    },
+    "d16f": {
+      "adjusted_us": 214.95608364512665,
+      "raw_us": 218.3999940752983,
+      "baseline_us": 440.68799167871475,
+      "seed": 8157082787784064693
+    },
+    "d32s": {
+      "adjusted_us": 161.43840818119688,
+      "raw_us": 165.69599509239197,
+      "baseline_us": 268.9600004814565,
+      "seed": 8157254023524551639
+    },
+    "d32f": {
+      "adjusted_us": 304.957678319803,
+      "raw_us": 310.9759986400604,
+      "baseline_us": 622.6399783045053,
+      "seed": 8157425259265038586
+    },
+    "v1s": {
+      "adjusted_us": 114.30737021560446,
+      "raw_us": 117.21599847078323,
+      "baseline_us": 262.49599549919367,
+      "seed": 8157596495005525534
+    },
+    "v1f": {
+      "adjusted_us": 125.0028674112149,
+      "raw_us": 130.14400005340576,
+      "baseline_us": 280.30399326235056,
+      "seed": 8157767730746012483
+    },
+    "v16s": {
+      "adjusted_us": 249.33559392009334,
+      "raw_us": 252.78399884700775,
+      "baseline_us": 539.5839810371399,
+      "seed": 8157938966486499433
+    },
+    "v16f": {
+      "adjusted_us": 338.90845321792426,
+      "raw_us": 342.3679918050766,
+      "baseline_us": 726.959990337491,
+      "seed": 8158110202226986384
+    },
+    "v32s": {
+      "adjusted_us": 317.51966593400056,
+      "raw_us": 320.0639933347702,
+      "baseline_us": 741.5039935149252,
+      "seed": 8158281437967473336
+    },
+    "v32f": {
+      "adjusted_us": 472.83877397039197,
+      "raw_us": 478.767991065979,
+      "baseline_us": 1086.2559620290995,
+      "seed": 8158452673707960289
+    }
+  },
+  "selected_marker": "D32_SPLIT_COPIES (32, 1, 2048, 8, 8)",
+  "startup_replays": 56,
+  "tests": 13,
+  "benchmarks": 12,
+  "profiles": 12,
+  "queue_s": 313.8980748653412,
+  "worker_s": 231.08712792396545,
+  "decision": "STOP_EXACT_TREATMENT_NO_USEFUL_AFFECTED_PATH_SIGNAL",
+  "limitation": "Ordinary independent-input result, not matched causal evidence or proof of a routing correction."
+}

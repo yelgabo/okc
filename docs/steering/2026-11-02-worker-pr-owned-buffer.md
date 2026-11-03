@@ -32,6 +32,6 @@ Capability/granularity/overflow/actual GENERIC property/device/access checks, in
 
 ## Publication and next gate
 
-[Owned evidence](evidence/2026-11-02-worker-pr-owned-buffer/) contains decision.json, actual-source-entries.json, source-scope.json, successful and initial failed CPU logs, and generator/gate output. Its manifest pins both tools, this report and the evidence. README/shared ledgers and concurrent WIP are captain-owned and untouched. The final private check remains reserved; no target qualification is requested.
+[Owned evidence](evidence/2026-11-02-worker-pr-owned-buffer) contains decision.json, actual-source-entries.json, source-scope.json, successful and initial failed CPU logs, and generator/gate output. Its manifest pins both tools, this report and the evidence. README/shared ledgers and concurrent WIP are captain-owned and untouched. The final private check remains reserved; no target qualification is requested.
 
 This closes this exact adapter attempt without a rescue loop. Reopening requires newly accessible, authoritative actual-caller ownership/retirement integration proving graph lifetime, no future submissions, completion and error-safe cleanup, or a separately justified different mechanism. Merely adding synchronize, tensor.record_stream, an output attachment, mocked close or a process-exit retention registry does not supply that missing proof. Captain owns the next priority decision; this STOP proposes no automatic follow-on.

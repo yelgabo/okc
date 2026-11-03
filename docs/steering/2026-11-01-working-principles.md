@@ -25,7 +25,7 @@ These lessons are durable repository guidance and evidence that future sessions 
 
 ## Provenance
 
-[Research ownership retrospective](2026-11-01-research-ownership.md), [discovery and reasoning review](2026-11-01-discovery-and-reasoning.md), [campaign accountability](2026-11-01-campaign-accountability.md), [integration-first instruction](2026-11-01-g-integration-first.md), [candidate funnel](2026-11-01-g-candidate-funnel.md) and [minimum-delta plan](2026-11-01-g-minimal-delta-plan.md).
+[Research ownership retrospective](../../archive/docs/steering/2026-11-01-research-ownership.md), [discovery and reasoning review](../../archive/docs/steering/2026-11-01-discovery-and-reasoning.md), [campaign accountability](../../archive/docs/steering/2026-11-01-campaign-accountability.md), [integration-first instruction](../../archive/docs/steering/2026-11-01-g-integration-first.md), [candidate funnel](../../archive/docs/steering/2026-11-01-g-candidate-funnel.md) and [minimum-delta plan](../../archive/docs/steering/2026-11-01-g-minimal-delta-plan.md).
 
 The technical evidence behind those general principles remains in the owning ledgers, including public-comparator discrepancy 3a5f879df0d44825 versus607eb52bdaf24160, paired pipeline result63f5a2a8ed2341d1, locality outcomesa5c7c7e3fe344919/903e5b03411c4e2d, and scored sparse-repair losses2b537518091248f1/dfcfdd01d6f04525. This synthesis launches no experiment or new implementation.
 
@@ -50,7 +50,7 @@ The user distinguishes the earlier alygg77/okc-muse-spark-kernels study (Family 
 
 These lessons are already represented by the new root principles for architecture challenges, whole-implementation comparisons, minimal integration, scoped failures and implementation decisions. This clarification changes no candidate, permission, benchmark status or active G-first priority.
 
-Sources: [original alygg77 audit](2026-10-30-alygg77-public-kernel-audit.md), [donor-first correction](2026-10-30-donor-first-adoption.md), and [Family F registration and later policy](2026-10-30-family-f-donor-baseline.md).
+Sources: [original alygg77 audit](../../archive/docs/steering/2026-10-30-alygg77-public-kernel-audit.md), [donor-first correction](../../archive/docs/steering/2026-10-30-donor-first-adoption.md), and [Family F registration and later policy](../../archive/docs/steering/2026-10-30-family-f-donor-baseline.md).
 
 ## November 1 addendum — three emphasized Family F lessons
 

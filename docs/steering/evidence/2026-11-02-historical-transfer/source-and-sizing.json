@@ -1,0 +1,17 @@
+{
+  "source_revision": "e36114c50533339c74365deecec2d5b5dd09cf25",
+  "incumbent_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "incumbent_bytes": 869076,
+  "o8_conditional_verify1_us": 115.990823,
+  "old_delta_us_to_whole_six_percent": {
+    "0.35": 0.05038005099509135,
+    "0.38": 0.054706616691380106
+  },
+  "method": "Apply the complete historical O8 saving to both verify1 context cells, hold all five other loads and every baseline fixed. This is sizing, not measurement.",
+  "checks": [
+    "report local links exist",
+    "snapshot-pinned source links resolve to Git objects",
+    "incumbent source bytes and hash match"
+  ],
+  "review_scope": "Historical source/evidence transfer audit, no new kernel or GPU job"
+}

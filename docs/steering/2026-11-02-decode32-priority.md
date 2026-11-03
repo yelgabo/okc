@@ -12,7 +12,7 @@ Keep current execution ownership: OK Driver is captain/sole judge dispatcher; th
 
 ## 1. Identify the row correctly
 
-The [layer task](../../muse_decode_layer/TASK.md) weights 46 sliding and 16 full layers in each load. The user's row matches the retained public `607eb52bdaf24160` rounded per-cell data in [stage-shapes.md](evidence/2026-11-01-g-public/stage-shapes.md):
+The [layer task](../../muse_decode_layer/TASK.md) weights 46 sliding and 16 full layers in each load. The user's row matches the retained public `607eb52bdaf24160` rounded per-cell data in [stage-shapes.md](../../archive/docs/steering/evidence/2026-11-01-g-public/stage-shapes.md):
 
 | D32 cell | SGLang us/call | Our us/call | Count | Our aggregate contribution |
 |---|---:|---:|---:|---:|
@@ -60,7 +60,7 @@ The historical G0 comparator was already close on this load: weighted 190.719 us
 
 ### A. Finish the already accepted expert test; read its D32 result explicitly
 
-At the evidence pin, direct-weight job **`0b684a4065354fc5`** is accepted/pending, not a measured win. It uses unchanged K256 packing and register-A matrix arithmetic, replaces the shared raw-weight ring/weight producer with direct global code/scale loads, and preserves the activation producer and existing publication/retirement obligations. It changes B4 as well as MAIN, so T32 is inside the test. See [accepted check and frozen source](2026-11-02-driver-direct-weight-first-check.md).
+At the evidence pin, direct-weight job **`0b684a4065354fc5`** is accepted/pending, not a measured win. It uses unchanged K256 packing and register-A matrix arithmetic, replaces the shared raw-weight ring/weight producer with direct global code/scale loads, and preserves the activation producer and existing publication/retirement obligations. It changes B4 as well as MAIN, so T32 is inside the test. See [accepted check and frozen source](../../archive/docs/steering/2026-11-02-driver-direct-weight-first-check.md).
 
 Do not duplicate dispatch, poll another owner's job, interrupt the existing measurement or change its frozen gate. On its terminal, require exact source/backend identity and report D32 sliding/full endpoint times, weighted C32, selected B4 resources and routing workload, alongside the original all-six decision. Preserve its registered outcome even if the new user objective differs.
 

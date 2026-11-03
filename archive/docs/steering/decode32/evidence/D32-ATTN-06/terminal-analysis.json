@@ -1,0 +1,18 @@
+{
+  "job": "8b1e364dafb54c71",
+  "source_sha256": "00193aa2ef2f8cefd22e2949bfd98f90a47ebfef370639dbf7bebd776de07cb4",
+  "receipt_sha256": "527b26fae4948a1fe0bdb76a58128ff85484e65c9b2599a04a6fe70d31a83952",
+  "log_sha256": "4b8a5aded4ef7166c9edc70e9bab6131d92c57a69bbb1b102a51b7de9612cced",
+  "terminal": "setup_failure",
+  "error": "AssertionError: EXPERT_PREPARE_295S",
+  "native_startup_marker": true,
+  "observer_report_present": false,
+  "reader_rejection": "expected one observer report",
+  "official_tests": 0,
+  "benchmarks": 0,
+  "timing_profiles": 0,
+  "score": null,
+  "decision": "STOP_INCONCLUSIVE_OBSERVER_NO_RETRY",
+  "routing_cause": "UNRESOLVED",
+  "attention_performance": "UNCONFIRMED"
+}

@@ -1,0 +1,43 @@
+{
+  "observed_commit": "3e11a37e",
+  "reduce_job": "bd5776bdfcab42a7",
+  "score": 2.1192138982637805,
+  "CI": [
+    2.0874256897898236,
+    2.151002106737737
+  ],
+  "counts": {
+    "setup": 1,
+    "test": 13,
+    "benchmark": 12,
+    "profile": 12
+  },
+  "D32_C_us": 12305.489629451904,
+  "D32_raw_C_us": 12597.631752490997,
+  "baseline_us": 22334.399675019085,
+  "D32_ratio": 1.8149947988712316,
+  "cells": [
+    {
+      "context": "sliding",
+      "adjusted_us": 161.43840818119688,
+      "raw_us": 165.69599509239197
+    },
+    {
+      "context": "full",
+      "adjusted_us": 304.957678319803,
+      "raw_us": 310.9759986400604
+    }
+  ],
+  "owner_decision": "PARK exacteight-copy performance treatment; no useful affectedsliding signal; no routingcorrection ormatchedgain established",
+  "general_accepted": {
+    "job_id": "b38a9ed6dc9743e9",
+    "problem": "muse_moe_w4a16",
+    "source_revision": "51d6286b1697b0ae1e28e8e5fc31c2c3031fcbb0",
+    "source_sha256": "1e857ad48100bb898512d28baccd25e6938067607754506d83fbbfb6e6484b21",
+    "bytes": 344267
+  },
+  "identity_job": "4a2a79bdac04499a",
+  "identity_paired_source": "f7a5d1fb7fba3365f52285ef84f7d888e6f4b347280f257833469f85382bef9a",
+  "identity_owner_registered": "3a87e998",
+  "no_root_dispatch": true
+}

@@ -63,7 +63,7 @@ The exact transforming source is `tools/dl_fork_moe.py` (LF SHA
 `1350676ca93663b1379ed6520381c20b6c7b164ef2c45aabccafe39e62266eed`),
 followed by attributed-layer composition and `dl_g1_stage_retire.py`. Full
 baseline/official-rule reasoning is in
-[the precision contract](2026-11-01-g-fork-precision-contract.md).
+[the precision contract](../../archive/docs/steering/2026-11-01-g-fork-precision-contract.md).
 
 |change|classification and restoration constraint|
 |---|---|

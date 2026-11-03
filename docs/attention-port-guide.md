@@ -139,7 +139,7 @@ through `_ONE_DBG`.
   `ONE_TRIG=0` (not judged): with 1, the q_len 1 and batch-1 q_len 8 instances execute
   `griddepcontrol.launch_dependents` at entry so a PDL-launched sk o projection (`SK_PDL`, see
   docs/proj-port-guide.md) can stream its weights during attention; at 0 every instance is
-  SASS-identical (docs/steering/2026-10-29-v1-d32-breakdown.md).
+  SASS-identical (archive/docs/steering/2026-10-29-v1-d32-breakdown.md).
   A layer copy that inlines `attn_one.cu` gets FIN8 by re-inlining; it changes nothing the
   layer passes or owns.
   `ONE_HMRG=1` (q_len 1 modes 1, 3, 11, 13: the key-half merge before the reds) and `ONE_PRQ=31`

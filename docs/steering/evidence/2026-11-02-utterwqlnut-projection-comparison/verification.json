@@ -1,0 +1,14 @@
+{
+  "checked_at": "2026-11-03T04:05:31.261312+00:00",
+  "own_source_and_receipt_hashes_verified": 5,
+  "case_maps_checked": 60,
+  "lower_time_counts": [
+    27,
+    23
+  ],
+  "o32_sensitivity_recomputed": true,
+  "report_and_index_local_links": "pass",
+  "foreign_execution": false,
+  "gpu_or_judge_calls": false,
+  "scope": "Static source and archived evidence comparison only"
+}

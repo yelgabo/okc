@@ -1,4 +1,4 @@
-"""M-C slice C-1 (docs/plan-2026-10-31-m-c-t1-fusion.md, "C-1 revised before building" and
+"""M-C slice C-1 (archive/docs/plan-2026-10-31-m-c-t1-fusion.md, "C-1 revised before building" and
 "C-1 implementation") on layer_m1rt51sc1.py: at one token the o projection and the attention
 boundary run as one cooperative kernel with two grid barriers, in its own extension module.
 
@@ -23,7 +23,7 @@ import re
 import sys
 
 MC1_SRC = r'''
-# M-C slice C-1 (docs/plan-2026-10-31-m-c-t1-fusion.md, "C-1 implementation"): at one token the
+# M-C slice C-1 (archive/docs/plan-2026-10-31-m-c-t1-fusion.md, "C-1 implementation"): at one token the
 # o projection and the attention boundary as one cooperative launch. Its own module, built from
 # _SKP_GEMV_SRC's device helpers (cgemv's chunk arithmetic, unchanged) and this block.
 _MC1_SRC = r"""

@@ -1,6 +1,6 @@
 # Fixed native K128 / two-front implementation: ready for first private measurement
 
-November 2, 2026. Implementation owner: existing OKC Developer. Allocation: [captain takeover](2026-11-02-driver-captain-takeover.md), initial commit **88fffb5f**. Captain **OK Driver** owns all judge dispatch and README/index publication. No worker judge action, public submission, production-default edit or measured saving is claimed here.
+November 2, 2026. Implementation owner: existing OKC Developer. Allocation: [captain takeover](../../archive/docs/steering/2026-11-02-driver-captain-takeover.md), initial commit **88fffb5f**. Captain **OK Driver** owns all judge dispatch and README/index publication. No worker judge action, public submission, production-default edit or measured saving is claimed here.
 
 The concrete full-layer candidate is [generated/candidate.py](evidence/2026-11-02-worker-wgs-k128-full-reuse/generated/candidate.py). It is ready for the captain's first authorized ordinary private layer check. This completes implementation/source/CPU/secondary-device-compile work; target host compilation, real occupancy, numerical/replay qualification and performance remain gates executed by that check. There is no preliminary MoE run or new measurement framework.
 

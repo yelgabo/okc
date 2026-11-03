@@ -1,0 +1,8 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "sha256": "3a1ad278f4b5dcb113257f42a53874121fed21cc8625318c054c92b3021d6398",
+  "native_sha256": "b599e5b21c3e53cec6cfdd752d7e37ce693ba2003ac116629781888542d0d62d",
+  "disabled": false,
+  "bytes": 874631,
+  "status": "SOURCE_AND_LOCAL_GATES_OPEN"
+}

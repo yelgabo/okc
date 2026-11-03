@@ -1,13 +1,4 @@
-"""Copy the fused attention kernel from muse_attention_decode/attn_kernel.cu into
-muse_decode_layer/submission.py's _ATTN_SRC string.
-
-The decode layer builds one extension, so the attention device code is wrapped in a nested
-`attn` namespace inside the anonymous one: its names (STAGES, cp_async16, ...) would otherwise
-collide with the projection kernels'. The torch host function and the template instantiation
-notes are dropped; the decode layer has its own host wrappers in _ATTN_HOST_SRC.
-
-    python3 tools/dl_attn_inline.py [path/to/attn_kernel.cu]
-"""
+"""Keep fused-attention symbols isolated inside the shared layer extension."""
 
 import re
 import sys

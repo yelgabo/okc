@@ -1,0 +1,14 @@
+{
+  "status": "LOCAL_CODEGEN_GATE_PASS_NOT_GPU_QUALIFIED",
+  "registers": 128,
+  "stack_bytes": 0,
+  "spill_bytes": 0,
+  "shared_bytes": 61440,
+  "disabled_sass_equals_incumbent": true,
+  "products_skipped": 16,
+  "vote": "0x5f10",
+  "branch": "0x6160",
+  "target": "0x6270",
+  "treatment_sass_sha256": "ae1b32bd55e66ef4139b859a2534fd192389b43bc52a827a3da3318aba9ee28b",
+  "disabled_sass_sha256": "8960896fb322869c036030d4a9a0f6a8dab6633f34a53d0654fd41cb6184999d"
+}

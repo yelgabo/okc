@@ -10,7 +10,7 @@ The second, higher-risk research direction is **output-owned low-token expert co
 
 ## 1. Verified status and what changed since the previous answer
 
-The latest authenticated snapshot inspected is the [13:26 UTC / 05:26 Pacific monitor](2026-11-02-serial-terminal-monitor.md): overall and layer rank **351**, public layer **2.1261x**, layer rank-100 point **2.2646x**, one private layer check and five scored slots left, no live job in the returned inventory. These are timestamped repository observations, not new queries made for this report. Overall is separately queried and exposes ranks, not a numerical formula we may invent.
+The latest authenticated snapshot inspected is the [13:26 UTC / 05:26 Pacific monitor](../../archive/docs/steering/2026-11-02-serial-terminal-monitor.md): overall and layer rank **351**, public layer **2.1261x**, layer rank-100 point **2.2646x**, one private layer check and five scored slots left, no live job in the returned inventory. These are timestamped repository observations, not new queries made for this report. Overall is separately queried and exposes ranks, not a numerical formula we may invent.
 
 The retained [release manifest](../release-manifest.md) identifies these public results:
 
@@ -42,9 +42,9 @@ The fresh profile still locates substantial work in expert computation and full-
 
 ## 2. What we know about the original performance deficit
 
-One genuine defect in the integration was already found and repaired: activation-slot retirement changed compiled WGMMA scheduling from overlapping groups to full waits. Current-stage retirement restored useful overlap while retaining reader lifetime/publication requirements and won its matched component comparison. It is already in 607 and cannot be counted as future upside. [Compiler and H200 evidence](2026-11-01-attention-results-expert-pipeline.md), [native repair inventory](2026-11-01-g-native-repair-inventory.md).
+One genuine defect in the integration was already found and repaired: activation-slot retirement changed compiled WGMMA scheduling from overlapping groups to full waits. Current-stage retirement restored useful overlap while retaining reader lifetime/publication requirements and won its matched component comparison. It is already in 607 and cannot be counted as future upside. [Compiler and H200 evidence](../../archive/docs/steering/2026-11-01-attention-results-expert-pipeline.md), [native repair inventory](../../docs/steering/2026-11-01-g-native-repair-inventory.md).
 
-The broader G0-versus-607 discrepancy remains incompletely explained. The earlier strongest location was T1/T8, not main-only MFIN or a missing SC6 implementation. Subsequent RMW, serial-front and other negative results narrow particular explanations; they do not prove the whole remaining gap is an unavoidable correctness cost. Equally, unsafe original protocols cannot be promoted simply because their historical tests passed. [Integration inventory](2026-11-01-g0-607e-integration-gap.md), [current reference audit](2026-11-01-g-reference-gap-audit.md).
+The broader G0-versus-607 discrepancy remains incompletely explained. The earlier strongest location was T1/T8, not main-only MFIN or a missing SC6 implementation. Subsequent RMW, serial-front and other negative results narrow particular explanations; they do not prove the whole remaining gap is an unavoidable correctness cost. Equally, unsafe original protocols cannot be promoted simply because their historical tests passed. [Integration inventory](../../archive/docs/steering/2026-11-01-g0-607e-integration-gap.md), [current reference audit](../../archive/docs/steering/2026-11-01-g-reference-gap-audit.md).
 
 A new exact source comparison should identify a changed representation, ownership or scheduling mechanism, not reopen every historical flag. Preserve BF16 operator boundaries, FP32 router semantics, graph lifetime, all required reader publication and progress. Distinguish these requirements from choices about how to implement them.
 

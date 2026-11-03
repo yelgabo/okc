@@ -1,56 +1,25 @@
 # Decode32 task inbox
 
-## Next experiment queued — source-backed B4/T32 warp-parallel job-cost scan
+## Latest owner transition: repurposed to P0 standalone MoE
 
-**[D32-12: H200 ~460-experiment source reconciliation and P0 B4 task](2026-11-02-12-h200-460-next-leads.md)** uses the user-supplied research note to identify a concrete current-code bottleneck: the selected B4/T32 x-producer invokes a one-lane serial `wgs_prefix`, although an older, different-cost version in the same release file has a warp-parallel prefix/range scan. **D32-MOE-01** is queued for Decode32 Worker **after** it completes or classifies the already-owned attention matched-routing diagnostic (`EXPERT_FRESH_ROUTING_MISMATCH`, job `62a4f6b27ed74b50`; strict-gate diagnostic source `9e5e5d64`). Do not interrupt or duplicate that job. The task fixes a single B4-only source treatment, tests exact prefix/range equivalence, and prescribes one private full-layer D32 check if valid, no Driver handoff. The report also marks already present SC6, phase-B data flags and T32 conditional pooler/router fusion to avoid redundant work. External ~460-experiment gains lack raw source/receipts and are **not measured OKC benefits**. Pickup of D32-MOE-01 is unconfirmed.
+**[User-directed reassignment](../2026-11-02-worker-repurpose-moe-bf16.md)**: this worker’s next optimization lane is **P0 `muse_moe_w4a16`**, rather than fresh P4 Decode32 tasks. Preserve its original Decode32 evidence; first finish/archive any accepted D32-IDENTITY-01 job `4a2a79bdac04499a` with the already owning waiter (if not terminal in newer records), then stop allocating new Decode32 experiments. The user **paused this worker’s own reminder timer**; do **not** resume it or expect automated pickup. At its next manual reading, synchronize `origin/main`, read the shared handoff and claim a nonduplicate standalone MoE experiment. CUDA Optimizer is concurrently repurposed to **P1 BF16**, while General Optimizer retains separate MoE WS skinny work. Earlier D32-only ownership/instructions below are historical and superseded for future assignments.
 
 
-## Current next action: confirm the completed attention experiment
+## Priority override: Decode32 is P4
 
-**[D32-06: proceed directly to matched confirmation](2026-11-02-06-confirm-attention-and-progress-watch.md)** — first private attention job `17383751c6a24010` is terminal and valid; C32=11.882275 ms. Its comparison with an earlier independent control is not a confirmed gain. Keep the treatment/control fixed, reuse existing matched infrastructure, verify attention outputs/cache/replay and all-load regressions, and execute the already-authorized confirmation without a Driver/research handoff. If already underway, continue the existing job rather than duplicate it. Record the accepted confirmation ID or specific blocker in [STATUS.md](STATUS.md). Research's hourly conditional GitHub watch is enabled; it cannot prove local activity or directly wake the session. [Owning first result](2026-11-02-05-attention-first-result.md).
+The user explicitly re-ranked Decode32 **P4**, not the project's P0 or exclusive performance focus. [Standing goal and top-100 cutoff gaps](../2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific). Continue the worker's already-owned accepted identity-rescale job (`4a2a79bdac04499a` at last indexed status) and own result analysis/correctness without interruption; don't abandon accepted work because of a scheduling change. **No new Decode32 experiment gets automatic P0 preference.** Central steering prioritizes standalone MoE W4A16 and BF16 projection refills first, while Decode32 retains end-to-end T32 ownership. Historic D32 2.3x target remains a performance objective, not overall allocation priority.
 
-## Latest user instruction: research plans, medium-effort worker executes
 
-**[D32-04: fixed design and implement/check/measure checklist](2026-11-02-04-research-plan-worker-execute.md)** is the current instruction. The user set Decode32 Worker to medium effort and asked okc research to supply the deeper design decisions. **Research owns architecture/experiment planning; Decode32 Worker owns implementation through private measurement, analysis, confirmation, integration and commits.** This is not a return to approval or Driver handoffs.
+Decode32 Worker owns both contexts of batch 32 decode, T32/q_len1. The user target is a verified **2.3x or better** on `C32 = 46 × sliding_us + 16 × full_us`. Use the owning run's baseline and preserve the other five loads. Research selects architectural experiments. The worker implements, checks, analyzes and integrates them directly. Public submissions require the user's go-ahead. [Ownership](2026-11-02-02-end-to-end-ownership.md) · [Research and execution roles](2026-11-02-04-research-plan-worker-execute.md).
 
-The initial D32-ATTN-01 within-request next-tile QK score-carry implementation and ordinary private check are complete; the current next step is confirmation above. Do not restart a literature survey, independent-review chain, ownership audit or general harness. A concrete correctness/progress/access blocker is still a stop; an unproved speedup is not a reason to delay an authorized exploratory measurement.
+## On wake
 
-## Execution owner: end to end, batch32 only
+1. Read the [job ledger](STATUS.md) and reconcile newer owner entries on `origin/main`.
+2. **D32-REDUCE-01** job `bd5776bdfcab42a7` is terminal and archived.13/12/12 pass, D32 C32=12.305490ms/1.814995x. Stop this exact eight-copy performance treatment; no useful affected-path signal or routing correction is established. Waiter47403 ended. [Receipt and decision](2026-11-02-19-reduction-result-identity-next.md).
+3. **D32-IDENTITY-01** is implemented with enabled/disabled twins, converged vote, unchanged resource admission and eleven passing CPU/source/host/reader tests. Own bounded private job `4a2a79bdac04499a` is accepted for paired source `f7a5d1fb`, published `59011284`. Follow its sole waiter and preserve partial evidence on failure. Target cost/correctness/performance remain open. CUDA Optimizer owns the B4 phase study. [Frozen gates and source](2026-11-02-19-reduction-result-identity-next.md) · [Research assignment](../2026-11-02-general-hotspot-search-refill.md#2-decode32-exact-identity-rescale-elimination-in-full-decode-attention).
 
-**[D32-02: Decode32 Worker owns batch-32 optimization end to end](2026-11-02-02-end-to-end-ownership.md)** remains the execution authority. Its research/selection language is refined by D32-04 above; its private-check, result-analysis, iteration and integration authority is unchanged. **No routine Driver/Developer handoffs or per-step captain approval.** This does not transfer the rest of the project or unrelated benchmarks.
+Record actual pickup and exact source/job in [STATUS.md](STATUS.md). For a closed lead, follow the selected-source findings and stop rules before considering new work. [B4 prefix correction](2026-11-02-13-b4-prefix-selected-source.md) · [Observer closure](2026-11-02-17-observer-budget-closure-and-refill.md) · [Standing hotspot goal](../2026-11-02-incumbent-hotspot-goal.md).
 
-Scope: decode batch32 / T32 / q_len1, both contexts; `C32 = 46*sliding_us + 16*full_us`. Prioritize actual improvements to this load and preserve the other five loads. Existing correctness and public-submission permissions remain.
+[Decode32 report history](../../../archive/docs/steering/decode32/README.md) · [Prior inbox snapshot](https://github.com/yelgabo/okc/blob/0585bd216cb980e8b47a66eef0ba4c3b0c5768a3/docs/steering/decode32/README.md) · [Shared steering](../README.md)
 
-## Completed pre-existing job
-
-[MID a6fe2769779e4299 is terminal, archived and parked](2026-11-02-03-mid-result.md). Driver's one-time accepted-job exception is complete: no second poller/resubmit or approval/handoff gate. D32 C32=12.752280ms, no useful signal versus fresh control12.324230ms; full source/selection/replay/score/raw evidence is linked. Do not wait for or duplicate this completed test. The old accepted-job report below is historical, not a live-job instruction.
-
-## Current work and reusable evidence
-
-Continue **[D32-ATTN-01](2026-11-02-01-full-decode-attention.md)** from its [first result](2026-11-02-05-attention-first-result.md) using D32-04's direct execution authority and D32-06's confirmation continuation. The original [23:55 UTC pickup](2026-11-02-01-full-decode-attention-status.md) remains history. Historical source-only/no-check/Driver-handoff wording is superseded. A candidate/tests handoff is no longer completion. Record actual current work in STATUS.md and proceed; acknowledgment is not another gate.
-
-Reuse the existing [MID implementation and calibration](../2026-11-02-driver-d32-control-terminal-and-mid-gate.md) as evidence, not a fresh allocation. [MID accepted-job registration](../2026-11-02-driver-d32-mid-first-check.md) is preserved as history; its terminal result above controls. Decode32 Worker checks current shared quota/jobs and owns subsequent D32 submissions. OK Driver/OKC Developer retain unrelated tasks and must not open new overlapping D32 assignments.
-
-[Driver's L1 score-carry/source/lifetime notes](2026-11-02-02-driver-attention-source-feedback.md), added in7afce310, distinguish existing load overlap from next-tile score carry and record lifetime/softmax obligations and scoped prior receipts. Keep this technical feedback; its old root-only dispatch/handoff restriction is superseded. It is not a second implementation task.
-
-[Existing MID confirmation-tool reuse and blockers](../2026-11-02-worker-mid-matched-reuse.md), published65b94dcc, records a completed investigation, not a ready paired payload or reason to build confirmation for the parked MID candidate. Reuse relevant valid infrastructure only when a new promising result needs confirmation; do not create a general framework first.
-
-## Inbox convention and preserved evidence
-
-Add dated Markdown tasks, status and result records here. Preserve earlier tasks/results; newer explicit user instructions supersede conflicting historical ownership. Report `source -> job -> correctness -> D32 timings -> next action`. One terminal result or one specific blocker is more useful than a readiness report after every local check. Publication is not proof of worker acknowledgment or execution.
-
-Background:
-- [D32 weighted targets](../2026-11-02-decode32-priority.md).
-- [Earlier owner directive](../2026-11-02-decode32-owner-directive.md), historical ownership split superseded.
-- [MID comparison design](../2026-11-02-driver-d32-mid-comparison.md).
-- [Inbox setup and monitoring contract](../2026-11-02-decode32-inbox.md).
-
-The recorded worker monitor checks this folder before work/between bounded work units and periodically through its desktop scheduler, including committed `origin/main` updates and the two documented local checkouts. That is periodic checking, not proof of an instantaneous notification or pickup. Preserve local work when fetching and push completed code/results under the normal repository workflow. Research's separate hourly GitHub watch does not change or verify that desktop monitor.
-
-## Live queue continuation at01:15UTC
-
-[Correctedconfirmation external wait cleared](2026-11-02-10-driver-live-queue.md): sharedlist shows unrelated3aa done,no livejobs and18private layerchecks. Proceed with the existingauthorizedf397 retry after your freshpreflight; if alreadyacceptedlocally,record/followthatID instead of duplicating. This is bookkeeping,not anotherassignment/approval/handoff. No actualreading/acknowledgment claimed.
-
-### Concurrent accepted retry supersedes the waiting snapshot
-
-Own corrected confirmation **62a4f6b27ed74b50** is published ine365d7b6 forf397bca8; it was already being dispatched before the Driver queue note was published. Follow only this ID, no second POST/poller or reply/approval gate. The owner continued independently; no causal credit to the monitor note. Its result remains pending.
+[Driver monitor: observer closure, completed joint research and independently executed owner checks](../2026-11-02-driver-monitor-0330.md). Historical planning references do not override any accepted source or owning protocol.

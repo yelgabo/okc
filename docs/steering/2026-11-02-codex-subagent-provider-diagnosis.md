@@ -82,7 +82,7 @@ rejection, not an observed OAuth, usage-quota, filesystem, or sandbox denial.
    It replaces rejected native history with a fresh native session plus portable
    text context on the next prompt. It does not make native-agent input supported.
    The unchanged installed bundle predates it. The
-   [November 1 report](2026-11-01-t3-sharing-recovery-pr.md) and its runtime receipt
+   [November 1 report](../../archive/docs/steering/2026-11-01-t3-sharing-recovery-pr.md) and its runtime receipt
    already show copied broken history failing and a fresh text-context replacement
    answering BASELINE_OK and FOLLOWUP_OK. Those are previous measured results,
    not new tests of today's client.

@@ -1,0 +1,8 @@
+test_actual_factory_selection (__main__.SelectedPrefix) ... ok
+test_helper_substitution_is_detected (__main__.SelectedPrefix) ... ok
+test_serial_call_is_detected (__main__.SelectedPrefix) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.892s
+
+OK

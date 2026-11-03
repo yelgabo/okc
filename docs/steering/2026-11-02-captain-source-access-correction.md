@@ -6,7 +6,7 @@ November 2, 2026. Evidence base c66f5ce677bf22dd7aa132230eeb56c4821b5af0. Previo
 
 The earlier November2 [captain content-delta report](2026-11-02-captain-pr-terminal-next-implementation.md) queried **keell0renz/okc**, not the already documented **keell0renz/muse-open-kernel-challenge**. Its archived404 responses remain true for those wrong URLs but do not represent an access blocker for the known reference. The correct repository and complete immutable layer are accessible through authenticated public GitHub API. This is a retrieval/identity mistake, not a new source or reason to redispatch G0.
 
-Correct main remains8e30e1be994db4310794b8d04e90d18d895deb84. Its untruncated tree contains layer blob4aa86640b593add917e7f10e716dcc9ca24a077d; actual retrieved source979654B SHA25682c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19, including prepare and kernel_fn. This is exactly the LF identity already established in the [upstream refresh](2026-11-01-keell-upstream-refresh-2246.md) and [reference-gap audit](2026-11-01-g-reference-gap-audit.md). Archived995999B/1ec189dc is its CRLF representation, not a different algorithm. No foreign source is executed or adopted.
+Correct main remains8e30e1be994db4310794b8d04e90d18d895deb84. Its untruncated tree contains layer blob4aa86640b593add917e7f10e716dcc9ca24a077d; actual retrieved source979654B SHA25682c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19, including prepare and kernel_fn. This is exactly the LF identity already established in the [upstream refresh](../../archive/docs/steering/2026-11-01-keell-upstream-refresh-2246.md) and [reference-gap audit](../../archive/docs/steering/2026-11-01-g-reference-gap-audit.md). Archived995999B/1ec189dc is its CRLF representation, not a different algorithm. No foreign source is executed or adopted.
 
 ## Bounded fresh discovery
 
@@ -20,6 +20,6 @@ One100-result code page for quoted muse_decode_layer excluding own, lee101 and R
 
 ## Decision and next gate
 
-Stop this discovery round. Do not repeat unchanged source audits or infer source improvement from team rank. The most actionable experiment remains the frozen T1 private check already assigned to the sole worker by [c66f5ce6](2026-11-02-captain-t1-one-check.md). No new readiness cycle, source rescue or second dispatch is allocated here. Its owning target result must decide numerics,295s fit/replay and paired whole-six gain; a component pass cannot substitute for layer qualification.
+Stop this discovery round. Do not repeat unchanged source audits or infer source improvement from team rank. The most actionable experiment remains the frozen T1 private check already assigned to the sole worker by [c66f5ce6](../../archive/docs/steering/2026-11-02-captain-t1-one-check.md). No new readiness cycle, source rescue or second dispatch is allocated here. Its owning target result must decide numerics,295s fit/replay and paired whole-six gain; a component pass cannot substitute for layer qualification.
 
 Reopen competitor work for a concrete changed complete file/prepare/dispatcher, newly retrievable source-associated stronger result, or materially different mechanism with scoped correctness obligations. Corrected access alone creates none of these. Prior pre-gamma/G224/SiLU/PDL closures and ownership remain. Top100 is unmet and incumbent unchanged; no fresh rank claim.

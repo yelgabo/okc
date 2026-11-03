@@ -100,7 +100,7 @@ Prior closures stay exact: XPIPE2 cold loss `5575e7d15d3e49a8`; one-CTA variant 
 separate from its retained private comparison; wait trace `3f44f891d0ef47db` fails
 perturbation admission. None is reopened by activity durations. Existing cluster
 losses and the unresolved positive VP2 bundle likewise remain scoped to their
-actual implementations. The [next-boundary report](2026-11-01-attention-next-boundary.md)
+actual implementations. The [next-boundary report](../../archive/docs/steering/2026-11-01-attention-next-boundary.md)
 already records the counter-access restriction; do not retry that preflight unchanged.
 
 ## Validation, next owner and remaining gates

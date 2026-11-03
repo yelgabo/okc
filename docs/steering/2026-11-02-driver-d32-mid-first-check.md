@@ -4,7 +4,7 @@ November2,2026,23:58UTC. **Own private job a6fe2769779e4299**, board muse_decode
 
 ## Frozen implementation and evidence
 
-Published **28346bf563789879bcec28e52edeb05753a6b3f0**,49changed remote blobs verified. Exact candidate **e607fb894b7ca9fb8c0245d986e1c1894024295efd5b1509ac5b8314329ca089**,870649LF bytes, checked byte-identical with committed source immediately before POST. Server content **3170a56ac500b038ad1c10bbdceddd79f8e13d348d411b88416d2f77eb70481d** is a distinct identifier; [own POST/status association](evidence/2026-11-02-driver-d32-mid-first-check/upload-association.json) is not an independent server source download. [Full implementation/source/CPU report](2026-11-02-worker-d32-mid-family.md).
+Published **28346bf563789879bcec28e52edeb05753a6b3f0**,49changed remote blobs verified. Exact candidate **e607fb894b7ca9fb8c0245d986e1c1894024295efd5b1509ac5b8314329ca089**,870649LF bytes, checked byte-identical with committed source immediately before POST. Server content **3170a56ac500b038ad1c10bbdceddd79f8e13d348d411b88416d2f77eb70481d** is a distinct identifier; [own POST/status association](evidence/2026-11-02-driver-d32-mid-first-check/upload-association.json) is not an independent server source download. [Full implementation/source/CPU report](../../archive/docs/steering/2026-11-02-worker-d32-mid-family.md).
 
 Existing MIDhelperb8 handles17..32, originalM33MAIN and otherfive standard paths. Three required host integrations only: threshold32, unique concurrent cache representatives1/8/32/128, strictfour-key preparedset plus actual source/flags/cache binding attestation before warm. No shader/precision/packing/scratch change. Root reran6CPUtests PASS8.897s and independent source review conditionally accepted; no target math/admission/speed claim follows from those.
 
@@ -14,7 +14,7 @@ Fresh overall/layer rank **379**, public607 still2.126082676x; layer rank100 is2
 
 ## Exact target and stop rules
 
-Captain background own-ID wait writes status-wait.raw.json/exit/stderr under [own evidence directory](evidence/2026-11-02-driver-d32-mid-first-check/). Check those files first. Local transport timeout is not GPU failure or retry permission. Require both **D32_MID_SELECTION** with pinnedhelper/defines/cache and **G_RELEASE_STARTUP_OK native/56replays**, official13tests/12benchmarks/12completeprofiles, no flags and actual progress/precision/order/lifetime. Successful fallback does not qualify MID. Helper has no resource export; report unavailable resources honestly.
+Captain background own-ID wait writes status-wait.raw.json/exit/stderr under [own evidence directory](evidence/2026-11-02-driver-d32-mid-first-check). Check those files first. Local transport timeout is not GPU failure or retry permission. Require both **D32_MID_SELECTION** with pinnedhelper/defines/cache and **G_RELEASE_STARTUP_OK native/56replays**, official13tests/12benchmarks/12completeprofiles, no flags and actual progress/precision/order/lifetime. Successful fallback does not qualify MID. Helper has no resource export; report unavailable resources honestly.
 
 Report D32raw/adjustedsliding/full,C32=46s+16f,ownbaseline/all6 and GPU/node/driver/evaluator. Fresh current unchanged94ef had D32C32=12.324230ms/own1.811791x, wholelayer2.091747685x; differing random inputs/node remain descriptive cross-job comparators. No automatic causal claim from either ratio.
 

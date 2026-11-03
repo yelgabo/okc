@@ -1,0 +1,640 @@
+[
+  {
+    "own_job": "9eba96894ee1402e",
+    "own_score": 1.5278064829557674,
+    "own_ci": [
+      1.504889385711431,
+      1.5507235802001038
+    ],
+    "their_job": "74b36974863c4d1e",
+    "their_score": 1.3564572236426455,
+    "rows": [
+      {
+        "layer": "qkv_gate",
+        "m": 1,
+        "theirs_us": 8.965050329341214,
+        "ours_us": 9.058268143689366,
+        "theirs_over_ours": 0.9897090908693077,
+        "their_baseline_us": 13.75999953597784,
+        "our_baseline_us": 14.287999831140041,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::cgemv40_kernel<256, 2>(unsign...       8.0 \u00b5s 100.0%      1\ntotal                                                              8.0 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 1,
+        "theirs_us": 5.436781990003203,
+        "ours_us": 5.036234745036484,
+        "theirs_over_ours": 1.079533076841083,
+        "their_baseline_us": 6.84799998998642,
+        "our_baseline_us": 6.752000190317631,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::cgemv_kernel<64, 1>(unsigned ...       5.0 \u00b5s 100.0%      1\ntotal                                                              5.0 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 1,
+        "theirs_us": 13.686977866800385,
+        "ours_us": 13.51594221486389,
+        "theirs_over_ours": 1.01265436395166,
+        "their_baseline_us": 21.231999155133963,
+        "our_baseline_us": 21.24800020828843,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rd_kernel<1, 2, 16, 8, 1>(uns...      13.5 \u00b5s 100.0%      1\ntotal                                                             13.5 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 1,
+        "theirs_us": 4.039391942880032,
+        "ours_us": 3.734384975402542,
+        "theirs_over_ours": 1.0816752877613032,
+        "their_baseline_us": 6.895999424159527,
+        "our_baseline_us": 7.136000320315361,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::cgemv40_kernel<128, 2>(unsign...       2.4 \u00b5s 100.0%      1\ntotal                                                              2.4 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 1,
+        "theirs_us": 3.7869355720043107,
+        "ours_us": 3.8377865728649305,
+        "theirs_over_ours": 0.9867499143333917,
+        "their_baseline_us": 10.048000141978264,
+        "our_baseline_us": 10.511999949812889,
+        "ours_profile": "kernel                                                           GPU time  share  calls\n(anonymous namespace)::rgemv_kernel(float4 const*, uint2 ...       2.8 \u00b5s 100.0%      1\ntotal                                                              2.8 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 16,
+        "theirs_us": 12.121915701607856,
+        "ours_us": 9.740725613059029,
+        "theirs_over_ours": 1.2444571568011786,
+        "their_baseline_us": 14.175999909639359,
+        "our_baseline_us": 13.664000201970339,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 16, 3, 1, 4, 2, ...       9.1 \u00b5s 100.0%      1\ntotal                                                              9.1 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 16,
+        "theirs_us": 5.672515758598044,
+        "ours_us": 5.366495229132077,
+        "theirs_over_ours": 1.0570242805406274,
+        "their_baseline_us": 6.624000146985054,
+        "our_baseline_us": 6.719999946653843,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 2, ...       4.4 \u00b5s 100.0%      1\ntotal                                                              4.4 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 16,
+        "theirs_us": 17.880630965654486,
+        "ours_us": 13.800227922817053,
+        "theirs_over_ours": 1.295676496479523,
+        "their_baseline_us": 21.791999228298664,
+        "our_baseline_us": 21.023999899625778,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 4, ...      14.2 \u00b5s 100.0%      1\ntotal                                                             14.2 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 16,
+        "theirs_us": 17.08920403838112,
+        "ours_us": 13.557459114885717,
+        "theirs_over_ours": 1.260501978546824,
+        "their_baseline_us": 18.352000042796135,
+        "our_baseline_us": 18.383999820798635,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 2, ...      13.4 \u00b5s 100.0%      1\ntotal                                                             13.4 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 16,
+        "theirs_us": 5.340059382168632,
+        "ours_us": 4.449167647422232,
+        "theirs_over_ours": 1.2002378434228178,
+        "their_baseline_us": 14.65599937364459,
+        "our_baseline_us": 14.687999151647091,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rt_kernel<2, 16, 8, 8, 3>(uin...       3.9 \u00b5s 100.0%      1\ntotal                                                              3.9 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 32,
+        "theirs_us": 12.816958400452215,
+        "ours_us": 10.556945377174689,
+        "theirs_over_ours": 1.214078309826622,
+        "their_baseline_us": 14.544000383466482,
+        "our_baseline_us": 13.871999457478523,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<2, 32, 3, 1, 4, 2, ...      10.2 \u00b5s 100.0%      1\ntotal                                                             10.2 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 32,
+        "theirs_us": 5.568482781924777,
+        "ours_us": 5.8693635951602445,
+        "theirs_over_ours": 0.9487370635065839,
+        "their_baseline_us": 6.431999616324902,
+        "our_baseline_us": 6.687999237328768,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 2, ...       5.1 \u00b5s 100.0%      1\ntotal                                                              5.1 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 32,
+        "theirs_us": 18.109305638636265,
+        "ours_us": 15.083590829366269,
+        "theirs_over_ours": 1.200596452363268,
+        "their_baseline_us": 22.127999924123287,
+        "our_baseline_us": 21.95199951529503,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 4, ...      14.9 \u00b5s 100.0%      1\ntotal                                                             14.9 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 32,
+        "theirs_us": 18.082685919685247,
+        "ours_us": 14.720666492591041,
+        "theirs_over_ours": 1.2283877179600748,
+        "their_baseline_us": 18.895999528467655,
+        "our_baseline_us": 19.071999937295914,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 2, ...      15.1 \u00b5s 100.0%      1\ntotal                                                             15.1 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 32,
+        "theirs_us": 5.818632579956387,
+        "ours_us": 5.490421427643297,
+        "theirs_over_ours": 1.0597788633602159,
+        "their_baseline_us": 15.120001044124365,
+        "our_baseline_us": 15.456000342965126,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rt_kernel<4, 16, 8, 4, 3>(uin...       4.8 \u00b5s 100.0%      1\ntotal                                                              4.8 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 8,
+        "theirs_us": 12.256516318304314,
+        "ours_us": 9.770655625109255,
+        "theirs_over_ours": 1.2544210735261958,
+        "their_baseline_us": 14.19200049713254,
+        "our_baseline_us": 14.256000518798828,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 8, 3, 1, 4, 4, 4...       7.6 \u00b5s 100.0%      1\ntotal                                                              7.6 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 8,
+        "theirs_us": 5.949421644647874,
+        "ours_us": 5.476093004213996,
+        "theirs_over_ours": 1.0864354641291956,
+        "their_baseline_us": 6.784000433981419,
+        "our_baseline_us": 6.624000146985054,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rd_kernel<1, 1, 8, 2, 1>(unsi...       4.9 \u00b5s 100.0%      1\ntotal                                                              4.9 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 8,
+        "theirs_us": 17.523843650667864,
+        "ours_us": 13.418793187559768,
+        "theirs_over_ours": 1.3059180066143197,
+        "their_baseline_us": 21.28000045195222,
+        "our_baseline_us": 21.27999998629093,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rd_kernel<1, 2, 16, 8, 1>(uns...      13.7 \u00b5s 100.0%      1\ntotal                                                             13.7 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 8,
+        "theirs_us": 5.608961417724381,
+        "ours_us": 4.534867803249206,
+        "theirs_over_ours": 1.236852243786598,
+        "their_baseline_us": 7.104000076651573,
+        "our_baseline_us": 7.056000176817179,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 8, 1, 1, 8, 2, 4...       3.6 \u00b5s 100.0%      1\ntotal                                                              3.6 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 8,
+        "theirs_us": 5.358503472764125,
+        "ours_us": 4.467659694724131,
+        "theirs_over_ours": 1.1993983067000367,
+        "their_baseline_us": 26.272000279277563,
+        "our_baseline_us": 26.59199945628643,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rt_kernel<1, 8, 8, 4, 3>(uint...       3.5 \u00b5s 100.0%      1\ntotal                                                              3.5 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 128,
+        "theirs_us": 14.873718971153716,
+        "ours_us": 14.664393447734136,
+        "theirs_over_ours": 1.0142744072003826,
+        "their_baseline_us": 17.39199971780181,
+        "our_baseline_us": 16.896001063287258,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::wd_kernel<1, 128, 3, 1, false...      13.9 \u00b5s 100.0%      1\ntotal                                                             13.9 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 128,
+        "theirs_us": 7.0777459217395675,
+        "ours_us": 6.811779753028295,
+        "theirs_over_ours": 1.0390450335087584,
+        "their_baseline_us": 7.519999518990517,
+        "our_baseline_us": 7.327999919652939,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_coopB_NNN                      5.5 \u00b5s 100.0%      1\ntotal                                                              5.5 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 128,
+        "theirs_us": 20.033484346396367,
+        "ours_us": 19.99411536533393,
+        "theirs_over_ours": 1.0019690284037621,
+        "their_baseline_us": 24.895998649299145,
+        "our_baseline_us": 25.200000498443842,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_64x64_64x13_1x1_v_bz_coopB_NNN                     20.4 \u00b5s 100.0%      1\ntotal                                                             20.4 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 128,
+        "theirs_us": 19.646852345764966,
+        "ours_us": 18.986628441617082,
+        "theirs_over_ours": 1.0347730986666768,
+        "their_baseline_us": 19.679999444633722,
+        "our_baseline_us": 20.19199961796403,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNN                           18.7 \u00b5s 100.0%      1\ntotal                                                             18.7 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 128,
+        "theirs_us": 6.719691885893502,
+        "ours_us": 6.6388684793319985,
+        "theirs_over_ours": 1.0121742743982836,
+        "their_baseline_us": 16.336000058799982,
+        "our_baseline_us": 16.287999227643013,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::wd_kernel<1, 64, 8, 1, true, ...       6.4 \u00b5s 100.0%      1\ntotal                                                              6.4 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 256,
+        "theirs_us": 19.480206772825632,
+        "ours_us": 16.94129440347616,
+        "theirs_over_ours": 1.1498653118753734,
+        "their_baseline_us": 19.631999544799328,
+        "our_baseline_us": 19.216000102460384,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           20.4 \u00b5s 100.0%      1\ntotal                                                             20.4 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 256,
+        "theirs_us": 9.293507862005486,
+        "ours_us": 8.337871964234392,
+        "theirs_over_ours": 1.1146138849181577,
+        "their_baseline_us": 9.26399976015091,
+        "our_baseline_us": 8.735999930649996,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x128_64x6_2x1_v_bz_coopA_NNN                     8.1 \u00b5s 100.0%      1\ntotal                                                              8.1 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 256,
+        "theirs_us": 28.561750259793108,
+        "ours_us": 24.434399928957763,
+        "theirs_over_ours": 1.1689155593276481,
+        "their_baseline_us": 31.423999462276697,
+        "our_baseline_us": 31.13599866628647,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x64_64x8_1x1_v_bz_NNN                           24.4 \u00b5s 100.0%      1\ntotal                                                             24.4 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 256,
+        "theirs_us": 25.039306202398727,
+        "ours_us": 23.44136929449817,
+        "theirs_over_ours": 1.0681673876566418,
+        "their_baseline_us": 25.05600033327937,
+        "our_baseline_us": 24.48000106960535,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x128_64x6_2x1_v_bz_coopA_NNN                    23.5 \u00b5s 100.0%      1\ntotal                                                             23.5 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 256,
+        "theirs_us": 9.29806377791507,
+        "ours_us": 9.261433326197048,
+        "theirs_over_ours": 1.0039551601169991,
+        "their_baseline_us": 17.88800023496151,
+        "our_baseline_us": 17.40800030529499,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::wd_kernel<1, 128, 8, 1, true,...       8.9 \u00b5s 100.0%      1\ntotal                                                              8.9 \u00b5s"
+      }
+    ],
+    "o32_sensitivity": {
+      "delta_us": 0.30088081323546767,
+      "own_32token_projection_total_us": 51.72098772193554,
+      "six_load_score_factor": 1.0009728679700263,
+      "limit": "Unpaired substitution sensitivity with all other times/baselines held fixed, not a measured or predicted gain."
+    },
+    "cells_with_ours_lower_time": 27
+  },
+  {
+    "own_job": "40b9f54be6fe4d4e",
+    "own_score": 1.5160216534121498,
+    "own_ci": [
+      1.4932813286109674,
+      1.538761978213332
+    ],
+    "their_job": "74b36974863c4d1e",
+    "their_score": 1.3564572236426455,
+    "rows": [
+      {
+        "layer": "qkv_gate",
+        "m": 1,
+        "theirs_us": 8.965050329341214,
+        "ours_us": 8.866298254388475,
+        "theirs_over_ours": 1.0111379148455626,
+        "their_baseline_us": 13.75999953597784,
+        "our_baseline_us": 13.984001241624355,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::cgemv40_kernel<256, 2, 0>(uns...       7.6 \u00b5s 100.0%      1\ntotal                                                              7.6 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 1,
+        "theirs_us": 5.436781990003203,
+        "ours_us": 5.311955900860884,
+        "theirs_over_ours": 1.02349908234782,
+        "their_baseline_us": 6.84799998998642,
+        "our_baseline_us": 6.912000011652708,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::cgemv_kernel<64, 1, 0>(unsign...       4.6 \u00b5s 100.0%      1\ntotal                                                              4.6 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 1,
+        "theirs_us": 13.686977866800385,
+        "ours_us": 13.547066909267139,
+        "theirs_over_ours": 1.0103277675138327,
+        "their_baseline_us": 21.231999155133963,
+        "our_baseline_us": 21.103999577462673,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rd_kernel<1, 2, 16, 8, 1, 0>(...      13.3 \u00b5s 100.0%      1\ntotal                                                             13.3 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 1,
+        "theirs_us": 4.039391942880032,
+        "ours_us": 3.5290680020300993,
+        "theirs_over_ours": 1.1446058677691584,
+        "their_baseline_us": 6.895999424159527,
+        "our_baseline_us": 7.071999832987785,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::cgemv40_kernel<128, 2, 0>(uns...       2.7 \u00b5s 100.0%      1\ntotal                                                              2.7 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 1,
+        "theirs_us": 3.7869355720043107,
+        "ours_us": 3.697164189749717,
+        "theirs_over_ours": 1.0242811456692895,
+        "their_baseline_us": 10.048000141978264,
+        "our_baseline_us": 10.432000271975994,
+        "ours_profile": "kernel                                                           GPU time  share  calls\n(anonymous namespace)::rgemv_kernel(float4 const*, uint2 ...       2.5 \u00b5s 100.0%      1\ntotal                                                              2.5 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 16,
+        "theirs_us": 12.121915701607856,
+        "ours_us": 10.158808461969326,
+        "theirs_over_ours": 1.1932418793983222,
+        "their_baseline_us": 14.175999909639359,
+        "our_baseline_us": 14.303999952971935,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 16, 3, 1, 4, 2, ...       8.8 \u00b5s 100.0%      1\ntotal                                                              8.8 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 16,
+        "theirs_us": 5.672515758598044,
+        "ours_us": 5.803162779158992,
+        "theirs_over_ours": 0.9774869281574966,
+        "their_baseline_us": 6.624000146985054,
+        "our_baseline_us": 6.943999789655209,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 2, ...       4.3 \u00b5s 100.0%      1\ntotal                                                              4.3 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 16,
+        "theirs_us": 17.880630965654486,
+        "ours_us": 14.207935156675562,
+        "theirs_over_ours": 1.258496098727852,
+        "their_baseline_us": 21.791999228298664,
+        "our_baseline_us": 21.02399943396449,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 4, ...      13.6 \u00b5s 100.0%      1\ntotal                                                             13.6 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 16,
+        "theirs_us": 17.08920403838112,
+        "ours_us": 13.715694624026556,
+        "theirs_over_ours": 1.2459597932754347,
+        "their_baseline_us": 18.352000042796135,
+        "our_baseline_us": 18.576000351458788,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 2, ...      13.3 \u00b5s 100.0%      1\ntotal                                                             13.3 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 16,
+        "theirs_us": 5.340059382168632,
+        "ours_us": 4.339410364919321,
+        "theirs_over_ours": 1.230595618551949,
+        "their_baseline_us": 14.65599937364459,
+        "our_baseline_us": 14.751999638974667,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rt_kernel<2, 16, 8, 4, 3>(uin...       3.9 \u00b5s 100.0%      1\ntotal                                                              3.9 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 32,
+        "theirs_us": 12.816958400452215,
+        "ours_us": 10.708329389165085,
+        "theirs_over_ours": 1.1969148440111195,
+        "their_baseline_us": 14.544000383466482,
+        "our_baseline_us": 14.288000296801329,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<2, 32, 3, 1, 4, 2, ...      10.0 \u00b5s 100.0%      1\ntotal                                                             10.0 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 32,
+        "theirs_us": 5.568482781924777,
+        "ours_us": 6.09776753316784,
+        "theirs_over_ours": 0.9132002411761185,
+        "their_baseline_us": 6.431999616324902,
+        "our_baseline_us": 7.040000520646572,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 2, ...       5.1 \u00b5s 100.0%      1\ntotal                                                              5.1 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 32,
+        "theirs_us": 18.109305638636265,
+        "ours_us": 14.899139966454847,
+        "theirs_over_ours": 1.2154597969687546,
+        "their_baseline_us": 22.127999924123287,
+        "our_baseline_us": 21.66400058194995,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 4, ...      14.7 \u00b5s 100.0%      1\ntotal                                                             14.7 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 32,
+        "theirs_us": 18.082685919685247,
+        "ours_us": 14.269090347538487,
+        "theirs_over_ours": 1.2672626971490604,
+        "their_baseline_us": 18.895999528467655,
+        "our_baseline_us": 18.49599927663803,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 2, ...      14.3 \u00b5s 100.0%      1\ntotal                                                             14.3 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 32,
+        "theirs_us": 5.818632579956387,
+        "ours_us": 5.023392007614727,
+        "theirs_over_ours": 1.1583074884731654,
+        "their_baseline_us": 15.120001044124365,
+        "our_baseline_us": 15.088000800460577,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rt_kernel<4, 16, 8, 4, 3>(uin...       4.7 \u00b5s 100.0%      1\ntotal                                                              4.7 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 8,
+        "theirs_us": 12.256516318304314,
+        "ours_us": 9.892371526124924,
+        "theirs_over_ours": 1.238986656125468,
+        "their_baseline_us": 14.19200049713254,
+        "our_baseline_us": 14.240000396966934,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 8, 3, 1, 4, 4, 4...       7.6 \u00b5s 100.0%      1\ntotal                                                              7.6 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 8,
+        "theirs_us": 5.949421644647874,
+        "ours_us": 5.386164297118415,
+        "theirs_over_ours": 1.1045748544712608,
+        "their_baseline_us": 6.784000433981419,
+        "our_baseline_us": 6.687999702990055,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rd_kernel<1, 1, 8, 2, 1, 0>(u...       5.0 \u00b5s 100.0%      1\ntotal                                                              5.0 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 8,
+        "theirs_us": 17.523843650667864,
+        "ours_us": 13.276961926240725,
+        "theirs_over_ours": 1.3198684870846513,
+        "their_baseline_us": 21.28000045195222,
+        "our_baseline_us": 20.703999791294336,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rd_kernel<1, 2, 16, 8, 1, 0>(...      13.6 \u00b5s 100.0%      1\ntotal                                                             13.6 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 8,
+        "theirs_us": 5.608961417724381,
+        "ours_us": 4.374529419649262,
+        "theirs_over_ours": 1.2821862375711472,
+        "their_baseline_us": 7.104000076651573,
+        "our_baseline_us": 7.135999854654074,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_kernel<1, 8, 1, 1, 8, 2, 4...       3.6 \u00b5s 100.0%      1\ntotal                                                              3.6 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 8,
+        "theirs_us": 5.358503472764125,
+        "ours_us": 4.166141005653759,
+        "theirs_over_ours": 1.286203099101121,
+        "their_baseline_us": 26.272000279277563,
+        "our_baseline_us": 26.208000723272562,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::rt_kernel<1, 8, 8, 4, 3>(uint...       3.6 \u00b5s 100.0%      1\ntotal                                                              3.6 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 128,
+        "theirs_us": 14.873718971153716,
+        "ours_us": 15.057527144273813,
+        "theirs_over_ours": 0.9877929376212351,
+        "their_baseline_us": 17.39199971780181,
+        "our_baseline_us": 17.279999796301126,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::wd_kernel<1, 128, 3, 1, false...      14.0 \u00b5s 100.0%      1\ntotal                                                             14.0 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 128,
+        "theirs_us": 7.0777459217395675,
+        "ours_us": 7.683082410654938,
+        "theirs_over_ours": 0.9212117667674777,
+        "their_baseline_us": 7.519999518990517,
+        "our_baseline_us": 7.600000128149986,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT                            5.3 \u00b5s 100.0%      1\ntotal                                                              5.3 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 128,
+        "theirs_us": 20.033484346396367,
+        "ours_us": 20.246371705480925,
+        "theirs_over_ours": 0.9894851599989678,
+        "their_baseline_us": 24.895998649299145,
+        "our_baseline_us": 25.552000384777784,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_64x64_64x13_1x1_v_bz_coopB_NNN                     19.6 \u00b5s 100.0%      1\ntotal                                                             19.6 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 128,
+        "theirs_us": 19.646852345764966,
+        "ours_us": 19.095997756243047,
+        "theirs_over_ours": 1.0288465989865248,
+        "their_baseline_us": 19.679999444633722,
+        "our_baseline_us": 19.96799884364009,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNN                           18.3 \u00b5s 100.0%      1\ntotal                                                             18.3 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 128,
+        "theirs_us": 6.719691885893502,
+        "ours_us": 6.859661401731674,
+        "theirs_over_ours": 0.9795952733464602,
+        "their_baseline_us": 16.336000058799982,
+        "our_baseline_us": 16.447999514639378,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::wd_kernel<1, 64, 8, 1, true, ...       5.7 \u00b5s 100.0%      1\ntotal                                                              5.7 \u00b5s"
+      },
+      {
+        "layer": "qkv_gate",
+        "m": 256,
+        "theirs_us": 19.480206772825632,
+        "ours_us": 18.10000305988741,
+        "theirs_over_ours": 1.0762543358899745,
+        "their_baseline_us": 19.631999544799328,
+        "our_baseline_us": 19.84000066295266,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           21.8 \u00b5s 100.0%      1\ntotal                                                             21.8 \u00b5s"
+      },
+      {
+        "layer": "o",
+        "m": 256,
+        "theirs_us": 9.293507862005486,
+        "ours_us": 9.294579906824799,
+        "theirs_over_ours": 0.9998846591422033,
+        "their_baseline_us": 9.26399976015091,
+        "our_baseline_us": 9.472000412642956,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x128_64x6_2x1_v_bz_coopA_NNN                     7.9 \u00b5s 100.0%      1\ntotal                                                              7.9 \u00b5s"
+      },
+      {
+        "layer": "pooler",
+        "m": 256,
+        "theirs_us": 28.561750259793108,
+        "ours_us": 24.514721174406258,
+        "theirs_over_ours": 1.1650856665509217,
+        "their_baseline_us": 31.423999462276697,
+        "our_baseline_us": 28.975998517125845,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x64_64x8_1x1_v_bz_NNN                           24.0 \u00b5s 100.0%      1\ntotal                                                             24.0 \u00b5s"
+      },
+      {
+        "layer": "unpooler",
+        "m": 256,
+        "theirs_us": 25.039306202398727,
+        "ours_us": 23.26172075324168,
+        "theirs_over_ours": 1.0764167650370118,
+        "their_baseline_us": 25.05600033327937,
+        "our_baseline_us": 23.919999599456787,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x128_64x6_2x1_v_bz_coopA_NNN                    23.6 \u00b5s 100.0%      1\ntotal                                                             23.6 \u00b5s"
+      },
+      {
+        "layer": "router",
+        "m": 256,
+        "theirs_us": 9.29806377791507,
+        "ours_us": 8.845509169728956,
+        "theirs_over_ours": 1.051162075523571,
+        "their_baseline_us": 17.88800023496151,
+        "our_baseline_us": 17.75999926030636,
+        "ours_profile": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::wd_kernel<1, 64, 8, 1, true, ...       6.0 \u00b5s  87.0%      1\nMemset (Device)                                                    0.9 \u00b5s  13.0%      1\ntotal                                                              6.9 \u00b5s"
+      }
+    ],
+    "o32_sensitivity": {
+      "delta_us": 0.529284751243063,
+      "own_32token_projection_total_us": 50.997719243940985,
+      "six_load_score_factor": 1.0017403175508544,
+      "limit": "Unpaired substitution sensitivity with all other times/baselines held fixed, not a measured or predicted gain."
+    },
+    "cells_with_ours_lower_time": 23
+  }
+]

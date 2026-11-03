@@ -1,0 +1,13 @@
+{
+  "sha256": "f7a5d1fb7fba3365f52285ef84f7d888e6f4b347280f257833469f85382bef9a",
+  "bytes": 920106,
+  "pins": {
+    "candidate": "3a1ad278f4b5dcb113257f42a53874121fed21cc8625318c054c92b3021d6398",
+    "control": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "native": "b599e5b21c3e53cec6cfdd752d7e37ce693ba2003ac116629781888542d0d62d",
+    "harness_core_sha256": "7731c70dffaf5eae89e0502d5a38e9ccc7dce2f7910aa6fa83b362a686bcf81d",
+    "progress_sha256": "4118fd1c0c7cdb0ccad93217b2a10042ea0c0aa30b09668c29b0bf786b36a23d"
+  },
+  "offline_hold": false,
+  "status": "CPU_BUDGET_AND_TARGET_GATES_OPEN"
+}

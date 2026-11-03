@@ -1,41 +1,22 @@
 # D32 status and job ledger
 
-D32-02 picked up November 2, 2026. This chat owns D32 implementation through
-private checks, analysis and integration directly. Other project work stays with
-its existing owners. Public-submission permissions remain unchanged.
+## Current experiment
 
-| Experiment | Exact source | Job | State and next action |
+D32-IDENTITY-01 is implemented and locally qualified for one private full-context comparison. Frozen paired source `f7a5d1fb7fba3365f52285ef84f7d888e6f4b347280f257833469f85382bef9a`; native `b599e5b2`. Both CUDA twins compile with128 registers/zero spills; disabled SASS equals incumbent. Eleven CPU/source/host/reader tests pass. Own private job `4a2a79bdac04499a` is accepted for source published `59011284`. Exact remote bytes verified, fresh shared preflight found14 private layer checks and General's separate queued MoE job. The sole foreground waiter is exec session `43239`, writing ignored `.build/d32-identity/status-wait.raw.json`; resume it, then archive and apply the registered gate. No target result yet. [Source, tests, budgets and gates](2026-11-02-19-reduction-result-identity-next.md).
+
+D32-REDUCE-01 job `bd5776bdfcab42a7` is terminal,13/12/12 passing. Source `93a05524`, published `0585bd21`. Adjusted sliding/full161.438408/304.957678us, C32=12.305490ms, own D32 baseline speedup1.814995x; whole-six2.119214x CI[2.087426,2.151002]. Stop exact eight-copy performance treatment: no useful affected sliding signal, no matched gain or routing correction established. Waiter47403 ended. [Owning receipt](evidence/D32-REDUCE-01/status-wait.raw.json), [all-six analysis and decision](2026-11-02-19-reduction-result-identity-next.md). [Watched inbox](README.md).
+
+## Completed checks and closed instruments
+
+| Experiment | Source | Job | Recorded outcome |
 |---|---|---|---|
-| D32-ATTN-01, one-tile score lookahead | 5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5 | 17383751c6a24010 | Terminal valid; D32 C32 11.882275 ms; promising cross-run signal, matched confirmation required |
-| Existing unchanged control | ba9 plus unused metadata, upload04314b16 | 94ef698e91964dfa | Terminal, valid; descriptive D32 C32 12.324230 ms |
-| Existing MID17..32 | e607fb894b7ca9fb8c0245d986e1c1894024295efd5b1509ac5b8314329ca089 | a6fe2769779e4299 | Terminal, valid but no useful D32 signal; exact implementation parked; original owner finished its wait |
+| Attention lookahead | `5a580c7a` | `17383751c6a24010` | Valid ordinary check, C32 11.882275 ms. Matched gain unresolved. [Record](../../../archive/docs/steering/decode32/2026-11-02-05-attention-first-result.md) |
+| Control | ba9, upload `04314b16` | `94ef698e91964dfa` | Valid ordinary check, C32 12.324230 ms. Different inputs. [Record](../../../archive/docs/steering/decode32/2026-11-02-05-attention-first-result.md) |
+| MID17..32 | `e607fb89` | `a6fe2769779e4299` | C32 12.752280 ms. Parked. [Record](2026-11-02-03-mid-result.md) |
+| Matched confirmation | `109cdb07` | `4fece18b20a2447b` | Setup failed on FP8 finiteness check. [Record](../../../archive/docs/steering/decode32/2026-11-02-09-pair-setup-failure.md) |
+| Corrected confirmation | `f397bca8` | `62a4f6b27ed74b50` | Setup failed on strict routing agreement. [Record](../../../archive/docs/steering/decode32/2026-11-02-11-matched-routing-mismatch.md) |
+| Routing diagnostic | `9e5e5d64` | `5909739e8a4445b2` | Two experts swapped order in one row with treatment inactive. No timing. [Record](../../../archive/docs/steering/decode32/2026-11-02-14-routing-order-diagnostic.md) |
+| Upstream observer | `a0998224` | No accepted ID | Service rejected frame access before dispatch. [Record](../../../archive/docs/steering/decode32/2026-11-02-16-explicit-route-observer.md) |
+| Explicit-tag observer | `00193aa2` | `8b1e364dafb54c71` | Preparation budget expired. No capsule or timing. Instrument closed. [Record](2026-11-02-17-observer-budget-closure-and-refill.md) |
 
-[Attention experiment and frozen gates](2026-11-02-01-full-decode-attention-experiment.md).
-[Ownership instruction](2026-11-02-02-end-to-end-ownership.md).
-[Existing MID terminal](2026-11-02-03-mid-result.md).
-
-[First attention result and confirmation gate](2026-11-02-05-attention-first-result.md).
-
-Matched confirmation preparation: `tools/d32_attn_worker_pair.py` now provides
-state-local control/treatment selection for the pinned candidate. Two CPU tests
-cover the wrapper and source identity. This is one part of the instrument, not
-a runnable or qualified paired check. Next bind four independently owned states
-to the existing full-layer capture, cold replay, numerical and receipt machinery.
-Prospectively register D32 and other-load gates before dispatch.
-
-D32-06 read. Confirmation remains in implementation: the state-local arm
-selector and the prospective timing decision now have four passing CPU tests.
-The complete capture/replay payload and target qualification are still open.
-[Confirmation contract](2026-11-02-07-confirmation-contract.md).
-
-D32-ATTN-02 matched payload: `109cdb07dbe04fe6a9723b816a8fa5942969ce0150310dcdc02fca58b4f62929`, 928942 bytes, generated for one private check. Actual generated-entry selection tests and a four-arm real-CPU-Torch orchestration test pass. Target GPU, preparation budget, and the matched timing result remain untested. [Payload and gates](2026-11-02-08-confirmation-payload.md).
-
-D32-ATTN-02 private check `4fece18b20a2447b` accepted for source `109cdb07`, published at `c7e13600`. Terminal setup failure: target PyTorch lacks FP8 `isfinite`. No timing was collected. The diagnostic was corrected and covered by a CPU Torch regression; the new payload is being prepared for one private retry.
-
-[Setup failure and corrected payload](2026-11-02-09-pair-setup-failure.md).
-
-Corrected matched payload `f397bca8c869b775fe79a4bc7d2c2749fba0542702d740431cbd7028e78908b3` is published in `f90da774`. Retry has not been submitted: fresh preflight found another problem's check `3aa3885f6b734f8c` running. Recheck the shared job list and quota before dispatch; do not poll that other owner's job.
-
-Corrected matched retry `62a4f6b27ed74b50` was accepted for source `f397bca8`; fresh preflight found no live jobs and 18 private checks available. Follow this own ID; do not submit another copy.
-
-Corrected matched check `62a4f6b27ed74b50` ended in setup with `EXPERT_FRESH_ROUTING_MISMATCH`; no matched timings. A strict-gate diagnostic payload `9e5e5d64` records load, seed, replay and differing placements on a repeat. One bounded diagnostic is next after publication and fresh shared job/quota preflight. [Failure and decision](2026-11-02-11-matched-routing-mismatch.md).
+The routing gate still applies. D32-MOE-01 closed at source inspection because B4 already selects the parallel prefix. [Selected-source correction](2026-11-02-13-b4-prefix-selected-source.md). The full sequence of postings, preflights and handoffs is preserved in the [ledger at the compaction boundary](https://github.com/yelgabo/okc/blob/0585bd216cb980e8b47a66eef0ba4c3b0c5768a3/docs/steering/decode32/STATUS.md).

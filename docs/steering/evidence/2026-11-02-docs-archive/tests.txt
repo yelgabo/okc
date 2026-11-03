@@ -1,0 +1,20 @@
+test_frozen_files_fit_and_runtime_factories_link (tools.prod_size_test_manifest.Evidence) ... ok
+test_owned_device_link_and_exact_three_entries (tools.prod_size_test_manifest.Evidence) ... ok
+test_selected_G_compiler_link_and_no_new_resources (tools.prod_size_test_manifest.Evidence) ... ok
+test_broken_link_and_unmapped_section_are_rejected (tools.test_cuda_research.ResearchCoverage) ... ok
+test_changed_claim_is_rejected (tools.test_cuda_research.ResearchCoverage) ... ok
+test_changed_evidence_names_affected_note (tools.test_cuda_research.ResearchCoverage) ... ok
+test_changed_source_is_rejected (tools.test_cuda_research.ResearchCoverage) ... ok
+test_complete_coverage_ignores_fenced_comments (tools.test_cuda_research.ResearchCoverage) ... ok
+test_omitted_section_is_rejected (tools.test_cuda_research.ResearchCoverage) ... ok
+test_compiler_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) ... ok
+test_compiler_resources_remain_visible (tools.test_moe_compile_wrappers.CompileWrappers) ... ok
+test_disassembler_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) ... ok
+test_docker_failure_reaches_caller (tools.test_moe_compile_wrappers.CompileWrappers) ... ok
+test_legacy_first_failure_stops_before_second_compile (tools.test_moe_compile_wrappers.CompileWrappers) ... ok
+test_quiet_success_is_success (tools.test_moe_compile_wrappers.CompileWrappers) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 4.674s
+
+OK

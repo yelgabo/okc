@@ -1,4 +1,4 @@
-"""Stable prepare-time picks (docs/plan-2026-10-30-tuner-stability.md, design 1) on a layer
+"""Stable prepare-time picks (archive/docs/plan-2026-10-30-tuner-stability.md, design 1) on a layer
 file: the MoE, front and attention-boundary tuners time their candidates in STABLE_ROUNDS
 interleaved rounds with the order rotated each round, and keep the board entry's receipt pick
 (3fbb3ad027e84c6b) unless another candidate saves more than max(0.3 us, 2 x the median absolute
@@ -24,7 +24,7 @@ HELPER = '''# Prepare-time picks: two copies of one file picked differently in t
 # (724aa0dd6ed140ca, 2dc566298be1498f, 40b9b3f795f84073), widening the nulls and moving one
 # load by about 1% at random. A tuner keeps the board entry's receipt pick (3fbb3ad027e84c6b)
 # unless another candidate is faster by more than the noise in nearly every round
-# (docs/plan-2026-10-30-tuner-stability.md, design 1).
+# (archive/docs/plan-2026-10-30-tuner-stability.md, design 1).
 STABLE_ROUNDS = 9
 STABLE_MARGIN_US = 0.3
 STABLE_PREF = {

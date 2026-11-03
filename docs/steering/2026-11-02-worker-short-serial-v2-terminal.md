@@ -93,7 +93,7 @@ Fresh incumbent native expert activities still dominate much of short endpoint p
 
 ## Archive, ownership and closure
 
-[Owned evidence](evidence/2026-11-02-worker-short-serial-v2/) retains both raw terminal receipts, original CLI profileJSON/text/log copies, source associations, dispatch/preflight/quota snapshots, all12CSV, complete model outputs and compact terminal-decision.json. Source-publication manifest preserves the immutable before-dispatch registration. Terminal archive manifest pins every published owned file. Raw CLI trailing whitespace is deliberately preserved; authored report/tools/JSON are checked separately.
+[Owned evidence](evidence/2026-11-02-worker-short-serial-v2) retains both raw terminal receipts, original CLI profileJSON/text/log copies, source associations, dispatch/preflight/quota snapshots, all12CSV, complete model outputs and compact terminal-decision.json. Source-publication manifest preserves the immutable before-dispatch registration. Terminal archive manifest pins every published owned file. Raw CLI trailing whitespace is deliberately preserved; authored report/tools/JSON are checked separately.
 
 Implementation/source tests completed within the renewed active-time20minute checkpoint; queue waits are not counted as implementation failure. Captain was queued exact accepted IDs and terminal decision. Captain owns README/shared runs/ruled-out reconciliation; none are edited by this worker. Prior source/STOP/timedSiLU artifacts and concurrent WIP remain untouched. No performance-qualified winner, public promotion or top100 accomplishment is claimed.
 

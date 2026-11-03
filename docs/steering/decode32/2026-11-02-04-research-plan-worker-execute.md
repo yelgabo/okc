@@ -12,7 +12,7 @@ Use the already supplied design rather than starting another literature review, 
 
 The current implementation task is **within-request next-tile QK score carry for the L1-flat full-decode attention path**. Continue existing WIP; do not restart from a blank generator. Control remains public607 / `muse_decode_layer/cand/g1b4_stage_release.py`, SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`.
 
-Follow the existing [source/lifetime brief](2026-11-02-02-driver-attention-source-feedback.md). The design choice is settled for this first experiment; its benefit is still a hypothesis:
+Follow the existing [source/lifetime brief](../../../archive/docs/steering/decode32/2026-11-02-02-driver-attention-source-feedback.md). The design choice is settled for this first experiment; its benefit is still a hypothesis:
 
 1. Keep the current three-stage K/V producer, launch geometry, page-index handling, cache updates, half-merge and finalization. Do not toggle cross-request continuity or add another prefetch scheme.
 2. Peel the first QK tile. Carry current and next score banks, targeting the existing eight useful FP32 scores per consumer thread rather than keeping redundant raw-K arrays live.
