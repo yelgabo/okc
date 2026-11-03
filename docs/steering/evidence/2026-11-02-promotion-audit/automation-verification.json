@@ -1,0 +1,8 @@
+{
+  "tracker_id": "okc-architecture-performance-tracker",
+  "tracker_status": "ACTIVE",
+  "tracker_schedule": "FREQ=HOURLY;INTERVAL=1",
+  "promotion_guard_present": true,
+  "worker_reminder_status": "PAUSED",
+  "new_automation_created": false
+}

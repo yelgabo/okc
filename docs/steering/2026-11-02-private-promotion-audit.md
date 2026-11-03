@@ -93,10 +93,13 @@ Root AGENTS now requires separate experiment and public-release dispositions, an
 
 `tools/release_audit.py` scans and deduplicates own terminal passing receipts, compares them with saved public snapshots and fails on a missing owner, judged arm, source identity, release state, reason, evidence or disclosure report. It excludes official failures/flags and does not turn lower point estimates into automatic release eligibility. The GitHub workflow runs an offline tracked-receipt check on pushes and pull requests. Tests reproduce the missing-disposition failure, a control-arm lead despite a failed treatment, invalid official results and incomplete dispositions.
 
-The existing hourly tracker will receive this release check without changing its schedule or authority. The user-paused worker reminder remains paused. No new chat, agent, benchmark or public submission is created by the audit. Owners retain their existing implementation scopes.
+The existing hourly tracker received this release check. Its ACTIVE hourly schedule and existing authority are unchanged; the worker reminder remains PAUSED. Local saved configuration confirms the added guard. The user-paused worker reminder remains paused. No new chat, agent, benchmark or public submission is created by the audit. Owners retain their existing implementation scopes.
 
 ## Continuing execution
 
 The original user task remains active: measure minimally intrusive B4/MAIN phase/tail exposure, then implement and measure the next qualified MoE candidate. Sparse boundary source `tools/moe_phase.py` has compiled locally for B4/MAIN while the audit proceeds. The source adds boundary timestamps through the existing optional debug pointer and changes no arithmetic, publication or kernel parameter layout. No phase GPU job is accepted yet. Its observer cost must be priced before interpreting phases. The next diagnostic is planned to judge the uninstrumented current control officially, so its complete standalone score is explicit. No old queue treatment is reopened.
 
 Validation in this report is author-checked. No independent reviewer was available under the no-new-agents instruction. Full inputs and coverage limits: [receipt inventory](evidence/2026-11-02-promotion-audit/receipt-audit.json), [public snapshots](../releases/public-snapshots), [queue ledger](../releases/promotion-queue.json).
+
+
+The new GitHub promotion-ledger workflow completed successfully for commitbbd4a11d. [CI run41581122309](https://github.com/yelgabo/okc/actions/runs/41581122309). Three targeted tests pass; the complete tracked-receipt check reports23leads andzero missing dispositions. The injected missing46aafddc row correctly exits1 and identifies the omitted result. This validates the guard, not release eligibility for any candidate.
