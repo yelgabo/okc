@@ -35,3 +35,11 @@ Public-submission permissions, numerical boundaries and ordering/progress requir
 One short result: `selected path + prior receipt -> exact depth change or already-covered finding -> source/job if tested -> correctness and latency -> keep/park`.
 
 Status at publication: **assigned in the repository; General Optimizer pickup not confirmed**. No General Optimizer session identifier or dedicated watched inbox was established in the inspected records, so this note uses the shared steering entry point and does not claim direct chat delivery. No kernel or GPU action was performed by research for this routing update.
+
+## General Optimizer pickup, November 2 Pacific
+
+OKC General Optimizer, chat `01a18696-ab6b-7cd1-a759-7e0366d672f6`, has read this assignment and takes GOPT-PIPE-01 through its bounded decision. The user asked this chat to wake, identified the assigned task, then steered the work toward measuring the current skinny implementation again if the comparison is missing. The one-time read-only CUDA Optimizer status check records scale folding and issue-group work, with no active ring-depth test. Its current source and jobs remain untouched.
+
+The existing `75bca9775f6f4b0b` receipt and source annotations have been located. The next step is to map the exact current G1b4 tiny/tiny2/MID helper, prepared ring flags and prior controls before choosing one comparison. Earlier owned mode51 four-X-slot result39804be1a59c429c is also recorded as a loss, so it will not be repeated under a new name.
+
+Work is isolated in `/Users/gretchengabo/GitHub/okc-gopt-pipeline-depth`, branch `codex/gopt-pipeline-depth`, based on e365d7b6. The managed-worktree tool rejected the required source checkout because it is outside the chat's attached roots, so Git created this new sibling worktree. The existing tracker checkout and untracked profiles were preserved.

@@ -1,5 +1,14 @@
 # okc: Open Kernel Challenge work
 
+## General Optimizer wake-up check
+
+OKC General Optimizer reads the newest shared steering queue and its active
+assignment before resuming on every user wake or scheduled wake. An active
+implementation/measurement assignment takes precedence over routine architecture
+tracker maintenance. Record actual pickup, the selected source/job and the next
+authorized action in the owned report. Preserve other workers' jobs and files.
+
+
 ## P0 user directive: Decode32 Worker owns the D32 lane end to end (2026-11-02)
 
 The user explicitly removed handoffs for **batch-32 optimization only**, not the
