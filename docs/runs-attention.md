@@ -4510,3 +4510,42 @@ q_len 8 tile stamps), n4, n5, n4s (n4's build with 16 / 8 splits at verify 16 / 
 SHA256 f514d70a. Gate: arm - ctrl at most -0.5 us cold on a targeted cell on all three inputs
 and beyond the null, warm not worse, no other of the four cells worse than the null. Expected
 (hypothesis): decode 32 -1.5 to -2.5 us, verify 32 -2 to -4, verify 16 -1 to -2, decode 16 flat.
+
+### Result: fd482cc58ac440e1, a deeper ring changes nothing
+
+Receipt `profiles/slnsr.fd482cc58ac440e1.{json,log,dispatch.json}`. Control 16/16, 2.531x (CI
+2.493-2.569), no flags; ABCHECKSUM 4/0 on n4, n5, n4s, ctrl, ctrl2. Cold pooled us (null
+ctrl2 - ctrl within 0.06):
+
+| cell | ctrl | n4 | n5 | n4s | warm ctrl | n4 | n5 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| decode 16 sliding | 12.96 | +0.03 | +0.00 | -0.06 | 7.37 | +0.44 | +0.18 |
+| decode 32 sliding | 15.71 | +0.16 | +0.26 | +0.03 | 9.56 | +0.31 | +0.47 |
+| verify 16 sliding | 15.71 | +0.22 | +0.22 | +0.86 | 11.34 | +0.25 | +0.22 |
+| verify 32 sliding | 19.90 | +0.26 | +0.22 | +0.06 | 15.30 | +0.12 | +0.14 |
+
+Timeline with the q_len 8 tile stamps (TLSUM, control build / n5): verify tile gap 0.90 / 0.79
+us at batch 16, 0.90 / 0.89 at batch 32, first tile ready 0.2 us after the prologue, so the q_len
+8 loop is consumer-bound (the tile is in smem when the consumer gets to it). At decode 32 the
+gap is 1.17 / 1.09 us but n5 issues all four tiles in the prologue for 2.1 us (0.5 us of cp.async
+issue per tile) and the kernel ends no earlier: 256 CTAs x 16 KB per 1.1 us is 3.8 TB/s, so the
+decode 32 loop already runs at about the DRAM rate. Closed in ruled-out.md. What is left: the
+q_len 8 tile body (0.8-0.9 us per tile at one CTA per SM) and the merge tail (2.7 us decode,
+3.7 us verify cold).
+
+## 2026-11-03 last arriver skips the cooperative poll (ONE_LASTSKIP), registered before dispatch
+
+Mechanism: in `coop_barrier` the CTA whose acq_rel add completes the key count still polls the
+counter with ld.acquire (one more L2 round trip, plus a 64 ns sleep) before it finalizes. Its
+RMW reads the value written by the other arrivers' acq_rel RMWs on the same location, so it
+already synchronizes with all of them (release sequence); the last-CTA ticket finalizes on the
+same argument without a poll. ONE_LASTSKIP=1 drops the poll for that CTA in the per-request
+cooperative instances (1/3, 1/11, 8/3, 8/11, 8/15: verify 16 / 32 sliding, verify 1 sliding,
+decode / verify 1 full); the flat grid barrier (49, 51, 19, 17) is untouched (SASS-identical,
+local sm_90a). The timeline puts the verify critical CTA's barrier at 1.9-2.0 us.
+
+Check: `tools/attn_make_bench_ab.py --null --shapes all --inputs 3 --rounds 150 --seed 311403
+ls@own=-DONE_LASTSKIP=1` plus `tools/attn_inline_one.py` (bench SHA256 6b324c87). Gate: ls - ctrl
+at most -0.3 us cold on verify 16 or verify 32 sliding on all three inputs and beyond the null,
+no scored cell worse than the null. Expected (hypothesis): -0.2 to -0.6 us on the five
+cooperative cells, zero elsewhere.

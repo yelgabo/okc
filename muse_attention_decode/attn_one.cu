@@ -307,6 +307,14 @@ __host__ __device__ constexpr bool one_pb(int L, int mode) {
 #ifndef ONE_NSR8
 #define ONE_NSR8 3
 #endif
+// ONE_LASTSKIP / ONE_POLLNS (per-request cooperative instances 3, 11, 15 only; the flat
+// grid barrier keeps the default): see coop_barrier.
+#ifndef ONE_LASTSKIP
+#define ONE_LASTSKIP 0
+#endif
+#ifndef ONE_POLLNS
+#define ONE_POLLNS 64
+#endif
 #ifndef ONE_NSR1
 #define ONE_NSR1 3
 #endif
@@ -909,18 +917,26 @@ __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_h
 // whose keys complete the count; a CTA with no keys never is) clears the other parity and
 // bumps the epoch, and every CTA spins until the count reaches `total`. dbg[0], when given,
 // records the longest spin in polls.
-template <int NC>
+// SKIP (ONE_LASTSKIP, per-request instances): the arriver whose keys complete the count does
+// not poll. Its acq_rel RMW reads the value written by the last of the other arrivers' acq_rel
+// RMWs on the same counter, so it synchronizes with every one of them (release sequence), the
+// same argument that lets the last-CTA ticket finalize without a poll. PNS: the poll's
+// nanosleep in ns (ONE_POLLNS; 0 spins without sleeping).
+template <int NC, bool SKIP = false, int PNS = 64>
 __device__ __forceinline__ void coop_barrier(int* cnt, int* epoch, int ep, int mine, int total,
                                              int tid, int* dbg) {
     if (tid == 0) {
         const int old = atom_add_acq_rel(cnt + (ep & 1), mine);
-        if (mine > 0 && old + mine == total) {
+        const bool last = mine > 0 && old + mine == total;
+        if (last) {
             __stcg(cnt + ((ep + 1) & 1), 0);
             __stcg(epoch, ep + 1);
         }
         int polls = 0;
-        while (ld_acquire(cnt + (ep & 1)) < total) {
-            __nanosleep(64);
+        while (!(SKIP && last) && ld_acquire(cnt + (ep & 1)) < total) {
+            if constexpr (PNS > 0) {
+                __nanosleep(PNS);
+            }
             if (++polls > COOP_POLL_LIMIT) {
                 __trap();
             }
@@ -3204,7 +3220,8 @@ attn_one_kernel(const Params p) {
             __syncthreads();
             const int ep = *reinterpret_cast<const int*>(smem + S::CONST + C_EPOCH);
             const int rows_per = (ROWS + nact - 1) / nact;
-            coop_barrier<NC>(p.ws_cnt + CNT_COOP + 2 * b, p.ws_cnt + CNT_EPOCH + b, ep, hi - lo,
+            coop_barrier<NC, ONE_LASTSKIP != 0, ONE_POLLNS>(p.ws_cnt + CNT_COOP + 2 * b,
+                                                         p.ws_cnt + CNT_EPOCH + b, ep, hi - lo,
                              n_keys, tid, p.dbg);
             if (ONE_DIAG && p.phase_limit == 12) {
                 return;

@@ -1,0 +1,95 @@
+s8=2.56 s13=3.62 s24=4.35 s16=12.29 s17=13.12 s21=14.66 s22=15.52 t=178s
+TLSL b=32 sliding L=8 tln5_probe rep=2 ctas=128 active=128 ghz=1.822 span=17.02 tiles=(6.0, 9.0, 9.0) entry=0.00/0.13/0.22 idx=0.92/1.10/2.72 kvissue=0.77/1.02/1.26 qgrp=0.04/0.51/0.97 prep=1.08/1.12/1.52 first=0.19/0.20/1.83 loop=5.19/7.58/7.94 red=0.36/0.78/0.91 loopend=9.63/11.81/13.95 end=14.53/14.98/17.02 tilegap=0.73/0.88/1.25 barrier=0.93/1.62/5.35 fin=0.75/0.93/1.40 crit=c96:sm12:t9 s0=0.03 s4=1.15 s6=1.95 s8=2.50 s13=3.65 s24=3.84 s16=11.87 s17=12.22 s21=16.10 s22=17.02 t=178s
+TLSL b=32 sliding L=8 tln5_probe rep=3 ctas=128 active=128 ghz=1.817 span=15.71 tiles=(6.0, 9.0, 9.0) entry=0.00/0.13/0.19 idx=0.95/1.05/1.61 kvissue=0.78/1.03/1.25 qgrp=0.04/0.04/0.44 prep=1.08/1.13/1.54 first=0.19/0.20/0.75 loop=5.20/7.58/7.97 red=0.36/0.80/0.83 loopend=9.02/11.23/12.45 end=13.76/14.43/15.71 tilegap=0.73/0.89/1.26 barrier=1.01/1.68/4.40 fin=0.76/0.94/1.15 crit=c112:sm8:t9 s0=0.16 s4=1.50 s6=2.53 s8=2.56 s13=3.62 s24=4.45 s16=12.42 s17=13.22 s21=14.85 s22=15.71 t=178s
+TLSL b=32 sliding L=8 tln5_probe rep=4 ctas=128 active=128 ghz=1.819 span=15.87 tiles=(6.0, 9.0, 9.0) entry=0.00/0.10/0.19 idx=0.98/1.09/1.62 kvissue=0.76/1.06/1.21 qgrp=0.04/0.04/0.21 prep=1.07/1.12/1.53 first=0.19/0.60/1.46 loop=5.20/7.63/8.45 red=0.36/0.80/0.82 loopend=8.96/11.71/12.93 end=14.05/15.01/15.87 tilegap=0.73/0.89/1.82 barrier=0.91/1.78/4.71 fin=0.77/0.94/1.10 crit=c7:sm125:t6 s0=0.03 s4=1.12 s6=2.18 s8=2.21 s13=3.65 s24=3.97 s16=9.44 s17=10.18 s21=14.85 s22=15.87 t=178s
+ABORDER seed=311402 rounds=150 inputs=3 timing_seeds=[1000, 1001, 1002] arms=['ctrl', 'tl_probe', 'n4', 'n5', 'n4s', 'tln5_probe', 'ctrl2']
+ABPLAN b=16 sliding L=1 ctrl=[splits=16,nc=1,mode=1] tl_probe=[splits=16,nc=1,mode=1] n4=[splits=16,nc=1,mode=1] n5=[splits=16,nc=1,mode=1] n4s=[splits=16,nc=1,mode=1] tln5_probe=[splits=16,nc=1,mode=1] ctrl2=[splits=16,nc=1,mode=1]
+ABCOLD b=16 sliding L=1 in=0 ctrl=12.96 tl_probe=13.25 n4=12.99 n5=12.93 n4s=12.90 tln5_probe=13.57 ctrl2=12.93 cap0=tln5_probe t=178s
+ABWARM b=16 sliding L=1 in=0 ctrl=7.36 tl_probe=7.80 n4=7.82 n5=7.56 n4s=7.37 tln5_probe=8.17 ctrl2=7.63 t=178s
+ABCOLD b=16 sliding L=1 in=1 ctrl=13.06 tl_probe=13.28 n4=13.02 n5=12.90 n4s=12.96 tln5_probe=13.47 ctrl2=12.90 cap0=tl_probe t=178s
+ABWARM b=16 sliding L=1 in=1 ctrl=7.37 tl_probe=7.82 n4=7.83 n5=7.57 n4s=7.39 tln5_probe=8.16 ctrl2=7.62 t=178s
+ABCOLD b=16 sliding L=1 in=2 ctrl=12.93 tl_probe=13.28 n4=12.99 n5=13.02 n4s=12.80 tln5_probe=13.54 ctrl2=12.93 cap0=ctrl t=179s
+ABWARM b=16 sliding L=1 in=2 ctrl=7.63 tl_probe=7.98 n4=7.36 n5=7.27 n4s=7.62 tln5_probe=8.18 ctrl2=7.60 t=179s
+ABCOLD b=16 sliding L=1 pooled ctrl=12.96 tl_probe=13.28 n4=12.99 n5=12.96 n4s=12.90 tln5_probe=13.50 ctrl2=12.93
+ABWARM b=16 sliding L=1 pooled ctrl=7.37 tl_probe=7.83 n4=7.81 n5=7.56 n4s=7.40 tln5_probe=8.18 ctrl2=7.62
+ABPLAN b=32 sliding L=1 ctrl=[splits=8,nc=1,mode=1] tl_probe=[splits=8,nc=1,mode=1] n4=[splits=8,nc=1,mode=1] n5=[splits=8,nc=1,mode=1] n4s=[splits=8,nc=1,mode=1] tln5_probe=[splits=8,nc=1,mode=1] ctrl2=[splits=8,nc=1,mode=1]
+ABCOLD b=32 sliding L=1 in=0 ctrl=15.52 tl_probe=15.84 n4=15.71 n5=15.81 n4s=15.58 tln5_probe=16.19 ctrl2=15.52 cap0=n4 t=179s
+ABWARM b=32 sliding L=1 in=0 ctrl=9.54 tl_probe=10.03 n4=9.88 n5=10.03 n4s=9.74 tln5_probe=10.66 ctrl2=9.57 t=179s
+ABCOLD b=32 sliding L=1 in=1 ctrl=15.68 tl_probe=16.10 n4=15.94 n5=15.97 n4s=15.84 tln5_probe=16.35 ctrl2=15.74 cap0=ctrl t=179s
+ABWARM b=32 sliding L=1 in=1 ctrl=9.57 tl_probe=10.17 n4=9.95 n5=10.12 n4s=9.84 tln5_probe=10.70 ctrl2=9.75 t=179s
+ABCOLD b=32 sliding L=1 in=2 ctrl=15.87 tl_probe=16.06 n4=15.97 n5=16.06 n4s=15.78 tln5_probe=16.29 ctrl2=15.90 cap0=tln5_probe t=179s
+ABWARM b=32 sliding L=1 in=2 ctrl=9.58 tl_probe=10.10 n4=9.72 n5=10.02 n4s=9.86 tln5_probe=10.77 ctrl2=9.59 t=179s
+ABCOLD b=32 sliding L=1 pooled ctrl=15.71 tl_probe=16.00 n4=15.87 n5=15.97 n4s=15.74 tln5_probe=16.29 ctrl2=15.74
+ABWARM b=32 sliding L=1 pooled ctrl=9.56 tl_probe=10.10 n4=9.88 n5=10.04 n4s=9.83 tln5_probe=10.70 ctrl2=9.60
+ABPLAN b=16 sliding L=8 ctrl=[splits=8,nc=1,mode=3] tl_probe=[splits=8,nc=1,mode=3] n4=[splits=8,nc=1,mode=3] n5=[splits=8,nc=1,mode=3] n4s=[splits=8,nc=1,mode=3,splits_override=16] tln5_probe=[splits=8,nc=1,mode=3] ctrl2=[splits=8,nc=1,mode=3]
+ABCOLD b=16 sliding L=8 in=0 ctrl=15.71 tl_probe=16.19 n4=15.87 n5=15.87 n4s=16.58 tln5_probe=16.29 ctrl2=15.74 cap0=ctrl2 t=179s
+ABWARM b=16 sliding L=8 in=0 ctrl=11.37 tl_probe=12.01 n4=11.60 n5=11.58 n4s=12.45 tln5_probe=12.16 ctrl2=11.36 t=179s
+ABCOLD b=16 sliding L=8 in=1 ctrl=15.68 tl_probe=16.26 n4=15.90 n5=15.94 n4s=16.58 tln5_probe=16.32 ctrl2=15.71 cap0=ctrl t=179s
+ABWARM b=16 sliding L=8 in=1 ctrl=11.28 tl_probe=11.99 n4=11.50 n5=11.54 n4s=12.37 tln5_probe=11.98 ctrl2=11.30 t=179s
+ABCOLD b=16 sliding L=8 in=2 ctrl=15.81 tl_probe=16.32 n4=16.00 n5=15.97 n4s=16.64 tln5_probe=16.32 ctrl2=15.78 cap0=ctrl2 t=180s
+ABWARM b=16 sliding L=8 in=2 ctrl=11.35 tl_probe=12.05 n4=11.62 n5=11.56 n4s=12.40 tln5_probe=12.16 ctrl2=11.39 t=180s
+ABCOLD b=16 sliding L=8 pooled ctrl=15.71 tl_probe=16.26 n4=15.94 n5=15.94 n4s=16.58 tln5_probe=16.29 ctrl2=15.74
+ABWARM b=16 sliding L=8 pooled ctrl=11.34 tl_probe=12.02 n4=11.59 n5=11.56 n4s=12.41 tln5_probe=12.14 ctrl2=11.35
+ABPLAN b=32 sliding L=8 ctrl=[splits=4,nc=1,mode=3] tl_probe=[splits=4,nc=1,mode=3] n4=[splits=4,nc=1,mode=3] n5=[splits=4,nc=1,mode=3] n4s=[splits=4,nc=1,mode=3,splits_override=8] tln5_probe=[splits=4,nc=1,mode=3] ctrl2=[splits=4,nc=1,mode=3]
+ABCOLD b=32 sliding L=8 in=0 ctrl=19.90 tl_probe=20.61 n4=20.10 n5=20.00 n4s=19.81 tln5_probe=20.83 ctrl2=19.84 cap0=n5 t=180s
+ABWARM b=32 sliding L=8 in=0 ctrl=15.31 tl_probe=15.87 n4=15.39 n5=15.46 n4s=15.62 tln5_probe=16.23 ctrl2=15.16 t=180s
+ABCOLD b=32 sliding L=8 in=1 ctrl=19.87 tl_probe=20.54 n4=20.13 n5=20.13 n4s=19.97 tln5_probe=20.70 ctrl2=19.97 cap0=tln5_probe t=180s
+ABWARM b=32 sliding L=8 in=1 ctrl=15.28 tl_probe=15.89 n4=15.39 n5=15.38 n4s=15.43 tln5_probe=16.20 ctrl2=15.29 t=180s
+ABCOLD b=32 sliding L=8 in=2 ctrl=20.00 tl_probe=20.64 n4=20.22 n5=20.22 n4s=20.06 tln5_probe=20.90 ctrl2=20.03 cap0=n5 t=180s
+ABWARM b=32 sliding L=8 in=2 ctrl=15.31 tl_probe=15.98 n4=15.59 n5=15.52 n4s=15.82 tln5_probe=16.40 ctrl2=15.30 t=180s
+ABCOLD b=32 sliding L=8 pooled ctrl=19.90 tl_probe=20.61 n4=20.16 n5=20.13 n4s=19.97 tln5_probe=20.83 ctrl2=19.97
+ABWARM b=32 sliding L=8 pooled ctrl=15.30 tl_probe=15.90 n4=15.42 n5=15.45 n4s=15.62 tln5_probe=16.24 ctrl2=15.26
+TLSUM b=16 sliding L=1 tl_probe reps=5 entry_med=0.13 entry_max=0.22 idx_med=0.93 idx_max=1.31 kvissue_med=0.71 kvissue_max=0.89 qgrp_med=0.04 qgrp_max=0.18 prep_med=0.40 prep_max=0.76 first_med=1.28 first_max=2.61 loop_med=1.84 loop_max=2.88 red_med=0.26 red_max=0.39 loopend_med=5.47 loopend_max=6.34 end_med=6.98 end_max=8.35 tilegap_med=1.21 tilegap_max=2.22 ticket_med=0.97 ticket_max=1.54 fin_med=0.85 fin_max=0.93 span=8.35 crit_s0=0.10 crit_s4=1.06 crit_s6=1.86 crit_s8=1.89 crit_s13=2.30 crit_s24=4.61 crit_s16=6.02 crit_s17=6.30 crit_s19=7.52 crit_s20=8.35
+TLSUM b=32 sliding L=1 tl_probe reps=5 entry_med=0.13 entry_max=0.22 idx_med=0.95 idx_max=1.45 kvissue_med=0.95 kvissue_max=1.23 qgrp_med=0.06 qgrp_max=0.25 prep_med=0.42 prep_max=0.80 first_med=1.11 first_max=2.46 loop_med=4.23 loop_max=5.47 red_med=0.24 red_max=0.40 loopend_med=8.00 loopend_max=9.02 end_med=9.22 end_max=10.88 tilegap_med=1.17 tilegap_max=2.43 ticket_med=0.81 ticket_max=1.25 fin_med=0.87 fin_max=1.06 span=10.88 crit_s0=0.16 crit_s4=1.06 crit_s6=1.98 crit_s8=2.05 crit_s13=2.50 crit_s24=4.13 crit_s16=8.93 crit_s17=9.25 crit_s19=9.98 crit_s20=10.88
+TLSUM b=16 sliding L=8 tl_probe reps=5 entry_med=0.10 entry_max=0.19 idx_med=0.95 idx_max=1.21 kvissue_med=0.44 kvissue_max=0.47 qgrp_med=0.04 qgrp_max=0.20 prep_med=1.07 prep_max=1.43 first_med=0.24 first_max=0.91 loop_med=4.27 loop_max=4.60 red_med=0.75 red_max=1.10 loopend_med=7.26 loopend_max=8.00 end_med=10.40 end_max=11.10 tilegap_med=0.90 tilegap_max=1.21 barrier_med=1.54 barrier_max=3.38 fin_med=0.86 fin_max=1.00 span=11.10 crit_s0=0.13 crit_s4=0.99 crit_s6=1.47 crit_s8=1.50 crit_s13=2.50 crit_s24=3.30 crit_s16=7.90 crit_s17=8.67 crit_s21=10.30 crit_s22=11.10
+TLSUM b=32 sliding L=8 tl_probe reps=5 entry_med=0.13 entry_max=0.22 idx_med=0.97 idx_max=1.61 kvissue_med=0.45 kvissue_max=0.55 qgrp_med=0.24 qgrp_max=0.53 prep_med=1.08 prep_max=1.43 first_med=0.20 first_max=0.89 loop_med=7.84 loop_max=8.21 red_med=0.76 red_max=0.91 loopend_med=11.14 loopend_max=11.90 end_med=14.30 end_max=15.26 tilegap_med=0.90 tilegap_max=1.22 barrier_med=1.68 barrier_max=4.31 fin_med=0.95 fin_max=1.12 span=15.26 crit_s0=0.16 crit_s4=1.28 crit_s6=1.79 crit_s8=1.98 crit_s13=3.01 crit_s24=3.62 crit_s16=11.81 crit_s17=12.38 crit_s21=14.34 crit_s22=15.26
+TLSUM b=16 sliding L=1 tln5_probe reps=5 entry_med=0.13 entry_max=0.22 idx_med=0.96 idx_max=1.31 kvissue_med=0.78 kvissue_max=0.97 qgrp_med=0.04 qgrp_max=0.17 prep_med=0.40 prep_max=0.78 first_med=1.30 first_max=2.48 loop_med=1.85 loop_max=2.67 red_med=0.26 red_max=0.40 loopend_med=5.50 loopend_max=6.27 end_med=7.10 end_max=8.54 tilegap_med=1.19 tilegap_max=2.10 ticket_med=1.16 ticket_max=1.70 fin_med=0.86 fin_max=0.94 span=8.54 crit_s0=0.13 crit_s4=0.99 crit_s6=1.73 crit_s8=1.79 crit_s13=2.27 crit_s24=4.16 crit_s16=5.66 crit_s17=6.02 crit_s19=7.71 crit_s20=8.54
+TLSUM b=32 sliding L=1 tln5_probe reps=5 entry_med=0.13 entry_max=0.22 idx_med=1.06 idx_max=1.54 kvissue_med=2.12 kvissue_max=2.46 qgrp_med=0.06 qgrp_max=0.35 prep_med=0.41 prep_max=0.96 first_med=0.19 first_max=1.35 loop_med=4.15 loop_max=5.07 red_med=0.25 red_max=0.39 loopend_med=8.29 loopend_max=9.34 end_med=9.66 end_max=11.14 tilegap_med=1.09 tilegap_max=2.61 ticket_med=0.91 ticket_max=1.76 fin_med=0.88 fin_max=1.12 span=11.14 crit_s0=0.13 crit_s4=1.15 crit_s6=3.23 crit_s8=3.30 crit_s13=4.13 crit_s24=4.51 crit_s16=9.25 crit_s17=9.54 crit_s19=10.24 crit_s20=11.14
+TLSUM b=16 sliding L=8 tln5_probe reps=5 entry_med=0.13 entry_max=0.22 idx_med=1.04 idx_max=1.38 kvissue_med=0.74 kvissue_max=0.92 qgrp_med=0.05 qgrp_max=0.12 prep_med=1.11 prep_max=1.50 first_med=0.19 first_max=0.68 loop_med=4.03 loop_max=4.34 red_med=0.78 red_max=1.04 loopend_med=7.36 loopend_max=8.22 end_med=10.40 end_max=11.04 tilegap_med=0.79 tilegap_max=1.23 barrier_med=1.52 barrier_max=3.26 fin_med=0.85 fin_max=0.98 span=11.04 crit_s0=0.10 crit_s4=1.06 crit_s6=1.82 crit_s8=1.89 crit_s13=2.94 crit_s24=3.17 crit_s16=7.65 crit_s17=8.51 crit_s21=10.18 crit_s22=11.04
+TLSUM b=32 sliding L=8 tln5_probe reps=5 entry_med=0.13 entry_max=0.19 idx_med=1.08 idx_max=1.61 kvissue_med=1.06 kvissue_max=1.25 qgrp_med=0.04 qgrp_max=0.41 prep_med=1.12 prep_max=1.53 first_med=0.20 first_max=0.75 loop_med=7.58 loop_max=7.94 red_med=0.79 red_max=0.88 loopend_med=11.26 loopend_max=12.45 end_med=14.43 end_max=15.71 tilegap_med=0.89 tilegap_max=1.26 barrier_med=1.62 barrier_max=4.50 fin_med=0.94 fin_max=1.15 span=15.71 crit_s0=0.03 crit_s4=1.15 crit_s6=2.34 crit_s8=2.50 crit_s13=3.62 crit_s24=3.97 crit_s16=11.87 crit_s17=12.64 crit_s21=14.85 crit_s22=15.71
+ABADDR ctrl:acc=0x127816000000,l=0x1278c9a3e200,cnt=0x1278c9a08200 tl_probe:acc=0x1277c2000000,l=0x1278c9aa6200,cnt=0x1278c9ae6200 n4:acc=0x1277c3000000,l=0x1278c9b06200,cnt=0x1278c9b46200 n5:acc=0x1277c4000000,l=0x1278c9b66200,cnt=0x1278c9ba6200 n4s:acc=0x1277c5000000,l=0x127808a00000,cnt=0x1278c9bc6200 tln5_probe:acc=0x1277c6000000,l=0x127808a40000,cnt=0x127808a80000 ctrl2:acc=0x1277c7000000,l=0x127808aa0000,cnt=0x127808ae0000
+ABSUM cold b=16 sliding L=1 ctrl=12.96 tl_probe=13.28 n4=12.99 n5=12.96 n4s=12.90 tln5_probe=13.50 ctrl2=12.93 null:ctrl2-ctrl=-0.03 d:tl_probe=+0.32 d:n4=+0.03 d:n5=+0.00 d:n4s=-0.06 d:tln5_probe=+0.54
+ABSUM warm b=16 sliding L=1 ctrl=7.37 tl_probe=7.83 n4=7.81 n5=7.56 n4s=7.40 tln5_probe=8.18 ctrl2=7.62 null:ctrl2-ctrl=+0.25 d:tl_probe=+0.45 d:n4=+0.44 d:n5=+0.18 d:n4s=+0.03 d:tln5_probe=+0.80
+ABSUM cold b=32 sliding L=1 ctrl=15.71 tl_probe=16.00 n4=15.87 n5=15.97 n4s=15.74 tln5_probe=16.29 ctrl2=15.74 null:ctrl2-ctrl=+0.03 d:tl_probe=+0.29 d:n4=+0.16 d:n5=+0.26 d:n4s=+0.03 d:tln5_probe=+0.58
+ABSUM warm b=32 sliding L=1 ctrl=9.56 tl_probe=10.10 n4=9.88 n5=10.04 n4s=9.83 tln5_probe=10.70 ctrl2=9.60 null:ctrl2-ctrl=+0.03 d:tl_probe=+0.54 d:n4=+0.31 d:n5=+0.47 d:n4s=+0.27 d:tln5_probe=+1.14
+ABSUM cold b=16 sliding L=8 ctrl=15.71 tl_probe=16.26 n4=15.94 n5=15.94 n4s=16.58 tln5_probe=16.29 ctrl2=15.74 null:ctrl2-ctrl=+0.03 d:tl_probe=+0.54 d:n4=+0.22 d:n5=+0.22 d:n4s=+0.86 d:tln5_probe=+0.58
+ABSUM warm b=16 sliding L=8 ctrl=11.34 tl_probe=12.02 n4=11.59 n5=11.56 n4s=12.41 tln5_probe=12.14 ctrl2=11.35 null:ctrl2-ctrl=+0.01 d:tl_probe=+0.68 d:n4=+0.25 d:n5=+0.22 d:n4s=+1.07 d:tln5_probe=+0.80
+ABSUM cold b=32 sliding L=8 ctrl=19.90 tl_probe=20.61 n4=20.16 n5=20.13 n4s=19.97 tln5_probe=20.83 ctrl2=19.97 null:ctrl2-ctrl=+0.06 d:tl_probe=+0.70 d:n4=+0.26 d:n5=+0.22 d:n4s=+0.06 d:tln5_probe=+0.93
+ABSUM warm b=32 sliding L=8 ctrl=15.30 tl_probe=15.90 n4=15.42 n5=15.45 n4s=15.62 tln5_probe=16.24 ctrl2=15.26 null:ctrl2-ctrl=-0.05 d:tl_probe=+0.60 d:n4=+0.12 d:n5=+0.14 d:n4s=+0.32 d:tln5_probe=+0.94
+ABIN b=16 sliding L=1 in=0 n4=+0.03 n5=-0.03 n4s=-0.06 ctrl2=-0.03
+ABIN b=16 sliding L=1 in=1 n4=-0.03 n5=-0.16 n4s=-0.10 ctrl2=-0.16
+ABIN b=16 sliding L=1 in=2 n4=+0.06 n5=+0.10 n4s=-0.13 ctrl2=+0.00
+ABIN b=32 sliding L=1 in=0 n4=+0.19 n5=+0.29 n4s=+0.06 ctrl2=+0.00
+ABIN b=32 sliding L=1 in=1 n4=+0.26 n5=+0.29 n4s=+0.16 ctrl2=+0.06
+ABIN b=32 sliding L=1 in=2 n4=+0.10 n5=+0.19 n4s=-0.10 ctrl2=+0.03
+ABIN b=16 sliding L=8 in=0 n4=+0.16 n5=+0.16 n4s=+0.86 ctrl2=+0.03
+ABIN b=16 sliding L=8 in=1 n4=+0.22 n5=+0.26 n4s=+0.90 ctrl2=+0.03
+ABIN b=16 sliding L=8 in=2 n4=+0.19 n5=+0.16 n4s=+0.83 ctrl2=-0.03
+ABIN b=32 sliding L=8 in=0 n4=+0.19 n5=+0.10 n4s=-0.10 ctrl2=-0.06
+ABIN b=32 sliding L=8 in=1 n4=+0.26 n5=+0.26 n4s=+0.10 ctrl2=+0.10
+ABIN b=32 sliding L=8 in=2 n4=+0.22 n5=+0.22 n4s=+0.06 ctrl2=+0.03
+ABCHECKSUM ctrl=4/0/0 tl_probe=0/0/4 n4=4/0/0 n5=4/0/0 n4s=4/0/0 tln5_probe=0/0/4 ctrl2=4/0/0 (pass/fail/probe)
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:21:41 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
