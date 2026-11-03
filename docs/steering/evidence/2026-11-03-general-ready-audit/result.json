@@ -1,0 +1,30 @@
+{
+  "job": "e3e2495464f34b2c",
+  "payload_sha256": "b6107a783c8ded6dc626f6cfa99e7e1b53201e5225bd2073f736c69125f16964",
+  "native_sha256": "974d7743bb8d049150fe46b62f84c2308158e382588903f185d8155c787faf20",
+  "configs": 4352,
+  "jobs_checked": 71808,
+  "positive_contributions": 358814,
+  "missing_contributor_checks": 358814,
+  "warp_lane_assignments": 2297856,
+  "maximum_checked_numerator": 2244607,
+  "source_anchors": {
+    "wait": 1402,
+    "consumer_join": 1439,
+    "publish": 1570,
+    "helper_final_join": 1593,
+    "grid_barrier": 2443,
+    "reset": 2451,
+    "scratch_base": 2644,
+    "cooperative_launch": 2695
+  },
+  "empty_route_and_reset_layout_checked": true,
+  "wrong_last_contributor_detected": true,
+  "source_order_anchors_checked": true,
+  "gpu": false,
+  "performance_gain_established": false,
+  "limits": [
+    "Enumeration verifies interval arithmetic, not PTX execution.",
+    "Publication/reset/progress conclusions require the separately documented memory-ordering argument and unchanged cooperative launch/private-stream contract."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "muse_prefill_layer.leaderboard.json": "7e277bb0111d3b4a1632eece389b91a890228d3b8cc3ec5e36153e7e5aac061f",
+  "muse_moe_w4a16.leaderboard.json": "b5a420f7f749acd5a9f75d6bdb148409c91d1a66310296057ef48d19ab914068",
+  "muse_bf16_proj.leaderboard.json": "f1438444698bfd79fc9cf6375983a087d5b3d8c5f1a32726d9fd54532650f79a",
+  "muse_attention_decode.leaderboard.json": "154bdf388802173b455a8aad4c89944d0467c80bda071b408206b491bda5dc69",
+  "muse_decode_layer.leaderboard.json": "24c24c44b569ce3f16467e4bc74b54a1788e17702a2d5532f7fc6849fe4bc14b"
+}
