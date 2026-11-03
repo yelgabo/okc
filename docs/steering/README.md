@@ -1,5 +1,9 @@
 # Shared project steering
 
+## Public competition reconnaissance and recurring watch
+
+[Competition watch and source findings](2026-11-02-competition-watch.md) records the user's request to follow public GitHub and social discussion for all five Muse problem names. The new material finding is keell0renz's README-only author caveat at `890809ce`, asking readers to disregard a current #1 submission. This is an attributed statement, not an independent judge finding or a change to its published kernels. The baseline records 36 public repository targets, paginated search coverage and access gaps. A two-hour Codex watch is active in the scouting chat and alerts on substantive changes. No kernel work, judge job, public submission or ownership change.
+
 ## General Optimizer: pipeline-buffer depth, unless CUDA Optimizer already owns it
 
 **[GOPT-PIPE-01: pipeline-buffer-depth task](2026-11-02-general-optimizer-pipeline-depth.md)** — the user requested this topic go to General Optimizer unless CUDA Optimizer is already on it. At evidence `d5f5918b`, CUDA Optimizer's actual report/plan cover scale folding, issue-group size and a compiler-only pointer interaction, not an active ring-depth test; the plan explicitly avoids a generic repeated ring sweep. General Optimizer owns the bounded nonduplicated task in the shared queue, subject to a single latest-ownership check. Reuse the old three/four-slot result before considering one genuinely missing selected-path comparison. Four stages are reusable buffers, not four different computations. Preserve CUDA Optimizer's accepted job and Decode32 Worker's current confirmation/integration ownership. No duplicate jobs, new approval chain, public permission or runtime change. General Optimizer picked up this task in chat01a18696, with an isolated worktree and a five-minute queue watch. Current user steering favors checking the current skinny path; existing skinny and owned mode51 ring-depth receipts will be reconciled first.
@@ -118,6 +122,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 | Report | Evidence | Scope |
 |---|---|---|
 | [Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) | e6993059/e365d7b6; own17383751/4fe/62a4 records; freshCLI lists | Firstattentionvalid/unconfirmed; correctedretryexternalwaitcleared; ownerautonomy/duplicateguard; boards382/no publicchange |
+| [Public competition watch](2026-11-02-competition-watch.md) | e365d7b6; keell0renz 890809ce; public GitHub and social source pins | New author caveat, 36 public repository targets and active two-hour scouting watch; no independent judge finding or kernel action |
 | [General Optimizer pipeline depth](2026-11-02-general-optimizer-pipeline-depth.md) | d5f5918b; CUDA Optimizer's actual report/plan; source corrections | GOPT-PIPE-01 assigned unless already owned; reuse prior three/four-slot evidence, one missing selected-path test only; pickup unconfirmed |
 | [CUDA part 2 experiments](2026-11-02-cuda-part2-experiments.md) | f720ac61; c7 native control; two local compiler treatments | Larger issue groups stop at spills; constant multiplier has positive compiler evidence and one registered private MoE measurement; no target gain yet |
 | [D32 confirmation continuation and watch](decode32/2026-11-02-06-confirm-attention-and-progress-watch.md) | 779b06ad; own17383751; user watch request | Already-authorized matched confirmation; hourly conditional research watch; no proof of sleep or new measured gain |
