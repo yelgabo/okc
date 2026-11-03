@@ -17,7 +17,7 @@ Two operand banks alternate by committed group. After committing group g, wait_g
 ## Gates and budget
 
 1. Generate exact reversible edits, check sixteen k16 instructions and their accumulation order for NTT1..8, and verify the unchanged host/synchronization text.
-2. Compile control and treatment for actual B4/MAIN defines on local CUDA 12.8.1. Reject new spills, lost WGMMA pipelining or changed launch bounds before using GPU quota. Compiler results do not establish target correctness or speed.
+2. Compile control and treatment for actual B4/MAIN defines on local CUDA 12.8.1. Use local spills, pipelining and launch-bound observations to rank candidates. Do not infer target ineligibility or latency from local resources alone; verify target-build correspondence or run a bounded target check for a promising candidate. Source-correctness defects independently block dispatch. Compiler results do not establish target correctness or speed.
 3. Reuse the existing complete standalone four-state harness, legal routes, cold captured replay, duplicate controls, held-out banks and strict numeric checks. Register its source and selected compiler descriptors. One initial private MoE check, then at most one confirmation if promising. No scored submission.
 4. Keep the existing >=1% equal-six factor and duplicate-null gate as the strong promotion threshold. Report smaller/inconsistent changes as such; never turn an official versus-SGLang score into a treatment/control gain. Stop an exact losing treatment and record it with its scope. After three weak experiments, reframe rather than extending a knob sweep.
 
@@ -56,3 +56,7 @@ Local CUDA12.8.1 B4 and MAIN both pass with 96 registers and zero stack/spills f
 Corrected combined job3c45788127e945c4 passes official5/6/6 and every private correctness/replay check. All24 whole-six factors0.995560..1.008180 fail the frozen gate; descriptive mean1.001063 is within control spread. Three affected bank/load cells regress>=1%. No confirmation or promotion. The scale-only and corrected combined sources stop; the unchanged baseline remains selected.
 
 Keep the positive local compiler observations scoped: zero spills and25% fewer static group waits/arrivals are not an endpoint gain. Both own pollers are terminal. Full receipts, profiles, strict analyses, final22 CPU checks and current decisions are in the experiment report. The next discriminator is phase timing with an observer-cost control, rather than another automatic register/group/ring sweep. No new job or ownership assignment is made by this plan closure.
+
+## Local-gate correction
+
+The later user correction supersedes local-only resource and code-identity rejection rules throughout this historical plan. Local resource observations are prioritization signals, not H200 performance evidence. The initial grouped sources remain blocked by their unreachable flush, the ordinary-pointer treatment remains target-untested, and the two owning H200 negative results retain their scope. See the experiment report correction.

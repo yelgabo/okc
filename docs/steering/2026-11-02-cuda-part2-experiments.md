@@ -14,7 +14,7 @@ D32 Worker's attention confirmation remains separate. This work edits no layer c
 
 Hypothesis: four k16 operations per WGMMA commit group for NTT<=4 can reduce collective issue overhead, using the accumulator capacity released by smaller N tiles. Retain two operations for wider tiles. The initial implementation intended to preserve deferred work's completed-k16 boundary; the later schedule audit below found that implementation wrong. Packing, arithmetic order, stage drains and source publication text remain.
 
-Local CUDA 12.8.1 SM90a compilation completes for both bool entries in B4 and MAIN. It rejects the treatment at the prospective no-new-spill gate: B4 spill store/load bytes change from 4/32 to 80/88; MAIN from 0/0 to 4/24. Stop this exact treatment before target allocation. No GPU latency or general issue-group limit follows from this result. [Resource evidence](evidence/2026-11-02-cuda-issue-groups/group-resources.json).
+Local CUDA 12.8.1 SM90a compilation completes for both bool entries in B4 and MAIN. The initial local-only gate stopped the treatment, a decision rule withdrawn in the correction below: B4 spill store/load bytes change from 4/32 to 80/88; MAIN from 0/0 to 4/24. Stop this exact treatment before target allocation. No GPU latency or general issue-group limit follows from this result. [Resource evidence](evidence/2026-11-02-cuda-issue-groups/group-resources.json).
 
 ## Experiment 2: constant scale multiplier
 
@@ -42,7 +42,7 @@ Private MoE job `3aa3885f6b734f8c` accepted from source commit `ca588999`, paylo
 
 ## Compiler-only interaction result
 
-The third source treatment combines the constant scale multiplier with an ordinary load of the launch-stable `S.ssp` pointer. Both selected builds compile without spills. Their complete cuobjdump SASS text is byte-identical to the scale-only build, including both bool entries and helper functions. [Hashes](evidence/2026-11-02-cuda-issue-groups/ssptr-identity.json). This produces no distinct local machine-code treatment, so it receives no GPU run. It does not establish what another compiler would emit. The accepted scale-only job is unchanged.
+The third source treatment combines the constant scale multiplier with an ordinary load of the launch-stable `S.ssp` pointer. Both selected builds compile without spills. Their complete cuobjdump SASS text is byte-identical to the scale-only build, including both bool entries and helper functions. [Hashes](evidence/2026-11-02-cuda-issue-groups/ssptr-identity.json). This produced no distinct local machine-code treatment. It received no GPU run as a budget choice, leaving target behavior unmeasured. It does not establish what another compiler would emit. The accepted scale-only job is unchanged.
 
 The [loop audit](evidence/2026-11-02-cuda-issue-groups/scale-loop-audit.json) also limits the scale-only interpretation: most innermost 16-HGMMA loops keep their instruction counts. Static total instructions and removed spills alone do not forecast an endpoint gain.
 
@@ -82,7 +82,7 @@ Stop this exact corrected combination without a confirmation, dispatch-mask resc
 
 ## Decision and remaining uncertainty
 
-Four compiler treatments and two private H200 comparisons produced a useful compiler improvement and no promoted runtime speedup. The current two-step baseline earns retention against these alternatives. The experiments remove a stale instruction-placement assumption and test a coherent change in matrix-loop scheduling, rather than only lowering a register count. Their measured endpoint factors remain near 1.0. They do not show whether decode issue, startup, handoff or tail time limits the selected path.
+Four compiler treatments and two private H200 comparisons produced a useful compiler improvement and no promoted runtime speedup. The current two-step baseline earns retention against the two remotely tested alternatives. The local-only pointer treatment remains unmeasured on the target. The experiments remove a stale instruction-placement assumption and test a coherent change in matrix-loop scheduling, rather than only lowering a register count. Their measured endpoint factors remain near 1.0. They do not show whether decode issue, startup, handoff or tail time limits the selected path.
 
 The next useful discriminator is a bounded phase trace of the selected complete MoE: measure startup, steady stages, A/B handoff and finalization, with an uninstrumented matched control to price observer cost. A bare bandwidth ceiling, profiler activity sum or static instruction count cannot supply those exposed times. Choose another implementation only after that evidence identifies removable work, or a complete stronger comparator supplies a distinct source-backed mechanism. This is a next gate, not a new dispatch or assignment. D32 and ring-depth ownership remain unchanged.
 
@@ -95,3 +95,17 @@ The user asked whether local tests replicated H200 one to one. They did not. Loc
 The owning remote receipt identifies a different judge image, NVIDIA H200 hardware and driver580.159.03. It does not provide the remote nvcc/ptxas/PyTorch versions or the complete resolved extension build command. Those versions and local/target binary parity were not established. Local register, spill and SASS observations therefore cannot be asserted as target resource measurements. The two private checks separately compiled and ran the complete payload on the actual remote H200 environment; their correctness and timing conclusions do not depend on a local environment replica. No new GPU job is needed to clarify this evidence boundary. Root instructions now load this distinction automatically.
 
 At this clarification checkpoint, the global research checker flags concurrent edits to `docs/ruled-out.md`, including archive-link updates and newer unrelated experiment closures. Its hash was not refreshed by this narrow environment audit. The environment statements above were checked directly against the compiler driver, archived compile flags and owning H200 receipt.
+
+## Correction: local results cannot decide target performance
+
+The user identified a decision error: treating local compilation as a hard rejection gate depended on unverified correspondence to the H200 build. That gate could discard a target winner. The compiler toolchain and wrapper were not matched one to one, and even target-confirmed spills can be outweighed by useful work reduction. The original no-new-spill rule and local-only code-identity closure are withdrawn as target-performance decisions.
+
+Reassessment of this task's cuts:
+
+- Initial group-only and first combined prototypes have an unreachable deferred-flush condition. That source-correctness defect independently blocks those exact sources. Their local spill counts establish neither H200 resources nor latency. Correctly scheduled group-only batching has no target result.
+- Scale folding plus ordinary stable-pointer read has identical local SASS. Its target code and performance remain unmeasured. It was deprioritized for low expected information per GPU check, not disproved or verified as a duplicate H200 binary.
+- Scale-only own3aa3885f6b734f8c and corrected combined own3c45788127e945c4 were compiled and tested remotely. Their failed matched performance gates remain valid within the recorded workload and controls.
+
+Future local resource/codegen checks provide ranking signals. Source correctness remains a separate gate. For a promising candidate cut only by local resources, obtain the target compiler/build details or perform a bounded target compile or private measurement before asserting target rejection. Label a budget deferral as untested. Do not require every candidate to consume GPU quota or automatically reopen unsafe source. Current B4 phase-attribution ownership and other owners remain unchanged; this correction dispatches no job.
+
+The root instruction, local-only closure rows and prospective plan now reflect this rule. Broader local-only closures elsewhere in the repository have not been re-audited by this narrow correction.

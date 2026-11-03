@@ -75,3 +75,5 @@ Every substantive steering/audit response belongs in `docs/steering/YYYY-MM-DD-t
 Preserve concurrent work; never force-push or claim blocked publication succeeded. Verify cited runs against their owning receipts/logs and distinguish uploaded claims from checked sources. Plans/specs live under `docs/`; Superpowers specs use `docs/superpowers/specs/`.
 
 Local SM90a cross-compilation is not a replica of the H200 execution environment. Label resources as local compiler observations until target toolchain, full build and binary parity are verified. Remote GPU correctness and timing results stand separately.
+
+Local spills, register counts or identical SASS may guide experiment priority, but cannot alone close a candidate as target-ineligible or slow without validated target-build correspondence. Even target spills do not establish a net slowdown. Separate source-correctness blockers, untested budget deferrals and measured H200 losses.
