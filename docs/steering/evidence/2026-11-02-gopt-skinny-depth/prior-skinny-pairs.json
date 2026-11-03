@@ -1,0 +1,85 @@
+{
+  "job": "75bca9775f6f4b0b",
+  "receipt": "docs/steering/evidence/2026-10-29-community-audit/status-75bca9775f6f4b0b.json",
+  "rows": [
+    {
+      "tokens": 1,
+      "routes": "layer",
+      "three_minus_four_us": [
+        -0.8,
+        -0.8,
+        -0.9,
+        -0.6,
+        -1.0,
+        -1.0
+      ],
+      "rounded_mean_us": -0.9
+    },
+    {
+      "tokens": 1,
+      "routes": "std",
+      "three_minus_four_us": [
+        -0.6,
+        -0.4,
+        -0.8,
+        -0.5,
+        -0.7,
+        -0.6
+      ],
+      "rounded_mean_us": -0.6
+    },
+    {
+      "tokens": 8,
+      "routes": "layer",
+      "three_minus_four_us": [
+        -1.7,
+        -3.8,
+        -2.0,
+        -2.4,
+        -1.5,
+        -3.1
+      ],
+      "rounded_mean_us": -2.4
+    },
+    {
+      "tokens": 8,
+      "routes": "std",
+      "three_minus_four_us": [
+        -2.1,
+        -1.5,
+        -2.9,
+        -0.6,
+        -2.9,
+        -0.7
+      ],
+      "rounded_mean_us": -1.8
+    },
+    {
+      "tokens": 16,
+      "routes": "layer",
+      "three_minus_four_us": [
+        -3.6,
+        -2.3,
+        -2.6,
+        -1.9,
+        -4.0,
+        -3.9
+      ],
+      "rounded_mean_us": -3.1
+    },
+    {
+      "tokens": 16,
+      "routes": "std",
+      "three_minus_four_us": [
+        -1.6,
+        -3.2,
+        -4.0,
+        -2.9,
+        -3.3,
+        -2.2
+      ],
+      "rounded_mean_us": -2.9
+    }
+  ],
+  "all_36_pairs_favor_three": true
+}
