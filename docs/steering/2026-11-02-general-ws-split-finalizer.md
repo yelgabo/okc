@@ -1,5 +1,7 @@
 # General WS two-launch finalizer
 
+Current: private3e6852d30c5c4535 accepted for source7370f630/payloadb4da948d/352468bytes. Sole foreground collector75595 writes ignored `.build/gopt-ws-split/status-wait.raw.json`. Target outcome pending; no second poller or resubmission.
+
 ## Pickup and frozen decision
 
 General picked up GOPT-WS-SPLIT-04 on November3 at05:33UTC from the same-refill build brief at8e276c89, reconciled through285f1db2. Build limit is two engineering hours, ending07:33UTC. No GPU job is accepted. The next action is a source-correct two-launch endpoint, local selected-build and host/replay qualification, followed by one already-permitted private comparison only if qualification completes.
@@ -35,3 +37,9 @@ The existing watcher now points to this active build and its fixed stop, replaci
 Preflight uses `okc jobs --json` and `okc problems --json` for limits. This CLI has no `quota` subcommand. At05:48UTC another owner's public4aa033ef23a142cd is received; preserve it and its sole poller. No General job is active.
 
 Local qualification completed05:49UTC inside the two-hour build box. The next action is to publish the frozen source, recheck promotion dispositions and current jobs/quota, then dispatch the one permitted exact-source private comparison. No target outcome is claimed by this source/compiler checkpoint.
+
+## Accepted private comparison
+
+Own private3e6852d30c5c4535 is accepted for muse_moe_w4a16, frozen published source7370f630, physical payloadb4da948d/352468bytes. [Accepted binding](evidence/2026-11-02-gopt-ws-split/accepted.json), [sole waiter](evidence/2026-11-02-gopt-ws-split/waiter.json). Fresh preflight records another owner's public4aa033ef running and13MoE checks remaining; no overlapping General job. Fresh five-board promotion check reports24leads/zero missing dispositions. No public submission or production change by General.
+
+The one foreground waiter75595 owns collection. Archive its raw receipt, CLI profiles and log only after exit, verify service job/problem/source identity, recompute frozen gates and retain failed or partial status. No target correctness, admission, gain or loss is established yet. The next authorized action is this job's terminal decision, not another experiment.
