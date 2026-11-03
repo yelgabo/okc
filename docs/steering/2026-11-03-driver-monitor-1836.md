@@ -1,4 +1,4 @@
-# Driver monitor: bounded merge-order evidence and the next full-layer gate
+# Driver monitor: bounded merge-order evidence and a separate BF16 release lead
 
 November3,2026; source **a481e63b**, fresh all-five boards/shared capacity **18:39:37UTC**. [Current official page and referenced asset](evidence/2026-11-03-driver-monitor-1836/schedule.json) still close kernels **November5 at00:00America/Los_Angeles**. Campaign remains active. No root GPU/status poll,duplicate waiter/POST,new worker,public submission,withdrawal,repeat-driver change or direct message. Existing owners execute their allocated work without a Driver reply gate.
 
@@ -38,7 +38,7 @@ Lead **a481e63b** records two fresh worktrees/owners,**up to4checks each from th
 - Register-Awgmma for poolerM128:12-bit weights decoded into register-A,x throughTMA-ringB,Ksplit4/DSMEM reduction,three ablations versus the cuBLASLtpin. Exact first-stop: if not within2us of pin aftercheck1,stop. This newer named allocation supersedes old large-load exclusions only for this lane.
 - TLBpage warmup onM<=32kernels plus xmulticast over2-CTAclusters for selectedskM16/M32. Retain actual selected dispatch,full-call costs,numerical/regression gates and the owner's bounded4check contract.
 
-Read [the owner's approaches](2026-11-03-bf16-proj-approaches.md) as hypotheses/size estimates. Byte floors plus fixed launch terms are not exposed-time proofs or universal ceilings; source novelty and projected rank50upside are not measured wins. Current snapshot has BF16**63c0ecaf94114524 and00005928fed6437b running**; inspected main does not yet bind these IDs to exact source arms. One newer BF16control point415b2...is above public. Root does not infer mapping from adjacency,duplicate collectors,refill a supposedly empty queue or reopen old failed stream-K/geometry lanes. Current live capacity is not unallocated budget.
+Read [the owner's approaches](2026-11-03-bf16-proj-approaches.md) as hypotheses/size estimates. Byte floors plus fixed launch terms are not exposed-time proofs or universal ceilings; source novelty and projected rank50upside are not measured wins. The initial18:39snapshot has BF16**63c0ecaf94114524 and00005928fed6437b running**; incoming8e3484ed now publishes their terminal source-bound outcomes below. One earlier BF16point415b2...is above public. Root does not infer mapping from adjacency,duplicate collectors,refill a supposedly empty queue or reopen old failed stream-K/geometry lanes. Current live capacity is not unallocated budget.
 
 MoE BCLM2 remains first after the real16:00Pacific reset with its existing owner;MoEprivate0. HALF-only remains stopped. M1reserve source qualification completed with a semantic/cost gap;no repeat census or source-only task is pending. Original MoE reminder paused,prefill deferred,G0declined/FactorYconditionfailed and scoped losses preserved.
 
@@ -46,4 +46,31 @@ MoE BCLM2 remains first after the real16:00Pacific reset with its existing owner
 
 [18:39snapshot](evidence/2026-11-03-driver-monitor-1836/live.json): **overall/layer367,MoE352,BF16390,attention286,prefill661**. Public numerical winners unchanged:layerf93110374.616018us/2.180350575x,MoE28215737.988910us,BF163161.918773us,attention1446.190595us. No new algorithmic score gain is claimed. Private/scored: **layer0/0,MoE0/2,BF168/2,attention10/2**. Layer/MoE wait until reset is quota exhaustion; multi-arm diagnostics do not become public candidates to bypass it.
 
-All five public boards refreshed; [promotion audit](evidence/2026-11-03-driver-monitor-1836/promotion-check-summary.json) still passes **15lower private numerical leads,zero missing dispositions**. This checks disposition completeness,not release eligibility. Next notices should be a material measured result,actual source-bound acceptance,changed review disposition or actionable user decision; running/queued/source-only/unchanged states stay quiet.
+All five public boards refreshed; after incoming receipt recovery the [promotion audit](evidence/2026-11-03-driver-monitor-1836/promotion-check-summary.json) has **16lower private numerical leads,zero missing dispositions**. This checks disposition completeness,not release eligibility. Next notices should be a material measured result,actual source-bound acceptance,changed review disposition or actionable user decision; running/queued/source-only/unchanged states stay quiet.
+
+
+## Incoming BF16 outcomes and a separate release lead — 8e3484ed
+
+Both experiments have finished. TLB/XMC check **00005928fed6437b** passed 9 tests, 30 benchmarks and 30 profiles at **3128.993210us / 1.543883184x**, CI [1.520724936,1.567041432]. Warm-up failed its >0.15us, eight-of-nine, beyond-null gate; X multicast lost 1.76–2.94us across six target shapes. Its first warm-up stop fired. No treatment sweep or confirmation follows. [Own receipt](../../muse_bf16_proj/experiments/profiles/tlb_xmc.00005928fed6437b.json).
+
+**The lower official point is a separate release lead with actual code and dispatch changes.** The prepared dispatcher selected nine `n` instances:
+
+| Projection | M | Selected instance |
+|---|---|---|
+|o|1,8|rdo8n|
+|pooler|1,8|rdp8n|
+|qkv_gate|8|qkv8n|
+|unpooler|8|slice8n|
+|unpooler|32|unp32n|
+|router|1|rgemvn|
+|router|32|rt16w8n|
+
+Each “null” instance adds an explicit L2 prefetch of its CTA's own first-stage line. It is not byte-identical incumbent code. Public C2 selected cgemv for o at M1; this run selected rdo8n. The local instruction-identity claim for 94 original instances does not establish target identity for these selected null instances. The warm-up/XMC loss does not settle their release value.
+
+The private wrapper is **b42257c342e90185e6032273221307311b26b081525389e78825191540f111f0**, 244253 LF bytes, and still contains private measurement machinery. It is not a public candidate. **No tracked clean selected-twin artifact or separate matched qualification exists.** Its official point is **1.0413% below** public 3161.918773us descriptively; this is not a confirmed prefetch or dispatcher gain. Clean C2 source5610b8a6 has different selected dispatch. [Exact arms and limits](evidence/2026-11-03-driver-monitor-1836/selected-twin-lead.json).
+
+The existing TLB/XMC owner and lead have a concrete release-preparation task: pin the actual selected choices, retain their source, packing, precision, ordering, progress, lifetime and fallback contracts, and remove measurement/warm-up/XMC machinery to produce a clean reviewable file. Then make one matched **complete-call, all-30-cell** decision against exact C2, with fresh outputs, duplicate controls and regressions, under a separately explicit bounded owning allocation. This does not renew the failed treatment's budget or give root GPU authority. Stop at a qualified clean release or a precise qualification failure; no sweep. Ask for public permission after the artifact and qualification are concrete. The shared release queue, approaches document and index are the handoff; **direct delivery and pickup are not claimed**.
+
+Register-A check415b2ebb5c604af1 passed 9/30/30 at3182.997773us, but its full RA arms failed OutOfResources, so it supplies no valid full-candidate timing loss. Corrected63c0ecaf94114524 passed9/30/30 at3176.053826us: full pooler/unpooler RA lost29.34/9.76us, with0/9 faster rounds, and retained Lt. The exact lane closes after2/4 checks. Keep the predicates distinct: the initial approaches document tested x-ring plus decode without WGMMA against Lt; that arm was8.6–9.8us faster, so its two-microsecond stop did not fire. The later complete-RA gate fails. Unpooler a4 was4.42us faster as an ablation, not a complete winner. Do not say every original first-stop fired or infer a family or hardware ceiling. [Owning outcomes](../runs.md).
+
+After these receipts arrived, the mandatory audit found **00005928 missing a central disposition**. It now retains exact source and arms, owner, uncertainty and remaining release work. The closing count of **16 leads, zero gaps** supersedes the initial15. Root made no private or public dispatch or approval.

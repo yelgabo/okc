@@ -1,0 +1,72 @@
+{
+  "job": "00005928fed6437b",
+  "official_result": {
+    "passed": true,
+    "score_us": 3128.9932097669885,
+    "speedup": 1.5438831841887388,
+    "speedup_ci": [
+      1.5207249364259077,
+      1.5670414319515698
+    ],
+    "flags": [],
+    "returncode": 0
+  },
+  "receipt": "muse_bf16_proj/experiments/profiles/tlb_xmc.00005928fed6437b.json",
+  "artifact": "muse_bf16_proj/experiments/tlb_xmc.py",
+  "source_sha256": "b42257c342e90185e6032273221307311b26b081525389e78825191540f111f0",
+  "source_bytes_LF": 244253,
+  "selected_twin_cells": [
+    [
+      "o",
+      1,
+      "rdo8n"
+    ],
+    [
+      "o",
+      8,
+      "rdo8n"
+    ],
+    [
+      "pooler",
+      1,
+      "rdp8n"
+    ],
+    [
+      "pooler",
+      8,
+      "rdp8n"
+    ],
+    [
+      "qkv_gate",
+      8,
+      "qkv8n"
+    ],
+    [
+      "unpooler",
+      8,
+      "slice8n"
+    ],
+    [
+      "unpooler",
+      32,
+      "unp32n"
+    ],
+    [
+      "router",
+      1,
+      "rgemvn"
+    ],
+    [
+      "router",
+      32,
+      "rt16w8n"
+    ]
+  ],
+  "public_score_us": 3161.918773020326,
+  "elapsed_reduction_pct": 1.0413159102720004,
+  "null_semantics": "one explicit prefetch.global.L2 of theCTAownfirst-stage line;not byte-identical code",
+  "C2_dispatch_difference": "publicoM1cgemv versus currentrdo8n",
+  "clean_release_found": false,
+  "matched_clean_effect_qualified": false,
+  "decision": "Separate numerical/source-bound selected-twin lead;cleanartifact and owning bounded qualification needed. Exactwarm/XMCnegative remainsclosed."
+}

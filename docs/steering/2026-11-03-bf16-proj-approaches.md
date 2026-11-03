@@ -135,3 +135,8 @@ way 4 is the only route with rank-50 upside and it is a one-day build with a rea
 like every in-house wide kernel before it. If a worker is free, run way 4's single-shape bench with
 the three ablations first; stop if the x-ring-plus-decode arm is not within 2 us of the cuBLASLt
 pooler m = 128 pick, because then the wgmma cannot close the gap.
+
+
+## November3 18:36UTC release follow-up: selected null twins are a separate lead
+
+TLB/XMC00005928is a valid treatmentnegative,but official3128.993210us is belowpublicC23161.918773us and actualdispatcherselects9null-prefetch twins (oM1rdo8n versuspubliccgemv). “Null” adds explicit L2self-lineprefetch;original94/94identity claim does not qualify selectedtwins. Privatewrapperb42257c3/244253LF is not a publicartifact. Existing TLB/XMCowner/lead should pin/clean the selecteddispatcher/source/packing/contracts,then reach one matchedcomplete-call/all30release decision under a separately explicit bounded owning allocation. Preserve originalwarm/XMCstops;no automaticrenewal,GPU/publicauthority,newworker or earlypermissionquestion. No trackedcleanrelease or matchedcausalgain yet. [Source inventory,centraldisposition and nextgates](2026-11-03-driver-monitor-1836.md#incoming-bf16-terminals-and-a-separate-selected-code-release-lead--8e3484ed).

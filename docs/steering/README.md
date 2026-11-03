@@ -12,7 +12,7 @@
 
 ## November 3 18:36 UTC mechanism evidence and next gates
 
-[Current monitor](2026-11-03-driver-monitor-1836.md): new own2c84diagnostic strongly supports merge-order variation in tested layerATT7chains: PDL-off/jittervary,order-freefixed/alternatingPDLarms bitwiseclean,consumer audit0. This is bounded evidence,not universal race exclusion or a retrospective mask/authority change. Prepared pdl8e27b5has stronger four-stage/full-context gates;one existing-owner layercheck is allocated afterreset,not yet accepted. Actual publicsix/privatefour history and final owner disposition remain explicit. Two newly allocated BF16lanes are active;do not duplicate/refill them. Publicscoreunchanged,fresh audit15leads/zero gaps.
+[Current monitor](2026-11-03-driver-monitor-1836.md): new own2c84diagnostic strongly supports merge-order variation in tested layerATT7chains: PDL-off/jittervary,order-freefixed/alternatingPDLarms bitwiseclean,consumer audit0. This is bounded evidence,not universal race exclusion or a retrospective mask/authority change. Prepared pdl8e27b5has stronger four-stage/full-context gates;one existing-owner layercheck is allocated afterreset,not yet accepted. Actual publicsix/privatefour history and final owner disposition remain explicit. Both BF16experiments closed;TLB3128.993210us selects real null-prefetch twins/differentdispatch and has a separate clean-release preparation task with its existing owner. No directpickup claimed. Publicscoreunchanged,closingaudit16leads/zero gaps.
 
 ## November 3 17:33 UTC public T8 selection review
 
@@ -61,6 +61,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 ## Audits and monitors, November 2 to 3
 
 [Driver monitor18:36UTC](2026-11-03-driver-monitor-1836.md): bounded merge-order diagnosis,pdl8eprospectivegates,release-review evidence update,new BF16owners and fresh quota/boards.
+
+[Public scout: timing disagreement and B200 quality controls](2026-11-03-scout-guild-timing-caveat-1823.md) records Guild thread 147's local forecast/judge reversal without a source-bound receipt. SGLang PR47129's new public CSV has 2,638 paired rows, counted here, but compares opt-in OFF/ON on the same PR rather than clean main. Author measurements, data checks and unresolved qualification remain separate; no new GPU allocation.
 
 [Driver monitor17:33UTC](2026-11-03-driver-monitor-1733.md): new public score,actual T8dispatch/scope mismatch,certification limits,new round2allocation and completed M1reserve.
 

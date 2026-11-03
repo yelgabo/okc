@@ -1,0 +1,54 @@
+{
+  "checked_at": "2026-11-03T18:52:52.011720+00:00",
+  "live_jobs": [],
+  "selected_recent_jobs": [
+    {
+      "flags": [],
+      "job_id": "00005928fed6437b",
+      "mode": "check",
+      "passed": true,
+      "problem": "muse_bf16_proj",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 3128.9932097669885,
+      "status": "done",
+      "submitted_at": 1793730903.6493733
+    },
+    {
+      "flags": [],
+      "job_id": "63c0ecaf94114524",
+      "mode": "check",
+      "passed": true,
+      "problem": "muse_bf16_proj",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 3176.0538259176515,
+      "status": "done",
+      "submitted_at": 1793730882.6452992
+    },
+    {
+      "flags": [],
+      "job_id": "415b2ebb5c604af1",
+      "mode": "check",
+      "passed": true,
+      "problem": "muse_bf16_proj",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 3182.997773456556,
+      "status": "done",
+      "submitted_at": 1793730296.6085076
+    },
+    {
+      "flags": [],
+      "job_id": "2c84c321b3bb4dbb",
+      "mode": "check",
+      "passed": true,
+      "problem": "muse_attention_decode",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 1488.8687813920642,
+      "status": "done",
+      "submitted_at": 1793727439.7001083
+    }
+  ]
+}

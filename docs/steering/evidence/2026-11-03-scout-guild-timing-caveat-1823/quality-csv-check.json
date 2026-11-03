@@ -1,0 +1,38 @@
+{
+  "gist_revision": "d3236cf8d6165e58983c55e8117b009355157e83",
+  "rows": 2638,
+  "summary": [
+    {
+      "seed": 42,
+      "pairs": 1319,
+      "off_correct": 1261,
+      "on_correct": 1261,
+      "lost": 15,
+      "gained": 15,
+      "off_finishes": {
+        "stop": 1318,
+        "length": 1
+      },
+      "on_finishes": {
+        "stop": 1319
+      }
+    },
+    {
+      "seed": 43,
+      "pairs": 1319,
+      "off_correct": 1265,
+      "on_correct": 1269,
+      "lost": 11,
+      "gained": 15,
+      "off_finishes": {
+        "stop": 1317,
+        "length": 2
+      },
+      "on_finishes": {
+        "stop": 1319
+      }
+    }
+  ],
+  "checked": "Published CSV counts, per-seed unique question coverage, loss/gain flag consistency and finish labels.",
+  "limits": "No raw answers or hidden private archive accessed; no frozen scorer, source or GPU code executed. Correctness booleans remain author-provided parsed outcomes. Runtime/source/model hashes are recorded claims, not independently verified target execution."
+}

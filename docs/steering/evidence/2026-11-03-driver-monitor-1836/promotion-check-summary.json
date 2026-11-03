@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-11-03T18:42:52.527172+00:00",
-  "leads": 15,
+  "checked_at": "2026-11-03T18:51:10.792515+00:00",
+  "leads": 16,
   "promotion_gaps": [],
   "public_layer": {
     "job": "f931abf568544018",
@@ -10,5 +10,7 @@
     "snapshot": ".build\\driver-monitor-1836\\public-snapshots\\muse_decode_layer.leaderboard.json"
   },
   "ledger": "docs/releases/promotion-queue.json",
-  "result": "PASS disposition inventory; bounded diagnostic updates mechanism evidence,owner release-scope disposition remains separate"
+  "initial_leads": 15,
+  "incoming_missing_disposition": "00005928fed6437b",
+  "result": "PASS after incoming selected-twin disposition; clean release preparation/qualification unresolved; PDLmechanism evidence and owner scope decision remain distinct"
 }
