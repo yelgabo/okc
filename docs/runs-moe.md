@@ -5951,3 +5951,26 @@ Ledger lines to add at dispatch (lane MoE short-load bench, check `okc check mus
   1.7-1.8 us doneA wait at T = 1 and T = 8 with the unit loop at the release's rate; gate as registered above.
 - MOE-SB-BCLM-01: file `muse_moe_w4a16/cand/sb_bclm2.py`, SHA256 57751b94...; hypothesis: claiming the last
   min(2G, nB - 4G) phase B units at run time cuts the T = 8 end spread and the kernel by about 1.3 us; gate as above.
+
+### MOE-SB-HALF-01 result, check `ac81f50c22a94671` (dispatched on today's held check at the coordinator's go)
+
+File `muse_moe_w4a16/cand/sb_half.py` 560a07da. PASS 5 / 5 tests, no flags. Prepare 248.7 s (release 185.0 s, candidate
+Tiny / Tiny2 builds 63.0 s); the bench ran all 48 repetitions with 31.4 s of its 280 s budget left, so the skip line
+did not fire. Official score 5,776.4 us (2.3282x, CI 2.293-2.363) is a release control draw, not the candidate.
+
+In-process paired bench (us, cold L2, CUDA graphs, 48 held-out inputs per size; median with 95% interval):
+
+| T | ctrl med | cand med | cand - ctrl | ctrl2 - ctrl (null) | cand faster in | numerics (all arms) |
+|---|---:|---:|---|---|---:|---|
+| 1 | 27.90 | 29.89 | +2.18 [+1.95, +2.40] | -0.03 [-0.13, +0.06] | 0 / 48 | 48 / 48 pass, rel 4.80e-3 |
+| 8 | 72.16 | 74.14 | +1.26 [+0.83, +1.70] | +0.11 [-0.29, +0.70] | 5 / 48 | 48 / 48 pass, rel 4.68e-3 |
+| 16 (untouched) | 102.24 | 102.37 | +0.00 [-0.38, +0.54] | +0.02 [-0.29, +0.42] | 23 / 48 | 48 / 48 pass |
+
+Decision: loss under the registered gate (the stop rule fires at T = 1 and T = 8). The null is tight (0.1 us at T = 1)
+and T = 16 sits on it, so the bench itself is sound. What this separates from MOE-HALF-XS-01 (abc831c68f174b68: +7.3 /
++16.4 us cross-job): the job-half chunk order alone, with no staging, no in-loop acquire poll and the release's register
+count, still costs +2.2 us at T = 1 and +1.3 us at T = 8, so XS was the larger part of that loss but not all of it, and
+the hidden doneA wait (1.7-1.8 us) is more than paid back by what the chunk order adds. Not separated by this bench
+(no stamps): thread 0's per-unit chunk walk before the ring refill, the second mid-phase helper fence and credit, the
+extra job switches (x reload) per chunk, and the B1 chunk reaching its dependency before the late half's credits.
+Rank 3 (HALF on MID) and HALF plus claims are not built. Next: `sb_bclm2.py` as the first check at the reset.
