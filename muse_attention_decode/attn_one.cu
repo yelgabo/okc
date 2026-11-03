@@ -3150,7 +3150,7 @@ attn_one_kernel(const Params p) {
                         vt_cur ^= vt_x;
                         vd_lo ^= vd_x;
                     }
-                    st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
+                    st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);
 #if ONE_PSTEAL
                     return true;
                 };
@@ -3169,7 +3169,6 @@ attn_one_kernel(const Params p) {
                     for (int it = 0; it < ntiles; ++it) {
                         one_tile(it);
                     }
-                    st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);
                 }
 #else
                 }
