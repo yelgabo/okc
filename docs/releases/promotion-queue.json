@@ -469,7 +469,7 @@
       "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
       "artifact": "muse_decode_layer/cand/g1b4_pdl8d.py",
       "release_state": "public-selection-review-mechanism-evidence-added",
-      "reason": "Publicf931six-edge versus private4a737four-edge history remains exact. New own diagnostic2c84 strongly supports FP32merge-order variation for tested layerATT7stand-in chains: off/jittervary,order-freePDLfixed/alternatingbitwiseclean,consumer audit0. This updates the earlier unknown-cause explanation without proving universal race absence or rewriting the original T8conditional authority. Existing owner has prepared stronger pdl8e27b5gates;no full-layer target qualification yet. Owner source/authorization/repeatbase disposition remains separate;no new Driverapproval gate or rootwithdrawal.",
+      "reason": "Public f931 six-edge versus private 4a737 four-edge history remains exact. Diagnostic 2c84 supports FP32 merge-order variation for tested ATT7 stand-in chains, without proving universal race absence or rewriting conditional authority. New full-layer 61c009 PDL8e passed every T8 staged gate with six edges on, but failed the unchanged T16 stress and its frozen all-T keep gate; not kept or submitted. This supersedes the older no-full-layer-result checkpoint. Existing owner is separately allocated PDL8f staged gates at all four short T values, a box dry run and one judge check. Source/authorization/repeat-base disposition for actual public f931 remains separate; no new Driver approval gate or root withdrawal.",
       "evidence": "muse_decode_layer/cand/profiles/g1b4_pdl8d.f931abf568544018.json",
       "disclosure_report": "docs/steering/2026-11-03-driver-monitor-1836.md",
       "public_submission_approved": true,
@@ -496,7 +496,15 @@
       "review_evidence": "docs/steering/evidence/2026-11-03-driver-monitor-1733/selection-review.json",
       "release_mechanism_diagnostic_job": "2c84c321b3bb4dbb",
       "release_mechanism_evidence": "muse_attention_decode/profiles/pdl_bench.2c84c321b3bb4dbb.json",
-      "release_mechanism_status": "merge-order-supported-for-tested-stand-in-chain; stronger full-layer gate pending"
+      "release_mechanism_status": "T8 staged full-layer evidence added by 61c009; all-T keeper failed; historical public-selection scope disposition remains open",
+      "latest_review": {
+        "observed_at": "2026-11-03T21:46:25.666895+00:00",
+        "source_commit": "55a991b5",
+        "job": "61c009066a5d40a6",
+        "source": "27b5f252",
+        "report": "docs/steering/2026-11-03-driver-monitor-2144.md",
+        "decision": "PDL8e fails frozen keep; separately authorized PDL8f proceeds with existing owner."
+      }
     },
     {
       "job": "00005928fed6437b",
