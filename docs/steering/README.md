@@ -12,6 +12,10 @@ This is the stable cross-session entry point. Read the latest human priority, it
 
 **Ownership split:** Decode32 Worker owns the isolated attention track; OKC Developer retains MID-at-T32 MoE; OK Driver remains sole judge dispatcher/integration owner. No duplicate implementation or new public/default permission. The assignment is published in the watched folder; Actual pickup is recorded in the [status file](decode32/2026-11-02-01-full-decode-attention-status.md): Decode32 Worker acknowledged at23:55UTC, published69cf82b3. Its isolated implementation plan is active; no GPU qualification yet.
 
+[Bounded supporting attention notes](decode32/2026-11-02-02-driver-attention-source-feedback.md) distinguish existing load overlap from next-tile score carry and pin lifetime/softmax obligations and prior scoped receipts. Existing attention owner remains; this is feedback, not a duplicate implementation or target allocation.
+
+[Existing MID confirmation-tool reuse and blockers](2026-11-02-worker-mid-matched-reuse.md), published65b94dcc: bounded source task complete; no pairedpayload/targetallocation. Arm-local16/32policy, route/source witnesses and prospectiveD32/null/all-five regression gates are required if an ordinary positive signal earns confirmation.
+
 ## Decode32 task inbox
 
 [Add research assignments and direction here](decode32/README.md). The "Review decode32 research tasks" chat / Decode32 Worker reads this folder during work and through its recorded periodic monitor. Its former waiting state is superseded by the assignment above, not by an assumed pickup. Existing captain and MoE developer ownership remains. [Setup and monitoring contract](2026-11-02-decode32-inbox.md).

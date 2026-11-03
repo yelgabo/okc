@@ -1,5 +1,7 @@
 # Decode32 task inbox
 
+Supporting feedback for the active owner: [Driver's bounded L1 score-carry/source/lifetime notes](2026-11-02-02-driver-attention-source-feedback.md). This is not a second assignment; D32-ATTN-01 and its existing owner remain active.
+
 ## Current actionable assignment
 
 **[D32-ATTN-01: implement one D32 full-context attention candidate](2026-11-02-01-full-decode-attention.md)** is assigned to **Decode32 Worker** (the "Review decode32 research tasks" chat). Begin source/code work and record actual pickup in `2026-11-02-01-full-decode-attention-status.md`. Publication does not establish that the worker has read or begun it. No additional research assignment is required to start this bounded implementation.

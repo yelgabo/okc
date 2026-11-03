@@ -27,3 +27,9 @@ Captain directly sent the existing developer publication/remote/sourceaccept/con
 Concurrent human-created D32-ATTN-01 at69cf82b3 is explicitly picked up23:55UTC, with isolated implementation/selector/lifetime/compiler/source-review work active. Preserve that owner; do not duplicate the attention implementation or reuse old broad HOLD to stop its newer bounded scope. Root's independent source feedback will use its watched inbox. Broad dense-backing remains unallocated reserve. Previous direct/shared-A/K128 and heldpairs remain parked.
 
 At this registration snapshot, **MID target correctness/timings/score/CI are pending**. A new terminal addendum/report will record the outcome and scoped next decision; this initial receipt will remain intact.
+
+## Direct acknowledgment and parallel source feedback
+
+Existing developer explicitly acknowledged accepteda6fe2769779e4299/frozenMID/noPOST-poll and the separateattentionowner. Its bounded reusefinding identifies existingexpert_top100_harness_runtime/owners/oracle/fresh-replay/reader as closest, but not drop-in: route_key32, module assertions and globalMIDMAX need explicit arm-local cutoff16/32/source witnesses, and oldwhole-six1%gate is not currentD32policy. No pairedpayload/newframework/test/compiler or secondtarget was allocated. Supporting attention lifetime/source notes are in decode32/2026-11-02-02-driver-attention-source-feedback.md, watched inbox publication only; no actualreading/acknowledgment by that separateowner is claimed.
+
+Source-only reuse task completed and explicitly STOPPED at65b94dcc: docs/steering/2026-11-02-worker-mid-matched-reuse.md plus pinned sourceinventory, bothremoteblobsverified byowner. ExpectedextraoriginalB4build and295sfit remain unqualified; no ready pairedcandidate is counted.
