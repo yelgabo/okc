@@ -2330,3 +2330,11 @@ latency plus the epilogue, not a ramp. No second check: the per-cell noise betwe
 unchanged kernels) exceeds any remaining expected effect. The candidate file stays in
 `muse_bf16_proj/experiments/ramp_c2.py` (every judged kernel SASS-identical or register-identical to
 C2); the tracked production file is unchanged.
+
+Profile note (`muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.txt`): the o m = 1 kernel
+`cgemv40_kernel<32, 2, 16>` has a 4.1 us profiled duration against 5.0 us for C2's `cgemv_kernel<64, 1>`
+(docs/hotspots.md, 9eba96894ee1402e), yet the judged cell is 5.06 against 5.04 us. The 0.9 us left the
+kernel's first-CTA-to-last-CTA span without leaving the judged replay, so the judged time of a short
+cell carries a per-launch cost that a shorter kernel does not reduce; the same ~1 us separates the
+judged and profiled times of the router and slice cells in both runs. Any further short-cell work has
+to be judged on the status JSON cell medians, not on profiled kernel durations.
