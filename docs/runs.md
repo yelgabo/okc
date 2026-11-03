@@ -2670,3 +2670,20 @@ the issue, and the 168-register cap blocks a deeper PF.
 Decision: the stop rule fired (rau +9.8 us; decode-off plus wgmma-off 43.9 against rau 33.2). Two of the
 four checks used; no geometry sweep. Logged in docs/ruled-out.md with its reopen condition. The
 incumbent is unchanged; the bench file keeps ra for the reopen.
+
+### 2026-11-03 fixed-cost calibration of the m <= 8 cells (FC-01)
+
+Question: of the 2 to 3 us that every m <= 8 cell sits above its byte floor on the judge (ramp lane
+793602020fd64ce9, steering 2026-11-03-bf16-proj-approaches.md), how much is the graph and launch itself and
+how much is ramp, tail and epilogue? Bench `muse_bf16_proj/experiments/fixed_cost.py` (SHA256 e12b4097,
+incumbent submission.py 6a4ea572 plus one block at the end of prepare(); kernel_fn and every pick unchanged, so the
+judged arm is the incumbent). Arms, each its own CUDA graph captured on one stream, replayed from a cold L2 (256 MB
+flush.sum() before every replay), 12 rounds x 5 reps with the order rotated: a empty graph and a 1-byte
+cudaMemsetAsync node; b null kernel 1 x 32; c 132 x 128; cx 128 x 128 through cudaLaunchKernelEx (cluster
+control); d 1024 x 96, d2 4096 x 96; e8 / e16 128 x 128 in clusters of 8 / 16; f pure stream of the o 12-bit bytes
+(12.58 MB), the pooler's (50.3 MB) and the router's (8.4 MB), 132 x 256, 8 x 16-byte ld.global.nc in flight per
+thread (SASS: all 8 issue before the first XOR, 48 registers, no spill), grid-sweep (f) and per-CTA slab (fs)
+orders; g the real m = 1 picks of o, pooler and router; h1 / h8 a one-thread pointer chase of 1 / 8 hops 4 MB apart.
+Reported: per-arm median and MAD of round medians, paired deltas against b and the named differences.
+Compile check (local nvcc 12.8): 99 entries, no spills. Stop: one check; a second only if the small arms' MAD
+exceeds 0.3 us.
