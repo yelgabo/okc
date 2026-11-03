@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "017bb728-46fa-42bd-922f-c547c7aab868",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-short-token-details-20261103-015503/tiny-hardware.candidate.json",
+  "output": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-short-token-details-20261103-015503/tiny-hardware.html",
+  "specification": {
+    "sha256": "6a72cdaecfad19d6f2b39eb2d19af99eb83b5734eb84cb16d33a997daa02fdb3",
+    "bytes": 9893
+  },
+  "artifact": {
+    "sha256": "a031b6bb4210bc96dc47a727e78fd833f547d9bc58523f3e1d1d792a585ca637",
+    "bytes": 858405
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "artifacts": {
+    "attention-detail": {
+      "html_sha256": "57c991c7249227ce0ef9616f4ba34a29915bebf236307d8d8a89d8599f22fe9d",
+      "candidate_sha256": "7f44a886ad3546ee3075d8e6f042c3968125d107a2af0028b0996418d25c53ca",
+      "receipt": "attention-detail-review-2/attention-detail.finalize-summary.json"
+    },
+    "post-attention-detail": {
+      "html_sha256": "296b449df66afd7329a7a170a731e04d06b24e6c1ccdb2e6ec3635c65504b70f",
+      "candidate_sha256": "7ecb48eac375ebb8def891ace53364839492b3fceb2720f3d25834825014aa61",
+      "receipt": "post-attention-detail-review-2/post-attention-detail.finalize-summary.json"
+    },
+    "projection-detail": {
+      "html_sha256": "63f6df6b43ae92d6e915a68520ab66339918d32a3d0d1fe75fad4929490f02c0",
+      "candidate_sha256": "59a33037efd487fc6e52217cae381da4c7323f2ce2ad8caa5c2cf3749f3cdc85",
+      "receipt": "projection-detail-review-4/projection-detail.finalize-summary.json"
+    },
+    "tiny-hardware": {
+      "html_sha256": "a031b6bb4210bc96dc47a727e78fd833f547d9bc58523f3e1d1d792a585ca637",
+      "candidate_sha256": "6a72cdaecfad19d6f2b39eb2d19af99eb83b5734eb84cb16d33a997daa02fdb3",
+      "receipt": "tiny-hardware-review-1/tiny-hardware.finalize-summary.json"
+    },
+    "tiny-phases": {
+      "html_sha256": "bb0764802cd55e782d3449b5d86fbcba0c78cdc1d6027fa0b11988718ed3c2b1",
+      "candidate_sha256": "46307a145693fa0c4f34d69d14b9323457efa7dcdc09d6796dd84c36bc2fdce8",
+      "receipt": "tiny-phases-review-1/tiny-phases.finalize-summary.json"
+    }
+  },
+  "review": "Final rendered views inspected, with neutral styling and no observed diagram collisions.",
+  "navigation": "All five buttons, selected states, iframe titles and full-diagram targets checked.",
+  "source_inspector": "Tiny compute node opened through the node index, exposing three verified ranges at 8c09d605.",
+  "independent_review": false,
+  "limits": "No kernel execution or internal timing reproduction; archived source and launch profiles only."
+}

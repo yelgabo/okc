@@ -1,0 +1,382 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "After Attention: the actual T1 / T8 launch chain",
+    "locale": "en",
+    "output": "docs/.archify/architecture-short-token-details-20261103-015503/post-attention-detail.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/yelgabo/okc.git",
+      "revision": "8c09d60554e72db65e595c9c2a5eb35a743d87b6",
+      "provider": "github"
+    },
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "backend": {
+          "label": "GPU operations"
+        },
+        "database": {
+          "label": "Memory and buffers"
+        },
+        "external": {
+          "label": "Inputs and outputs"
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "attn",
+      "type": "external",
+      "label": "Gated attention output",
+      "sublabel": "BF16 [T,1024]",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11395,
+          "end_line": 11398
+        }
+      ]
+    },
+    {
+      "id": "o",
+      "type": "backend",
+      "label": "1. O projection",
+      "sublabel": "SK2: 1024 -> 8192, BF16",
+      "pos": [
+        340,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15871,
+          "end_line": 15876
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 9504,
+          "end_line": 9506
+        }
+      ]
+    },
+    {
+      "id": "b1",
+      "type": "backend",
+      "label": "2. First layer boundary",
+      "sublabel": "8-CTA cluster per token",
+      "pos": [
+        640,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15878,
+          "end_line": 15878
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15597,
+          "end_line": 15622
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15553,
+          "end_line": 15592
+        }
+      ]
+    },
+    {
+      "id": "pr",
+      "type": "backend",
+      "label": "3. Fused pooler + router",
+      "sublabel": "BF16 pool + FP32 FMA router",
+      "pos": [
+        940,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 16622,
+          "end_line": 16646
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 16429,
+          "end_line": 16458
+        }
+      ]
+    },
+    {
+      "id": "route",
+      "type": "backend",
+      "label": "4. Tile route + expert norm",
+      "sublabel": "Top8 + local IDs; BF16 [T,4096]",
+      "pos": [
+        940,
+        340
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15892,
+          "end_line": 15904
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15794,
+          "end_line": 15859
+        }
+      ]
+    },
+    {
+      "id": "moe",
+      "type": "backend",
+      "label": "5. Native fused MoE",
+      "sublabel": "T1 Tiny / T8 Tiny2",
+      "pos": [
+        640,
+        340
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15905,
+          "end_line": 15913
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 16084,
+          "end_line": 16106
+        }
+      ]
+    },
+    {
+      "id": "unpool",
+      "type": "backend",
+      "label": "6. Sliced unpooler",
+      "sublabel": "4096 -> first 1024 outputs",
+      "pos": [
+        340,
+        340
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15916,
+          "end_line": 15922
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 9517,
+          "end_line": 9519
+        }
+      ]
+    },
+    {
+      "id": "b2",
+      "type": "backend",
+      "label": "7. Final layer boundary",
+      "sublabel": "Residual + RMS + next pre-norm",
+      "pos": [
+        40,
+        340
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15923,
+          "end_line": 15925
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15635,
+          "end_line": 15659
+        }
+      ]
+    },
+    {
+      "id": "out",
+      "type": "external",
+      "label": "Layer outputs",
+      "sublabel": "BF16 hidden, FP32 carry, IDs",
+      "pos": [
+        40,
+        540
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15919,
+          "end_line": 15925
+        }
+      ]
+    },
+    {
+      "id": "carry",
+      "type": "database",
+      "label": "Saved residual + tail",
+      "sublabel": "FP32 [T,8192] and [T]",
+      "pos": [
+        640,
+        190
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15570,
+          "end_line": 15592
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15645,
+          "end_line": 15657
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "attn-o",
+      "from": "attn",
+      "to": "o",
+      "label": "input"
+    },
+    {
+      "id": "o-b1",
+      "from": "o",
+      "to": "b1",
+      "label": "BF16 branch"
+    },
+    {
+      "id": "b1-pr",
+      "from": "b1",
+      "to": "pr",
+      "label": "h BF16 + hr FP32"
+    },
+    {
+      "id": "pr-route",
+      "from": "pr",
+      "to": "route",
+      "label": "pool + logits"
+    },
+    {
+      "id": "route-moe",
+      "from": "route",
+      "to": "moe",
+      "label": "x + IDs + weights"
+    },
+    {
+      "id": "moe-unpool",
+      "from": "moe",
+      "to": "unpool",
+      "label": "expert sum"
+    },
+    {
+      "id": "unpool-b2",
+      "from": "unpool",
+      "to": "b2",
+      "label": "BF16 [T,1024]"
+    },
+    {
+      "id": "b2-out",
+      "from": "b2",
+      "to": "out",
+      "label": "hidden + stream"
+    },
+    {
+      "id": "b1-carry",
+      "from": "b1",
+      "to": "carry",
+      "label": "save s1 + tail"
+    },
+    {
+      "id": "carry-b2",
+      "from": "carry",
+      "to": "b2",
+      "label": "carry + tail"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "slate",
+      "title": "The source and archived launch profile agree",
+      "items": [
+        "The retained public607 T1 and T8 profiles each show nine calls: QKV, fused attention and these seven post-attention kernels. This view expands the boxes from the overview without claiming that each internal operation is a separate launch.",
+        "The extra gle_o O-projection/boundary fusion is disabled because GLE_T is empty. The fused gle_pr pooler/router remains enabled through GLE_FRT=True. These two similarly named branches have different selected status."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "What the first boundary publishes",
+      "items": [
+        "b1 normalizes the O branch, forms the gated residual, normalizes the pre-FFN input and writes both BF16 h and an FP32 router copy hr.",
+        "It also saves the next residual carry and the squared-norm contribution of columns 1024..8191. That tail lets the final boundary use a sliced unpooler while retaining the full 8192-feature norm."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Pooler and router have different arithmetic",
+      "items": [
+        "The pooler uses compressed BF16 weights and tensor-core MMA. The router uses FP32 hr and FP32 router weights with scalar FMA, interleaving four router stages through the same kernel. It is not the older BF16 hi/lo router path.",
+        "Routing applies sigmoid(logits / sqrt(32)), adds bias for expert selection, picks eight with deterministic ID tie breaks, then normalizes the selected unbiased sigmoid weights. Nonlocal experts receive local ID -1."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "What differs at T1 and T8",
+      "items": [
+        "Tile route uses one normalization partition at T1 and four at T8, plus one top8 program per token. Final boundary uses BC=256 with eight warps at T1, BC=1024 with sixteen warps at T8.",
+        "All displayed compute stages are editable layer scope. PDL and the larger gle_o fusion are disabled here. No source or GPU job was changed to produce these diagrams."
+      ]
+    }
+  ]
+}

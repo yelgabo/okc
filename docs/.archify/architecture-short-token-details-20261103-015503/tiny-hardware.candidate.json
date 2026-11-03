@@ -1,0 +1,423 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Tiny / Tiny2: inside one 288-thread CTA",
+    "locale": "en",
+    "output": "docs/.archify/architecture-short-token-details-20261103-015503/tiny-hardware.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/yelgabo/okc.git",
+      "revision": "8c09d60554e72db65e595c9c2a5eb35a743d87b6",
+      "provider": "github"
+    },
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "backend": {
+          "label": "GPU operations"
+        },
+        "database": {
+          "label": "Memory and buffers"
+        },
+        "external": {
+          "label": "Inputs and outputs"
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "weights",
+      "type": "database",
+      "label": "Packed expert weights",
+      "sublabel": "32 KiB codes + 4 KiB scales",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 12942,
+          "end_line": 12946
+        }
+      ]
+    },
+    {
+      "id": "issue",
+      "type": "backend",
+      "label": "Bulk weight copies",
+      "sublabel": "Initial issue + compute refills",
+      "pos": [
+        340,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 14731,
+          "end_line": 14784
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 13984,
+          "end_line": 14003
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 13938,
+          "end_line": 13948
+        }
+      ]
+    },
+    {
+      "id": "ring",
+      "type": "database",
+      "label": "Weight ring",
+      "sublabel": "3 shared slots, 36 KiB each",
+      "pos": [
+        640,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 12942,
+          "end_line": 12946
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 6913,
+          "end_line": 6916
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 6887,
+          "end_line": 6889
+        }
+      ]
+    },
+    {
+      "id": "compute",
+      "type": "backend",
+      "label": "8 compute warps",
+      "sublabel": "BF16 mma.sync, FP32 sums",
+      "pos": [
+        940,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 12720,
+          "end_line": 12725
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 13909,
+          "end_line": 13937
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 12597,
+          "end_line": 12609
+        }
+      ],
+      "tag": "256 threads; K=512 per warp"
+    },
+    {
+      "id": "xregs",
+      "type": "database",
+      "label": "Activation registers",
+      "sublabel": "Load once per expert job",
+      "pos": [
+        940,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 12989,
+          "end_line": 13008
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 13901,
+          "end_line": 13907
+        }
+      ]
+    },
+    {
+      "id": "handoff",
+      "type": "backend",
+      "label": "Publish partials + refill",
+      "sublabel": "Proxy fence, 256-thread barrier",
+      "pos": [
+        640,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 13938,
+          "end_line": 13948
+        }
+      ]
+    },
+    {
+      "id": "partial",
+      "type": "database",
+      "label": "4 partial-sum buffers",
+      "sublabel": "Shared FP32 ring + mbarriers",
+      "pos": [
+        340,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 12557,
+          "end_line": 12560
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 13940,
+          "end_line": 13948
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 14009,
+          "end_line": 14018
+        }
+      ]
+    },
+    {
+      "id": "helper",
+      "type": "backend",
+      "label": "Helper warp 0",
+      "sublabel": "Sum 8 warps; normal epilogues",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 12597,
+          "end_line": 12605
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 13990,
+          "end_line": 14018
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 14020,
+          "end_line": 14064
+        }
+      ],
+      "tag": "32 threads; physical warp 0"
+    },
+    {
+      "id": "stores",
+      "type": "database",
+      "label": "Intermediate / output rows",
+      "sublabel": "A: BF16 inter; B: FP32 y + ss",
+      "pos": [
+        40,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 14020,
+          "end_line": 14058
+        }
+      ]
+    },
+    {
+      "id": "tail",
+      "type": "backend",
+      "label": "Compute-owned B tails",
+      "sublabel": "Tiny: 2 units; Tiny2: 1 unit",
+      "pos": [
+        640,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 13951,
+          "end_line": 13978
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 6859,
+          "end_line": 6862
+        }
+      ]
+    },
+    {
+      "id": "x",
+      "type": "external",
+      "label": "Expert activation rows",
+      "sublabel": "A: routed x; B: ready inter",
+      "pos": [
+        940,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 12989,
+          "end_line": 13008
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 13901,
+          "end_line": 13907
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "weights-issue",
+      "from": "weights",
+      "to": "issue",
+      "label": "packed units"
+    },
+    {
+      "id": "issue-ring",
+      "from": "issue",
+      "to": "ring",
+      "label": "bulk copy"
+    },
+    {
+      "id": "ring-compute",
+      "from": "ring",
+      "to": "compute",
+      "label": "codes + scales"
+    },
+    {
+      "id": "x-xregs",
+      "from": "x",
+      "to": "xregs",
+      "label": "BF16 rows"
+    },
+    {
+      "id": "xregs-compute",
+      "from": "xregs",
+      "to": "compute",
+      "label": "register B"
+    },
+    {
+      "id": "compute-handoff",
+      "from": "compute",
+      "to": "handoff",
+      "label": "warp sums"
+    },
+    {
+      "id": "handoff-partial",
+      "from": "handoff",
+      "to": "partial",
+      "label": "publish"
+    },
+    {
+      "id": "partial-helper",
+      "from": "partial",
+      "to": "helper",
+      "label": "mbarrier ready"
+    },
+    {
+      "id": "helper-stores",
+      "from": "helper",
+      "to": "stores",
+      "label": "epilogue stores"
+    },
+    {
+      "id": "handoff-tail",
+      "from": "handoff",
+      "to": "tail",
+      "label": "last B units"
+    },
+    {
+      "id": "tail-stores",
+      "from": "tail",
+      "to": "stores",
+      "label": "y + square sums"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "slate",
+      "title": "Selected paths at 1 and 8 tokens",
+      "items": [
+        "T is batch times query length. T=1 selects Tiny; T=8 selects Tiny2. Both select @moe_helper0 with NW=8, WS=1 and WGS=0.",
+        "The helper is physical warp 0 through the TIDX remap. The other eight physical warps compute. This is 288 threads, compared with 576 in B4/MAIN."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "A real barrier remains in the loop",
+      "items": [
+        "The selected WSB loop writes FP32 partials, executes fence.proxy.async.shared and bar.sync over 256 compute threads. Logical compute thread 0 then refills the released weight slot.",
+        "The helper issues the initial remaining slots and consumes ordinary epilogues. It is not the sole steady-state weight producer. Activations stay in registers, so the WGS activation-ring drawing does not apply."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Tiny versus Tiny2",
+      "items": [
+        "Both have three weight slots, four partial buffers, FAST1=2 and final-item prefetch. Tiny handles up to four tokens; Tiny2 handles five through eight.",
+        "The final two B units stay with compute warps in Tiny; one stays in Tiny2. Tiny disables L2 cache hints; Tiny2 keeps the default hints. These are source-selected policies, not new speed measurements."
+      ]
+    }
+  ]
+}

@@ -42,6 +42,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 
 ## Source-linked architecture, November 3
 
+[Short-token architecture details](2026-11-03-short-token-architecture-details.md) adds Tiny/Tiny2 hardware and A/B handoff, attention and projection internals, and the exact seven-launch post-attention chain. Public607 source and archived T1/T8 profiles; distinguishes enabled gle_pr from disabled gle_o.
+
 [Archify incumbent layer and MoE](2026-11-03-archify-incumbent-architecture.md) saves standalone interactive diagrams, editable candidates and browser receipts. Source-pinned public607 layer; B4/MAIN close-up distinguishes the short-token paths. Neutral styling; no new timing claims.
 
 ## Current architecture diagrams, November 2

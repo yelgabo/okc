@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "9556d04f-f99f-44fc-9ad0-90cec2dbf17d",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-short-token-details-20261103-015503/projection-detail.candidate.json",
+  "output": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-short-token-details-20261103-015503/projection-detail.html",
+  "specification": {
+    "sha256": "59a33037efd487fc6e52217cae381da4c7323f2ce2ad8caa5c2cf3749f3cdc85",
+    "bytes": 10888
+  },
+  "artifact": {
+    "sha256": "63f6df6b43ae92d6e915a68520ab66339918d32a3d0d1fe75fad4929490f02c0",
+    "bytes": 861989
+  }
+}

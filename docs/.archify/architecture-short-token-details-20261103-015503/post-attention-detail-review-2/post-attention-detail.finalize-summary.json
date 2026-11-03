@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-short-token-details-20261103-015503/post-attention-detail.candidate.json",
+    "sha256": "7ecb48eac375ebb8def891ace53364839492b3fceb2720f3d25834825014aa61",
+    "bytes": 9331
+  },
+  "artifact": {
+    "path": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-short-token-details-20261103-015503/post-attention-detail.html",
+    "sha256": "296b449df66afd7329a7a170a731e04d06b24e6c1ccdb2e6ec3635c65504b70f",
+    "bytes": 854748
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-short-token-details-20261103-015503/post-attention-detail-review-2/post-attention-detail.finalize.json",
+    "summaryReceipt": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-short-token-details-20261103-015503/post-attention-detail-review-2/post-attention-detail.finalize-summary.json",
+    "browserCheckReceipt": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-short-token-details-20261103-015503/post-attention-detail-review-2/post-attention-detail.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T09:40:29.287Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2195,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "source_pin": "8c09d60554e72db65e595c9c2a5eb35a743d87b6",
+  "source": "muse_decode_layer/cand/g1b4_stage_release.py",
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "profile": "muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.json",
+  "profile_sha256": "9ba1d7d77c00ae9a1bdba61c64ed93975566879f2767d473aa050c19fd6c573c",
+  "profile_job_id": "607eb52bdaf24160",
+  "evidence_limit": "Archived per-kernel reports, rounded and truncated names. Internal phase timing is unqualified. No new GPU execution.",
+  "rows": [
+    {
+      "index": 0,
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "sliding",
+        "load": "decode 1",
+        "page": 1,
+        "repeats": 60,
+        "seed": 2594116087711408936,
+        "weight": 46
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           29.8 µs  36.5%      1\nvoid sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...      17.9 µs  21.9%      1\nvoid sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...      10.5 µs  12.9%      1\nvoid sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       6.0 µs   7.3%      1\nvoid (anonymous namespace)::attn_kernel<1, false, 13>((an...       5.4 µs   6.6%      1\nvoid sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.4 µs   5.5%      1\nvoid glue_cluster_boundary<4, 32, false, false, true, fal...       3.4 µs   4.1%      1\n_sl_cluster_finish                                                 2.3 µs   2.8%      1\n_sl_tile_route                                                     2.0 µs   2.5%      1\ntotal                                                             81.6 µs",
+      "reported_kernel_calls": 9
+    },
+    {
+      "index": 1,
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "full",
+        "load": "decode 1",
+        "page": 1,
+        "repeats": 60,
+        "seed": 2594202932468765874,
+        "weight": 16
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           42.8 µs  42.4%      1\nvoid sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...      17.9 µs  17.7%      1\nvoid (anonymous namespace)::attn_kernel<1, false, 11>((an...      12.1 µs  12.0%      1\nvoid sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...      10.6 µs  10.5%      1\nvoid sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       5.9 µs   5.9%      1\nvoid sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.5 µs   4.5%      1\nvoid glue_cluster_boundary<4, 32, false, false, true, fal...       3.3 µs   3.3%      1\n_sl_tile_route                                                     2.0 µs   2.0%      1\n_sl_cluster_finish                                                 1.9 µs   1.8%      1\ntotal                                                            101.0 µs",
+      "reported_kernel_calls": 9
+    },
+    {
+      "index": 6,
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "sliding",
+        "load": "verify 1",
+        "page": 1,
+        "q_len": 8,
+        "seed": 2594637156255550579,
+        "weight": 46
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           71.6 µs  57.7%      1\nvoid sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...      18.7 µs  15.1%      1\nvoid sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...       9.1 µs   7.3%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 15>((an...       7.4 µs   6.0%      1\nvoid sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       6.0 µs   4.8%      1\nvoid sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.7 µs   3.8%      1\nvoid glue_cluster_boundary<4, 32, false, false, true, tru...       3.0 µs   2.5%      1\n_sl_tile_route                                                     1.9 µs   1.5%      1\n_sl_cluster_finish                                                 1.7 µs   1.4%      1\ntotal                                                            124.0 µs",
+      "reported_kernel_calls": 9
+    },
+    {
+      "index": 7,
+      "case": {
+        "batch": 1,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "full",
+        "load": "verify 1",
+        "page": 1,
+        "q_len": 8,
+        "seed": 2594724001012907523,
+        "weight": 16
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           58.8 µs  49.3%      1\nvoid sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...      18.6 µs  15.6%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 11>((an...      15.0 µs  12.6%      1\nvoid sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...       9.3 µs   7.8%      1\nvoid sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       6.1 µs   5.1%      1\nvoid sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.5 µs   3.8%      1\nvoid glue_cluster_boundary<4, 32, false, false, true, tru...       3.2 µs   2.7%      1\n_sl_tile_route                                                     2.0 µs   1.7%      1\n_sl_cluster_finish                                                 1.9 µs   1.6%      1\ntotal                                                            119.4 µs",
+      "reported_kernel_calls": 9
+    }
+  ],
+  "selected_tiny_helper": {
+    "key": "moe_helper0",
+    "sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+    "line": 12481,
+    "end_line": 15171,
+    "note": "Both Tiny paths select this alternate source, not the WGS branch of MOE_CUDA_SRC."
+  }
+}

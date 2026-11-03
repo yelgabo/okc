@@ -1,0 +1,464 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Inside Attention: decode 1 and verify 1",
+    "locale": "en",
+    "output": "docs/.archify/architecture-short-token-details-20261103-015503/attention-detail.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/yelgabo/okc.git",
+      "revision": "8c09d60554e72db65e595c9c2a5eb35a743d87b6",
+      "provider": "github"
+    },
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "backend": {
+          "label": "GPU operations"
+        },
+        "database": {
+          "label": "Memory and buffers"
+        },
+        "external": {
+          "label": "Inputs and outputs"
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "qkv",
+      "type": "external",
+      "label": "Projected Q / K / V / gate",
+      "sublabel": "BF16 [T, 2304]",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11384,
+          "end_line": 11398
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11295,
+          "end_line": 11309
+        }
+      ]
+    },
+    {
+      "id": "prep",
+      "type": "backend",
+      "label": "QK preparation",
+      "sublabel": "Per-head RMS; optional RoPE",
+      "pos": [
+        340,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1693,
+          "end_line": 1744
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1770,
+          "end_line": 1789
+        }
+      ]
+    },
+    {
+      "id": "cache-write",
+      "type": "backend",
+      "label": "Quantize new K and V",
+      "sublabel": "E4M3 with caller KV scales",
+      "pos": [
+        640,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1770,
+          "end_line": 1805
+        }
+      ]
+    },
+    {
+      "id": "cache",
+      "type": "database",
+      "label": "Paged FP8 KV cache",
+      "sublabel": "Caller-owned pages + locations",
+      "pos": [
+        940,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11279,
+          "end_line": 11282
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1800,
+          "end_line": 1805
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1412,
+          "end_line": 1423
+        }
+      ]
+    },
+    {
+      "id": "load",
+      "type": "backend",
+      "label": "Load split-KV tiles",
+      "sublabel": "cp.async; patch new-token rows",
+      "pos": [
+        940,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1811,
+          "end_line": 1815
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1880,
+          "end_line": 1891
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1420,
+          "end_line": 1423
+        }
+      ]
+    },
+    {
+      "id": "qk",
+      "type": "backend",
+      "label": "QK dot products",
+      "sublabel": "L1: F16 MMA; L8: FP8 WGMMA",
+      "pos": [
+        640,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1903,
+          "end_line": 1910
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1966,
+          "end_line": 1995
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 150,
+          "end_line": 157
+        }
+      ]
+    },
+    {
+      "id": "softmax",
+      "type": "backend",
+      "label": "Mask + online softmax",
+      "sublabel": "Causal / sliding; FP32 state",
+      "pos": [
+        340,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1913,
+          "end_line": 1944
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 2335,
+          "end_line": 2367
+        }
+      ]
+    },
+    {
+      "id": "pv",
+      "type": "backend",
+      "label": "P times V",
+      "sublabel": "L1: F16 MMA; L8: FP8 WGMMA",
+      "pos": [
+        640,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1946,
+          "end_line": 1960
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 2374,
+          "end_line": 2386
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 2540,
+          "end_line": 2585
+        }
+      ]
+    },
+    {
+      "id": "reduce",
+      "type": "backend",
+      "label": "Merge split-KV outputs",
+      "sublabel": "FP32 partials + row sums",
+      "pos": [
+        340,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 2885,
+          "end_line": 2902
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11262,
+          "end_line": 11277
+        }
+      ]
+    },
+    {
+      "id": "round",
+      "type": "backend",
+      "label": "BF16 attention boundary",
+      "sublabel": "Scale / normalize, then round",
+      "pos": [
+        40,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 2899,
+          "end_line": 2907
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 416,
+          "end_line": 418
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 1099,
+          "end_line": 1100
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "backend",
+      "label": "Per-head RMS + gate",
+      "sublabel": "64-feature RMS * sigmoid(gate)",
+      "pos": [
+        40,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 2903,
+          "end_line": 2918
+        }
+      ]
+    },
+    {
+      "id": "o",
+      "type": "external",
+      "label": "O-projection input",
+      "sublabel": "BF16 [T, 1024]",
+      "pos": [
+        340,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 2915,
+          "end_line": 2918
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11395,
+          "end_line": 11398
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "qkv-prep",
+      "from": "qkv",
+      "to": "prep",
+      "label": "Q / new K,V"
+    },
+    {
+      "id": "prep-cache-write",
+      "from": "prep",
+      "to": "cache-write",
+      "label": "prepared K,V"
+    },
+    {
+      "id": "cache-write-cache",
+      "from": "cache-write",
+      "to": "cache",
+      "label": "write new rows"
+    },
+    {
+      "id": "cache-load",
+      "from": "cache",
+      "to": "load",
+      "label": "read old pages"
+    },
+    {
+      "id": "load-qk",
+      "from": "load",
+      "to": "qk",
+      "label": "K tiles"
+    },
+    {
+      "id": "prep-qk",
+      "from": "prep",
+      "to": "qk",
+      "label": "prepared Q"
+    },
+    {
+      "id": "qk-softmax",
+      "from": "qk",
+      "to": "softmax",
+      "label": "scores"
+    },
+    {
+      "id": "softmax-pv",
+      "from": "softmax",
+      "to": "pv",
+      "label": "probabilities"
+    },
+    {
+      "id": "pv-reduce",
+      "from": "pv",
+      "to": "reduce",
+      "label": "partial output"
+    },
+    {
+      "id": "reduce-round",
+      "from": "reduce",
+      "to": "round",
+      "label": "merged vector"
+    },
+    {
+      "id": "round-gate",
+      "from": "round",
+      "to": "gate",
+      "label": "BF16 values"
+    },
+    {
+      "id": "gate-o",
+      "from": "gate",
+      "to": "o",
+      "label": "gated output"
+    },
+    {
+      "id": "load-pv",
+      "from": "load",
+      "to": "pv",
+      "label": "V tiles"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "slate",
+      "title": "Attention specializes on query length, not only T",
+      "items": [
+        "Decode 1 is B=1, L=1, T=1. Verify 1 is B=1, L=8, T=8. A different workload B=8, L=1 also has T=8 but uses the L1 attention arithmetic.",
+        "The short-token native layer uses 16 query heads, two KV heads and head dimension 64. L8 queries pass through F16 staging before E4M3 packing because QDIRECT=0."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "One fused attention launch, several internal phases",
+      "items": [
+        "Preparation, cache writes, split-KV attention, reduction and final norm/gate belong to the native attention launch. These boxes are internal operations, not separate Python launches.",
+        "L1 uses F16 mma.sync after unpacking FP8 K/V. The selected L8 path uses E4M3 WGMMA for both QK and PV, with FP32 accumulators. Older F16-PV comments describe a different branch."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Planning and retained boundaries",
+      "items": [
+        "The launch plan depends on B, L, window, page count and KV pairs. Full decode1 has a pinned 252-split, eight-copy cooperative plan; sliding and verify use their applicable planner rows.",
+        "The attention vector rounds to BF16 before its output RMS and sigmoid gate. Paged-cache index limits and non-unit scaled L8 fallback can select QK prep plus FA3. That fallback is outside the native close-up."
+      ]
+    }
+  ]
+}
