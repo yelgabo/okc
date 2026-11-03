@@ -2,7 +2,7 @@
 
 November 2, 2026. Owner: OKC CUDA Optimizer. User instruction: "Be independent and run some experiments. I want to see positive results." Evidence base `f720ac617d9eb82f3bd69d16be2ff52809f64edd`. [Plan and prospective gates](../superpowers/plans/2026-11-02-cuda-issue-groups.md). [Research correction digest](../research/cuda-h200/part2.md).
 
-Current outcome: the scale-only H200 comparison passes correctness but fails the matched speed gate. A corrected combined scale/group candidate passes local resource and publication checks and is running as own private `3c45788127e945c4`. No runtime promotion.
+Current outcome: both H200 comparisons pass correctness and replay checks but fail their matched speed gates. Constant scales remove local B4 spills; the corrected scale/group combination also reduces static group operations by25%. Neither yields a measured GPU speedup. Both exact candidates stop, with the runtime baseline preserved.
 
 ## Scope and selected implementation
 
@@ -69,3 +69,21 @@ The [new exact payload](evidence/2026-11-02-cuda-group-scale/paired.py) is 34299
 Accepted own private job `3c45788127e945c4`, source commit `9669ee15`, after remote payload-byte verification and a fresh jobs/quota check. The optimizer owns its sole live poller. [Accepted identity](evidence/2026-11-02-cuda-group-scale/accepted.json). Status is pending; source registration is not a target result.
 
 The additional local build includes the payload's `-lineinfo` flag, which the initial compiler driver omitted. All four instruction-encoding sequences match their earlier local build exactly; only disassembly header metadata differs. Zero spills and the static collective/publication counts are reproduced. Full compressed SASS, logs, flags, hashes and differences are archived in [the flag-aligned evidence](evidence/2026-11-02-cuda-issue-groups/group_scale_lineinfo/). The actual H200 compiler and complete captured replay remain the decisive checks. The offline reader resolves archived logs relative to the evidence folder while retaining the receipt's original path in its attestation, so a different checkout can replay the audit.
+
+Interpret the corrected candidate as one coherent treatment: scale folding, small-NTT issue batching and its two-operation flush delay interact. A matched gain would belong to that complete treatment. Static group counts do not isolate its causal contribution, and this experiment does not require each ingredient to win independently.
+
+## Combined treatment H200 terminal result
+
+Own private `3c45788127e945c4`, source commit `9669ee15`, passed five official tests, six benchmarks and all six profiles without flags. It passed the complete 54-case, 378-observation, 216-capture, 1,152-timed-replay, 54-restoration and cleanup checks. Worst global/row relative errors were0.000135982/0.000171862. Prepare took276.366447 seconds; queue545.209209 and worker349.580438 seconds. Official versus-SGLang speedup is2.348334366x, 95% CI[2.313109350,2.383559381]. This is not a paired improvement over the control or the previous job.
+
+The unchanged strict reader validates the source/manifest, seven compiler requests, owning receipt/log and complete coverage. All24 whole-six factors range0.995560..1.008180; none reaches1.01. The descriptive geometric mean is1.001063, within the instrument's control spread. Mean descriptive T32/T128/T256 factors are1.002055/1.001833/0.999788. Three affected bank/load cells regress at least1%. All six bank/distribution groups fail the frozen gate. [Owning receipt](evidence/2026-11-02-cuda-group-scale/status-wait.raw.json), [strict analysis](evidence/2026-11-02-cuda-group-scale/analysis.json), [summary](evidence/2026-11-02-cuda-group-scale/summary.json), and [complete profiles](evidence/2026-11-02-cuda-group-scale/profiles/).
+
+Stop this exact corrected combination without a confirmation, dispatch-mask rescue, threshold sweep or runtime promotion. It passes correctness but supplies no convincing endpoint gain. This scopes the loss to native7db5ec77, these B4/MAIN flags and this complete standalone workload. It does not reject every WGMMA batching design or establish a hardware ceiling. The source, regression tests, compiler evidence and negative GPU results remain available for later work.
+
+## Decision and remaining uncertainty
+
+Four compiler treatments and two private H200 comparisons produced a useful compiler improvement and no promoted runtime speedup. The current two-step baseline earns retention against these alternatives. The experiments remove a stale instruction-placement assumption and test a coherent change in matrix-loop scheduling, rather than only lowering a register count. Their measured endpoint factors remain near1.0. They do not show whether decode issue, startup, handoff or tail time limits the selected path.
+
+The next useful discriminator is a bounded phase trace of the selected complete MoE: measure startup, steady stages, A/B handoff and finalization, with an uninstrumented matched control to price observer cost. A bare bandwidth ceiling, profiler activity sum or static instruction count cannot supply those exposed times. Choose another implementation only after that evidence identifies removable work, or a complete stronger comparator supplies a distinct source-backed mechanism. This is a next gate, not a new dispatch or assignment. D32 and ring-depth ownership remain unchanged.
+
+Final verification:22 focused CPU tests pass after the final reader/compiler changes; research coverage and pins pass. The constant-scale owning reader also reproduces its rejection from an independently copied evidence folder. Full disassembly and raw profiles are preserved. An independent reviewer was unavailable under the no-new-agents directive; these changed source proofs and conclusions received author checks only. Neither local compilation nor numerical agreement establishes a complete new memory-ordering proof.

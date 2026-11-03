@@ -50,3 +50,9 @@ The corrected combination uses `ceil(10/GS)-1` as the zero-based flush group. Th
 ## Corrected combination private registration
 
 Local CUDA12.8.1 B4 and MAIN both pass with 96 registers and zero stack/spills for both bool entries. Per-entry HGMMA512, wait0=48 and async-fence84 match control. Wait1 and warpgroup-arrive decrease256 to192, a distinct matrix-loop treatment. These are static compiler observations, not a speed forecast. Test native `7db5ec77` versus `c7c201ae` through the same complete four-state harness and immutable matched gates. One initial private MoE check; one confirmation only after a promising result. Preserve all six timed loads, both B4/MAIN alternatives, and duplicate-null/regression gates. No public action or D32 integration is authorized by this registration.
+
+## Terminal decision
+
+Corrected combined job3c45788127e945c4 passes official5/6/6 and every private correctness/replay check. All24 whole-six factors0.995560..1.008180 fail the frozen gate; descriptive mean1.001063 is within control spread. Three affected bank/load cells regress>=1%. No confirmation or promotion. The scale-only and corrected combined sources stop; the unchanged baseline remains selected.
+
+Keep the positive local compiler observations scoped: zero spills and25% fewer static group waits/arrivals are not an endpoint gain. Both own pollers are terminal. Full receipts, profiles, strict analyses, final22 CPU checks and current decisions are in the experiment report. The next discriminator is phase timing with an observer-cost control, rather than another automatic register/group/ring sweep. No new job or ownership assignment is made by this plan closure.

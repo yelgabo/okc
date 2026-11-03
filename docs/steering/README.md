@@ -45,9 +45,12 @@ record the optimizer's actual source and plan. Constant scales remove local B4
 spills, but own H200 `3aa3885f6b734f8c` passes correctness and fails the matched
 speed gate: all24 whole-six factors are0.992411 to1.004932. No runtime promotion.
 An ordinary pointer read emits identical SASS. A schedule audit caught an
-unreachable deferred-flush condition before GPU allocation. The corrected coherent
-scale/group treatment passes local resource/publication checks and is registered
-for a new matched private test under the same complete-call gates.
+unreachable deferred-flush condition before GPU allocation. Corrected combined
+scale/group H200 `3c45788127e945c4` also passes correctness but fails promotion:
+all24 whole-six factors0.995560..1.008180. Both exact candidates stop; baseline
+retained. Local zero spills and25% fewer static group operations are compiler
+results, with no measured endpoint gain. Full receipts/profiles and22 CPU checks
+are archived. Phase tracing is the next discriminator, with no new assignment.
 The [part 2 source corrections](../research/cuda-h200/part2.md) are preserved.
 D32 Worker's attention confirmation and ownership remain separate.
 
