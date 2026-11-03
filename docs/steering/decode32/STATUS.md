@@ -37,3 +37,5 @@ D32-ATTN-02 private check `4fece18b20a2447b` accepted for source `109cdb07`, pub
 Corrected matched payload `f397bca8c869b775fe79a4bc7d2c2749fba0542702d740431cbd7028e78908b3` is published in `f90da774`. Retry has not been submitted: fresh preflight found another problem's check `3aa3885f6b734f8c` running. Recheck the shared job list and quota before dispatch; do not poll that other owner's job.
 
 Corrected matched retry `62a4f6b27ed74b50` was accepted for source `f397bca8`; fresh preflight found no live jobs and 18 private checks available. Follow this own ID; do not submit another copy.
+
+Corrected matched check `62a4f6b27ed74b50` ended in setup with `EXPERT_FRESH_ROUTING_MISMATCH`; no matched timings. A strict-gate diagnostic payload `9e5e5d64` records load, seed, replay and differing placements on a repeat. One bounded diagnostic is next after publication and fresh shared job/quota preflight. [Failure and decision](2026-11-02-11-matched-routing-mismatch.md).

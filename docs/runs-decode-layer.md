@@ -1034,3 +1034,6 @@ PRIVATE a6fe2769779e4299 TERMINAL VALID; source28346bf5/e607fb89/870649LF, serve
 
 
 2026-11-02: private matched check `4fece18b20a2447b`, diagnostic source `109cdb07`, setup failed with `NotImplementedError` from `torch.isfinite` on FP8. No correctness test, timing or score was produced. [Owning receipt and correction](steering/decode32/2026-11-02-09-pair-setup-failure.md).
+
+
+2026-11-02: private matched check `62a4f6b27ed74b50`, diagnostic source `f397bca8`, failed setup with `EXPERT_FRESH_ROUTING_MISMATCH`; no official tests, benchmark cells, profiles or score. [Receipt and diagnostic plan](steering/decode32/2026-11-02-11-matched-routing-mismatch.md).

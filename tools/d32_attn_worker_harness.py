@@ -56,6 +56,10 @@ def build(private_check=False):
     core = once(core, "if isinstance(value,torch.Tensor):assert bool(torch.isfinite(value).all()),'EXPERT_FRONT_NONFINITE'",
                 "if isinstance(value,torch.Tensor):assert bool(torch.isfinite(value.float() if value.dtype in (torch.float8_e4m3fn,torch.float8_e5m2) else value).all()),'EXPERT_FRONT_NONFINITE'")
     core = once(core, '        _expert_pair_bind(arm,i>=2)', '        _d32_pair_bind(arm,i>=2)')
+    core = once(core, "                assert all(torch.equal(outputs[0][2],out[2]) for out in outputs[1:]),'EXPERT_ROUTING_ARM_MISMATCH'",
+                "                _d32_require_same_routes(outputs,arms,tokens,context,seed,'initial')")
+    core = once(core, "                    assert all(torch.equal(outputs[0][2],out[2]) for out in outputs[1:]),'EXPERT_FRESH_ROUTING_MISMATCH'",
+                "                    _d32_require_same_routes(outputs,arms,tokens,context,seed,'fresh-'+str(rep))")
     core = once(core, "        assert arms[0]['ma_ext'][key]._module is not arms[2]['ma_ext'][key]._module",
                 "        assert arms[0]['ma_ext'][key]._module is arms[2]['ma_ext'][key]._module")
     core = once(core, '                components=[_eh_component(arm,tokens) for arm in arms]\n', '')
@@ -75,6 +79,24 @@ def build(private_check=False):
                 "print('D32_ATTENTION_PAIR_REPORT '+blob,flush=True)")
     core = once(core, "official_arm='exact607'", "official_arm='attention_treatment'")
     probe = '''
+def _d32_require_same_routes(outputs,arms,tokens,context,seed,stage):
+    import json
+    reference=outputs[0][2]
+    mismatches=[]
+    for i in range(1,4):
+        other=outputs[i][2]
+        if not torch.equal(reference,other):
+            rows=torch.nonzero(torch.any(reference!=other,dim=-1),as_tuple=False).flatten()
+            sample=rows[:8].cpu().tolist()
+            mismatches.append(dict(placement=i,treatment=arms[i]['_d32_pair_arm'],
+                selected=arms[i].get('_d32_probe_seen'),row_count=int(rows.numel()),
+                rows=sample,control_ids=reference[rows[:8]].cpu().tolist(),
+                other_ids=other[rows[:8]].cpu().tolist()))
+    if mismatches:
+        print('D32_ROUTE_MISMATCH '+json.dumps(dict(tokens=tokens,context=context,seed=seed,
+              stage=stage,mismatches=mismatches),separators=(',',':')),flush=True)
+        raise AssertionError('D32_NATURAL_ROUTING_MISMATCH')
+
 _d32_pair_selected_module = _d32_attention_module
 def _d32_attention_module(cfg,state):
     module=_d32_pair_selected_module(cfg,state)
