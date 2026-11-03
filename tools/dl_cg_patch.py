@@ -121,9 +121,13 @@ def bfp__run(choice, x, layer, m, n, k, state):
 _cg_prior_bfp_prepare = bfp_prepare
 def bfp_prepare(weights):
     state = _cg_prior_bfp_prepare(weights)
+    state["cg_pick"] = {}
     for layer, m, v in state.get("tune_log", []):
         if m == 1 and layer in CG_LAYERS:
-            print("CG_TUNE", layer, v, "->", state.get("choice", {}).get((layer, 1)), flush=True)
+            pick = state.get("choice", {}).get((layer, 1))
+            if pick == ("cg",):
+                state["cg_pick"][layer] = pick
+            print("CG_TUNE", layer, v, "->", pick, flush=True)
     return state
 
 
@@ -134,6 +138,12 @@ def prepare(weights):
         _CG_THREAD = threading.Thread(target=_cg_build, daemon=True)
         _CG_THREAD.start()
     state = _cg_prior_prepare(weights)
+    bst = state.get("bfp")
+    if bst is not None:
+        # the release's pinned-pick prepare resets every T <= 32 choice to the static sk2 pick; the cgemv
+        # picks the tuner made at m = 1 are restored on top of it
+        for layer, pick in bst.get("cg_pick", {}).items():
+            bst["choice"][(layer, 1)] = pick
     mp = state.get("mm_pick", {})
     print("CG_CHAIN", {nm: mp.get((1, nm)) for nm in ("qkv", "o", "un")},
           {ly: (state.get("bfp") or {}).get("choice", {}).get((ly, 1)) for ly in CG_LAYERS}, flush=True)
