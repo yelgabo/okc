@@ -1,0 +1,6 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+f3 tune T=1: off 62.34 on 61.70 us, median paired saving 0.45, wins 8/9, o max rel diff 9.88e-07 (1 elements) -> off
+f3 tune T=8: off 104.51 on 103.36 us, median paired saving 1.09, wins 9/9, o max rel diff 1.17e-03 (14 elements) -> on
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
