@@ -1,0 +1,44 @@
+[
+  {
+    "url": "https://x.com/justinwangx",
+    "error": "403 Forbidden",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://x.com/lxe",
+    "error": "403 Forbidden",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://x.com/levidiamode",
+    "error": "403 Forbidden",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://x.com/Karmedge",
+    "error": "403 Forbidden",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://x.com/danielgross",
+    "error": "403 Forbidden",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://agents.kernarc.com",
+    "error": "URL is not accessible via web tool",
+    "requires_user_action": false
+  },
+  {
+    "url": "https://guild.1nterface.ai/t/147?credible=all",
+    "error": "Web-fetch tool inaccessible; direct public HTTP returned 200",
+    "requires_user_action": false,
+    "recovered": true
+  },
+  {
+    "url": "https://guild.1nterface.ai/t/120?credible=all",
+    "error": "Web-fetch tool inaccessible; direct public HTTP returned 200",
+    "requires_user_action": false,
+    "recovered": true
+  }
+]

@@ -56,6 +56,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 
 ## Audits and monitors, November 2 to 3
 
+[Public scout: timing disagreement and B200 quality controls](2026-11-03-scout-guild-timing-caveat-1823.md) records Guild thread 147's local forecast/judge reversal without a source-bound receipt. SGLang PR47129's new public CSV has 2,638 paired rows, counted here, but compares opt-in OFF/ON on the same PR rather than clean main. Author measurements, data checks and unresolved qualification remain separate; no new GPU allocation.
+
 [Driver monitor17:33UTC](2026-11-03-driver-monitor-1733.md): new public score,actual T8dispatch/scope mismatch,certification limits,new round2allocation and completed M1reserve.
 
 [Driver monitor16:26UTC](2026-11-03-driver-monitor-1626.md): final-selector correction,new M1reserve qualification,existing BCLM/PDL ownership and fresh release guard.
