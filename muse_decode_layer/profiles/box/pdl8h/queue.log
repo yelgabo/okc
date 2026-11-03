@@ -1,0 +1,18 @@
+22:53:13 start dry_pdl8h
+22:53:32 end dry_pdl8h rc 0
+22:53:32 start dry_rs
+22:53:49 end dry_rs rc 0
+22:53:49 start ab_ctl1
+22:55:40 end ab_ctl1 rc 0
+22:55:40 start ab_cand1
+22:59:05 end ab_cand1 rc 0
+22:59:05 start ab_ctl2
+23:06:13 end ab_ctl2 rc 0
+23:06:13 start ab_cand2
+23:15:53 end ab_cand2 rc 0
+23:15:53 done
+23:16:00 start ab_ctl3
+23:36:40 end ab_ctl3 rc 0
+23:36:40 start ab_cand3
+23:56:44 end ab_cand3 rc 0
+23:56:44 done2
