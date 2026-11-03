@@ -1,0 +1,20 @@
+# CUDA-MOE-PHASE-01 — current WGS B4/MAIN startup, handoff and tail
+
+November 2, 2026 Pacific. User’s goal: optimize **hotspots of the current incumbent** and keep workers supplied with a finite, measurable next question.
+
+**Owner:** OKC CUDA Optimizer; checkpoint the completed scale-only (`3aa3885f6b734f8c`) and corrected scale/group (`3c45788127e945c4`) private comparisons before starting. Both passed correctness and failed their matched runtime promotion gates. Do not restart those tests or change their frozen source. This task is a source- and timing-diagnostic lane, **not Decode32 Worker's kernel integration lane**. If a newer active CUDA assignment already addresses the exact B4 critical-path attribution, record that owner/job and do not duplicate it.
+
+## Why this, not another knob
+
+The selected native B4 and MAIN `c7c201ae` already have consumer-ordered packing, SC6 scales, asynchronous weight delivery, 32-lane job-cost prefix/range, per-stage phase-B `doneAs` data-ready checks, and partial phase A/B overlap. Existing ring-depth, WGMMA-issue-group and compiler-spill microoptimizations have supplied no new promotion. The [~460 experiment lesson](../research/h200-460-experiments.md) reports that apparently low average bandwidth may reflect startup, cross-phase handoff and tail rather than a slow steady stream; it supplies no code pins or receipts, so **no claimed microsecond saving transfers to this project**.
+
+Our earlier observer `f147d06a64504c1e` distorted full kernel time by 4.91–9.54% and phase timing by 10.26–14.90%, invalidating attribution. The previous correctly fixed all-reader proxy fences and progress bounds cannot be removed merely to improve an isolated counter.
+
+## Fixed deliverable
+
+1. Use the selected public607 `muse_decode_layer/cand/g1b4_stage_release.py` native B4 `c7c201ae` and existing standalone MoE matched harness. Determine what timing/profiling signals are already valid and whether a no-new-kernel, source/SASS or existing receipt comparison can distinguish **entry ramp**, **phase-A consumer/producer steady state**, **phase-B activation readiness**, **per-CTA finishing spread** and **global finalizer tail**. Map events to code and actual loaded stages, not aggregate kernel activity. T32 first, T128/256 only if the same cost mechanism is shared.
+2. If existing evidence suffices to show one *exposed* bottleneck, write a source-backed mechanism with a conditional savings budget against the **complete MoE and layer D32 endpoint**. Distinguish wait on HBM, slow compute, unequal CTA stage count, and ordering barriers. Do not convert reported 6–9µs tail or raw traffic into measured removable latency.
+3. If a fresh trace is truly required, create one **minimum-intrusion diagnostic with an identical control** and preregister the perturbation gate. Check actual selected flags, register/shared/barrier changes, scratch layout and launch admission. If the observer changes host/graph correctness or adds a meaningful full-kernel slowdown, **do not interpret the stamped phases**; stop or find a cheaper existing counter. Do not repeatedly spend H200 checks on invalid observers. Before any private check, consult the shared job/quota ledger and use this owner's standalone MoE problem only; never resubmit/poll Decode32 Worker’s layer job.
+4. Report one of: (a) a credible new B4/MAIN hotspot + exact mechanism for research planning, (b) instrumentation invalid with precise reason, or (c) no exposed opportunity found. Keep compiler-only metadata and source checks separate from speed results. Deliver a bounded result; no broad “optimize all stages” tuning, no production patch and no public submission authorized by this brief.
+
+This worker **owns its own diagnostic implementation and result**, but Decode32 Worker retains D32 full-layer implementation, private layer measurement, integration and commits. General Optimizer owns the independent helper prefix task. Publishing these instructions is not a direct message/acknowledgment; record pickup separately. Update shared steering only with real evidence and verification.
