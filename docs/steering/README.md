@@ -30,7 +30,7 @@ This is the stable cross-session entry point. Read the latest human priority, it
 record the optimizer's actual source and plan. Shape-specific larger WGMMA groups
 stop at a new-spill compiler result. A separate constant scale multiplier removes
 local B4 spills with matching WGMMA/wait/fence counts and proceeds toward one
-private matched MoE check. This is compiler evidence; target latency remains pending.
+private matched MoE check `3aa3885f6b734f8c`, now accepted. This is compiler evidence; target latency remains pending.
 The [part 2 source corrections](../research/cuda-h200/part2.md) are preserved.
 D32 Worker's attention confirmation and ownership remain separate.
 

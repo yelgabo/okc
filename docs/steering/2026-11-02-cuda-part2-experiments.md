@@ -33,3 +33,7 @@ Current status: local source checks and compilation; private result pending. No 
 Six focused CPU tests verify reversible source edits, group-bank reuse and arithmetic issue order, immutable host suffix, publication text and the scale transform's dependence on the verified host-zero assignment. The [baseline-aware hotspot map](evidence/2026-11-02-cuda-issue-groups/hotspots.md) identifies complete expert execution as the standalone target. Old profiling activity is not treated as exposed removable time.
 
 The compiler driver discloses its host-tail extraction, declaration-only lookup adapter and compile-only references. Actual target compilation, numerical results, fresh replay correctness and latency remain required. The user-authorized experiment does not need a forecast of a win. Independent agent review is unavailable under the no-new-agents directive; no new memory-ordering protocol is being shipped.
+
+## Private check accepted
+
+Private MoE job `3aa3885f6b734f8c` accepted from source commit `ca588999`, payload SHA256 `ccef8a76df0d8bf0e60a882a6161c0d91925ac389743aa70160514b371f2dfd0`, 342733 bytes. The source and seven build descriptors are fixed. Fresh preflight showed 20 MoE checks remaining and only the separately owned D32 confirmation `4fece18b20a2447b` queued. The optimizer owns the sole waiter for its MoE ID and leaves that D32 job with its worker. [Accepted source/job record](evidence/2026-11-02-cuda-issue-groups/accepted.json). Target status and timing remain pending.
