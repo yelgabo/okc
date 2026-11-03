@@ -1,0 +1,85 @@
+sk build 30.5 s
+pack qkv_gate: base 54, 2596 escapes, 0 inexact deltas, 30.6 s
+pack o: base 54, 977 escapes, 0 inexact deltas, 30.8 s
+pack pooler: base 54, 4590 escapes, 0 inexact deltas, 30.9 s
+pack unpooler: base 54, 3178 escapes, 0 inexact deltas, 30.9 s
+fused pooler+router pool8f: ok
+fused pooler+router pool16f: ok
+cut build 40.7 s
+selftests done 72.0 s
+tune o         m= 1: o8 10.2, o8raw 10.7, rdo8 9.6, rdo8w 9.8, rdo8n 9.6, cgemv 9.7, cgemvw 9.7, cgemvn 9.7, cublas 11.2 -> rdo8n
+tune o         m= 8: o8 10.0, o8raw 10.6, rdo8 9.7, rdo8w 9.9, rdo8n 9.7, cublas 10.8 -> rdo8n
+tune o         m=16: o16 9.7, o16w 9.8, o16n 9.9, o16raw 10.7, o16wraw 10.6, o16nraw 10.7, cublas 11.0 -> o16
+tune o         m=32: o32 10.2, o32w 10.4, o32n 10.5, o32raw 11.2, o32wraw 11.2, o32nraw 11.2, cublas 11.2 -> o32
+tune o         m=64: cublas 11.3, b1n64c2 12.9, m64k2r4 18.0, m64k1r8 14.1 -> cublas
+tune o         m=128: cublas 11.7, b1n64c2 19.0, b1n128c2 14.2, m64k2r4 23.2, m64k1r8 21.7, m128k2r4 19.9, m128k1r4 15.8, m128k1r8 15.7, m128k2r8 20.4, m128k4r2 23.2, b1n128c2s8h 17.2, b1n128c3s8h 24.8 -> cublas
+tune o         m=256: cublas 13.4, b1n128c2 21.6, b2n256c2 17.4, m128k2r4 26.8, m128k1r4 23.7, m128k1r8 24.6, m128k2r8 27.7, m128k4r2 35.3, m256k2r4 29.3, m256k1r4 25.2, m256k1r8 25.7, m256k2r8 30.1, m256k2r2 29.2, b1n128c2s8h 29.3, b1n128c3s8h 39.9 -> cublas
+tune pooler    m= 1: pool8 18.5, pool8raw 22.2, rdp8 17.9, rdp8w 17.8, rdp8n 17.7, cgemv 18.0, cgemvw 18.0, cgemvn 18.0, cublas 25.3 -> rdp8n
+tune pooler    m= 8: pool8 18.5, pool8raw 22.1, rdp8 18.0, rdp8w 18.0, rdp8n 17.9, cublas 25.6 -> rdp8n
+tune pooler    m=16: pool16 18.8, pool16w 18.8, pool16n 18.8, pool16x 20.8, pool16raw 22.1, pool16wraw 22.1, pool16nraw 22.1, pool16xraw 24.1, cublas 26.0 -> pool16
+tune pooler    m=32: pool32 19.3, pool32w 19.7, pool32n 19.4, pool32x 22.1, pool32raw 22.3, pool32wraw 22.5, pool32nraw 22.2, pool32xraw 25.3, cublas 26.0 -> pool32
+tune pooler    m=64: cublas 26.9, b1n64c2 25.6, m64k2r4 30.3, m64k1r8 39.6 -> b1n64c2
+tune pooler    m=128: cublas 29.7, b1n64c2 29.9, b1n128c2 30.3, m64k2r4 48.1, m64k1r8 50.5, m128k2r4 34.6, m128k1r4 48.6, m128k1r8 50.7, m128k2r8 37.3, m128k4r2 39.8, b1n128c2s8h 26.1, b1n128c3s8h 32.6 -> b1n128c2s8h
+tune pooler    m=256: cublas 32.3, b1n128c2 37.8, b2n256c2 49.5, m128k2r4 61.3, m128k1r4 52.7, m128k1r8 54.2, m128k2r8 64.1, m128k4r2 60.5, m256k2r4 59.4, m256k1r4 52.6, m256k1r8 54.7, m256k2r8 61.5, m256k2r2 59.0, b1n128c2s8h 48.3, b1n128c3s8h 58.2, cut128x64 30.9 -> cut128x64
+tune qkv_gate  m= 1: qkv8 14.0, qkv8w 14.3, qkv8n 14.2, qkv8raw 15.9, qkv8wraw 16.0, qkv8nraw 15.7, cgemv 13.2, cgemvw 13.4, cgemvn 13.2, cublas 18.3 -> cgemv
+tune qkv_gate  m= 8: qkv8 14.3, qkv8w 14.5, qkv8n 14.2, qkv8raw 16.5, qkv8wraw 16.5, qkv8nraw 16.2, cublas 18.1 -> qkv8n
+tune qkv_gate  m=16: qkv16 14.0, qkv16w 14.2, qkv16n 14.1, qkv16x 16.3, qkv16raw 17.1, qkv16wraw 17.1, qkv16nraw 16.8, qkv16xraw 18.0, cublas 19.0 -> qkv16
+tune qkv_gate  m=32: qkv32 15.1, qkv32w 15.3, qkv32n 15.2, qkv32x 17.9, qkv32raw 16.4, qkv32wraw 16.5, qkv32nraw 16.3, qkv32xraw 18.8, cublas 19.1 -> qkv32
+tune qkv_gate  m=64: cublas 19.2, b1n64c2 23.1, m64k2r4 24.1 -> cublas
+tune qkv_gate  m=128: cublas 21.3, b1n64c2 27.6, b1n128c2 28.0, m64k2r4 29.7, m128k2r4 29.0, m128k1r4 46.8, m128k4r2 22.9, b1n128c2s8h 22.2, b1n128c3s8h 19.0 -> b1n128c3s8h
+tune qkv_gate  m=256: cublas 23.5, b1n128c2 32.8, b2n256c2 48.4, m128k2r4 32.9, m128k1r4 46.7, m128k4r2 39.8, m256k2r4 32.4, m256k1r4 51.2, m256k2r2 32.0, b1n128c2s8h 39.5, b1n128c3s8h 34.0 -> cublas
+tune router    m= 1: rgemv 8.0, rgemvw 8.0, rgemvn 7.9, router8 9.6, rt8w8 8.4, rt16w8 8.7, rt16w8p8 8.7, rt8w8w 8.8, rt8w8n 8.6, rt16w8w 8.9, rt16w8n 8.7, baseline 15.4 -> rgemvn
+tune router    m= 8: router8 9.7, rt8w8 8.6, rt16w8 8.8, rt16w8p8 8.8, rt8w8w 8.8, rt8w8n 8.7, rt16w8w 8.8, rt16w8n 8.7, baseline 31.0 -> rt8w8
+tune router    m=16: router16 9.5, rt8w8 9.2, rt16w8 8.8, rt16w8p8 8.8, rt8w8w 9.1, rt8w8n 8.9, rt16w8w 8.9, rt16w8n 8.9, baseline 20.9 -> rt16w8
+tune router    m=32: router32 10.0, rt8w8 11.9, rt16w8 9.7, rt16w8p8 9.8, rt8w8w 11.9, rt8w8n 11.4, rt16w8w 9.7, rt16w8n 9.3, baseline 21.2 -> rt16w8n
+tune router    m=64: baseline 21.2, r64c8 13.3, r64c16 11.4, r64c8s8 12.0, r64c4s8 15.8, rm64k4r4 18.8, r64c8s8k 11.2, r64c4s8a 14.7, r64c8s8fv 10.8, r64c8s8ordfv 12.5 -> r64c8s8fv
+tune router    m=128: baseline 22.2, r64c8 13.6, r64c16 14.5, r128c8 15.0, r128c16 13.4, r64c8s8 12.2, r64c4s8 16.1, r128c8s6 14.4, rm64k4r4 18.8, rm128k4r4 21.7, r64c8s8k 11.2, r128c8s6k 13.6, r64c4s8a 14.8, r64c8s8fv 10.8, r64c8s8ordfv 12.3 -> r64c8s8fv
+tune router    m=256: baseline 23.0, r64c8 14.9, r64c16 19.8, r128c8 15.0, r128c16 21.2, r64c8s8 19.3, r64c4s8 16.3, r128c8s6 14.6, rm64k4r4 19.3, rm128k4r4 22.0, r64c8s8k 17.5, r128c8s6k 13.9, r64c4s8a 15.0, r64c8s8fv 16.7, r64c8s8ordfv 13.0 -> r64c8s8ordfv
+tune unpooler  m= 1: slice8 8.8, slice8w 8.8, slice8n 8.8, slice8raw 9.1, slice8wraw 9.2, slice8nraw 9.1, cgemv 7.9, cgemvw 8.0, cgemvn 8.1, sgemv 8.2, sgemvw 8.2, sgemvn 8.1, cublas 11.6 -> cgemv
+tune unpooler  m= 8: slice8 8.9, slice8w 9.2, slice8n 8.8, slice8raw 9.1, slice8wraw 9.2, slice8nraw 9.1, cublas 11.4 -> slice8n
+tune unpooler  m=16: unp16 18.1, unp16w 18.3, unp16n 18.2, unp16x 20.4, unp16raw 22.0, unp16wraw 22.1, unp16nraw 21.9, unp16xraw 24.0, cublas 22.5 -> unp16
+tune unpooler  m=32: unp32 19.4, unp32w 19.7, unp32n 19.2, unp32x 22.1, unp32raw 23.2, unp32wraw 23.0, unp32nraw 22.7, unp32xraw 25.2, cublas 22.8 -> unp32n
+tune unpooler  m=64: cublas 24.1, b1n64c2 24.7, m64k2r4 36.0, m64k1r8 30.5 -> cublas
+tune unpooler  m=128: cublas 24.4, b1n64c2 43.0, b1n128c2 25.7, m64k2r4 53.0, m64k1r8 48.4, m128k2r4 39.7, m128k1r4 34.9, m128k1r8 36.1, m128k2r8 41.1, m128k4r2 39.6, b1n128c2s8h 29.4, b1n128c3s8h 38.6 -> cublas
+tune unpooler  m=256: cublas 28.5, b1n128c2 46.9, b2n256c2 32.7, m128k2r4 60.0, m128k1r4 60.7, m128k1r8 62.8, m128k2r8 62.4, m128k4r2 65.6, m256k2r4 54.5, m256k1r4 58.5, m256k1r8 59.8, m256k2r8 57.6, m256k2r2 54.3, b1n128c2s8h 53.2, b1n128c3s8h 65.3 -> cublas
+lt build 15.4 s, cublasLt 130101, torch cuda 13.0
+lt qkv_gate m=128: 64 heuristic, 792 swept, 228 other, screen best 18.8, 18.9, 18.9
+ltune qkv_gate  m=128: base 19.0, f0 19.4, f1 19.6, f2 19.4, f3 19.8, f4 19.6; pref base margin 0.30 f0 -0.45/1 f1 -0.64/1 f2 -0.54/1 f3 -0.83/1 f4 -0.61/1 -> base
+lt o m=128: 32 heuristic, 788 swept, 224 other, screen best 10.6, 10.7, 10.7
+ltune o         m=128: base 11.4, f0 11.3, f1 11.3, f2 11.4, f3 11.2, f4 11.4; pref base margin 0.30 f0 +0.06/5 f1 -0.06/4 f2 -0.03/4 f3 +0.16/5 f4 +0.00/4 -> base
+lt pooler m=128: 60 heuristic, 792 swept, 216 other, screen best 24.3, 24.4, 24.7
+ltune pooler    m=128: base 26.6, pref 25.6, f0 25.0, f1 25.1, f2 24.7, f3 24.9, f4 25.1; pref pref margin 0.77 base -1.34/0 f0 +0.51/6 f1 +0.42/6 f2 +0.86/7 f3 +0.35/9 f4 +0.42/5 -> pref
+lt unpooler m=128: 44 heuristic, 782 swept, 221 other, screen best 22.4, 22.4, 22.4
+ltune unpooler  m=128: base 23.9, pref 22.7, f0 22.6, f1 22.7, f2 22.8, f3 22.7, f4 22.8; pref pref margin 0.30 base -1.18/1 f0 +0.03/5 f1 -0.03/4 f2 -0.13/3 f3 +0.00/4 f4 +0.06/5 -> pref
+lt qkv_gate m=256: 60 heuristic, 792 swept, 204 other, screen best 20.9, 21.4, 21.5
+ltune qkv_gate  m=256: base 23.4, pref 21.4, f0 21.4, f1 21.3, f2 22.0, f3 22.3, f4 21.8; pref pref margin 0.32 base -1.95/0 f0 +0.03/5 f1 +0.03/5 f2 -0.58/2 f3 -0.64/1 f4 -0.45/1 -> pref
+lt o m=256: 32 heuristic, 788 swept, 208 other, screen best 12.7, 12.7, 12.8
+ltune o         m=256: base 13.3, pref 12.9, f0 13.2, f1 13.1, f2 12.9, f3 13.3, f4 13.0; pref pref margin 0.30 base -0.35/0 f0 -0.35/2 f1 -0.29/2 f2 -0.06/2 f3 -0.45/1 f4 -0.13/3 -> pref
+lt pooler m=256: 50 heuristic, 790 swept, 221 other, screen best 27.0, 27.3, 27.4
+ltune pooler    m=256: base 30.8, pref 28.1, f0 28.0, f1 28.2, f2 28.3, f3 27.8, f4 28.4; pref pref margin 0.58 base -2.50/0 f0 +0.29/6 f1 -0.06/4 f2 -0.22/2 f3 +0.06/6 f4 -0.29/1 -> pref
+lt unpooler m=256: 32 heuristic, 788 swept, 203 other, screen best 27.2, 27.2, 27.3
+ltune unpooler  m=256: base 29.2, pref 27.9, f0 28.2, f1 28.0, f2 27.9, f3 27.9, f4 28.1; pref pref margin 0.38 base -1.31/2 f0 -0.29/3 f1 +0.00/4 f2 +0.00/4 f3 -0.13/3 f4 -0.22/2 -> pref
+ablate pooler m=128: m128k2r4 35.2, m128k2r4_a1 30.6, m128k2r4_a3 28.8
+ablate o m=256: m256k1r4 25.4, m256k1r4_a1 23.2, m256k1r4_a3 18.4
+TX qkv_gate 1 cgemv 13.02 mad 0.10 | w -0.35/0/0 n -0.19/1/3
+TX o 1 rdo8 9.50 mad 0.03 | w -0.16/0/0 n -0.29/0/0
+TX pooler 1 rdp8 17.63 mad 0.03 | w -0.13/0/1 n -0.03/0/3
+TX unpooler 1 cgemv 7.90 mad 0.03 | w +0.00/0/3 n +0.00/0/3
+TX router 1 rgemv 8.10 mad 0.03 | w +0.19/7/9 n +0.19/6/8
+TX qkv_gate 8 qkv8 14.34 mad 0.10 | w -0.22/0/0 n +0.10/4/8
+TX o 8 rdo8 9.82 mad 0.03 | w +0.00/2/3 n +0.19/5/8
+TX pooler 8 rdp8 17.76 mad 0.03 | w +0.06/3/5 n +0.10/4/5
+TX unpooler 8 slice8 8.77 mad 0.06 | w -0.03/0/2 n +0.06/4/5
+TX router 8 rt8w8 8.54 mad 0.06 | w -0.13/1/1 n -0.22/1/2
+TX qkv_gate 16 qkv16 14.11 mad 0.10 | w -0.13/2/2 n +0.16/5/5 x -1.76/0/0
+TX o 16 o16 9.89 mad 0.06 | w -0.13/0/0 n +0.06/1/6
+TX pooler 16 pool16 18.78 mad 0.10 | w -0.03/1/4 n -0.16/1/1 x -1.89/0/0
+TX unpooler 16 unp16 18.14 mad 0.13 | w +0.06/3/5 n -0.03/3/3 x -2.11/0/0
+TX router 16 rt16w8 8.74 mad 0.03 | w -0.19/0/3 n -0.19/0/1
+TX qkv_gate 32 qkv32 15.62 mad 0.58 | w -0.19/1/2 n -0.22/1/1 x -2.72/0/0
+TX o 32 o32 10.21 mad 0.06 | w -0.10/1/1 n +0.06/3/6
+TX pooler 32 pool32 19.36 mad 0.06 | w -0.48/1/1 n +0.10/4/6 x -2.94/0/0
+TX unpooler 32 unp32 18.88 mad 0.06 | w -0.06/2/2 n +0.00/3/4 x -2.59/0/0
+TX router 32 rt16w8 9.63 mad 0.06 | w +0.00/2/4 n +0.32/7/9
+TXDONE 0.2 s
+prepare done 102.1 s

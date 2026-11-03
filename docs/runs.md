@@ -2552,4 +2552,46 @@ compiled whole against the torch headers). No arm spills (local ptxas).
   kernel in check 1 closes the warm-up.
 
 Check 1: source commit 63cec66d, `tlb_xmc.py` SHA256 b42257c342e90185e6032273221307311b26b081525389e78825191540f111f0.
-Quota before: 10 of 20 BF16 checks. Pending.
+Quota before: 10 of 20 BF16 checks.
+
+00005928fed6437b done (check, private): PASS, 30 cells, no flags, sk build 30.5 s (C2 about 20 s), prepare 102.1 s.
+Score 1.5439x (95% CI 1.5207-1.5670) against the public C2 1.5278x (1.5049-1.5507): inside the CI. Receipts
+`muse_bf16_proj/experiments/profiles/tlb_xmc.00005928fed6437b.{json,txt,log}`.
+
+Paired TX block (9 rounds x 3 cold-L2 replays; median saving base - arm in us / rounds saving > 0.15 / rounds saving
+anything; negative = arm slower):
+
+| shape | base (median, mad) | warm w | null n | XMC x |
+|---|---|---|---|---|
+| qkv_gate 1 | cgemv 13.02, 0.10 | -0.35 / 0 / 0 | -0.19 / 1 / 3 | |
+| o 1 | rdo8 9.50, 0.03 | -0.16 / 0 / 0 | -0.29 / 0 / 0 | |
+| pooler 1 | rdp8 17.63, 0.03 | -0.13 / 0 / 1 | -0.03 / 0 / 3 | |
+| slice 1 | cgemv 7.90, 0.03 | +0.00 / 0 / 3 | +0.00 / 0 / 3 | |
+| router 1 | rgemv 8.10, 0.03 | +0.19 / 7 / 9 | +0.19 / 6 / 8 | |
+| qkv_gate 8 | qkv8 14.34, 0.10 | -0.22 / 0 / 0 | +0.10 / 4 / 8 | |
+| o 8 | rdo8 9.82, 0.03 | +0.00 / 2 / 3 | +0.19 / 5 / 8 | |
+| pooler 8 | rdp8 17.76, 0.03 | +0.06 / 3 / 5 | +0.10 / 4 / 5 | |
+| slice 8 | slice8 8.77, 0.06 | -0.03 / 0 / 2 | +0.06 / 4 / 5 | |
+| router 8 | rt8w8 8.54, 0.06 | -0.13 / 1 / 1 | -0.22 / 1 / 2 | |
+| qkv_gate 16 | qkv16 14.11, 0.10 | -0.13 / 2 / 2 | +0.16 / 5 / 5 | -1.76 / 0 / 0 |
+| o 16 | o16 9.89, 0.06 | -0.13 / 0 / 0 | +0.06 / 1 / 6 | |
+| pooler 16 | pool16 18.78, 0.10 | -0.03 / 1 / 4 | -0.16 / 1 / 1 | -1.89 / 0 / 0 |
+| unpooler 16 | unp16 18.14, 0.13 | +0.06 / 3 / 5 | -0.03 / 3 / 3 | -2.11 / 0 / 0 |
+| router 16 | rt16w8 8.74, 0.03 | -0.19 / 0 / 3 | -0.19 / 0 / 1 | |
+| qkv_gate 32 | qkv32 15.62, 0.58 | -0.19 / 1 / 2 | -0.22 / 1 / 1 | -2.72 / 0 / 0 |
+| o 32 | o32 10.21, 0.06 | -0.10 / 1 / 1 | +0.06 / 3 / 6 | |
+| pooler 32 | pool32 19.36, 0.06 | -0.48 / 1 / 1 | +0.10 / 4 / 6 | -2.94 / 0 / 0 |
+| unpooler 32 | unp32 18.88, 0.06 | -0.06 / 2 / 2 | +0.00 / 3 / 4 | -2.59 / 0 / 0 |
+| router 32 | rt16w8 9.63, 0.06 | +0.00 / 2 / 4 | +0.32 / 7 / 9 | |
+
+The tuner agrees: XMC twins time +2.0 to +2.8 us (compressed) and +2.0 to +3.0 (raw) over their bases at every shape.
+
+Decision against the registered gate: no warm arm saves > 0.15 us in 8 of 9 rounds on any kernel. The only warm
+arm above zero (rgemv at m = 1, +0.19, 7 of 9) is matched by its null (+0.19, 6 of 8), so whatever moved there is
+the single prefetched line or noise, not page walks; most warm arms cost 0.1 to 0.5 us. The TLB warm-up is null as
+built (stop rule: lane closed after check 1). XMC loses 1.8 to 2.9 us at every m = 16 / 32 shape, against a stated
+upper bound of about 0.5 us of gain, so no variant was dispatched. Judged cells: the tuner picked null twins at seven
+cells (o 1 / 8 rdo8n, pooler 1 / 8 rdp8n, router 1 rgemvn, qkv 8 qkv8n, slice 8 slice8n, unp 32 unp32n, router 32
+rt16w8n) and no warm or XMC twin; no cell beats the public receipt by more than the 0.5 to 0.8 us cross-run noise
+(largest gains router verify 32 -1.15 on an unchanged wd pick, qkv_gate decode 1 -0.53 on unchanged cgemv), so no
+arm wins on the judge. Lane stopped after 1 of 4 checks; the production file is unchanged.
