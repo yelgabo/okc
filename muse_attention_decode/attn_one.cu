@@ -231,6 +231,19 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
+// ONE_STAMP=2 (bench-only, flat q_len 8 producer builds) adds a per-CTA timeline after the
+// STAMP rows: [0, 64) warpgroup 0's and [64, 128) warpgroup 1's full-barrier pass time of every
+// fourth tile, [128, 192) the producer's empty-slot pass time of every fourth tile, [192]
+// warpgroup 1's full-barrier wait cycles, [194, 256) warpgroup 0's running wait cycles.
+constexpr int TL_BASE = STAMP_BASE + 512 * STAMP_W;
+constexpr int TL_W = 256;
+// ONE_HSPLIT (flat q_len 8 producer builds): one full and one empty mbarrier per KV head and
+// stage. The producer threads of chunks 4h .. 4h + 3 fill head h's half of every row and the
+// warpgroup of head h releases it, so the two heads' rings run independently instead of
+// every stage waiting for the slower warpgroup.
+#ifndef ONE_HSPLIT
+#define ONE_HSPLIT 0
+#endif
 
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
 // |4 = at most one tile per CTA (straight-line prologue), |8 = the sequence length is taken
@@ -369,15 +382,16 @@ struct Smem {
     static constexpr int FLAG = CONST + 256;
     // Flat mode: virtual offsets of up to 512 requests plus the total.
     static constexpr int OFF = FLAG + 32;
-    // Producer mode: NS full and NS empty mbarriers.
+    // Producer mode: NS full and NS empty mbarriers (per KV head under ONE_HSPLIT).
     static constexpr int BAR = OFF + 2304;
+    static constexpr int NBAR = ONE_HSPLIT && L == 8 && NS == 4 ? 2 : 1;
     // ONE_PBULK: PB_SLOTS page-index windows (16-byte aligned, up to 68 entries each) and one
     // mbarrier per window.
     static constexpr int PSL = (BAR + 2 * NS * 8 + 127) / 128 * 128;
     static constexpr int PBAR = PSL + PB_SLOTS * PB_SLOT_BYTES;
     // ONE_PBULK=2: a "free" mbarrier per window (the producers' reads done) after the full ones.
     static constexpr int PFREE = PBAR + PB_SLOTS * 8;
-    static constexpr int BYTES = PB ? PFREE + PB_SLOTS * 8 : BAR + 2 * NS * 8;
+    static constexpr int BYTES = PB ? PFREE + PB_SLOTS * 8 : BAR + 2 * NS * 8 * NBAR;
     static_assert(Q % 1024 == 0 && VT % 1024 == 0, "swizzled tiles need 1024-byte bases");
 };
 
@@ -1021,7 +1035,8 @@ attn_one_kernel(const Params p) {
     int* idx_ring = reinterpret_cast<int*>(smem + S::IDX);
     int* flag = reinterpret_cast<int*>(smem + S::FLAG);
     const uint32_t full0 = smem_base + S::BAR;
-    const uint32_t empty0 = full0 + NS * 8;
+    const uint32_t empty0 = full0 + NS * S::NBAR * 8;
+    constexpr bool HSPLIT = S::NBAR == 2 && PROD;
     // Only the plans whose layer successor is the skinny o projection (T <= 32: q_len 1, and
     // q_len 8 at batch 1); above 32 tokens o runs on cuBLAS and mode 51's schedule stays as judged.
     if constexpr (ONE_TRIG != 0 && (L == 1 || SPEC)) {
@@ -1062,6 +1077,9 @@ attn_one_kernel(const Params p) {
     long long s_fullw = 0, s_pro = 0, s_loop = 0, s_seg0 = 0, s_l0 = 0;
     const long long s_k0 = STAMPS ? clock64() : 0;
     int s_tiles = 0, s_nseg = 0;
+    constexpr bool TLINE = ONE_STAMP == 2 && PROD && L == 8;
+    int* const tlrow = TLINE && p.dbg != nullptr ? p.dbg + TL_BASE + split * TL_W : nullptr;
+    int s_acq = 0;
     if constexpr (STAMPS) {
         if (tid == 0) {
             srec(0, snow());
@@ -1177,9 +1195,9 @@ attn_one_kernel(const Params p) {
             flag[2] = -1;
             if constexpr (PROD) {
 #pragma unroll
-                for (int s = 0; s < NS; ++s) {
-                    mbar_init(full0 + 8 * s, 128);
-                    mbar_init(empty0 + 8 * s, NC);
+                for (int s = 0; s < NS * S::NBAR; ++s) {
+                    mbar_init(full0 + 8 * s, HSPLIT ? 64 : 128);
+                    mbar_init(empty0 + 8 * s, HSPLIT ? 128 : NC);
                 }
                 if constexpr (PBULK) {
 #pragma unroll
@@ -1247,8 +1265,13 @@ attn_one_kernel(const Params p) {
             // (one arrival per producer thread, when its copies have landed); the block's own
             // rows are left for the consumers to patch.
             const int ptid = tid - NC;
-            const int ch = ptid & 7;
-            const int r0 = ptid >> 3;
+            // ONE_HSPLIT: warps 0-1 copy head 0's chunks and warps 2-3 head 1's, so the
+            // barrier choice is warp-uniform (broadcast from lane 0 to stay in a uniform register).
+            const int phd = HSPLIT ? __shfl_sync(0xffffffffu, ptid >> 6, 0) : 0;
+            const int ch = HSPLIT ? phd * 4 + (ptid & 3) : ptid & 7;
+            const int r0 = HSPLIT ? ((ptid >> 5) & 1) * 8 + ((ptid >> 2) & 7) : ptid >> 3;
+            const uint32_t fullp = full0 + phd * NS * 8;
+            const uint32_t emptyp = empty0 + phd * NS * 8;
             int pst = 0;
             uint32_t pph = 0;
             auto entry = [&](int tile, int r) -> int {
@@ -1435,9 +1458,17 @@ attn_one_kernel(const Params p) {
                             break;
                         }
                         const long long s_w0 = STAMPS ? clock64() : 0;
-                        mbar_wait(empty0 + 8 * pst, pph ^ 1u);
+                        mbar_wait(emptyp + 8 * pst, pph ^ 1u);
                         if constexpr (STAMPS) {
                             s_emw += clock64() - s_w0;
+                        }
+                        if constexpr (TLINE) {
+                            if (tlrow != nullptr && ptid == 0) {
+                                if ((s_acq & 3) == 0 && (s_acq >> 2) < 64) {
+                                    tlrow[128 + (s_acq >> 2)] = static_cast<int>(snow());
+                                }
+                                ++s_acq;
+                            }
                         }
                         const int pos0 = lo + t * BN;
                         const uint32_t kdst = smem_base + S::KV + pst * 2 * TILE_BYTES;
@@ -1478,7 +1509,7 @@ attn_one_kernel(const Params p) {
                                 }
                             }
                         }
-                        cp_async_mbar_arrive_noinc(full0 + 8 * pst);
+                        cp_async_mbar_arrive_noinc(fullp + 8 * pst);
                         const int tn = t + PF;
                         if (PE16 && fast32 && p.lp == 0 && tn < ntiles
                             && lo + tn * BN + BN <= seq) {
@@ -1510,7 +1541,7 @@ attn_one_kernel(const Params p) {
             // in flight and the consumers no longer need the ring.
 #pragma unroll
             for (int s = 0; s < NS; ++s) {
-                mbar_wait(empty0 + 8 * pst, pph ^ 1u);
+                mbar_wait(emptyp + 8 * pst, pph ^ 1u);
                 if (++pst == NS) {
                     pst = 0;
                     pph ^= 1u;
@@ -1654,14 +1685,17 @@ attn_one_kernel(const Params p) {
     // The block's own rows of the tile at pos0 in stage st, from S.KN / S.VN (16 chunks per
     // token, one thread each).
     auto patch_tile = [&](int st, int pos0) {
-        if (tid < L * 16) {
-            const int j = tid >> 4;
-            const int cc = tid & 15;
+        // ONE_HSPLIT: each warpgroup patches only its own head's chunks, since the other
+        // head's half of the stage may still hold the tile its warpgroup is reading.
+        const int pt_t = HSPLIT ? (tid & 127) : tid;
+        if (pt_t < L * (HSPLIT ? 8 : 16)) {
+            const int j = HSPLIT ? pt_t >> 3 : pt_t >> 4;
+            const int cc = HSPLIT ? pt_t & 7 : pt_t & 15;
             const int pos = seq + j;
             if (pos >= max(lo, pos0) && pos < min(hi, pos0 + BN)) {
                 const int r = pos - pos0;
-                const bool is_v = cc >= 8;
-                const int c8 = cc & 7;
+                const bool is_v = HSPLIT ? cc >= 4 : cc >= 8;
+                const int c8 = HSPLIT ? (tid >> 7) * 4 + (cc & 3) : cc & 7;
                 const int sw = is_v ? v_swz<L>(c8, r) : k_swz<L>(c8, r);
                 *reinterpret_cast<uint4*>(smem + S::KV + st * 2 * TILE_BYTES
                                           + (is_v ? TILE_BYTES : 0) + r * ROWB + sw * 16) =
@@ -1965,10 +1999,12 @@ attn_one_kernel(const Params p) {
         // this; the generic writes above and the gathered rows are fenced for the wgmma
         // reads at q_len 8).
         // common: the caller knows the tile holds none of the block's own rows (ONE_DCARRY).
+        const uint32_t fullc = full0 + (HSPLIT ? (tid >> 7) * NS * 8 : 0);
+        const uint32_t emptyc = empty0 + (HSPLIT ? (tid >> 7) * NS * 8 : 0);
         auto acquire = [&](int it, int st, bool common = false) {
             if constexpr (PROD) {
                 const long long s_w0 = STAMPS ? clock64() : 0;
-                mbar_wait(full0 + 8 * st, cph);
+                mbar_wait(fullc + 8 * st, cph);
                 if constexpr (STAMPS) {
                     const long long now = clock64();
                     s_fullw += now - s_w0;
@@ -1978,6 +2014,18 @@ attn_one_kernel(const Params p) {
                         if (s_nseg == 0 && tid == 0) {
                             srec(2, snow());
                         }
+                    }
+                }
+                if constexpr (TLINE) {
+                    if (tlrow != nullptr && (tid & 127) == 0) {
+                        const int k = s_acq >> 2;
+                        if ((s_acq & 3) == 0 && k < 64) {
+                            tlrow[(tid >> 7) * 64 + k] = static_cast<int>(snow());
+                            if (tid == 0 && k < 62) {
+                                tlrow[194 + k] = static_cast<int>(s_fullw);
+                            }
+                        }
+                        ++s_acq;
                     }
                 }
                 if constexpr (L == 8 && ONE_PROBE != 2) {
@@ -2020,7 +2068,7 @@ attn_one_kernel(const Params p) {
         };
         auto release = [&](int st) {
             if constexpr (PROD) {
-                mbar_arrive(empty0 + 8 * st);
+                mbar_arrive(emptyc + 8 * st);
                 if (++cst == NS) {
                     cst = 0;
                     cph ^= 1u;
@@ -3139,6 +3187,12 @@ attn_one_kernel(const Params p) {
             }
         }
         if constexpr (COOP) {
+            if constexpr (TLINE) {
+                if (tlrow != nullptr && tid == 128) {
+                    tlrow[192] = static_cast<int>(s_fullw);
+                    tlrow[193] = static_cast<int>(snow());
+                }
+            }
             if constexpr (STAMPS) {
                 if (tid == 0) {
                     srec(3, snow());
