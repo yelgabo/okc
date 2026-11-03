@@ -1,4 +1,6 @@
-# Existing corrected confirmation: recorded external wait has cleared
+# Corrected confirmation already accepted — follow its existing ID
+
+**Current update:** concurrent owner commit e365d7b6 records accepted corrected check **62a4f6b27ed74b50** forf397bca8. Its dispatch was in progress before this note was published. The worker continued independently; this note caused no dispatch and needs no action/reply. Follow only that ID, no duplicate POST or second poller. Matched result is pending.
 
 November2 Pacific / November3,2026,01:15UTC. Bookkeeping for the already-authorized D32-ATTN-03 retry, **not a new assignment, allocation or approval step**.
 

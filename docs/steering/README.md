@@ -6,7 +6,7 @@
 
 ## Latest monitoring snapshot: corrected retry wait cleared
 
-[Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) verified first attention17383751/2.128829269x and D32C32=11.882275ms, still unmatched. Only full attention changed; do not credit unmodified sliding movement. The setup-onlyFP8-isfinite failure is corrected atf397bca8. PublishedSTATUS.md was waiting for unrelated3aa; fresh sharedlist shows it done/no live jobs/18layerchecks. [Existing-step continuation note](decode32/2026-11-02-10-driver-live-queue.md) clears that stale wait, with an already-accepted-local-ID duplicate guard. Worker executes directly under D32-02/D32-04; no new assignment, approval, rootdispatch or directchat acknowledgment. Overall/layer382,public607unchanged.
+[Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) verified first attention17383751/2.128829269x and D32C32=11.882275ms, still unmatched. Only full attention changed; do not credit unmodified sliding movement. The setup-onlyFP8-isfinite failure is corrected atf397bca8. PublishedSTATUS.md was waiting for unrelated3aa; fresh sharedlist shows it done/no live jobs/18layerchecks. **Concurrente365d7b6 records accepted corrected confirmation62a4f6b27ed74b50**. The worker already continued independently before the [queue note](decode32/2026-11-02-10-driver-live-queue.md) was published; it now records only that owning ID/no duplicate. Matched result remains pending. Shared no-live lists do not exclude an in-flight POST. Worker executes directly under D32-02/D32-04; no new assignment, approval, rootdispatch or directchat acknowledgment. Overall/layer382,public607unchanged.
 
 ## Decode32 next action and progress watch
 
@@ -117,7 +117,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
-| [Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) | e6993059; own17383751/4fe receipts; freshCLI lists | Firstattentionvalid/unconfirmed; correctedretryexternalwaitcleared; ownerautonomy/duplicateguard; boards382/no publicchange |
+| [Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) | e6993059/e365d7b6; own17383751/4fe/62a4 records; freshCLI lists | Firstattentionvalid/unconfirmed; correctedretryexternalwaitcleared; ownerautonomy/duplicateguard; boards382/no publicchange |
 | [General Optimizer pipeline depth](2026-11-02-general-optimizer-pipeline-depth.md) | d5f5918b; CUDA Optimizer's actual report/plan; source corrections | GOPT-PIPE-01 assigned unless already owned; reuse prior three/four-slot evidence, one missing selected-path test only; pickup unconfirmed |
 | [CUDA part 2 experiments](2026-11-02-cuda-part2-experiments.md) | f720ac61; c7 native control; two local compiler treatments | Larger issue groups stop at spills; constant multiplier has positive compiler evidence and one registered private MoE measurement; no target gain yet |
 | [D32 confirmation continuation and watch](decode32/2026-11-02-06-confirm-attention-and-progress-watch.md) | 779b06ad; own17383751; user watch request | Already-authorized matched confirmation; hourly conditional research watch; no proof of sleep or new measured gain |
