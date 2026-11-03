@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 23:16 MST. Evidence snapshot: `1c09aa76`.
+Last review: 2026-11-02 23:32 MST. Evidence snapshot: `9d251b73`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,7 +18,38 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Historical wins; current C+D queue candidate loses | New whole-unit B claiming inside G fails all6 matched groups; old mode23 wins do not transfer. Phase-A and K=0 losses remain scoped. | Full ready-only queue remains untested. No isolated D effect or queue rescue is established. [Current result](#november-2-review-at-2200-vancouver-time). |
 | E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Lookahead and observer closures stand. Split-copy reduction is stopped. Identity4a2a79bdac04499a fails routing/coverage with27/36 partial rows, not a causal treatment loss. [Current evidence](#november-2-review-at-2200-vancouver-time). |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Public layer retained2.126083×; standalone MoE public row improves | New public MoE4aa033ef is5788.720720us/2.3232×,4.6278% lower elapsed than old public across runs. New short WS finalizer passes correctness but fails all6 matched groups. | No whole-layer gain. Six component gates fail; retain fused WS/original norm/NS3. Sparse phase observer fails reporting and global validity. Public source5df257af/CI now verified; pair-LUTc985bbdb is pending. [Current evidence](#november-2-review-at-2316-vancouver-time). |
+| G. Attributed keell0renz layer fork | Public layer retained2.126083×; standalone base retained5788.720720us | Pair-LUTc985 passes5/6/6 and fails all6 matched groups, with all18affected cells regressing. Earlier public-base improvement and scoped component negatives remain. | No whole-layer gain. Seven component gates fail. Pair lookup is stopped; direct phase-A input staging has source qualification only. General still needs a distinct WS task. [Current evidence](#november-2-review-at-2332-vancouver-time). |
+
+## November 2 review at 23:32 Vancouver time
+
+**The complete group16 pair-lookup design is a measured loss.** MOE-LUT-01 privatec985bbdb2980407a, published5ff38524/paired542cd650/541745bytes, compares native8c2cfc7c against selectedc7c201ae. It changes lossless WGS packing plus a generic64KiB codebook together, replacing the arithmetic decoder at32/128/256 while preserving skinny1/8/16, group16 scales, BF16 boundaries, FP32 accumulation, waits/fences and output order. This is a G representation/decoder test, not an isolated A–E family attribution. [Exact source and stop](https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup).
+
+Owning receipt passes5official tests/6benchmarks/6profiles, return0/no flags, and all54private cases/378observations/216captures/1152cold timed replays/54restorations/cleanup. Correctness/replay coverage includes scored1/8/16/32/128/256 and untimed neighbor4/33/257-token cases. All seven compiler requests and per-owner table lengths256/256/16640/16640 match registration. Worst global/row errors0.000089915/0.000183763, preparation276.790803s. Finished2026-11-03 06:22:34UTC. All six performance groups fail and all18affected bank/load/distribution rows regress; no unchanged-path drift guard breach. All24complete-six factors0.473011–0.576767, descriptive geometric mean0.513238. [Strict owning analysis and36rows](https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/evidence/2026-11-02-moe-pairlut/analysis.json), [full receipt](https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/evidence/2026-11-02-moe-pairlut/status-wait.raw.json).
+
+Same-process component test: three fixed banks1102031/1102037/1102049, fresh normal/skewed EP8 routes, independent duplicate originals/candidates and8cold repetitions per placement/cell. Means below average the two placement medians and then banks. The linked36-row report retains each routing census, four paired cross factors and duplicate-log nulls. No paired treatment CI or individual private replay samples are reported. Both packing and decoding belong to this complete design; the timings do not isolate lookup latency, traffic, dependencies or resources.
+
+| Tokens | Routing | Arithmetic control µs | Pair LUT µs | Delta µs | Delta % | Scope |
+|---:|---|---:|---:|---:|---:|---|
+| 1 | normal | 33.755 | 34.096 | +0.341 | +1.011% | Unchanged skinny drift |
+| 8 | normal | 79.069 | 78.973 | -0.096 | -0.121% | Unchanged skinny drift |
+| 16 | normal | 117.280 | 116.896 | -0.384 | -0.327% | Unchanged skinny drift |
+| 32 | normal | 126.507 | 525.533 | +399.027 | +315.419% | Changed B4/MAIN |
+| 128 | normal | 186.304 | 829.336 | +643.032 | +345.152% | Changed B4/MAIN |
+| 256 | normal | 234.077 | 1073.485 | +839.408 | +358.603% | Changed B4/MAIN |
+| 1 | skewed | 33.936 | 34.189 | +0.253 | +0.747% | Unchanged skinny drift |
+| 8 | skewed | 40.587 | 41.109 | +0.523 | +1.288% | Unchanged skinny drift |
+| 16 | skewed | 63.256 | 63.299 | +0.043 | +0.067% | Unchanged skinny drift |
+| 32 | skewed | 60.165 | 185.360 | +125.195 | +208.084% | Changed B4/MAIN |
+| 128 | skewed | 103.125 | 344.019 | +240.893 | +233.593% | Changed B4/MAIN |
+| 256 | skewed | 159.547 | 549.789 | +390.243 | +244.595% | Changed B4/MAIN |
+
+Official12337.764699us/1.090027272×,95%CI[1.073676863,1.106377681], is against SGLang; each official benchmark records100paired repetitions. Adjusted timings at1/8/16/32/128/256 are25.380326/68.863805/93.750820/548.533231/828.671003/1006.233880us. This supplies no public-release lead against5788.720720us. Sole collector73200 ended0 before archival. Stop exact full-pair-codebook treatment without retry, LUT-size/layout/cache-policy sweep, subgroup mask, integration or public action. The result does not reject every lookup representation. [Six official loads and scoped decision](https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup).
+
+The MoE owner is now source-qualifying direct phase-A routed-input staging to eliminate global xA materialization and its readiness exchange. It is unmeasured and has no new accepted job/allocation. The earlier gx_pre/gx_st16 rearrangements and invalid phase observer remain closed; no removable-time estimate follows. A separate unindexed short-row-ownership CPU model was added for General's prospective lane, but no native candidate, compiler result, executed model result or newly assigned executable brief is recorded. These are untested source directions, not measured wins or reasons to duplicate an owner. [Owner status](https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/moe-worker/STATUS.md), [CPU model scope](https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/evidence/2026-11-02-hotspot-refill/ws-row-owned-model.py).
+
+The release reconciliation links nine historical treatment/diagnostic dispositions to the now-published c7-family base while preserving each exact source, arm, lower point and stop. Historical46aaf and externalb65c remain separate open qualification/source-contract items; their files are not declared published. The required read-only promotion check passes19current numerical leads/zero missing dispositions using saved public snapshots from06:07UTC, rechecked06:30UTC. Latest shared board evidence06:12:30UTC shows the same public job at rank374, versus373 in the earlier snapshot; timing/source are unchanged. No new hidden private release lead or layer outcome is found. [Disposition reconciliation](https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/2026-11-02-driver-monitor-0611.md#promotion-guard-and-disposition-repair).
+
+The new diagram clarification confirms that c7 B4/MAIN already existed in the earlier layer diagram. The standalone improvement came from publishing that existing faster complete base. Wrapper cleanup preserves all five compiler requests and establishes no separate kernel gain. Public MoE4aa remains5788.720720us and layer607 remains2.126083×. A-versus-tested-B conclusions and isolated C/D/E limits are unchanged. [Diagram/source clarification](https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/2026-11-02-moe-release-diagram.md#which-diagram-was-already-faster).
 
 ## November 2 review at 23:16 Vancouver time
 
@@ -2992,6 +3023,7 @@ paired differences.
 | G sparse phase observer, globally invalid | Same-process unchanged complete-MoE originals | See descriptive table in current review | See descriptive table in current review | 6028cae5d12f4afb;3banks x EP8 normal/skewed,32repeats/placement. All36rows retained but serialization and global cost/stability gates fail. No phase attribution. [Failure](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/2026-11-02-moe-sparse-phase-evidence.md#terminal-stop). |
 | G standalone exact base release, cross-run | Historical old publicabe7651d, different source and inputs | 178.951µs candidate;192.869µs old point, descriptive -13.918µs (-7.216%) | 220.020µs candidate;240.839µs old point, descriptive -20.818µs (-8.644%) | 64f9998ef238476f;normal EP8 official single-arm5/6/6. No matched control or isolated mechanism attribution. Public4aa has separate per-cell records in the current review; do not substitute private timings into its result. [Exact-file receipt](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/2026-11-02-moe-control-release-qualification.md#terminal-result-and-public-decision). |
 | G public standalone base, combined architecture and dispatch | Historical old publicabe7651d, separate run | 180.872µs;descriptive -11.998µs (-6.221%) | 217.346µs;descriptive -23.492µs (-9.754%) | 4aa033ef23a142cd/source5df257af;5/6/6,100official pairs/cell, normal EP8. Different inputs and SGLang baselines; no isolated-family or whole-layer gain. [Public receipt](https://github.com/yelgabo/okc/blob/1c09aa7639b0157f6d968a81e6f2e5604aa0d3f2/docs/steering/evidence/2026-11-02-moe-public/status-wait.raw.json). |
+| G group16 full-pair lookup + lossless packing | Same-process c7 arithmetic decoder | normal +643.032µs (+345.152%);skewed +240.893µs (+233.593%) | normal +839.408µs (+358.603%);skewed +390.243µs (+244.595%) | c985bbdb2980407a/source5ff38524/paired542cd650;3banks x EP8 normal/skewed,8repeats/placement.5/6/6 and54private cases pass; all6groups/all18affected rows lose. No isolated lookup-cause or layer claim. [Full result](https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup). |
 
 ## Small-token results and rejected changes
 
@@ -3038,7 +3070,9 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
-The current G-hosted two-node WS finalizer is stopped after valid correctness and all-six matched losses. The sparse phase observer is invalid globally and stopped. The standalone base has a source-bound new public5788.720720us result; pair-LUTc985bbdb is separately pending. Layer607 remains unchanged. [Current review](#november-2-review-at-2316-vancouver-time).
+The pair-LUTc985bbdb screen is now closed after correctness passes and all affected cells regress. No candidate integration follows. Direct phase-A input staging and short-row ownership remain source directions only. [Current review](#november-2-review-at-2332-vancouver-time).
+
+The current G-hosted two-node WS finalizer is stopped after valid correctness and all-six matched losses. The sparse phase observer is invalid globally and stopped. The standalone base retains its source-bound public5788.720720us result; pair-LUTc985bbdb is now stopped. Layer607 remains unchanged. [Current review](#november-2-review-at-2316-vancouver-time).
 
 MID, lookahead diagnostics and the inconclusive observer remain closed. The sliding eight-copy reduction treatment is now stopped after a valid ordinary check without a useful affected-path signal. Identity4a2a79bdac04499a is closed on routing/coverage, with27/36 unqualified partial rows. The separate C+D whole-unit MoE queuee044121f822d47b1 also fails all6 matched groups. T8/T16 WS norm aggregationb38a9ed6dc9743e9 is now terminal: correctness passes and all6 performance groups fail. General needs a distinct MoE/BF16-first task or reserve exposure evidence. Attention remains unconfirmed and public607 remains retained. Broad dense backing remains unallocated reserve. [Current D32 ledger](https://github.com/yelgabo/okc/blob/3e11a37ed53424bf7ccfab2a74461124e05e9c9e/docs/steering/decode32/STATUS.md)
 
@@ -3066,6 +3100,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 23:32 MST (America/Vancouver): reviewed1c09aa76..9d251b73, new terminalc985bbdb2980407a and all36rows, changed run/negative/owner records, nine disposition repairs and layer-versus-standalone diagram clarification. Last terminal2026-11-03 06:22:34UTC. No General assignment or target-ready replacement; all18provisional profiles remain untouched.
 
 - 2026-11-02 23:16 MST (America/Vancouver): reviewed2f8ae539..1c09aa76, shared queue/run/negative/release records, new terminal3e6852d30c5c4535, invalid observer6028cae5d12f4afb, exact private64f9998ef238476f and source-bound public4aa033ef receipt/board, plus accepted pair-LUTc985bbdb. Last terminal2026-11-03 06:01:19UTC; pending accepted2026-11-03 06:11:52UTC. Own task closed before routine tracker work. All18provisional local profile JSONs remain readable, previously logged and untouched.
 

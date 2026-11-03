@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T23:16:00-07:00",
-  "snapshot": "1c09aa76",
+  "reviewed_at": "2026-11-02T23:32:00-07:00",
+  "snapshot": "9d251b73",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261\u00d7",
     "interval": "2.0942\u20132.1580",
     "job": "607eb52bdaf24160",
-    "note": "Layer607 retains2.126083\u00d7. Source-bound standalone public MoE4aa is5788.720720us/2.323225\u00d7, separate from layer. WS split fails matched gates; phase observer invalid. Pair-LUTc985bbdb is pending with its existing owner."
+    "note": "Layer607 retains2.126083\u00d7; standalone public4aa retains5788.720720us/2.323225\u00d7. Pair-LUTc985 now passes correctness and loses all6 matched groups. Fused WS, arithmetic c7 decoder and original norm/NS3 retained."
   },
   "families": [
     {
@@ -128,22 +128,20 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Public standalone base; six component gates fail",
+      "label": "Public standalone base; seven component gates fail",
       "metric": "2.1261\u00d7",
       "unit": "Public layer score, 95% CI 2.0942\u20132.1580",
-      "summary": "Standalone public MoE4aa improves the old public point by4.6278% across runs. New WS two-node finalizer passes5/6/6 and fails all6 matched groups; retain fused helper.",
+      "summary": "Current standalone public base remains5788.720720us. Group16 full-pair LUT passes5/6/6 and54private cases but loses all18affected rows and all6matched groups. Exact treatment stopped.",
       "layer": "Public layer607 unchanged2.126083\u00d7. Same approved standalone source5df257af passes public5/6/6 at2.323225\u00d7, CI2.288377\u20132.358073.",
       "pending": [],
-      "evaluation_pending": [
-        "MOE-LUT-01 c985bbdb2980407a, source5ff38524/payload542cd650/native8c2cfc7c; B4/MAIN32/128/256 only"
-      ],
-      "limit": "No new whole-layer gain. Observer invalid, split stopped. Distinct B4/MAIN pair-LUTc985bbdb/native8c2cfc7c accepted; target correctness/timing pending.",
+      "evaluation_pending": [],
+      "limit": "No new layer gain. Direct phase-A input staging is source qualification only; no new accepted GPU job. General needs a distinct WS brief. Seven scoped component failures do not reject whole design families.",
       "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss"
       ],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/1c09aa7639b0157f6d968a81e6f2e5604aa0d3f2/docs/steering/2026-11-02-moe-control-release-qualification.md#public-result-verified"
+      "evidence_url": "https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup"
     }
   ],
   "context_pending": [
@@ -179,8 +177,8 @@
     },
     {
       "name": "G native component experiments",
-      "label": "Six checks closed without integration",
-      "summary": "Scale-only, scales/groups, NS4, norm, C+D queue and two-node WS finalizer fail matched gates after correctness. The separate complete-base public release remains visible; retain fused WS/original norm/NS3."
+      "label": "Seven checks closed without integration",
+      "summary": "Scale-only, scales/groups, NS4, norm, C+D queue, two-node WS finalizer and full-pair LUT fail matched gates after correctness. Published base retained; no exact-treatment rescue."
     },
     {
       "name": "Historical wins transfer audit",
@@ -199,8 +197,8 @@
     },
     {
       "name": "MoE/BF16-first research refill",
-      "label": "WS next task missing; BF16 build brief",
-      "summary": "General completed the fixed two-node WS test and stopped it. After three helper negatives, seek a distinct complete short-path design. BF16 has a four-hour raw/packed build brief; no verified pickup here."
+      "label": "Untested source directions; no new General brief",
+      "summary": "MoE owner source-qualifies removal of phase-A xA gather. Separate short-row CPU model exists, with no native candidate/result or assigned executable General brief. BF16 build brief remains available."
     },
     {
       "name": "Local compiler-only closures",
@@ -220,12 +218,12 @@
     {
       "name": "Standalone MoE base promotion",
       "label": "Public5/6/6 \u2022 exact source verified",
-      "summary": "Same5df257af private64f9 is5762.134395us; public4aa is5788.720720us/2.323225\u00d7, CI2.288377\u20132.358073. Public elapsed4.6278% lower cross-run. Layer unchanged."
+      "summary": "Same5df257af private64f9 is5762.134395us; public4aa is5788.720720us/2.323225\u00d7, CI2.288377\u20132.358073. Public elapsed4.6278% lower cross-run. Layer unchanged. The same c7 engine already existed in the layer diagram; packaging/release adds no isolated kernel gain."
     },
     {
       "name": "G group16 pair lookup and lossless packing",
-      "label": "Accepted private \u2022 target result pending",
-      "summary": "c985bbdb2980407a, source5ff38524/payload542cd650/native8c2cfc7c. B4/MAIN32/128/256 change; skinny controls retained. No target correctness or timing verdict; existing sole waiter73200."
+      "label": "Correctness pass \u2022 large matched loss",
+      "summary": "c985bbdb2980407a/source5ff38524/542cd650 passes5/6/6 and54cases;0/6groups,18affected regressions, factors0.473011\u20130.576767. Stop exact LUT without retry/layout/cache sweep. No public lead."
     }
   ]
 }
