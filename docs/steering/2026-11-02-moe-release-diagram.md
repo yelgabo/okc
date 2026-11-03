@@ -1,5 +1,13 @@
 # Faster standalone MoE release diagram
 
+## Which diagram was already faster?
+
+The user's earlier four-warpgroup drawing already described the c7 B4/MAIN engine inside the decode layer. The older standalone public MoE submission still used a different dispatcher and older large-load implementation. The new sub-6000 standalone result came from packaging, qualifying and publishing the existing faster engine for that standalone problem. The release did not introduce a new WGS architecture beyond the earlier layer diagram.
+
+Relative to the old standalone source, the changes include T32 switching from skinny to B4/WGS, cost-weighted stage-range scheduling for large loads and eligible six-bit scale storage. Their separate timing contributions remain unmeasured. Wrapper cleanup preserved all five selected compiler requests and cannot explain a new kernel-level gain. The public result moved from6069.607719 to5788.720720us, 4.627762% lower across separate runs. The private5762.134395us qualification remains a distinct point.
+
+The implementation and release were out of sync. Existing private evidence had already shown a faster standalone lead, but the public entry had not caught up. The [owning qualification report](2026-11-02-moe-control-release-qualification.md) records that missed release decision. The diagram files, screenshots and source evidence are versioned together in commit `104b424749eebe4566174a3568cc3c8c153956de`; this clarification preserves their historical interpretation.
+
 The qualified standalone release measured **5762.134395 us** in private job `64f9998ef238476f`. The public board snapshot checked for this diagram shows **5788.720720 us** for job `4aa033ef23a142cd`, using the same approved source. The comparison separates both points from the older public **6069.607719 us** entry, job `abe7651dbaa44458`.
 
 [Open the interactive comparison](../moe-release-comparison-2026-11-02.html). It matches the existing charcoal-and-gold diagrams, offers six token counts and enlarges each diagram. The standalone SVGs are [source comparison](../figures/moe-release-comparison.svg), [work assignment](../figures/moe-release-work-assignment.svg) and [retained engine](../figures/moe-release-engine.svg).
