@@ -34,6 +34,10 @@ logs. CPU regressions and a local CUDA 12.8.1 device build were checked. No runt
 kernel, target-performance claim, GPU dispatch or D32 ownership change is included.
 Root instructions load the reference index for future CUDA work.
 
+## D32 matched confirmation payload
+
+[Attention confirmation payload](decode32/2026-11-02-08-confirmation-payload.md) `109cdb07` has generated-entry and real-CPU-Torch facade coverage. Target GPU correctness, 295-second preparation fit and paired timings are still open. One private check follows the normal job/quota preflight.
+
 ## D32 attention first private result
 
 [Own job 17383751c6a24010](decode32/2026-11-02-05-attention-first-result.md) passed 13 tests and recorded D32 C32 11.882275 ms. This is a promising comparison with the earlier control, with different inputs and nodes. Matched confirmation is required before a causal gain or integration claim.

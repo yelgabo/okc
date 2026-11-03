@@ -6,6 +6,12 @@ CONTEXTS = ('sliding', 'full')
 BANKS = (1102031, 1102037, 1102049)
 
 
+def positive(value):
+    if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+        raise ValueError('invalid timing')
+    return value
+
+
 def decision(rows):
     expected = {(t, c, s) for t in LOADS for c in CONTEXTS for s in BANKS}
     indexed = {}

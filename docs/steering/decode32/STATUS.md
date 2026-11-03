@@ -27,3 +27,5 @@ D32-06 read. Confirmation remains in implementation: the state-local arm
 selector and the prospective timing decision now have four passing CPU tests.
 The complete capture/replay payload and target qualification are still open.
 [Confirmation contract](2026-11-02-07-confirmation-contract.md).
+
+D32-ATTN-02 matched payload: `109cdb07dbe04fe6a9723b816a8fa5942969ce0150310dcdc02fca58b4f62929`, 928942 bytes, generated for one private check. Actual generated-entry selection tests and a four-arm real-CPU-Torch orchestration test pass. Target GPU, preparation budget, and the matched timing result remain untested. [Payload and gates](2026-11-02-08-confirmation-payload.md).
