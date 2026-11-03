@@ -1,5 +1,10 @@
 # Decode32 task inbox
 
+## Latest owner transition: repurposed to P0 standalone MoE
+
+**[User-directed reassignment](../2026-11-02-worker-repurpose-moe-bf16.md)**: this worker’s next optimization lane is **P0 `muse_moe_w4a16`**, rather than fresh P4 Decode32 tasks. Preserve its original Decode32 evidence; first finish/archive any accepted D32-IDENTITY-01 job `4a2a79bdac04499a` with the already owning waiter (if not terminal in newer records), then stop allocating new Decode32 experiments. The user **paused this worker’s own reminder timer**; do **not** resume it or expect automated pickup. At its next manual reading, synchronize `origin/main`, read the shared handoff and claim a nonduplicate standalone MoE experiment. CUDA Optimizer is concurrently repurposed to **P1 BF16**, while General Optimizer retains separate MoE WS skinny work. Earlier D32-only ownership/instructions below are historical and superseded for future assignments.
+
+
 ## Priority override: Decode32 is P4
 
 The user explicitly re-ranked Decode32 **P4**, not the project's P0 or exclusive performance focus. [Standing goal and top-100 cutoff gaps](../2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific). Continue the worker's already-owned accepted identity-rescale job (`4a2a79bdac04499a` at last indexed status) and own result analysis/correctness without interruption; don't abandon accepted work because of a scheduling change. **No new Decode32 experiment gets automatic P0 preference.** Central steering prioritizes standalone MoE W4A16 and BF16 projection refills first, while Decode32 retains end-to-end T32 ownership. Historic D32 2.3x target remains a performance objective, not overall allocation priority.
