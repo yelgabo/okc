@@ -29,3 +29,5 @@ The complete capture/replay payload and target qualification are still open.
 [Confirmation contract](2026-11-02-07-confirmation-contract.md).
 
 D32-ATTN-02 matched payload: `109cdb07dbe04fe6a9723b816a8fa5942969ce0150310dcdc02fca58b4f62929`, 928942 bytes, generated for one private check. Actual generated-entry selection tests and a four-arm real-CPU-Torch orchestration test pass. Target GPU, preparation budget, and the matched timing result remain untested. [Payload and gates](2026-11-02-08-confirmation-payload.md).
+
+D32-ATTN-02 private check `4fece18b20a2447b` accepted for source `109cdb07`, published at `c7e13600`. Await its terminal receipt; do not submit a duplicate.
