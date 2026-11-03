@@ -1736,3 +1736,8 @@ probably cost about 2 us over the base. That is an estimate; I did not build it,
 0.8 to 3.2 us.
 
 Decision: stop. Nothing was registered or dispatched. Ruled-out row in docs/ruled-out.md.
+
+
+### November 3 23:43 UTC monitor clarification: RS2 scope
+
+The retained complete-call box comparison also changed prepared state: control enabled T16/T32 PDL, while the candidate disabled both. Its full-call differences do not isolate routing cost. Independent route-kernel profiles (about 42/104 us versus 4-5 us) support stopping this exact single-program prototype. The safe-margin expert-count model gives 2.0/3.2/0.8/0.8 us before route cost; the earlier blanket free-route-below-2-us wording is too broad, especially T16 full. The alternative approximately 2-us route-overhead idea is unbuilt, not a measured rescue or family ceiling. No judge check or promotion follows. See docs/steering/2026-11-03-driver-monitor-2343.md for pins, prepared-mask confound and the existing box-revival/efficiency allocations.
