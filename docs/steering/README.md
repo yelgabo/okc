@@ -68,6 +68,8 @@ The Decode32 Worker owns its checks and job waits. Each other owner retains its 
 
 ## Latest audit
 
+[Local RTX5070 incumbent-component profile](2026-11-03-worker-local-incumbent-profile.md): actual CUDA/CUPTI measurements of selected portable routing/final-norm stages and explicit cuBLAS dense fallbacks. Native SM90 MoE was not run or retargeted; these are local component results, not H200 or end-to-end layer timings. Source/evidence published atba48cd8f.
+
 [Post-split General row-ownership decision](2026-11-02-general-hotspot-search-refill.md#post-split-research-decision-full-k-output-row-ownership--november-2-2026-pacific) advances the same refill after the valid two-launch loss. One fixed full-call build; CPU byte-permutation/partition and archived SASS checks are not GPU correctness or a speedup. Other worker files/jobs remain independent.
 
 [Driver monitor06:11UTC](2026-11-02-driver-monitor-0611.md): MoE public release verified at5788.7us/rank374; lookupc985 accepted; phase/WS split stopped;19promotion leads covered and9stale base-release relationships reconciled.
