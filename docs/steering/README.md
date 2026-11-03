@@ -32,6 +32,8 @@ The Decode32 Worker owns its checks and job waits. Each other owner retains its 
 
 ## Latest audit
 
+[Internal MoE profile validation](2026-11-02-internal-moe-profile-validation.md) checks the existing sparse observer and unchanged controls. Five CPU tests pass, but a reproduced post-cleanup budget failure loses partial evidence. User-authorized request and finding delivered to the existing MoE worker. H200 attribution remains pending; no duplicate job or kernel change.
+
 [Incumbent profile overlays](2026-11-02-incumbent-profile-overlays.md) add measured group costs and shares to the layer, WGS and phase diagrams. Internal phase costs remain unisolated; no new GPU measurement.
 
 [Same-refill P0 WS/P1 C2 source screens](2026-11-02-general-hotspot-search-refill.md#p0-ws-and-p1-bf16-research-pickup-and-source-screens--november-2-2026-pacific): terminal-join SASS and exact C2 reconstruction checked; structural alternatives remain cost/feasibility gaps, not measured gains. No kernels or worker jobs changed.

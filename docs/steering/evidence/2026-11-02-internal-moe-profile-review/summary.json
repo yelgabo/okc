@@ -1,0 +1,17 @@
+{
+  "repository_base": "742c0a772c2e24935d5a0a15460739fea7231f71",
+  "snapshot_source_sha256": "b436704cb2469235b3c94ca304f58d57e416d704282430c24f7a6d1d3223202c",
+  "source_tests": 3,
+  "synthetic_host_tests": 2,
+  "post_cleanup_failure_retained_partial": false,
+  "gpu_job_dispatched_by_scout": false,
+  "target_attribution_qualified": false,
+  "owner_chat": "01a19ea7-5b25-7552-a61b-34293a5fcb90",
+  "message_authorized_by_user": true,
+  "measurement_limits": [
+    "No NVIDIA GPU on current host or Docker runtime",
+    "CPU tests use synthetic timestamps",
+    "No accepted target receipt in this audit",
+    "Whole-call perturbation alone does not establish phase fidelity"
+  ]
+}
