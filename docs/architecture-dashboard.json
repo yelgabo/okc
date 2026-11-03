@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T18:33:00-07:00",
-  "snapshot": "77023d44",
+  "reviewed_at": "2026-11-02T18:54:00-07:00",
+  "snapshot": "93ed0192",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public607 retains2.126083x. D32 attention remains exploratory after two matched setup failures. Constant WGS scales fail the component gate; grouping and skinny depth checks are pending."
+    "note": "Public607 retains2.126083x. Constant scales, corrected scale/groups and skinny NS4 fail component gates. RetainNS3. Attention routing diagnostic5909739e8a4445b2 is pending."
   },
   "families": [
     {
@@ -48,14 +48,14 @@
       "id": "C",
       "name": "Owner-completes tiles",
       "status": "win",
-      "label": "Ownership retained; alternative loses",
+      "label": "Historical owner-tile wins; G uses stage cuts",
       "metric": "−2.1 / −3.8 µs",
       "unit": "128 / 256 tokens: mode 20 versus mode 16",
-      "summary": "Earlier ownership gains retained. Native fixed-owner screen and two owned attention cluster variants fail their gates.",
-      "layer": "Present in tested layer descendants",
+      "summary": "Historical whole-unit ownership wins remain recorded. Both owned attention cluster alternatives lose; VP2 leaves the isolated ownership contribution unresolved.",
+      "layer": "Large-token G uses split stages and fixups. Earlier owned layer descendants used whole phase-A units.",
       "pending": [],
       "limit": "The private VP2 target win and owned cluster losses leave the contribution of output ownership unresolved.",
-      "source": "runs-moe.md",
+      "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss"
@@ -65,14 +65,14 @@
       "id": "D",
       "name": "Dependency-aware scheduling",
       "status": "partial",
-      "label": "Partial design wins",
+      "label": "Historical claim wins; G uses static ranges",
       "metric": "−16 to −23 µs",
       "unit": "dynamic phase B claiming versus mode 20",
-      "summary": "Dynamic claiming stays. Static phase-B work in mode 79 loses inside the both-phase alternative. Earlier phase-A claiming and split-tail losses remain.",
-      "layer": "Dynamic claiming retained in layer descendants",
+      "summary": "Owned mode23 dynamic B claiming won historically. Current G instead balances static stage ranges. Later phase-A claim layouts on the owned baseline lost.",
+      "layer": "Earlier owned descendants used dynamic B claims. Current retained G uses weighted static stage ranges.",
       "pending": [],
       "limit": "Full ready-only queue untested. Phase-A claiming modes 62/63 lose; K=0 controls 66/69 also lose. Lean claimed mode 68 not timed. Mechanism remains open after code-layout failure.",
-      "source": "runs-moe.md#phase-b-claimed-at-run-time-mode-23-2026-10-29"
+      "source": "steering/2026-11-02-1854-performance-review.md"
     },
     {
       "id": "E",
@@ -85,14 +85,14 @@
       "layer": "Layer-tested scheduling descendant inside G. Both matched4fe and corrected62a4 failed setup without timings. Public G1b4 remains retained.",
       "pending": [],
       "limit": "Source changes only full-context single-query batches17–32. Standard128/256 verify paths are unchanged. Earlier VP2 cell win and six-load failure remain recorded.",
-      "source": "steering/2026-11-02-1833-performance-review.md",
+      "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss",
         "inconclusive"
       ],
       "evaluation_pending": [
-        "Strict natural-routing diagnostic9e5e5d64, prepared without an accepted job"
+        "Strict natural-routing diagnostic5909739e8a4445b2, payload9e5e5d64"
       ]
     },
     {
@@ -120,18 +120,15 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Retained layer • MID17–32 parked",
+      "label": "Retained layer; new component gates fail",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "Public G1b4 retained. Constant-scale component passes correctness and fails its performance gate. MID17–32 remains parked.",
+      "summary": "Public G1b4 retained. Constant scales, corrected scale/groups and current-helper NS4 pass correctness and fail performance gates. NS3 stays.",
       "layer": "Public607 retains2.126083×. New calibration94ef scores2.091748×. MID scores2.089423×, with no useful D32 signal.",
       "pending": [],
-      "evaluation_pending": [
-        "Corrected scale plus WGMMA groups,3c45788127e945c4",
-        "Current skinny helper NS4 versus NS3,f0b875484960438b"
-      ],
+      "evaluation_pending": [],
       "limit": "The128/256 MAIN paths are unchanged. Their faster cross-run observations do not establish MID gains. Decode32 Worker owns subsequent D32 checks directly.",
-      "source": "steering/2026-11-02-1833-performance-review.md",
+      "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss"
@@ -166,13 +163,18 @@
     },
     {
       "name": "D32 attention matched confirmation",
-      "label": "Two setup failures; strict diagnostic prepared",
-      "summary": "4fe failed on FP8 finiteness. Corrected62a4 failed exact routing equality. Neither produced matched timing. Diagnostic9e5e5d64 retains the strict gate."
+      "label": "Two setup failures; diagnostic accepted",
+      "summary": "4fe failed FP8 finiteness; corrected62a4 failed exact routing equality. Strict diagnostic5909739e8a4445b2 is accepted, without timings yet."
     },
     {
       "name": "G native component experiments",
-      "label": "Scale-only stopped; two checks accepted",
-      "summary": "Constant scales3aa pass correctness and fail performance. Corrected scale/groups3c45788127e945c4 and skinny NS4f0b875484960438b await target results."
+      "label": "Three checks closed without promotion",
+      "summary": "Scale-only3aa, corrected scales/groups3c45 and skinny NS4f0b8 pass correctness and fail their gates. Unchanged-control drift remains; retainNS3 and public G1b4."
+    },
+    {
+      "name": "Historical wins transfer audit",
+      "label": "Source audit; no new timing allocation",
+      "summary": "Most reviewed attention wins, code groups and final-pass sums remain present. Dynamic B claims and PDL are changed designs. O8 RD is absent but its old delta gives only a conditional0.050–0.055% whole-six scenario."
     }
   ]
 }

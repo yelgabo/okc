@@ -4,6 +4,10 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Latest component results and historical transfer audit
+
+[18:54 Vancouver review](2026-11-02-1854-performance-review.md). Corrected scale/groups and current skinny NS4 pass correctness and fail promotion. NS3 and public G1b4 are retained. The historical source audit distinguishes retained wins from changed policies. D32 diagnostic5909739e8a4445b2 is accepted.
+
 ## Current performance evidence, November 2
 
 [18:33 Vancouver review](2026-11-02-1833-performance-review.md). Both D32 matched attempts stopped in setup without timing. Constant WGS scales pass correctness and fail their matched performance gate. Corrected grouping and current skinny depth checks remain pending.
