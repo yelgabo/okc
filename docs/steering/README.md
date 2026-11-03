@@ -1,5 +1,9 @@
 # Shared project steering
 
+## Top-100 gap reframe, November 2 late Pacific
+
+[Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.
+
 ## Latest audit, November 2 23:08 Pacific
 
 [Repository audit](2026-11-02-2308-repo-audit.md): rank 389 of 1223 at 2.1261x, rank 50 at 2.3216x, top 50 by the deadline judged out of reach on measured deltas; main checkout merged with the G line; orphaned kernel work in one worktree; seven doc contradictions listed with line numbers.
