@@ -1,0 +1,32 @@
+{
+  "sha256": "109cdb07dbe04fe6a9723b816a8fa5942969ce0150310dcdc02fca58b4f62929",
+  "bytes": 928942,
+  "pins": {
+    "candidate": "5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5",
+    "control": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "harness_core_sha256": "302986ababc1d75286258715133dcd9a98802bd05dd71e5b251df4e041deddbd"
+  },
+  "offline_hold": false,
+  "dispatch_ready": true,
+  "status": "GENERATED_CPU_AND_TARGET_GATES_OPEN",
+  "oracle": {
+    "helper_source_sha256": "54881e3c51e58af323021e439e8ea3dd8c63bb2db7b7dbb184ca60c22adc9e4a",
+    "prelude_sha256": "50a546330f1a0f3ad98d0d564b42858c1b960311b7e38880dfbce07b17b56f8f",
+    "copied_helpers_sha256": "2d4a1fbd192bc26d7e22434d50a65d1ca1342688f6857c025eac3b69adc9eb65",
+    "helper_names": [
+      "_ab_inputs",
+      "_ab_rms",
+      "_ab_rope",
+      "_ab_coeffs",
+      "_ab_attention",
+      "_ab_ref_front",
+      "_ab_deq",
+      "_ab_ref_back",
+      "_ab_local",
+      "_ab_check_routing",
+      "_ab_compare",
+      "_ab_validate"
+    ],
+    "helper_bytes": 13945
+  }
+}

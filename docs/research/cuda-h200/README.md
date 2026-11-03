@@ -2,10 +2,21 @@
 
 Read this index before using the November 2, 2026 playbook to choose CUDA work. Open only the relevant topic and its linked evidence. Run `python3 tools/check_cuda_research.py` from the repository root first. A stale pin means the affected notes need another source read, not that the new code is wrong.
 
+## Source corrections — shared with research and optimizer
+
+**Read [source_corrections.md](source_corrections.md) alongside the CUDA/H200 audit before selecting work.** The user pasted this supplement to OKC CUDA Optimizer and asked that research have it too. This research session has read it; repository availability does not establish that another session has read it. [Publication and scope note](../../steering/2026-11-02-cuda-source-corrections-intake.md).
+
+The supplement corrects the audit's repository-specific assumptions: consumer-order NVFP4 packing already exists; the one-SM-count grid does not acquire a second block per SM merely from a register-cap change; three/four-stage variants have prior experiment annotations; MMA operand orientation must be traced before identifying token count with instruction M; and proxy fences are already present, without that alone proving the protocol correct. The audit's numeric upside ranges are not measured gains.
+
+These are findings about the supplement's pinned standalone MoE source at `779b06ad`, not a completed four-kernel audit or automatic conclusions about the selected layer fork. The original report's evidence qualifications and source links are preserved. This copy was imported from the Library report's retrieved text, not verified against raw backing bytes. Its original statement that no repository files were modified refers to the research pass before this publication. The existing `source.txt` and its catalog remain unchanged; this supplement is separate from that original attachment.
+
+At the next normal checkpoint, reconcile affected recommendations with these corrections. Do not interrupt an active turn, restart a candidate, duplicate a job, or add another review/handoff gate. Decode32's existing attention confirmation and end-to-end execution authority remain unchanged.
+
 ## Find a topic
 
 | Task | Reference |
 |---|---|
+| Check source-specific corrections to the CUDA/H200 audit | [Source corrections](source_corrections.md) |
 | Choose instructions, dtype or a weight representation | [Hardware and numeric rules](hardware-and-numerics.md) |
 | Change staging, decoding, WGMMA or warp roles | [Pipelines and memory ordering](pipelines.md) |
 | Change expert order, work queues, Split-K or clusters | [Scheduling and locality](scheduling.md) |
