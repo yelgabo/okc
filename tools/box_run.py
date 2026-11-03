@@ -210,6 +210,8 @@ def main():
     ap.add_argument("--out", default="")
     ap.add_argument("--router-seed", type=int, default=None, help="skip the search and use this router seed")
     ap.add_argument("--router-attempts", type=int, default=2000)
+    ap.add_argument("--case-local-start", action="store_true",
+                    help="reuse the case seed's local_start for every fresh input (the runner before 2026-11-03)")
     ap.add_argument("--kernels", action="store_true", help="also print a per-kernel GPU time table (torch.profiler, 10 cold replays)")
     ap.add_argument("--profile", action="store_true",
                     help="no timing: one eager call per case inside cudaProfilerStart/Stop (ncu --profile-from-start off)")
@@ -263,7 +265,15 @@ def main():
         if hasattr(ref, "case_fields") and weights is not None:
             case.update(ref.case_fields(case, weights))
         seeds = [case["seed"] + j for j in range(a.inputs or a.runs)]
-        fresh = [ref.generate_input(**{**case, "seed": s}) for s in seeds]
+        fresh = []
+        for s in seeds:
+            # case_fields runs per input on the judge: each fresh input's local_start is its own
+            # busiest range, the range the router_load / router_distinct targets are measured on.
+            # One case-seed local_start for every input left about a third of decode 1 inputs with
+            # no local expert (docs/box.md, "Routing").
+            extra = (ref.case_fields({**case, "seed": s}, weights)
+                     if hasattr(ref, "case_fields") and weights is not None and not a.case_local_start else {})
+            fresh.append(ref.generate_input(**{**case, "seed": s, **extra}))
         row = dict(case=case)
         if a.profile:
             fn, state = impl["submission"]

@@ -107,7 +107,8 @@ and `okc::moe_fused` is the gap: 18.1 vs 29.5 us (decode 1 sliding), 14.5 vs 22.
 under one router, so part of this is routing; the rest is not explained yet (hypotheses: the
 judge's router_load target gives more routes per expert than the distinct-only match; driver
 595 vs 580; the judge's prepare padding and input copies change page placement for the 800 MB
-expert bank).
+expert bank). Explained later the same day, see "Routing" below: the runner gave every fresh
+input the case seed's local_start, so most inputs did not run on their own busiest expert range.
 
 In-prepare logs print the same lines with the same class of numbers. PDL8_AB T = 1 sliding: judge
 off 83.94 / on 77.22, saving 7.07; box 77.70 / 70.98, saving 6.98. T = 1 full: judge 90.85 / 84.48;
@@ -169,13 +170,66 @@ sliding fall inside the judge's own draw range although outside 3%.
 Both sides run about 3% slow on the box, so the board ratio holds while the absolute times run
 about 3% high. Per-shape rows are in `/root/okc/.build/box/bf16_base.log`.
 
+### Routing (MoE lane, 2026-11-03 afternoon)
+
+The layer's gap was the runner, not the GPU. `reference.case_fields` sets `local_start` to the
+32-expert range the input's own routing sends the most pairs to, and the judge runs it for each
+input; the router_load / router_distinct targets are measured on that busiest range too
+(`_mean_busiest_load`). The first runner computed it once on the case seed and reused it for all 60
+fresh inputs, so most inputs ran on some other range: at decode 1, with 8 experts over 8 ranges, a
+random range holds 0 local experts about a third of the time. `box_run.py` now calls `case_fields`
+per fresh input (`--case-local-start` restores the old behaviour). Rerun of layer_base.py, same
+router seed, `.build/box/layer_pi.log`:
+
+| cell | judge net | box net, case local_start | box net, per input | box/judge now | box moe_fused (10-replay mean) |
+|---|---:|---:|---:|---:|---:|
+| decode 1 sliding | 69.94 | 61.68 | 68.40 | **0.978** | 24.71 |
+| decode 1 full | 77.93 | 67.49 | 74.70 | 0.959 | 24.25 |
+| verify 1 sliding | 109.56 | 99.54 | 112.06 | **1.023** | 57.18 |
+| verify 1 full | 120.42 | 98.62 | 120.02 | **0.997** | 63.57 |
+
+SGLang moves with it (box/judge 1.028 to 1.065), since it now does the same expert work.
+
+What the routing shape does to `okc::moe_fused` (`tools/box_route_map.py`, 60 fresh inputs per
+cell, each on its busiest range; per-replay cold graph net time and a per-replay torch.profiler
+kernel time; `.build/box/rmap_busiest.log` / `.json`). Kernel time against distinct local experts,
+median per bucket in us:
+
+| distinct | decode 1 sliding | decode 1 full | verify 1 sliding | verify 1 full |
+|---:|---:|---:|---:|---:|
+| 2 | 22.02 (n 34) | 21.89 (n 35) | | |
+| 3 | 28.35 (n 23) | 28.35 (n 24) | | |
+| 4 | 34.78 (n 3) | 36.00 (n 1) | 36.83 (n 2) | |
+| 5 | | | 43.46 (n 7) | 43.34 (n 4) |
+| 6 | | | 48.80 (n 13) | 48.90 (n 10) |
+| 7 | | | 55.33 (n 12) | 55.55 (n 15) |
+| 8 | | | 61.10 (n 12) | 58.70 (n 8) |
+| 9 | | | 68.16 (n 5) | 68.34 (n 14) |
+| 10 | | | 75.71 (n 5) | 74.30 (n 3) |
+| 12 | | | 87.83 (n 3) | 82.37 (n 1) |
+
+Least squares over the 60 inputs: decode 1 9.4 + 6.42 x distinct (residual sd 0.66 us; sliding),
+9.1 + 6.39 x distinct (0.92; full); verify 1 10.6 + 6.42 x distinct (2.83), 11.4 + 6.18 x distinct
+(3.12). Adding the routes count or the most tokens on one expert does not reduce the residual
+(coefficients 0.4 us or less), so tokens per expert and the worst single expert do not matter at
+these sizes: the kernel's time is a fixed 9-11 us plus one expert's weight stream per distinct
+expert. 6.4 us per expert is 28.31 MB (3 x 4096^2 x (0.5 + 1/16) bytes) at 4.42 TB/s, 92% of the
+4.8 TB/s the bound uses, the same rate the standalone timeline measured for the unit loop (MOE-TL-01,
+4.1-4.3 TB/s while it runs). The judge's f931 profile numbers are single inputs of this map:
+29.5 us at decode 1 sliding is a 3-expert input (box 28.35), 22.6 at decode 1 full a 2-expert one
+(21.89), 57.7 at verify 1 sliding about 7 to 8 experts, 87.1 at verify 1 full about 12 (87.83 /
+82.37). The judge's decode 1 replays show the same steps: per-replay times cluster at 60-63, 66-69
+and 72-76 us, about one expert (6.4 us) apart. Distinct means on the box: 2.48 / 2.43 at decode 1,
+7.38 / 7.92 at verify 1, against the 2.5 / 7.5 targets.
+
 ### What is trusted
 
 - Within 3% of the judge: layer decode 16 full, decode 32 sliding, decode 32 full; MoE decode 32;
   attention decode 16 sliding, verify 1 full, verify 16 sliding; BF16 verify 16 and verify 32.
 - Not within 3%: every other cell, including all layer decode 1 and verify 1 cells (box 9 to 18%
   fast, mostly in the in-layer MoE kernel) and the BF16 short loads (box 3 to 4% slow on both
-  sides).
+  sides). Update: with per-input local_start the layer's verify 1 cells are within 3% (1.023 /
+  0.997) and decode 1 is at 0.978 / 0.959; layer cells measured before the fix are void for MoE work.
 - Use the box for A/B comparisons inside one box run (same router seed, same inputs, paired
   order), for correctness checks, for in-prepare bench logic and for per-kernel attribution of
   the non-MoE kernels. Do not use it to predict a judge score or to rank against the board.
