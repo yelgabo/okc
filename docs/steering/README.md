@@ -32,6 +32,8 @@ The Decode32 Worker owns its checks and job waits. Each other owner retains its 
 
 ## Latest audit
 
+[Faster standalone MoE diagram](2026-11-02-moe-release-diagram.md) compares the 5762.1 us private release and 5788.7 us public snapshot with the older 6069.6 us entry. The retained c7 engine matches the earlier layer diagram. T32 dispatch, large-batch work assignment and eligible scale packing differ from the older public source. Internal component times remain unqualified.
+
 [Bounded next decisions on the same P0/P1 refill](2026-11-02-general-hotspot-search-refill.md#next-decision-build-the-complete-discriminators--november-2-2026-pacific) replace the prior build HOLD with concrete WS two-node and BF16 raw/packed implementation briefs. Timing must decide complete endpoints; missing timing is not a prerequisite to implement. No new allocation or promotion claim.
 
 [Driver monitor05:10UTC](2026-11-02-driver-monitor-0510.md): B queue terminal loss;23 faster private points have complete promotion dispositions; existing MoE profile/release tasks and next-stage General/BF16 research request reconciled.

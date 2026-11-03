@@ -1,0 +1,64 @@
+<svg id="engine-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1010" width="1280" height="1010" role="img" aria-labelledby="moe-title moe-desc"><style>#engine-svg{background:#101013}#engine-svg text{font-family:"Avenir Next",Avenir,system-ui,sans-serif;fill:#f0ece3}#engine-svg .svg-title{font-size:22px;font-weight:650}#engine-svg .sub{font-size:17px;fill:#c0bcb6}#engine-svg .small{font-size:15px;fill:#c0bcb6}#engine-svg .label{font-size:16px;fill:#dec18a}#engine-svg .edge{stroke:#dec18a;stroke-width:2;fill:none}#engine-svg .profile-cost{font-size:27px;font-weight:650;fill:#efc58c}#engine-svg .profile-share{font-size:21px;font-weight:600;fill:#efc58c}#engine-svg .profile-detail{font-size:15px;fill:#d3c1a5}#engine-svg .unmeasured{font-size:14px;fill:#d3b88e}</style>
+<title id="moe-title">Inside the retained WGS expert kernel</title>
+<desc id="moe-desc">Within each CTA, two producer warps load packed weights and activation tiles into separate rings. Four compute warpgroups decode register weights. Activation reuse follows full stage retirement.</desc>
+<defs>
+<marker id="moe-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0 0L10 5L0 10Z" fill="#dec18a" />
+</marker>
+</defs><g><rect x="35" y="16" width="1200" height="105" rx="9" class="box" fill="#1b1b20" stroke="#686158" /><text x="55" y="53" class="svg-title">Same c7c201ae engine as your earlier layer diagram</text><text x="55" y="88" class="sub">B4 at T17–32; MAIN above T32 · internal times remain unisolated</text></g><g class="core-architecture" transform="translate(0 140)">
+<path d="M35 96A117.5 16 0 0 1 270 96V194A117.5 16 0 0 1 35 194Z" fill="#1b1b20" stroke="#a38e68" stroke-width="1.5" />
+<ellipse cx="152.5" cy="96" rx="117.5" ry="16" fill="#25252a" stroke="#a38e68" stroke-width="1.5" />
+<text x="152.5" y="135" class="svg-title" text-anchor="middle">Packed weights</text>
+<text x="152.5" y="162" class="sub" text-anchor="middle">NVFP4 codes + scales</text>
+<text x="152.5" y="186" class="sub" text-anchor="middle">SC6 where eligible</text>
+<path d="M35 581A117.5 16 0 0 1 270 581V689A117.5 16 0 0 1 35 689Z" fill="#1b1b20" stroke="#a38e68" stroke-width="1.5" />
+<ellipse cx="152.5" cy="581" rx="117.5" ry="16" fill="#25252a" stroke="#a38e68" stroke-width="1.5" />
+<text x="152.5" y="620" class="svg-title" text-anchor="middle">Expert activations</text>
+<text x="152.5" y="647" class="sub" text-anchor="middle">Xₐ or Phase-A Xᵦ</text>
+<text x="152.5" y="671" class="sub" text-anchor="middle">Global BF16 rows</text>
+<rect x="325" y="30" width="910" height="800" rx="12" fill="#151518" stroke="#786a52" stroke-width="1.5" />
+<text x="350" y="65" class="label">One cooperative launch · each CTA has 576 threads</text>
+<rect x="365" y="105" width="270" height="110" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5" />
+<text x="385" y="140" class="svg-title">Weight producer</text>
+<text x="385" y="169" class="sub">32 threads · TMA loads</text>
+<text x="385" y="199" class="unmeasured">Loading time: not isolated</text>
+<rect x="820" y="105" width="280" height="125" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5" />
+<text x="840" y="140" class="svg-title">Weight ring</text>
+<text x="840" y="169" class="sub">3 shared-memory slots</text>
+<text x="840" y="194" class="sub">Codes stay packed</text>
+<path class="edge" d="M270 160H365" marker-end="url(#moe-arrow)" />
+<path class="edge" d="M635 160H820" marker-end="url(#moe-arrow)" />
+<text x="725" y="142" class="small" text-anchor="middle">Packed stage</text>
+<rect x="608" y="300" width="545" height="235" rx="9" fill="#25252a" stroke="#b4a077" stroke-width="1.5" />
+<rect x="594" y="314" width="545" height="235" rx="9" fill="#25252a" stroke="#b4a077" stroke-width="1.5" />
+<rect x="580" y="328" width="545" height="235" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5" />
+<text x="600" y="367" class="svg-title">Four compute warpgroups</text>
+<text x="600" y="402" class="sub">128 threads / group · 64 output rows each</text>
+<text x="600" y="437" class="sub">Decode weights into BF16 registers</text>
+<text x="600" y="472" class="sub">Register / shared WGMMA</text>
+<text x="600" y="507" class="sub">256 rows / unit · 16 K256 stages</text>
+<text x="600" y="540" class="unmeasured">Decode + WGMMA time: not isolated</text>
+<path class="edge" d="M960 230V285H850V328" marker-end="url(#moe-arrow)" />
+<text x="970" y="274" class="small">Codes → register A</text>
+<rect x="365" y="600" width="270" height="130" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5" />
+<text x="385" y="635" class="svg-title">Activation producer</text>
+<text x="385" y="664" class="sub">32 threads · TMA loads</text>
+<text x="385" y="689" class="sub">Phase B waits for ready Xᵦ</text>
+<text x="385" y="717" class="unmeasured">Load + wait time: not isolated</text>
+<rect x="820" y="600" width="280" height="130" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5" />
+<text x="840" y="635" class="svg-title">Activation ring</text>
+<text x="840" y="664" class="sub">3 shared-memory slots</text>
+<text x="840" y="689" class="sub">BF16 WGMMA operand B</text>
+<path class="edge" d="M270 665H365" marker-end="url(#moe-arrow)" />
+<path class="edge" d="M635 665H820" marker-end="url(#moe-arrow)" />
+<text x="725" y="645" class="small" text-anchor="middle">Input tiles</text>
+<path class="edge" d="M960 600V580H850V563" marker-end="url(#moe-arrow)" />
+<rect x="365" y="340" width="180" height="150" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5" />
+<text x="382" y="375" class="svg-title">Slot lifetime</text>
+<text x="382" y="407" class="unmeasured">Wait: not isolated</text>
+<text x="382" y="438" class="label">Retire → fence</text>
+<text x="382" y="465" class="label">→ release X slot</text>
+<path class="edge" d="M1125 520H1180V777H960V730" marker-end="url(#moe-arrow)" />
+<text x="1110" y="759" class="small" text-anchor="end">Release X slot</text>
+<text x="365" y="812" class="small">Four compute groups + two producer warps = 576 threads per CTA.</text>
+</g></svg>
