@@ -28,11 +28,15 @@ def build(*, target_proposal=True, treatment='scale'):
     assert sha(native) == NATIVE_PIN
     if treatment == 'scale':
         from cuda_scale_constant import transform as selected_transform
+        experiment = 'cuda_scale_constant'
+    elif treatment == 'group_scale':
+        from cuda_group_scale import transform as selected_transform
+        experiment = 'cuda_group_scale_fixed'
     else:
         assert treatment == 'groups'
         selected_transform = transform
+        experiment = 'cuda_issue_groups'
     candidate, edits = selected_transform(native)
-    experiment = 'cuda_scale_constant' if treatment == 'scale' else 'cuda_issue_groups'
     prefix = assignment(prefix, '_EXPERT_PAIR_EDITS', edits)
     prefix = assignment(prefix, 'EXPERT_MOE_IDENTITIES', (experiment, BASE_PIN, NATIVE_PIN, sha(candidate)))
     prefix = prefix.replace('expert_top100_pregamma', experiment)
@@ -75,10 +79,10 @@ def build(*, target_proposal=True, treatment='scale'):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--treatment', choices=('groups', 'scale'), default='scale')
+    parser.add_argument('--treatment', choices=('groups', 'scale', 'group_scale'), default='scale')
     args = parser.parse_args()
     source, manifest = build(treatment=args.treatment)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(source)
+    args.out.write_bytes(source.encode())
     args.out.with_suffix('.manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(json.dumps(manifest, indent=2))

@@ -10,7 +10,7 @@ The complete alternative is to keep the existing decoder, packing, rings, schedu
 
 ## Exact treatment
 
-Use immutable layer control `ba9e327c`, native `c7c201ae`, in the existing standalone MoE adapter. Change the WGS `GS` constant and preserve deferred work's issue boundary at the same completed k16 count. Keep the grid, CTA size, shared-memory layout, all proxy fences, stage drain, barrier counts, numerical boundaries and dispatcher thresholds. No production source is edited during exploration.
+Use immutable layer control `ba9e327c`, native `c7c201ae`, in the existing standalone MoE adapter. Change the WGS `GS` constant. The original intent to preserve the exact deferred-work boundary was incompatible with the selected FCI=4/GS=2 threshold of ten. The corrected treatment below rounds to the next group boundary. Keep the grid, CTA size, shared-memory layout, all proxy fences, stage drain, barrier counts, numerical boundaries and dispatcher thresholds. No production source is edited during exploration.
 
 Two operand banks alternate by committed group. After committing group g, wait_group1 completes all groups older than g. Before bank g mod2 is reused for g+2, its previous reader g has therefore completed. Keep the stage's wait_group0 before activation-slot release. The fence preceding each group's register operands covers all four instructions in that group. This changes grouping rather than removing required publication. See the CUDA 12.8.2 PTX ISA's WGMMA fence, commit_group and wait_group sections.
 
@@ -32,3 +32,21 @@ The second bounded treatment removes `+ p.zero` from WGS scale reconstruction. I
 ## Concurrent compiler-only interaction test
 
 While private scale job `3aa3885f6b734f8c` runs, test scale folding together with replacing WGS's repeated volatile shared load of `S.ssp` by the existing ordinary-pointer form. The old source says hoisting creates spills. The new scale-only code removes B4 spills, which is a concrete changed register-lifetime premise. `S.ssp` has one assignment per launch, before routing and the CTA/join barriers, and remains fixed while consumers run; these barriers and every fence stay. This is a compiler-only discriminator, not another GPU allocation or a change to the accepted source. Stop if it adds spills or changes collective counts. No claim about its performance is made.
+
+## Reframe after the first matched result
+
+Private `3aa3885f6b734f8c` passes all official and private correctness/replay checks. Its 24 whole-six factors range from 0.992411 to 1.004932 and all fail the frozen gate. A descriptive aggregate is 0.997953; unchanged short paths also drift, so this is not a causal 0.2% slowdown. The affected-load mean factors are approximately 1.000066, 0.999202 and 1.001283 at T32/T128/T256. Stop the scale-only treatment as a performance candidate.
+
+The three small experiments identify the limitation of instruction cleanup: group-only batching adds spills, pointer spelling produces identical SASS, and removing scale-induced spills leaves most matrix loops unchanged and no measurable endpoint gain. This does not establish a hardware ceiling. The assumptions were the current two-step grouping, source register budget and existing packing/scheduler.
+
+Give the strongest interacting alternative a bounded test: combine constant scales with four-step groups at NTT<=4, preserving the existing two-step wide cases. The scale change has demonstrated a different allocation outcome, and may let batching reduce collective matrix-loop overhead without the group-only spills. Neither ingredient must win independently. First compile both selected candidate builds against the already compiled control. Stop at new spills or lost pipeline invariants; otherwise one new private comparison under the same complete-call gates is within the user's independent-experiment request. Do not extend this into a threshold/ring/register-cap sweep.
+
+## Schedule audit correction
+
+The initial equality test skipped the first-stage flush for four-step groups, because the active native threshold is ten, not the nearby helper's eight. Neither grouped source reached GPU allocation. Those compiler results describe the flawed exact sources and do not reject correctly scheduled grouping. The accepted scale-only GPU source is separate and unchanged.
+
+The corrected combination uses `ceil(10/GS)-1` as the zero-based flush group. This flushes at twelve for GS4 and ten for GS2. The extra work lies inside an already acquired stage, before any next-stage ring wait, so it adds no producer dependency on the delayed release. The phase-end flush and all publication operations remain. Test active constants and all possible original group boundaries, then inspect SASS publication counts and spills. Preserve initial artifacts and write corrected artifacts to a separate directory.
+
+## Corrected combination private registration
+
+Local CUDA12.8.1 B4 and MAIN both pass with 96 registers and zero stack/spills for both bool entries. Per-entry HGMMA512, wait0=48 and async-fence84 match control. Wait1 and warpgroup-arrive decrease256 to192, a distinct matrix-loop treatment. These are static compiler observations, not a speed forecast. Test native `7db5ec77` versus `c7c201ae` through the same complete four-state harness and immutable matched gates. One initial private MoE check; one confirmation only after a promising result. Preserve all six timed loads, both B4/MAIN alternatives, and duplicate-null/regression gates. No public action or D32 integration is authorized by this registration.

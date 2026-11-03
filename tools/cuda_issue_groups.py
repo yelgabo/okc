@@ -21,9 +21,11 @@ def sha(value):
 
 def transform(native):
     edits = [
-        ('constexpr int GS = OKC_WGSGS;', 'constexpr int GS = NTT <= 4 ? 4 : OKC_WGSGS;'),
+        ('constexpr int GS = OKC_WGSGS;',
+         'constexpr int GS = NTT <= 4 ? 4 : OKC_WGSGS;\n'
+         '  constexpr int FLUSH_CI = ((OKC_WGSFCI + 1) * OKC_WGSGS + GS - 1) / GS - 1;'),
         ('if (FIRST && ci == OKC_WGSFCI && pd.kind)',
-         'if (FIRST && (ci + 1) * GS == (OKC_WGSFCI + 1) * OKC_WGSGS && pd.kind)'),
+         'if (FIRST && ci == FLUSH_CI && pd.kind)'),
     ]
     for old, new in edits:
         if native.count(old) != 1:
@@ -67,13 +69,13 @@ def generate(out, treatment=transform):
     return manifest
 
 
-def compile_pair(out):
+def compile_pair(out, arms=('control', 'candidate')):
     flags = ['-O3', '-std=c++17', '-gencode=arch=compute_90a,code=sm_90a', '-Xptxas=-v',
              '-DOKC_NS=3', '-DOKC_NSF=3', '-DOKC_FNST=4', '-DOKC_PRMTSC=1', '-DOKC_DQ7=1',
              '-DOKC_SC6W=1', '-DOKC_NW=16', '-DOKC_FAST1=0', '-DOKC_EPI4=0', '-DOKC_WGS=1']
     results = []
     for key in ('b4', 'main'):
-        for arm in ('control', 'candidate'):
+        for arm in arms:
             stem = key + '-' + arm
             actual = flags + (['-DOKC_B4FIN=1'] if key == 'b4' else [])
             command = ['docker', 'run', '--rm', '--platform', 'linux/arm64', '-v', str(out.resolve()) + ':/w',

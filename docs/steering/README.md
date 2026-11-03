@@ -26,11 +26,14 @@ This is the stable cross-session entry point. Read the latest human priority, it
 
 ## CUDA part 2 independent experiments
 
-[Compiler experiments and registered standalone MoE measurement](2026-11-02-cuda-part2-experiments.md)
-record the optimizer's actual source and plan. Shape-specific larger WGMMA groups
-stop at a new-spill compiler result. A separate constant scale multiplier removes
-local B4 spills with matching WGMMA/wait/fence counts and proceeds toward one
-private matched MoE check `3aa3885f6b734f8c`, now accepted. This is compiler evidence; target latency remains pending.
+[Compiler experiments and standalone MoE measurement](2026-11-02-cuda-part2-experiments.md)
+record the optimizer's actual source and plan. Constant scales remove local B4
+spills, but own H200 `3aa3885f6b734f8c` passes correctness and fails the matched
+speed gate: all24 whole-six factors are0.992411 to1.004932. No runtime promotion.
+An ordinary pointer read emits identical SASS. A schedule audit caught an
+unreachable deferred-flush condition before GPU allocation. The corrected coherent
+scale/group treatment passes local resource/publication checks and is registered
+for a new matched private test under the same complete-call gates.
 The [part 2 source corrections](../research/cuda-h200/part2.md) are preserved.
 D32 Worker's attention confirmation and ownership remain separate.
 

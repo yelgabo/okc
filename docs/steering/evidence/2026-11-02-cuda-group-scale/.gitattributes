@@ -1,0 +1,2 @@
+paired.py -text
+*.log -text whitespace=-blank-at-eol

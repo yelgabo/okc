@@ -15,6 +15,8 @@ def read(folder, job):
     accepted = reader.strict_json((folder / 'accepted.json').read_text())
     if accepted['job_id'] != job or accepted['source_sha256'] != hashlib.sha256(payload).hexdigest():
         raise ValueError('Accepted source/job mismatch')
+    if receipt.get('id') != job or receipt.get('board') != 'muse_moe_w4a16' or receipt.get('mode') != 'check':
+        raise ValueError('Owning private MoE receipt mismatch')
     log_path = Path(receipt['output']['log'])
     log = log_path.read_bytes().decode('utf8')
     upload = dict(job=job, team='yelgabo', mode='check', board='muse_moe_w4a16',
@@ -23,8 +25,9 @@ def read(folder, job):
     attestation = dict(job=job, owning_log=str(log_path), sha256=reader.sha(log),
                        source_sha256=reader.sha(payload))
     previous = reader.build
+    treatment = {'cuda_scale_constant': 'scale', 'cuda_group_scale_fixed': 'group_scale'}[manifest['experiment']]
     try:
-        reader.build = build
+        reader.build = lambda **kwargs: build(treatment=treatment, **kwargs)
         result = reader.read(receipt, job, log, manifest, payload, upload, attestation)
     finally:
         reader.build = previous

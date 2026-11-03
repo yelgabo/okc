@@ -80,6 +80,11 @@ The complete attachment and section coverage are preserved there. These notes
 do not reopen parked experiments or change D32 ownership or submission permission.
 Compiler checks must preserve the compiler's failure status and full diagnostics;
 successful output filtering is not build evidence.
+When changing WGMMA grouping, read the active constants from the selected native
+literal. Nearby helper literals and old comments can differ. Test that deferred
+flush conditions remain reachable for every selected group size, and inspect
+compiled publication operations before any GPU run. Record rounded flush timing
+explicitly rather than claiming an unchanged boundary.
 
 ## Research and execution principles
 
@@ -104,6 +109,8 @@ Use the coordinator's Research method for detailed execution. These principles p
   Copy `baseline.py` to `<problem>/baseline_profile/baseline.py` with the
   `# okc: problem=<problem>` header, run it as a check, and keep its result JSON there. That is
   the hotspot map: which SGLang kernels take the time, per shape.
+  Discover its receipt with `rg --files <problem>/baseline_profile`; baseline job IDs
+  belong to their problem and must not be copied from another problem's path.
 - **Find the hotspot, then attack it.** Before writing a kernel, run `tools/hotspots.py` on the
   latest run (with `--baseline`) and pick the target from the gap between each kernel's time and
   the floor. Append the table to `docs/hotspots.md` whenever a new best lands.

@@ -1,0 +1,248 @@
+{
+  "experiment": "cuda_group_scale_fixed",
+  "source_sha256": "c4e6d1088fdc0f8d61a3547d9d01c6cdabc42804cefac39741622645f5feade9",
+  "bytes": 342999,
+  "runtime_id": "a1c0aa3c2bdc8d3e4059795d1f35e8a99c6ce2b573eec79e695df0f1c1f5cfc1",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "candidate_native_sha256": "7db5ec77dd1a093476c16dc2604eb81fdcbaa400ef953ecac90ae88bdb1107c5",
+  "official_arm": "candidate2",
+  "hold": false,
+  "compiler_calls": [
+    {
+      "name": "glue_moe_415a2bdc6eb73960_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_b2495a009a910301_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_1b555edc8284ed23_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_7e37cd900cb88979_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_45a005177ff52c30_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_595fc7336f807670_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "7db5ec77dd1a093476c16dc2604eb81fdcbaa400ef953ecac90ae88bdb1107c5",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_8d676b8cffe82743_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "7db5ec77dd1a093476c16dc2604eb81fdcbaa400ef953ecac90ae88bdb1107c5",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    }
+  ],
+  "routes": [
+    {
+      "tokens": 1,
+      "key": "tiny"
+    },
+    {
+      "tokens": 8,
+      "key": "tiny2"
+    },
+    {
+      "tokens": 16,
+      "key": "mid"
+    },
+    {
+      "tokens": 32,
+      "key": "b4"
+    },
+    {
+      "tokens": 128,
+      "key": "main"
+    },
+    {
+      "tokens": 256,
+      "key": "main"
+    }
+  ],
+  "adapter_control_sha256": "19aeaf356be6329dea1031966a4b7efbab4f039748f122acc78300e670cb5b57",
+  "contract_sha256": "560b4512add507a35591d2167abd2ddce26ba138d70269cbfd0ea0a10ef51555",
+  "runtime_sha256": "36522d833e87fadbbc6c901021268b5462500bcaccea13806ff0e5b825d7e439",
+  "reference_sha256": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+  "nvfp4_sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+  "public_submission": false,
+  "target_qualified": false
+}

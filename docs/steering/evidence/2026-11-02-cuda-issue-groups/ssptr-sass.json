@@ -1,0 +1,102 @@
+{
+  "b4": {
+    "scale": [
+      {
+        "entry": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+        "instructions": 26800,
+        "lds64": 11,
+        "lds": 321,
+        "local": 0,
+        "hgmma": 512,
+        "wait0": 48,
+        "wait1": 256,
+        "async_fence": 84
+      },
+      {
+        "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "instructions": 26800,
+        "lds64": 11,
+        "lds": 321,
+        "local": 0,
+        "hgmma": 512,
+        "wait0": 48,
+        "wait1": 256,
+        "async_fence": 84
+      }
+    ],
+    "scale_ssptr": [
+      {
+        "entry": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+        "instructions": 26800,
+        "lds64": 11,
+        "lds": 321,
+        "local": 0,
+        "hgmma": 512,
+        "wait0": 48,
+        "wait1": 256,
+        "async_fence": 84
+      },
+      {
+        "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "instructions": 26800,
+        "lds64": 11,
+        "lds": 321,
+        "local": 0,
+        "hgmma": 512,
+        "wait0": 48,
+        "wait1": 256,
+        "async_fence": 84
+      }
+    ]
+  },
+  "main": {
+    "scale": [
+      {
+        "entry": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+        "instructions": 23736,
+        "lds64": 3,
+        "lds": 345,
+        "local": 0,
+        "hgmma": 512,
+        "wait0": 48,
+        "wait1": 256,
+        "async_fence": 84
+      },
+      {
+        "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "instructions": 23736,
+        "lds64": 3,
+        "lds": 345,
+        "local": 0,
+        "hgmma": 512,
+        "wait0": 48,
+        "wait1": 256,
+        "async_fence": 84
+      }
+    ],
+    "scale_ssptr": [
+      {
+        "entry": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+        "instructions": 23736,
+        "lds64": 3,
+        "lds": 345,
+        "local": 0,
+        "hgmma": 512,
+        "wait0": 48,
+        "wait1": 256,
+        "async_fence": 84
+      },
+      {
+        "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "instructions": 23736,
+        "lds64": 3,
+        "lds": 345,
+        "local": 0,
+        "hgmma": 512,
+        "wait0": 48,
+        "wait1": 256,
+        "async_fence": 84
+      }
+    ]
+  }
+}
