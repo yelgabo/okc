@@ -1,0 +1,2 @@
+# Preserve the original saved receipt bytes, including encoding and line endings.
+status-wait.raw.json -text

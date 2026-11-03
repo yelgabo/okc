@@ -435,5 +435,6 @@
       "all_benchmark_seeds_different": true
     }
   ],
+  "raw_receipt_encoding": "utf-8",
   "limitation": "Unchanged incumbent calibration; no optimization gain or matched causal runner effect."
 }

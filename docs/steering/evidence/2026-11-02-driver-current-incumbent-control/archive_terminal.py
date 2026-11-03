@@ -8,7 +8,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 HERE = Path(__file__).resolve().parent
 JOB = '94ef698e91964dfa'
-d = json.loads((HERE / 'status-wait.raw.json').read_text())
+raw = (HERE / 'status-wait.raw.json').read_bytes()
+try:
+    receipt_text, receipt_encoding = raw.decode('utf-8'), 'utf-8'
+except UnicodeDecodeError:
+    receipt_text, receipt_encoding = raw.decode('cp1252'), 'cp1252'
+d = json.loads(receipt_text)
 assert (d['id'], d['board'], d['team'], d['mode'], d['status']) == (
     JOB, 'muse_decode_layer', 'yelgabo', 'check', 'done')
 r = d['result']
@@ -18,7 +23,7 @@ counts = dict(collections.Counter(x['event'] for x in records))
 assert counts == dict(setup=1, test=13, benchmark=12, profile=12)
 assert all(x['status'] == 'pass' for x in records if x['event'] in ('test', 'setup'))
 assert all('total ' in x['report'] for x in records if x['event'] == 'profile')
-log = (HERE / 'profiles' / f'control.{JOB}.log').read_text()
+log = (HERE / 'profiles' / f'control.{JOB}.log').read_text(encoding='utf-8')
 startup = [x for x in log.splitlines() if 'G_RELEASE_STARTUP_OK native' in x]
 assert len(startup) == 1 and '56 verified_replays' in startup[0]
 base = (ROOT / 'muse_decode_layer/cand/g1b4_stage_release.py').read_bytes()
@@ -52,10 +57,12 @@ summary = dict(job=JOB, score=r['speedup'], CI=r['speedup_ci'], reconstructed_sc
     counts=counts, prepare_s=records[0]['prepare_s'], rows=rows,
     d32_cells=[x for x in bench if x['case']['load'] == 'decode 32'], startup=startup,
     machine=r['machine'], cluster=d['cluster'], evaluator=r['evaluator'], comparisons=comparisons,
+    raw_receipt_encoding=receipt_encoding,
     limitation='Unchanged incumbent calibration; no optimization gain or matched causal runner effect.')
-(HERE / 'terminal-analysis.json').write_text(json.dumps(summary, indent=2)+'\n')
+(HERE / 'terminal-canonical.utf8.json').write_text(json.dumps(d, indent=2, ensure_ascii=True)+'\n', encoding='utf-8', newline='\n')
+(HERE / 'terminal-analysis.json').write_text(json.dumps(summary, indent=2)+'\n', encoding='utf-8', newline='\n')
 manifest = {str(p.relative_to(ROOT)).replace('\\','/'): dict(bytes=p.stat().st_size,
             sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(HERE.rglob('*'))
             if p.is_file() and p.name != 'archive-manifest.json'}
-(HERE / 'archive-manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
+(HERE / 'archive-manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8', newline='\n')
 print(json.dumps({k:summary[k] for k in ('job','score','CI','counts','prepare_s','rows')},indent=2))

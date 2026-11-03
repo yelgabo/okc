@@ -10,9 +10,9 @@ Earlier ownership statements below are retained as history and do not override D
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing correctness requirements and public-submission permissions remain in effect. A report is not an additional GPU dispatch.
 
-## Active pre-existing captain-owned measurement
+## Completed pre-existing MID measurement
 
-**[D32 MID private check a6fe2769779e4299 accepted](2026-11-02-driver-d32-mid-first-check.md)** — sourcee607fb89/870649LF, published28346bf5 and49remote blobs verified. Fresh6private/no-live, calibration94ef terminalvalid; one ordinary exploration, root alone waits. Require actualMID/native56replay and13/12/12 gates. No target result/public permission. Preserve this already-accepted job under its original owner; the latest D32-02 instruction governs subsequent work.
+**[MID terminal: valid, no useful D32 signal](2026-11-02-driver-d32-mid-terminal.md)** — own a6fe2769779e4299 passed13tests/12benchmarks/12completeprofiles plus actualMID/native56replays. D32C32=12.752280ms versus unchanged94ef12.324230ms (descriptive3.473%slower,differentinputs/node); wholelayer2.089423487x. Exacte607/870649LF PARKED, no extra confirmation/public action. Original root wait/archive is complete and its one-time ownership exception retires. **Subsequent D32 work belongs directly to Decode32 Worker under D32-02**, no routine Driver/Developer allocation/handoff gate. [Watched result/ledger note](decode32/2026-11-02-03-mid-result.md). Fresh afterreset20private/10scored/no-live; overall/layer379,public607unchanged.
 
 ## Earlier assignment: Decode32 Worker — full-context attention
 
@@ -57,6 +57,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 | Report | Evidence | Scope |
 |---|---|---|
 | [D32-02: end-to-end ownership](decode32/2026-11-02-02-end-to-end-ownership.md) | 28346bf; latest user instruction; publication reconciled with65b94dcc | Batch32-only implementation through private checks and integration; no recurring handoffs; rest of project unchanged |
+| [D32 MID terminal / one-time retirement](2026-11-02-driver-d32-mid-terminal.md) | own a6fe2769779e4299/e607fb89; control94ef | VALID13/12/12/native56; no usefulD32signal,exactPARK; raw/profiles/portablederivative archived; futureD32execution directlynewowner |
 | [D32 MID accepted check](2026-11-02-driver-d32-mid-first-check.md) | own a6fe2769779e4299; source28346bf5/e607fb89 | One pre-existing ordinary private exploration; original owner finishes this accepted job; target gates open |
 | [Calibration terminal and MID qualification gate](2026-11-02-driver-d32-control-terminal-and-mid-gate.md) | own94ef698e91964dfa; exactMIDe607fb89; independent source/CPU review | Unchanged calibration valid2.091747685x; D32 C32=12.324230ms,1.81179x; source qualification history |
 | [Fixed MID implementation](2026-11-02-worker-d32-mid-family.md) | ba9 control; MIDb8; e607fb89/870649LF | Existing MID for17..32, unchanged shaders/math; actual entry/cache/neighbor CPU gates |

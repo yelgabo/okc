@@ -6,6 +6,10 @@
 
 Scope: decode batch32 / T32 / q_len1, both contexts; `C32 = 46*sliding_us + 16*full_us`. Prioritize actual improvements to this load and preserve the other five loads. Existing correctness and public-submission permissions remain.
 
+## Completed pre-existing job
+
+[MIDa6fe2769779e4299 is terminal, archived and parked](2026-11-02-03-mid-result.md). Driver's one-time accepted-job exception is complete: no second poller/resubmit or approval/handoff gate. D32C32=12.752280ms, no usefulsignal versus freshcontrol12.324230ms; fullsource/selection/replay/score/raw evidence is linked. New D32 owner continues directly under D32-02. The older pending-job text below describes its pre-terminal checkpoint and is superseded by this result.
+
 ## Current work
 
 Continue **[D32-ATTN-01](2026-11-02-01-full-decode-attention.md)** from the [acknowledged 23:55 UTC pickup](2026-11-02-01-full-decode-attention-status.md), but take it through measurement and integration yourself. Its historical source-only/no-check/Driver-handoff wording is superseded by D32-02. A candidate/tests handoff is no longer completion.

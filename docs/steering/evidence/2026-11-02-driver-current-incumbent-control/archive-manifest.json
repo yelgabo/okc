@@ -1,11 +1,15 @@
 {
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/.gitattributes": {
+    "bytes": 109,
+    "sha256": "a3e8330a7f85fb3c02dd4fdc53a61f7cfdb4fdc71cb9472955055265b2642e9a"
+  },
   "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/accepted.json": {
     "bytes": 369,
     "sha256": "e3b39ae690abecd4ee9942942099dd9dd1f43a9a863e0c74db879e41aa79362c"
   },
   "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/archive_terminal.py": {
-    "bytes": 3789,
-    "sha256": "cc9e08871b41a6786b3a0372a3865c5e518520117f0736c3798629ddee5ff748"
+    "bytes": 4230,
+    "sha256": "f317f13ce81bf0b29df09aaa96b5756f2f0d8994a0ef4d6717f17e8e9f063c65"
   },
   "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/auth.stderr.txt": {
     "bytes": 0,
@@ -88,8 +92,12 @@
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/terminal-analysis.json": {
-    "bytes": 12808,
-    "sha256": "fdc75ea3d7b891d7dcf3cdccd3f6dc45da289f36283ad1c2b165949dc7e01c10"
+    "bytes": 12404,
+    "sha256": "e1cbc2b6091a7a17fc7dfed0fdbf1380910cfece7ecf7d12957723b26f66f8b1"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/terminal-canonical.utf8.json": {
+    "bytes": 73799,
+    "sha256": "a32ae5b5babc55757147ec17f73d45059052435016191eb5276e00c2f155e11f"
   },
   "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/upload-association.json": {
     "bytes": 733,
