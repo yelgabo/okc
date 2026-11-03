@@ -1,0 +1,130 @@
+{
+  "docs/steering/decode32/evidence/D32-ATTN-01/candidate.py": {
+    "bytes": 886106,
+    "sha256": "5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/compile-summary.json": {
+    "bytes": 1266,
+    "sha256": "7c16af5321c1a5af38fa6c0f73d11be0f6220cfb4ca0322d16b817bcf59d7d03"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/compiler-parser-failure.json": {
+    "bytes": 564,
+    "sha256": "f80b88543c7ab66938f6b178160124dfded67deaf7d73e016ee0ad599e6e2452"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/control-compile/cubin.log": {
+    "bytes": 4708,
+    "sha256": "622df0b0e779c3b8b12ab298ad4f823c2cfda586ac4378885ae09f028ea1c46f"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/control-compile/device.cu": {
+    "bytes": 181044,
+    "sha256": "8b338a8a91c78c650f590f017164703aff87cf67c9c3be8cb557924510acbb29"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/control-compile/device.cubin": {
+    "bytes": 64016,
+    "sha256": "7dad94dd15b7279655f6b7bdc5be58254b9078d8dc6d25819ca3302d7c815d66"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/control-compile/device.ptx": {
+    "bytes": 132200,
+    "sha256": "ea187947c2cf24bbd1aaefa549908dfbf896dcc5e758a4b4f191fb1257373820"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/control-compile/device.sass": {
+    "bytes": 913671,
+    "sha256": "8960896fb322869c036030d4a9a0f6a8dab6633f34a53d0654fd41cb6184999d"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/control-compile/manifest.json": {
+    "bytes": 6093,
+    "sha256": "4fff99910e88b139d29c88e73aa9c7c0cd4fafce047b75ed2e95820eac79ee72"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/control-compile/ptx.log": {
+    "bytes": 4041,
+    "sha256": "949be0bd87c842430b6b88fa17d5aaa9eee984d1f5eca1a8534968e4dc5d1743"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/control-compile/sass.log": {
+    "bytes": 913671,
+    "sha256": "8960896fb322869c036030d4a9a0f6a8dab6633f34a53d0654fd41cb6184999d"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/control.cu": {
+    "bytes": 191991,
+    "sha256": "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/cpu-tests.txt": {
+    "bytes": 1032,
+    "sha256": "adbfee026fd0490f7b545f9a9958cdae48155ba2822d07a686250d803f07a8ef"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/implementation-notes.md": {
+    "bytes": 8316,
+    "sha256": "83e34aa4721f7b1cd45e03de4ad4d1f87f3d3ed63f49ef76f43ecbdb59c22f6d"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/manifest.json": {
+    "bytes": 766,
+    "sha256": "b82b3d7a13311d56297c2489f2c654dc9d0a9331dd6710d32c016a794cb4f41b"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/native.patch": {
+    "bytes": 4277,
+    "sha256": "cf27f24b486348a4b4924cbe50b9ea16f5b26523e3e754104111938603d080a6"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/source-review.json": {
+    "bytes": 1552,
+    "sha256": "0507c47a5376b89b72ed79fbd30ef9ea5d8a8e9ec1f74baad27a42937513f051"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile/cubin.log": {
+    "bytes": 4708,
+    "sha256": "416d170b4e938724dfa372a7fc98a1b73ca1e062c7968be467ae9159870ff886"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile/device.cu": {
+    "bytes": 184705,
+    "sha256": "fb16653b0875d86615554a04f70ac2d1e2e7f79292524c2597276e2a905e47ce"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile/device.cubin": {
+    "bytes": 68112,
+    "sha256": "65356175871810aaa9b48067cae4ba6abd01508459c79208ecc196d7cff34eb4"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile/device.ptx": {
+    "bytes": 148644,
+    "sha256": "4749bbf787f3c05c3d469f73528c82b4d6c7c7683cb768bdd5d0692df8c871a9"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile/device.sass": {
+    "bytes": 966919,
+    "sha256": "9fb9b0128a139d0acdca7222e87c494ae5ba301239ebb7a56db9d9d36ae2ed41"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile/manifest.json": {
+    "bytes": 6103,
+    "sha256": "a98c394dfc2269dfac6e9a901a77211eafc5788826d1f4244c72cc5328e1471e"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile/ptx.log": {
+    "bytes": 4041,
+    "sha256": "76a79a7f8e841a71c724716e108bf471e1868b9130cb019d9a99958fc620cf73"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile/sass.log": {
+    "bytes": 966919,
+    "sha256": "9fb9b0128a139d0acdca7222e87c494ae5ba301239ebb7a56db9d9d36ae2ed41"
+  },
+  "docs/steering/decode32/evidence/D32-ATTN-01/treatment.cu": {
+    "bytes": 195652,
+    "sha256": "3de8f5caac947c54af133fd83b157e3d1f1ab16ebcee8d61bcd0573f8ad0b26d"
+  },
+  "tools/d32_attn_worker_test.py": {
+    "bytes": 9071,
+    "sha256": "78baa33646037190ae9a188436acfae5d3073ecfb6fcc7e6c0d3c6e1a2bae607"
+  },
+  "tools/d32_attn_worker_candidate.py": {
+    "bytes": 9404,
+    "sha256": "d23525019a274777f4f71a9d0fdff4973d3f9f6c049a801880d9547ed5c18342"
+  },
+  "tools/d32_attn_worker_compile.py": {
+    "bytes": 9801,
+    "sha256": "c4fe250a132c3fa20283d39d646f33f30e3747a99d63f73adccdcfb7eac909ef"
+  },
+  "docs/steering/decode32/2026-11-02-01-full-decode-attention-experiment.md": {
+    "bytes": 7088,
+    "sha256": "1e9fa7dcf22faa37d28972cb44223df8ae6c0465b3edfcb352f7b231d3c34a3b"
+  },
+  "docs/steering/decode32/2026-11-02-01-full-decode-attention-status.md": {
+    "bytes": 1719,
+    "sha256": "2d28d612e25ae50cd8be35db94538fcd4663879090d984a4c4f0cafaf3388000"
+  },
+  "docs/steering/decode32/2026-11-02-01-full-decode-attention-plan.md": {
+    "bytes": 2662,
+    "sha256": "16841e053e9d015b73fd667512b615c0d85210e62cc7b2d72bbabfdccc773c18"
+  }
+}

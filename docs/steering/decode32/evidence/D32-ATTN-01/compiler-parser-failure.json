@@ -1,0 +1,18 @@
+{
+  "started_utc": "2026-11-03T00:00:52.466736+00:00",
+  "image": {
+    "Id": "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+    "Architecture": "arm64",
+    "Os": "linux",
+    "RepoTags": [
+      "nvidia/cuda:12.8.1-devel-ubuntu24.04"
+    ],
+    "RepoDigests": [
+      "nvidia/cuda@sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66"
+    ]
+  },
+  "records": [],
+  "status": "COMPILE_SCREEN_FAILED",
+  "error": "error('unpack requires a buffer of 24 bytes')",
+  "finished_utc": "2026-11-03T00:00:58.797799+00:00"
+}

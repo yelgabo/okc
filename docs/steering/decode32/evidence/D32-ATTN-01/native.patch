@@ -1,0 +1,127 @@
+--- control.cu
++++ treatment.cu
+@@ -1762,6 +1762,116 @@
+     qa[2][0] = l1.x; qa[2][1] = l1.y; qa[3][0] = l1.z; qa[3][1] = l1.w;
+   }
+ 
++  if constexpr (FLAT && WS) {
++
++  static_assert(STAGES >= 2, "lookahead holds current and next raw stages");
++  auto qk_quad = [&](const uint4 kb, float* score) {
++    const uint32_t kw[4] = {kb.x, kb.y, kb.z, kb.w};
++    float se[4] = {0.f, 0.f, 0.f, 0.f}, so[4] = {0.f, 0.f, 0.f, 0.f};
++#pragma unroll
++    for (int h = 0; h < 2; ++h) {
++      mma_f16(se, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[2 * h]), cvt2h(kw[2 * h]));
++      mma_f16(so, qa[2 * h][0], qa[2 * h][1], qa[2 * h + 1][0], qa[2 * h + 1][1], cvt2(kw[2 * h + 1]), cvt2h(kw[2 * h + 1]));
++    }
++    score[0] = se[0] + so[2]; score[1] = se[1] + so[3];
++  };
++  float scores[4][2];
++  if (ntiles > 0) {
++    if (ws_acquire(0, tb % STAGES)) csync<WS, NT>();
++    const uint8_t* K0 = S.k + (tb % STAGES) * STAGE_BYTES;
++#pragma unroll
++    for (int nt = 0; nt < 4; ++nt) {
++      const int key = 32 * wsub + 8 * nt + g;
++      const uint4 kb = lds128(K0 + key * ROWB + (((hk * 4 + tig) ^ (key & 7)) << 4));
++      qk_quad(kb, scores[nt]);
++    }
++  }
++  PROF_INIT
++  for (int i = 0; i < ntiles; ++i) {
++    PROF_MARK(0);
++    if (i == 0) DBG(12);
++    const uint8_t* V = S.v + ((tb + i) % STAGES) * STAGE_BYTES;
++    const int t0 = start + i * TILE;
++    const bool interior = (t0 >= lo_all) && (t0 + TILE - 1 <= hi_all);
++    if (!interior) {
++#pragma unroll
++      for (int nt = 0; nt < 4; ++nt)
++#pragma unroll
++        for (int e = 0; e < 2; ++e) {
++          const int pos = t0 + 32 * wsub + 8 * nt + 2 * tig + e;
++          if (pos >= end) scores[nt][e] = -INFINITY;
++        }
++    }
++    float mx = -INFINITY;
++#pragma unroll
++    for (int nt = 0; nt < 4; ++nt) mx = fmaxf(mx, fmaxf(scores[nt][0], scores[nt][1]));
++    mx = quad_max(mx);
++    const float m_new = fmaxf(m_r[0], mx);
++    const bool active = m_new != -INFINITY;
++    float alpha = 1.f;
++    if (active) {
++      alpha = ex2(m_r[0] - m_new);
++      m_r[0] = m_new;
++    }
++    const bool next = i + 1 < ntiles;
++    const uint8_t* next_k = nullptr;
++    if (next) {
++      if (ws_acquire(i + 1, (tb + i + 1) % STAGES)) csync<WS, NT>();
++      next_k = S.k + ((tb + i + 1) % STAGES) * STAGE_BYTES;
++    }
++    float following[4][2];
++    float ls = 0.f;
++#pragma unroll
++    for (int nt = 0; nt < 4; ++nt) {
++      uint4 kb;
++      if (next) {
++        const int key = 32 * wsub + 8 * nt + g;
++        kb = lds128(next_k + key * ROWB + (((hk * 4 + tig) ^ (key & 7)) << 4));
++      }
++      if (active) {
++#pragma unroll
++        for (int e = 0; e < 2; ++e) {
++          const float pv = ex2(scores[nt][e] - m_new);
++          scores[nt][e] = pv;
++          ls += pv;
++        }
++      }
++      if (next) qk_quad(kb, following[nt]);
++    }
++    PROF_MARK(2);
++    if (active) {
++      if constexpr (ONE) {
++        l_r[0] = ls;
++      } else {
++        l_r[0] = l_r[0] * alpha + ls;
++#pragma unroll
++        for (int t = 0; t < 8; ++t) { o[0][t][0] *= alpha; o[0][t][1] *= alpha; }
++      }
++#pragma unroll
++      for (int ks = 0; ks < (OKC_XHALFPV ? 1 : 2); ++ks) {
++        uint32_t b0[8], b1[8];
++        load_v_frags(V, 32 * wsub + 16 * ks, hk, g, tig, b0, b1);
++        const uint32_t a0 = pack_h2(scores[2 * ks][0], scores[2 * ks][1]);
++        const uint32_t a2 = pack_h2(scores[2 * ks + 1][0], scores[2 * ks + 1][1]);
++#pragma unroll
++        for (int t = 0; t < 8; ++t) mma_f16(o[0][t], a0, 0u, a2, 0u, b0[t], b1[t]);
++      }
++    }
++    __syncwarp();
++    if (OKC_XP_ARRALL || lane == 0) mbar_arrive(&S.empty[(tb + i) % STAGES]);
++    if (next) {
++#pragma unroll
++      for (int nt = 0; nt < 4; ++nt)
++#pragma unroll
++        for (int e = 0; e < 2; ++e) scores[nt][e] = following[nt][e];
++    }
++    PROF_MARK(3);
++    PROF_TILE;
++    if (i == 0) DBG(13);
++  }
++  PROF_DUMP;
++
++  } else {
+   PROF_INIT
+   for (int i = 0; i < ntiles; ++i) {
+     if constexpr (WS) {
+@@ -1855,6 +1965,7 @@
+     if (i == 0) DBG(13);
+   }
+   PROF_DUMP;
++  }
+   } else {
+   // ---- L == 8 on sm_90: QK^T with FP8 wgmma straight from the FP8 K tile in shared memory (warpgroup =
+   // KV head, 64 rows = 8 tokens x 8 heads, K-major 128B-swizzled B operand), PV with f16 mma.sync from a

@@ -16,6 +16,13 @@ Earlier ownership statements below are retained as history and do not override D
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing correctness requirements and public-submission permissions remain in effect. A report is not an additional GPU dispatch.
 
+## D32 attention source and direct measurement
+
+D32-04 is read and execution continues directly. The [score-lookahead experiment](decode32/2026-11-02-01-full-decode-attention-experiment.md)
+pins candidate `5a580c7a`, six focused CPU tests and the fixed CUDA 12.8.1 device
+builds. The [compact ledger](decode32/STATUS.md) records the source and own job.
+Target results remain pending; no intermediate handoff is required.
+
 ## Completed pre-existing MID measurement
 
 **[MID terminal: valid, no useful D32 signal](2026-11-02-driver-d32-mid-terminal.md)** — own a6fe2769779e4299 passed13tests/12benchmarks/12completeprofiles plus actualMID/native56replays. D32C32=12.752280ms versus unchanged94ef12.324230ms (descriptive3.473%slower,differentinputs/node); wholelayer2.089423487x. Exacte607/870649LF PARKED, no extra confirmation/public action. Original root wait/archive is complete and its one-time ownership exception retires. **Subsequent D32 work belongs directly to Decode32 Worker under D32-02**, no routine Driver/Developer allocation/handoff gate. [Watched result/ledger note](decode32/2026-11-02-03-mid-result.md). Fresh afterreset20private/10scored/no-live; overall/layer379,public607unchanged.
@@ -62,6 +69,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [D32 attention experiment](decode32/2026-11-02-01-full-decode-attention-experiment.md) | ba9 control; 5a580c7a candidate; six CPU tests and fixed device builds | Direct private measurement under D32-04; target results pending |
 | [D32-04: research plans, worker executes](decode32/2026-11-02-04-research-plan-worker-execute.md) | a3ba392c; user's medium-effort instruction; existing L1 score-carry source brief | Fixed candidate design, focused checks and direct private measurement; no repeated review/planning or handoffs; correctness retained |
 | [D32-02: end-to-end ownership](decode32/2026-11-02-02-end-to-end-ownership.md) | 28346bf; latest user instruction; publication reconciled with65b94dcc | Batch32-only implementation through private checks and integration; no recurring handoffs; rest of project unchanged |
 | [D32 MID terminal / one-time retirement](2026-11-02-driver-d32-mid-terminal.md) | own a6fe2769779e4299/e607fb89; control94ef | VALID13/12/12/native56; no usefulD32signal,exactPARK; raw/profiles/portablederivative archived; futureD32execution directlynewowner |

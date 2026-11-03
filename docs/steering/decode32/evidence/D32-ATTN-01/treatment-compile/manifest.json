@@ -1,0 +1,203 @@
+{
+  "arm": "treatment",
+  "source": "/Users/gretchengabo/Documents/ChatGPT/okc/docs/steering/decode32/evidence/D32-ATTN-01/treatment.cu",
+  "source_sha256": "3de8f5caac947c54af133fd83b157e3d1f1ab16ebcee8d61bcd0573f8ad0b26d",
+  "original_device_prefix_sha256": "9964b2ca684c0d8a73a1cd7b85145b7400afee493c64ad3605e7c54ea933a460",
+  "adapted_source_sha256": "fb16653b0875d86615554a04f70ac2d1e2e7f79292524c2597276e2a905e47ce",
+  "image": {
+    "Id": "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+    "Architecture": "arm64",
+    "Os": "linux",
+    "RepoTags": [
+      "nvidia/cuda:12.8.1-devel-ubuntu24.04"
+    ],
+    "RepoDigests": [
+      "nvidia/cuda@sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66"
+    ]
+  },
+  "target": "sm_90a",
+  "selected_instance": "attn_kernel<1,true,0>",
+  "flags": [
+    "-O3",
+    "-std=c++17",
+    "-gencode=arch=compute_90a,code=sm_90a",
+    "--expt-relaxed-constexpr",
+    "-DOKC_QDIRECT=0",
+    "-DOKC_PK2=0",
+    "-DOKC_W0ENABLE=1",
+    "-DOKC_SM90=1",
+    "-D__CUDA_NO_HALF_OPERATORS__",
+    "-D__CUDA_NO_HALF_CONVERSIONS__",
+    "-D__CUDA_NO_BFLOAT16_CONVERSIONS__",
+    "-D__CUDA_NO_HALF2_OPERATORS__",
+    "-Xptxas=-v,--warn-on-spills"
+  ],
+  "adapters": [
+    "Torch/ATen/c10 includes removed from exact device prefix",
+    "cuda_runtime.h included for declarations supplied by Torch",
+    "explicit selected-instance template instantiation",
+    "constant-only sizeof/Cfg witness outside selected kernel"
+  ],
+  "commands": [
+    {
+      "stage": "cubin",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull=never",
+        "--network=none",
+        "--platform=linux/arm64",
+        "--env=NVIDIA_VISIBLE_DEVICES=void",
+        "--volume",
+        "/Users/gretchengabo/Documents/ChatGPT/okc/docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile:/w",
+        "--entrypoint",
+        "/usr/local/cuda/bin/nvcc",
+        "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+        "-O3",
+        "-std=c++17",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "--expt-relaxed-constexpr",
+        "-DOKC_QDIRECT=0",
+        "-DOKC_PK2=0",
+        "-DOKC_W0ENABLE=1",
+        "-DOKC_SM90=1",
+        "-D__CUDA_NO_HALF_OPERATORS__",
+        "-D__CUDA_NO_HALF_CONVERSIONS__",
+        "-D__CUDA_NO_BFLOAT16_CONVERSIONS__",
+        "-D__CUDA_NO_HALF2_OPERATORS__",
+        "-Xptxas=-v,--warn-on-spills",
+        "-cubin",
+        "/w/device.cu",
+        "-o",
+        "/w/device.cubin"
+      ],
+      "status": 0
+    },
+    {
+      "stage": "ptx",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull=never",
+        "--network=none",
+        "--platform=linux/arm64",
+        "--env=NVIDIA_VISIBLE_DEVICES=void",
+        "--volume",
+        "/Users/gretchengabo/Documents/ChatGPT/okc/docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile:/w",
+        "--entrypoint",
+        "/usr/local/cuda/bin/nvcc",
+        "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+        "-O3",
+        "-std=c++17",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "--expt-relaxed-constexpr",
+        "-DOKC_QDIRECT=0",
+        "-DOKC_PK2=0",
+        "-DOKC_W0ENABLE=1",
+        "-DOKC_SM90=1",
+        "-D__CUDA_NO_HALF_OPERATORS__",
+        "-D__CUDA_NO_HALF_CONVERSIONS__",
+        "-D__CUDA_NO_BFLOAT16_CONVERSIONS__",
+        "-D__CUDA_NO_HALF2_OPERATORS__",
+        "-Xptxas=-v,--warn-on-spills",
+        "-ptx",
+        "/w/device.cu",
+        "-o",
+        "/w/device.ptx"
+      ],
+      "status": 0
+    },
+    {
+      "stage": "sass",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull=never",
+        "--network=none",
+        "--platform=linux/arm64",
+        "--env=NVIDIA_VISIBLE_DEVICES=void",
+        "--volume",
+        "/Users/gretchengabo/Documents/ChatGPT/okc/docs/steering/decode32/evidence/D32-ATTN-01/treatment-compile:/w",
+        "--entrypoint",
+        "/usr/local/cuda/bin/cuobjdump",
+        "sha256:520292dbb4f755fd360766059e62956e9379485d9e073bbd2f6e3c20c270ed66",
+        "--dump-sass",
+        "/w/device.cubin"
+      ],
+      "status": 0
+    }
+  ],
+  "scope": "CUDA12.8.1 compile only; host extension, runtime admission, CUDA numerics and performance not run",
+  "resources": {
+    "_ZN41_GLOBAL__N__cffe84ae_9_device_cu_b95fc04411attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 128,
+      "barriers": 3
+    }
+  },
+  "layout_witness": {
+    "declared_type": "b8",
+    "declared_elements": 24,
+    "element_bytes": 1,
+    "initialized_elements": 21,
+    "names": [
+      "sizeof_Smem_L1_flat",
+      "threads",
+      "stages",
+      "producer_registers",
+      "consumer_registers",
+      "minimum_blocks"
+    ],
+    "values": [
+      61440,
+      256,
+      3,
+      56,
+      200,
+      2
+    ]
+  },
+  "ptx_instruction_counts": {
+    "bar.sync": 18,
+    "barrier.cta": 0,
+    "mbarrier.init": 16,
+    "fence.proxy.async": 0,
+    "wgmma.wait_group": 0
+  },
+  "files": {
+    "device.cu": {
+      "bytes": 184705,
+      "sha256": "fb16653b0875d86615554a04f70ac2d1e2e7f79292524c2597276e2a905e47ce"
+    },
+    "device.ptx": {
+      "bytes": 148644,
+      "sha256": "4749bbf787f3c05c3d469f73528c82b4d6c7c7683cb768bdd5d0692df8c871a9"
+    },
+    "device.cubin": {
+      "bytes": 68112,
+      "sha256": "65356175871810aaa9b48067cae4ba6abd01508459c79208ecc196d7cff34eb4"
+    },
+    "device.sass": {
+      "bytes": 966919,
+      "sha256": "9fb9b0128a139d0acdca7222e87c494ae5ba301239ebb7a56db9d9d36ae2ed41"
+    },
+    "cubin.log": {
+      "bytes": 4708,
+      "sha256": "416d170b4e938724dfa372a7fc98a1b73ca1e062c7968be467ae9159870ff886"
+    },
+    "ptx.log": {
+      "bytes": 4041,
+      "sha256": "76a79a7f8e841a71c724716e108bf471e1868b9130cb019d9a99958fc620cf73"
+    },
+    "sass.log": {
+      "bytes": 966919,
+      "sha256": "9fb9b0128a139d0acdca7222e87c494ae5ba301239ebb7a56db9d9d36ae2ed41"
+    }
+  },
+  "status": "COMPILED_NOT_TARGET_QUALIFIED"
+}
