@@ -65,7 +65,7 @@ The Decode32 Worker owns its checks and job waits. Each other owner retains its 
 
 [Driver monitor06:11UTC](2026-11-02-driver-monitor-0611.md): MoE public release verified at5788.7us/rank374; lookupc985 accepted; phase/WS split stopped;19promotion leads covered and9stale base-release relationships reconciled.
 
-[Faster standalone MoE diagram](2026-11-02-moe-release-diagram.md) compares the 5762.1 us private release and 5788.7 us public snapshot with the older6069.6us entry. The retained c7 engine matches the earlier layer diagram. T32 dispatch, large-batch work assignment and eligible scale packing differ from the older public source. Internal component times remain unqualified.
+[Faster standalone MoE diagram](2026-11-02-moe-release-diagram.md) compares the 5762.1 us private release and 5788.7 us public snapshot with the older 6069.6 us entry. The retained c7 engine matches the earlier layer diagram. T32 dispatch, large-batch work assignment and eligible scale packing differ from the older public source. Internal component times remain unqualified.
 
 [Bounded next decisions on the same P0/P1 refill](2026-11-02-general-hotspot-search-refill.md#next-decision-build-the-complete-discriminators--november-2-2026-pacific) replace the prior build HOLD with concrete WS two-node and BF16 raw/packed implementation briefs. Timing must decide complete endpoints; missing timing is not a prerequisite to implement. No new allocation or promotion claim.
 
@@ -123,7 +123,7 @@ A fresh G1b4 control is queued. The serial short producer awaits its candidate r
 
 ## Previous hourly report, November 2 04:32 Vancouver time
 
-The matched G short-counter treatment missed its gate. G224 and timed SiLU passed correctness and were parked. [Review and job ledger](2026-11-02-0432-performance-review.md)
+The matched G short-counter treatment missed its gate. G224 and timed SiLU passed correctness and were parked. The four-cell infrastructure failure was refunded. [Review and job ledger](2026-11-02-0432-performance-review.md)
 
 ## Previous hourly report, November 1 14:49 Vancouver time
 
@@ -161,8 +161,8 @@ Timeline routing counts are invalid and CUPTI access is denied. Prefill remains 
 
 **[2026-10-30 23:32 PDT: PBULK measured, mode 86 and fusion gates](2026-10-30-2332-performance-review.md)**
 
-Snapshot `8f2c89b`. PBULK1 passes with a gain below its bar; PBULK2 loses. Mode86 misses
-its performance gate. M-C C-1 loses locally before a bench fault. New layer score2.018705x
+Snapshot `8f2c89b`. PBULK1 passes with a gain below its bar; PBULK2 loses. Mode 86 misses
+its performance gate. M-C C-1 loses locally before a bench fault. New layer score 2.018705x
 remains within prior uncertainty; changed validation and sensitivity findings are retained.
 GTICKET review is complete, with corrected code awaiting benchmark validation.
 
@@ -176,7 +176,7 @@ GTICKET review is complete, with corrected code awaiting benchmark validation.
 
 ## Report history
 
-[Projection source comparison](2026-11-02-utterwqlnut-projection-comparison.md) checks the shared cluster/WGMMA design. Our C2 has lower times in27/30 archived cells; O32 is an unpaired component lead.
+[Projection source comparison](2026-11-02-utterwqlnut-projection-comparison.md) checks the shared cluster/WGMMA design. Our C2 has lower times in 27/30 archived cells; O32 is an unpaired component lead.
 
 Use the [shared report archive](../../archive/docs/steering/) for older decisions. The [index before compaction](https://github.com/yelgabo/okc/blob/977fd319/docs/steering/README.md) retains the previous audit and report history with links at that revision. See the [prior archive manifest](../../archive/manifest-2026-11-02.json) for earlier moves.
 
