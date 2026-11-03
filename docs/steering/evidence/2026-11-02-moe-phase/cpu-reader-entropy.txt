@@ -1,0 +1,9 @@
+test_complete_and_injected_failures (test_moe_phase_reader.Reader.test_complete_and_injected_failures) ... ok
+test_real_failed_capsule_cannot_be_a_qualified_result (test_moe_phase_reader.Reader.test_real_failed_capsule_cannot_be_a_qualified_result) ... ok
+test_target_entropy_requires_explicit_compaction (test_moe_phase_reader.Reader.test_target_entropy_requires_explicit_compaction) ... ok
+test_variable_evidence_fits_log_tail (test_moe_phase_reader.Reader.test_variable_evidence_fits_log_tail) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.950s
+
+OK

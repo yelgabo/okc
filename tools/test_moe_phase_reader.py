@@ -73,5 +73,15 @@ class Reader(unittest.TestCase):
         self.assertEqual(result['counters']['timed_replays'],4608)
         with self.assertRaises(RuntimeError):read_partial(folder,'wrong-own-job')
 
+    def test_target_entropy_requires_explicit_compaction(self):
+        folder=Path(__file__).resolve().parents[1]/'docs/steering/evidence/2026-11-02-moe-phase'
+        partial=json.loads((folder/'partial.json').read_text())
+        rng=random.Random(17)
+        partial['raw_trace']=dict(grid=132,base_ns=123456789012345,
+                                  critical_ctas=[[i,*[rng.randrange(1,300000) for _ in range(24)]] for i in range(15)])
+        self.assertGreater(len(encode(partial)),12000)
+        partial['raw_trace']=None
+        self.assertLess(len(encode(partial)),12000)
+
 
 if __name__=='__main__':unittest.main()

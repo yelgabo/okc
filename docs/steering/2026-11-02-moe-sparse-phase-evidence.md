@@ -58,3 +58,5 @@ The table below describes **instrumented exploratory traces**, medians over two 
 |256|skewed|14.02|14.48|9.13|
 
 Stop exact77ca05dc/365c9eab under the one-run contract. No observer retry, larger bound/guard, subset rescue or gain claim. Precise next kernel-treatment evidence remains missing: source-bound exposure with a valid cost/stability screen or a compatible complete alternative. This is a shared-repository refill request to existing research owners, not proof of delivery or permission for another agent/job. The immediate concrete next action is the independently justified exact current-control release check, source5df257af, which addresses the public-release gap without depending on invalid phase attribution. [Prepared release and gates](2026-11-02-moe-control-release-qualification.md).
+
+A retained-target entropy regression now reproduces why a complete raw representative can exceed12,000characters while explicit raw omission fits. Fourreader tests pass. Root instructions load the target-entropy size-test requirement automatically. This is an offline reporting check and no source repair, retry or change to the failed experiment status.
