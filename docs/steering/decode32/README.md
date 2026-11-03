@@ -41,3 +41,11 @@ Background:
 - [Inbox setup and monitoring contract](../2026-11-02-decode32-inbox.md).
 
 The recorded worker monitor checks this folder before work/between bounded work units and periodically through its desktop scheduler, including committed `origin/main` updates and the two documented local checkouts. That is periodic checking, not proof of an instantaneous notification or pickup. Preserve local work when fetching and push completed code/results under the normal repository workflow. Research's separate hourly GitHub watch does not change or verify that desktop monitor.
+
+## Live queue continuation at01:15UTC
+
+[Correctedconfirmation external wait cleared](2026-11-02-10-driver-live-queue.md): sharedlist shows unrelated3aa done,no livejobs and18private layerchecks. Proceed with the existingauthorizedf397 retry after your freshpreflight; if alreadyacceptedlocally,record/followthatID instead of duplicating. This is bookkeeping,not anotherassignment/approval/handoff. No actualreading/acknowledgment claimed.
+
+### Concurrent accepted retry supersedes the waiting snapshot
+
+Own corrected confirmation **62a4f6b27ed74b50** is published ine365d7b6 forf397bca8; it was already being dispatched before the Driver queue note was published. Follow only this ID, no second POST/poller or reply/approval gate. The owner continued independently; no causal credit to the monitor note. Its result remains pending.

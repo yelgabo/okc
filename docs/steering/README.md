@@ -1,5 +1,17 @@
 # Shared project steering
 
+## Public competition reconnaissance and recurring watch
+
+[Competition watch and source findings](2026-11-02-competition-watch.md) records the user's request to follow public GitHub and social discussion for all five Muse problem names. The new material finding is keell0renz's README-only author caveat at `890809ce`, asking readers to disregard a current #1 submission. This is an attributed statement, not an independent judge finding or a change to its published kernels. The baseline records 36 public repository targets, paginated search coverage and access gaps. A two-hour Codex watch is active in the scouting chat and alerts on substantive changes. No kernel work, judge job, public submission or ownership change.
+
+## General Optimizer: pipeline-buffer depth, unless CUDA Optimizer already owns it
+
+**[GOPT-PIPE-01: pipeline-buffer-depth task](2026-11-02-general-optimizer-pipeline-depth.md)** — the user requested this topic go to General Optimizer unless CUDA Optimizer is already on it. At evidence `d5f5918b`, CUDA Optimizer's actual report/plan cover scale folding, issue-group size and a compiler-only pointer interaction, not an active ring-depth test; the plan explicitly avoids a generic repeated ring sweep. General Optimizer owns the bounded nonduplicated task in the shared queue, subject to a single latest-ownership check. Reuse the old three/four-slot result before considering one genuinely missing selected-path comparison. Four stages are reusable buffers, not four different computations. Preserve CUDA Optimizer's accepted job and Decode32 Worker's current confirmation/integration ownership. No duplicate jobs, new approval chain, public permission or runtime change. General Optimizer picked up this task in chat01a18696, with an isolated worktree and a five-minute queue watch. Current user steering favors checking the current skinny path; existing skinny and owned mode51 ring-depth receipts will be reconciled first.
+
+## Latest monitoring snapshot: corrected retry wait cleared
+
+[Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) verified first attention17383751/2.128829269x and D32C32=11.882275ms, still unmatched. Only full attention changed; do not credit unmodified sliding movement. The setup-onlyFP8-isfinite failure is corrected atf397bca8. PublishedSTATUS.md was waiting for unrelated3aa; fresh sharedlist shows it done/no live jobs/18layerchecks. **Concurrente365d7b6 records accepted corrected confirmation62a4f6b27ed74b50**. The worker already continued independently before the [queue note](decode32/2026-11-02-10-driver-live-queue.md) was published; it now records only that owning ID/no duplicate. Matched result remains pending. Shared no-live lists do not exclude an in-flight POST. Worker executes directly under D32-02/D32-04; no new assignment, approval, rootdispatch or directchat acknowledgment. Overall/layer382,public607unchanged.
+
 ## Decode32 next action and progress watch
 
 **[D32-06: continue directly to matched attention confirmation](decode32/2026-11-02-06-confirm-attention-and-progress-watch.md)** — the user asked research to watch the Decode32 inbox for inactivity. At evidence779b06ad, attention job17383751c6a24010 is terminal valid with C32=11.882275ms; confirmation, not another architecture review, is the already-authorized next step. Decode32 Worker keeps end-to-end execution authority and should record the accepted confirmation ID or a concrete blocker in STATUS.md. An hourly conditional research-side GitHub watch is enabled for new outcomes, blockers and documented missing continuation. This is not proof the local worker is asleep or a direct wake-up. No GPU dispatch, kernel change or new public permission. The watched inbox is updated; the other project owners remain unchanged.
@@ -47,6 +59,10 @@ logs. CPU regressions and a local CUDA 12.8.1 device build were checked. No runt
 kernel, target-performance claim, GPU dispatch or D32 ownership change is included.
 Root instructions load the reference index for future CUDA work.
 
+## D32 matched confirmation setup correction
+
+[Private check 4fece18b20a2447b](decode32/2026-11-02-09-pair-setup-failure.md) failed in setup because target PyTorch does not implement FP8 `isfinite`. No timing was produced. The corrected diagnostic casts FP8 only for this check and has CPU Torch finite/nonfinite coverage. A new private check follows source publication and live preflight.
+
 ## D32 matched confirmation payload
 
 [Attention confirmation payload](decode32/2026-11-02-08-confirmation-payload.md) `109cdb07` has generated-entry and real-CPU-Torch facade coverage. Target GPU correctness, 295-second preparation fit and paired timings are still open. One private check follows the normal job/quota preflight.
@@ -92,7 +108,7 @@ Prioritize expert/B4 work in both contexts, then batch32 full-decode attention. 
 
 **[D32 result and fixed MID-family comparison](2026-11-02-driver-d32-mid-comparison.md)**: direct-weight own0b684a40 is terminal VALID but D32 sliding180.848us/full337.856us, weighted13.724704ms versus own baseline22.145344ms (1.61354x). Exact direct lane and held pair stopped; no D32 rescue signal. Overall1.926423591x does not pass its original gate. Current prior-control comparison remains descriptive across inputs/nodes/drivers.
 
-**Recorded qualification gate:** [unchanged calibration terminal and fixed MID qualification](2026-11-02-driver-d32-control-terminal-and-mid-gate.md). Own94ef is VALID2.091747685x; D32 C32=12.324230ms/1.811791x. Existing developer finished exacte607fb89 MID-at17..32, root CPU/source review accepted one ordinary private exploration after source publication and fresh no-live/quota. The accepted MID ID is now listed above; no target result was established at this checkpoint.
+**Recorded qualification gate:** [unchanged calibration terminal and MID qualification](2026-11-02-driver-d32-control-terminal-and-mid-gate.md). Own94ef is VALID2.091747685x; D32 C32=12.324230ms/1.811791x. Existing developer finished exacte607fb89 MID-at17..32, root CPU/source review accepted one ordinary private exploration after source publication and fresh no-live/quota. The accepted MID ID is now listed above; no target result was established at this checkpoint.
 
 M33/other five loads stay control. Broad dense-bank GENERIC work proposed concurrently was **not delivered or started** and remains an unallocated secondary reserve under the D32 instruction. [Full direct terminal and priority addendum](2026-11-02-driver-direct-weight-terminal-and-dense-backing.md). Historical23:33UTC snapshot:overall/layer376,7private layer/no-live; no new public authority. **Unchanged calibration94ef698e91964dfa is terminal VALID**; captain archived fullraw/profile/D32/all-six evidence. Refresh live capacity rather than reuse old quota numbers. Existingdeveloper explicitly picked upMIDfamily at23:43UTC/firsttools/d32_mid_family.py.
 
@@ -108,6 +124,9 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [Driver01:15UTC monitor](2026-11-02-driver-monitor-0115.md) | e6993059/e365d7b6; own17383751/4fe/62a4 records; freshCLI lists | Firstattentionvalid/unconfirmed; correctedretryexternalwaitcleared; ownerautonomy/duplicateguard; boards382/no publicchange |
+| [Public competition watch](2026-11-02-competition-watch.md) | e365d7b6; keell0renz 890809ce; public GitHub and social source pins | New author caveat, 36 public repository targets and active two-hour scouting watch; no independent judge finding or kernel action |
+| [General Optimizer pipeline depth](2026-11-02-general-optimizer-pipeline-depth.md) | d5f5918b; CUDA Optimizer's actual report/plan; source corrections | GOPT-PIPE-01 assigned unless already owned; reuse prior three/four-slot evidence, one missing selected-path test only; pickup unconfirmed |
 | [CUDA part 2 experiments](2026-11-02-cuda-part2-experiments.md) | f720ac61; c7 native control; two local compiler treatments | Larger issue groups stop at spills; constant multiplier has positive compiler evidence and one registered private MoE measurement; no target gain yet |
 | [D32 confirmation continuation and watch](decode32/2026-11-02-06-confirm-attention-and-progress-watch.md) | 779b06ad; own17383751; user watch request | Already-authorized matched confirmation; hourly conditional research watch; no proof of sleep or new measured gain |
 | [H200 research intake and application](2026-11-02-cuda-research-application.md) | ba9/c7 source; complete attachment; CPU regressions and local CUDA 12.8.1 build | Eight reference documents, full section/recommendation coverage, compiler-status repair; no runtime optimization or target gain claimed |

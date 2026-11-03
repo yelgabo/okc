@@ -1,0 +1,50 @@
+{
+  "job": "17383751c6a24010",
+  "score": 2.128829269194994,
+  "CI": [
+    2.096896830157069,
+    2.1607617082329185
+  ],
+  "canonical_LF_sha256": "5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5",
+  "canonical_LF_bytes": 886106,
+  "D32_C_us": 11882.274781273958,
+  "D32_raw_C_us": 12113.119810819626,
+  "D32_baseline_us": 21860.47974973917,
+  "D32_ratio": 1.8397554468434367,
+  "cells": [
+    {
+      "case": {
+        "batch": 32,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "sliding",
+        "load": "decode 32",
+        "page": 1,
+        "seed": 8574316725488651522,
+        "spread": "agentic",
+        "weight": 46
+      },
+      "median_ns": 149764.1993875092,
+      "median_raw_ns": 153743.99721622467,
+      "baseline_ns": 259519.99425888062
+    },
+    {
+      "case": {
+        "batch": 32,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "full",
+        "load": "decode 32",
+        "page": 1,
+        "seed": 8574571432441514186,
+        "spread": "agentic",
+        "weight": 16
+      },
+      "median_ns": 312070.1005905334,
+      "median_raw_ns": 315055.9961795807,
+      "baseline_ns": 620160.0008644164
+    }
+  ],
+  "matched": false,
+  "limitation": "Full attention changed only. Unmodified sliding movement cannot be credited to treatment; first result needs matched confirmation."
+}

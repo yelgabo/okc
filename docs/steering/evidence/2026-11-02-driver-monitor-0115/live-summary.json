@@ -1,0 +1,83 @@
+{
+  "observed_utc": "2026-11-03T01:15:21.699004+00:00",
+  "evidence_commit": "e699305981eab877d79f71cc0d0609b1ee399e14",
+  "commands": {
+    "quota": [
+      "problems",
+      "--json"
+    ],
+    "jobs": [
+      "jobs",
+      "--json"
+    ],
+    "overall": [
+      "leaderboard",
+      "--json"
+    ],
+    "layer": [
+      "leaderboard",
+      "muse_decode_layer",
+      "--json"
+    ]
+  },
+  "limits": {
+    "muse_moe_w4a16": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 1,
+        "left": 19
+      }
+    },
+    "muse_decode_layer": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 2,
+        "left": 18
+      }
+    }
+  },
+  "live_jobs": [],
+  "previous_blocking_job": [
+    {
+      "job_id": "3aa3885f6b734f8c",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "status": "done",
+      "result_status": "ok"
+    }
+  ],
+  "overall": {
+    "rank": 382,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 381
+  },
+  "layer": {
+    "rank": 382,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 381,
+    "to_first": 1.1713
+  },
+  "layer100": {
+    "attempts": 39,
+    "job": "0dbf6c299ee444f2",
+    "rank": 100,
+    "speedup": 2.2704,
+    "submitted_at": 1793585060.697879,
+    "team": "pegasus1134",
+    "value": 9963.234035438725
+  },
+  "limit": "Extracted from fresh shared CLI lists; no per-job status poll or other-owner performance attribution."
+}

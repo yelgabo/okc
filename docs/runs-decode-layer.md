@@ -1031,3 +1031,6 @@ PRIVATE a6fe2769779e4299 TERMINAL VALID; source28346bf5/e607fb89/870649LF, serve
 
 
 2026-11-02: private check `17383751c6a24010`, source `31c7f920` / `5a580c7a`, D32 score lookahead. VALID, 13 tests / 12 benchmarks / 12 profiles, whole-layer 2.128829x, 95% CI [2.096897, 2.160762]. D32 adjusted sliding/full 149.764/312.070 us, weighted 11.882275 ms. Different-input control comparison is descriptive; matched confirmation pending. [Receipt and result](steering/decode32/2026-11-02-05-attention-first-result.md).
+
+
+2026-11-02: private matched check `4fece18b20a2447b`, diagnostic source `109cdb07`, setup failed with `NotImplementedError` from `torch.isfinite` on FP8. No correctness test, timing or score was produced. [Owning receipt and correction](steering/decode32/2026-11-02-09-pair-setup-failure.md).

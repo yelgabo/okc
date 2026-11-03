@@ -497,7 +497,7 @@
     },
     {
       "path": "docs/ruled-out.md",
-      "sha256": "2c767379a0effb71eb1fc8e8d156ff98cad382607b3bd70acd813ac8e86f0c9b",
+      "sha256": "bef11d3efb8f6194f555b0bc3c8d9e52422eb310da74fcef3e5fe9c3788d2ce5",
       "normalize_lf": true,
       "notes": [
         "pipelines.md",
@@ -1111,6 +1111,7 @@
   "refresh_notes": [
     "November 2: added the supplied correction supplement and its verified Git blob. Existing ruled-out rows are unchanged; one new issue-group compiler closure was appended. Earlier digest claims retain their dated scope.",
     "November 2: appended the compiler-only stable-SS-pointer identity result; prior experiment rows and their conclusions are unchanged.",
-    "November 2 terminal: appended exact scale-only matched failure and corrected the scope of initial grouped compiler closures. Their equality condition skipped a first-stage flush at active FCI4; no grouped GPU source had run. Earlier research claims retain their dated scope."
+    "November 2 terminal: appended exact scale-only matched failure and corrected the scope of initial grouped compiler closures. Their equality condition skipped a first-stage flush at active FCI4; no grouped GPU source had run. Earlier research claims retain their dated scope.",
+    "Concurrent D32 diagnostic closure appended during merge: FP8 isfinite setup failure is scoped to its exact diagnostic; preserved alongside optimizer closures. No CUDA research claim changes."
   ]
 }

@@ -1,5 +1,14 @@
 # okc: Open Kernel Challenge work
 
+## General Optimizer wake-up check
+
+OKC General Optimizer reads the newest shared steering queue and its active
+assignment before resuming on every user wake or scheduled wake. An active
+implementation/measurement assignment takes precedence over routine architecture
+tracker maintenance. Record actual pickup, the selected source/job and the next
+authorized action in the owned report. Preserve other workers' jobs and files.
+
+
 ## P0 user directive: Decode32 Worker owns the D32 lane end to end (2026-11-02)
 
 The user explicitly removed handoffs for **batch-32 optimization only**, not the
@@ -102,6 +111,12 @@ Apply these principles when choosing work, reviewing results and handing off. Us
 10. **Turn learning into execution.** While a judge job runs or service is unavailable, advance relevant analysis, implementation, compilation or correctness work. Use authorized scored measurements for eligible candidates when private checks are exhausted; recheck live jobs/quota and keep one dispatch owner. Existing submission permission and release rules still apply. At handoff, record the evidence that changed the next decision, actual outcome, remaining unknowns, owner and next gate in the repository. A written lesson is validated by better subsequent decisions and verified outcomes.
 
 Use the coordinator's Research method for detailed execution. These principles preserve the existing external-code, correctness and submission requirements. Background and rationale are in docs/steering/2026-11-01-working-principles.md.
+
+## FP8 finiteness checks
+
+PyTorch may not implement `isfinite` for FP8 tensors. Cast FP8 values to FP32
+for diagnostic finiteness checks and preserve their original dtype in the actual
+computation. Cover finite and nonfinite FP8 inputs in the relevant test.
 
 ## Evidence rules
 
