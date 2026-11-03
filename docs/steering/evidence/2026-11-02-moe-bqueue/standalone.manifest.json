@@ -1,0 +1,9 @@
+{
+  "source_sha256": "f2a1a621a1686dae63be358f913a3d34b588271ce0056147c6706117c60a481a",
+  "bytes": 332913,
+  "native_sha256": "99a6888d9a39b290636de49b312432b4d0d1df1e8b6b66abe76c738648d8096f",
+  "paired_sha256": "4c8c470f408815616472746b99bcda4ae3bdcedb201bd0833284e15f29e685c5",
+  "public_submission": false,
+  "target_qualified": false,
+  "scope": "candidate-only private packaging; local-start0/local-count32; no timing report"
+}

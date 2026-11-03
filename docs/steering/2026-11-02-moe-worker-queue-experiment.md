@@ -1,5 +1,7 @@
 # MoE worker pickup and whole-unit phase-B comparison
 
+Terminal result: MOE-BQUEUE-01 private `e044121f822d47b1` passes correctness and fails the frozen performance gate. Keep the incumbent, stop this exact queue treatment. No confirmation or integration. Full evidence and all six loads follow.
+
 November 2, 2026 Pacific. OKC MoE Worker has picked up standalone `muse_moe_w4a16` P0. General Optimizer keeps Tiny/Tiny2/MID WS work. This experiment owns B4/MAIN scheduling only. CUDA Optimizer's former B4 study is background evidence, with no accepted phase job identified in current shared steering. Public submissions still require user approval. The worker's reminder remains paused.
 
 ## Decode32 accepted job discharged
@@ -66,3 +68,48 @@ While the accepted job waits, an additional strict-reader CPU test passes on a s
 
 
 An offline SASS count confirms512HGMMA instructions,48 full WGMMA drains and84 async fences per bool entry in both arms. Candidate LDL/STL arezero; B4 control has8/1. Counts are code-generation evidence, not an ordering proof or timing result. [Operation audit](evidence/2026-11-02-moe-bqueue/sass-operation-audit.json). Root ownership instructions now load the user's MoE/BF16 reassignment and paused-reminder rule automatically.
+
+
+## Terminal decision, November 2 Pacific
+
+Own private `e044121f822d47b1` is terminal. The sole waiter56587 exited0 and ended. Five official tests, six benchmarks and six profiles pass, without flags. The strict source/job/log/manifest reader exits0 and recomputes component_pass=false. All54 cases/378 observations/216 captures/1152 cold timed replays/54 restorations and cleanup pass. Worst global/row relative errors are0.000224079/0.000484750. Preparation270.729127s, queue348.705469s, worker347.263598s. H200 target execution is verified by the owning receipt; its resources/compiler versions are not inferred from the local build.
+
+Zero of6 bank/distribution groups pass. All24 complete-six factors are below1, ranging0.954109315–0.995526795; descriptive geometric mean0.978879559. Fifteen of18 affected bank/load rows have at least one regression cross of1% or more. Short unchanged-path differences and duplicate-control noise are retained in the full analysis, so the result does not isolate an instruction, queue atomic, lost lookahead or barrier as the cause. It does establish failure of this exact complete-call performance candidate under the frozen contract.
+
+| Tokens | Distribution | Control mean us | Queue mean us | Descriptive factor |
+|---|---|---:|---:|---:|
+| 1 | normal | 34.104 | 34.120 | 0.996363 |
+| 8 | normal | 79.336 | 79.269 | 1.000047 |
+| 16 | normal | 117.125 | 116.875 | 1.003537 |
+| 32 | normal | 127.061 | 135.971 | 0.932807 |
+| 128 | normal | 187.349 | 190.941 | 0.981513 |
+| 256 | normal | 234.256 | 239.213 | 0.979411 |
+| 1 | skewed | 33.979 | 34.053 | 1.000929 |
+| 8 | skewed | 40.528 | 40.776 | 0.998898 |
+| 16 | skewed | 62.869 | 63.648 | 0.988176 |
+| 32 | skewed | 60.309 | 66.789 | 0.892267 |
+| 128 | skewed | 103.128 | 102.752 | 1.000777 |
+| 256 | skewed | 159.728 | 162.821 | 0.978444 |
+
+These are raw private graph timings, averaged over two placements and three banks for display. The strict gate uses each bank and every crossed paired ratio, not these means.
+
+Official versus-SGLang speedup2.296284786x,95%CI[2.261840514,2.330729058], score5856.634195us. The score exceeds the5559.830241us target. Its difference from historical public6069.607719us is an unmatched comparison of different architectures/runs, not a verified queue gain or a replacement public result.
+
+| Tokens | Official adjusted us | Owning SGLang us |
+|---|---:|---:|
+| 1 | 25.412336 | 77.007998 |
+| 16 | 94.477604 | 186.624006 |
+| 32 | 128.539936 | 206.623995 |
+| 8 | 67.440399 | 147.088000 |
+| 128 | 183.453385 | 458.159990 |
+| 256 | 221.376350 | 619.248006 |
+
+[Complete owning receipt](evidence/2026-11-02-moe-bqueue/status-wait.raw.json), [strict analysis](evidence/2026-11-02-moe-bqueue/analysis.json), [all-six summary](evidence/2026-11-02-moe-bqueue/summary.json), [profiles](evidence/2026-11-02-moe-bqueue/profiles), [reader exit](evidence/2026-11-02-moe-bqueue/read.exit.txt).
+
+Stop exact native99a6888d and paired4c8c470f. No confirmation, shape mask, queue-granularity/cap sweep, repeat, integration or public submission. The candidate-only wrapper prepared during waiting has the identical native body and one passing CPU forwarding/ownership test; it is also unqualified and stopped. It has never been dispatched. No production kernel or public row changed. This loss does not reject all dynamic scheduling or restore eligibility for closed ring/scale/group designs.
+
+## Next evidence needed in the MoE inbox
+
+There is no qualified next B4/MAIN kernel treatment in the current shared queue. Research's existing architecture-next refill should use this new negative, independently from General's WS lane. The specific missing evidence is current selected c7c201ae entry/A completion/B readiness/consumer finishing/finalizer exposure with measured observer perturbation, or a compatible complete expert comparator with a source-bound net-cost advantage. The old owned16–23us queue win did not transfer. Static instruction/spill improvements and aggregate persistent-kernel profile time do not supply that exposure.
+
+The former [CUDA-MOE-PHASE-01 brief](2026-11-02-cuda-b4-phase-attribution-task.md) is background for this owner after the user reassignment, not CUDA Optimizer's continuing allocation. Its older f147d06a trace had4.91–9.54% full-call and10.26–14.90% phase perturbation and cannot qualify a treatment. Existing frontier estimates address a different fixed-owner question. A new minimal phase instrument needs its own source selection, priced null and finite stop before any GPU allocation; do not blindly revive that observer. This is a repository refill request, not verified research pickup or permission for a duplicate job. No active job remains.
