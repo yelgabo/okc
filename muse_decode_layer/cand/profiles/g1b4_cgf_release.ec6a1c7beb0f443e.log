@@ -1,0 +1,14 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE qkv_gate cg_vs_sk2 4.02e-08 cg_vs_fp64 0.00e+00 sk2_vs_fp64 4.02e-08 equal 2303/2304 ok
+CG_GATE o cg_vs_sk2 0.00e+00 cg_vs_fp64 0.00e+00 sk2_vs_fp64 0.00e+00 equal 8192/8192 ok
+CG_GATE unpooler cg_vs_sk2 0.00e+00 cg_vs_fp64 0.00e+00 sk2_vs_fp64 0.00e+00 equal 1024/1024 ok
+CG_GATE pooler cg_vs_sk2 5.27e-05 cg_vs_fp64 0.00e+00 sk2_vs_fp64 5.27e-05 equal 4087/4096 ok
+CG_TUNE qkv_gate [('cg', 12.45), ('sk2', 13.6), ('torch', 17.79)] -> ('cg',)
+CG_TUNE o [('cg', 8.74), ('sk2', 9.22), ('torch', 10.05)] -> ('cg',)
+CG_TUNE pooler [('cg', 17.18), ('sk2', 17.5), ('torch', 24.99)] -> ('cg',)
+CG_TUNE unpooler [('cg', 6.88), ('sk2', 7.97), ('torch', 10.24)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'qkv_gate': ('cg',), 'o': ('cg',), 'unpooler': ('cg',), 'pooler': ('cg',)}
+CG_FRONT T=1 fused 22.40 split 20.42 us, split faster 15/15, pooled rel 7.95e-06, logits rel 2.02e-07, gate ok -> split
