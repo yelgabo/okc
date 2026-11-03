@@ -2338,3 +2338,51 @@ kernel's first-CTA-to-last-CTA span without leaving the judged replay, so the ju
 cell carries a per-launch cost that a shorter kernel does not reduce; the same ~1 us separates the
 judged and profiled times of the router and slice cells in both runs. Any further short-cell work has
 to be judged on the status JSON cell medians, not on profiled kernel durations.
+
+
+### 2026-11-03 stream-K qkv_gate at 8 / 16 / 32 tokens (final-day BF16 lane, sanctioned exception)
+
+Preregistration before dispatch. Source: the rebuilt C2 (`tools/proj_sk_xor_control.py`, SHA256
+5610b8a6, job 9eba96894ee1402e) plus three tuner candidates written by `tools/proj_sks_make.py` into
+`muse_bf16_proj/experiments/qkv_sks.py` (SHA256 ab0f9c1a). The judged picks stay in the file; the
+tuner chooses per bucket as before.
+
+Hypothesis. qkv8 / qkv16 / qkv32 run 96 CTAs of 24 rows at one CTA per SM, so 36 SMs idle and each
+busy SM streams 393 KB at about 38 GB/s (3.7 TB/s in all). The candidates qkv8s / qkv16s / qkv32s keep
+the geometry, stages, consumer and escape warps and the 12-bit stream, and launch 128 CTAs over the
+96 x tst (row block, k stage) sequence in row-block-major order: each CTA takes 6 (m = 8) or 12
+(m = 16 / 32) consecutive stages, 3/4 of a row block (295 KB), spanning at most two blocks; every
+block has exactly two contributors (checked on the CPU for both stage counts). The stage-major
+stream needs no new layout: each stage of one row block is already one contiguous bulk copy, so the
+producer only changes the address arithmetic. 128 rather than 132 CTAs because the work unit is a
+stage: 768 / 1536 stages split evenly over 128, and 132 CTAs would leave the longest CTA at the same
+6 / 12 stages. Consumers add their FP32 partials with red.add.v2 into an FP32 scratch at the end of
+each block segment, escape warps add each correction with red.add over exactly the CTA's k range of
+that block (both blocks' tables are loaded), and the last arriver of a block (atomicInc counter)
+reads its rows from L2, stores bf16 through the row map and writes zeros back (the wd GRED join's
+ordering, docs/proj-port-guide.md). Expected: about 7.5 us of streaming plus the ramp, 8.0-8.5 us
+judged against 9.77 / 9.74 / 10.56; in the tuner (in-process, about 3.9 us above judged) qkv8s near
+12.2 against qkv8 13.9.
+
+Local evidence (no GPU): device and host code compile with nvcc 12.8 for sm_90a (Docker); the 92
+existing kernel instances have identical register and spill counts; the 8 new instances use 69-120
+registers, no spills, 3 barriers.
+
+Acceptance (brief): a bucket switches if its stream-K candidate wins by 1 us or more in the tuner and
+the judged cell confirms; stop after one more check if all three buckets are within 0.5 us or slower.
+
+2026-11-03 | c65acf82346c4493 | check (private) | d85610c3 | `muse_bf16_proj/experiments/qkv_sks.py` SHA256 ab0f9c1a: C2 plus qkv8s / qkv16s / qkv32s. PASS, 9 tests, 30 cells, no flags, prepare 91.2 s (C2 106.4 s). Score 3,216.9 us, 1.5017x (CI 1.4792-1.5242) against C2 3,161.9 us, 1.5278x. Status JSON and log tail `muse_bf16_proj/profiles/qkv_sks.c65acf82346c4493.{json,log}`.
+
+Tuner (in-process, cold L2, 24 reps), incumbent vs stream-K, compressed / raw: m = 8: qkv8 14.4 vs qkv8s 17.8 (+3.4), raw 15.8 vs 19.0 (+3.2); m = 16: 14.2 vs 18.4 (+4.2), raw 17.0 vs 20.1 (+3.1); m = 32: 15.2 vs 21.7 (+6.5), raw 16.5 vs 22.7 (+6.2); m = 1 (bucket 8 candidates) qkv8 14.1 vs qkv8s 17.8. Every candidate passed the FP64 self-test. Picks unchanged (qkv8 / qkv16 / qkv32, cgemv at m = 1), so no judged cell runs a new kernel: qkv_gate 9.77 -> 10.08 (verify 1), 9.74 -> 10.38 (decode 16), 10.56 -> 10.90 (decode 32) and the +0.3 to +0.8 us drift on most other cells is run-to-run noise on unchanged kernels (the 8 public repeat draws of C2 spread 3,166-3,354 us).
+
+Reading: the hypothesis (about -1.7 us per bucket) is rejected for this join. The loss is the same with and without escapes (raw twins), grows with tokens (MT 2 at m = 32 doubles the reds and the finisher's rows), and matches the 3.5-4 us that the same red + fence + last-arriver join cost on the wd router (a8de7b162c9f41d5, WV_GRED). Not yet separated: the join (fence after the reds, counter, finisher pass) against the reds themselves against the 128-CTA streaming. Next: one attribution check (ablation arms, timing only) before closing.
+
+Attribution check, preregistered. Source `muse_bf16_proj/experiments/qkv_sks_abl.py` (`tools/proj_sks_make.py --ablate`, SHA256 cdbf1089): the check-1 file plus timing-only arms per bucket, printed as `ablate qkv_gate m=<b>: qkv8 / qkv8s / qkv8sj / qkv8sr` (two interleaved passes, the second in reverse order). `sj` keeps the reds and drops the join (fence, counter, finisher; its reds go to a separate never-read region so the real scratch stays clean); `sr` drops the reds too, behind a compare that never holds so the MMAs stay live. Their outputs are wrong, so they never enter the tuner. s - sj is the join, sj - sr the reds, sr - incumbent the 128-CTA streaming. Compiles locally (device and host, nvcc 12.8). Decision rule: if sr is not at least 1 us under the incumbent, the geometry itself does not pay and the lane closes; if it is and the join is the cost, the lane closes for today with a cluster/DSMEM join named as the reopen condition (4-CTA groups cover 3 row blocks exactly at m = 8).
+
+2026-11-03 | 2748d7118de84c37 | check (private) | d4320d97 | `muse_bf16_proj/experiments/qkv_sks_abl.py` SHA256 cdbf1089. PASS, 9 tests, 30 cells, no flags, prepare 94.6 s. Score 3,203.2 us, 1.5081x (CI 1.4855-1.5308). Status JSON, log tail and profile text `muse_bf16_proj/profiles/qkv_sks_abl.2748d7118de84c37.{json,log,txt}`.
+
+Tuner, incumbent vs stream-K (compressed / raw): m = 8 13.7 vs 18.0, raw 15.8 vs 18.8; m = 16 14.0 vs 18.3, raw 16.1 vs 20.6; m = 32 15.0 vs 21.4, raw 16.0 vs 22.4 (check 1 reproduced within 0.3 us). Attribution, `ablate` lines (us, two passes): m = 8 qkv8 13.90 / 13.76, qkv8s 17.65 / 17.76, sj 14.75 / 14.96, sr 14.34 / 14.27; m = 16 qkv16 14.66 / 13.87, s 19.68 / 18.37, sj 15.63 / 15.20, sr 15.71 / 14.82; m = 32 qkv32 14.86 / 14.86, s 21.28 / 21.14, sj 17.12 / 17.22, sr 15.92 / 15.98. From the pass means, the join (fence after the reds, counter, finisher) costs +2.9 / +3.6 / +4.0 us, the reds +0.5 / +0.2 / +1.2, and the 128-CTA stream-K streaming with no reduction at all is +0.5 / +1.0 / +1.1 us slower than the 96-CTA incumbent.
+
+Judged cells: picks unchanged (qkv8 / qkv16 / qkv32), qkv_gate 9.77 / 9.74 / 10.56 -> 9.69 / 10.11 / 10.88, noise on unchanged kernels. Cells outside noise: o decode 16 +0.51 (unchanged o16 pick), o verify 16 (m = 128) +1.06 (the cuBLASLt stable pick stayed on base this run; C2 had f0), qkv_gate verify 32 (m = 256) +1.77 (same Lt pref pick). None of them runs a new kernel.
+
+Decision: the lane closes and nothing ships. The premise that filling the idle SMs at the 24-row geometry lowers the time is rejected for this kernel: the arm with no reduction at all is slower than 96 CTAs at every bucket, so the per-SM byte count is not what limits qkv at m <= 32, and any join only adds to that. Not attributed (hypothesis): the stage-major stream is laid out so that all CTAs read one contiguous region per stage, while the stream-K CTAs read 128 regions at different k stages at once, which may cost DRAM locality; each CTA also pays the ring fill and the table copies for 6 or 12 stages instead of 8 or 16. Rows in docs/ruled-out.md.
