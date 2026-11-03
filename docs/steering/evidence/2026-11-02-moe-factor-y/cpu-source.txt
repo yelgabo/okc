@@ -1,0 +1,7 @@
+test_every_finite_bf16_roundtrips_and_products_match (test_moe_factor_y.FactorY.test_every_finite_bf16_roundtrips_and_products_match) ... ok
+test_selected_source_preserves_math_and_publication (test_moe_factor_y.FactorY.test_selected_source_preserves_math_and_publication) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.463s
+
+OK

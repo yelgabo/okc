@@ -1,0 +1,30 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "candidate_native_sha256": "ecd1df116a7dd43d8a76125edafd385c8e9380d3d525ed2dc4ce6d0973d13155",
+  "edits": [
+    [
+      "struct WgsPend { int kind, u, slot, nst; };",
+      "#define OKC_YFACTOR 1\n__device__ __forceinline__ float2 wgs_factor_pair(uint32_t packed,const __nv_bfloat16* weights) {\n  const float2 down = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&packed));\n  const uint32_t word = __ldg(reinterpret_cast<const uint32_t*>(weights));\n  const float2 raw = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&word));\n  return make_float2(__fmul_rn(down.x,fork_bf16(1.f + raw.x)),__fmul_rn(down.y,fork_bf16(1.f + raw.y)));\n}\n__device__ __forceinline__ float2 wgs_factor_y2(const Params& p,int row,int col) {\n  const uint32_t word = __ldcg(reinterpret_cast<const uint32_t*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)row * HD + col));\n  return wgs_factor_pair(word,p.normw + col);\n}\nstruct WgsPend { int kind, u, slot, nst; };",
+      1
+    ],
+    [
+      "#if OKC_YBF\n        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(fork_bf16(d4[h] * gsc) * w0));\n        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(fork_bf16(d4[2 + h] * gsc) * w1));",
+      "#if OKC_YFACTOR\n        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(d4[h] * gsc));\n        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(d4[2 + h] * gsc));\n#elif OKC_YBF\n        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(fork_bf16(d4[h] * gsc) * w0));\n        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(fork_bf16(d4[2 + h] * gsc) * w1));",
+      1
+    ],
+    [
+      "#if OKC_YBF\n          const uint4 yr = __ldcg(reinterpret_cast<const uint4*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD) + tid);\n          const float2 y0 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.x)), y1 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.y));\n          const float2 y2 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.z)), y3 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.w));\n          const float4 a = make_float4(y0.x, y0.y, y1.x, y1.y), b = make_float4(y2.x, y2.y, y3.x, y3.y);",
+      "#if OKC_YFACTOR\n          const uint4 yr = __ldcg(reinterpret_cast<const uint4*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD) + tid);\n          const float2 y0 = wgs_factor_pair(yr.x,p.normw + tid * 8), y1 = wgs_factor_pair(yr.y,p.normw + tid * 8 + 2);\n          const float2 y2 = wgs_factor_pair(yr.z,p.normw + tid * 8 + 4), y3 = wgs_factor_pair(yr.w,p.normw + tid * 8 + 6);\n          const float4 a = make_float4(y0.x, y0.y, y1.x, y1.y), b = make_float4(y2.x, y2.y, y3.x, y3.y);\n#elif OKC_YBF\n          const uint4 yr = __ldcg(reinterpret_cast<const uint4*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD) + tid);\n          const float2 y0 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.x)), y1 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.y));\n          const float2 y2 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.z)), y3 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.w));\n          const float4 a = make_float4(y0.x, y0.y, y1.x, y1.y), b = make_float4(y2.x, y2.y, y3.x, y3.y);",
+      2
+    ],
+    [
+      "__ldcg(reinterpret_cast<const float2*>(p.ybuf + (size_t)q * HD + col))",
+      "wgs_factor_y2(p,q,col)",
+      2
+    ]
+  ],
+  "exact_reverse": true,
+  "adapter": "Remove host tail, add declaration-only wgs_cta_of adapter and two compile-only launch references",
+  "gpu": false
+}

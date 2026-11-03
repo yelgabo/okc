@@ -1,0 +1,25 @@
+test_every_finite_bf16_roundtrips_and_products_match (test_moe_factor_y.FactorY.test_every_finite_bf16_roundtrips_and_products_match) ... FAIL
+test_selected_source_preserves_math_and_publication (test_moe_factor_y.FactorY.test_selected_source_preserves_math_and_publication) ... FAIL
+
+======================================================================
+FAIL: test_every_finite_bf16_roundtrips_and_products_match (test_moe_factor_y.FactorY.test_every_finite_bf16_roundtrips_and_products_match)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_factor_y.py", line 20, in test_every_finite_bf16_roundtrips_and_products_match
+    self.assertTrue(path.is_file(),'factorized representation implementation required')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : factorized representation implementation required
+
+======================================================================
+FAIL: test_selected_source_preserves_math_and_publication (test_moe_factor_y.FactorY.test_selected_source_preserves_math_and_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_factor_y.py", line 37, in test_selected_source_preserves_math_and_publication
+    self.assertTrue(path.is_file(),'factorized native transform required')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : factorized native transform required
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=2)

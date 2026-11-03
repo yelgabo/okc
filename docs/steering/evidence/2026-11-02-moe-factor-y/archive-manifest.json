@@ -1,0 +1,119 @@
+{
+  "files": [
+    {
+      "path": "compile/b4-candidate.log",
+      "raw_bytes": 4837,
+      "raw_sha256": "15d4ebeafe66cf271150409263552b62883614bfd65c85fa0dbdf56ad145b61c",
+      "archived_sha256": "15d4ebeafe66cf271150409263552b62883614bfd65c85fa0dbdf56ad145b61c"
+    },
+    {
+      "path": "compile/b4-candidate.o.gz",
+      "raw_bytes": 4284928,
+      "raw_sha256": "24fdb720ea48961f7869afc568ab18da34146e6e00ac58503ef689e7155a9e2c",
+      "archived_sha256": "d3001cf282b1a5dfc32f11c11830c82993c2856272b2401881a1cccc3dbe829f"
+    },
+    {
+      "path": "compile/b4-candidate.sass.gz",
+      "raw_bytes": 14131195,
+      "raw_sha256": "8924b13fd19269e284fdc36b5322cbf68295970aaa843faeb0ec4754f57806a7",
+      "archived_sha256": "359faf6a11a5add39993a918391791d485f323af8d2756b2a247b26750bbf7de"
+    },
+    {
+      "path": "compile/b4-control.log",
+      "raw_bytes": 4870,
+      "raw_sha256": "0217aa9d726aef5858cdce88784131715e7b96c2a3d9bb62ddca8300f405a5ba",
+      "archived_sha256": "0217aa9d726aef5858cdce88784131715e7b96c2a3d9bb62ddca8300f405a5ba"
+    },
+    {
+      "path": "compile/b4-control.o.gz",
+      "raw_bytes": 4322944,
+      "raw_sha256": "c76546afc1378ffa378564d7dda7768910e951036263dbadd136fa84e78ead55",
+      "archived_sha256": "113162689b0a432d75491d219c8d8c94d93568773adca4f923c2cf32fd302cde"
+    },
+    {
+      "path": "compile/b4-control.sass.gz",
+      "raw_bytes": 14280153,
+      "raw_sha256": "41ef5ca15d46dde491a597489775528cd99816b87833f19eaf567792484ce3df",
+      "archived_sha256": "e5084726215ae30a4880670d3113e6562bfa345c11fa2cb203ef6694b44e08f0"
+    },
+    {
+      "path": "compile/candidate-device.cu.gz",
+      "raw_bytes": 151318,
+      "raw_sha256": "38ac69d76cdc2f2b898eb3cdfa7f270893b8dbb62bee8cd194133a59f7bd6d1d",
+      "archived_sha256": "c7a9dde6165ba5e49dfe57a2ae47afc341e1782b244ee3652b57f124328dee6e"
+    },
+    {
+      "path": "compile/candidate.cu.gz",
+      "raw_bytes": 157748,
+      "raw_sha256": "ecd1df116a7dd43d8a76125edafd385c8e9380d3d525ed2dc4ce6d0973d13155",
+      "archived_sha256": "880370917bba61a9646e24a2b0b1304b23b233eb3d9e2acee7b6d7e52a8d6b68"
+    },
+    {
+      "path": "compile/compile.json",
+      "raw_bytes": 1753,
+      "raw_sha256": "25aec256ab10cdf11cf1d71d67c86a5265a3846cb4c4063af499f9ffdc176a27",
+      "archived_sha256": "25aec256ab10cdf11cf1d71d67c86a5265a3846cb4c4063af499f9ffdc176a27"
+    },
+    {
+      "path": "compile/control-device.cu.gz",
+      "raw_bytes": 149360,
+      "raw_sha256": "b06cfbff49c32ad56b050bd22af49ebfbbd3a834a2c659e43e9ed54bd63ad178",
+      "archived_sha256": "23feae449d7de96412d2afcdf253a77b202d38de7fa4d2a2bd564b7d71f8ce7f"
+    },
+    {
+      "path": "compile/control.cu.gz",
+      "raw_bytes": 155790,
+      "raw_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "archived_sha256": "138f6c4a6fff8b1549c9c318e6a62e88e735ef825a0d9c398453445667c98f34"
+    },
+    {
+      "path": "compile/main-candidate.log",
+      "raw_bytes": 4838,
+      "raw_sha256": "831b4d52d442fecb6b44b6de3f3dde71416e072383132ed76a152f34be278b76",
+      "archived_sha256": "831b4d52d442fecb6b44b6de3f3dde71416e072383132ed76a152f34be278b76"
+    },
+    {
+      "path": "compile/main-candidate.o.gz",
+      "raw_bytes": 3915648,
+      "raw_sha256": "4115a20ca1072ee64dcf4537e941ad274fb3706f2fc5c0f707da27dd81b0956e",
+      "archived_sha256": "bfbc8de06548e0652e1f43e82969eb25b9b942ece28870cb20e276e73a5c3cbc"
+    },
+    {
+      "path": "compile/main-candidate.sass.gz",
+      "raw_bytes": 12769275,
+      "raw_sha256": "93c187ab38c596bc7f2184eec8d771dfe1433983c07ff5eca7f078d5012544bc",
+      "archived_sha256": "0d8ef5734fd71c5bc7a6ea6916e80202678da06016d8eddb9e58dad2cdc0d738"
+    },
+    {
+      "path": "compile/main-control.log",
+      "raw_bytes": 4806,
+      "raw_sha256": "6f4f5f24f9bbefd90288f8c8cddd05620d4688aec29cd389ea96401a0d0b2acf",
+      "archived_sha256": "6f4f5f24f9bbefd90288f8c8cddd05620d4688aec29cd389ea96401a0d0b2acf"
+    },
+    {
+      "path": "compile/main-control.o.gz",
+      "raw_bytes": 3901184,
+      "raw_sha256": "1dbac6d289fcad2ecbcff34f8c9be36e2eb634201998ddcf9b0e218681c589c4",
+      "archived_sha256": "8cdc1742bd7478cc0b8cc28ef7af1f48a917f95fef78008ee0d76f64ba071f76"
+    },
+    {
+      "path": "compile/main-control.sass.gz",
+      "raw_bytes": 12675641,
+      "raw_sha256": "e676bac4b52ca177328eb46490a5d7bb5317d948091de5e77ea6152851314a29",
+      "archived_sha256": "9b9f324e275329feead8226f72856f7b207a33dec9e037567524ad1ef5daf93c"
+    },
+    {
+      "path": "compile/manifest.json",
+      "raw_bytes": 4186,
+      "raw_sha256": "6bdc34dd94ce11fbf59b825bb7f25b0662c30eb3025fb7d73432e73ce706c168",
+      "archived_sha256": "6bdc34dd94ce11fbf59b825bb7f25b0662c30eb3025fb7d73432e73ce706c168"
+    },
+    {
+      "path": "compile/native.diff",
+      "raw_bytes": 4966,
+      "raw_sha256": "a270616ca7631f1f8d0b53b6d046387ada7a5332dc5bd8a4a59851e8591bfea2",
+      "archived_sha256": "a270616ca7631f1f8d0b53b6d046387ada7a5332dc5bd8a4a59851e8591bfea2"
+    }
+  ],
+  "scope": "Local CUDA12.8.1 device builds, unchanged exact control sources/builds reused. No H200 codegen parity or target result."
+}

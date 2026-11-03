@@ -4,7 +4,7 @@ MOE-LUT-01 terminal loss, ownc985bbdb2980407a, paired542cd650/native8c2cfc7c, pu
 
 MOE-DIRECT-X-01 terminal loss94c57451574c4cd3, paired1191e44c/nativec705df6a publishedf1955498. Correctness5/6/6/all54cases passes;0/6matched groups,18affected regressions andone unchanged-path drift. Official7194.998534us. Waiter38355ended0, archive complete. Stop exact mapping/cache/ring design without retry. [Decision](../2026-11-02-moe-direct-input.md#terminal-decision-retain-global-gather).
 
-Next owned source preparation is lossless factorized expert-output storage, retaining BF16 down results and reconstructing the identical FP32 gamma product. No GPU allocation yet. General retains WS, reminder stays paused, no further public permission.
+**MOE-FACTOR-Y-01 locally qualified**, lossless factorized expert-output storage. Paired78506b74/348783bytes, nativeecd1df11. Eight CPU tests, actual native CPU helper witness andfour local builds pass. Retain BF16 down results and reconstruct the identical FP32 gamma product. No GPU allocation yet. [Frozen design/proof/gates](../2026-11-02-moe-factorized-output.md). General retains WS, reminder stays paused, no further public permission.
 
 | Closed own experiment | Result and stop |
 |---|---|

@@ -1,0 +1,18 @@
+{
+  "helper_sha256": "2b4a1ccd08c991a55d775ca5a25c66e1462a6ff08ae4ae72d963a7484cff6084",
+  "results": [
+    {
+      "case": "actual",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "source_sha256": "5967545f138a7df85c0d27f9ea47907e4aef860ec886fcd7fa4d5e90a1db0687"
+    },
+    {
+      "case": "injected-post-gamma-round",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "source_sha256": "a628c0e39f0261fcc7761991bb900f498c66249a953f2ff910d503f4cd435a10"
+    }
+  ],
+  "scope": "Actual native helper under CPU bit-conversion and float-multiply stubs. No CUDA execution or H200 arithmetic claim."
+}

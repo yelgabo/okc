@@ -1,0 +1,6 @@
+test_failed_partial_binds_source_and_never_qualifies (test_moe_factor_y_partial.Partial.test_failed_partial_binds_source_and_never_qualifies) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 11.921s
+
+OK

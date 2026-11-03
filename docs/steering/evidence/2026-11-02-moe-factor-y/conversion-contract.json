@@ -1,0 +1,9 @@
+{
+  "image": "nvidia/cuda:12.8.1-devel-ubuntu24.04",
+  "header": "/usr/local/cuda/include/cuda_bf16.hpp",
+  "function": "__float2bfloat16",
+  "device_branch": "SM80+",
+  "ptx": "cvt.rn.bf16.f32",
+  "read_excerpt_sha256": "ff4210ffab4d5cf2629181cbd783be9f9bd43b5b89b7cb1c6e51d13123d09994",
+  "scope": "Local header inspection, not target GPU execution."
+}

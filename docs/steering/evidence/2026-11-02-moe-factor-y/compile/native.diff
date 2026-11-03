@@ -1,0 +1,78 @@
+--- control
++++ candidate
+@@ -1952,6 +1952,17 @@
+ // Work left from the previous segment, done after the next segment's first wgmma group (so the stores and atomics it
+ // waits for have long completed): kind 1 = release doneA for job j (phase A), kind 2 = add the stage count of a split
+ // unit's share and, if that completes the unit, read the summed partials back and run its epilogue.
++#define OKC_YFACTOR 1
++__device__ __forceinline__ float2 wgs_factor_pair(uint32_t packed,const __nv_bfloat16* weights) {
++  const float2 down = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&packed));
++  const uint32_t word = __ldg(reinterpret_cast<const uint32_t*>(weights));
++  const float2 raw = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&word));
++  return make_float2(__fmul_rn(down.x,fork_bf16(1.f + raw.x)),__fmul_rn(down.y,fork_bf16(1.f + raw.y)));
++}
++__device__ __forceinline__ float2 wgs_factor_y2(const Params& p,int row,int col) {
++  const uint32_t word = __ldcg(reinterpret_cast<const uint32_t*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)row * HD + col));
++  return wgs_factor_pair(word,p.normw + col);
++}
+ struct WgsPend { int kind, u, slot, nst; };
+ template <bool PB>
+ #if !OKC_B4FIN
+@@ -1986,7 +1997,10 @@
+     for (int h = 0; h < 2; ++h) {
+       const int tk = tok0 + h;
+       if (tk < cnt) {
+-#if OKC_YBF
++#if OKC_YFACTOR
++        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(d4[h] * gsc));
++        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(d4[2 + h] * gsc));
++#elif OKC_YBF
+         st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(fork_bf16(d4[h] * gsc) * w0));
+         st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(fork_bf16(d4[2 + h] * gsc) * w1));
+ #else
+@@ -2670,7 +2684,7 @@
+ #pragma unroll
+       for (int sl = 0; sl < 8; ++sl) {
+         const int q = S.pos[tk * 8 + sl];
+-        yv[sl] = q >= 0 ? __ldcg(reinterpret_cast<const float2*>(p.ybuf + (size_t)q * HD + col)) : make_float2(0.f, 0.f);
++        yv[sl] = q >= 0 ? wgs_factor_y2(p,q,col) : make_float2(0.f, 0.f);
+       }
+ #endif
+       {
+@@ -2695,7 +2709,7 @@
+ #if B4_EARLY_Y
+           const float2 v = yv[sl];
+ #else
+-          const float2 v = __ldcg(reinterpret_cast<const float2*>(p.ybuf + (size_t)q * HD + col));
++          const float2 v = wgs_factor_y2(p,q,col);
+ #endif
+           acc.x += r * v.x; acc.y += r * v.y;
+         }
+@@ -2732,7 +2746,12 @@
+       for (int sl = 0; sl < 8; ++sl) {
+         ps[sl] = 0.f;
+         if (qv[sl] >= 0) {
+-#if OKC_YBF
++#if OKC_YFACTOR
++          const uint4 yr = __ldcg(reinterpret_cast<const uint4*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD) + tid);
++          const float2 y0 = wgs_factor_pair(yr.x,p.normw + tid * 8), y1 = wgs_factor_pair(yr.y,p.normw + tid * 8 + 2);
++          const float2 y2 = wgs_factor_pair(yr.z,p.normw + tid * 8 + 4), y3 = wgs_factor_pair(yr.w,p.normw + tid * 8 + 6);
++          const float4 a = make_float4(y0.x, y0.y, y1.x, y1.y), b = make_float4(y2.x, y2.y, y3.x, y3.y);
++#elif OKC_YBF
+           const uint4 yr = __ldcg(reinterpret_cast<const uint4*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD) + tid);
+           const float2 y0 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.x)), y1 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.y));
+           const float2 y2 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.z)), y3 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.w));
+@@ -2768,7 +2787,12 @@
+       for (int sl = 0; sl < 8; ++sl)
+         if (qv[sl] >= 0) {
+           const float r = p.topk_w[tk * 8 + sl] * rsqrtf(red[NW * 8 + sl] * (1.f / HD) + 1e-8f);
+-#if OKC_YBF
++#if OKC_YFACTOR
++          const uint4 yr = __ldcg(reinterpret_cast<const uint4*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD) + tid);
++          const float2 y0 = wgs_factor_pair(yr.x,p.normw + tid * 8), y1 = wgs_factor_pair(yr.y,p.normw + tid * 8 + 2);
++          const float2 y2 = wgs_factor_pair(yr.z,p.normw + tid * 8 + 4), y3 = wgs_factor_pair(yr.w,p.normw + tid * 8 + 6);
++          const float4 a = make_float4(y0.x, y0.y, y1.x, y1.y), b = make_float4(y2.x, y2.y, y3.x, y3.y);
++#elif OKC_YBF
+           const uint4 yr = __ldcg(reinterpret_cast<const uint4*>(reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)qv[sl] * HD) + tid);
+           const float2 y0 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.x)), y1 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.y));
+           const float2 y2 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.z)), y3 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.w));
