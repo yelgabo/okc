@@ -11,6 +11,7 @@ from dl_compare_receipts import validate
 PREFIX = 'D32_ATTENTION_PAIR_REPORT '
 CANDIDATE = '5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5'
 CONTROL = 'ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab'
+CORE = '302986ababc1d75286258715133dcd9a98802bd05dd71e5b251df4e041deddbd'
 
 
 def report(log):
@@ -18,8 +19,9 @@ def report(log):
     if len(capsules) != 1:
         raise ValueError('expected exactly one matched report')
     data = json.loads(zlib.decompress(base64.b64decode(capsules[0], validate=True)))
-    if data.get('pins', {}).get('candidate') != CANDIDATE or data['pins'].get('control') != CONTROL:
-        raise ValueError('candidate or control identity mismatch')
+    if (data.get('pins', {}).get('candidate') != CANDIDATE or data['pins'].get('control') != CONTROL
+            or data['pins'].get('harness_core_sha256') != CORE):
+        raise ValueError('candidate, control, or harness identity mismatch')
     if (data.get('official_arm') != 'attention_treatment' or data.get('cleanup_restored') is not True
             or (data.get('math_checks'), data.get('fresh_checks'), data.get('restores'),
                 data.get('transitions')) != (144, 1152, 144, 96)):

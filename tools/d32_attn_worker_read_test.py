@@ -7,7 +7,7 @@ import zlib
 
 from d32_attn_worker_contract import decision
 from d32_attn_worker_contract_test import rows
-from d32_attn_worker_read import CANDIDATE, CONTROL, PREFIX, report
+from d32_attn_worker_read import CANDIDATE, CONTROL, CORE, PREFIX, report
 
 
 def fixture():
@@ -15,7 +15,7 @@ def fixture():
     for row in values:
         target = row['tokens'] == 32 and row['context'] == 'full'
         row['selected'] = [[False], [False], [target], [target]]
-    return dict(pins=dict(candidate=CANDIDATE, control=CONTROL), official_arm='attention_treatment',
+    return dict(pins=dict(candidate=CANDIDATE, control=CONTROL, harness_core_sha256=CORE), official_arm='attention_treatment',
                 cleanup_restored=True, math_checks=144, fresh_checks=1152,
                 restores=144, transitions=96, rows=values, decision=decision(values))
 
