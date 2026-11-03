@@ -30,6 +30,10 @@
 
 [18:33 Vancouver review](2026-11-02-1833-performance-review.md). Both D32 matched attempts stopped in setup without timing. Constant WGS scales pass correctness and fail their matched performance gate. Corrected grouping and current skinny depth checks remain pending.
 
+## Source-linked architecture, November 3
+
+[Archify incumbent layer and MoE](2026-11-03-archify-incumbent-architecture.md) saves standalone interactive diagrams, editable candidates and browser receipts. Source-pinned public607 layer; B4/MAIN close-up distinguishes the short-token paths. Neutral styling; no new timing claims.
+
 ## Current architecture diagrams, November 2
 
 [Incumbent layer and MoE diagrams with performance labels](../incumbent-architecture-2026-11-02.html). [In-layer activity labels and validation](2026-11-02-incumbent-inlayer-labels.md). The [initial diagram report](2026-11-02-incumbent-diagrams.md) is historical.

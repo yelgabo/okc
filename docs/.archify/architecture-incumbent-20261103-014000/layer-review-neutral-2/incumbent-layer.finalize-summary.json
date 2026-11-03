@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/layer.candidate.json",
+    "sha256": "201cbeed905a21ed4924802669c44bb7fa7f19eeec63b5945cc7dfc9c78ce06e",
+    "bytes": 9980
+  },
+  "artifact": {
+    "path": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/incumbent-layer.html",
+    "sha256": "14302303dda54747581e0a5dbef72e63c50e05beabb093e0b84ded0f70b32249",
+    "bytes": 858722
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/layer-review-neutral-2/incumbent-layer.finalize.json",
+    "summaryReceipt": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/layer-review-neutral-2/incumbent-layer.finalize-summary.json",
+    "browserCheckReceipt": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/layer-review-neutral-2/incumbent-layer.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T09:40:29.287Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2232,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "restore-residual",
+            "from": "residual",
+            "to": "unpool",
+            "label": "residual",
+            "collectionIndex": 11,
+            "artifactIndex": 12
+          },
+          "bends": 3,
+          "stretch": 1
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "residual → unpool needs 3 bends: move node residual or unpool so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

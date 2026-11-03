@@ -1,0 +1,447 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Incumbent decoder layer on one H200",
+    "locale": "en",
+    "output": "docs/.archify/architecture-incumbent-20261103-014000/incumbent-layer.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/yelgabo/okc.git",
+      "revision": "0eb3e5e5b1aec29d81306d6ca568dd2a51c3eedf",
+      "provider": "github"
+    },
+    "views": [
+      {
+        "id": "layer-flow",
+        "label": "Complete layer",
+        "focus": [
+          "input",
+          "qkv",
+          "attention",
+          "boundary",
+          "pool-router",
+          "routing",
+          "moe",
+          "unpool",
+          "output"
+        ],
+        "note": "Follow the layer input through attention and local experts to the layer output."
+      },
+      {
+        "id": "ffn-flow",
+        "label": "FFN and residual",
+        "focus": [
+          "boundary",
+          "pool-router",
+          "routing",
+          "moe",
+          "unpool",
+          "residual"
+        ],
+        "note": "The FFN residual branches after the O residual, before the normalized FFN input."
+      }
+    ],
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "backend": {
+          "label": "GPU compute"
+        },
+        "database": {
+          "label": "GPU memory"
+        },
+        "external": {
+          "label": "Inputs and outputs"
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "input",
+      "type": "external",
+      "label": "Layer inputs",
+      "sublabel": "BF16 tokens + FP32 stream",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11380,
+          "end_line": 11398
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15660,
+          "end_line": 15676
+        }
+      ]
+    },
+    {
+      "id": "qkv",
+      "type": "backend",
+      "label": "QKV projection",
+      "sublabel": "BF16 dense weights",
+      "pos": [
+        320,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11384,
+          "end_line": 11398
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 12429,
+          "end_line": 12444
+        }
+      ],
+      "tag": "SK2 or cuBLASLt"
+    },
+    {
+      "id": "attention",
+      "type": "backend",
+      "label": "Attention",
+      "sublabel": "QK norm, RoPE, RMS + gate",
+      "pos": [
+        600,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11395,
+          "end_line": 11398
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11411,
+          "end_line": 11443
+        }
+      ],
+      "tag": "Paged FP8 KV"
+    },
+    {
+      "id": "kv",
+      "type": "database",
+      "label": "KV cache",
+      "sublabel": "Caller-owned FP8 pages",
+      "pos": [
+        900,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 11409,
+          "end_line": 11425
+        }
+      ]
+    },
+    {
+      "id": "boundary",
+      "type": "backend",
+      "label": "O + layer boundary",
+      "sublabel": "Gated residual, pre-FFN norm",
+      "pos": [
+        600,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15660,
+          "end_line": 15679
+        }
+      ],
+      "tag": "8,192 features"
+    },
+    {
+      "id": "pool-router",
+      "type": "backend",
+      "label": "Pooler + router",
+      "sublabel": "4,096 pool, FP32 router",
+      "pos": [
+        320,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15677,
+          "end_line": 15702
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 16675,
+          "end_line": 16691
+        }
+      ],
+      "tag": "Fused where selected"
+    },
+    {
+      "id": "routing",
+      "type": "backend",
+      "label": "Top-8 + expert norm",
+      "sublabel": "256 global experts",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15680,
+          "end_line": 15702
+        }
+      ],
+      "tag": "Local IDs + route weights"
+    },
+    {
+      "id": "moe",
+      "type": "backend",
+      "label": "Native fused MoE",
+      "sublabel": "32 local experts: gate/up/down",
+      "pos": [
+        40,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15703,
+          "end_line": 15713
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 16084,
+          "end_line": 16106
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 16824,
+          "end_line": 16859
+        }
+      ],
+      "tag": "WS / WGS by token count"
+    },
+    {
+      "id": "unpool",
+      "type": "backend",
+      "label": "Unpool + layer boundary",
+      "sublabel": "Residual, output norms",
+      "pos": [
+        320,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15714,
+          "end_line": 15723
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15635,
+          "end_line": 15657
+        }
+      ],
+      "tag": "Slice at T <= 8"
+    },
+    {
+      "id": "output",
+      "type": "external",
+      "label": "Layer outputs",
+      "sublabel": "BF16 hidden + FP32 stream",
+      "pos": [
+        600,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15714,
+          "end_line": 15723
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15650,
+          "end_line": 15657
+        }
+      ],
+      "tag": "Global route IDs"
+    },
+    {
+      "id": "residual",
+      "type": "database",
+      "label": "Saved FFN residual",
+      "sublabel": "s1 after the O residual",
+      "pos": [
+        900,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15665,
+          "end_line": 15676
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15645,
+          "end_line": 15657
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "input-qkv",
+      "from": "input",
+      "to": "qkv",
+      "label": "activations"
+    },
+    {
+      "id": "qkv-attn",
+      "from": "qkv",
+      "to": "attention",
+      "label": "Q/K/V + gate"
+    },
+    {
+      "id": "attn-cache-write",
+      "from": "attention",
+      "to": "kv",
+      "label": "write KV"
+    },
+    {
+      "id": "cache-attn-read",
+      "from": "kv",
+      "to": "attention",
+      "label": "read pages"
+    },
+    {
+      "id": "attn-o",
+      "from": "attention",
+      "to": "boundary",
+      "label": "gated output"
+    },
+    {
+      "id": "o-pool",
+      "from": "boundary",
+      "to": "pool-router",
+      "label": "FFN input"
+    },
+    {
+      "id": "pool-route",
+      "from": "pool-router",
+      "to": "routing",
+      "label": "pool + logits"
+    },
+    {
+      "id": "route-moe",
+      "from": "routing",
+      "to": "moe",
+      "label": "inputs + routes"
+    },
+    {
+      "id": "moe-unpool",
+      "from": "moe",
+      "to": "unpool",
+      "label": "expert sum"
+    },
+    {
+      "id": "unpool-output",
+      "from": "unpool",
+      "to": "output",
+      "label": "hidden + stream"
+    },
+    {
+      "id": "save-residual",
+      "from": "boundary",
+      "to": "residual",
+      "label": "save s1"
+    },
+    {
+      "id": "restore-residual",
+      "from": "residual",
+      "to": "unpool",
+      "label": "residual"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "slate",
+      "title": "Retained source",
+      "items": [
+        "Public layer job 607eb52bdaf24160. Integrated file ba9e327c; c7 MoE native source. Pending or losing fusion candidates are excluded.",
+        "This is the one-GPU layer benchmark. Cross-GPU collectives are outside its scope."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Editable scope",
+      "items": [
+        "All compute stages shown are in whole-layer scope, including routing, norms and residual boundaries.",
+        "Dense projections cover QKV, O, pooler, router and unpooler. Functional stages may share fused launches."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "MoE dispatch and limits",
+      "items": [
+        "T <= 4: Tiny. T5-8: Tiny2. T9-16: MID. These use eight compute warps plus one producer warp.",
+        "T17-32: B4. T > 32: MAIN. These use four compute warpgroups plus two producer warps. Scale and resource fallbacks remain available.",
+        "Box size does not represent timing. This view contains no component timing claims."
+      ]
+    }
+  ]
+}
