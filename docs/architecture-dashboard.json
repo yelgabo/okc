@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T20:55:00-07:00",
-  "snapshot": "3e11a37e",
+  "reviewed_at": "2026-11-02T21:04:00-07:00",
+  "snapshot": "fdb935f6",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public607 retains2.126083× and NS3. Sliding split-copy treatment stopped after a valid ordinary check. Identity4a2a and WS normb38a are pending matched comparisons; no new layer gain."
+    "note": "Public607 retains2.126083×. New T8/T16 norm aggregation passes correctness and fails all6 matched groups; original updates/NS3 stay. D32 identity remains pending. Priorities: MoE P0, BF16 P1, Decode32 P4."
   },
   "families": [
     {
@@ -21,18 +21,16 @@
       "label": "Combined layer gain; isolated A unresolved",
       "metric": "1.0052–1.0106×",
       "unit": "M1 + mode 51 paired layer ratios, two runs",
-      "summary": "Position map, token locality, multiply decoder and direct/cached band32 variants fail their gates. Owned hybrid baseline retained.",
+      "summary": "Owned hybrid baseline retained. Position map, locality, decoder and direct/cached band variants fail gates. New G-hosted skinny-helper norm aggregation also fails its matched performance gate.",
       "layer": "Earlier owned layer tests combine M1 and mode 51. The current retained layer belongs to G.",
       "pending": [],
-      "limit": "Historical owned skinny/main47 launch-progress qualification remains open; both disabled repairs spill. New G-hosted T8/T16 helper aggregation is a pending component test, with no isolated A or layer gain.",
+      "limit": "Historical skinny/main47 progress qualification remains open; both disabled repairs spill. G-hosted T8/T16 norm aggregation passes correctness but yields no repeatable benefit above duplicate noise.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
         "loss"
       ],
-      "evaluation_pending": [
-        "G-hosted T8/T16 skinny-helper norm aggregationb38a9ed6dc9743e9"
-      ]
+      "evaluation_pending": []
     },
     {
       "id": "B",
@@ -127,22 +125,20 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Retained layer; new component gates fail",
+      "label": "Retained layer; four component gates fail",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "Public G1b4 and NS3 retained. Prior scales/groups/NS4 fail gates. New T8/T16 FTZ helper aggregation passes local qualification and is awaiting its private component result.",
+      "summary": "Public G1b4 and original norm updates/NS3 retained. Scales/groups, NS4 and T8/T16 explicit-FTZ norm aggregation pass correctness and fail performance gates.",
       "layer": "Public607 retains2.126083×. New calibration94ef scores2.091748×. MID scores2.089423×, with no useful D32 signal.",
       "pending": [],
-      "evaluation_pending": [
-        "T8/T16 WS norm aggregationb38a9ed6dc9743e9, payload1e857ad4"
-      ],
-      "limit": "WS norm changes only T8/T16;1/32/128/256 remain controls. No component or layer win yet. D32 identity screening stays with Decode32 Worker.",
+      "evaluation_pending": [],
+      "limit": "Norm jobb38a9ed6dc9743e9 completes all36 rows and replay checks; all6 affected groups fail. Earlier-credit reserve needs exposed-wait evidence. New MoE/BF16 task requested; D32 remains separately owned.",
       "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss"
       ],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/3e11a37ed53424bf7ccfab2a74461124e05e9c9e/docs/steering/2026-11-02-general-ws-norm-aggregation.md"
+      "evidence_url": "https://github.com/yelgabo/okc/blob/fdb935f66f7e953357f4a0c43d408da95a888280/docs/steering/2026-11-02-general-ws-norm-aggregation.md#terminal-decision-retain-baseline-stop-exact-aggregation"
     }
   ],
   "context_pending": [
@@ -178,8 +174,8 @@
     },
     {
       "name": "G native component experiments",
-      "label": "Three closed; new WS norm comparison pending",
-      "summary": "Scale-only3aa, scales/groups3c45 and NS4f0b8 fail gates. T8/T16 explicit-FTZ norm aggregationb38a9ed6dc9743e9 is accepted; no target verdict. RetainNS3."
+      "label": "Four checks closed without promotion",
+      "summary": "Scale-only3aa, scales/groups3c45, NS4f0b8 and norm aggregationb38a pass correctness and fail gates. Norm cross factors0.979717–1.017916; all6 groups fail. Retain original updates/NS3."
     },
     {
       "name": "Historical wins transfer audit",
@@ -189,12 +185,17 @@
     {
       "name": "Selected helper-prefix proposal",
       "label": "Source closure • inactive code",
-      "summary": "Tiny/Tiny2/MID WS=1/WGS=0 preprocess the proposed serial scan out; source closure retained. The distinct active-helper norm aggregation test is now accepted, without a target result."
+      "summary": "The serial WGS scan is compiled out in selected WS builds. The distinct active-helper norm aggregation test has now passed correctness and failed performance; both exact proposals are closed."
     },
     {
       "name": "Sliding D32 split-copy reduction",
       "label": "Valid check • exact treatment stopped",
       "summary": "bd5776bdfcab42a7 passes13/12/12. Changed sliding+3.818µs (+2.42%); unchanged full-12.148µs (-3.83%) across separate runs. No causal gain or routing repair established."
+    },
+    {
+      "name": "MoE/BF16-first research refill",
+      "label": "Priority override • qualified next task missing",
+      "summary": "Standalone MoE P0, BF16 projections P1, Decode32 P4. Earlier-credit reserve lacks exposed-wait evidence. Seek a distinct complete-call mechanism or stronger comparator; preserve accepted jobs."
     }
   ]
 }
