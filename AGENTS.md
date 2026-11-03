@@ -36,7 +36,7 @@ Pin full source, preparation/packing, dispatch, build flags, epilogues, attribut
 
 Register hypothesis, controls, affected loads, acceptance threshold and stop before dispatch. Use matched fresh inputs/routing, independent mutable states, duplicate controls, graph replay, captured-output checks and priced observer cost. Compiler success, numerical agreement, ordering proof and measured speed establish different things.
 
-Private observers must retain bounded partial evidence on budget/failure exits and preserve the failure status. Register preparation/observation cost and a finite stop; an empty budget-failure report is inconclusive. See [D32 observer closure](docs/steering/decode32/2026-11-02-17-observer-budget-closure-and-refill.md).
+Private observers must retain bounded partial evidence on budget/failure exits and preserve the failure status. Account for server log-tail eviction: cumulative bounded failure capsules must retain completed rows; a stream of last-row progress alone can lose earlier evidence. Register preparation/observation cost and a finite stop; an empty budget-failure report is inconclusive. See [D32 observer closure](docs/steering/decode32/2026-11-02-17-observer-budget-closure-and-refill.md).
 
 Read [ruled-out variants](docs/ruled-out.md) before proposing work; reopening requires stated new evidence. Record every loss in that file and its run log. If a port loses while its full comparator wins, retain receipts, competing explanations, owner and a distinguishing test, or document the stronger priority. Use waiting time for relevant implementation, compilation or correctness work; avoid repeated readiness reviews.
 
