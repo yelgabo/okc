@@ -8,7 +8,7 @@ November 2, 2026. Own PRIVATE MoE job **`28248eb5e5854041`**; authorization **`c
 
 ## Identity and publication chain
 
-Owned evidence is [worker-t1-moe-check](evidence/2026-11-02-worker-t1-moe-check/). The exact executable was regenerated twice, compared with the captain's immutable source/manifest and remotely verified in the preregistration before dispatch. Fresh authenticated preflight at **18:37:11.870914UTC** confirmed team yelgabo, MoE private9left, no live MoE job and exact source/reader/rebuild. One ordinary private POST accepted this own ID; no acceptance ambiguity or second POST occurred. Wait used only this ID.
+Owned evidence is [worker-t1-moe-check](evidence/2026-11-02-worker-t1-moe-check). The exact executable was regenerated twice, compared with the captain's immutable source/manifest and remotely verified in the preregistration before dispatch. Fresh authenticated preflight at **18:37:11.870914UTC** confirmed team yelgabo, MoE private9left, no live MoE job and exact source/reader/rebuild. One ordinary private POST accepted this own ID; no acceptance ambiguity or second POST occurred. Wait used only this ID.
 
 - Physical source SHA256 **`5f10e2d73571d0cafa6d2fd4ab3dcf068f99979cf3d8c77470b63bab31fa0f58`**, **370480 LF bytes**. Original held T1 archive remains intact.
 - Unchanged reader canonical LF **`b1422b5cb05505b094c309c6fb4c11e5d9f7103de3a1e735bf9b632d3cca0ffa`**; retained `frozen-reader.py` executed separately with identical parsed output.

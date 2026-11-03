@@ -16,7 +16,7 @@ PDL launch, counted in the sk and fused runners, is skipped, user decision 2026-
 attention -> o -> boundary and boundary -> front chains and the whole step at T = 8 / 16 / 32
 (sliding and full), the stop rule on the whole step at 8 tokens sliding, and a
 fence.proxy.async.global after griddepcontrol.wait in the thread that issues the x copies
-(docs/steering/2026-10-30-m1-ptx-ordering.md).
+(archive/docs/steering/2026-10-30-m1-ptx-ordering.md).
 
 Always, too: W4 GEMM2's no-work early exit executes griddepcontrol.wait before returning, and
 prepare() prints the timeline before the SUMMARY so the SUMMARY stays in the judge's log tail.
@@ -767,7 +767,7 @@ FENCE_NEW = '''        asm volatile("griddepcontrol.wait;" ::: "memory");
             // The predecessor wrote x with generic stores; the copies below read it through
             // the async proxy. The wait gives the cross-grid order; this fence puts the proxy
             // fence the memory model asks for between them in this thread
-            // (docs/steering/2026-10-30-m1-ptx-ordering.md).
+            // (archive/docs/steering/2026-10-30-m1-ptx-ordering.md).
             asm volatile("fence.proxy.async.global;" ::: "memory");
             for (int st = 0; st < npre; ++st) {
                 issue_x(st);'''
@@ -847,7 +847,7 @@ ROUTE_REPS = [
 # W4 GEMM2 is a PDL secondary that waits only before reading GEMM1's output. A CTA with no work
 # (no local routes: about a third of 1-token calls) returned before that wait, so the kernel
 # could complete without its predecessor having completed, which the layer's PDL chain
-# assumes of every secondary (docs/review-pdl-secondaries-2026-10-30.md). Nothing is written
+# assumes of every secondary (archive/docs/review-pdl-secondaries-2026-10-30.md). Nothing is written
 # on that path, so the wait only restores the chain.
 W4_WAIT_OLD = """    int q = P ? blockIdx.x : blockIdx.y;
     if (q >= total) {

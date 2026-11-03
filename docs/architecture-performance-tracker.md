@@ -1,19 +1,19 @@
 # Architecture performance tracker
 
-**November 1 current queue:** see [immediate backlog reconciliation](steering/2026-11-01-immediate-backlog.md).
+**November 1 current queue:** see [immediate backlog reconciliation](../archive/docs/steering/2026-11-01-immediate-backlog.md).
 The next useful work is the existing qualifier inference-mode repair and its
 receipt reader. The later RMW run failed during setup without a performance
 result. The family table below is historical; its untested/queued entries are
 not current dispatch recommendations. Consult the latest steering report and
 `ruled-out.md` before reopening them. No new GPU campaign is started by this update.
 
-**November 1. Family G is our attributed fork of keell0renz's decode layer.** It descends from the alygg77 implementation registered as Family F. The Muse Spark model and H200 target are the same. G0 is the pinned upstream comparator, measured privately at 2.248791×. G1 includes our ordering, precision and lifetime repairs. [Family G registration](steering/2026-11-01-top50-reset.md).
+**November 1. Family G is our attributed fork of keell0renz's decode layer.** It descends from the alygg77 implementation registered as Family F. The Muse Spark model and H200 target are the same. G0 is the pinned upstream comparator, measured privately at 2.248791×. G1 includes our ordering, precision and lifetime repairs. [Family G registration](../archive/docs/steering/2026-11-01-top50-reset.md).
 
-The scored incumbent is **G1b4 with stage retirement**, job `607eb52bdaf24160`, at **2.126083×**. It passed all 13 H200 cases, improved on the owned public entry at 2.043438×, and was rank 305 overall and on the layer at 04:48 PST. The G1b4 control scored 2.052870×, delayed expert publication scored 2.102308× and concurrent short pooler/router execution scored 2.095900×. These are independent public measurements. [Submitted code](../muse_decode_layer/cand/g1b4_stage_release.py). [Judge receipts, per-shape timings and open comparisons](steering/2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision).
+The scored incumbent is **G1b4 with stage retirement**, job `607eb52bdaf24160`, at **2.126083×**. It passed all 13 H200 cases, improved on the owned public entry at 2.043438×, and was rank 305 overall and on the layer at 04:48 PST. The G1b4 control scored 2.052870×, delayed expert publication scored 2.102308× and concurrent short pooler/router execution scored 2.095900×. These are independent public measurements. [Submitted code](../muse_decode_layer/cand/g1b4_stage_release.py). [Judge receipts, per-shape timings and open comparisons](../archive/docs/steering/2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision).
 
 The historical family review below uses the October 30, 22:35 PDT snapshot `9bf7f05`.
 First review reconciles progress since `aab7d75`, the snapshot in the
-[architecture-family guide](architecture-families-2026-10-29.md).
+[architecture-family guide](../archive/docs/architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
 
 ## Current family status
@@ -70,7 +70,7 @@ loss with identical selected policies demonstrates that these shared-state readi
 support small whole-layer gain/loss decisions. The independent C1 comparison fixes M1's
 policy and uses 500 gate replays in a bench-only patch so four prepares fit the time limit;
 this patch is not part of the candidate. [Run methods and decisions](runs-decode-layer.md),
-[M-B plan and stop rules](plan-2026-10-31-m-b-pdl-chain.md).
+[M-B plan and stop rules](../archive/docs/plan-2026-10-31-m-b-pdl-chain.md).
 
 The 128/256 table uses cand-inc paired deltas against the inc median. Other three crosses
 remain in each raw log; these representative values do not override the aggregate decisions.
@@ -121,7 +121,7 @@ against 194.2, +0.86% to+1.31%. At 32 unpooler+attention saves 1.25 us against 2
 -0.62%, but o alone saves 1.10 us, so the added chain contributes only 0.15 us. These are
 single-preparation nine-round decisions, not replicated whole-layer gains. Slices 1-3 are
 parked at their tested scope; slice 4, the one-token chain, remains designed and unbuilt.
-[M-B measurements](plan-2026-10-31-m-b-pdl-chain.md#results-of-2026-10-31-five-checks).
+[M-B measurements](../archive/docs/plan-2026-10-31-m-b-pdl-chain.md#results-of-2026-10-31-five-checks).
 
 Mode 78 at 32 is now layer-tested, not merely a pending port. Initial bench
 `36f93b13d4c14d5b` exits after an illegal memory access in the candidate's32-token front
@@ -140,7 +140,7 @@ C1's128-token pooler library pin were not ported because the layer uses differen
 The next structural M-C one-token fusions are proposed, not built or measured; their C-1/C-2
 slice labels are also not architecture family C. Their donor fusion mapping is inferred, and
 must not be treated as an established causal attribution.
-[M-C plan](plan-2026-10-31-m-c-t1-fusion.md).
+[M-C plan](../archive/docs/plan-2026-10-31-m-c-t1-fusion.md).
 
 ### A/C/D-related MoE: both-phase stream-K loses its gate
 
@@ -344,7 +344,7 @@ Evidence through `d73c4fd`. New measurements supersede the pending labels from t
 review. The latest recorded decision makes F a measurement and learning track only.
 Winning mechanisms must be re-implemented in owned code with attribution; F0/F1/F2 are
 not submission candidates. Historical adoption recommendations below are superseded by
-this [registry addendum](steering/2026-10-30-family-f-donor-baseline.md#addendum-2026-10-31-user-decision-on-the-use-of-f-results).
+this [registry addendum](../archive/docs/steering/2026-10-30-family-f-donor-baseline.md#addendum-2026-10-31-user-decision-on-the-use-of-f-results).
 
 ### Layer: combined M1 + 51 gain, isolated A still unresolved
 
@@ -389,7 +389,7 @@ This does not establish a cross-run score gain.
 [repeat 2](../muse_decode_layer/profiles/scored.138ae1a402934c44.json).
 
 **Unresolved source conflict:** the run log calls `c8d1e57261dd4901` a second M1+51
-confirmation at 1.0106, while the [M-B plan](plan-2026-10-31-m-b-pdl-chain.md) identifies
+confirmation at 1.0106, while the [M-B plan](../archive/docs/plan-2026-10-31-m-b-pdl-chain.md) identifies
 it as layer_mb1s. No local receipt or raw log exists for that job. Do not count it as a
 replication or assign its gain to either candidate yet. Release-manifest headings saying
 these candidates are untested/unsubmitted are stale against the receipts above.
@@ -418,7 +418,7 @@ route reading PART/PO before its wait, an unresolved q8 nonunit-kv-scale precisi
 and shared growing scratch lifetime concerns. Stage attribution is provisional because
 kernel names were lost. Do not assign the full gain to A, D or E. M-A MoE and M-B PDL
 chain work are next; M-C requires an ordering repair before use.
-[Eligibility review](runs-decode-layer.md), [M-B plan](plan-2026-10-31-m-b-pdl-chain.md).
+[Eligibility review](runs-decode-layer.md), [M-B plan](../archive/docs/plan-2026-10-31-m-b-pdl-chain.md).
 
 ### E and attention context: ring variants lose; workspace selection withdrawn
 
@@ -702,7 +702,7 @@ alygg77 source `6cae49a639ee6d14b929a5fd4a63c627f96d7dc0`. F0 is the exact donor
 F1 a documented conforming adaptation, F2 a measured hybrid. Projection, attention, MoE
 and layer tracks are pending. No controlled F gain, correctness clearance or promotion is
 established. Archived donor scores are external evidence only.
-[Registration](steering/2026-10-30-family-f-donor-baseline.md).
+[Registration](../archive/docs/steering/2026-10-30-family-f-donor-baseline.md).
 
 The shared decision now prioritizes complete donor-versus-release projection and attention
 comparisons before new GPU rewrites, with independent preparations and null controls.
@@ -711,7 +711,7 @@ remains unchanged: retain the working baseline, and reopen staged B only under i
 phase-B/phase-A-tail trigger. E's PRQ gain and XPIPE losses stand; layer_hp and revised
 mode-51 layer candidates remain pending. Whole-layer release stays 2.014x. No gains are
 added across families or projection context.
-[Donor-first decision](steering/2026-10-30-donor-first-adoption.md), [layer log](runs-decode-layer.md).
+[Donor-first decision](../archive/docs/steering/2026-10-30-donor-first-adoption.md), [layer log](runs-decode-layer.md).
 
 ## Historical review, 12:44: projection split exit barrier wins paired router tests
 
@@ -1129,7 +1129,7 @@ is present. These wins therefore stay separate from A-E and from layer promotion
 ## Historical review, 01:31: standalone projection gains, no new A-E layer result
 
 The new projection round is separate context, not a gain attributed to A-E. The
-[standalone roadmap](steering/2026-10-30-attention-projection-standalone-roadmap.md)
+[standalone roadmap](../archive/docs/steering/2026-10-30-attention-projection-standalone-roadmap.md)
 separates standalone promotion from layer integration. A-E standings and the 128/256-token
 A-versus-B decision remain unchanged. Direct cuBLASLt and router geometry changes have not
 been ported to the layer. The full layer still needs its own controlled comparison.
@@ -1203,7 +1203,7 @@ Two route negative controls fail sensitivity at 32: the row injection replaces a
 with another zero row and changes no output. This is a test-injection defect, not a measured
 route correctness failure. The new tool chooses differing rows/values; synthetic CPU tests
 reproduce old misses and remove row misses. GPU validation of the revised files is pending.
-[Failure analysis](steering/2026-10-30-m1-1x1s-gate-failure.md).
+[Failure analysis](../archive/docs/steering/2026-10-30-m1-1x1s-gate-failure.md).
 
 The run log records a user decision to judge M1 only on shapes whose captured candidate graph
 actually launches an M1 PDL secondary, with unchanged bounds on those shapes. If the launch
@@ -1220,14 +1220,14 @@ no validation. Prepared files, all without a new GPU check:
   these are rule tests, not GPU speed or stability results. Four-arm A/A is prepared.
 - Targeted 1x1 reproduction diagnostic: compiled/CPU-smoke-tested, not run on the judge.
 
-[Manifest](release-manifest.md), [tuner-stability design](plan-2026-10-30-tuner-stability.md).
+[Manifest](release-manifest.md), [tuner-stability design](../archive/docs/plan-2026-10-30-tuner-stability.md).
 A-E component standings, B's retest loss and the four-arm uncertainty remain unchanged.
 
 ## Historical review, 23:35: mode 51 layer gain unresolved after arm-bias checks
 
 The earlier three-arm bench timed the candidate twice using the same prepared state, but the
 incumbent only once. It could not distinguish a candidate gain from an incumbent-arm penalty.
-The [arm-bias audit](steering/2026-10-30-layer-bench-arm-bias.md) and new four-arm runs therefore
+The [arm-bias audit](../archive/docs/steering/2026-10-30-layer-bench-arm-bias.md) and new four-arm runs therefore
 supersede the previous claim of an established isolated mode-51 layer gain. Preserve the old
 numbers, including `29fd004fd58e40ef`'s 1.0084 and its 128/256 deltas, as historical observations.
 Mode 47's old three-arm attribution shares this limitation. Its release and component checks
@@ -1289,8 +1289,8 @@ not carried input values, for these tested cases. The earlier bitwise repeated-i
 was a sample, not a general property. Do not claim every attention configuration is proved.
 [Attention diagnostic](runs-attention.md#input-history-dependence-at-decode-16--32-full-merge-order-not-a-carry-10-30).
 
-The [independent M1 ordering review](review-m1-ordering-2026-10-30.md) and
-[other-PDL audit](review-pdl-secondaries-2026-10-30.md) replace the "unreviewed argument" status.
+The [independent M1 ordering review](../archive/docs/review-m1-ordering-2026-10-30.md) and
+[other-PDL audit](../archive/docs/review-pdl-secondaries-2026-10-30.md) replace the "unreviewed argument" status.
 The review supports the fenced runtime design under its stated assumptions. The other-PDL
 audit finds no issue on the shipped scored path; a latent W4 GEMM2 early return before its
 wait is off that path and is fixed in the new unchecked candidate. Neither review substitutes
@@ -1376,7 +1376,7 @@ This review reports that recorded decision; it does not change validation or inf
 for new work. The released file still uses the old gate; the candidate uses the newer one.
 Attention `_one_stress`, norm and route side-stream bounds remain unchanged.
 
-A [PTX ordering argument](steering/2026-10-30-m1-ptx-ordering.md) now exists and the M1 build
+A [PTX ordering argument](../archive/docs/steering/2026-10-30-m1-ptx-ordering.md) now exists and the M1 build
 adds reader-side `fence.proxy.async.global`. The argument states that it has not had independent
 review; runtime passing alone does not prove ordering. The former "argument missing" status
 is superseded by "written, independently unreviewed".
@@ -1459,7 +1459,7 @@ source report attributes this to layer run-to-run variation, consistent with ato
 order. The first divergent intermediate and proxy-ordering argument remain unverified.
 The 1e-4 bound is unchanged; no timing or safety conclusion follows. Validation-policy changes
 require explicit user approval under the recorded test plan; this review changes none.
-[Layer diagnosis](steering/2026-10-30-layer-release-attribution.md),
+[Layer diagnosis](../archive/docs/steering/2026-10-30-layer-release-attribution.md),
 [raw fresh-input test](../muse_decode_layer/profiles/m1fresh.3e2aa83358dd4f60.log).
 
 Public comparisons `86ced49f092a48d8` and `f5ee8632e1f64bf2`, current release against pinned
@@ -1473,7 +1473,7 @@ layer/standalone seeds 1-6, measures only 1.5/5.9 us public advantage at 32 toke
 the 10-14 us in-layer profile gap. Routing, prefetch and profiling effects remain hypotheses.
 sk8w3s loses 19.2 us versus 47 at 32 on layer routing, zero of six faster; do not generalize
 its 1/8/16-token win. ABPUB stage columns are invalid without --pubranges; use ABWORK.
-[MoE attribution](runs-moe.md), [layer attribution](steering/2026-10-30-layer-release-attribution.md).
+[MoE attribution](runs-moe.md), [layer attribution](../archive/docs/steering/2026-10-30-layer-release-attribution.md).
 
 Diagnostic `ed3b4fdc76b54263` (source `64cec1f`) crashed after 128-token timing; no 256 result.
 Rerun `d47c78bdc130424b` (source `54318bd`) completes, public minus 47 -14.7/-22.6 us at
@@ -1578,7 +1578,7 @@ staged comparison. That trigger is met, so repeat A versus B at 128/256 with cur
 in one process. Preserve the old +27.9/+24.2 us losses as historical measurements; they do not
 establish the result against today's A. No new winning B implementation has been measured.
 
-The [layer breakdown](steering/2026-10-29-v1-d32-breakdown.md) reports an assembled bundle at
+The [layer breakdown](../archive/docs/steering/2026-10-29-v1-d32-breakdown.md) reports an assembled bundle at
 `b694b4a`: mode 37 + sk8w3s (A, retaining C/D mechanisms), DCARRY/PK16/VHOIST (E), plus qkv8
 and single-token cgemv projection changes outside A-E. It is unjudged. Its branch log and
 source were inspected locally; FIN8 expected-plan assertions and fresh-qkv replay checks are
@@ -1591,7 +1591,7 @@ chain, not D's ready-job scheduler or a measured E gain. Recorded compile checks
 disabled paths SASS-identical (58/58 projection kernels, 15/15 attention kernels); enabled
 builds have no recorded spills. The host launch path was not compiled in that gate, and
 runtime correctness, replay stress and timing remain untested. No job ID or timing delta
-exists for this proposal. [Compile evidence and test plan](steering/2026-10-29-v1-d32-breakdown.md#6-built-sk_pdl-and-one_trig-compile-gated-off-by-default).
+exists for this proposal. [Compile evidence and test plan](../archive/docs/steering/2026-10-29-v1-d32-breakdown.md#6-built-sk_pdl-and-one_trig-compile-gated-off-by-default).
 
 The new score-weighted hotspot tool in `f61d8d9` ranks existing profile evidence. Its rankings
 are analysis, not fresh benchmark measurements. The layer breakdown's bundle projections
@@ -1621,7 +1621,7 @@ the reviewed records; layer score stays 1.964x. A-D standings and the mode 37/sk
 gaps remain unchanged. The no-fence timing probe in the repeat is diagnostic only and is not
 an eligible winning candidate; the production fence stays.
 
-The [community audit](steering/2026-10-29-community-audit.md) identifies two validation gaps:
+The [community audit](../archive/docs/steering/2026-10-29-community-audit.md) identifies two validation gaps:
 the intended q_len8 FIN8 stress selected mode 15 instead of mode 11 with eight copies, and
 the whole-layer comparison lacks enforced per-seed acceptance, reliable arm-order balancing
 and independent mutable cache state. These are open coverage/measurement gaps, not recorded
@@ -1691,7 +1691,7 @@ savings. The producers still spend about 70% of phase A waiting for free ring sl
 A/C/dynamic-claiming production wins remain supported. B remains a tested loss; no new C,
 ready-only D, E or whole-layer candidate result appeared in the reviewed changes. The same
 three candidates await layer evidence. A proposed per-group load/hoist experiment remains
-unbuilt in the [steering report](steering/2026-10-29-fat-moe-waits.md); its predicted savings
+unbuilt in the [steering report](../archive/docs/steering/2026-10-29-fat-moe-waits.md); its predicted savings
 are hypotheses. This correction motivates a test, not a new winning-family badge.
 
 ## Large-token comparison ledger
@@ -1797,7 +1797,7 @@ measure owned reimplementations with required ordering repairs. Projection C1 an
 successive component tests, but C1's layer port is inconclusive. Router H awaits PTX-chain
 review; codec and M-C one-token fusion ideas remain unbuilt. Never add component scores.
 [MoE decisions](runs-moe.md), [attention evidence](runs-attention.md),
-[projection evidence](runs.md), [F policy](steering/2026-10-30-family-f-donor-baseline.md).
+[projection evidence](runs.md), [F policy](../archive/docs/steering/2026-10-30-family-f-donor-baseline.md).
 
 ## Review history and checkpoint
 

@@ -20,7 +20,7 @@ Base muse_decode_layer/cand/g1b4_stage_release.py: 869076 bytes, SHA256 ba9e327c
 
 1023d9b0dcaa4c75 is a four-arm rank-zero short-boundary RMS treatment, not a forced serial producer. Owning run-log row records13tests,2.015410x and incompleteV1full at280s; different upstream front selections further prevent equivalence. Subsequent matched boundary a0da77c5f3c647c3/35f2b5d66f51465b concern the same boundary-RMS question, not this selector-only treatment.
 
-Old tools/dl_short_path_body.py DOES call _gle_prior_pool_router_fp32 in its split arm, and checks one-stream producer chain, but it is observational diagnostic construction. docs/steering/2026-11-01-g-short-path-evidence.md explicitly records no dispatched check/submit, and the scoped archive surfaced no owning completed result for that diagnostic. Its CPU/source assertions and proposed graphs are not target timing. Older cb71 front-tuner observations and isolated pooler/router timings use different front policies/contexts; none is an owning same pure-serial607 full-dispatch receipt.
+Old tools/dl_short_path_body.py DOES call _gle_prior_pool_router_fp32 in its split arm, and checks one-stream producer chain, but it is observational diagnostic construction. archive/docs/steering/2026-11-01-g-short-path-evidence.md explicitly records no dispatched check/submit, and the scoped archive surfaced no owning completed result for that diagnostic. Its CPU/source assertions and proposed graphs are not target timing. Older cb71 front-tuner observations and isolated pooler/router timings use different front policies/contexts; none is an owning same pure-serial607 full-dispatch receipt.
 
 ## Remaining gates and disposition
 

@@ -1162,7 +1162,7 @@ Submit of submission.py at aedad22 (the ONE_FIN8 build judged in b0b146dfbb4841b
 
 ## Gap map E2, FP8 P.V on wgmma in mode 51: already in the board build (10-29, static, no check)
 
-Question from [gap-map-2026-10-29.md](gap-map-2026-10-29.md) E2: does the public flat q_len 8
+Question from [gap-map-2026-10-29.md](../archive/docs/gap-map-2026-10-29.md) E2: does the public flat q_len 8
 kernel win its 23.6 / 53.4 us at verify 16 / 32 full (d57d1fe064164611) by running P.V in e4m3
 on wgmma with ones rows in V^T, where ours rounds P to f16? Answer: no. Both kernels already
 run the same P.V path, so E2 has nothing to build.
@@ -1869,7 +1869,7 @@ wait, over whatever the producer gathered.
 
 ## Standalone round 10-30: A0 scorecard and A1 cross-tile overlap in mode 51
 
-Brief: docs/steering/2026-10-30-attention-projection-standalone-roadmap.md, sections 1, 2, 4, 6, 7.
+Brief: archive/docs/steering/2026-10-30-attention-projection-standalone-roadmap.md, sections 1, 2, 4, 6, 7.
 Start: main 7703f0a, board entry e9085c86d89449c2 (2.504x, a bench file), clean candidate-only best
 569b233dfe08414f (2.449x). Quota at the start (`okc problems`, 07:49 UTC): 19 of 20 checks.
 
@@ -3192,7 +3192,7 @@ full-barrier wait to the empty arrive); (3) the input dependence of v16 full.
 
 ## F-ATTN-0 (10-31): the complete donor attention file against our release
 
-Steering: docs/steering/2026-10-30-family-f-donor-baseline.md (F-ATTN, priority 0) and its parent
+Steering: archive/docs/steering/2026-10-30-family-f-donor-baseline.md (F-ATTN, priority 0) and its parent
 donor-first report. Donor `alygg77/okc-muse-spark-kernels` at 6cae49a, `kernels/muse_attention_decode.py`
 (sha256 e6d929d4..., 3182 lines; its RESULTS.md: judge job 1c8d81a0dbd94ee0, 2.6530x, an archived
 donor result, not ours). The donor's attention file is vjeux's public file submitted unchanged:
@@ -4217,13 +4217,13 @@ Attribution correction for cd6805e7ebce45ee: the independent published evaluatio
 
 ### 2026-11-01 complete-head cluster screen (pending)
 
-- `eac485ea0d554e50`, source `eee3b5b`, generated fourarm complete-head q8sliding B1 experiment. Pending, no score/CI yet. Local NVRTC/PTXAS96regs/0spills only; runtime resources not yet known. SCREEN ONLY: inherited fresh loop shared data/cache across arms, corrected offline after dispatch. Report: docs/steering/2026-11-01-attention-complete-output-clusters.md. No public submit. Final result and loser/gates to append.
+- `eac485ea0d554e50`, source `eee3b5b`, generated fourarm complete-head q8sliding B1 experiment. Pending, no score/CI yet. Local NVRTC/PTXAS96regs/0spills only; runtime resources not yet known. SCREEN ONLY: inherited fresh loop shared data/cache across arms, corrected offline after dispatch. Report: archive/docs/steering/2026-11-01-attention-complete-output-clusters.md. No public submit. Final result and loser/gates to append.
 
 - Terminal `eac485ea0d554e50`: control16officialPASS2.49015534234613x CI[2.452803012210938,2.5275076724813217], policiesclean. HC4arm21/21eagereach, resources96regs/0local/90704dyn/128threads/2blocksSM/max14clusters. Clearloss v1sliding11.10→14.98/15.01us onall3inputs; sharedcache/BF16parityfreshscreen qualifiedonly. No secondcheck, no public. Decision/report/profiles preserveactualsourcehash. Closes this64key/genericDSMcomplete-head implementation, notVP2N128async implementation.
 
 ## Owned per-request QK two-chain diagnostic (BF16 common controls)
 
-2026-11-01 | fe75e566c1ae4d51 | 77fd87c | OFF-by-default ONE_PR_QK2 only L1MODE11/13; common BF16 attention-output activation boundary in control/treatment, separate literal unrounded judge and BF16 baseline parity gates. Four independent builds/private data/cache/state/graphs; 3 heldouts, all12 eager gates, duplicate-noise/full-score acceptance. Pending. Source .build/attn_pr_qk2.py SHA2564dca6a77725c2c5115956375ce8122d7877ae4904c2ff4943dd0d80227ac8bfb. Judged path is repaired QK-off control, not historical891. Root authorized ONE off-board check; no public action. Local NVRTC/PTXAS/scope/host evidence and registration: docs/steering/2026-11-01-attention-per-request-qk2.md.
+2026-11-01 | fe75e566c1ae4d51 | 77fd87c | OFF-by-default ONE_PR_QK2 only L1MODE11/13; common BF16 attention-output activation boundary in control/treatment, separate literal unrounded judge and BF16 baseline parity gates. Four independent builds/private data/cache/state/graphs; 3 heldouts, all12 eager gates, duplicate-noise/full-score acceptance. Pending. Source .build/attn_pr_qk2.py SHA2564dca6a77725c2c5115956375ce8122d7877ae4904c2ff4943dd0d80227ac8bfb. Judged path is repaired QK-off control, not historical891. Root authorized ONE off-board check; no public action. Local NVRTC/PTXAS/scope/host evidence and registration: archive/docs/steering/2026-11-01-attention-per-request-qk2.md.
 
 Terminal fe75e566c1ae4d51: DONE, passedfalse, official15/16 (test0 host Q2 incomplete before280s), no official score/CI/benchmark profiles. Retained later cached preparation completed the entire scoped diagnostic in21.108s:48 all12 eager and80 fresh/final dual-oracle checks pass, six paired timing rows, all resource vectors equal (L1M13R72,L1M11R114,0local,58960B dynamicshared,3CTA/SM). All three preregistered seeds fail score and context-regression gates. Sliding: control8.864–8.992us versusQK2 8.992–9.024; full control16.768–16.992 versusQK2 16.736–16.864. Six-load cross factors seed713301 .998703–.999766,713302 .998247–1.000335,713303 .998072–.999797, below1.002+2xnull requirements. Negative chain-only result retained separately from cold-prepare failure. No candidate promotion or retry. Receipt/log/parsed analysis: profiles/pr_qk2.fe75e566c1ae4d51.*.
 
@@ -4238,9 +4238,9 @@ detail perturbation3.776–23.136µs versus permitted0.990–1.959µs. Retain24
 descriptive traces only; no bottleneck or speedup inference. Exact probe closed,
 no automatic retry or public promotion. Canonical receipt/log/profile/decoded
 JSON: profiles/wait-trace.3f44f891d0ef47db.*. Report:
-docs/steering/2026-11-01-attention-full-wait-trace.md#november-1-0548-pst-terminal-result.
+archive/docs/steering/2026-11-01-attention-full-wait-trace.md#november-1-0548-pst-terminal-result.
 ## 2026-11-01 07:32 PST — private VP2 BF16-output signal requalification
 
-Root dispatched **c79ddddb840a4fb7**, exact artifact866845554b3d694c40165fabbdfde6739f6fa22b1efb5abb6b5831f32e368f24 (412952B), source e86b0d5/freeze23fb760. Pending; no score, timings or GPU qualification yet. Four independent modules/owners, all12cells x3 heldouts,640 private math/cache checks and20VP2/284native host warm/capture coverage. PRIVATE normal judged path actual VP2 only eligible V1sliding; native BF16 owned others, stock SGLang nonTP8. All16official/12benchmarks required. No public action or donor adoption. Root owns wait/status/archive; no duplicate dispatch or automatic retry. Frozen contemporary-offset/raw-sign score decision and proof: docs/steering/2026-11-01-attention-vp2-bf16-requalification.md. Reader requires raw terminal status JSON, not normalized profile JSON.
+Root dispatched **c79ddddb840a4fb7**, exact artifact866845554b3d694c40165fabbdfde6739f6fa22b1efb5abb6b5831f32e368f24 (412952B), source e86b0d5/freeze23fb760. Pending; no score, timings or GPU qualification yet. Four independent modules/owners, all12cells x3 heldouts,640 private math/cache checks and20VP2/284native host warm/capture coverage. PRIVATE normal judged path actual VP2 only eligible V1sliding; native BF16 owned others, stock SGLang nonTP8. All16official/12benchmarks required. No public action or donor adoption. Root owns wait/status/archive; no duplicate dispatch or automatic retry. Frozen contemporary-offset/raw-sign score decision and proof: archive/docs/steering/2026-11-01-attention-vp2-bf16-requalification.md. Reader requires raw terminal status JSON, not normalized profile JSON.
 
-Terminal c79ddddb840a4fb7: PASS16/12/checks.ok/no flags; PRIVATE judged comparator2.5943196585x CI[2.555404864,2.633234453],102.040889s preparation. All640 private checks/36rows/20VP2+284owned coverage pass. Contemporary four-cross1.006309–1.009060,null.002370868; every seed1%/2xnull gate FAIL, regressionfalse; rawsigntrue/rawregressionfalse. Target pooled10.784→10.168us (~5.71% lower) is PRIVATE bundled-cell advantage, not full-score win/storage-only causality. ActualVP297regs/0local/81984shared/256threads/2CTA/14clusters; owned8/15 82/0/90704/256/2CTA. Close automatic rewrite/retry/sweep/public/adoption; preserve HC64 loss versus complete VP2 target gain discrepancy. Canonical root profiles vp2_bf16_private.c79ddddb840a4fb7.*; report docs/steering/2026-11-01-attention-vp2-bf16-terminal.md.
+Terminal c79ddddb840a4fb7: PASS16/12/checks.ok/no flags; PRIVATE judged comparator2.5943196585x CI[2.555404864,2.633234453],102.040889s preparation. All640 private checks/36rows/20VP2+284owned coverage pass. Contemporary four-cross1.006309–1.009060,null.002370868; every seed1%/2xnull gate FAIL, regressionfalse; rawsigntrue/rawregressionfalse. Target pooled10.784→10.168us (~5.71% lower) is PRIVATE bundled-cell advantage, not full-score win/storage-only causality. ActualVP297regs/0local/81984shared/256threads/2CTA/14clusters; owned8/15 82/0/90704/256/2CTA. Close automatic rewrite/retry/sweep/public/adoption; preserve HC64 loss versus complete VP2 target gain discrepancy. Canonical root profiles vp2_bf16_private.c79ddddb840a4fb7.*; report archive/docs/steering/2026-11-01-attention-vp2-bf16-terminal.md.

@@ -1,0 +1,80 @@
+{
+  "evidence_base": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+  "reconciled_main": "9f8fa34a991f63a26f53cccefbeade39b045f353",
+  "layer_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "general": [
+    {
+      "name": "tiny",
+      "tokens": [1],
+      "flags": ["-O3", "-gencode=arch=compute_90a,code=sm_90a", "-lineinfo", "-DOKC_NS=3", "-DOKC_FNST=4", "-DOKC_NSF=3", "-DOKC_NW=8", "-DOKC_TINY=1", "-DOKC_EPI4=0", "-DOKC_FAST1=2", "-DOKC_L2H=0", "-DOKC_NACC=4", "-DOKC_UWARP=0", "-DOKC_WS=1", "-DOKC_WSB=1", "-DOKC_WSBL=2", "-DOKC_WSBLK=2", "-DOKC_FINPF=1", "-DOKC_PRMTSC=1", "-DOKC_DQ7=1"],
+      "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "compressed_sass_sha256": "2f31ea91c52fcff6c17ccb0b90c6cacd521a25be4dae6a64a8ef02979c349fb3",
+      "sass_sha256": "b45ec5dc426463812cf0ce9aab209748e7501c6cf45b1c456503d210367862ec",
+      "preprocessed_sha256": "fc710390721a9a88e86e8eca7429554afa7c44f17bd44b16cb23830757774186",
+      "helper_fp32_atomic_offsets": ["12030", "12330"],
+      "loop_backedge": ["12500", "10ea0"]
+    },
+    {
+      "name": "tiny2",
+      "tokens": [8],
+      "flags": ["-O3", "-gencode=arch=compute_90a,code=sm_90a", "-lineinfo", "-DOKC_NS=3", "-DOKC_FNST=4", "-DOKC_NSF=3", "-DOKC_NW=8", "-DOKC_TINY=1", "-DOKC_CPF=0", "-DOKC_EPI4=0", "-DOKC_FAST1=2", "-DOKC_NACC=4", "-DOKC_UWARP=0", "-DOKC_WS=1", "-DOKC_WSB=1", "-DOKC_WSBL=2", "-DOKC_WSBLK=1", "-DOKC_FINPF=1", "-DOKC_PRMTSC=1", "-DOKC_DQ7=1"],
+      "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "compressed_sass_sha256": "b58ef231e2781ed0fe694374ae5e788c18f31292b02ff7ba53fda3aeaf674cc9",
+      "sass_sha256": "bec5c3b67ded5e18f8ea1ee19606e157f4a5a183c693b0aa08a85df1b90c7e93",
+      "preprocessed_sha256": "db475ade9a21a928d2b1654ed8bd721c5ec05e628b92e7315b143e5b978c500b",
+      "helper_fp32_atomic_offsets": ["122c0", "12630"],
+      "loop_backedge": ["12800", "11070"]
+    },
+    {
+      "name": "mid",
+      "tokens": [16],
+      "flags": ["-O3", "-gencode=arch=compute_90a,code=sm_90a", "-lineinfo", "-DOKC_NS=3", "-DOKC_FNST=4", "-DOKC_NSF=3", "-DOKC_NW=8", "-DOKC_TINY=1", "-DOKC_SPLIT=1", "-DOKC_CPF=0", "-DOKC_EPI4=0", "-DOKC_FAST1=2", "-DOKC_NACC=4", "-DOKC_UWARP=0", "-DOKC_WS=1", "-DOKC_WSB=1", "-DOKC_WSBL=2", "-DOKC_WSBLK=2", "-DOKC_FINPF=1", "-DOKC_PRMTSC=1", "-DOKC_DQ7=1"],
+      "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "compressed_sass_sha256": "b8f9838c90c483622bcc2a55977328ae519fdd58efe2e04930225c2c74630d03",
+      "sass_sha256": "39ed3c89b46c8ef6487b04f2573f56deecefb0d6eb500d379d132347baf28e99",
+      "preprocessed_sha256": "d61111a75bd4a7a0a3907a57d022f2e6649ce9f8d0785239be937bb2c2c0a522",
+      "helper_fp32_atomic_offsets": ["11ae0", "11e50"],
+      "loop_backedge": ["12020", "10890"]
+    }
+  ],
+  "d32": {
+    "selected_instance": "attn_kernel<1,true,0>",
+    "flags": ["-O3", "-std=c++17", "-gencode=arch=compute_90a,code=sm_90a", "--expt-relaxed-constexpr", "-DOKC_QDIRECT=0", "-DOKC_PK2=0", "-DOKC_W0ENABLE=1", "-DOKC_SM90=1", "-D__CUDA_NO_HALF_OPERATORS__", "-D__CUDA_NO_HALF_CONVERSIONS__", "-D__CUDA_NO_BFLOAT16_CONVERSIONS__", "-D__CUDA_NO_HALF2_OPERATORS__", "-Xptxas=-v,--warn-on-spills"],
+    "cuda_sha256": "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5",
+    "sass_sha256": "8960896fb322869c036030d4a9a0f6a8dab6633f34a53d0654fd41cb6184999d",
+    "baseline_resources": {
+      "_ZN41_GLOBAL__N__cffe84ae_9_device_cu_b95fc04411attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE": {"stack_bytes": 0, "spill_store_bytes": 0, "spill_load_bytes": 0, "registers": 128, "barriers": 3}
+    },
+    "layout": [61440, 256, 3, 56, 200, 2],
+    "identity_rescale_sites": [
+      {"offset": "60d0", "instruction": "FMUL R36, R36, R24.reuse"},
+      {"offset": "60e0", "instruction": "FMUL R37, R37, R24.reuse"},
+      {"offset": "6110", "instruction": "FMUL R60, R60, R24.reuse"},
+      {"offset": "6120", "instruction": "FMUL R61, R61, R24.reuse"},
+      {"offset": "6150", "instruction": "FMUL R76, R76, R24.reuse"},
+      {"offset": "6160", "instruction": "FMUL R77, R77, R24.reuse"},
+      {"offset": "6170", "instruction": "FMUL R84, R84, R24.reuse"},
+      {"offset": "6190", "instruction": "FMUL R85, R85, R24.reuse"},
+      {"offset": "61a0", "instruction": "FMUL R80, R80, R24"},
+      {"offset": "61d0", "instruction": "FMUL R81, R81, R24.reuse"},
+      {"offset": "61f0", "instruction": "FMUL R40, R40, R24.reuse"},
+      {"offset": "6200", "instruction": "FMUL R41, R41, R24.reuse"},
+      {"offset": "6210", "instruction": "FMUL R44, R44, R24.reuse"},
+      {"offset": "6220", "instruction": "FMUL R45, R45, R24.reuse"},
+      {"offset": "6240", "instruction": "FMUL R64, R64, R24.reuse"},
+      {"offset": "6250", "instruction": "FMUL R65, R65, R24"}
+    ],
+    "cpu_finite_identity_cases": 1061391,
+    "cpu_identity_pass": true,
+    "target_identity_status": "NOT_RUN",
+    "incumbent_job": "607eb52bdaf24160",
+    "adjusted_cell_us": {"sliding": 154.82044500163073, "full": 297.8826968304272},
+    "C32_us": 11887.86361936185,
+    "full_only_us_for_D32_1pct": 7.356351249605112,
+    "full_only_us_for_sixload_1pct": 43.059896211887015
+  },
+  "general_ftz_counterexample": {"per_unit_input_bits": "00400000", "two_global_FTZ_updates_from_zero": "00000000", "plain_register_batch_bits": "00800000", "scope": "CPU model of documented FTZ semantics, not a GPU result"},
+  "limitations": ["Archived compiler outputs, not a new compilation", "Static operation counts are not exposed time or measured gain", "D32 branch occurrence and candidate resources are unmeasured", "Under-295-second candidate comparison remains target-unqualified"],
+  "kernel_modified": false,
+  "gpu_execution": false
+}

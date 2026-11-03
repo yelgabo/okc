@@ -10,5 +10,10 @@
   "delivery_accepted": true,
   "explicit_new_scope_pickup_observed": false,
   "completion_observed": false,
-  "scout": "Existing shared-repository request only; available project inventory exposes local Windows host, not scout Mac chat; no direct contact claimed."
+  "scout": "Existing shared-repository request only; available project inventory exposes local Windows host, not scout Mac chat; no direct contact claimed.",
+  "later_joint_source_study_verified": {
+    "commit": "88952f36",
+    "index_commit": "1e068258",
+    "result": "Ranked norm-stat, D32identity-rescale and reservedearly-credit mechanisms; no candidate/GPUqualification claimed"
+  }
 }

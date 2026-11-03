@@ -857,7 +857,7 @@ of the geometry change: about +0.06% of layer score at 0.079% per us.
 
 ## 2026-10-30 standalone round: direct cuBLASLt and router geometry (P1)
 
-Brief: `docs/steering/2026-10-30-attention-projection-standalone-roadmap.md`, sections 5-7.
+Brief: `archive/docs/steering/2026-10-30-attention-projection-standalone-roadmap.md`, sections 5-7.
 Reference: NathenFernandes/muse-bf16-proj, branch `solution`, commit 86aff75 (MIT), v18
 submission (judged 1.5186x, 66d8b007f6c641ee), per-shape CSV blob f3ab30a0. Its source was
 expanded offline with an AST transform of our own (no execution) and read; its router kernels
@@ -1298,7 +1298,7 @@ Scored 2026-10-30: d85d0081fa8a4a43 1.4976x, submission.py at 2265fa2 (split exi
 ## 2026-10-30 round 5: frontier map and the qkv_gate one-wave cluster split (branch worktree-agent-a397d671218195a46)
 
 Brief (coordinator): top 100 on this board (rank 100 at 1.5560, we are 1.4976). Frontier map and
-portfolio in docs/steering/2026-10-30-projection-top100.md (`tools/proj_frontier.py`). Built the
+portfolio in archive/docs/steering/2026-10-30-projection-top100.md (`tools/proj_frontier.py`). Built the
 top structural option that fit the one check left today: qkv_gate at 8 / 16 / 32 tokens in one
 wave. The P2 decline row names the reopen condition (a geometry with <= 132 CTAs); its cited
 losers ran 144-192 CTAs, and the coordinator agreed this meets it.
@@ -1351,7 +1351,7 @@ handed to the coordinator.
 
 ## 2026-10-30: F-PROJ-0 (Family F donor comparison)
 
-Family F track F-PROJ (docs/steering/2026-10-30-family-f-donor-baseline.md). Question: is the
+Family F track F-PROJ (archive/docs/steering/2026-10-30-family-f-donor-baseline.md). Question: is the
 complete alygg77 projection file faster than our frozen release under matched controls, and if
 so, which mechanisms carry the gain? Per the user's 2026-10-31 decision (relayed by the
 coordinator), Family F is measurement only: donor code is never submitted, and a donor win
@@ -1537,7 +1537,7 @@ archived 1.5502x is not reproduced or claimed here.
 Brief (coordinator): no-quota work model for a denser lossless code, a verdict on the dense
 whole-output-tile sketch, and two prepared benches (batched GEMM at m = 256, router reference
 differences); after the reset, up to 4 checks. Full write-up: addendum 2026-10-31 in
-docs/steering/2026-10-30-projection-top100.md. Code: `tools/proj_codec_model.py`,
+archive/docs/steering/2026-10-30-projection-top100.md. Code: `tools/proj_codec_model.py`,
 `tools/proj_make_bench_bg.py`, `tools/proj_make_bench_rg.py`, `tools/proj_make_bench_lts.py`;
 bench-only wd VAR bits WV_PGROUP / WV_ACQCL / WV_SCALAR in submission.py (production SASS 81 of 81
 kernels instruction-identical against bc10cb1, nvcc 12.8 sm_90a).
@@ -2242,18 +2242,18 @@ entries have4/8/8HGMMA, oneloopwait1 andoneterminalwait0 each, noC751x,0spill.
 AllshortSK/RT/RD compiledHMMA/noHGMMA. Sourcealreadyreleasespreviousstageafter
 wait1; terminaldrainrequiredbeforepartials/ringreuse. NoMoE-styleinnerdrain found.
 Full30C2/SGLang/floor/scoremap andsource/SASSresources in
-docs/steering/2026-11-01-projection-wgmma-lifetime-audit.md. Hypothetical10percent
+archive/docs/steering/2026-11-01-projection-wgmma-lifetime-audit.md. Hypothetical10percent
 cuttoall3wholeWDoperators gives1.007287507factor, notmeasuredwaitbudget. Existing
 depth24542b2b04cb344ec/pushepilogue4edaa20c98904404 closuresremain. No source
 optimization/check/C3repeat; opaqueLtactualSASS remainsunobserved.
 
 ### 2026-11-01 offline async-mailbox scope closure
 
-No GPU job. Evidence e778443, C2 9eba96894ee1402e and old push4edaa20c98904404. Selected SK/RD reducers are CTA-local, RT already async complete_tx, old QKV push already dedicated async mailbox and lost. Full30-cell sensitivity: hypothetical1us from all16 SK/RT/RD operators gives1.066379526 factor, NOT measured reducer budget/forecast. No direct-port proposal; retain C2. Report docs/steering/2026-11-01-projection-mailbox-scope.md; reopen only distinct legal mechanism with exposed component evidence.
+No GPU job. Evidence e778443, C2 9eba96894ee1402e and old push4edaa20c98904404. Selected SK/RD reducers are CTA-local, RT already async complete_tx, old QKV push already dedicated async mailbox and lost. Full30-cell sensitivity: hypothetical1us from all16 SK/RT/RD operators gives1.066379526 factor, NOT measured reducer budget/forecast. No direct-port proposal; retain C2. Report archive/docs/steering/2026-11-01-projection-mailbox-scope.md; reopen only distinct legal mechanism with exposed component evidence.
 
 2026-11-01 | 2b537518091248f1 | PUBLIC single-arm owned SK sparse E7-XOR measurement, sourcec138969/prereg1bd55da. muse_bf16_proj/experiments/sk_sparse_xor_release.py321640B SHA685ffab5d1614343d3c46d505967ae6817e3784736297018c78984354333f765. One originalC2prepare/one extraSKmodule, fixed10scored/100nearby bucket overrides onlyafter160math/10capture/30fresh and allresource/watchdog gates; other20scored/M1/128/256 unchangedC2. No private comparator timing/report machinery. Independent sourceaff1f9e, combined42CPUtestsPASS/localexacthelper23checks; actualH200math/resources/time/performance pending. Quota0private/6publicbefore, ownjobidconfirmed. Incumbent9eba96894ee1402e1.527806483x CI1.504889386–1.550723580. Root owns wait/archive; no duplicate or layer dispatch.
 
-Terminal2b537518091248f1 PUBLIC PASS9/30benchmarks/30profiles,checks.ok/no flags. Preparation123.332824s; all10SX/110keys/160math/10captures/30fresh,0fallbacks and all40FULL/NFresourcevectors satisfy0local/expectedlayout/nonregressedCTAadmission. Score1.3941200708702308x CI[1.3732082698071773,1.4150318719332842], belowC29eba1.527806483. Every10targetcell regresses in adjusted(+5.157..52.411%) and raw(+7.372..35.141%) cross-receipt timing; other20split10faster/10slower. Six-load score reconstructs exactly; no paired causal attribution. Close this global-record/before-A schedule, no publicretry/layerport; candidateexperiment remains archived and known-goodC2 retained. [Terminal archive and all30rows](steering/2026-11-01-sk-xor-release-terminal.md).
+Terminal2b537518091248f1 PUBLIC PASS9/30benchmarks/30profiles,checks.ok/no flags. Preparation123.332824s; all10SX/110keys/160math/10captures/30fresh,0fallbacks and all40FULL/NFresourcevectors satisfy0local/expectedlayout/nonregressedCTAadmission. Score1.3941200708702308x CI[1.3732082698071773,1.4150318719332842], belowC29eba1.527806483. Every10targetcell regresses in adjusted(+5.157..52.411%) and raw(+7.372..35.141%) cross-receipt timing; other20split10faster/10slower. Six-load score reconstructs exactly; no paired causal attribution. Close this global-record/before-A schedule, no publicretry/layerport; candidateexperiment remains archived and known-goodC2 retained. [Terminal archive and all30rows](../archive/docs/steering/2026-11-01-sk-xor-release-terminal.md).
 
 2026-11-01 | dfcfdd01d6f04525 | PUBLIC single-arm owned STAGE-LOCAL E7-XOR measurement, source/prereg a08f501. Exact muse_bf16_proj/experiments/sk_stage_xor_release.py450781B SHAde1111b98072f5251ff9b2edd5d453cc22eb8fe1710a943c60922909cc796229. Root12CPU tests PASS, independent945661d/source-clear/local23bitchecks. Fixed10targets/100nearby; actualstagecapacity derived fromsuppliedweights, originalC2control admission, unchangedstrict160math/10capture/30fresh gates before atomicpublication. One originalC2prepare/oneextra module, no newcomparativetiming/privatecodec. Quota0private/5publicbefore, ownproblem/jobconfirmed. ActualH200prepare/math/resources/coverage/score pending; compareoriginal9eba1.527806483x, notclosedglobal2b. No layer/reset/prefill action.
 
@@ -2265,5 +2265,5 @@ Terminal2b537518091248f1 PUBLIC PASS9/30benchmarks/30profiles,checks.ok/no flags
 - Score **1.4191468393881441**,95%CI[1.397859636797322,1.440434041978966], prepare129.385967127s; original C2 `9eba96894ee1402e`1.5278064829557674 remains primary comparator. Prior failed global `2b537518091248f1`1.3941200708702308 is secondary only.
 - All10 target cells regress versus archived C2: adjusted+6.274..40.738%,raw+5.860..30.694%; all10 overrides/0fallback/110keys/160math/10captures/30fresh. All40 runtime resource vectors have0local/0staticshared and stage FULL/NF admission equals C2; actual16/32B record arenas fit existing SX SST slack. No utilization/stall/traffic counters collected.
 - Exact30-cell/6-load score reconstruction passes; replacing only10 cells into archived C2 gives factor0.9263484356405296, explicitly an unpaired sensitivity scenario. Seeds/baselines/overhead/tuner differ; weight identity was not shared or established.
-- Canonical rawreceipt/profile/log/txt are root-owned under `muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.*`; decoded all30/6loads/40vectors/capacities/hashmanifest and report `docs/steering/2026-11-01-projection-stage-xor-terminal.md`. Six synthetic reader tests and3 independent terminal-data tests pass.
+- Canonical rawreceipt/profile/log/txt are root-owned under `muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.*`; decoded all30/6loads/40vectors/capacities/hashmanifest and report `archive/docs/steering/2026-11-01-projection-stage-xor-terminal.md`. Six synthetic reader tests and3 independent terminal-data tests pass.
 - CLOSE exact stage-local BEFORE-A variant alongside global-record BEFORE-A loss; no automatic retry, cap/tile/stage/placement sweep, target dropping or layer port. No candidate promotion. Reopen only distinct dataflow/instruction evidence with credible full30>=1% paired opportunity and unchanged correctness/order/resource gates.

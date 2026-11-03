@@ -14,7 +14,7 @@ Fresh overall/layer rank **379**, public607 still2.126082676x; layer rank100 is2
 
 ## Exact target and stop rules
 
-Captain background own-ID wait writes status-wait.raw.json/exit/stderr under [own evidence directory](evidence/2026-11-02-driver-d32-mid-first-check/). Check those files first. Local transport timeout is not GPU failure or retry permission. Require both **D32_MID_SELECTION** with pinnedhelper/defines/cache and **G_RELEASE_STARTUP_OK native/56replays**, official13tests/12benchmarks/12completeprofiles, no flags and actual progress/precision/order/lifetime. Successful fallback does not qualify MID. Helper has no resource export; report unavailable resources honestly.
+Captain background own-ID wait writes status-wait.raw.json/exit/stderr under [own evidence directory](evidence/2026-11-02-driver-d32-mid-first-check). Check those files first. Local transport timeout is not GPU failure or retry permission. Require both **D32_MID_SELECTION** with pinnedhelper/defines/cache and **G_RELEASE_STARTUP_OK native/56replays**, official13tests/12benchmarks/12completeprofiles, no flags and actual progress/precision/order/lifetime. Successful fallback does not qualify MID. Helper has no resource export; report unavailable resources honestly.
 
 Report D32raw/adjustedsliding/full,C32=46s+16f,ownbaseline/all6 and GPU/node/driver/evaluator. Fresh current unchanged94ef had D32C32=12.324230ms/own1.811791x, wholelayer2.091747685x; differing random inputs/node remain descriptive cross-job comparators. No automatic causal claim from either ratio.
 

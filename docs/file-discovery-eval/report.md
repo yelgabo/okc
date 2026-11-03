@@ -27,8 +27,8 @@ Today, the chat workspace `/Users/gretchengabo/Documents/ChatGPT/okc` was empty
 and `git rev-parse --show-toplevel` exited 128 there. A bounded inventory of the
 user's GitHub directories located `/Users/gretchengabo/GitHub/okc`. Its origin is
 `https://github.com/yelgabo/okc.git`. The checkout contained
-[`docs/gap-analysis-2026-10-28.html`](../gap-analysis-2026-10-28.html), also linked
-at [the repository path](https://github.com/yelgabo/okc/blob/main/docs/gap-analysis-2026-10-28.html).
+[`docs/gap-analysis-2026-10-28.html`](../../archive/docs/gap-analysis-2026-10-28.html), also linked
+at [the repository path](https://github.com/yelgabo/okc/blob/main/archive/docs/gap-analysis-2026-10-28.html).
 This session verified local contents, not the current remote branch.
 
 In the pinned source, line 1 gives the title "Ours vs the 2.1x Layer". Lines

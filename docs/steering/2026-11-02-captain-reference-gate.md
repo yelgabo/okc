@@ -28,7 +28,7 @@ These are static compiler reports, NOT elapsed time, dynamic spill traffic or sp
 
 ## Captain correction: absolute zero was an overly strict screen
 
-The fixed phased treatment **did fail the registered absolute-zero gate**; preserve that history, do not rewrite it as PASS. But the already-published [gamma13 control evidence](2026-11-01-gamma13-main-screen.md) establishes original public607 MAIN itself has8Bstack/20Bstores/52Bloads under NVRTC13/PTXAS13, nativec7c201ae. Captain verified the local baseline manifest equals the committed summary's baseline manifest. New MAIN is no worse on these fields and lower on static spill counts.
+The fixed phased treatment **did fail the registered absolute-zero gate**; preserve that history, do not rewrite it as PASS. But the already-published [gamma13 control evidence](../../archive/docs/steering/2026-11-01-gamma13-main-screen.md) establishes original public607 MAIN itself has8Bstack/20Bstores/52Bloads under NVRTC13/PTXAS13, nativec7c201ae. Captain verified the local baseline manifest equals the committed summary's baseline manifest. New MAIN is no worse on these fields and lower on static spill counts.
 
 I selected an absolute-zero resource heuristic stricter than the incumbent without adequately accounting for that existing comparator. That was a screening-policy mistake. Nonzero spills are not a numerical/memory-ordering violation or proof of performance loss. The fixed old implementation still has a substantial resource problem, but the frozen phased implementation should not be discarded solely for failing an absolute-zero threshold that the incumbent also fails. No timing or performance acceptance threshold is weakened, because none has been measured for G2.
 

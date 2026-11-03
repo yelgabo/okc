@@ -12,7 +12,7 @@ Default ripgrep discovery now exposes 1,193 working files instead of traversing 
 
 ## Findings and changes
 
-The main source of wasted reads was duplicated complete submissions and repeated instructions. Removing only comments inside a current kernel would leave those copies in ordinary searches. The existing [comment-fit work](2026-11-01-production-comment-fit.md) already has a qualified lexical/selected-compiler analysis for its exact older source epoch; this audit does not repeat it or apply its conclusions to different code.
+The main source of wasted reads was duplicated complete submissions and repeated instructions. Removing only comments inside a current kernel would leave those copies in ordinary searches. The existing [comment-fit work](../../archive/docs/steering/2026-11-01-production-comment-fit.md) already has a qualified lexical/selected-compiler analysis for its exact older source epoch; this audit does not repeat it or apply its conclusions to different code.
 
 The first nine deletions are generated attention/MoE/projection benchmarks and retired experimental submissions. Twelve further deletions are superseded self-contained layer candidates and a historical release copy. Their names have no references in the remaining tracked Python/shell files outside archived profiles/evidence. That is a bounded consumer search, not proof about arbitrary external commands. Referenced historical inputs, including layer_attn31s and layer_lt_boundary, remain because tools still read them. Profiles, receipts and old reports remain.
 

@@ -1,6 +1,8 @@
 # Decode32 task inbox
 
-## Current decision: observer closed, qualified D32 task needed
+**Newer88952f36 research findings:** proceed with [D32-18 exact identity-rescale qualification](2026-11-02-18-identity-rescale-qualification.md), one fixed source/compile implementation and bounded private comparison if conforming. Full source/binary/cost design is in the existing joint refill report. This is not a lookahead observer retry, not a measured win and not a Driver approval handoff. Original observer closure below remains in force; its earlier empty-queue statement is superseded by this source-qualified lead.
+
+## Current decision: new identity-rescale qualification, observer stays closed
 
 [D32-ATTN-06 terminal and research refill](2026-11-02-17-observer-budget-closure-and-refill.md): own job `8b1e364dafb54c71` hit the preparation guard before emitting boundary evidence. No matched timings. Close the instrument as inconclusive with no retry or gate relaxation. No D32 job is active. The bounded pooler selector audit confirms existing conditional fusion in five CPU fixtures, not an actual target fallback or latency opportunity.
 

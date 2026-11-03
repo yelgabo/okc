@@ -1,4 +1,4 @@
-"""M-B slices 1-3 on layer_m1rt51s (docs/plan-2026-10-31-m-b-pdl-chain.md). M1's mode string
+"""M-B slices 1-3 on layer_m1rt51s (archive/docs/plan-2026-10-31-m-b-pdl-chain.md). M1's mode string
 becomes a set of '+'-joined switches, each tunable per bucket by the stable M1 tuner:
 
   o      the o projection as a PDL secondary of attention (M1, unchanged)

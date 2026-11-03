@@ -22,6 +22,8 @@ Generated benchmarks belong in ignored output paths; recover retired snapshots f
 
 Preserve original encodings during bulk document edits. Some historical Markdown is CP1252; never decode with replacement.
 
+Historical docs live in `archive/docs/`, outside default searches. Consult its move manifest or use `rg --files --no-ignore archive` when following older evidence. Keep files consumed by current tools at their existing paths.
+
 ## Research and experiments
 
 Before substantial research, read [working principles](docs/steering/2026-11-01-working-principles.md) and the [coordinator method](.claude/agents/okc-coordinator.md). Follow the [standing hotspot goal](docs/steering/2026-11-02-incumbent-hotspot-goal.md) and current owner queue.
@@ -61,6 +63,8 @@ Resolve native code through the final factory and preprocessed flags. Public607 
 For WGMMA grouping, read active constants, prove deferred flush conditions reachable for every selected group size, inspect compiled publication operations and disclose rounded flush timing. Preserve compiler failure status and complete diagnostics; output filtering is not build evidence.
 
 ## Document discovery and publication
+
+Architecture diagrams must label editable scope separately from performance groups. Dense projections covers QKV/gate, O, pooler, unpooler and router GEMMs. Whole-layer scope also includes routing, norms and residual boundaries, with fusion allowed under its numerical and execution contract. A missing speedup badge does not exclude a stage. Cross-GPU communication is outside this layer benchmark. See [scope clarification](docs/steering/2026-11-02-diagram-customization-scope.md).
 
 Filename-unknown requests require checkout/remote confirmation and `rg --files` plus `git ls-files` before content search. Include HTML for visual documents. Widen to hidden/ignored files before a scoped miss; distinguish errors/truncation from empty results. Verify title/content, change retrieval method after user corrections and return searched ref plus verified path/link. Follow [the protocol](docs/repository-file-discovery.md). Keep this root rule for the [October28 correction/evaluation](docs/file-discovery-eval/report.md).
 

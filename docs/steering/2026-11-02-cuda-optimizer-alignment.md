@@ -14,7 +14,7 @@ No kernel, model setting, active assignment, GPU job, release, quota allocation 
 
 ### 1. Pin the real target; similar names are not the same selected kernel
 
-The retained layer source is `muse_decode_layer/cand/g1b4_stage_release.py`, SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`, public job `607eb52bdaf24160`. The [native repair inventory](2026-11-01-g-native-repair-inventory.md) records tiny at T1, tiny2 at T8, MID at T16, B4 at T32 and MAIN at T128/256. Its actual MAIN definitions differ from a similarly named helper literal/comment. A suggestion must map to the selected source and instantiated flags, not a plausible-looking inactive function or a root filename assumed to be the release.
+The retained layer source is `muse_decode_layer/cand/g1b4_stage_release.py`, SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`, public job `607eb52bdaf24160`. The [native repair inventory](../../docs/steering/2026-11-01-g-native-repair-inventory.md) records tiny at T1, tiny2 at T8, MID at T16, B4 at T32 and MAIN at T128/256. Its actual MAIN definitions differ from a similarly named helper literal/comment. A suggestion must map to the selected source and instantiated flags, not a plausible-looking inactive function or a root filename assumed to be the release.
 
 A real improvement restricted to T1/T8 can be useful for those loads; it must not be credited as a decode32 improvement. The user's batch32 priority remains important, but does not automatically convert this separately created optimizer into a second owner of Decode32 Worker's live edits.
 
