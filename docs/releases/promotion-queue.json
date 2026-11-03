@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-03T17:42:30.044010+00:00",
+  "observed_at": "2026-11-03T18:42:51.078002+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -468,10 +468,10 @@
       "source_identity": "muse_decode_layer/cand/g1b4_pdl8d.py;canonical Git SHA256 7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904;907644B",
       "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
       "artifact": "muse_decode_layer/cand/g1b4_pdl8d.py",
-      "release_state": "public-posted-selection-scope-review-open",
-      "reason": "Board/own CLI receipt verifies new public10374.616018us/2.180350575x,rank364. Same source private4a737 selected T8four edges excludingattn/o; public selectedall6 under a different own-off-drift baseline. Relative gate/testspass, but unresolved attention-edge cause and original T8hardoff/sourcefix condition are not reconciled for six-edge selection. No observed output failure or intent is inferred. Existing owner must reconcile actual mask/sourceproof/repeatbase;root does not withdraw or submit.",
+      "release_state": "public-selection-review-mechanism-evidence-added",
+      "reason": "Publicf931six-edge versus private4a737four-edge history remains exact. New own diagnostic2c84 strongly supports FP32merge-order variation for tested layerATT7stand-in chains: off/jittervary,order-freePDLfixed/alternatingbitwiseclean,consumer audit0. This updates the earlier unknown-cause explanation without proving universal race absence or rewriting the original T8conditional authority. Existing owner has prepared stronger pdl8e27b5gates;no full-layer target qualification yet. Owner source/authorization/repeatbase disposition remains separate;no new Driverapproval gate or rootwithdrawal.",
       "evidence": "muse_decode_layer/cand/profiles/g1b4_pdl8d.f931abf568544018.json",
-      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-1733.md",
+      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-1836.md",
       "public_submission_approved": true,
       "public_submission_condition_satisfied": null,
       "public_submission_approval_scope": "Historical02:58Pacific conditional best clean PDL authority; actual six-edge T8 selection requires reconciliation, not inferred blanket approval.",
@@ -493,7 +493,10 @@
         "route",
         "fin"
       ],
-      "review_evidence": "docs/steering/evidence/2026-11-03-driver-monitor-1733/selection-review.json"
+      "review_evidence": "docs/steering/evidence/2026-11-03-driver-monitor-1733/selection-review.json",
+      "release_mechanism_diagnostic_job": "2c84c321b3bb4dbb",
+      "release_mechanism_evidence": "muse_attention_decode/profiles/pdl_bench.2c84c321b3bb4dbb.json",
+      "release_mechanism_status": "merge-order-supported-for-tested-stand-in-chain; stronger full-layer gate pending"
     }
   ]
 }

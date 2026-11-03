@@ -4,11 +4,15 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 17:33 UTC](2026-11-03-driver-monitor-1733.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 18:36 UTC](2026-11-03-driver-monitor-1836.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
+
+## November 3 18:36 UTC mechanism evidence and next gates
+
+[Current monitor](2026-11-03-driver-monitor-1836.md): new own2c84diagnostic strongly supports merge-order variation in tested layerATT7chains: PDL-off/jittervary,order-freefixed/alternatingPDLarms bitwiseclean,consumer audit0. This is bounded evidence,not universal race exclusion or a retrospective mask/authority change. Prepared pdl8e27b5has stronger four-stage/full-context gates;one existing-owner layercheck is allocated afterreset,not yet accepted. Actual publicsix/privatefour history and final owner disposition remain explicit. Two newly allocated BF16lanes are active;do not duplicate/refill them. Publicscoreunchanged,fresh audit15leads/zero gaps.
 
 ## November 3 17:33 UTC public T8 selection review
 
@@ -55,6 +59,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 [Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.
 
 ## Audits and monitors, November 2 to 3
+
+[Driver monitor18:36UTC](2026-11-03-driver-monitor-1836.md): bounded merge-order diagnosis,pdl8eprospectivegates,release-review evidence update,new BF16owners and fresh quota/boards.
 
 [Driver monitor17:33UTC](2026-11-03-driver-monitor-1733.md): new public score,actual T8dispatch/scope mismatch,certification limits,new round2allocation and completed M1reserve.
 
