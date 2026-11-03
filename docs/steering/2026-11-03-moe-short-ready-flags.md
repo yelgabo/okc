@@ -45,3 +45,7 @@ No independent native review or target result is claimed. The independent Genera
 Origin/main fa762950 includes another owner's completed Tiny timeline19128cda79ca4e25 and closed NW16+balanced ab54144f6c4d4727 and BAL-only b45cce36b47f4e81. No poll or retry of those jobs follows. This candidate retains NW8, the original proportional A/B ranges, original ring and code/scale packing. Its ready-publication source and owned files are distinct; the other lane is recorded closed. Preserve its losses rather than redispatching them.
 
 The other timeline reports about1.7–1.8us ready waiting on its judge-input observation, less than this instrument's cold normal-bank4.60/2.43us medians. Inputs, replay/cache conditions and instrumentation differ; they are not a matched comparison. The measured wait is not a promised2us saving. This reinforces the need for the frozen multi-bank control comparison and separate official score. No causal fence-versus-aggregation conclusion is drawn from either timeline alone.
+
+## Accepted private check
+
+Own e3e2495464f34b2c accepted once for pairedb6107a78/490593bytes, published73ab76cf/reconciled8fad06be, dispatch intent9e778ae6. Fresh quota had3checks left; shared live jobs were recorded before the POST. Accepted ID persisted before collection or other measurement. One own-ID foreground waiter writes ignored .build/moe-short-ready/status-wait.raw.json. No target outcome yet.
