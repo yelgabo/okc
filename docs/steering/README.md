@@ -1,5 +1,9 @@
 # Shared project steering
 
+## CUDA optimizer / round-2 research alignment — actual optimizer plan not yet inspected
+
+[Evidence-scoped alignment review](2026-11-02-cuda-optimizer-alignment.md), evidence df237d36: a narrow code-specific optimizer pass can proceed alongside round-2 research. The exact named optimizer plan/patch and full CUDA research report were not located in the inspected pushed files or available file searches, so this is **not a verdict on its current approach**. Use the actual selected source, avoid recounting shipped overlap repairs or assuming occupancy equals speed, and distinguish scoped losses from new mechanisms. The missing item is one current plan/diff, not another review framework. No pause, new allocation, handoff requirement, kernel/job change or submission permission. Decode32 Worker's live candidate and end-to-end authority below remain unchanged.
+
 ## Latest user instruction: research plans; Decode32 Worker implements and measures
 
 **[D32-04: fixed implementation and measurement brief](decode32/2026-11-02-04-research-plan-worker-execute.md)** records the user's medium-effort worker setting and request for okc research to handle the deeper planning. Research owns architectural choices and concrete experiments; **Decode32 Worker retains coding, focused checks, private GPU submission, own-job analysis, confirmation, integration and commits, without routine handoffs or per-step approval.** Finish the already-selected within-request next-tile QK score-carry attention candidate. Do not restart literature review, architecture selection or an independent-review chain. Known correctness/progress defects still block dispatch; an unproved speedup does not block a bounded exploratory check.
@@ -80,6 +84,7 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 | Report | Evidence | Scope |
 |---|---|---|
 | [H200 research intake and application](2026-11-02-cuda-research-application.md) | ba9/c7 source; complete attachment; CPU regressions and local CUDA 12.8.1 build | Eight reference documents, full section/recommendation coverage, compiler-status repair; no runtime optimization or target gain claimed |
+| [CUDA optimizer alignment](2026-11-02-cuda-optimizer-alignment.md) | df237d36; native repair inventory; K128 terminal | Provisional guidance; named optimizer plan and exact CUDA report not retrieved; no candidate verdict or ownership change |
 | [D32 attention experiment](decode32/2026-11-02-01-full-decode-attention-experiment.md) | ba9 control; 5a580c7a candidate; six CPU tests and fixed device builds | Direct private measurement under D32-04; target results pending |
 | [D32-04: research plans, worker executes](decode32/2026-11-02-04-research-plan-worker-execute.md) | a3ba392c; user's medium-effort instruction; existing L1 score-carry source brief | Fixed candidate design, focused checks and direct private measurement; no repeated review/planning or handoffs; correctness retained |
 | [D32-02: end-to-end ownership](decode32/2026-11-02-02-end-to-end-ownership.md) | 28346bf; latest user instruction; publication reconciled with65b94dcc | Batch32-only implementation through private checks and integration; no recurring handoffs; rest of project unchanged |

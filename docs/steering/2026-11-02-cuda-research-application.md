@@ -41,3 +41,7 @@ Keep the active D32 attention experiment under its existing execution owner. Thi
 When the owner next needs a new discriminator, capture selected hot-loop issue behavior and physical DRAM/L2 traffic on legal production routes. Price a resulting treatment against the complete call and `46 * sliding_us + 16 * full_us`; preserve other loads and independent null controls. Stop before target allocation if there is no distinct limiting-work/dependency difference, if the build adds spills under the agreed gate, or if precision/publication/progress proof fails. Activity totals, logical bytes and peaks cannot establish endpoint savings.
 
 Publication uses the isolated `codex/cuda-research-application` worktree. Only this chat's edits enter its commit. The shared D32 checkout and staging are preserved. Remote verification is a separate completion gate from local checks.
+
+## Publication addendum
+
+The concurrent [optimizer-alignment memo](2026-11-02-cuda-optimizer-alignment.md), published at `40bb040c`, was read during integration and retained. This library now provides the exact pasted playbook and its first-round application audit that the memo could not retrieve at its earlier checkpoint. It does not assess the separate CUDA optimizer's unseen patch or the still-running round-2 research. Both steering-index entries are preserved; this intake adds no gate to either worker.
