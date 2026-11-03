@@ -102,3 +102,11 @@ No independent agent reviewed this new candidate, numerical argument or target r
 ### Next queue
 
 The refill's earlier phase-A job-boundary credit remains a reserve requiring proof of actual crossings and exposed dependency cost. This completed run's routing census alone does not show exposed waits, so no new GPU allocation follows. CUDA Optimizer keeps B4/MAIN attribution and Decode32 Worker keeps identity4a2a79bdac04499a and its own waiter. General needs a distinct qualified next task or stronger reserve exposure evidence. Reuse the existing research refill; do not create an overlapping D32 study or rescue sweep.
+
+## Priority reconciliation and refill
+
+Before publication, fetched the user's newer priority override at1e379944/ef1daa37: standalone MoE is P0, standalone BF16 projections P1, Decode32 P4. The accepted D32 comparison stays with its owner; it creates no new priority for this worker. This completed complete-MoE experiment remains relevant to P0, but its outcome supplies no portable win.
+
+After NS4's loss, an inactive-prefix closure and this noise-limited norm aggregation, another local helper tweak needs stronger evidence. Reframe the next search around complete standalone MoE calls: required packing/decoding work, actual selected routes and stronger complete comparators, including approaches that remove or reorganize work. The earlier-credit reserve has route-count opportunity but no measured exposed-wait budget. It is not a ready performance candidate. No family ceiling is claimed.
+
+The [existing refill](2026-11-02-general-hotspot-search-refill.md#general-norm-aggregation-terminal-and-moe-first-refill) now requests a distinct P0 MoE or P1 BF16 task from the named existing research/scout owners, preserving CUDA Optimizer's separate B4/MAIN study. This is a shared-repository request, not verified direct delivery or acknowledgment. No new GPU allocation follows from posting it.
