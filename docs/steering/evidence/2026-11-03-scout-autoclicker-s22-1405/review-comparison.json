@@ -1,0 +1,80 @@
+[
+  {
+    "path": "/repos/sgl-project/sglang/pulls/47636",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Head, body and merge state. Base branch and synthetic merge metadata may move independently."
+  },
+  {
+    "path": "/repos/sgl-project/sglang/pulls/47561",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Head, body and merge state. Base branch and synthetic merge metadata may move independently."
+  },
+  {
+    "path": "/repos/sgl-project/sglang/pulls/47517",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Head, body and merge state. Base branch and synthetic merge metadata may move independently."
+  },
+  {
+    "path": "/repos/sgl-project/sglang/pulls/47174",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Head, body and merge state. Base branch and synthetic merge metadata may move independently."
+  },
+  {
+    "path": "/repos/sgl-project/sglang/pulls/47636/files?per_page=100",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Full public list data."
+  },
+  {
+    "path": "/repos/sgl-project/sglang/pulls/47636/comments?per_page=100",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Full public list data."
+  },
+  {
+    "path": "/repos/sgl-project/sglang/pulls/47636/reviews?per_page=100",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Full public list data."
+  },
+  {
+    "path": "/repos/sgl-project/sglang/pulls/47636/commits?per_page=100",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Full public list data."
+  },
+  {
+    "path": "/repos/sgl-project/sglang/issues/47636/comments?per_page=100",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Full public list data."
+  },
+  {
+    "path": "/repos/vllm-project/vllm/pulls/64077",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Head, body and merge state. Base branch and synthetic merge metadata may move independently."
+  },
+  {
+    "path": "/repos/vllm-project/vllm/issues/64077/comments?per_page=100",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Full public list data."
+  },
+  {
+    "path": "/repos/vllm-project/vllm/pulls/64077/reviews?per_page=100",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Full public list data."
+  },
+  {
+    "path": "/repos/vllm-project/vllm/pulls/64077/comments?per_page=100",
+    "substantive_fields_unchanged": true,
+    "error": null,
+    "scope": "Full public list data."
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "path": "autoclicker-source-manifest.json",
+    "bytes": 47822,
+    "sha256": "5a612172663f3f04771e6262d2c7848a397a38094b8d0d50318c880ef2cbdce1",
+    "blob": "59081f2f442a66854498ac2e0e69303bb6ba99f3"
+  },
+  {
+    "path": "autoclicker-source.tar.gz",
+    "bytes": 1428636,
+    "sha256": "986c277f68957a1947730ca92bebe86e87901dfce2ec165467db90536d92de66",
+    "blob": "67f0c89007e884012d078057ec9591d0d8cfe238"
+  },
+  {
+    "path": "guild-body-diff.json",
+    "bytes": 4721,
+    "sha256": "e1193ab10217ea3de0bdaa689f854edc863f3499effe813d3a7f7473764d3bb2",
+    "blob": "ade2e9f29d3fe06f72b0d1d78a662372bb710bbd"
+  },
+  {
+    "path": "query-coverage.json",
+    "bytes": 7721,
+    "sha256": "49c3fe16dd3ea83f39ba009cfff739f35e27c2ba317e1d801edd55d3e387f3b5",
+    "blob": "fa8944c1ba2443e341756498104adb3a2b466c24"
+  },
+  {
+    "path": "review-comparison.json",
+    "bytes": 2614,
+    "sha256": "ea0eda5f3965693529a8d5ac6ea025794fc81fac077980837938789a507b25b6",
+    "blob": "2a6b0fd01e7b1b5142f0092ea9d759576c8d3f5b"
+  },
+  {
+    "path": "search-captures.tar.gz",
+    "bytes": 4600066,
+    "sha256": "923e6df62bf48599a9bcb42aa800b1729779e36c25bcbf5119fc935aeeb8428f",
+    "blob": "892fccf0fd9f57d7ecdb94c504a488347d0e076a"
+  },
+  {
+    "path": "social-access.json",
+    "bytes": 692,
+    "sha256": "93cc31d1b92d3de1033d38911a131efd62233d9e99824d6038b25fbe5a2d639f",
+    "blob": "9e8030a5e75f4c499952e808018933f4421b2754"
+  },
+  {
+    "path": "static-source-check.json",
+    "bytes": 1336,
+    "sha256": "e1bf667b7e4866a68da6fab4d15d93f0f131911ec56228e93f7a33e33e606757",
+    "blob": "6e9c004e7626b28e1045fcb6e98be8d51ecc0b71"
+  },
+  {
+    "path": "static-source-check.py",
+    "bytes": 3620,
+    "sha256": "53ce003cce9b1a6076db3911bfbb609f31a9252732ca325d9c44247a70f3f3d1",
+    "blob": "60deef69a84906b135ad04471cb5ba445ca77941"
+  },
+  {
+    "path": "summary.json",
+    "bytes": 22678,
+    "sha256": "8ea2b9ec4e3ad1c8cf07fc2e89a60099eb5bbb129442aa43c0ccda1788dbdb99",
+    "blob": "15f8f010f698834cedd2334d6374a3d7698bd537"
+  },
+  {
+    "path": "watched-branches.json",
+    "bytes": 3023,
+    "sha256": "83e1bc64d419b88242bc60862d5d1ba8fc383a0b9577a608ba58c54ce01be22b",
+    "blob": "3d2ed192d538a84d5fb7cd567bc06e3482629577"
+  },
+  {
+    "path": "web-coverage.json",
+    "bytes": 3815,
+    "sha256": "aa8e2562b2277cce5a97cd3abe7d79906ada0cdab60e230b8ed3d89b29529566",
+    "blob": "b6b041797a279cc8c2385ca73737f13785d9ae54"
+  }
+]

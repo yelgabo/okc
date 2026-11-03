@@ -48,6 +48,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 
 ## Audits and monitors, November 2 to 3
 
+[Public scout: AutoclickerI's readable S22 layer](2026-11-03-scout-autoclicker-s22-1405.md) pins `85aed1fb`, verifies 75 captured files and statically reconstructs all 61 embedded files to the archived wrapper's source. Uploaded October 27 H200 receipt reports 1.8892x; lab freeze-state and server upload binding limits remain explicit. New source reference, no reproduced gain or new GPU assignment.
+
 [Driver monitor12:22UTC](2026-11-03-driver-monitor-1222.md): exact HALF loss,BCLM reset continuity,terminal layer publication gap,current public/quotas and scoped router source.
 
 [Public scout: router tactics beside the pooler](2026-11-03-scout-router-critical-path-1128.md) pins SGLang PR47636 at `07e2f70f` and verifies six changed files. The author selects the router tactic in serving context because larger isolated winners can wait for SMs. Blackwell and TF32 limits prevent treating the published timings as an H200 challenge gain. Includes new BF16 repository checks, changing search coverage and access limits; no new GPU assignment.
