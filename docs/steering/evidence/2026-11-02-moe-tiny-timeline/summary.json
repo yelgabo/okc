@@ -1,0 +1,13 @@
+{
+  "job": "f4012a0531af4013",
+  "source_sha256": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+  "observer_usable": true,
+  "algorithm_gain": false,
+  "score_us": 5726.051478273971,
+  "speedup": 2.348651605914979,
+  "speedup_ci": [
+    2.313421831826254,
+    2.3838813800037033
+  ],
+  "log_sha256": "e0e67d01c34be4c039b61f7359ed95a862c40f6d96f087e004c3336f42449adb"
+}

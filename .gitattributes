@@ -13,3 +13,4 @@ docs/steering/evidence/2026-11-02-gopt-ws-owned/hotspots.md -whitespace
 docs/steering/evidence/2026-11-02-gopt-ws-owned/profiles/*.txt -whitespace
 docs/steering/evidence/2026-11-02-gopt-ws-owned/target-hotspots.md -whitespace
 docs/steering/evidence/2026-11-02-moe-factor-y/profiles/*.txt -whitespace
+docs/steering/evidence/2026-11-02-moe-tiny-timeline/profiles/*.txt -whitespace

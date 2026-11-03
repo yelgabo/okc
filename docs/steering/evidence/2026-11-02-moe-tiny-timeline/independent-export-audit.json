@@ -1,0 +1,34 @@
+{
+  "validator_commit": "db7bd075",
+  "job": "f4012a0531af4013",
+  "source_sha256": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+  "exported_cases": [
+    {
+      "tokens": 1,
+      "schema_valid": true,
+      "phase_gain_qualified": false,
+      "jobs": 2,
+      "ctas": 132,
+      "units": 1536,
+      "retained_cta_details": [
+        2,
+        3
+      ],
+      "limit": "Only two CTA unit streams selected by thread0 finish survive export. B-end is thread0 return, not CTA completion. No critical-path gain is established."
+    },
+    {
+      "tokens": 8,
+      "schema_valid": true,
+      "phase_gain_qualified": false,
+      "jobs": 10,
+      "ctas": 132,
+      "units": 7680,
+      "retained_cta_details": [
+        18,
+        16
+      ],
+      "limit": "Only two CTA unit streams selected by thread0 finish survive export. B-end is thread0 return, not CTA completion. No critical-path gain is established."
+    }
+  ],
+  "cost_gate_matches": true
+}

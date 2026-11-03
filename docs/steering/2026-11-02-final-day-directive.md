@@ -63,3 +63,5 @@ MoE factorized-output7479372115c64702 is terminal and archived at1454ac73: offic
 | date | job | source | change | cells before and after | decision |
 |---|---|---|---|---|---|
 | 2026-11-03 | c1becf5a66274d37 (check) | 49d778b5, bench SHA ee7d00c8 | attention: cluster merge mode 136 (8-CTA cluster per KV head, DSMEM sum, no workspace / ticket / cooperative) | decode 1 sliding 9.18 -> 10.50 us cold (+1.31, +1.53 warm); verify 1 sliding 10.94 -> 13.54 (+2.59, +2.46 warm); nulls <= 0.13; other cells unchanged | Loss on both target cells, closed in ruled-out.md; no second check, no promotion; public best stays 8914751e3b9f468b |
+
+- f4012a0531af4013/source106a05c5 complete PASS5/6/6 and bounded observer gates. Official unchanged control5726.051478us, not treatment. T1/T8 activation waits median4.60/2.43us. Next one candidate: per-CTA A-ready flags, math and fences retained, final counter unchanged; no candidate job yet.

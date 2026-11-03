@@ -386,6 +386,23 @@
       "source_identity": "release physical 9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a/322430B; service 536871eaa26530ec1c1f30b2266144d179ed405933726855d90407d31d8e84b1; tracked muse_moe_w4a16/cand/factor_y_release.py, generated from paired 78506b74 by tools/moe_factor_y_release.py",
       "source_sha256": "9fd9b8cb7e64cfe3a57df86923ec8b78e905b573b40f4983d2ab0435d5a16d5a",
       "artifact": "muse_moe_w4a16/cand/factor_y_release.py"
+    },
+    {
+      "job": "f4012a0531af4013",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5726.051478273971,
+      "owner": "OKC MoE Worker",
+      "release_state": "diagnostic-control-base-family-published",
+      "reason": "Official unchanged control0, not observer or treatment. Lower cross-job point disclosed; current c7/5df family is already publicly scored and repeat draws belong to the final-day lead. Timeline passes its finite observer gates; no new algorithm or release claim.",
+      "evidence": "docs/steering/evidence/2026-11-02-moe-tiny-timeline/status-wait.raw.json",
+      "disclosure_report": "docs/steering/2026-11-02-moe-tiny-timeline.md",
+      "public_submission_approved": false,
+      "judged_arm": "control0; uninstrumented C7 and original helper",
+      "source_sha256": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+      "artifact": "docs/steering/evidence/2026-11-02-moe-tiny-timeline/paired.py",
+      "base_family_public_job": "4aa033ef23a142cd",
+      "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+      "source_identity": "muse_moe_w4a16/fff81be45146d0fc66084baf8b4eb1934ed254c14ccb9d85354efc598664f5b6.py; physical106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81/492113B"
     }
   ]
 }
