@@ -45,6 +45,8 @@ This is the stable cross-session entry point. Read the latest human priority, it
 
 ## CUDA part 2 independent experiments
 
+The report also records the environment-fidelity audit: local SM90a cross-compilation was not a one-to-one H200 environment replica. Compiler resource observations remain local; actual correctness and timings come from remote H200 checks.
+
 [Compiler experiments and standalone MoE measurement](2026-11-02-cuda-part2-experiments.md)
 record the optimizer's actual source and plan. Constant scales remove local B4
 spills, but own H200 `3aa3885f6b734f8c` passes correctness and fails the matched

@@ -89,6 +89,9 @@ The complete attachment and section coverage are preserved there. These notes
 do not reopen parked experiments or change D32 ownership or submission permission.
 Compiler checks must preserve the compiler's failure status and full diagnostics;
 successful output filtering is not build evidence.
+Local SM90a cross-compilation is not a replica of the H200 execution environment.
+Label its resources as local compiler observations until the target toolchain,
+full build and generated binary are verified. Remote GPU results stand separately.
 When changing WGMMA grouping, read the active constants from the selected native
 literal. Nearby helper literals and old comments can differ. Test that deferred
 flush conditions remain reachable for every selected group size, and inspect
