@@ -1,5 +1,9 @@
 # Shared project steering
 
+## Latest audit, November 2 23:08 Pacific
+
+[Repository audit](2026-11-02-2308-repo-audit.md): rank 389 of 1223 at 2.1261x, rank 50 at 2.3216x, top 50 by the deadline judged out of reach on measured deltas; main checkout merged with the G line; orphaned kernel work in one worktree; seven doc contradictions listed with line numbers.
+
 ## Worker repurpose: former Decode32 → standalone MoE P0; CUDA Optimizer → BF16 P1
 
 ## Latest component results and historical transfer audit
