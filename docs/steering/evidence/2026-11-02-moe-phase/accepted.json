@@ -1,0 +1,9 @@
+{
+  "job_id": "6028cae5d12f4afb",
+  "problem": "muse_moe_w4a16",
+  "source_sha256": "77ca05dc3bd9cc4c0dcd1f1533bc37295fa7d303427b99334f8fa03a28d38b26",
+  "published_commit": "e8998f7a",
+  "accepted_utc": "2026-11-03T05:17:43.167026+00:00",
+  "official_arm": "control0",
+  "mode": "check"
+}
