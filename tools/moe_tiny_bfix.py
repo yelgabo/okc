@@ -8,7 +8,12 @@ option on the tiny and tiny2 defines only (the helper0 source is shared with MID
   --bal     OKC_BAL=1: phase-B unit ranges chosen so that each CTA's A + B unit count is balanced (11 or 12 at
             T = 1 instead of 10 to 12); phase-A ranges and the FAST1 preissue are unchanged.
 
-    python3 tools/moe_tiny_bfix.py <release.py> <out.py> [--bpf K] [--bal]
+  --nw16    OKC_NW=16 on the tiny and tiny2 defines: 16 compute warps of K = 256 per unit (the unit loop is
+            issue-bound at the 3-slot stream's rate, check 19128cda79ca4e25). The unit's scales stay in the
+            8-warp layout (512 B per group of 8 chunks), so the loop addresses them by global chunk, which is
+            the identity for 8 warps.
+
+    python3 tools/moe_tiny_bfix.py <release.py> <out.py> [--bpf K] [--bal] [--nw16]
 """
 import sys
 from pathlib import Path
@@ -17,6 +22,7 @@ args = sys.argv[1:]
 src_path, dst = Path(args[0]), Path(args[1])
 bpf = int(args[args.index('--bpf') + 1]) if '--bpf' in args else 0
 bal = '--bal' in args
+nw16 = '--nw16' in args
 whole = src_path.read_text()
 MARK = "_MA_ALT_SRCS = {'moe_helper0': r'''"
 assert whole.count(MARK) == 1
@@ -127,6 +133,38 @@ rep('''  const int nSs = nS - dyn_pool(nS, G);  // static skinny units; [nSs, nS
 #endif
 ''')
 
+# ---------------------------------------------------------------- scales by global chunk (identity for 8 warps)
+rep('''    const uint4 sc = *reinterpret_cast<const uint4*>(slot + UNIT_CODES + warp * 512 + lane * 16);
+    float acc[4] = {0.f, 0.f, 0.f, 0.f}, acc2[4] = {0.f, 0.f, 0.f, 0.f};
+    float acc3[4] = {0.f, 0.f, 0.f, 0.f}, acc4[4] = {0.f, 0.f, 0.f, 0.f};
+#pragma unroll
+    for (int c = 0; c < NCH; ++c) {
+      const uint4 w = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);
+#if OKC_PRMTSC
+      const uint32_t swd = c < 4 ? (c < 2 ? sc.x : sc.y) : (c < 6 ? sc.z : sc.w);
+      const uint32_t sg = SCDK(swd, (c & 1) * 2, k16), sg8 = SCDK(swd, (c & 1) * 2 + 1, k16);
+#else
+      const uint32_t sw = (c < 4 ? (c < 2 ? sc.x : sc.y) : (c < 6 ? sc.z : sc.w)) >> ((c & 1) * 16);
+      const uint32_t sg = S.lut[sw & 0xff], sg8 = S.lut[(sw >> 8) & 0xff];
+#endif
+''', '''    // scales: 512 B per group of 8 chunks, 16 B per lane (the 8-warp unit layout); this warp's chunks start at
+    // global chunk warp * NCH, so with 16 warps two warps share a group and each reads its half of the words
+    const uint4 sc = *reinterpret_cast<const uint4*>(slot + UNIT_CODES + ((warp * NCH) >> 3) * 512 + lane * 16);
+    float acc[4] = {0.f, 0.f, 0.f, 0.f}, acc2[4] = {0.f, 0.f, 0.f, 0.f};
+    float acc3[4] = {0.f, 0.f, 0.f, 0.f}, acc4[4] = {0.f, 0.f, 0.f, 0.f};
+#pragma unroll
+    for (int c = 0; c < NCH; ++c) {
+      const uint4 w = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);
+      const int c8 = ((warp * NCH) & 7) + c;
+#if OKC_PRMTSC
+      const uint32_t swd = c8 < 4 ? (c8 < 2 ? sc.x : sc.y) : (c8 < 6 ? sc.z : sc.w);
+      const uint32_t sg = SCDK(swd, (c8 & 1) * 2, k16), sg8 = SCDK(swd, (c8 & 1) * 2 + 1, k16);
+#else
+      const uint32_t sw = (c8 < 4 ? (c8 < 2 ? sc.x : sc.y) : (c8 < 6 ? sc.z : sc.w)) >> ((c8 & 1) * 16);
+      const uint32_t sg = S.lut[sw & 0xff], sg8 = S.lut[(sw >> 8) & 0xff];
+#endif
+''')
+
 flags = []
 if bpf:
     flags.append("'-DOKC_BPF=%d'" % bpf)
@@ -134,11 +172,16 @@ if bal:
     flags.append("'-DOKC_BAL=1'")
 tail = ''.join(', ' + f for f in flags)
 for old, new in (("EXPERT_MOE_IDENTITIES = ('moe-control-release', ",
-                  "EXPERT_MOE_IDENTITIES = ('moe-tiny-bfix-%s', " % ('-'.join(['bpf%d' % bpf] * bool(bpf) + ['bal'] * bal) or 'none')),
+                  "EXPERT_MOE_IDENTITIES = ('moe-tiny-bfix-%s', " % ('-'.join(['bpf%d' % bpf] * bool(bpf) + ['bal'] * bal + ['nw16'] * nw16) or 'none')),
                  ("'-DOKC_WSBLK=2', '@moe_helper0', '-DOKC_FINPF=1')", "'-DOKC_WSBLK=2', '@moe_helper0', '-DOKC_FINPF=1'%s)" % tail),
                  ("'-DOKC_WSBLK=1', '-DOKC_FINPF=1', '@moe_helper0')", "'-DOKC_WSBLK=1', '-DOKC_FINPF=1', '@moe_helper0'%s)" % tail)):
     assert head.count(old) == 1, old
     head = head.replace(old, new)
 
+if nw16:
+    for old in ("MOE_TINY_DEFINES = ('-DOKC_NW=8', ", "MOE_TINY2_DEFINES = ('-DOKC_NW=8', "):
+        assert head.count(old) == 1, old
+        head = head.replace(old, old.replace('NW=8', 'NW=16'))
+
 dst.write_text(head + src)
-print('wrote', dst, len(head + src), 'bytes', 'bpf', bpf, 'bal', bal)
+print('wrote', dst, len(head + src), 'bytes', 'bpf', bpf, 'bal', bal, 'nw16', nw16)
