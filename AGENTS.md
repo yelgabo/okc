@@ -18,37 +18,6 @@ Other owners retain unrelated work. Preserve accepted jobs/files, shared quota a
 
 Trace dispatch, generators, imports and file reads before deleting code. Scored-shape inactivity alone does not establish dead code. Preserve fallback/neighbor behavior, frozen active sources, attribution and numerical/order/progress/lifetime guarantees.
 
-- **Profile SGLang before optimizing a problem.** A normal run profiles only our submission.
-  Copy `baseline.py` to `<problem>/baseline_profile/baseline.py` with the
-  `# okc: problem=<problem>` header, run it as a check, and keep its result JSON there. That is
-  the hotspot map: which SGLang kernels take the time, per shape.
-- **Find the hotspot, then attack it.** Before writing a kernel, run `tools/hotspots.py` on the
-  latest run (with `--baseline`) and pick the target from the gap between each kernel's time and
-  the floor. Append the table to `docs/hotspots.md` whenever a new best lands.
-- **Keep every run's breadcrumbs.** Commit `profiles/*` for every check, and log each run in the
-  problem's runs file (date, job id, commit, change, score with 95% CI, notes), including the
-  ones that lose.
-- **Wait on your own job id.** With several checks in flight from this machine, `okc check` can
-  return another problem's job. Use `okc check <file> --no-wait --json`, then
-  `okc status <job> --wait --json`, and confirm the problem and job id before using a number.
-- **Never `okc submit` without the user's go-ahead.** It posts publicly under their GitHub name.
-  `okc check` is free of that.
-- **Never drop a memory-ordering fence or barrier for speed on test results alone.** Passing
-  tests do not prove an ordering safe. Keep the documented pattern (e.g. `fence.proxy.async` on
-  the writing side before an mbarrier arrive, when generic stores feed wgmma or TMA reads)
-  unless the PTX memory model shows the alternative is correct, and cite that section. The
-  attention verify variants with bit 2 (var 2, 18) do this; submissions use the fenced ones.
-- **Use integrated evidence on incumbent diagrams.** Component speedup labels in an incumbent
-  layer diagram must use profiles or measurements of that exact integrated source. Keep
-  standalone problem scores in a separate comparison view. Name each baseline and workload,
-  disclose cross-run or truncated profiles, and separate kernel activity from endpoint savings.
-- **Keep audit attribution exact.** Verify every cited run ID against its owning receipt or
-  run-log row. Distinguish what an uploaded report says from what its cited sources say;
-  do not attribute a source recommendation to the upload without checking the upload text.
-- **Record losers in `docs/ruled-out.md`.** Every experiment that loses or is closed gets a row
-  there (evidence with job id, and what it rules out), in addition to its runs-log entry. Read
-  it before proposing an experiment; reopening one needs new evidence, stated explicitly.
-
 Comments explain a non-obvious reason in at most two lines. Remove narration, banners and stale experiment histories. Preserve legal notices, shebangs, tool directives and generation markers. Longer explanations belong in maintained docs.
 
 Generated benchmarks belong in ignored output paths; recover retired snapshots from exact Git pins. [.rgignore](.rgignore) omits historical copies from default searches. Use explicit paths or `rg --files --hidden --no-ignore -g '!.git'` for archived material. Keep current incumbent source and tests discoverable.
@@ -79,14 +48,13 @@ Private experiment decisions and public promotion decisions are separate. A trea
 
 Before starting another optimization cycle or closing an owner report, refresh public board snapshots and run `python3 tools/release_audit.py --snapshots docs/releases/public-snapshots --out .build/release-audit/current.json --ledger docs/releases/promotion-queue.json --check`. CI repeats the offline tracked-receipt check. Missing dispositions block completion. Present material better private results to the user with their exact file, result, uncertainty and remaining release requirements. Prepare and validate a concrete release before asking for public approval. Reconcile private-adapter restrictions with the operator contract and retain the incumbent fallback paths before calling an artifact a release candidate. Never treat approval as a reason to leave that preparation undone. Public submissions still require the user's go-ahead; this rule grants no submission authority.
 
-
 Profile SGLang before optimizing: copy its baseline with the `# okc: problem=<problem>` header to `<problem>/baseline_profile/baseline.py`, run a private check and keep its JSON. Find receipts with `rg --files <problem>/baseline_profile`; job IDs belong to their problem.
 
 Run `tools/hotspots.py` on the latest run with `--baseline` before choosing a kernel. Append a table to [hotspots](docs/hotspots.md) when a new best lands. Commit every check's profiles and log date, job, source commit, change, score/95%CI and losses in [projection](docs/runs.md), [MoE](docs/runs-moe.md), [attention](docs/runs-attention.md) or [layer](docs/runs-decode-layer.md) runs.
 
 Use `okc check <file> --no-wait --json`, retain its ID and wait only on that ID. Confirm problem/job/source before using results. Never `okc submit` without the user's go-ahead. Cleanup grants no new scored/public permission. Source snapshots and audits are not independent performance candidates.
 
-Never remove a fence/barrier for speed on tests alone. Preserve writing-side `fence.proxy.async` before publication when generic stores feed WGMMA/TMA unless the applicable PTX memory-model proof supports a cited alternative. Retain mathematical boundaries, graph lifetime and progress guarantees.
+Never remove a fence/barrier for speed on tests alone. Preserve writing-side `fence.proxy.async` before publication when generic stores feed WGMMA/TMA unless the applicable PTX memory-model proof supports a cited alternative, and cite that section. The attention verify variants with bit 2 (var 2, 18) drop it for diagnosis only; submissions use the fenced ones. Retain mathematical boundaries, graph lifetime and progress guarantees.
 
 Cast FP8 values to FP32 for diagnostic finiteness checks, retain FP8 computation and cover finite/nonfinite inputs. Guard `rank: null` before numeric leaderboard comparisons; retain rows and distinguish rendering errors from empty results.
 
@@ -102,7 +70,7 @@ For WGMMA grouping, read active constants, prove deferred flush conditions reach
 
 ## Document discovery and publication
 
-Architecture diagrams must label editable scope separately from performance groups. Dense projections covers QKV/gate, O, pooler, unpooler and router GEMMs. Whole-layer scope also includes routing, norms and residual boundaries, with fusion allowed under its numerical and execution contract. A missing speedup badge does not exclude a stage. Cross-GPU communication is outside this layer benchmark. See [scope clarification](docs/steering/2026-11-02-diagram-customization-scope.md).
+Architecture diagrams must label editable scope separately from performance groups. Speedup labels on an incumbent diagram use profiles or measurements of that exact integrated source; standalone problem scores go in a separate comparison view, with each baseline and workload named and cross-run or truncated profiles disclosed. Dense projections covers QKV/gate, O, pooler, unpooler and router GEMMs. Whole-layer scope also includes routing, norms and residual boundaries, with fusion allowed under its numerical and execution contract. A missing speedup badge does not exclude a stage. Cross-GPU communication is outside this layer benchmark. See [scope clarification](docs/steering/2026-11-02-diagram-customization-scope.md).
 
 Filename-unknown requests require checkout/remote confirmation and `rg --files` plus `git ls-files` before content search. Include HTML for visual documents. Widen to hidden/ignored files before a scoped miss; distinguish errors/truncation from empty results. Verify title/content, change retrieval method after user corrections and return searched ref plus verified path/link. Follow [the protocol](docs/repository-file-discovery.md). Keep this root rule for the [October28 correction/evaluation](docs/file-discovery-eval/report.md).
 
