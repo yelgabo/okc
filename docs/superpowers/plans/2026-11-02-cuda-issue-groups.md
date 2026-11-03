@@ -25,13 +25,13 @@ Complete the supplement's reference update and publish the source, job, observed
 
 ## First compiler result and second treatment
 
-The exact GS4-at-NTT<=4 treatment fails the local no-new-spill gate. B4 changes from 4/32 spill store/load bytes to 80/88; MAIN changes from 0/0 to 4/24. Stop this exact candidate before GPU allocation. These are compiler results, not GPU latency.
+The exact GS4-at-NTT<=4 treatment was initially stopped by the withdrawn local no-new-spill gate. B4 changes from 4/32 spill store/load bytes to 80/88; MAIN changes from 0/0 to 4/24. Its later-discovered unreachable flush independently blocks that exact source. These resource counts are local compiler results, not H200 latency or resource measurements.
 
 The second bounded treatment removes `+ p.zero` from WGS scale reconstruction. Its immutable host wrapper assigns `p.zero = 0`. The original opaque value forces an IMAD rather than constant-folded integer arithmetic. Make the identical multiplier constant, retain all scale bit patterns and rounding, and let the compiler schedule the result. This tests whether the old instruction-pipe placement still helps the selected SC6 implementation. It changes neither resource capacity nor launched work. Apply the same compiler and matched replay gates, using the existing harness rather than a new measurement framework.
 
 ## Concurrent compiler-only interaction test
 
-While private scale job `3aa3885f6b734f8c` runs, test scale folding together with replacing WGS's repeated volatile shared load of `S.ssp` by the existing ordinary-pointer form. The old source says hoisting creates spills. The new scale-only code removes B4 spills, which is a concrete changed register-lifetime premise. `S.ssp` has one assignment per launch, before routing and the CTA/join barriers, and remains fixed while consumers run; these barriers and every fence stay. This is a compiler-only discriminator, not another GPU allocation or a change to the accepted source. Stop if it adds spills or changes collective counts. No claim about its performance is made.
+While private scale job `3aa3885f6b734f8c` runs, test scale folding together with replacing WGS's repeated volatile shared load of `S.ssp` by the existing ordinary-pointer form. The old source says hoisting creates spills. The new scale-only code removes B4 spills, which is a concrete changed register-lifetime premise. `S.ssp` has one assignment per launch, before routing and the CTA/join barriers, and remains fixed while consumers run; these barriers and every fence stay. This is a compiler-only discriminator, not another GPU allocation or a change to the accepted source. Investigate changed collective counts for source-correctness defects. Use local spills as a prioritization signal, not a target-performance rejection. No claim about its performance is made.
 
 ## Reframe after the first matched result
 
@@ -39,7 +39,7 @@ Private `3aa3885f6b734f8c` passes all official and private correctness/replay ch
 
 The three small experiments identify the limitation of instruction cleanup: group-only batching adds spills, pointer spelling produces identical SASS, and removing scale-induced spills leaves most matrix loops unchanged and no measurable endpoint gain. This does not establish a hardware ceiling. The assumptions were the current two-step grouping, source register budget and existing packing/scheduler.
 
-Give the strongest interacting alternative a bounded test: combine constant scales with four-step groups at NTT<=4, preserving the existing two-step wide cases. The scale change has demonstrated a different allocation outcome, and may let batching reduce collective matrix-loop overhead without the group-only spills. Neither ingredient must win independently. First compile both selected candidate builds against the already compiled control. Stop at new spills or lost pipeline invariants; otherwise one new private comparison under the same complete-call gates is within the user's independent-experiment request. Do not extend this into a threshold/ring/register-cap sweep.
+Give the strongest interacting alternative a bounded test: combine constant scales with four-step groups at NTT<=4, preserving the existing two-step wide cases. The scale change has demonstrated a different allocation outcome, and may let batching reduce collective matrix-loop overhead without the group-only spills. Neither ingredient must win independently. First compile both selected candidate builds against the already compiled control. Lost source pipeline invariants block dispatch. Local spills alone do not close the target hypothesis; one new private comparison under the same complete-call gates is within the user's independent-experiment request. Do not extend this into a threshold/ring/register-cap sweep.
 
 ## Schedule audit correction
 

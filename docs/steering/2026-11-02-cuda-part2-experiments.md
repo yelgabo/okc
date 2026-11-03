@@ -14,7 +14,7 @@ D32 Worker's attention confirmation remains separate. This work edits no layer c
 
 Hypothesis: four k16 operations per WGMMA commit group for NTT<=4 can reduce collective issue overhead, using the accumulator capacity released by smaller N tiles. Retain two operations for wider tiles. The initial implementation intended to preserve deferred work's completed-k16 boundary; the later schedule audit below found that implementation wrong. Packing, arithmetic order, stage drains and source publication text remain.
 
-Local CUDA 12.8.1 SM90a compilation completes for both bool entries in B4 and MAIN. The initial local-only gate stopped the treatment, a decision rule withdrawn in the correction below: B4 spill store/load bytes change from 4/32 to 80/88; MAIN from 0/0 to 4/24. Stop this exact treatment before target allocation. No GPU latency or general issue-group limit follows from this result. [Resource evidence](evidence/2026-11-02-cuda-issue-groups/group-resources.json).
+Local CUDA 12.8.1 SM90a compilation completes for both bool entries in B4 and MAIN. The initial local-only gate stopped the treatment, a decision rule withdrawn in the correction below: B4 spill store/load bytes change from 4/32 to 80/88; MAIN from 0/0 to 4/24. The later unreachable-flush source defect independently blocks this exact treatment. Local spills alone establish no target rejection. No GPU latency or general issue-group limit follows from this result. [Resource evidence](evidence/2026-11-02-cuda-issue-groups/group-resources.json).
 
 ## Experiment 2: constant scale multiplier
 
