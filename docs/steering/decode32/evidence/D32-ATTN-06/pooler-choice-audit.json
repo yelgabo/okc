@@ -1,0 +1,55 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "prepare_definition_line": 15280,
+  "prepare_sha256": "63e28ee8f8586fd2ab7fad7362625c4478e2f76abd7aaf5ede10201660997b71",
+  "records": [
+    {
+      "mode": "all_banks",
+      "t32_pick": "bfpf",
+      "pooler_choice": [
+        "sk2"
+      ],
+      "router_choice": [
+        "sk2"
+      ]
+    },
+    {
+      "mode": "pooler_missing",
+      "t32_pick": "bfp",
+      "pooler_choice": [
+        "torch"
+      ],
+      "router_choice": [
+        "sk2"
+      ]
+    },
+    {
+      "mode": "router_missing",
+      "t32_pick": "bfp",
+      "pooler_choice": [
+        "sk2"
+      ],
+      "router_choice": [
+        "torch"
+      ]
+    },
+    {
+      "mode": "router_disabled",
+      "t32_pick": "bfp",
+      "pooler_choice": [
+        "sk2"
+      ],
+      "router_choice": [
+        "torch"
+      ]
+    },
+    {
+      "mode": "bfp_absent",
+      "t32_pick": "parent-choice",
+      "pooler_choice": null,
+      "router_choice": null
+    }
+  ],
+  "scope": "Actual pinned preparation selector with controlled CPU state; no device preparation, target selected choice or latency evidence",
+  "decision": "Existing conditional fusion; no new fusion candidate without actual fallback and exposed-time evidence"
+}

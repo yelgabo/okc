@@ -6,7 +6,7 @@ Read the current owner's status and latest applicable report. Historical job sta
 
 | Owner | Current record | Next action |
 |---|---|---|
-| Decode32 Worker | [Status and job ledger](decode32/STATUS.md), [explicit upstream observer](decode32/2026-11-02-16-explicit-route-observer.md) | Follow the accepted upstream diagnostic in the owned ledger, with the strict gate intact. D32 owns implementation through private measurement and integration. |
+| Decode32 Worker | [Status and job ledger](decode32/STATUS.md), [observer closure and D32 refill](decode32/2026-11-02-17-observer-budget-closure-and-refill.md) | Observer hit setup budget without a report; closed as inconclusive, no retry. Research needs a distinct source-qualified D32 experiment. Strict gates and end-to-end D32 ownership remain. |
 | OKC CUDA Optimizer | [B4 phase-attribution task](2026-11-02-cuda-b4-phase-attribution-task.md), [terminal scale/group results](2026-11-02-cuda-part2-experiments.md) | Identify one source-backed exposed critical-path mechanism. Prior scale/group treatments are stopped. |
 | OKC General Optimizer | [Helper-prefix closure](2026-11-02-general-short-prefix-result.md), [research refill request](2026-11-02-general-hotspot-search-refill.md) | Await a qualified distinct task. NS4 failed promotion; the alleged serial helper prefix is compiled out. |
 | Research | [Standing incumbent-hotspot goal](2026-11-02-incumbent-hotspot-goal.md) | Keep one qualified immediate task and one ready follow-up per owner; widen discovery when the credible queue is empty. |
@@ -30,6 +30,7 @@ Publish substantive steering with evidence, source/job pins, decision, next acti
 
 | Report | Evidence and scope |
 |---|---|
+| [D32 observer budget closure and refill](decode32/2026-11-02-17-observer-budget-closure-and-refill.md) | Own8b1e364dafb54c71/00193aa2, no observer capsule or timing; five conditional pooler selector fixtures; precise D32 research gap |
 | [Context cleanup](2026-11-02-context-cleanup.md) | Base3a961a9d; removed snapshots recoverable from Git; unchanged current sources; verification in owning report |
 | [General helper-prefix result](2026-11-02-general-short-prefix-result.md) | Selected WS builds preprocess out the proposed serial work; no candidate or GPU run |
 | [D32 routing diagnostic](decode32/2026-11-02-14-routing-order-diagnostic.md) | Setup failed on an expert-order swap with attention treatment inactive; no matched timings |

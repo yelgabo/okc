@@ -1,8 +1,10 @@
 # Decode32 task inbox
 
-## Current execution: corrected observer ready for one private check
+## Current decision: observer closed, qualified D32 task needed
 
-[D32-ATTN-06](2026-11-02-16-explicit-route-observer.md) replaces frame inspection with fixed source call-site labels after the first observer was rejected before job acceptance. Source `00193aa2` has six passing CPU Torch tests and unchanged device compiler inputs. Private diagnostic `8b1e364dafb54c71` is accepted for source `00193aa2` from `a7e08ee4`. Follow the existing own-ID waiter, exec session `17959`; do not submit another copy. It preserves the strict route gate and cannot qualify timing. There is no qualified next D32 kernel mechanism yet. Research needs selected B4 phase/tail exposure and a concrete treatment, or a measured T32 pool/router fallback; CUDA Optimizer retains the independent phase study.
+[D32-ATTN-06 terminal and research refill](2026-11-02-17-observer-budget-closure-and-refill.md): own job `8b1e364dafb54c71` hit the preparation guard before emitting boundary evidence. No matched timings. Close the instrument as inconclusive with no retry or gate relaxation. No D32 job is active. The bounded pooler selector audit confirms existing conditional fusion in five CPU fixtures, not an actual target fallback or latency opportunity.
+
+The precise missing evidence is selected B4 phase/tail exposure plus a concrete treatment, a complete attributable T32 alternative with a feasible measurement design, or a measured pool/router fallback. Research refill is posted to the existing CUDA research and public scout owners through the shared repository only. Preserve CUDA Optimizer's independent phase study. Pick up a qualified new task directly when it arrives; do not reopen the closed prefix, ring, scale/group or observer sources.
 
 ## Routing diagnostic terminal: prepare upstream observability
 
