@@ -43,3 +43,24 @@ The local CUDA12.8.1 header confirms the raw-store conversion uses cvt.rn.bf16.f
 ## Accepted private screen
 
 Own7479372115c64702 accepted for frozen78506b74/348783bytes, publishede2b3c17f. Fresh shared list hadzero live jobs, with10MoE private checks left before dispatch. Accepted own source/job association is archived. Follow only this ID with one foreground waiter. No target result yet.
+
+## Terminal decision, lower point with failed matched gate
+
+Own7479372115c64702 passes5official tests/6benchmarks/6profiles and all54private cases. Full378observations/216captures/1152cold timings/54restores and cleanup pass. Seven exact compiler requests and original table owners match. Prepare271.433251s. Worst global/row errors0.000170347/0.000282747 remain inside0.015/0.075. Waiter72800ended0 before archival.
+
+Official candidate2 reports **5698.508243us/2.360003606x CI[2.324603552,2.395403660]**. This is a lower private point than the public5788.720720us and remains visible in the promotion ledger. The measured file is the private comparison payload78506b74/348783bytes, not a privately qualified pure release. Target5559.8us remains138.708243us below this point.
+
+The matched control is the current published5df257af/C7 source. The frozen gate fails:0/6groups,24complete-six factors0.987663286–1.003590427,13affected regressionrows, unchanged drift at1102037/T1/skewed and1102037/T16/skewed. The drift limits precise causal attribution. The complete evidence establishes no qualifying advantage for storage alone; the lower official point is a cross-job comparison. Current control is already public as4aa033ef23a142cd, so this is not an unpublished newer-control release gap.
+
+| Tokens | Official adjusted us |
+|---|---:|
+|1|25.667095|
+|16|92.395482|
+|32|127.211936|
+|8|63.415118|
+|128|180.845263|
+|256|214.040825|
+
+[Owning receipt](evidence/2026-11-02-moe-factor-y/status-wait.raw.json), [full matched36rows and gate](evidence/2026-11-02-moe-factor-y/analysis.json), [summary](evidence/2026-11-02-moe-factor-y/summary.json), [complete profiles](evidence/2026-11-02-moe-factor-y/profiles). Stop the exact storage-only source without retry, masks, packing/geometry/cache sweeps or public action. The user approved5df257af only. All numerical leads retain an explicit source/arm/owner/disclosure/release disposition.
+
+While this job ran, the source check found that the pinned SGLang baseline already prepares BF16 effective gamma once. The separately specified combined alternative uses that untimed parameter contract with factorized storage, rather than retaining repeated gamma reconstruction expressions. Its field7/14 argument contract, preparation and ownership are new and require their own proof. It does not change this failed decision or require either ingredient to win independently. [Prepared-gamma complete alternative](2026-11-02-moe-prepared-gamma.md). No new GPU job has been dispatched. General's7f10243c98e74746 stays with its owner.

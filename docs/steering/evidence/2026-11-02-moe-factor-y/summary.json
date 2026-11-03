@@ -1,0 +1,80 @@
+{
+  "job": "7479372115c64702",
+  "qualified": false,
+  "source_sha256": "78506b743ace84e1fc0b088fe7fe3b23009f3de0bf5136e20413504026e07492",
+  "correctness": "PASS5/6/6 and all54private cases",
+  "prepare_s": 271.43325107800047,
+  "counters": {
+    "observations": 378,
+    "restorations": 54,
+    "captures": 216,
+    "timed_replays": 1152,
+    "worst": [
+      0.0001703470479696989,
+      0.00028274685610085726
+    ]
+  },
+  "groups_passed": 0,
+  "affected_regressions": 13,
+  "unchanged_drift": [
+    [
+      1102037,
+      1,
+      "skewed"
+    ],
+    [
+      1102037,
+      16,
+      "skewed"
+    ]
+  ],
+  "complete_six_factor_range": [
+    0.9876632859249197,
+    1.003590426844494
+  ],
+  "official_score_us": 5698.5082429255835,
+  "official_speedup": 2.3600036056270777,
+  "official_speedup_ci": [
+    2.3246035515426713,
+    2.3954036597114836
+  ],
+  "public_job": "4aa033ef23a142cd",
+  "public_score_us": 5788.7207203627,
+  "lower_public_point_pct": 1.5584182031753713,
+  "remaining_target_us": 138.70824292558336,
+  "loads": [
+    {
+      "tokens": 1,
+      "us": 25.667095160749792,
+      "baseline_us": 78.7200010381639
+    },
+    {
+      "tokens": 16,
+      "us": 92.39548192960115,
+      "baseline_us": 185.61600195243955
+    },
+    {
+      "tokens": 32,
+      "us": 127.21193617398296,
+      "baseline_us": 212.73600356653333
+    },
+    {
+      "tokens": 8,
+      "us": 63.415117793054904,
+      "baseline_us": 141.6160031221807
+    },
+    {
+      "tokens": 128,
+      "us": 180.84526258384437,
+      "baseline_us": 472.78400510549545
+    },
+    {
+      "tokens": 256,
+      "us": 214.04082491104168,
+      "baseline_us": 614.7680142894387
+    }
+  ],
+  "waiter_exit": 0,
+  "waiter_session": 72800,
+  "stop": "Stop exact storage-only design, retain public C7. Lower cross-job point disclosed without a matched gain or public permission."
+}
