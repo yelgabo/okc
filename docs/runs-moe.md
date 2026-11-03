@@ -5498,3 +5498,12 @@ Own private3e6852d30c5c4535, source7370f630/payloadb4da948d/352468bytes, helper2
 ## November2 approved standalone base release
 
 User directly approved exact5df257af. One publicPOST accepted4aa033ef23a142cd; terminalPASS5/6/6, no flags/return0, official5788.720720us/2.323224880x CI[2.288376507,2.358073253]. Source320466bytesunchanged. Setup184.048388s,queue235.197197s,worker334.295472s,waiter10826ended0. Board nowverifiesnewbest4aa at rank373from434,26attempts;4.627762%lowerelapsed thanpublic6069.607719us. Target5559.8remains228.920720us away. Private5762.134395us remains independently attributed. Approval covers5dfonly. [Owning receipt/profiles/verified board and next continued implementation](steering/2026-11-02-moe-control-release-qualification.md#public-result-verified). MOE-LUT-01 is the next distinct B4/MAIN representation/decoder experiment; no stale-observer or queue revival.
+
+## November2 MOE-LUT-01 terminal loss
+
+Ownc985bbdb2980407a passed5official tests/6benchmarks/6profiles, all54private cases,378observations/216captures/1152cold timings/54restores. Prepare276.790803s. All7compiler requests and256/256/16640/16640table owners match the frozen source. Worst global/row error is0.000089915/0.000183763, within unchanged0.015/0.075bounds. Cleanup/restoration passes. Solewaiter73200ended0 before archive.
+
+Performance rejects the exact treatment:0/6bank/distribution groups, all18affected cells regress,24complete-six factors0.473011105–0.576767080, no unchanged-path drift under the registered duplicate-noise gate. Official candidate2 score12337.764699us/1.090027272x CI[1.073676863,1.106377681]. This is not a release lead. The current public remains5788.720720us.
+
+
+Stop exact pair lookup, retain public5df257af. No follow-on/rescue/public action. [All six official loads, complete matched rows and stop](steering/2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup). Next source qualification is direct phase-A input staging, a distinct work-elimination design.

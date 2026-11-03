@@ -49,3 +49,22 @@ No target outcome is known. Public approval covered5df257af only. Author checked
 Ownc985bbdb2980407a accepted for frozen542cd650/541745bytes, published5ff38524. Fresh shared list hadzero live jobs; MoE checks12left before dispatch. Exact accepted ID and source association are archived. No target result yet; collect only this ID with one foreground waiter.
 
 During the accepted job, the offline reader gained failed-partial support. One additional CPU test covers source/job/runtime binding, coverage bounds, incomplete evidence and a complete favorable timing table attached to a failed setup. Both remain unqualified. The existing full-reader test also passes after this change. The frozen runtime, payload, manifests and gates are unchanged. This raises the author-checked CPU test count to13.
+
+## Terminal decision, stop exact pair lookup
+
+Ownc985bbdb2980407a passed5official tests/6benchmarks/6profiles, all54private cases,378observations/216captures/1152cold timings/54restores. Prepare276.790803s. All7compiler requests and256/256/16640/16640table owners match the frozen source. Worst global/row error is0.000089915/0.000183763, within unchanged0.015/0.075bounds. Cleanup/restoration passes. Solewaiter73200ended0 before archive.
+
+Performance rejects the exact treatment:0/6bank/distribution groups, all18affected cells regress,24complete-six factors0.473011105–0.576767080, no unchanged-path drift under the registered duplicate-noise gate. Official candidate2 score12337.764699us/1.090027272x CI[1.073676863,1.106377681]. This is not a release lead. The current public remains5788.720720us.
+
+| Tokens | Official adjusted us |
+|---|---:|
+|1|25.380326|
+|16|93.750820|
+|32|548.533231|
+|8|68.863805|
+|128|828.671003|
+|256|1006.233880|
+
+[Complete owning receipt](evidence/2026-11-02-moe-pairlut/status-wait.raw.json), [strict analysis and36rows](evidence/2026-11-02-moe-pairlut/analysis.json), [summary](evidence/2026-11-02-moe-pairlut/summary.json), [full profiles](evidence/2026-11-02-moe-pairlut/profiles). No retry, LUT-size/layout/cache-policy sweep, subgroup mask, integration or public action. This rejects the frozen full-pair-codebook implementation; the data do not isolate whether lookup latency, traffic, dependency or resource changes caused the loss.
+
+Continue toward5559.8us with a different work-elimination mechanism. The next source check is direct phase-A routed-input staging, eliminating global xA materialization and its cross-CTA readiness exchange. Older gx_pre/gx_st16 only rearranged the global gather and did not remove it; those exact variants stay closed. The existing invalid observer provides no removable-time estimate for this new alternative. Preserve the current public release and General WS ownership.

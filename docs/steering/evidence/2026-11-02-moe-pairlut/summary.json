@@ -1,0 +1,88 @@
+{
+  "job": "c985bbdb2980407a",
+  "source_sha256": "542cd6506c72fa4823abd79217d2817f5647ebd6675c0ab1c222e0b2ba427036",
+  "correctness": "PASS5/6/6 and all54 private cases",
+  "qualified": false,
+  "prepare_s": 276.79080293199513,
+  "counters": {
+    "observations": 378,
+    "restorations": 54,
+    "captures": 216,
+    "timed_replays": 1152,
+    "worst": [
+      8.991490176413208e-05,
+      0.00018376325897406787
+    ]
+  },
+  "groups_passed": 0,
+  "affected_regressions": 18,
+  "unchanged_drift": [],
+  "complete_six_factors": [
+    0.4737240098781692,
+    0.4730111054406083,
+    0.47640122676157515,
+    0.4756380945411034,
+    0.5314570993473661,
+    0.5394359006937393,
+    0.5349200011765864,
+    0.5431148665802769,
+    0.48033645338657754,
+    0.48607560069522704,
+    0.4778362223459925,
+    0.48382398015898664,
+    0.572564393853352,
+    0.5767670802728737,
+    0.5712643862307113,
+    0.5762955480680664,
+    0.476173003292115,
+    0.47845458399342405,
+    0.4738508344591432,
+    0.47590353040227396,
+    0.540810861331684,
+    0.5477734791530826,
+    0.5398536619943947,
+    0.5472823498456212
+  ],
+  "official_score_us": 12337.764698904157,
+  "official_speedup": 1.0900272722168627,
+  "official_speedup_ci": [
+    1.0736768631336098,
+    1.1063776813001156
+  ],
+  "loads": [
+    {
+      "tokens": 1,
+      "us": 25.380326079153004,
+      "baseline_us": 76.68800139799714
+    },
+    {
+      "tokens": 16,
+      "us": 93.7508202080587,
+      "baseline_us": 185.29600137844682
+    },
+    {
+      "tokens": 32,
+      "us": 548.5332311398097,
+      "baseline_us": 202.84800603985786
+    },
+    {
+      "tokens": 8,
+      "us": 68.8638051673119,
+      "baseline_us": 150.60799708589911
+    },
+    {
+      "tokens": 128,
+      "us": 828.671002625789,
+      "baseline_us": 464.7039994597435
+    },
+    {
+      "tokens": 256,
+      "us": 1006.2338801803232,
+      "baseline_us": 623.135999776423
+    }
+  ],
+  "stop": "Stop exact pair-LUT treatment. No retry, LUT-size/layout/cache-policy sweep, mask, integration or public action.",
+  "waiter_exit": 0,
+  "waiter_session": 73200,
+  "scope": "Complete matched loss. No per-instruction causal attribution and no generic lookup-family rejection."
+}
