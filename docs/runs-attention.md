@@ -4862,3 +4862,87 @@ Every main - ctrl sits within 0.13 us of the null. At decode 1 both in-process c
 0.2 us faster than the judged module, so that offset comes from the arm and not from the code.
 Decision: certified. The merged attn_one.cu at defaults builds the public kernel, and no source
 fix was needed. One check spent; the second was not used.
+
+## 2026-11-03 the decode layer's T = 8 PDL drift: attention merge order, no race (check 2c84c321b3bb4dbb)
+
+Why: in the layer, the per-edge bisection of check 4a737387f88b4d7d (g1b4_pdl8d.py 7cb74240) found that the two
+T = 8 edges around the attention (qkv -> attention, attention -> o) each drift 6.67e-3 / 5.93e-3 at verify 1 full
+against a PDL-off arm that repeated bitwise on that input. This check separates a race from a merge-order effect on
+the attention board, where checks are cheap.
+
+The layer does not run attn_one.cu. It embeds its own attention (ATT7_CUDA_SRC, `attn_kernel` v298w1pf) and
+applies `_PDL8_EDITS` to it (trigger at each segment's merge, `__ldcg` gate rows, programmatic attribute when pdl).
+At verify 1 the plan is per-request coop: full has 252 splits into 8 FP32 workspace copies (`attn_kernel<8, false,
+11>`), sliding has 33 splits into 1 copy (`<8, false, 15>`). Each split adds its rescaled partial with `red.add` in
+arrival order; the coop finalize sums the copies, applies the RMS norm and the gate and rounds to BF16. The pdl bit
+selects only the launch attribute and `p.pdlf` (read only under OKC_PDLKV, which is 0), not the kernel instance or
+the workspace, so mechanism (d) is excluded from source.
+
+Check file `.build/attn_pdl/pdl_bench.py` SHA256 201c9977, written by `tools/attn_make_pdl_bench.py` (commit
+1fc3f066) from the public attention file aa3535d0 (judged arm) and g1b4_pdl8d.py. At import it builds the layer's
+attention with those edits plus `tools/attn_pdl_bench_extras.cu` and replays this chain: producer (qkv stand-in:
+streams 37.7 MB of weights, triggers, then writes qkv; 80 KB smem), attention (`_launch7` lifted from the layer,
+pooler prefetch pointer included), consumer (o stand-in: 64 KB weight prefetch per CTA before
+`griddepcontrol.wait`, then `ld.global.cg` reads of the output compared per element with the eager PDL-off output
+of the same input), and a serialized audit that checks whether the consumer saw the final bytes. 2000 replays per
+arm. Arms: `attn` and `o` make that edge programmatic; `jit` has no PDL edge, but a side kernel holds 66 SMs for a
+jittered 2-8 us while attention starts; `det` sets n_splits = nc = 8 (one split per workspace copy, an order-free
+merge, the same coop instance at full); `F` alternates two qkv inputs by replay parity, so a read of the previous
+replay's or partly written qkv shows as a many-ulp error.
+
+Result: judged arm PASS 16/16, 1,488.9 us (2.530x, a control draw). Bench results below. Drift is max |diff| /
+max |ref| of the attention output, ulp means BF16 ulps, and audit_bad was 0 in every arm.
+
+| shape | arm | drift | elements differing | replays with a diff | max ulp | chain us |
+|---|---|---:|---:|---:|---:|---:|
+| T8 full | off | 4.29e-5 | 3 / 8192 | 1623 / 2000 | 1 | 62.59 |
+| T8 full | attn | 4.29e-5 | 4 | 1098 | 1 | 61.31 |
+| T8 full | o | 4.29e-5 | 3 | 1385 | 1 | 60.32 |
+| T8 full | attn+o | 4.29e-5 | 4 | 1212 | 1 | 59.46 |
+| T8 full | jit (no PDL) | 4.29e-5 | 4 | 61 | 1 | 68.48 |
+| T8 full | det_off / det_attn+o / det_jit | 0 | 0 | 0 | 0 | 185.1 / 179.6 / 184.9 |
+| T8 full | F_off / F_attn / F_o / F_attn+o | 1.37e-3 | 9 / 18 / 17 / 18 | 620 / 848 / 744 / 862 | 1 | 62.5 / 61.3 / 60.5 / 59.7 |
+| T8 full | F_det_attn+o | 0 | 0 | 0 | 0 | 179.65 |
+| T8 sliding | off / attn / o / attn+o | 2.70e-3 | 6 | 1983 / 1977 / 1938 / 1957 | 1 | 52.7 / 51.7 / 50.3 / 49.3 |
+| T8 sliding | jit (no PDL) | 2.70e-3 | 7 | 1989 | 2 | 54.98 |
+| T8 sliding | det (all three) | 0 | 0 | 0 | 0 | 59.8 / 53.9 / 60.2 |
+| T8 sliding | F_off / F_attn / F_o / F_attn+o | 2.70e-3 | 15 / 18 / 17 / 17 | 1530-1677 | 1 / 2 / 2 / 2 | 54.2 / 52.8 / 51.5 / 50.2 |
+| T8 sliding | F_det_attn+o | 0 | 0 | 0 | 0 | 54.08 |
+| T1 full | fixed arms (all) | 0 | 0 | 0 | 0 | 59.7 off, 56.2 attn+o |
+| T1 full | F_off / F_attn / F_o / F_attn+o / F_det | 1.9e-3 / 2.3e-7 / 1.9e-3 / 1.9e-3 / 0 | 2 / 1 / 2 / 2 / 0 | 18 / 4 / 11 / 11 / 0 | 1 | |
+| T1 sliding | every arm | 0 | 0 | 0 | 0 | 51.2 off, 48.7 attn+o |
+| T16 sliding | off / attn / o / attn+o / jit, F arms | 1.42e-3 | 4 | 134-606 | 1 | 56.2 off, 52.6 attn+o |
+| T16 sliding | det arms | 0 | 0 | 0 | 0 | |
+
+Every difference is 1 BF16 ulp. A few elements reach 2 ulps at sliding (at most 2), and the jit arm, which has no
+PDL edge, shows them too. Differences touch 1-8 elements per row in at most 10 rows, and no arm leaves the off
+arm's ulp class. The arms separate the mechanisms as follows:
+
+- (b) holds. Without PDL, the T = 8 attention already flips 1-ulp elements on 1623 of 2000 replays at full and on
+  1983 at sliding. A staggered start without any PDL edge (jit) gives the same class of difference. With an
+  order-free merge (det), every arm is bitwise identical over 2000 replays, with or without PDL and with fixed or
+  alternating inputs. The drift therefore comes from the order of the FP32 `red.add` operations that merge the
+  split partials into the workspace copies. PDL reshuffles that order in two ways: the attn edge changes when the
+  attention CTAs start, and the o edge launches the consumer CTAs at the merge trigger, where their weight
+  stream before the wait competes with the merge.
+- (a) is excluded at the bench's sensitivity. With alternating inputs, the order-free merge and both edges
+  programmatic, the attention output matches the PDL-off output of the same input bitwise on all 2000 replays at
+  every shape. A read of q / k / v / gate rows before `griddepcontrol.wait`, through a stale L1 line, or of the
+  previous replay's qkv would have shown there as a many-ulp error.
+- (c) is excluded. audit_bad is 0 in every arm, and det_attn+o is bitwise clean, so the consumer never read output
+  bytes that the finished attention later changed.
+- (d) is excluded from source (see above).
+
+In the layer, the full-context attention starts after the qkv GEMM has fully drained, at a repeatable time, so
+the PDL-off arm repeated its merge order on that input (0 / 2.61e-8). Check 8f6acdda's off arm, on other data,
+drifted 1.68e-3. A single 1-ulp flip in the attention output reaches the layer output as one BF16 ulp of its
+largest element. That explains why attn alone, o alone and all six edges report the identical 6.67e-3, and why
+the layer's sliding off arm drifts 6.37e-3 on its own. Timing: attn+o shortens the bench chain by 3.1 us at full
+and 3.4 us at sliding, in line with the ~3 us per verify 1 cell that the edges are worth in the layer.
+
+Decision: the drift is merge-order nondeterminism that the PDL-off attention already has; it is not a race, and
+neither edge is missing a fence, a wait placement or a `.cg` read. The layer fix (tools/dl_pdl8e_patch.py,
+g1b4_pdl8e.py) keeps abort-to-off. It gates the two edges on the det plan (order-free merge, fixed and alternating
+inputs, within the off arm's own drift) plus a 1e-2 element bound on the production plan. One attention check
+spent (10 left). Receipts: `muse_attention_decode/profiles/pdl_bench.2c84c321b3bb4dbb.{json,log,txt}`. The log
+tail lost the per-element `top` lines of the T = 8 arms; the summary lines are complete.

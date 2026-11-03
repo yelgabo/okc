@@ -1,0 +1,72 @@
++00 elements 0/16384 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 59.42 top  t=48s
+PDLB T16_sliding F_off: drift 1.420e-03 elements 4/16384 replays_with_diff 200/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 56.45 top [t4 h5 d11 n=186 ulp=1 ref=+0.9648] [t4 h5 d42 n=186 ulp=1 ref=-0.0459] [t4 h5 d57 n=186 ulp=1 ref=+0.793] [t15 h9 d36 n=17 ulp=1 ref=-0.00235] t=48s
+PDLB T16_sliding F_attn: drift 1.420e-03 elements 4/16384 replays_with_diff 164/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 54.66 top [t4 h5 d11 n=128 ulp=1 ref=+0.9648] [t4 h5 d42 n=128 ulp=1 ref=-0.0459] [t4 h5 d57 n=128 ulp=1 ref=+0.793] [t15 h9 d36 n=37 ulp=1 ref=-0.00235] t=48s
+PDLB T16_sliding F_o: drift 1.420e-03 elements 4/16384 replays_with_diff 134/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 53.66 top [t4 h5 d11 n=95 ulp=1 ref=+0.9648] [t4 h5 d42 n=95 ulp=1 ref=-0.0459] [t4 h5 d57 n=95 ulp=1 ref=+0.793] [t15 h9 d36 n=41 ulp=1 ref=-0.00235] t=48s
+PDLB T16_sliding F_attn+o: drift 1.420e-03 elements 4/16384 replays_with_diff 153/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 52.29 top [t4 h5 d11 n=116 ulp=1 ref=+0.9648] [t4 h5 d42 n=116 ulp=1 ref=-0.0459] [t4 h5 d57 n=116 ulp=1 ref=+0.793] [t15 h9 d36 n=42 ulp=1 ref=-0.00235] t=48s
+PDLB T16_sliding F_det_attn+o: drift 0.000e+00 elements 0/16384 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 54.85 top  t=49s
+PDLB done t=49s
+PDLBSUM T8_full off: drift 4.293e-05 elements 3/8192 replays_with_diff 1623/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [3, 0, 0, 0, 0] rows 3 row_sizes [1, 1, 1] audit_bad 0 chain_us 62.59
+PDLBSUM T8_full attn: drift 4.293e-05 elements 4/8192 replays_with_diff 1098/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 4 row_sizes [1, 1, 1, 1] audit_bad 0 chain_us 61.31
+PDLBSUM T8_full o: drift 4.293e-05 elements 3/8192 replays_with_diff 1385/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [3, 0, 0, 0, 0] rows 3 row_sizes [1, 1, 1] audit_bad 0 chain_us 60.32
+PDLBSUM T8_full attn+o: drift 4.293e-05 elements 4/8192 replays_with_diff 1212/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 4 row_sizes [1, 1, 1, 1] audit_bad 0 chain_us 59.46
+PDLBSUM T8_full jit: drift 4.293e-05 elements 4/8192 replays_with_diff 61/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 4 row_sizes [1, 1, 1, 1] audit_bad 0 chain_us 68.48
+PDLBSUM T8_full det_off: drift 0.000e+00 elements 0/8192 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 185.06
+PDLBSUM T8_full det_attn+o: drift 0.000e+00 elements 0/8192 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 179.55
+PDLBSUM T8_full det_jit: drift 0.000e+00 elements 0/8192 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 184.90
+PDLBSUM T8_full F_off: drift 1.374e-03 elements 9/8192 replays_with_diff 620/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [9, 0, 0, 0, 0] rows 7 row_sizes [3, 1, 1, 1, 1, 1, 1] audit_bad 0 chain_us 62.53
+PDLBSUM T8_full F_attn: drift 1.374e-03 elements 18/8192 replays_with_diff 848/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [18, 0, 0, 0, 0] rows 9 row_sizes [8, 3, 1, 1, 1, 1, 1, 1] audit_bad 0 chain_us 61.31
+PDLBSUM T8_full F_o: drift 1.374e-03 elements 17/8192 replays_with_diff 744/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [17, 0, 0, 0, 0] rows 8 row_sizes [8, 3, 1, 1, 1, 1, 1, 1] audit_bad 0 chain_us 60.51
+PDLBSUM T8_full F_attn+o: drift 1.374e-03 elements 18/8192 replays_with_diff 862/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [18, 0, 0, 0, 0] rows 9 row_sizes [8, 3, 1, 1, 1, 1, 1, 1] audit_bad 0 chain_us 59.68
+PDLBSUM T8_full F_det_attn+o: drift 0.000e+00 elements 0/8192 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 179.65
+PDLBSUM T8_sliding off: drift 2.703e-03 elements 6/8192 replays_with_diff 1983/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [6, 0, 0, 0, 0] rows 4 row_sizes [2, 2, 1, 1] audit_bad 0 chain_us 52.70
+PDLBSUM T8_sliding attn: drift 2.703e-03 elements 6/8192 replays_with_diff 1977/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [6, 0, 0, 0, 0] rows 4 row_sizes [2, 2, 1, 1] audit_bad 0 chain_us 51.74
+PDLBSUM T8_sliding o: drift 2.703e-03 elements 6/8192 replays_with_diff 1938/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [6, 0, 0, 0, 0] rows 4 row_sizes [2, 2, 1, 1] audit_bad 0 chain_us 50.27
+PDLBSUM T8_sliding attn+o: drift 2.703e-03 elements 6/8192 replays_with_diff 1957/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [6, 0, 0, 0, 0] rows 4 row_sizes [2, 2, 1, 1] audit_bad 0 chain_us 49.31
+PDLBSUM T8_sliding jit: drift 2.703e-03 elements 7/8192 replays_with_diff 1989/2000 max_ulp 2 ulp_hist(1,2,3-8,9-64,>64) [6, 1, 0, 0, 0] rows 5 row_sizes [2, 2, 1, 1, 1] audit_bad 0 chain_us 54.98
+PDLBSUM T8_sliding det_off: drift 0.000e+00 elements 0/8192 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 59.78
+PDLBSUM T8_sliding det_attn+o: drift 0.000e+00 elements 0/8192 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 53.89
+PDLBSUM T8_sliding det_jit: drift 0.000e+00 elements 0/8192 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 60.16
+PDLBSUM T8_sliding F_off: drift 2.703e-03 elements 15/8192 replays_with_diff 1530/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [15, 0, 0, 0, 0] rows 8 row_sizes [4, 2, 2, 2, 2, 1, 1, 1] audit_bad 0 chain_us 54.18
+PDLBSUM T8_sliding F_attn: drift 2.703e-03 elements 18/8192 replays_with_diff 1620/2000 max_ulp 2 ulp_hist(1,2,3-8,9-64,>64) [16, 2, 0, 0, 0] rows 10 row_sizes [4, 2, 2, 2, 2, 2, 1, 1] audit_bad 0 chain_us 52.83
+PDLBSUM T8_sliding F_o: drift 2.703e-03 elements 17/8192 replays_with_diff 1624/2000 max_ulp 2 ulp_hist(1,2,3-8,9-64,>64) [16, 1, 0, 0, 0] rows 9 row_sizes [4, 2, 2, 2, 2, 2, 1, 1] audit_bad 0 chain_us 51.46
+PDLBSUM T8_sliding F_attn+o: drift 2.703e-03 elements 17/8192 replays_with_diff 1677/2000 max_ulp 2 ulp_hist(1,2,3-8,9-64,>64) [16, 1, 0, 0, 0] rows 9 row_sizes [4, 2, 2, 2, 2, 2, 1, 1] audit_bad 0 chain_us 50.18
+PDLBSUM T8_sliding F_det_attn+o: drift 0.000e+00 elements 0/8192 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 54.08
+PDLBSUM T1_full off: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 59.65
+PDLBSUM T1_full attn: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 58.50
+PDLBSUM T1_full o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 56.54
+PDLBSUM T1_full attn+o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 56.16
+PDLBSUM T1_full jit: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 62.18
+PDLBSUM T1_full det_off: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 160.61
+PDLBSUM T1_full det_attn+o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 155.68
+PDLBSUM T1_full det_jit: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 160.22
+PDLBSUM T1_full F_off: drift 1.908e-03 elements 2/1024 replays_with_diff 18/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [2, 0, 0, 0, 0] rows 2 row_sizes [1, 1] audit_bad 0 chain_us 59.71
+PDLBSUM T1_full F_attn: drift 2.330e-07 elements 1/1024 replays_with_diff 4/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [1, 0, 0, 0, 0] rows 1 row_sizes [1] audit_bad 0 chain_us 58.46
+PDLBSUM T1_full F_o: drift 1.908e-03 elements 2/1024 replays_with_diff 11/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [2, 0, 0, 0, 0] rows 2 row_sizes [1, 1] audit_bad 0 chain_us 56.70
+PDLBSUM T1_full F_attn+o: drift 1.908e-03 elements 2/1024 replays_with_diff 11/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [2, 0, 0, 0, 0] rows 2 row_sizes [1, 1] audit_bad 0 chain_us 56.32
+PDLBSUM T1_full F_det_attn+o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 155.78
+PDLBSUM T1_sliding off: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 51.23
+PDLBSUM T1_sliding attn: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 50.11
+PDLBSUM T1_sliding o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 49.86
+PDLBSUM T1_sliding attn+o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 48.74
+PDLBSUM T1_sliding jit: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 54.50
+PDLBSUM T1_sliding det_off: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 55.71
+PDLBSUM T1_sliding det_attn+o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 51.42
+PDLBSUM T1_sliding det_jit: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 55.58
+PDLBSUM T1_sliding F_off: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 51.65
+PDLBSUM T1_sliding F_attn: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 49.98
+PDLBSUM T1_sliding F_o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 49.92
+PDLBSUM T1_sliding F_attn+o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 48.29
+PDLBSUM T1_sliding F_det_attn+o: drift 0.000e+00 elements 0/1024 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 51.26
+PDLBSUM T16_sliding off: drift 1.420e-03 elements 4/16384 replays_with_diff 341/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 56.22
+PDLBSUM T16_sliding attn: drift 1.420e-03 elements 4/16384 replays_with_diff 289/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 54.72
+PDLBSUM T16_sliding o: drift 1.420e-03 elements 4/16384 replays_with_diff 219/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 53.76
+PDLBSUM T16_sliding attn+o: drift 1.420e-03 elements 4/16384 replays_with_diff 371/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 52.58
+PDLBSUM T16_sliding jit: drift 1.420e-03 elements 4/16384 replays_with_diff 606/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 59.14
+PDLBSUM T16_sliding det_off: drift 0.000e+00 elements 0/16384 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 56.80
+PDLBSUM T16_sliding det_attn+o: drift 0.000e+00 elements 0/16384 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 54.53
+PDLBSUM T16_sliding det_jit: drift 0.000e+00 elements 0/16384 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 59.42
+PDLBSUM T16_sliding F_off: drift 1.420e-03 elements 4/16384 replays_with_diff 200/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 56.45
+PDLBSUM T16_sliding F_attn: drift 1.420e-03 elements 4/16384 replays_with_diff 164/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 54.66
+PDLBSUM T16_sliding F_o: drift 1.420e-03 elements 4/16384 replays_with_diff 134/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 53.66
+PDLBSUM T16_sliding F_attn+o: drift 1.420e-03 elements 4/16384 replays_with_diff 153/2000 max_ulp 1 ulp_hist(1,2,3-8,9-64,>64) [4, 0, 0, 0, 0] rows 2 row_sizes [3, 1] audit_bad 0 chain_us 52.29
+PDLBSUM T16_sliding F_det_attn+o: drift 0.000e+00 elements 0/16384 replays_with_diff 0/2000 max_ulp 0 ulp_hist(1,2,3-8,9-64,>64) [0, 0, 0, 0, 0] rows 0 row_sizes [] audit_bad 0 chain_us 54.85
