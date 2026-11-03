@@ -24,3 +24,6 @@ __pycache__/
 /muse_decode_layer/cand/layer_stable.py
 /muse_decode_layer/cand/release_s.py
 /muse_decode_layer/release/edd71d3152a946fe.py
+
+# okc status/check output written at the repo root; receipts live under <problem>/profiles/
+/profiles/

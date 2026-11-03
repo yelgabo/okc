@@ -1,5 +1,15 @@
 # Shared project steering
 
+## Current pointers (one per topic; everything below is dated and newer sections sit higher)
+
+- Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
+- Queue state: the first dated section below this list.
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 09:20 UTC](2026-11-03-driver-monitor-0920.md).
+- Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
+- Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
+- Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
+- Public entries per problem: [release manifest](../release-manifest.md).
+
 ## November 3 short-load queue exhaustion — same research refill
 
 P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / failed matched performance** (0/6 groups, T1/T8 1.08/0.592us slower); independent nonleader cross-lane publication proof is incomplete. No active own MoE job and no qualified next short-load treatment; do not use its conditional confirmation/release drafts. P1 BF16 ramp793602020fd64ce9 is also a valid scoped loss; General's source-only Tiny audit is complete. The **existing** [MoE/BF16 widened-research refill](2026-11-02-general-hotspot-search-refill.md#november-3-short-load-exhaustion-and-scoped-widened-search-continuation) now records current exact source/flags, the recent b65 source-only noncandidate, conditional short-cell cost targets and a scoped request to **“Monitor muse challenge disscussions”** and **“OKC CUDA research”**. **Posted to GitHub; new-scope pickup unconfirmed**, not a new GPU task or direct delivery. [MoE owner terminal receipt](2026-11-03-moe-short-ready-flags.md#terminal-decision-stop-exact-flags-and-retain-the-incumbent) · [Final-day directive](2026-11-02-final-day-directive.md). Decode32 P4 and the owner's paused timer remain unchanged.
@@ -16,7 +26,7 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 
 [Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.
 
-## Latest audit, November 2 23:08 Pacific
+## Audits and monitors, November 2 to 3
 
 [Driver monitor09:20UTC](2026-11-03-driver-monitor-0920.md): readiness/F3 endpoints stopped;publication proof gap retained;MoE queue empty,one source-only comparator decision requested,no new target allocation;fresh ranks/quotas and16promotion dispositions verified.
 
@@ -28,15 +38,15 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 
 [Repository audit](2026-11-02-2308-repo-audit.md): rank 389 of 1223 at 2.1261x, rank 50 at 2.3216x, top 50 by the deadline judged out of reach on measured deltas; main checkout merged with the G line; orphaned kernel work in one worktree; seven doc contradictions listed with line numbers.
 
-## Worker repurpose: former Decode32 → standalone MoE P0; CUDA Optimizer → BF16 P1
+## Owner updates, November 3
 
 [General completed Tiny export audit](2026-11-03-general-tiny-timeline-support.md#completed-target-export-audit-november-3-0116-vancouver-time) verifies the ended f4012a0531af4013 source/receipt and both retained T1/T8 exports. The observer passes its diagnostic screen; no speedup or isolated wait cause is established. The existing MoE owner retains the distributed-ready-flag candidate.
 
-## Latest component results and historical transfer audit
+## Historical: component results and transfer audit, November 2 18:54
 
 [18:54 Vancouver review](2026-11-02-1854-performance-review.md). Corrected scale/groups and current skinny NS4 pass correctness and fail promotion. NS3 and public G1b4 are retained. The historical source audit distinguishes retained wins from changed policies. D32 diagnostic5909739e8a4445b2 is accepted.
 
-## Current performance evidence, November 2
+## Historical: performance evidence, November 2 18:33
 
 [18:33 Vancouver review](2026-11-02-1833-performance-review.md). Both D32 matched attempts stopped in setup without timing. Constant WGS scales pass correctness and fail their matched performance gate. Corrected grouping and current skinny depth checks remain pending.
 
@@ -46,16 +56,16 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 
 [Archify incumbent layer and MoE](2026-11-03-archify-incumbent-architecture.md) saves standalone interactive diagrams, editable candidates and browser receipts. Source-pinned public607 layer; B4/MAIN close-up distinguishes the short-token paths. Neutral styling; no new timing claims.
 
-## Current architecture diagrams, November 2
+## Historical: architecture diagrams, November 2
 
 [Incumbent layer and MoE diagrams with performance labels](../incumbent-architecture-2026-11-02.html). [In-layer activity labels and validation](2026-11-02-incumbent-inlayer-labels.md). The [initial diagram report](2026-11-02-incumbent-diagrams.md) is historical.
 
-## Family F registration, historical policy
+## Worker reassignment, November 2 (user directed)
 
 **[User-directed worker reassignment](2026-11-02-worker-repurpose-moe-bf16.md)** supersedes older owner rows below: **former Decode32 Worker takes P0 `muse_moe_w4a16` architecture/representation and whole-call performance**, **CUDA Optimizer takes P1 `muse_bf16_proj`**, and **General Optimizer retains separate MoE WS skinny work**. The former Decode32 worker must first safely archive/decide its already accepted D32-IDENTITY-01 job `4a2a79bdac04499a` with its sole waiter, if still unresolved; no abandonment or duplicate. CUDA Optimizer checks for its own active phase job before ceasing B4-phase ownership. Do not assign further D32 tasks automatically (D32 is P4); do not overlap the two MoE lanes. **The user has paused the former Decode32 Worker's self-reminder timer: leave it paused; do not re-enable or claim automatic pickup.** This is GitHub steering, not proof either running agent received the reassignment; no new public-submit authority.
 
 
-## Current user priority: MoE/BF16 first; Decode32 P4
+## User priority, November 2: MoE/BF16 first; Decode32 P4 (final-day directive narrows this to short loads)
 
 **Latest override** in [the standing hotspot goal](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific): **P0 standalone MoE W4A16**, **P1 standalone BF16 projections**, with **Decode32 explicitly P4**. Other workloads are prioritized by verified independent ROI; prefill is a separate large-gap research track. User-supplied historical top-100 thresholds imply 509.8µs (8.40%) MoE, 108.6µs (3.43%) BF16, 40.3µs (2.79%) attention, 681.0µs (6.40%) whole decode layer, and 113,612.1µs (35.68%) prefill. These standalone/layer gaps **cannot be summed as a causal forecast**. Research/optimizer task refill must prioritize MoE and BF16 before proposing fresh D32 work. **Existing D32-owned accepted jobs continue safely; no cancellation, duplicate runs, takeover, or public-submission change.** Older D32-P0 statements are superseded, not erased.
 
@@ -80,9 +90,9 @@ Read your owner's row, then its linked record. Check newer commits before acting
 
 ## Execution rules
 
-The Decode32 Worker owns its checks and job waits. Each other owner retains its own jobs. Check live jobs and quota before dispatch. Record pickup, accepted job and measured result separately. Public submissions require user approval. [D32 directive](decode32/2026-11-02-02-end-to-end-ownership.md) · [Research and worker responsibilities](decode32/2026-11-02-04-research-plan-worker-execute.md) · [Project instructions](../../AGENTS.md)
+Each owner, including the former Decode32 Worker now on MoE, owns its own checks and job waits. Check live jobs and quota before dispatch. Record pickup, accepted job and measured result separately. Public submissions require user approval. [D32 directive](decode32/2026-11-02-02-end-to-end-ownership.md) · [Research and worker responsibilities](decode32/2026-11-02-04-research-plan-worker-execute.md) · [Project instructions](../../AGENTS.md)
 
-## Latest audit
+## Audit history, November 2 to 3
 
 [Local-screen decision audit](2026-11-03-worker-local-screen-decision-audit.md): scoped records establish no RTX5070-timing-based rejection. Gamma/G2 compiler-only stops remain unmeasured engineering deferrals; recorded H200 exact-variant losses and current allocations remain unchanged. Report/evidence published ate3989ffc/a38a3ad8.
 
