@@ -6,7 +6,7 @@ its existing owners. Public-submission permissions remain unchanged.
 
 | Experiment | Exact source | Job | State and next action |
 |---|---|---|---|
-| D32-REDUCE-01, one copy per split | 93a05524b1c10b44ac5bd1ea307a25fdc906db4a617737a579cfae6332fd0d49 | Not submitted | Three CPU tests pass; private ordinary check next after publication/preflight; device source/build flags unchanged |
+| D32-REDUCE-01, one copy per split | 93a05524b1c10b44ac5bd1ea307a25fdc906db4a617737a579cfae6332fd0d49 | bd5776bdfcab42a7 | Accepted private check; three CPU tests pass; private ordinary check next after publication/preflight; device source/build flags unchanged |
 | D32-ATTN-04, route localization | 9e5e5d64 | 5909739e8a4445b2 | Terminal setup failure; inactive-treatment order swap, no timing; archived bc6c7a2f |
 | D32-ATTN-05, upstream observer | a0998224 | No accepted ID | HTTP422 reads harness frames; exact source closed |
 | D32-ATTN-06, explicit-tag observer | 00193aa2ef2f8cefd22e2949bfd98f90a47ebfef370639dbf7bebd776de07cb4 | 8b1e364dafb54c71 | Terminal preparation-budget failure; no observer capsule or timing; instrument closed, no retry |
@@ -59,3 +59,5 @@ D32-ATTN-06 observer accepted as `8b1e364dafb54c71`, source `00193aa2`, publishe
 D32-ATTN-06 terminal: `8b1e364dafb54c71` failed `EXPERT_PREPARE_295S` inside the fresh loop, no observer capsule or timings. Inconclusive instrument closed under its stop rule; do not poll, repair or resubmit it. Routing remains unresolved and lookahead unconfirmed. The bounded CPU pooler check passes five fixtures and confirms existing conditional fusion, without actual target-choice evidence. [Closure, exact missing evidence and shared-repository research refill](2026-11-02-17-observer-budget-closure-and-refill.md). No active D32 job or qualified next kernel treatment. Await a distinct source-qualified task, preserving CUDA Optimizer's phase study.
 
 User continuation: work toward verified2.3x instead of waiting for a research-only refill. D32-REDUCE-01 is implemented and CPU-checked, changing only D32 sliding's accumulator-copy policy from shared to one copy per split. [Exact source, rationale and one-check stop](2026-11-02-18-active-reduction-experiment.md). Closed observers remain closed; CUDA Optimizer's MoE phase study remains separate.
+
+D32-REDUCE-01 accepted as `bd5776bdfcab42a7`, source `93a05524`, published `0585bd21`. Fresh preflight found no live jobs and 15 private layer checks. Follow this own ID. Next implement/compile the newly supplied full-context exact identity-rescale treatment while this check runs, without another GPU POST.

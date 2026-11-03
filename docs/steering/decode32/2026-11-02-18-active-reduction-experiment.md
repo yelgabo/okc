@@ -35,3 +35,9 @@ Publish the exact compressed source and verify decompressed remote bytes against
 Report raw and adjusted D32 sliding/full, C32=46*sliding+16*full, owning baseline and all-six results. Historical94ef/cc474/public607 are descriptive context only. A promising ordinary result requires fresh matched confirmation before causal improvement or integration. No whole-score1% threshold is imposed on a valid small D32 gain.
 
 Stop this exact treatment on failed math/cache/progress or no useful execution signal. Do not sweep copy counts or reinterpret a valid loss. If a valid signal survives confirmation, integrate the scoped plan and continue toward2.3x. Otherwise choose a distinct mechanism from source/evidence while research progresses. Existing public permissions remain unchanged.
+
+## Accepted check and next local work
+
+Own private job `bd5776bdfcab42a7` is accepted for source `93a05524`, published in `0585bd21`. Fresh shared preflight found no live jobs and15private layer checks. The single foreground waiter is exec session `47403`, writing ignored `.build/d32-split-copies/status-wait.raw.json`. Archive after exit and follow this own ID only.
+
+Concurrent research published a distinct [full-context identity-rescale mechanism](../2026-11-02-general-hotspot-search-refill.md#2-decode32-exact-identity-rescale-elimination-in-full-decode-attention). Actual pickup is now recorded: Decode32 Worker will implement and compile one enabled/disabled pair while this accepted sliding check runs. No second GPU check follows until the current job is terminal and fresh shared preflight permits it. The new treatment skips only exact identity accumulator products and keeps denominator arithmetic and all synchronization. Its candidate resource gate remains open.

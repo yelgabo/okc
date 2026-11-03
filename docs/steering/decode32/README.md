@@ -2,7 +2,7 @@
 
 ## Current execution: single-writer split reduction, target2.3x
 
-The user directs continued work toward verified D32≥2.3x. [D32-REDUCE-01](2026-11-02-18-active-reduction-experiment.md) is implemented: standard D32 sliding uses eight private split copies instead of one shared accumulator, through the existing finalizer. Three CPU host/address tests pass; device source and build flags are unchanged. Publish source93a05524, perform fresh shared preflight and execute one private ordinary check. Do not stop at waiting for research. Closed observers remain closed, and CUDA Optimizer retains its separate B4 study.
+The user directs continued work toward verified D32≥2.3x. [D32-REDUCE-01](2026-11-02-18-active-reduction-experiment.md) is implemented: standard D32 sliding uses eight private split copies instead of one shared accumulator, through the existing finalizer. Three CPU host/address tests pass; device source and build flags are unchanged. Private check `bd5776bdfcab42a7` is accepted for source93a05524, published0585bd21; follow the single waiter47403. While it runs, implement/compile the newly supplied full-context exact identity-rescale candidate, with disabled twin and strict resource/participation gates. Do not stop at waiting for research. Closed observers remain closed, and CUDA Optimizer retains its separate B4 study.
 
 ## Routing diagnostic terminal: prepare upstream observability
 
