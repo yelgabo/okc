@@ -4,3 +4,4 @@ muse_moe_w4a16/profiles/gopt-skinny-depth-2026-11-02/profiles/paired.f0b87548496
 muse_moe_w4a16/profiles/gopt-ws-norm-2026-11-02/profiles/paired.b38a9ed6dc9743e9.txt -whitespace
 docs/steering/evidence/2026-11-02-moe-bqueue/profiles/paired.e044121f822d47b1.txt -whitespace
 docs/steering/evidence/2026-11-02-moe-release/profiles/*.txt -whitespace
+docs/steering/evidence/2026-11-02-moe-public/profiles/*.txt -whitespace

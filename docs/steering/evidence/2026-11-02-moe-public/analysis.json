@@ -1,0 +1,60 @@
+{
+  "job": "4aa033ef23a142cd",
+  "mode": "run",
+  "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+  "passed": true,
+  "counts": {
+    "test": 5,
+    "benchmark": 6,
+    "profile": 6
+  },
+  "score_us": 5788.7207203627,
+  "speedup": 2.32322487984139,
+  "speedup_ci": [
+    2.288376506643769,
+    2.3580732530390107
+  ],
+  "queue_s": 235.19719696044922,
+  "worker_s": 334.29547214508057,
+  "prepare_s": 184.048388058,
+  "remaining_us": 228.9207203627002,
+  "waiter": 10826,
+  "waiter_exit": 0,
+  "public_board_observed_job": "4aa033ef23a142cd",
+  "scope": "Scored result and matching own public board row independently verified. No isolated-mechanism attribution.",
+  "loads": [
+    {
+      "tokens": 1,
+      "us": 26.72799011159,
+      "baseline_us": 80.19200013950467
+    },
+    {
+      "tokens": 16,
+      "us": 93.95846278390749,
+      "baseline_us": 186.6400041617453
+    },
+    {
+      "tokens": 32,
+      "us": 127.56485713119083,
+      "baseline_us": 210.09600162506104
+    },
+    {
+      "tokens": 8,
+      "us": 67.2052271542108,
+      "baseline_us": 146.97600109502673
+    },
+    {
+      "tokens": 128,
+      "us": 180.87158456182152,
+      "baseline_us": 464.2560016363859
+    },
+    {
+      "tokens": 256,
+      "us": 217.34614978666218,
+      "baseline_us": 620.2240139245987
+    }
+  ],
+  "rank": 373,
+  "previous_public_score_us": 6069.607719056422,
+  "lower_elapsed_percent": 4.627761985537148
+}

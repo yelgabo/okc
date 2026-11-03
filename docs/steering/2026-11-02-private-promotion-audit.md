@@ -1,14 +1,14 @@
 # Private results versus public releases
 
-November 2, 2026 Pacific. This answers the user's request for other better private results and patches the failure to surface them. The public baseline is a fresh five-board snapshot. These are numerical score leads, not automatic permission or proof of a reproducible, conforming release gain.
+November 2, 2026 Pacific. This answers the user's request for other better private results and patches the failure to surface them. The table preserves the five-board snapshot at this audit. Newer public results are appended below. These are numerical score leads, not automatic permission or proof of a reproducible, conforming release gain.
 
-The audit found **23** clean passing own receipts with lower elapsed scores than the current public entries, among **181** distinct clean passing own receipts. It inspected **2166** saved JSON files across tracked files, archives and ignored outputs. The current50-job service list adds no better run lacking an owning saved receipt. Three non-JSON diagnostic files are reported as unreadable; the saved receipt corpus is not a guarantee of the service's complete historical job inventory. Original bytes were preserved; legacy Windows JSON was decoded without replacement.
+The audit found **23** clean passing own receipts with lower elapsed scores than the public entries at this audit, among **181** distinct clean passing own receipts. It inspected **2166** saved JSON files across tracked files, archives and ignored outputs. The current50-job service list adds no better run lacking an owning saved receipt. Three non-JSON diagnostic files are reported as unreadable; the saved receipt corpus is not a guarantee of the service's complete historical job inventory. Original bytes were preserved; legacy Windows JSON was decoded without replacement.
 
 The process failure was the absence of a user-visible promotion queue. Research decisions against newer experimental controls were recorded, while comparison with the actual public entry was left without an owner and completion check. That allowed the5,725.7us MoE result to remain buried. There are also legitimate historical stops, including external-source contract gaps and the user's prefill deferral. This audit exposes both rather than calling every lower point estimate a missed release.
 
 ## Largest numerical leads
 
-| Problem | Current public us | Lowest private us | Lower elapsed | Actual role |
+| Problem | Audit public us | Lowest private us | Lower elapsed | Actual role |
 |---|---:|---:|---:|---|
 | MoE | 6,069.608 | 5,613.592 | 7.513% | external standalone MoE |
 | BF16 projections | 3,161.919 | 3,071.044 | 2.874% | external projection source |
@@ -110,3 +110,9 @@ The new GitHub promotion-ledger workflow completed successfully for commitbbd4a1
 The MoE worker prepared and privately checked the complete current-control release as own64f9998ef238476f, source5df257af/320466bytes. It passes5official tests/6benchmarks/6profiles without flags at5762.134395us,2.333944174x CI[2.298935011,2.368953337]. This is5.065786% below the still-current public point, with a distinct complete source and cross-job comparison. It is disclosed immediately and ready for the user's public decision. The target5559.8us remains open. [Concrete file, all six results and release decision](2026-11-02-moe-control-release-qualification.md#terminal-result-and-public-decision).
 
 This is a newly performed run, not another previously buried result. The original audit's23prior leads remain as listed; the refreshed promotion check now sees24leads andzero missing dispositions. The observer6028cae5 failed setup and its global cost gate, so it contributes no official score or release lead.
+
+## Approved public promotion completed
+
+The user approved exact5df257af. Public4aa033ef23a142cd passed5/6/6 and is the verified board best at5788.720720us/2.323224880x, rank373. This is4.627762% lower elapsed than the audit baseline6069.607719us. The prior private5762.134395us is separate. The target5559.8us remains open. The release disposition is now published-current-best. [Owning public receipt and next continued experiment](2026-11-02-moe-control-release-qualification.md#public-result-verified).
+
+The latest five-board snapshots and saved-receipt scan produce19current numerical leads andzero missing dispositions. Historical lead rows remain in the ledger even where the improved public point has overtaken them. Publication fixes the concrete current-control release gap; it does not qualify stopped treatments.

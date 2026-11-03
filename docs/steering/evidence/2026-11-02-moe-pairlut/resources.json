@@ -1,0 +1,193 @@
+{
+  "scope": "Local CUDA12.8.1 SM90a device compilation, not target parity",
+  "entries": {
+    "b4-candidate": {
+      "resources": [
+        "Used 96 registers, used 16 barriers",
+        "Used 96 registers, used 16 barriers"
+      ],
+      "properties": [
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "warnings": [
+        "WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.",
+        "/w/candidate-device.cu(2106): warning #177-D: variable \"g\" was declared but never referenced",
+        "Remark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"",
+        "/w/candidate-device.cu(147): warning #177-D: variable \"okc::NRB\" was declared but never referenced",
+        "/w/candidate-device.cu(162): warning #177-D: variable \"okc::UB_A\" was declared but never referenced",
+        "/w/candidate-device.cu(162): warning #177-D: variable \"okc::UB_B\" was declared but never referenced",
+        "/w/candidate-device.cu(165): warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+        "/w/candidate-device.cu(171): warning #177-D: variable \"okc::XP_SK\" was declared but never referenced",
+        "/w/candidate-device.cu(173): warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+        "/w/candidate-device.cu(174): warning #177-D: variable \"okc::NST\" was declared but never referenced",
+        "/w/candidate-device.cu(586): warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+        "/w/candidate-device.cu(987): warning #177-D: variable \"okc::NSF\" was declared but never referenced",
+        "/w/candidate-device.cu(1689): warning #177-D: variable \"okc::WGS_FIXF\" was declared but never referenced",
+        "/w/candidate-device.cu(1696): warning #177-D: variable \"okc::MF_CE\" was declared but never referenced",
+        "/w/candidate-device.cu(1696): warning #177-D: variable \"okc::MF_EXIT\" was declared but never referenced",
+        "/w/candidate-device.cu(1696): warning #177-D: variable \"okc::MF_XR\" was declared but never referenced",
+        "/w/candidate-device.cu(1859): warning #177-D: variable \"okc::WGS_XROWS\" was declared but never referenced"
+      ]
+    },
+    "main-control": {
+      "resources": [
+        "Used 96 registers, used 16 barriers",
+        "Used 96 registers, used 16 barriers"
+      ],
+      "properties": [
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "warnings": [
+        "WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.",
+        "/w/control-device.cu(2100): warning #177-D: variable \"g\" was declared but never referenced",
+        "Remark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"",
+        "/w/control-device.cu(147): warning #177-D: variable \"okc::NRB\" was declared but never referenced",
+        "/w/control-device.cu(162): warning #177-D: variable \"okc::UB_A\" was declared but never referenced",
+        "/w/control-device.cu(162): warning #177-D: variable \"okc::UB_B\" was declared but never referenced",
+        "/w/control-device.cu(165): warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+        "/w/control-device.cu(171): warning #177-D: variable \"okc::XP_SK\" was declared but never referenced",
+        "/w/control-device.cu(173): warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+        "/w/control-device.cu(174): warning #177-D: variable \"okc::NST\" was declared but never referenced",
+        "/w/control-device.cu(586): warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+        "/w/control-device.cu(987): warning #177-D: variable \"okc::NSF\" was declared but never referenced",
+        "/w/control-device.cu(1689): warning #177-D: variable \"okc::WGS_FIXF\" was declared but never referenced",
+        "/w/control-device.cu(1696): warning #177-D: variable \"okc::MF_CE\" was declared but never referenced",
+        "/w/control-device.cu(1696): warning #177-D: variable \"okc::MF_EXIT\" was declared but never referenced",
+        "/w/control-device.cu(1696): warning #177-D: variable \"okc::MF_XR\" was declared but never referenced",
+        "/w/control-device.cu(1859): warning #177-D: variable \"okc::WGS_XROWS\" was declared but never referenced"
+      ]
+    },
+    "b4-control": {
+      "resources": [
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size",
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size"
+      ],
+      "properties": [
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "warnings": [
+        "WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.",
+        "/w/control-device.cu(2100): warning #177-D: variable \"g\" was declared but never referenced",
+        "Remark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"",
+        "/w/control-device.cu(147): warning #177-D: variable \"okc::NRB\" was declared but never referenced",
+        "/w/control-device.cu(162): warning #177-D: variable \"okc::UB_A\" was declared but never referenced",
+        "/w/control-device.cu(162): warning #177-D: variable \"okc::UB_B\" was declared but never referenced",
+        "/w/control-device.cu(165): warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+        "/w/control-device.cu(171): warning #177-D: variable \"okc::XP_SK\" was declared but never referenced",
+        "/w/control-device.cu(173): warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+        "/w/control-device.cu(174): warning #177-D: variable \"okc::NST\" was declared but never referenced",
+        "/w/control-device.cu(586): warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+        "/w/control-device.cu(987): warning #177-D: variable \"okc::NSF\" was declared but never referenced",
+        "/w/control-device.cu(1689): warning #177-D: variable \"okc::WGS_FIXF\" was declared but never referenced",
+        "/w/control-device.cu(1696): warning #177-D: variable \"okc::MF_CE\" was declared but never referenced",
+        "/w/control-device.cu(1696): warning #177-D: variable \"okc::MF_EXIT\" was declared but never referenced",
+        "/w/control-device.cu(1696): warning #177-D: variable \"okc::MF_XR\" was declared but never referenced",
+        "/w/control-device.cu(1859): warning #177-D: variable \"okc::WGS_XROWS\" was declared but never referenced"
+      ]
+    },
+    "main-candidate": {
+      "resources": [
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size",
+        "Used 96 registers, used 16 barriers, 8 bytes cumulative stack size"
+      ],
+      "properties": [
+        [
+          "8",
+          "8",
+          "36"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "8",
+          "8",
+          "36"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "warnings": [
+        "WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.",
+        "/w/candidate-device.cu(2106): warning #177-D: variable \"g\" was declared but never referenced",
+        "Remark: The warnings can be suppressed with \"-diag-suppress <warning-number>\"",
+        "/w/candidate-device.cu(147): warning #177-D: variable \"okc::NRB\" was declared but never referenced",
+        "/w/candidate-device.cu(162): warning #177-D: variable \"okc::UB_A\" was declared but never referenced",
+        "/w/candidate-device.cu(162): warning #177-D: variable \"okc::UB_B\" was declared but never referenced",
+        "/w/candidate-device.cu(165): warning #177-D: variable \"okc::BFLAG\" was declared but never referenced",
+        "/w/candidate-device.cu(171): warning #177-D: variable \"okc::XP_SK\" was declared but never referenced",
+        "/w/candidate-device.cu(173): warning #177-D: variable \"okc::XP_FT\" was declared but never referenced",
+        "/w/candidate-device.cu(174): warning #177-D: variable \"okc::NST\" was declared but never referenced",
+        "/w/candidate-device.cu(586): warning #177-D: variable \"okc::X1P\" was declared but never referenced",
+        "/w/candidate-device.cu(987): warning #177-D: variable \"okc::NSF\" was declared but never referenced",
+        "/w/candidate-device.cu(1689): warning #177-D: variable \"okc::WGS_FIXF\" was declared but never referenced",
+        "/w/candidate-device.cu(1696): warning #177-D: variable \"okc::MF_CE\" was declared but never referenced",
+        "/w/candidate-device.cu(1696): warning #177-D: variable \"okc::MF_EXIT\" was declared but never referenced",
+        "/w/candidate-device.cu(1696): warning #177-D: variable \"okc::MF_XR\" was declared but never referenced",
+        "/w/candidate-device.cu(1859): warning #177-D: variable \"okc::WGS_XROWS\" was declared but never referenced"
+      ]
+    }
+  }
+}

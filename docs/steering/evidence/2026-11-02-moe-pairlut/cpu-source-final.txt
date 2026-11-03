@@ -1,0 +1,9 @@
+test_all_eligible_pairs_and_signed_zero (test_moe_pairlut.Codec.test_all_eligible_pairs_and_signed_zero) ... ok
+test_complete_gate_rejects_unchanged_path_drift (test_moe_pairlut.Codec.test_complete_gate_rejects_unchanged_path_drift) ... ok
+test_four_register_layout_matches_original_packing (test_moe_pairlut.Codec.test_four_register_layout_matches_original_packing) ... ok
+test_selected_source_and_all_ordering_operations_are_preserved (test_moe_pairlut.Codec.test_selected_source_and_all_ordering_operations_are_preserved) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.012s
+
+OK

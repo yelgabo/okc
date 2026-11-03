@@ -1,0 +1,12 @@
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_actual_codepacking_is_bijective_and_scale_bytes_are_unchanged (test_moe_pairlut_host.Host.test_actual_codepacking_is_bijective_and_scale_bytes_are_unchanged) ... ok
+test_all_final_failures_preserve_all_rows (test_moe_pairlut_host.Host.test_all_final_failures_preserve_all_rows) ... ok
+test_complete_ownership_and_original_skinny_state (test_moe_pairlut_host.Host.test_complete_ownership_and_original_skinny_state) ... ok
+test_failed_math_stays_failed_and_retains_partial (test_moe_pairlut_host.Host.test_failed_math_stays_failed_and_retains_partial) ... ok
+test_repeated_prepare_uses_verified_compiled_cache (test_moe_pairlut_host.Host.test_repeated_prepare_uses_verified_compiled_cache) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 85.000s
+
+OK

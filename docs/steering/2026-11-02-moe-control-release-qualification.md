@@ -60,3 +60,9 @@ The old audit found23numerical private leads. This newly executed and disclosed 
 ## User-approved public submission
 
 The user directly approved public submission of exact5df257af and continued optimization toward5559.8us. Fresh shared preflight haszero live jobs,10scored slots and13private checks available. Remote/local source bytes match. OnePOST accepted public4aa033ef23a142cd. This approval covers that exact release, not automatic public submission of later candidates. Public outcome pending; continue independent B4/MAIN implementation work while its sole waiter runs. [Accepted association](evidence/2026-11-02-moe-public/accepted.json).
+
+## Public result verified
+
+Own public4aa033ef23a142cd is complete, PASS5tests/6benchmarks/6profiles, return0, no flags. Exact5df257af produced **5788.720720us/2.323224880x**,95%CI[2.288376507,2.358073253]. Preparation184.048388s,queue235.197197s,worker334.295472s; sole waiter10826ended0. An initial cached board still showed the old entry. The subsequent own-row refresh now verifies4aa033ef23a142cd at **rank373**, versus434previously,26attempts. [Scored receipt and profiles](evidence/2026-11-02-moe-public/status-wait.raw.json), [verified board snapshot](evidence/2026-11-02-moe-public/leaderboard-verified.json), [current public page](https://openkernelchallenge.dev/problems/muse_moe_w4a16).
+
+Public elapsed is4.627762% lower than6069.607719us. The target5559.8us remains228.920720us away. The private5762.134395us point and public5788.720720us result remain separately attributed. This publishes the base release and closes its approval task. The user also directed continued optimization without another reminder; MOE-LUT-01 now implements a distinct group16 pair lookup and lossless packing alternative, with one bounded matched private endpoint next after source/CPU qualification and shared preflight. [Next owned implementation](2026-11-02-moe-pair-lookup.md). No new public approval is inferred.
