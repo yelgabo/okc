@@ -39,3 +39,9 @@ Every phase-A writer executes a device fence before the128-consumer join. The pu
 Before any timings, the target adapter must independently verify every GPU-packed code/scale slice against its original, run both affected sizes against a full FP32 one-local-expert MoE reference with TF32 disabled and restored, and observe actual launch admission. The existing three-bank normal/skewed tests then cover the full routed endpoint and replay transitions. No partial or selected-bank result can qualify a gain.
 
 The fresh preflight public MoE snapshot remains4aa033ef23a142cd at5788.720720us. Its observed rank372 and rank1005558.603217us are timestamped board observations, not changed kernel timings. The saved promotion ledger check has19leads and zero gaps. No new result or public-release opportunity is claimed here. Next action is the one private own-ID dispatch, after fresh quota/job checks. No public action, production edit or other-owner job is included.
+
+## Private check accepted
+
+Private own-ID job `7f10243c98e74746` was accepted for `muse_moe_w4a16` at 2026-11-03 07:02 UTC. Frozen source revision `37964e414aaa36a52937c09418626ff4776c7406`, physical payload `f31b652f2bf315465072f8c43771befd9a16101354d8bf131d34de8999b173a5`,389590bytes, native896b5350. Official judged arm is candidate2, with only T8/T16 changed. No target result is recorded yet.
+
+The sole waiter is exec86811, writing ignored `.build/gopt-ws-owned/status-wait.raw.json` and retaining its own exit status. Do not create another poller, redispatch or archive its live output. Collection will end before receipt/profile archival and strict identity/coverage/gate analysis. Fresh quota reports ten MoE private checks remaining before this dispatch. MoE Worker's independently accepted factorized-output job7479372115c64702 is separate and remains with that owner.
