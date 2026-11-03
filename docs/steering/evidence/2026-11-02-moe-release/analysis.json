@@ -1,0 +1,69 @@
+{
+  "job": "64f9998ef238476f",
+  "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+  "passed": true,
+  "public_submission_approved": false,
+  "material_release_lead": true,
+  "scope": "Exact-file official release qualification; public comparison is cross-job, not a matched mechanism gain",
+  "score_us": 5762.134394618605,
+  "speedup": 2.3339441739782876,
+  "speedup_ci": [
+    2.2989350113686133,
+    2.368953336587962
+  ],
+  "official_tests": 5,
+  "official_benchmarks": 6,
+  "official_profiles": 6,
+  "public_baseline": {
+    "job": "abe7651dbaa44458",
+    "score_us": 6069.607719056422,
+    "speedup": 2.2157
+  },
+  "lower_elapsed_percent": 5.065785775124465,
+  "target_us": 5559.8,
+  "target_met": false,
+  "loads": [
+    {
+      "tokens": 1,
+      "load": "decode 1",
+      "adjusted_us": 25.27501234943677,
+      "sglang_us": 76.76799735054374,
+      "speedup": 3.03730800559844
+    },
+    {
+      "tokens": 16,
+      "load": "decode 16",
+      "adjusted_us": 95.44292345630646,
+      "sglang_us": 188.33600170910358,
+      "speedup": 1.9732840831863596
+    },
+    {
+      "tokens": 32,
+      "load": "decode 32",
+      "adjusted_us": 127.40143002852871,
+      "sglang_us": 210.76800068840384,
+      "speedup": 1.6543613414795035
+    },
+    {
+      "tokens": 8,
+      "load": "verify 1",
+      "adjusted_us": 64.61904458730446,
+      "sglang_us": 142.76800164952874,
+      "speedup": 2.209379642817839
+    },
+    {
+      "tokens": 128,
+      "load": "verify 16",
+      "adjusted_us": 178.95124875777535,
+      "sglang_us": 460.9279935248196,
+      "speedup": 2.575718228983817
+    },
+    {
+      "tokens": 256,
+      "load": "verify 32",
+      "adjusted_us": 220.020294792071,
+      "sglang_us": 630.2719870582223,
+      "speedup": 2.86460841102798
+    }
+  ]
+}

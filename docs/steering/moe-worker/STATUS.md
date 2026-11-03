@@ -1,8 +1,9 @@
 # OKC MoE worker status
 
-Active own **MOE-RELEASE-01 private64f9998ef238476f**, exact source5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e,320466bytes, published9edf1ef6. [Accepted registration](../evidence/2026-11-02-moe-release/accepted.json). Current c7 B4/MAIN control, original skinny and scale fallbacks; one prepared owner and three guarded scratch buffers. TwoCPU ownership/forwarding/fallback tests pass. Target result pending. Sole foreground waiter exec52146 writes ignored `.build/moe-release/status-wait.raw.json`. [Concrete file, source and acceptance screen](../2026-11-02-moe-control-release-qualification.md).
+No active own GPU job. **MOE-RELEASE-01 private64f9998ef238476f is qualified for a public decision**, exact source5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e,320466bytes, published9edf1ef6. PASS5official/6benchmarks/6profiles, return0, no flags. Official5762.134395us/2.333944174x CI[2.298935011,2.368953337],5.065786% below public cross-job. Target5559.8us remains202.334395us away. Preparation182.675155s. Waiter52146ended0. [Complete release file, six-load results and recommendation](../2026-11-02-moe-control-release-qualification.md#terminal-result-and-public-decision).
 
-The run must pass5official tests/6benchmarks/6profiles without flags and show a material cross-job public-release lead. All six loads and uncertainty will be disclosed. No matched kernel gain is claimed from this pure release check. Public submission needs user approval after concrete qualification. Reminder remains paused; work continues in this chat. General owns WS skinny, CUDA Optimizer owns BF16.
+The exact release is prepared and tested. Public submission needs the user's go-ahead and remains unapproved. This point is not a matched individual-mechanism gain. Five public-comparison point times are lower; T16 is0.016691us higher, effectively flat. Default factory inputs are source-checked; target scale-fallback coverage remains limited to the actual official cases, with allthree dispatch modes CPU-tested. All24better private leads now have visible dispositions. General owns WS skinny, CUDA Optimizer owns BF16; reminder remains paused.
+
 
 | Closed own experiment | Result and stop |
 |---|---|

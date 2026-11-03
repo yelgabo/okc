@@ -103,3 +103,10 @@ Validation in this report is author-checked. No independent reviewer was availab
 
 
 The new GitHub promotion-ledger workflow completed successfully for commitbbd4a11d. [CI run41581122309](https://github.com/yelgabo/okc/actions/runs/41581122309). Three targeted tests pass; the complete tracked-receipt check reports23leads andzero missing dispositions. The injected missing46aafddc row correctly exits1 and identifies the omitted result. This validates the guard, not release eligibility for any candidate.
+
+
+## Follow-up performed after this audit
+
+The MoE worker prepared and privately checked the complete current-control release as own64f9998ef238476f, source5df257af/320466bytes. It passes5official tests/6benchmarks/6profiles without flags at5762.134395us,2.333944174x CI[2.298935011,2.368953337]. This is5.065786% below the still-current public point, with a distinct complete source and cross-job comparison. It is disclosed immediately and ready for the user's public decision. The target5559.8us remains open. [Concrete file, all six results and release decision](2026-11-02-moe-control-release-qualification.md#terminal-result-and-public-decision).
+
+This is a newly performed run, not another previously buried result. The original audit's23prior leads remain as listed; the refreshed promotion check now sees24leads andzero missing dispositions. The observer6028cae5 failed setup and its global cost gate, so it contributes no official score or release lead.

@@ -31,3 +31,28 @@ Exactlyone private POST accepted64f9998ef238476f for5df257af. [Accepted associat
 Sole foreground collector exec52146 waits only on64f9998ef238476f, writing ignored `.build/moe-release/status-wait.raw.json`. No second poller.
 
 The exact-file result reader has3passing schema/source/coverage tests using an explicitly synthetic association over an archived passing receipt. It rejects wrong-job/source and missing test/benchmark/profile records, preserves a failed outcome, and keeps public_submission_approved=false even for a material point lead. These are reader tests, not target results. The pending own receipt remains the only source of the new performance decision.
+
+## Terminal result and public decision
+
+Own private **64f9998ef238476f** is complete. The exact source5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e,320466bytes, passes **5official tests,6benchmarks and6profiles**, return0, source checks pass and no flags. H200 preparation182.675155s, queue329.790188s, worker272.758662s. Sole waiter52146ended0. [Complete owning receipt](evidence/2026-11-02-moe-release/status-wait.raw.json), [all profiles](evidence/2026-11-02-moe-release/profiles), [source-bound result analysis](evidence/2026-11-02-moe-release/analysis.json).
+
+Official elapsed **5762.134395us**, speedup over owning SGLang **2.333944174x**,95%CI **[2.298935011,2.368953337]**. Frozen material-release screen passes. This point is **5.065786% below** current public6069.607719us. It leaves202.334395us, or3.511449% of this private time, to reach the user's5559.8us target. It is a qualified private release lead, not a public result, a matched comparison with the older public code or a confirmed gain by an individual kernel treatment.
+
+| Tokens | Private adjusted us | Owning SGLang us | Public adjusted us |
+|---|---:|---:|---:|
+|1|25.275012|76.767997|27.000975|
+|8|64.619045|142.768002|67.387859|
+|16|95.442923|188.336002|95.426233|
+|32|127.401430|210.768001|136.746636|
+|128|178.951249|460.927994|192.869429|
+|256|220.020295|630.271987|240.838568|
+
+Public and private columns use different inputs/runs and are descriptive. T16 is0.016691us higher, effectively flat at this measurement precision; the other five private point times are lower. The complete per-load SGLang changes and normalized speedup ratios are retained in [public-comparison.json](evidence/2026-11-02-moe-release/public-comparison.json). No matched regression-free claim follows from this table. The [hotspot table](evidence/2026-11-02-moe-release/hotspots.md) uses actual current profiles and archived baselineeae9a6b7; profiler observations are separate from benchmark timings and provide no internal phase split.
+
+Default selected source/flags were checked through the actual factory; the standalone target did not print a native flag capsule. Scale-fallback dispatch was CPU-tested, with unchanged underlying native sources. This run's target coverage is its5official tests/6benchmarks/6profiles. Prior component fresh-state observations belong to their own jobs. No representative raw phase trace or valid global phase attribution is supplied by the failed observer.
+
+The historical5725.692982us candidate46aafddc remains separately recovered and disclosed. Its point is36.441413us lower than this new check, inside these runs' uncertainty and under a different T32 dispatcher. This single cross-job difference does not establish which file is reproducibly faster. The current release has a fresh exact-file result and preserved current dispatcher/fallbacks.
+
+**Recommend presenting this complete standalone file for the user's public-submission approval now.** [Exact release file](../../muse_moe_w4a16/cand/current_control_release.py), [frozen package manifest](../../muse_moe_w4a16/cand/current_control_release.manifest.json). Its complete derived-source attribution is retained. Public submission of this complete MoE source requires the user's go-ahead; no public job has been created. The private release is entered immediately in the promotion queue, rather than being hidden behind a newer treatment's loss.
+
+The old audit found23numerical private leads. This newly executed and disclosed release check brings the refreshed inventory to24, withzero missing dispositions. The next kernel experiment still needs valid source-bound exposure or a compatible complete alternative. Existing General WS implementation proceeds separately. Do not revive the failed observer or queue, or invent a B4/MAIN treatment from invalid phase measurements. This is the precise remaining whole-expert refill gap while the concrete public release waits for approval.

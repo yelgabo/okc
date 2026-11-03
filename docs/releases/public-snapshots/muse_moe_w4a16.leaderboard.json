@@ -1,7 +1,7 @@
 {
   "board": "muse_moe_w4a16",
   "measure": "speedup over SGLang; higher ranks higher",
-  "ranked": 1342,
+  "ranked": 1344,
   "leader": {
     "rank": 1,
     "team": "dolanzhao",
@@ -29,5 +29,5 @@
     }
   ],
   "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
-  "raw_snapshot_sha256": "c63b3e1da21a988c995c738b44d4281fb107270e897a0aa913208ee3771f4f3d"
+  "raw_snapshot_sha256": "d8d29900ce09f2e843eabb3e0c4c9f95d54ea4e19ab258971f6d5a6961280dac"
 }

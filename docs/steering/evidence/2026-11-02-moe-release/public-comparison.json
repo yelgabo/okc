@@ -1,0 +1,55 @@
+{
+  "scope": "Cross-job, different inputs and SGLang pairs; descriptive only, not matched kernel savings",
+  "public_job": "abe7651dbaa44458",
+  "private_job": "64f9998ef238476f",
+  "loads": [
+    {
+      "tokens": 1,
+      "public_adjusted_us": 27.000975244260186,
+      "private_adjusted_us": 25.27501234943677,
+      "public_sglang_us": 77.13600061833858,
+      "private_sglang_us": 76.76799735054374,
+      "relative_speedup_point": 1.0631906970927314
+    },
+    {
+      "tokens": 16,
+      "public_adjusted_us": 95.42623257239289,
+      "private_adjusted_us": 95.44292345630646,
+      "public_sglang_us": 188.57599887996912,
+      "private_sglang_us": 188.33600170910358,
+      "relative_speedup_point": 0.9985526629685245
+    },
+    {
+      "tokens": 32,
+      "public_adjusted_us": 136.74663592043888,
+      "private_adjusted_us": 127.40143002852871,
+      "public_sglang_us": 214.06400203704834,
+      "private_sglang_us": 210.76800068840384,
+      "relative_speedup_point": 1.0568257431952193
+    },
+    {
+      "tokens": 8,
+      "public_adjusted_us": 67.38785858648528,
+      "private_adjusted_us": 64.61904458730446,
+      "public_sglang_us": 143.69600405916572,
+      "private_sglang_us": 142.76800164952874,
+      "relative_speedup_point": 1.036113452902737
+    },
+    {
+      "tokens": 128,
+      "public_adjusted_us": 192.86942906429772,
+      "private_adjusted_us": 178.95124875777535,
+      "public_sglang_us": 459.50400922447443,
+      "private_sglang_us": 460.9279935248196,
+      "relative_speedup_point": 1.081116365215281
+    },
+    {
+      "tokens": 256,
+      "public_adjusted_us": 240.83856801896243,
+      "private_adjusted_us": 220.020294792071,
+      "public_sglang_us": 634.7360126674175,
+      "private_sglang_us": 630.2719870582223,
+      "relative_speedup_point": 1.0869214506165812
+    }
+  ]
+}

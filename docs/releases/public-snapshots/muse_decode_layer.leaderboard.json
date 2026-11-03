@@ -1,7 +1,7 @@
 {
   "board": "muse_decode_layer",
   "measure": "speedup over SGLang; higher ranks higher",
-  "ranked": 1217,
+  "ranked": 1219,
   "leader": {
     "rank": 1,
     "team": "dolanzhao",
@@ -29,5 +29,5 @@
     }
   ],
   "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
-  "raw_snapshot_sha256": "c644fcd296633480157a97fa805c18cf19572331b96acbef4e16e30cae2a48ce"
+  "raw_snapshot_sha256": "85a7f1292c4c22278c7a1c79382b495d3c792b92f8e76714c4c86f4f1cbe299b"
 }

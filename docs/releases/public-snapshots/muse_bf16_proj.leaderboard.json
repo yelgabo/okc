@@ -1,7 +1,7 @@
 {
   "board": "muse_bf16_proj",
   "measure": "speedup over SGLang; higher ranks higher",
-  "ranked": 1668,
+  "ranked": 1670,
   "leader": {
     "rank": 1,
     "team": "olety",
@@ -29,5 +29,5 @@
     }
   ],
   "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
-  "raw_snapshot_sha256": "3a9f106f2fa4e52d7205da67a13cca54aa47a475f1346acb04fc1cb951f911cc"
+  "raw_snapshot_sha256": "1b13287c9a407b978583cbbee267668f3a0dac9e1c03183f48d88e7077bda424"
 }

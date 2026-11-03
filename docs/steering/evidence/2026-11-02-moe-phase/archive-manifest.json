@@ -47,6 +47,10 @@
     "sha256": "524448ac56abd802ef7387ac60b1f5aa7eabe72709846c09625c3d3a383f864b",
     "bytes": 41985
   },
+  "cpu-reader-entropy.txt": {
+    "sha256": "055156006b3785068271a23b7c47fa5d954f19095f180c791bf51fa0d4a44a4d",
+    "bytes": 602
+  },
   "cpu-host.txt": {
     "sha256": "a48f9998974e64d20d7e8d30410ea2055fbb0b2a27b6391bdd5f2c9ba8a74931",
     "bytes": 933

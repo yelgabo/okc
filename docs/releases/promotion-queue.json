@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-03T04:52:53.898286+00:00",
+  "observed_at": "2026-11-03T05:40:56.882292+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -303,6 +303,21 @@
       "public_submission_approved": false,
       "judged_arm": "nozero/filtered candidate",
       "source_identity": "muse_prefill_layer/244896f80731250d8148e4254a705ea2e29cb17e45c9d4dfb33435513d17a537.py"
+    },
+    {
+      "job": "64f9998ef238476f",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5762.134394618605,
+      "owner": "OKC MoE Worker",
+      "release_state": "ready-for-user-public-approval",
+      "reason": "Exact current c7 standalone release passes5official tests/6benchmarks/6profiles without flags. Official5762.134395us,5.065786% below public cross-job; target5559.8us remains open. Exact bytes, attribution and scale fallbacks prepared. Public approval is the remaining release action; no matched mechanism-gain claim.",
+      "evidence": "docs/steering/evidence/2026-11-02-moe-release/status-wait.raw.json",
+      "disclosure_report": "docs/steering/2026-11-02-moe-control-release-qualification.md",
+      "public_submission_approved": false,
+      "judged_arm": "current control standalone release",
+      "source_identity": "muse_moe_w4a16/6b13430b5ad58c5beeee29c96fb73bf48dd4ec5977bd2438b823011ab360d98f.py",
+      "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+      "artifact": "muse_moe_w4a16/cand/current_control_release.py"
     }
   ]
 }
