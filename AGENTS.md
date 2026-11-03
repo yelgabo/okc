@@ -58,6 +58,8 @@ Use `okc check <file> --no-wait --json`, retain its ID and wait only on that ID.
 
 Never remove a fence/barrier for speed on tests alone. Preserve writing-side `fence.proxy.async` before publication when generic stores feed WGMMA/TMA unless the applicable PTX memory-model proof supports a cited alternative, and cite that section. The attention verify variants with bit 2 (var 2, 18) drop it for diagnosis only; submissions use the fenced ones. Retain mathematical boundaries, graph lifetime and progress guarantees.
 
+For cross-lane or cross-warp publication, prove that each writer precedes the first operation of the publisher's release pattern after the relay. A leader fence before that relay plus a relaxed store does not by itself prove publication of other writers. Disclose stronger memory operations in CPU models. Passing numerical tests cannot close a missing ordering edge.
+
 Cast FP8 values to FP32 for diagnostic finiteness checks, retain FP8 computation and cover finite/nonfinite inputs. Guard `rank: null` before numeric leaderboard comparisons; retain rows and distinguish rendering errors from empty results.
 
 Use explicit source tags for private diagnostic call-site labels. Never inspect Python frames, including `sys._getframe`; the service rejects harness-frame access.

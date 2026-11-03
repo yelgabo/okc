@@ -1,4 +1,4 @@
-"""Execute the actual wait function with a CPU model of warp voting and acquires."""
+"""Model wait/address logic with C++ release producers, stronger than the PTX store."""
 import argparse
 import json
 from pathlib import Path

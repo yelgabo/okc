@@ -1,0 +1,190 @@
+{
+  "source_sha256": "00f13180418ac5f3e00a08c7765b7edacbe4a91d7c71ee9d295401be0348034f",
+  "bytes": 463777,
+  "screen_source_sha256": "b6107a783c8ded6dc626f6cfa99e7e1b53201e5225bd2073f736c69125f16964",
+  "original_release_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+  "native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "original_helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "short_helper_sha256": "974d7743bb8d049150fe46b62f84c2308158e382588903f185d8155c787faf20",
+  "compiler_calls": [
+    {
+      "name": "glue_moe_0e20480441ec23ff_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "974d7743bb8d049150fe46b62f84c2308158e382588903f185d8155c787faf20",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_7ea78e72a6e02d9e_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "974d7743bb8d049150fe46b62f84c2308158e382588903f185d8155c787faf20",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_1b555edc8284ed23_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_7e37cd900cb88979_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_45a005177ff52c30_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    }
+  ],
+  "routes": [
+    {
+      "tokens": 1,
+      "key": "tiny"
+    },
+    {
+      "tokens": 8,
+      "key": "tiny2"
+    },
+    {
+      "tokens": 16,
+      "key": "mid"
+    },
+    {
+      "tokens": 32,
+      "key": "b4"
+    },
+    {
+      "tokens": 128,
+      "key": "main"
+    },
+    {
+      "tokens": 256,
+      "key": "main"
+    }
+  ],
+  "public_submission_approved": false,
+  "qualification": "DRAFT, screen and held-out decision pending; exact-file GPU qualification required",
+  "scope": "Tiny/Tiny2 flags only, original MID/B4/MAIN, scale fallbacks, packing and three-buffer ABI"
+}
