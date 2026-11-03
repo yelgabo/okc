@@ -15,3 +15,10 @@ its existing owners. Public-submission permissions remain unchanged.
 [Existing MID terminal](2026-11-02-03-mid-result.md).
 
 [First attention result and confirmation gate](2026-11-02-05-attention-first-result.md).
+
+Matched confirmation preparation: `tools/d32_attn_worker_pair.py` now provides
+state-local control/treatment selection for the pinned candidate. Two CPU tests
+cover the wrapper and source identity. This is one part of the instrument, not
+a runnable or qualified paired check. Next bind four independently owned states
+to the existing full-layer capture, cold replay, numerical and receipt machinery.
+Prospectively register D32 and other-load gates before dispatch.
