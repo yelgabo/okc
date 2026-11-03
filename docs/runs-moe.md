@@ -5733,3 +5733,45 @@ T128 / T256 inside noise; the timeline attribution decides what to keep if the j
 Own private check `abc831c68f174b68`, accepted 2026-11-03 00:42 PT (2 MoE checks were left before it; the
 directive's gate is at least 2). Sole waiter writes `muse_moe_w4a16/profiles/tiny_half_xs.abc831c68f174b68.status.json`
 / `.log`. Result pending.
+
+MOE-HALF-XS-01 terminal `abc831c68f174b68`: PASS 5 tests (relative L2 4.47e-3 to 4.65e-3; the instrumented launch
+equals the plain one at T = 1, differs by 4.9e-4 at T = 8 from the FP32 ss atomics' order) / 6 benchmarks, no flags,
+prepare inside budget. Medians T1 34.04 / T16 95.72 / T32 124.56 / T8 83.60 / T128 176.60 / T256 213.44 us against the
+public release's 26.73 / 93.96 / 127.56 / 67.21 / 180.87 / 217.35: **T1 +7.3 us and T8 +16.4 us, a loss**; the four
+unchanged cells inside noise (per-cell speedups against the judge's own baseline 1.97 / 1.66 / 2.60 / 2.89, as the
+timeline and BAL receipts' 1.98 / 1.66 / 2.60 / 2.89), T1 speedup 2.26 against 2.92 / 2.84, T8 1.80 against 2.07 / 2.16.
+Score 6,239.1 us (2.1555x). Not a candidate. Status, log tail and receipts:
+`muse_moe_w4a16/profiles/tiny_half_xs.abc831c68f174b68.status.json`, `.log`.
+
+Timeline attribution (instrumented launch on the first non-capturing inputs, which are the correctness tests' routing:
+T = 1 hit 3 local experts, nA 11-12 per CTA; T = 8 hit 10, nA 38-39; mean CTA, us from the first entry):
+
+| | T = 1 (njS 3) | T = 8 (njS 10) |
+|---|---:|---:|
+| route + ranges / first slot full | 2.8 / 3.9 | 2.5 / 3.7 |
+| A end; A unit mean (min / max) | 23.1; 1.6 (1.2 / 3.7) | 57.3; 1.4 (1.2 / 3.1) |
+| warp 0 weights wait / buffer wait over A | 0.9 / 0.5 | 3.0 / 1.5 |
+| first-half credit (credit0) / last credit | 12.4 / 24.7 | 31.4 / 58.9 |
+| chunk switch cost A1 / B0 / B1 (mean, max) | 0.2, 0.5 / 0.2, 0.3 / 0.3, 0.7 | 0.2, 0.4 / 0.2, 0.3 / 0.1, 0.2 |
+| B end; B unit mean | 33.0; 1.5 | 85.6; n/a |
+| barrier arrive / release; final; exit | 33.9 / 36.4; 0.2; 36.7 | 86.6 / 90.7; 0.4; 91.0 |
+
+(The "B0 switch start / end" slots of the summary are overwritten by the last B chunk's first switch, so they read as
+the B1 switch; the three chunk-switch slots are the per-chunk costs.) What the mechanisms did: the chunk switches cost
+0.1-0.7 us (the staged path), the first half's credits landed at 12.4 / 31.4 us, half a phase before any CTA needed
+them, and no B switch waited on doneA (depwaits 1..2 with sums 0.3-0.5 us), so the 2.2 us handoff is gone as designed.
+What lost: **the unit loop itself runs 20-30% slower in both phases** (A 1.6 / 1.4 us per unit, B 1.5, against 1.2 /
+1.1 in 19128cda79ca4e25; the per-unit minimum is still 1.2), which over 17 / 58 units per CTA is the whole loss. Warp
+0's measured waits (weights 0.9 / 3.0, buffers 0.5 / 1.5) do not account for it; the loop body's straight-line SASS is
+within 35 instructions of the release's (530 against about 565 on the non-staging path, HMMA 64, weights LDS 9, the
+16 LDGSTS of the staging in a branch taken once per switch). Not separated: (a) thread 0's per-unit chain after the
+barrier grew by the chunk walk (`ws_seq_unit`, three dependent smem reads, plus `wsN`) before the ring refill, which
+delays warp 0's next unit and the refill with a 3-slot ring whose slack was about 0.4 us; (b) the waits of warps 1-7
+on the weights barrier, which the instrument does not stamp (warp 0 arrives last and sees the data present); (c) the
+instrumented chunk ends read three `p.dbg` words back (instrument only, about 1.5 us per chunk end on warp 0, which
+inflates the instrumented unit means but not the timed cells). Distinguishing test, prepared and compiled, not
+dispatched (one MoE check left today, the directive's gate is two): `muse_moe_w4a16/cand/tiny_half.py` (f3d60973,
+`--no-xs`: the chunk order and per-half credits without the staging; loop body 550 instructions, 151 registers). If
+it also loses per unit, the chunk walk and the helper's per-unit chunk mapping are the cost and an incremental walk
+(thread 0 and the helper keep the current chunk and its remaining units in registers) is the fix; if it does not, the
+staging's in-loop poll and branch are. The parent's two named mechanisms stay declined (rows in docs/ruled-out.md).
