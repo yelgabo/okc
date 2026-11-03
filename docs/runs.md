@@ -2566,7 +2566,7 @@ larger than rap (no overlap headroom), log the loss and stop.
 Check 1 bench (in-process us, cold L2, 9 rounds x 3 reps, includes the ~4 us replay cost; d = median
 paired delta against ctrl / rounds faster): ctrl (Lt pin) 24.58; a1 weights + wgmma, no decode 53.76
 (+29.12, 0/9); a2 weights + decode, no wgmma 16.03 (-8.58, 9/9); a3 memory only 15.68 (-8.93, 9/9);
-a4 x ring + wgmma on A = 0 15.68 -> 31.65 (+7.20, 0/9). `cudaOccupancyMaxActiveClusters` for the pooler
+a4 x ring + wgmma on A = 0 31.65 (+7.20, 0/9). `cudaOccupancyMaxActiveClusters` for the pooler
 launch: 30 clusters of 4 resident against 32 in the grid, so every pooler arm ran a second partial wave
 (measured; the P3 entry above listed this as untested). The memory pipeline is near the HBM bound:
 11.68 us after the replay cost for 50.3 MB of 12-bit weights = 4.31 TB/s (floor 10.49 at 4.8 TB/s),
@@ -2580,3 +2580,23 @@ Check 2 (registered): `__launch_bounds__(288, 1)` restored (168 registers, 20-by
 rap_a3, rap_a4 (two waves) and unpooler rau with a1-a4 (64 clusters of 2, one wave if the occupancy
 call confirms it), each against its Lt pin. Same stop rule: rau must come within 2 us of the unpooler
 ctrl; if rau_a4 alone is still above ctrl, the register-A wgmma path loses in one wave too, and the lane stops.
+| 11-03 | 63c0ecaf94114524 | check (bench ra 2) | 73cefcb4 (SHA256 50001b8b) | 168-register ra; pooler rap with a3 / a4, unpooler rau with a1-a4 | 1.521x (1.498-1.544) | all launched, diag 0; ltune rejected rap (-29.15 vs pin) and rau (-10.27); judged pooler m = 128 20.6 us on Lt f1, unpooler 19.3 on the pin |
+
+Check 2 bench (in-process us, as above): pooler ctrl 24.64; rap 53.86 (+29.34, 0/9); rap_a3 15.49
+(-9.18; 11.49 net = 4.38 TB/s); rap_a4 31.39 (+6.82); 30 of 32 clusters of 4 resident again. Unpooler,
+one wave (66 clusters of 2 resident for 64): ctrl 23.10; rau 33.15 (+9.76, 0/9); a1 decode off 30.59
+(+7.39); a2 wgmma off 13.28 (-9.82); a3 memory only 13.31 (-9.79; 9.31 net, which would be 5.41 TB/s,
+above the HBM peak, so either part of the stream survives the flush in L2 or the replay cost here is
+under 4 us); a4 wgmma on the x ring with zero A 18.62 (-4.42; 14.6 net).
+
+What it shows (measured): in one wave, the weight stream and decode reach the byte floor (a2 = a3), and
+wgmma alone on the x ring takes 14.6 us net, about 60% of tensor peak for 8.6 GFLOP. With both, the
+kernel takes 26.6 us net (decode off) and 29.2 (full), more than the 23.9 sum of its parts, so the two
+do not overlap. The pooler's two waves (30 of 32 clusters of 4) double its wgmma-bound time.
+Hypotheses (not tested): the loads for unit s + PF are issued by the same warps after each wait_group 1,
+so the in-flight weight bytes per SM (8 warps x PF 2 x 1.5 KB) shrink whenever the tensor pipe stalls
+the issue, and the 168-register cap blocks a deeper PF.
+
+Decision: the stop rule fired (rau +9.8 us; decode-off plus wgmma-off 43.9 against rau 33.2). Two of the
+four checks used; no geometry sweep. Logged in docs/ruled-out.md with its reopen condition. The
+incumbent is unchanged; the bench file keeps ra for the reopen.
