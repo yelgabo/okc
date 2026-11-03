@@ -22,3 +22,8 @@ cover the wrapper and source identity. This is one part of the instrument, not
 a runnable or qualified paired check. Next bind four independently owned states
 to the existing full-layer capture, cold replay, numerical and receipt machinery.
 Prospectively register D32 and other-load gates before dispatch.
+
+D32-06 read. Confirmation remains in implementation: the state-local arm
+selector and the prospective timing decision now have four passing CPU tests.
+The complete capture/replay payload and target qualification are still open.
+[Confirmation contract](2026-11-02-07-confirmation-contract.md).
