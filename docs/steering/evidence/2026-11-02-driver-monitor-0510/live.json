@@ -1,0 +1,272 @@
+{
+  "time": "2026-11-03T05:11:25.559128+00:00",
+  "scope": "Shared list, quotas and boards only; no owning status poll/POST. Attention/prefill refreshed subsequently before promotion check.",
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 5,
+            "left": 15
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 7,
+            "left": 13
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      }
+    ]
+  },
+  "live_jobs": [],
+  "terminal_queue_metadata": [
+    {
+      "flags": [],
+      "job_id": "e044121f822d47b1",
+      "mode": "check",
+      "passed": true,
+      "problem": "muse_moe_w4a16",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 5856.634194815913,
+      "status": "done",
+      "submitted_at": 1793679439.270868
+    }
+  ],
+  "overall": {
+    "rank": 387,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 386
+  },
+  "boards": {
+    "muse_attention_decode": {
+      "you": {
+        "rank": 263,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 262,
+        "to_first": 1.2821
+      },
+      "you_row": [
+        {
+          "attempts": 25,
+          "job": "8914751e3b9f468b",
+          "rank": 263,
+          "speedup": 2.6043,
+          "submitted_at": 1793510570.8706555,
+          "team": "yelgabo",
+          "value": 1446.1905945986007
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 56,
+          "job": "d283144045e74f86",
+          "rank": 100,
+          "speedup": 2.679,
+          "submitted_at": 1793661878.3739555,
+          "team": "rohanarun",
+          "value": 1405.8454485457505
+        }
+      ]
+    },
+    "muse_bf16_proj": {
+      "you": {
+        "rank": 369,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 368,
+        "to_first": 1.0994
+      },
+      "you_row": [
+        {
+          "attempts": 33,
+          "job": "9eba96894ee1402e",
+          "rank": 369,
+          "speedup": 1.5278,
+          "submitted_at": 1793509752.4725015,
+          "team": "yelgabo",
+          "value": 3161.918773020326
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 16,
+          "job": "8b278fa0a33c4fdb",
+          "rank": 100,
+          "screened_speedup": 1.5478995880105755,
+          "speedup": 1.583,
+          "submitted_at": 1793677475.3525927,
+          "team": "nl-alonso",
+          "value": 3051.7126332184075
+        }
+      ]
+    },
+    "muse_decode_layer": {
+      "you": {
+        "rank": 387,
+        "team": "yelgabo",
+        "speedup": 2.1261,
+        "first": false,
+        "ahead": 386,
+        "to_first": 1.1713
+      },
+      "you_row": [
+        {
+          "attempts": 42,
+          "job": "607eb52bdaf24160",
+          "rank": 387,
+          "speedup": 2.1261,
+          "submitted_at": 1793534312.3883686,
+          "team": "yelgabo",
+          "value": 10639.426326569794
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 38,
+          "job": "df22c3b4c5b24c18",
+          "rank": 100,
+          "speedup": 2.2727,
+          "submitted_at": 1793661429.6745422,
+          "team": "EROREx",
+          "value": 9952.834767684584
+        }
+      ]
+    },
+    "muse_moe_w4a16": {
+      "you": {
+        "rank": 434,
+        "team": "yelgabo",
+        "speedup": 2.2157,
+        "first": false,
+        "ahead": 433,
+        "to_first": 1.2476
+      },
+      "you_row": [
+        {
+          "attempts": 25,
+          "job": "abe7651dbaa44458",
+          "rank": 434,
+          "speedup": 2.2157,
+          "submitted_at": 1793321438.0973241,
+          "team": "yelgabo",
+          "value": 6069.607719056422
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 14,
+          "job": "544f93537f6a4ae9",
+          "rank": 100,
+          "speedup": 2.4193,
+          "submitted_at": 1793499998.2636867,
+          "team": "apNV",
+          "value": 5558.815637093921
+        }
+      ]
+    },
+    "muse_prefill_layer": {
+      "you": {
+        "rank": 637,
+        "team": "yelgabo",
+        "speedup": 1.2166,
+        "first": false,
+        "ahead": 636,
+        "to_first": 1.7259
+      },
+      "you_row": [
+        {
+          "attempts": 3,
+          "job": "1530ec79d50a4f69",
+          "rank": 637,
+          "speedup": 1.2166,
+          "submitted_at": 1793513800.5948975,
+          "team": "yelgabo",
+          "value": 318441.9905489318
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 12,
+          "job": "4352cda010fd4fad",
+          "rank": 100,
+          "speedup": 1.8938,
+          "submitted_at": 1793527849.3753119,
+          "team": "yairbarak22",
+          "value": 204565.23063582397
+        }
+      ]
+    }
+  }
+}

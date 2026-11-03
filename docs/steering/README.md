@@ -32,6 +32,8 @@ The Decode32 Worker owns its checks and job waits. Each other owner retains its 
 
 ## Latest audit
 
+[Driver monitor05:10UTC](2026-11-02-driver-monitor-0510.md): B queue terminal loss;23 faster private points have complete promotion dispositions; existing MoE profile/release tasks and next-stage General/BF16 research request reconciled.
+
 [Internal MoE profile validation](2026-11-02-internal-moe-profile-validation.md) checks the existing sparse observer and unchanged controls. Five CPU tests pass, but a reproduced post-cleanup budget failure loses partial evidence. User-authorized request and finding delivered to the existing MoE worker. H200 attribution remains pending; no duplicate job or kernel change.
 
 [Other-computer clarification](2026-11-02-internal-moe-profile-validation.md#other-computer-clarification) retains successful local RTX5070/SM120 GPU evidence after the user identifies Gretchie. The Mac probe was host-specific. Hopper sm90a compatibility still prevents treating that RTX as an unchanged-incumbent profiling host; live Gretchie access remains unverified here.
