@@ -4244,3 +4244,74 @@ archive/docs/steering/2026-11-01-attention-full-wait-trace.md#november-1-0548-ps
 Root dispatched **c79ddddb840a4fb7**, exact artifact866845554b3d694c40165fabbdfde6739f6fa22b1efb5abb6b5831f32e368f24 (412952B), source e86b0d5/freeze23fb760. Pending; no score, timings or GPU qualification yet. Four independent modules/owners, all12cells x3 heldouts,640 private math/cache checks and20VP2/284native host warm/capture coverage. PRIVATE normal judged path actual VP2 only eligible V1sliding; native BF16 owned others, stock SGLang nonTP8. All16official/12benchmarks required. No public action or donor adoption. Root owns wait/status/archive; no duplicate dispatch or automatic retry. Frozen contemporary-offset/raw-sign score decision and proof: archive/docs/steering/2026-11-01-attention-vp2-bf16-requalification.md. Reader requires raw terminal status JSON, not normalized profile JSON.
 
 Terminal c79ddddb840a4fb7: PASS16/12/checks.ok/no flags; PRIVATE judged comparator2.5943196585x CI[2.555404864,2.633234453],102.040889s preparation. All640 private checks/36rows/20VP2+284owned coverage pass. Contemporary four-cross1.006309–1.009060,null.002370868; every seed1%/2xnull gate FAIL, regressionfalse; rawsigntrue/rawregressionfalse. Target pooled10.784→10.168us (~5.71% lower) is PRIVATE bundled-cell advantage, not full-score win/storage-only causality. ActualVP297regs/0local/81984shared/256threads/2CTA/14clusters; owned8/15 82/0/90704/256/2CTA. Close automatic rewrite/retry/sweep/public/adoption; preserve HC64 loss versus complete VP2 target gain discrepancy. Canonical root profiles vp2_bf16_private.c79ddddb840a4fb7.*; report archive/docs/steering/2026-11-01-attention-vp2-bf16-terminal.md.
+
+## 2026-11-03 cluster merge at batch 1 sliding (ONE_CL), registered before dispatch
+
+Owner: attention, final-day directive (decode 1 / verify 1 sliding only). Base: the
+8914751e3b9f468b control body (d3eeeda source with `ONE_LATE_TID 0`, worktree commit
+1b027629; the repeat-2 file's appended comment is not recorded in the repo, so its hash
+b296c13a could not be rebuilt; the body is d3eeeda's submission.py, which differs from the
+tracked file only by the inert late-tid block).
+
+Mechanism (`attn_cl_kernel<L>`, mode 136 = |128 cluster |8 speculated length, built with
+`-DONE_CL=1`, selected by `_one_plan` for batch 1, window, page size 1 when the instance is in
+the module's residency table): one CTA per (KV head, key range), the eight CTAs of a KV head in
+one portable thread-block cluster (two clusters, 16 CTAs). Every tile of the range is issued at
+the prologue into its own stage (4 stages at q_len 1, 5 at q_len 8, only the head's four chunks
+of each 128-byte row), the warps (q_len 1: 8 warps, one tile half each) or warpgroups (q_len 8:
+4 warpgroups, tiles w and w + 4) run the judged tile bodies (f16 mma.sync; PRQ31 wgmma with the
+lazy offset), and the split merge is a sum over the cluster through distributed shared memory
+after one cluster barrier; rank r finalizes head r (q_len 1) or token r (q_len 8) of its KV head
+with finalize_rows' arithmetic and a second barrier holds every CTA alive for the remote reads.
+No workspace row, no red.global, no ticket, no cooperative launch attribute, no counter.
+
+What differs from the recorded cluster losses: f74cbe27 (+21 us) used two non-portable 16-CTA
+clusters of both-head CTAs, kept the red.global merge into the workspace, the cooperative grid
+barrier and the global finalize, and pulled 16 peers' partials with a serial `#pragma unroll 1`
+loop of dependent remote loads per thread; eac485ea (+3.9 us) used two non-portable 16-CTA
+clusters at two CTAs per SM with generic DSM pushes. This build: cluster size 8, one CTA per SM
+(256 / 512 threads, 78 / 180 KB smem), no global merge or counter of any kind, all tiles in
+flight from the prologue, per-rank finalize from eight independent remote float4 loads per
+thread. Local sm_90a compile: attn_cl_kernel<1> 68 registers, <8> 100 registers, no spills,
+every other instance's register count unchanged.
+
+Hypothesis: the batch-1 sliding tail (red drain before the ticket's release, the ticket atomic,
+the workspace reload, or the cooperative counter poll plus the grid-wide finalize) is 1.5-2 us of
+dependent L2 round trips; the cluster replaces it with two cluster barriers and one DSMEM
+gather. Cost side: 16 SMs instead of 32 / 33 pull the 0.5 MB window (32 / 40 KB in flight per
+SM), and the cluster launch itself. Expected -0.5 to -1.2 us per cell.
+
+Check: `tools/attn_make_bench_ab.py --null --shapes all --inputs 3 --rounds 150 --seed 311201
+cl@own=-DONE_CL=1` (arms ctrl, ctrl2 null, cl; the cl arm's own residency table carries 136,
+the controls' do not, so only decode 1 and verify 1 sliding change plan). Gates: ABCHECK passes
+on every arm and shape (cl output against ctrl's below 2e-2 relative L2, workspace clean);
+cl minus ctrl at decode 1 sliding and verify 1 sliding at most -0.5 us cold on all three
+held-out inputs and beyond |ctrl2 - ctrl|; no other scored shape (unchanged code) outside the
+null. Pass: candidate-only official check plus the strict fresh-input replay stress gate
+(`attn_make_candidate_stress.py` pattern, 2000 queued inputs per shape, SPEC-miss replays,
+workspace scans) before any promotion. Fail: record in ruled-out.md with the per-cell numbers.
+
+### Result: c1becf5a66274d37, cluster merge loses on both target cells
+
+Receipt `profiles/clmerge.c1becf5a66274d37.{json,log}` (board muse_attention_decode, id
+c1becf5a66274d37, bench SHA256 ee7d00c8316694401f00b8187d74cfee050af097a63a2be9c2322ccba3b33019,
+source 49d778b5). Unchanged control passed 16/16 official tests, 2.600333x (95% CI
+2.561328-2.639338), checks.ok, no flags; every arm 19/19 ABCHECK (the cl arm's outputs against
+the control's, workspace clean); plans as registered (cl: 8 x 1 CTAs mode 136 at batch-1
+sliding q_len 1 and 8, every other shape the control's plan).
+
+| cell (us) | ctrl | cl | ctrl2 | null ctrl2-ctrl | cl-ctrl | cl-ctrl by input |
+|---|---:|---:|---:|---:|---:|---|
+| decode 1 sliding cold | 9.18 | 10.50 | 9.15 | -0.03 | +1.31 | +1.38 / +1.28 / +1.31 |
+| decode 1 sliding warm | 4.78 | 6.30 | 4.77 | -0.01 | +1.53 | |
+| verify 1 sliding cold | 10.94 | 13.54 | 10.82 | -0.13 | +2.59 | +2.62 / +2.46 / +2.88 |
+| verify 1 sliding warm | 6.83 | 9.29 | 6.87 | +0.04 | +2.46 | |
+| decode 1 full cold (unchanged code) | 17.06 | 16.90 | 17.06 | 0.00 | -0.16 | placement |
+| every other scored cell | | | | <= 0.16 | <= 0.45 | inside the null spread |
+
+Decision: fails the registered gate on both cells by more than the whole tail it targets
+(1.3 us at decode 1, 2.5 us at verify 1); the loss is the same warm as cold, so it is the
+cluster launch and barriers plus the 16-SM pull, not DRAM. No second check, no promotion;
+closed in docs/ruled-out.md. The mode stays in attn_one.cu behind `ONE_CL` (default 0: no
+instance is built and every judged instance's register count is unchanged, local sm_90a
+compile). The candidate-only gate generator `tools/attn_make_cl_gate.py` is retained unused.
