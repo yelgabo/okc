@@ -5451,3 +5451,8 @@ Terminal `f0b875484960438b`: PASS5 tests/6 benchmarks/6 profiles, no flags; prep
 ## November 2, 2026: corrected constant-scale / issue-group combination
 
 Own PRIVATE `3c45788127e945c4`, source9669ee15, exact342999 LF bytes/c4e6d108, native7db5ec77 versusc7c201ae. PASS5official/6benchmarks/6profiles/no flags; official versus-SGLang2.348334366x, 95% CI[2.313109350,2.383559381]. Complete54cases/378observations/216captures/1152timedreplays/54restorations/cleanup pass, worst global/row0.000135982/0.000171862. Prepare276.366447s, queue545.209209s, worker349.580438s. Strict reader valid but performance fails: all24 whole-six factors0.995560..1.008180, descriptive mean1.001063, three affected bank/load regressions>=1%, all6 groups fail frozen1%/duplicate-null gate. No confirmation/default/public or layer inference. Local B4/MAIN both96regs/zero spills, HGMMA512/wait0=48/async-fence84 unchanged, wait1/arrive256->192. Stop exact combination; no mask/threshold rescue. Full source/receipt/log/profiles/analysis in `docs/steering/evidence/2026-11-02-cuda-group-scale/`; [terminal report](steering/2026-11-02-cuda-part2-experiments.md). D32 and ring-depth owners unchanged.
+
+
+## November 2: GOPT-SHORT-02 source closure, no GPU job
+
+Actual pickup at ef50beab. The proposed serial WGS prefix is excluded from all selected Tiny/Tiny2/MID helper builds under WS=1/WGS=0. Three CUDA12.8.1 preprocessing checks pass; a synthetic forced-WGS control exposes the expected functions. No kernel, compiler-performance claim, runtime test, timing or judge job. NS3 remains unchanged. [Full source evidence and refill request](steering/2026-11-02-general-short-prefix-result.md).

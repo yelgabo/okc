@@ -99,6 +99,10 @@ CUDA literals and repeated factory definitions. In public607, B4 and MAIN select
 `MOE_CUDA_SRC` and already use the parallel prefix scan; serial helper lines belong
 to Tiny/Tiny2/MID. Reproduce with `tools/d32_b4_prefix_audit.py`. See
 [the source correction](docs/steering/decode32/2026-11-02-13-b4-prefix-selected-source.md).
+Preprocess the selected flags before treating a function in that literal as active.
+Tiny/Tiny2/MID select WS=1/WGS=0, so the helper's serial WGS prefix is excluded.
+Reproduce with `tools/gopt_short_prefix_audit.py`; raw factory capture alone cannot
+establish that a guarded function executes.
 When changing WGMMA grouping, read the active constants from the selected native
 literal. Nearby helper literals and old comments can differ. Test that deferred
 flush conditions remain reachable for every selected group size, and inspect

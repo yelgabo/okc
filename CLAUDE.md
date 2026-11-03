@@ -64,6 +64,11 @@ The complete attachment and section coverage are preserved there. These notes
 do not reopen parked experiments or change D32 ownership or submission permission.
 Compiler checks must preserve the compiler's failure status and full diagnostics;
 successful output filtering is not build evidence.
+Before assigning an optimization to guarded CUDA code, resolve the final factory
+and preprocess its selected flags to establish that the proposed function is active.
+Tiny/Tiny2/MID use WS=1/WGS=0, so their literal's serial WGS prefix is excluded.
+Reproduce with `tools/gopt_short_prefix_audit.py`; literal presence or factory
+capture alone does not establish execution. Keep source and runtime evidence distinct.
 When changing WGMMA grouping, read the active constants from the selected native
 literal. Nearby helper literals and old comments can differ. Test that deferred
 flush conditions remain reachable for every selected group size, and inspect

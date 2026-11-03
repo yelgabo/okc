@@ -20,3 +20,7 @@ The source file is `muse_decode_layer/cand/g1b4_stage_release.py` (public source
 **Output contract:** `source selection → old receipt conflict check → one candidate or documented no-op → CPU/SASS → private job/result if qualified → keep/park`. Commit substantive evidence, index in `docs/steering/README.md`, verify remote; do not force-push. No direct-chat delivery or worker pickup is claimed by this report.
 
 **Priority:** secondary to the user's higher-impact decode32/whole-layer bottlenecks, but actionable without occupying Decode32 Worker's frozen attention experiment or CUDA Optimizer’s B4 measurements. Do not spend significant quota to chase a speculative tiny gain without a strong source/codegen case.
+
+## Dated outcome after General Optimizer pickup
+
+Closed by exact selected-flag preprocessing. The raw helper contains the serial WGS scan, but WS=1/WGS=0 removes that code from all three selected small-token builds. Active WS routing calculates four unit boundaries without the proposed scan. No candidate or GPU job. [Full result and detection control](2026-11-02-general-short-prefix-result.md).
