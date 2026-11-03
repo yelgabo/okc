@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "2753952f-58ae-47e5-92b0-f0dfb47a384a",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/layer.candidate.json",
+  "output": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/incumbent-layer.html",
+  "specification": {
+    "sha256": "201cbeed905a21ed4924802669c44bb7fa7f19eeec63b5945cc7dfc9c78ce06e",
+    "bytes": 9980
+  },
+  "artifact": {
+    "sha256": "14302303dda54747581e0a5dbef72e63c50e05beabb093e0b84ded0f70b32249",
+    "bytes": 858722
+  }
+}

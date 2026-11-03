@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/moe.candidate.json",
+    "sha256": "d57c99b75626e35b89d23bc277c343cca7fa5e1962cb78c28cbd5a30152e4e44",
+    "bytes": 8503
+  },
+  "artifact": {
+    "path": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/incumbent-moe.html",
+    "sha256": "d54588c91100a5f65953fb8b85563de5cd5bab32972591e91beb01e77db61e91",
+    "bytes": 853712
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/moe-review-neutral-2/incumbent-moe.finalize.json",
+    "summaryReceipt": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/moe-review-neutral-2/incumbent-moe.finalize-summary.json",
+    "browserCheckReceipt": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/moe-review-neutral-2/incumbent-moe.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T09:40:29.287Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2321,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "5fca7ce0-5e67-4141-b548-e56abde5d565",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/moe.candidate.json",
+  "output": "/Users/gretchengabo/.codex/worktrees/muse-social-watch/okc/docs/.archify/architecture-incumbent-20261103-014000/incumbent-moe.html",
+  "specification": {
+    "sha256": "d57c99b75626e35b89d23bc277c343cca7fa5e1962cb78c28cbd5a30152e4e44",
+    "bytes": 8503
+  },
+  "artifact": {
+    "sha256": "d54588c91100a5f65953fb8b85563de5cd5bab32972591e91beb01e77db61e91",
+    "bytes": 853712
+  }
+}

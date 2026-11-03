@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Inside incumbent MoE: B4 and MAIN",
+    "locale": "en",
+    "output": "docs/.archify/architecture-incumbent-20261103-014000/incumbent-moe.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/yelgabo/okc.git",
+      "revision": "0eb3e5e5b1aec29d81306d6ca568dd2a51c3eedf",
+      "provider": "github"
+    },
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "backend": {
+          "label": "GPU compute"
+        },
+        "database": {
+          "label": "GPU memory"
+        },
+        "external": {
+          "label": "Inputs and outputs"
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "packed",
+      "type": "database",
+      "label": "Packed weights",
+      "sublabel": "NVFP4 codes + eligible scales",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5940,
+          "end_line": 6014
+        }
+      ],
+      "tag": "SC6 when eligible"
+    },
+    {
+      "id": "weight-producer",
+      "type": "backend",
+      "label": "Weight producer",
+      "sublabel": "32 threads, TMA loads",
+      "pos": [
+        320,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5659,
+          "end_line": 5697
+        }
+      ]
+    },
+    {
+      "id": "weight-ring",
+      "type": "database",
+      "label": "Weight ring",
+      "sublabel": "3 shared-memory slots",
+      "pos": [
+        600,
+        40
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5659,
+          "end_line": 5697
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5940,
+          "end_line": 5962
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5519,
+          "end_line": 5525
+        }
+      ],
+      "tag": "Codes stay packed"
+    },
+    {
+      "id": "compute",
+      "type": "backend",
+      "label": "4 compute warpgroups",
+      "sublabel": "Weights decoded to BF16",
+      "pos": [
+        600,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 3985,
+          "end_line": 3987
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5940,
+          "end_line": 6033
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 6858,
+          "end_line": 6858
+        }
+      ],
+      "tag": "128 threads each, WGMMA"
+    },
+    {
+      "id": "rows",
+      "type": "database",
+      "label": "Expert activations",
+      "sublabel": "Global BF16 input or phase-A rows",
+      "pos": [
+        40,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5698,
+          "end_line": 5728
+        }
+      ]
+    },
+    {
+      "id": "activation-producer",
+      "type": "backend",
+      "label": "Activation producer",
+      "sublabel": "32 threads, TMA loads",
+      "pos": [
+        320,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5698,
+          "end_line": 5728
+        }
+      ],
+      "tag": "Phase B waits for ready rows"
+    },
+    {
+      "id": "activation-ring",
+      "type": "database",
+      "label": "Activation ring",
+      "sublabel": "3 shared-memory slots",
+      "pos": [
+        600,
+        440
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5519,
+          "end_line": 5525
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 5940,
+          "end_line": 5962
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 6024,
+          "end_line": 6041
+        }
+      ],
+      "tag": "BF16 WGMMA operand B"
+    },
+    {
+      "id": "finish",
+      "type": "backend",
+      "label": "Expert finish + combine",
+      "sublabel": "Full expert RMS, routing-weight sum",
+      "pos": [
+        900,
+        240
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 6485,
+          "end_line": 6545
+        },
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15703,
+          "end_line": 15713
+        }
+      ]
+    },
+    {
+      "id": "moe-output",
+      "type": "external",
+      "label": "Local expert sum",
+      "sublabel": "BF16 [T, 4096]",
+      "pos": [
+        900,
+        640
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+          "line": 15703,
+          "end_line": 15715
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "packed-producer",
+      "from": "packed",
+      "to": "weight-producer",
+      "label": "packed tiles"
+    },
+    {
+      "id": "producer-weight-ring",
+      "from": "weight-producer",
+      "to": "weight-ring",
+      "label": "TMA stage"
+    },
+    {
+      "id": "weight-compute",
+      "from": "weight-ring",
+      "to": "compute",
+      "label": "codes to registers"
+    },
+    {
+      "id": "rows-producer",
+      "from": "rows",
+      "to": "activation-producer",
+      "label": "ready rows"
+    },
+    {
+      "id": "producer-activation-ring",
+      "from": "activation-producer",
+      "to": "activation-ring",
+      "label": "input tiles"
+    },
+    {
+      "id": "activation-compute",
+      "from": "activation-ring",
+      "to": "compute",
+      "label": "BF16 operand B"
+    },
+    {
+      "id": "compute-release",
+      "from": "compute",
+      "to": "activation-ring",
+      "label": "retire + fence"
+    },
+    {
+      "id": "compute-finish",
+      "from": "compute",
+      "to": "finish",
+      "label": "expert results"
+    },
+    {
+      "id": "finish-output",
+      "from": "finish",
+      "to": "moe-output",
+      "label": "weighted sum"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "One cooperative launch: 576 threads per CTA",
+      "wraps": [
+        "weight-producer",
+        "weight-ring",
+        "compute",
+        "activation-producer",
+        "activation-ring",
+        "finish"
+      ],
+      "pad": 28
+    }
+  ],
+  "cards": [
+    {
+      "dot": "slate",
+      "title": "Where this fits",
+      "items": [
+        "This is the Native fused MoE box in the decoder-layer overview. It applies to B4 at T17-32 and MAIN above T32.",
+        "Tiny, Tiny2 and MID use their separate warp-specialized paths. The four-warpgroup topology does not describe T1 or T8."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Two expert phases in the same launch",
+      "items": [
+        "Phase A computes gate and up projections, then SiLU(gate) multiplied by up. It publishes intermediate BF16 rows in global memory.",
+        "Phase B waits for its required rows, loads them through the activation producer and ring, and computes the down projection.",
+        "Full expert RMS and routing-weight combination produce the local expert sum. Readiness is per dependency; CTAs can enter Phase B at different times."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Scheduling and lifetime",
+      "items": [
+        "Cost-weighted stream-K can split an output unit across CTAs. Global partials and a designated finisher resolve those splits.",
+        "Weight codes and scales move into registers before the weight slot is released. Activation-slot reuse follows WGMMA retirement and the retained fence.",
+        "Slot counts and thread counts describe resources. No internal microsecond attribution is asserted."
+      ]
+    }
+  ]
+}
