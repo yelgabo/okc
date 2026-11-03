@@ -2267,3 +2267,74 @@ Terminal2b537518091248f1 PUBLIC PASS9/30benchmarks/30profiles,checks.ok/no flags
 - Exact30-cell/6-load score reconstruction passes; replacing only10 cells into archived C2 gives factor0.9263484356405296, explicitly an unpaired sensitivity scenario. Seeds/baselines/overhead/tuner differ; weight identity was not shared or established.
 - Canonical rawreceipt/profile/log/txt are root-owned under `muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.*`; decoded all30/6loads/40vectors/capacities/hashmanifest and report `archive/docs/steering/2026-11-01-projection-stage-xor-terminal.md`. Six synthetic reader tests and3 independent terminal-data tests pass.
 - CLOSE exact stage-local BEFORE-A variant alongside global-record BEFORE-A loss; no automatic retry, cap/tile/stage/placement sweep, target dropping or layer port. No candidate promotion. Reopen only distinct dataflow/instruction evidence with credible full30>=1% paired opportunity and unchanged correctness/order/resource gates.
+
+### 2026-11-02 ramp candidates on the short o / slice / qkv cells (final-day directive, BF16 owner)
+
+Preregistration before dispatch. Source: the rebuilt C2 (`tools/proj_sk_xor_control.py`, SHA256
+5610b8a6, job 9eba96894ee1402e, 1.5278x) plus tuner candidates in
+`muse_bf16_proj/experiments/ramp_c2.py`; every judged pick stays in the file and the tuner chooses per
+(layer, m) as before.
+
+Hypothesis. o at m = 1 runs cgemv<64, 1> over 4096 CTAs of 96 threads (3 KB of weights each, 1.5
+waves at 21 CTAs per SM). Its judged cold time (5.04 us) equals its warm profile time (5.0 us), while
+every other GEMV cell is 0.6-1.3 us faster warm (slice 3.73 vs 2.4, router 3.84 vs 2.8, qkv 9.06 vs
+8.0): o is limited by CTA launch and retire, not by HBM. The fixed-cost fit over the other cells
+(t = 0.84 us + bytes / 3.95 TB/s) predicts 4.0 us for its 12.6 MB, so about 1 us is on the table
+(0.47% of the score per microsecond at decode 1).
+
+Mechanism. `cgemv_body<NTH, CPT, RPC>`: RPC row pairs per CTA, compute warps grouped per pair, one
+escape warp with 32 / RPC lanes per pair (segmented shuffle sums), threads 0..RPC-1 store. RPC 1 is
+the judged form. Candidates: o `cgemv_r8c2` (32 threads x 2 chunks x 8 pairs: 512 CTAs of 288
+threads at 40 registers, 24 KB each, one wave at 5 CTAs per SM), `cgemv_r4c2` (1024 x 160),
+`cgemv_r16c2` (256 x 544), `cgemv_r4` (64 x 1 x 4: 1024 x 288 at 32 registers); slice `cgemv_r2`
+(256 x 288) and `cgemv_r4` (128 x 544); qkv_gate `cgemv_r2` (576 x 544). rd for o with the whole
+K in flight at entry in a different shape: `rdo8r2` (32 rows, 256 CTAs x 512 threads), `rdo8k4`
+(4 warps x 4 units, all prefetched); and the rd family at 16 / 32 tokens (`rdo16`, `rdo16k4`,
+`rdo32k4`), where o16 / o32 stream K = 1024 through a 3-slot ring. rdo8 already compiles to 48
+registers (5 CTAs per SM, one wave), so a min-blocks variant of it was dropped before dispatch.
+
+Controls: the judged C2 cells (status JSON of 9eba96894ee1402e); the tuner lines show every
+candidate against the judged pick in the same process. Affected loads: decode 1 (o, unpooler,
+qkv_gate), verify 1 (o), decode 16 / 32 (o). Acceptance (directive): decode 1 or verify 1 improves
+by 1.5 us summed over the targeted cells with no other cell losing more than noise; the o m = 1
+cell alone is expected to give 0.5-1.0 us. Stop: at most four checks for this owner; one check
+for this candidate set, a second only to repeat a result inside the noise of the first.
+Prepare budget: 106 s judged for C2; the additions are 7 GEMV self-tests at m = 1, 6 rd self-tests
+and about 20 extra tuner arms.
+
+2026-11-02 | 793602020fd64ce9 | check (private) | worktree a4699e78 | `muse_bf16_proj/experiments/ramp_c2.py` SHA256 81ac9617: C2 plus the ramp candidates above (cgemv row pairs per CTA on o / slice / qkv_gate at m = 1; rdo8r2, rdo8k4, rdo16, rdo16k4). Quota before: 20 of 20 BF16 checks. Pending.
+
+793602020fd64ce9 done, PASS 9 tests, 30 cells, no flags, prepare 90.8 s. Score 1.5248608038311624x (95% CI
+1.5019878917736948-1.5477337158886297) against C2 1.5278064829557674x (1.5049-1.5507): inside the CI.
+Status JSON `muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.json`, log tail `.log` beside it.
+
+Tuner (in-process, cold L2, 24 reps): o m = 1: o8 10.0, rdo8 9.7, rdo8r2 9.7, rdo8k4 10.0, cgemv 9.5,
+cgemv_r4c2 9.3, cgemv_r8c2 9.3, cgemv_r16c2 9.1, cgemv_r4 9.3 -> cgemv_r16c2; o m = 8: rdo8 9.6, rdo8r2
+10.0, rdo8k4 10.1 -> rdo8; o m = 16: o16 9.6, rdo16 9.9, rdo16k4 10.2 -> o16; unpooler m = 1: cgemv 7.7,
+cgemv_r2 7.7, cgemv_r4 7.8 -> cgemv; qkv_gate m = 1: cgemv 13.1, cgemv_r2 14.3 -> cgemv. Every candidate
+passed the FP64 self-test (no `disabled` line).
+
+Judged cells, C2 -> this check (us): decode 1: qkv_gate 9.06 -> 8.97, o 5.04 -> 5.06 (the one changed
+pick), pooler 13.52 -> 13.47, unpooler 3.73 -> 3.65, router 3.84 -> 3.80. verify 1 (m = 8): qkv_gate 9.77
+-> 9.73, o 5.48 -> 5.25, pooler 13.42 -> 12.92, unpooler 4.53 -> 4.36, router 4.47 -> 3.75; all five
+verify 1 picks are unchanged kernels, so these are run-to-run noise, as are decode 16 (+0.27 to +0.77 on
+unchanged picks) and pooler m = 128 (+1.44) / qkv_gate and o m = 256 (+0.85 / +0.79, cuBLASLt picks).
+
+Decision: loss on the acceptance rule (targeted decode 1 cells summed -0.09 us, verify 1 unchanged
+kernels). The CTA-launch-ramp hypothesis for o at m = 1 is rejected by a clean test: 256 CTAs of 544
+threads holding all 12.6 MB in one wave judged the same as 4096 CTAs of 96 threads (5.06 vs 5.04); the
+in-process 0.4 us is not reproduced by the judge. Reading of the 30 cells: every short cell sits at about
+2 us of per-launch fixed cost plus bytes at 4.3-4.5 TB/s (o 5.0 = 2.1 + 12.6 MB, router m = 1 3.8 = 2.1
++ 8 MB, slice 3.7 = 2.1 + 6.3 MB), so the distance to the "byte floor" is launch latency plus DRAM
+latency plus the epilogue, not a ramp. No second check: the per-cell noise between runs (0.5-0.8 us on
+unchanged kernels) exceeds any remaining expected effect. The candidate file stays in
+`muse_bf16_proj/experiments/ramp_c2.py` (every judged kernel SASS-identical or register-identical to
+C2); the tracked production file is unchanged.
+
+Profile note (`muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.txt`): the o m = 1 kernel
+`cgemv40_kernel<32, 2, 16>` has a 4.1 us profiled duration against 5.0 us for C2's `cgemv_kernel<64, 1>`
+(docs/hotspots.md, 9eba96894ee1402e), yet the judged cell is 5.06 against 5.04 us. The 0.9 us left the
+kernel's first-CTA-to-last-CTA span without leaving the judged replay, so the judged time of a short
+cell carries a per-launch cost that a shorter kernel does not reduce; the same ~1 us separates the
+judged and profiled times of the router and slice cells in both runs. Any further short-cell work has
+to be judged on the status JSON cell medians, not on profiled kernel durations.
