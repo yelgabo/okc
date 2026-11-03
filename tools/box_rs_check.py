@@ -103,7 +103,7 @@ def main():
     weights = ref.generate_weights(ref.WEIGHTS_SEED, router_seed=a.router_seed)
     mod = box_run.load_module("okc_submission", a.submission)
     if a.exact:
-        mod.RS_KEEP_MARGIN, mod.RS_WIN_MARGIN, mod.RS_ROUTE_MARGIN, mod.RS_DISTINCT_MARGIN = 0.0, 0.0, 0.0, 0.0
+        mod.RS_KEEP_MARGIN, mod.RS_WIN_MARGIN, mod.RS_RANK_EPS, mod.RS_COUNT_MARGIN = 0.0, 0.0, 0.0, 0.0
     state = mod.prepare(weights)
     torch.cuda.synchronize()
     bias = weights["router_bias"].float()
