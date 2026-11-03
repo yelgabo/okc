@@ -37,11 +37,10 @@ def _decode_attention7(data,state,qkv):
     if state.get('_wl_probe',False):state['_d32_route_probe'].update(qkv=qkv,attention=out)
     return out
 
-def _pool_router_fp32(h,hr,T,state,ppick):
+def _pool_router_fp32(h,hr,T,state,ppick,*,_d32_callsite=None):
     result=_D32_ROUTE_POOL(h,hr,T,state,ppick)
     if state.get('_wl_probe',False):
-        import sys
-        caller=sys._getframe(1).f_code
+        assert isinstance(_d32_callsite,str) and _d32_callsite,'D32_OBSERVER_CALLSITE'
         value,parts=result
         probe=state['_d32_route_probe'];probe['normalized']=h
         if parts==-1:
@@ -55,7 +54,7 @@ def _pool_router_fp32(h,hr,T,state,ppick):
             assert value.dtype==torch.float32,'D32_OBSERVER_COMBINED_DTYPE'
             probe['raw_pool_router']=value
             layout='combined'
-        state['_d32_route_branch']=dict(caller=caller.co_name,first_line=caller.co_firstlineno,
+        state['_d32_route_branch']=dict(callsite=_d32_callsite,
             pick=repr(ppick),layout=layout,parts=parts)
     return result
 
@@ -136,6 +135,17 @@ def build(private_check=False):
     source = (Path(__file__).resolve().parents[1] /
               'docs/steering/decode32/evidence/D32-ATTN-04/paired.py').read_text()
     assert hashlib.sha256(source.encode()).hexdigest() == PARENT_SHA
+    tree = ast.parse(source)
+    functions = [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
+    calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)
+             and isinstance(n.func, ast.Name) and n.func.id == '_pool_router_fp32']
+    assert len(calls) == 4
+    lines = source.splitlines(keepends=True)
+    for call in sorted(calls, key=lambda n:(n.end_lineno,n.end_col_offset), reverse=True):
+        owner = max((n for n in functions if n.lineno <= call.lineno <= n.end_lineno), key=lambda n:n.lineno)
+        offset = sum(map(len,lines[:call.end_lineno-1]))+call.end_col_offset-1
+        assert source[offset] == ')'
+        source = source[:offset]+', _d32_callsite='+repr(owner.name+'@'+str(call.lineno))+source[offset:]
     source = parent.once(source, "    for tokens in LOADS:", "    for tokens in (32,):")
     source = parent.once(source, "        for context in ('sliding','full'):", "        for context in ('sliding',):")
     source = parent.once(source, "            for seed_idx,seed in enumerate(BANKS):", "            for seed_idx,seed in enumerate(BANKS[:1]):")
@@ -190,6 +200,7 @@ def read_report(log, pins):
         for i, comparison in enumerate(event['comparisons']):
             if (comparison['placement'] != i or comparison['selected'] != [False]
                     or comparison['branch']['layout'] not in ('split', 'combined')
+                    or not comparison['branch'].get('callsite')
                     or '-DOKC_B4FIN=1' not in comparison['native']['flags']
                     or comparison['native']['sha256'] != 'c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71'):
                 raise ValueError('observer selection mismatch')

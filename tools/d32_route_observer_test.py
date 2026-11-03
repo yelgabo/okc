@@ -28,7 +28,7 @@ class ObserverHost(AttentionHost):
         ns = self.namespace
         ns['_d32_attention_module'](data['config'], state)
         h = ns['_decode_attention7'](data, state, data['attn_input'])
-        ns['_pool_router_fp32'](h, None, data['config']['tokens'], state, 'bfp')
+        ns['_pool_router_fp32'](h, None, data['config']['tokens'], state, 'bfp', _d32_callsite='cpu-layer')
         return Host.layer(self, data, state)
 
 
@@ -53,7 +53,7 @@ class RouteObserver(unittest.TestCase):
                 _d32_route_probe=probe, _d32_route_data=data,
                 _d32_route_before={k:v.clone() for k,v in data.items()},
                 _d32_route_native_branch=dict(flags=['-DOKC_B4FIN=1'],sha256='cpu-fixture'),
-                _d32_route_branch=dict(caller='fixture', first_line=1, pick='bfp', layout='split')))
+                _d32_route_branch=dict(callsite='fixture', pick='bfp', layout='split')))
         outputs[3][2][1] = torch.tensor([4, 3])
         arms[3]['_d32_route_probe']['normalized'][1, 0] = .125
         log = io.StringIO()
@@ -124,14 +124,14 @@ class RouteObserver(unittest.TestCase):
             seen.append(args)
             return expected
         ns['_D32_ROUTE_POOL'] = pool
-        self.assertIs(ns['_pool_router_fp32'](h, None, 2, state, 'bfp'), expected)
+        self.assertIs(ns['_pool_router_fp32'](h, None, 2, state, 'bfp', _d32_callsite='cpu-pool'), expected)
         self.assertIs(seen[0][0], h)
         self.assertIs(seen[0][3], state)
         self.assertIs(state['_d32_route_probe']['pooled'], expected[0][0])
         self.assertTrue(torch.equal(h, torch.ones_like(h)))
         ns['_D32_ROUTE_POOL'] = lambda *args: (torch.zeros(2, 3), 1)
         with self.assertRaisesRegex(AssertionError, 'COMBINED_LAYOUT'):
-            ns['_pool_router_fp32'](h, None, 2, state, 'bfp')
+            ns['_pool_router_fp32'](h, None, 2, state, 'bfp', _d32_callsite='cpu-pool')
 
     def test_combined_layout_and_native_forwarding(self):
         host = ObserverHost(self.source, self.manifest)
@@ -145,7 +145,8 @@ class RouteObserver(unittest.TestCase):
         raw[:, :, 4352:] = 5
         expected = raw, 2
         ns['_D32_ROUTE_POOL'] = lambda *args: expected
-        self.assertIs(ns['_pool_router_fp32'](torch.zeros(2, 4), None, 2, state, True), expected)
+        self.assertIs(ns['_pool_router_fp32'](torch.zeros(2, 4), None, 2, state, True,
+                                             _d32_callsite='cpu-combined'), expected)
         seen = []
         class Native:
             _module = object()
@@ -177,6 +178,12 @@ class RouteObserver(unittest.TestCase):
         value[1] = float('nan')
         with self.assertRaisesRegex(AssertionError, 'NONFINITE'):
             snapshot(value)
+
+    def test_explicit_callsite_tags(self):
+        self.assertNotIn('_getframe', self.source)
+        self.assertEqual(self.source.count('_d32_callsite='), 5)
+        for name in ('_after_attention@', '_graft_after_attention@', '_sl_tile_after_attention@'):
+            self.assertIn(name, self.source)
 
 
 if __name__ == '__main__':

@@ -126,6 +126,12 @@ Apply these principles when choosing work, reviewing results and handing off. Us
 
 Use the coordinator's Research method for detailed execution. These principles preserve the existing external-code, correctness and submission requirements. Background and rationale are in docs/steering/2026-11-01-working-principles.md.
 
+## Private diagnostic call sites
+
+Use explicit source tags for private diagnostic call-site labels. Do not inspect
+Python frames, including `sys._getframe`: the service rejects that as reading
+harness frames. D32-ATTN-05 was rejected before job acceptance for this reason.
+
 ## FP8 finiteness checks
 
 PyTorch may not implement `isfinite` for FP8 tensors. Cast FP8 values to FP32

@@ -1,8 +1,8 @@
 # Decode32 task inbox
 
-## Current execution: upstream observer ready for one private check
+## Current execution: corrected observer ready for one private check
 
-[D32-ATTN-05](2026-11-02-15-upstream-route-observer.md) implements the next bounded technical step after the terminal routing diagnostic. Source `a0998224` has five passing CPU Torch tests and unchanged native compiler inputs. One T32 sliding bank, four owners and eight fresh replays localize upstream differences while preserving the exact route gate. Its observations change tensor retention, so timings are ineligible. Execute once after publication and fresh shared preflight; stop after evidence or one inconclusive result. No new B4 kernel mechanism is qualified here.
+[D32-ATTN-06](2026-11-02-16-explicit-route-observer.md) replaces frame inspection with fixed source call-site labels after the first observer was rejected before job acceptance. Source `00193aa2` has six passing CPU Torch tests and unchanged device compiler inputs. Execute one private diagnostic after publication and fresh shared preflight. It preserves the strict route gate and cannot qualify timing. There is no qualified next D32 kernel mechanism yet. Research needs selected B4 phase/tail exposure and a concrete treatment, or a measured T32 pool/router fallback; CUDA Optimizer retains the independent phase study.
 
 ## Routing diagnostic terminal: prepare upstream observability
 

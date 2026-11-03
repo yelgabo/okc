@@ -1,5 +1,7 @@
 # D32-ATTN-05: bounded upstream routing observer
 
+Dated addendum, November 2: this source was rejected before acceptance with `reads harness frames`. No GPU job or timing exists. [D32-ATTN-06](2026-11-02-16-explicit-route-observer.md) replaces caller-frame inspection with explicit source tags and preserves the diagnostic contract. The original source and registration below remain history.
+
 November 2, 2026 Pacific. Continues the [terminal D32-ATTN-04 routing investigation](2026-11-02-14-routing-order-diagnostic.md) under the user's direct execution instruction. The selected incumbent and attention treatment remain frozen. This is a private diagnostic, with no performance acceptance path.
 
 ## Exact source and question

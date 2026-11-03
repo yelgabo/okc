@@ -6,6 +6,9 @@ its existing owners. Public-submission permissions remain unchanged.
 
 | Experiment | Exact source | Job | State and next action |
 |---|---|---|---|
+| D32-ATTN-04, route localization | 9e5e5d64 | 5909739e8a4445b2 | Terminal setup failure; inactive-treatment order swap, no timing; archived bc6c7a2f |
+| D32-ATTN-05, upstream observer | a0998224 | No accepted ID | HTTP422 reads harness frames; exact source closed |
+| D32-ATTN-06, explicit-tag observer | 00193aa2ef2f8cefd22e2949bfd98f90a47ebfef370639dbf7bebd776de07cb4 | Not submitted | Six CPU Torch tests pass; publish, verify source and fresh preflight, execute once; timing ineligible |
 | D32-ATTN-01, one-tile score lookahead | 5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5 | 17383751c6a24010 | Terminal valid; D32 C32 11.882275 ms; promising cross-run signal, matched confirmation required |
 | Existing unchanged control | ba9 plus unused metadata, upload04314b16 | 94ef698e91964dfa | Terminal, valid; descriptive D32 C32 12.324230 ms |
 | Existing MID17..32 | e607fb894b7ca9fb8c0245d986e1c1894024295efd5b1509ac5b8314329ca089 | a6fe2769779e4299 | Terminal, valid but no useful D32 signal; exact implementation parked; original owner finished its wait |
@@ -47,3 +50,5 @@ D32-ATTN-04 strict routing diagnostic accepted as `5909739e8a4445b2` for source 
 D32-ATTN-04 `5909739e8a4445b2` is terminal with strict routing setup failure, no timing. Diagnostic localizes D32 sliding / seed1102031 / fresh-7 / row6: placement3 swaps experts93/153 in slots3/4, same expert set, captured attention selection false. No causal attention loss or gate relaxation follows. [Owning evidence and next bounded observer](2026-11-02-14-routing-order-diagnostic.md). Next prepare upstream branch/tensor/replay observability on CPU before a new source or GPU allocation; do not poll or repeat this terminal job.
 
 D32-ATTN-05 observer implemented from frozen9e5e5d64: source `a09982243ff3bd5139f5ba87acc1a10905dda58614ad21246e1cefe99894a324`, 936829 bytes. Five real-CPU-Torch generated-entry/forwarding/replay/negative tests pass; native compiler inputs and device literals are unchanged. No target result or timing. [One-cell diagnostic and finite stop](2026-11-02-15-upstream-route-observer.md). Next publish, verify exact source and fresh shared jobs/quota, then execute one private observer check if the queue is clear. Strict routing remains; no performance report can qualify from this instrument.
+
+D32-ATTN-05 POST was rejected before acceptance with HTTP422 `reads harness frames`; the subsequent shared list shows no new job or live run. The corrected D32-ATTN-06 uses fixed source call-site tags, SHA256 `00193aa2`, six passing CPU tests and unchanged device compiler inputs. [Rejection, correction and one-run contract](2026-11-02-16-explicit-route-observer.md). No qualified next D32 optimization exists yet; research needs exposed B4 phase/tail cost and a concrete treatment, or evidence of a selected T32 pool/router fallback with meaningful latency.
