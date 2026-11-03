@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-03 02:16 MST. Evidence snapshot: `a4660143`.
+Last review: 2026-11-03 02:57 MST. Evidence snapshot: `8c09d605`.
 
 **Queue checkpoint:** the November 1 qualifier-repair backlog is historical. Use the [current shared owner queue](steering/README.md) and the dated review below for current tasks and outcomes. The old [backlog reconciliation](../archive/docs/steering/2026-11-01-immediate-backlog.md) is retained as history. No new GPU campaign is started by this tracker update.
 
@@ -24,9 +24,77 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled 256 case. New grouped-contiguous Humming proposal stopped before measurement. |
 | C. Owner-completes output tiles | Historical wins; new A+C full-K short path loses | Full-K 64-row output ownership at T8/T16 is now tested with changed packing and staging. All 12 affected rows regress. Prior C+D queue loss remains scoped. | No isolated C rejection or layer gain. [Current evidence](#november-3-review-at-0023-vancouver-time). |
 | D. Dependency-aware scheduling | Historical wins; current C+D queue candidate loses | New whole-unit B claiming inside G fails all6 matched groups; old mode23 wins do not transfer. Phase-A and K=0 losses remain scoped. | Full ready-only queue remains untested. No isolated D effect or queue rescue is established. [Current result](#november-2-review-at-2200-vancouver-time). |
-| E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Lookahead and observer closures stand. Split-copy reduction is stopped. Identity4a2a79bdac04499a fails routing/coverage with27/36 partial rows, not a causal treatment loss. [Current evidence](#november-2-review-at-2200-vancouver-time). |
+| E. Attention producer/consumer pipelines | Per-head ring loses; lookahead unconfirmed | Mode51hs cold128/256: +22.17/+50.17µs, about+19.47/+25.82%, two held-out inputs. | Standalone component only. Probe overhead/model estimates do not establish gains; pair-split draft target-untested. [Current evidence](#november-3-review-at-0257-vancouver-time). |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
 | G. Attributed keell0renz layer fork | Public retained; eleven matched component gates missed | Ready flags add one matched gate failure. Half+XS and UNP integration also miss endpoint conditions; their comparisons remain separately scoped. | No new layer gain or qualified replacement. Exact ready-flag design stopped; no layer promotion or qualified refill. [Current evidence](#november-3-review-at-0209-vancouver-time). |
+
+## November 3 review at 02:57 Vancouver time
+
+**Family E's per-head ring variant is a measured standalone loss at 128/256 tokens.** The timeline is descriptive and its pair-split estimates remain hypotheses. No new isolated family or whole-layer gain is established. Saved repeat records now bind public MoE2821to the original5dfexecutable body plus a trailing comment, so its newer public point reflects a repeated measurement rather than a new architecture.
+
+### E: per-head producer/consumer ring loses
+
+Private `4c0b0674c46d4ec2`, generator revision 1b692161, selected mode51atq_len8, tests ctrl, independent ctrl2, `ONE_HSPLIT=1`hs, `ONE_STAMP=2`stamp_probe and combined stamphs_probe. The service payload identity is27295ef8c9d0a72c9361a03a34aab4e64cdafadf751235ea8f1a90f31baecb1e, not a physical-file checksum. The archived generator/source pin and owning receipt bind this review; a separate checksum of the delivered standalone benchmark file is not archived here. Finished2026-11-03 09:32:21UTC. [Receipt](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/muse_attention_decode/profiles/q8tl.4c0b0674c46d4ec2.json), [paired/trace log](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/muse_attention_decode/profiles/q8tl.4c0b0674c46d4ec2.log), [generator](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/tools/attn_make_q8_tl.py).
+
+The candidate gives each KV head its own full/empty mbarriers per stage. Producer warps0–1copy one head and2–3the other; each consumer warpgroup waits on/releases its head, and the patch writes only the matching head chunks. This changes producer copy layout and consumer stage ownership together, directly within familyE. It is not an isolated barrier-cost test or a MoE familyC/D result.
+
+Same-process component method: batch16/32×q_len8, full context80,000, TP8, agentic/coherent inputs, page1, scale1. Two held-out timing inputs, seeds1000/1001,120 cold rounds per input, ordering seed311301. ctrl/ctrl2/hs each pass2/2scoped ABCHECK cases, with workspace checks. The two `_probe` arms are tallied as probes,0/0/2, not correctness passes. These checks are distinct from a full fresh-input candidate-only release check, which was conditional and did not run after this loss. No paired CI or private per-replay distribution is recorded.
+
+| Tokens | Cache | Shared-ring control µs | Per-head ring µs | Delta µs | Delta % | Displayed ctrl2 null µs | Displayed stamp cost µs |
+|---|---|---|---|---|---|---|---|
+| 128 | cold | 113.86 | 136.03 | +22.17 | +19.471% | -0.77 | +3.48 |
+| 128 | warm | 104.90 | 123.92 | +19.02 | +18.132% | -0.01 | +4.34 |
+| 256 | cold | 194.34 | 244.51 | +50.17 | +25.816% | -0.74 | +5.02 |
+| 256 | warm | 198.17 | 255.53 | +57.36 | +28.945% | +0.24 | +8.85 |
+
+
+The table subtracts displayed pooled arm medians rounded to0.01 µs. Separately rounded log delta fields give cold hs+22.18/+50.18 µs and stamp_probe+3.49/+5.02 µs; those can differ by 0.01 µs. Cold hs per-input deltas are+20.77/+24.42 µs at 128and+50.21/+50.56 µs at 256. The paired null is much smaller. Both inputs/cells miss the frozen≥5 µs saving beyond the duplicate null. Stop the exact per-head ring. Copies, ring ownership and synchronization changed together, so the loss does not isolate which costs dominate or reject every decoupled pipeline.
+
+Runtime resource gate records264 resident CTAs/two per SM for all arms, with 107104dynamic bytes for controls/stamp and107168for hs/combined. Local compiler records report80registers and4spill bytes for the stamp probe, versus no spills for hs. These resource checks do not establish equal execution cost. Official judged arm is unchanged ctrl, PASS16 tests/12 benchmarks/12 profiles, return0/no flags,1496.242348 µs/2.517172439×,95%CI[2.479414853,2.568544053]. The official receipt has60SGLang pairs for11cells and58for256full. Its score and CI do not belong to hs. Other official token sizes1/8/16/32remain control coverage; no candidate performance at those sizes or whole-layer integration is established. [Registration, resources and scoped stop](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/docs/runs-attention.md), [Negative record](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/docs/ruled-out.md).
+
+### E timeline: retained observations, unvalidated causal forecast
+
+The log retains STSUM medians over five cold stamp_probe calls, but its individual control-probe TLINE rows fell out of the tail. For128/256full, STSUM reports producer lead4.0/4.0tiles, slot-pass-to-full-pass3.7/3.6 µs, sampled consumer busy1.0/1.0 µs per tile, full waits12.5/16.4 µs, producer empty waits31.8/65.9 µs and warpgroup full-pass skew0.0/−0.1 µs. The sampled late CTA's solo interval is11.4/21.9 µs; its tiles/µs rate is1.0/1.2versus0.8/0.8while its partner also runs. These instrumented summaries are observations of the probe, not unperturbed phase costs.
+
+The probe itself is slower by reported3.49/5.02 µs cold, compared with ctrl2null−0.77/−0.74 µs. No explicit observer-intrusion acceptance threshold or independently validated causal attribution gate is recorded for this run. Probe correctness is also not tallied as a pass. Therefore resource parity and apparent full-ring samples do not establish a removable bubble, an exact compute/memory bottleneck, zero recoverable synchronization time or a floor for the control. Timings from overlapping CTAs and waits cannot be added.
+
+A model holds co-run rates constant while balancing each pair's work. Its maximum SM loop-end estimate is102.3/184.9 µs versus observed107.1/191.1 µs, giving projected−4.8/−6.2 µs. Median projections are−5.1/−7.0 µs. Those are modeled values under the probe's rates, with no measurement of stealing overhead, changed partial/merge work, publication costs or an actual complete-layer saving. They are not measured gains and are not added to component scores.
+
+The current next design is an existing attention owner's `ONE_PSTEAL`source draft, pairing two CTAs with opposing tile walks and a claim counter. The scoped brief supersedes short-load scope for that attention owner only; General still performs no T32+engineering. The inspected draft in agent-a39622f06b534c1b1 is uncommitted,206444 bytes, SHA2568faa2796a994bbaedbd8dcb8e710065a93652bfe18af8bde814ae003e10bb84a, recorded provisionally at this review. No target result or accepted ID for it is present in the inspected shared source cut. It is an implemented partial design, not a tested win. The existing owner retains all files, dispatch and collector authority. [Relaunched-owner ledger and scope](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/docs/steering/2026-11-02-final-day-directive.md).
+
+The same restart ledger refers to q_len1job3f44f891d0ef47db. That exact ID is already incorporated in the November1review here: all 12detailed causal rows failed their intrusion gates and24traces remain descriptive. The restart note does not create a new measurement or resolve the prior invalidation. Untested gather probes remain source work under their owner. No old job is polled, resubmitted or recounted by this review. [Historical attribution record](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/docs/architecture-performance-tracker.md).
+
+### Context: public MoE repeat source association verified locally
+
+Public `2821fdb184d740b1`, previously counted numerically, has a saved owning driver row and terminal public receipt. They identify draw 2, base 5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e and physical filee85ef86f070bacd3a962fcd779ae860f6fe89fc2086fcc4b70cc8456d854dcb6,320503 bytes. This review hashes the saved file and verifies it is exactly the 320466byte original public release plus the 37byte comment `# repeat draw 2026-11-03T07:50:36Z 2` and newline. The driver associates that hash with job 2821before waiting and saving its result. This closes the local physical-file association gap; remote server bytes were not separately downloaded. The service identity89870fb646752ca9aa1adb91bdfc9ffa6f53490b89ba2daaa911a2e162fa8e92is distinct from the file checksum. [Pinned executable base](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/muse_moe_w4a16/cand/current_control_release.py), [Repeat driver](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/tools/repeat_draws.py); [saved owning row](/Users/gretchengabo/GitHub/okc/.build/repeats/muse_moe_w4a16.jsonl), [terminal receipt](/Users/gretchengabo/GitHub/okc/.build/repeats/muse_moe_w4a16.2821fdb184d740b1.json).
+
+Receipt is public run/done, PASS5/6/6, return0/no flags, finished2026-11-03 07:59:41UTC. Official5737.988910 µs/2.343765422×,95%CI[2.308608941,2.378921903],100SGLang pairs per cell, EP8at1/8/16/32/128/256. The before/after table compares independent public jobs4aaand2821with different inputs. It is descriptive cross-run movement of the same executable body, not an architectural effect, isolated family improvement or layer gain. The repeat is not counted as a new algorithm experiment.
+
+| Tokens | Earlier public 4aa µs | Repeat2821 µs | Delta µs | Delta % |
+|---|---|---|---|---|
+| 1 | 26.727990 | 25.267085 | -1.460905 | -5.466% |
+| 16 | 93.958463 | 96.080382 | +2.121919 | +2.258% |
+| 32 | 127.564857 | 123.554252 | -4.010606 | -3.144% |
+| 8 | 67.205227 | 64.187597 | -3.017630 | -4.490% |
+| 128 | 180.871585 | 179.158594 | -1.712990 | -0.947% |
+| 256 | 217.346150 | 218.255033 | +0.908883 | +0.418% |
+
+
+The lead's day1repeat summary retains all four board incumbents except this already-known MoE point. Individual repeat ranges cannot establish a bound of only a few microseconds for future draws or a causal architecture ceiling. No repeat driver, quota, timer or public submission was started or changed here. The existing operator's authorization and reserve remain outside this tracker task. [Lead repeat summary](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/docs/steering/2026-11-02-final-day-directive.md).
+
+### Context: source-only short-path refill and current diagrams
+
+The new pinned b65versus5dfsource comparison remains a source-only stop, without a new kernel build or target allocation. It identifies a distinct dedicated T8weight issuer but no selected ≥2 µs legal complete-call opportunity after repairs/competing costs. The donor's earlier5613.592490 µs point is an existing external comparator, not a new owned receipt. The source pass does not measure the candidate, prove a ceiling, reject all issuers or impose a prove-win-before-build rule. It records a non-PRMT eager-MAIN guard/contract limitation separately from passing PRMT cases. General receives no new qualified task from this source note. [Pinned scope and comparison](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/docs/steering/evidence/2026-11-02-hotspot-refill/2026-11-03-b65-short-comparison.json).
+
+New source-linked incumbent diagrams at 8c09d605 preserve layerba9e327c/MoEc7c201ae. They add no performance measurement or internal-time attribution. B4/MAIN illustrations exclude the separate T1/T8helpers. This review does not alter or claim a new rendered validation of those diagrams. [Diagram source and scope report](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/docs/steering/2026-11-03-archify-incumbent-architecture.md).
+
+### Family decision, promotion visibility and checkpoint
+
+E has a new scoped measured component loss and a target-untested pair-split draft, while its old D32lookahead remains unconfirmed and stopped. Historical E component wins remain intact. A/Bcomparisons and C/Dcurrent conclusions do not change; per-head attention ring changes and source-only donor comparisons do not establish isolated MoE family effects. Public layer607remains2.126083×, and the standalone MoE repeat changes no executable architecture.
+
+Fresh all-five-board snapshots at 2026-11-03T09:47:18.590497+00:00 retain all five previously recorded owned best jobs/scores, including MoE2821, attention8914and layer607. Required Documents-checkout promotion guard reruns with these saved snapshots/current ledger:16clean numerical private leads, zero missing dispositions. New q8tl1496.242348 µs is an unchanged control score above public attention1446.190595 µs; hs has no candidate-only official score. Lower private points and their blockers/deferrals remain explicitly disposed. [Fresh local boards](/Users/gretchengabo/GitHub/okc/.build/architecture-tracker/review-2026-11-03-0943/public-snapshots/summary.json), [current local guard](/Users/gretchengabo/Documents/ChatGPT/okc/.build/promotion-tracker/current.json), [promotion queue](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/docs/releases/promotion-queue.json).
+
+Reviewed a4660143through8c09d605, source/run/negative records, one new job 4c0b0674c46d4ec2, provisionalPSTEALdraft and completed repeat association. Last new H200 terminal09:32:21UTC. All 19untracked JSON profiles remain readable, deduplicated and untouched. The interrupted09:43wake completed evidence collection before this timestamp was advanced. No other-owner sources, profiles, jobs, collectors, reminders or ledgers changed. No benchmark, private check, submission, push, new agent or cross-chat message ran. Source links, arithmetic, filters and dashboard consistency are checked; no fresh independent reviewer of this tracker prose was available under the no-agent instruction.
 
 ## November 3 review at 02:16 Vancouver time
 
@@ -3482,6 +3550,9 @@ paired differences.
 | Context F3 setup failure | Public607, separate run/inputs | No official timing, setup timeout | No official timing, setup timeout | 43aa191eb94948a4;zero official tests/cells/profiles, failedstatus-9; T1partial only. [Receipt](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/muse_decode_layer/profiles/g1b4_f3.43aa191eb94948a4.status.json). |
 | Context Corrected F3, unchanged large paths | Public607, separate run/inputs | sliding -0.044988µs (-0.018%); full -1.364571µs (-0.410%) | sliding +7.096723µs (+2.243%); full -1.477562µs (-0.306%) | c9240b8205904baf;13/12/12passes,20SGLang pairs/large cell. OnlyT8fused, T1fallback. No causal large-path gain. [Receipt](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/muse_decode_layer/profiles/g1b4_f3.c9240b8205904baf.status.json). |
 
+| E mode51 per-head mbarrier ring | Same-process shared-ring ctrl/independent ctrl2 | cold +22.17µs (+19.471%); warm +19.02µs (+18.132%) | cold +50.17µs (+25.816%); warm +57.36µs (+28.945%) | 4c0b0674c46d4ec2;2held-out TP8coherent/agentic inputs,120cold rounds/input. hs/ctrl/ctrl2each2/2scoped ABCHECK; probes are not correctness passes. No full candidate/layer result. Rounded pooled medians; no paired CI. [Paired log](https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/muse_attention_decode/profiles/q8tl.4c0b0674c46d4ec2.log). |
+| G public repeat2821, same executable body | Earlier public4aa/5df, different run/inputs | 179.158594µs; -1.712990µs (-0.947%) | 218.255033µs; +0.908883µs (+0.418%) | Existing2821point, source association newly verified locally as5df+comment.5/6/6,100SGLang pairs/cell, EP8. No isolated family/architecture/layer gain. [Saved receipt](/Users/gretchengabo/GitHub/okc/.build/repeats/muse_moe_w4a16.2821fdb184d740b1.json). |
+
 ## Small-token results and rejected changes
 
 For A's new `sk8w3s`, job `75bca9775f6f4b0b`, source `03887be`, uses six seeds per size and
@@ -3566,6 +3637,9 @@ review; codec and M-C one-token fusion ideas remain unbuilt. Never add component
 [projection evidence](runs.md), [F policy](../archive/docs/steering/2026-10-30-family-f-donor-baseline.md).
 
 ## Review history and checkpoint
+
+- 2026-11-03 02:57 MST (America/Vancouver): reviewed a4660143..8c09d605, new Eper-head-ring4c0b0674c46d4ec2loss and descriptive probes. Models/draftPSTEALremain target-untested; old3f44invalidations preserved without recounting. Locally verified2821file/driver/body+comment association and six public cells, existing job not counted anew. b65source-only comparison/diagram publication have no target gain. Fresh boards09:47:18UTC, promotion16leads/0gaps, last terminal09:32:21UTC.20provisional JSONs parsed; new3f44copy matches old receipt and is not recounted. Owner draft recorded read-only.
+
 
 - 2026-11-03 02:16 MST (America/Vancouver): reviewed b8579711..a4660143. Resolved43aa receipt gap as failed setup with retained1.28µsT1fragment; added correctedc9240b8205904baf component signals and failed layer gate. No repeat counting of ready-flag/UNP/Half+XS. Fresh public snapshots09:14:19UTC and promotion16leads/0gaps; latest terminal09:03:58UTC. All19untracked JSONs remain provisional and untouched.
 
