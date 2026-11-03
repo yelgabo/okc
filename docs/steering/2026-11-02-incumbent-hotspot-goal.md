@@ -1,5 +1,27 @@
 # GOAL-OKC-HOTSPOT: keep execution flowing against incumbent bottlenecks
 
+## Latest user priority override — November 2, 2026 Pacific
+
+**Decode32 is P4, not the default or exclusive optimization priority.** The user supplied top-100 cutoff gap measurements and explicitly ordered: **“stop treating decode32 ase the only important problem, its P4 right now.”** This overrides the earlier P0 wording in the original goal and any historical Decode32-first steering. It does **not** cancel an accepted Decode32 job, replace its worker, weaken correctness, or create new public-submission authority.
+
+**Immediate resource allocation:** P0 `muse_moe_w4a16`, P1 `muse_bf16_proj`; pursue other standalone attention/whole-layer opportunities on measured ROI, but **reserve the P4 label for Decode32 specifically**. Relative ordering of other tracks is provisional pending source-qualified opportunity evidence. `muse_prefill_layer` is an independent large-gap track; do not silently assign it to the existing MoE/BF16 workers without a verified, separate plan. Keep full-layer integration as necessary to validate portable standalone wins, without treating all full-layer work as a Decode32-only project.
+
+User-provided cutoff table (judge microseconds, historical as provided; NOT claim of a live CLI refresh):
+
+| Problem | Your time (µs) | Top-100 threshold (µs) | Gap (µs) | Relative reduction |
+|---|---:|---:|---:|---:|
+| BF16 projection | 3,161.9 | 3,053.3 | 108.6 | 3.43% |
+| MoE W4A16 | 6,069.6 | 5,559.8 | 509.8 | 8.40% |
+| Attention decode | 1,446.2 | 1,405.8 | 40.3 | 2.79% |
+| Decode layer | 10,639.4 | 9,958.4 | 681.0 | 6.40% |
+| Prefill layer | 318,442.0 | 204,829.9 | 113,612.1 | 35.68% |
+
+The MoE + BF16 absolute gaps sum to 618.4µs versus 681.0µs for decode layer. **This is a useful hypothesis, not an additive causal budget**: standalone and layer differ in workloads, selected variants and overlap. Any claimed transfer needs matched per-shape profiling and an end-to-end layer comparison.
+
+**Steering change:** The hourly research/refill task must check the standalone MoE and BF16 queues **first**. When they are empty or stalled, request fresh source-qualified alternatives from “Monitor muse challenge disscussions” and “OKC CUDA research”, with primary artifacts and non-duplicate tests. Decode32 retains its existing ownership and any accepted work but must not consume the only new research task or monopolize steering attention. Its separate progress watch can still report real material outcomes at lower priority. Do not mislabel stale research from the original first-priority era as current P0.
+
+
+
 **Owner directive, November 2, 2026 Pacific:** “/goal optimize hotspots in incumbent architecture. keep the tasks flowing to the workers pls. if running out, ask ‘Monitor muse challenge disscussions’ and OKC cuda research agents to widen the search space.”
 
 This is a standing steering rule for the current project, not an instruction to optimize a different model/runtime or change safety/release permissions. **Optimize the selected current incumbent's critical path**, as measured across official scored shapes and especially the user's prioritized T32/q_len1 decode row. Avoid new architecture rewrites by default, while permitting genuinely different, source-backed bounded treatments when local tuning has saturated.
