@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 22:00 MST. Evidence snapshot: `2f8ae539`.
+Last review: 2026-11-02 23:16 MST. Evidence snapshot: `1c09aa76`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -12,13 +12,90 @@ named control, not changes in aggregate score. Families overlap; their gains can
 
 | Family | Current result | What has actually been measured | Visibility gap |
 |---|---|---|---|
-| A. Hybrid persistent/legacy MoE | Retained owned baseline; new variants fail gates | Position map, token locality, multiply decoder, direct band32 and cached band32 fail their aggregate/regression gates. | Cached schedule recovers direct-band overhead but fails against original. Physical traffic opportunity remains open. Historical standalone skinny/main47 progress remains unqualified. Disabled repairs remain target-untested after a local spill-based deferral; local compiler results do not establish H200 ineligibility. G-hosted skinny-helper norm aggregation at8/16 tokens passes correctness and fails all6 performance groups; no family gain. |
+| A. Hybrid persistent/legacy MoE | Historical owned baseline; G is new standalone public baseline | Position map, token locality, multiply decoder, direct band32 and cached band32 fail their aggregate/regression gates. | Cached schedule recovers direct-band overhead but fails against original. Physical traffic opportunity remains open. Historical standalone skinny/main47 progress remains unqualified. Disabled repairs remain target-untested after a local spill-based deferral; local compiler results do not establish H200 ineligibility. G-hosted norm aggregation and the new two-node WS finalizer pass correctness and fail all6 performance groups. New public standalone G is a separate combined-base outcome, not an isolated A gain. |
 | B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled 256 case. New grouped-contiguous Humming proposal stopped before measurement. |
 | C. Owner-completes tiles | Historical wins; new C+D queue combination loses in G | Complete-unit B ownership plus dynamic claiming fails all6 current G component groups. Earlier owner/VP2 results remain scoped. | No isolated C attribution. Large-token G retains split stages. [Current result](#november-2-review-at-2200-vancouver-time). |
 | D. Dependency-aware scheduling | Historical wins; current C+D queue candidate loses | New whole-unit B claiming inside G fails all6 matched groups; old mode23 wins do not transfer. Phase-A and K=0 losses remain scoped. | Full ready-only queue remains untested. No isolated D effect or queue rescue is established. [Current result](#november-2-review-at-2200-vancouver-time). |
 | E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Lookahead and observer closures stand. Split-copy reduction is stopped. Identity4a2a79bdac04499a fails routing/coverage with27/36 partial rows, not a causal treatment loss. [Current evidence](#november-2-review-at-2200-vancouver-time). |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained public layer2.126083×; MID17–32 parked | New unchanged control scores2.091748×. MID passes standard correctness but D32 is3.473% slower across separate runs. Earlier K128/shared-A/direct-weight losses remain scoped. | Attention E remains unconfirmed. Scales/groups, NS4 and new T8/T16 WS norm aggregation fail their gates; original norm updates/NS3 stay. Identity check is closed; complete-unit B queue also fails its matched gate. Worker now owns standalone MoE. |
+| G. Attributed keell0renz layer fork | Public layer retained2.126083×; standalone MoE public row improves | New public MoE4aa033ef is5788.720720us/2.3232×,4.6278% lower elapsed than old public across runs. New short WS finalizer passes correctness but fails all6 matched groups. | No whole-layer gain. Six component gates fail; retain fused WS/original norm/NS3. Sparse phase observer fails reporting and global validity. Public source5df257af/CI now verified; pair-LUTc985bbdb is pending. [Current evidence](#november-2-review-at-2316-vancouver-time). |
+
+## November 2 review at 23:16 Vancouver time
+
+**The fixed two-node short WS finalizer fails its matched gate.** GOPT-WS-SPLIT-04 private3e6852d30c5c4535, source7370f630/physicalb4da948d/352468bytes, keeps cooperative A+B, NS3 and original norm atomics. Edited helper2be4d7bb is disabled in duplicate controls and enabled only atT1/T8/T16. CTA0 exports positions and generation; an ordinary same-stream finalizer combines, resets and advances generation. B4/MAINc7c201ae at32/128/256 stays unchanged. This is a G-hosted short-helper topology test, not an isolated A–E family gain or whole-layer result. [Source, ordering argument and all36rows](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/2026-11-02-general-ws-split-finalizer.md#terminal-decision-retain-fused-ws-stop-the-two-launch-split).
+
+Owning H200 receipt passes5tests/6benchmarks/6profiles, return0/no flags; each official benchmark records100paired repetitions. All54private cases/378observations/216captures/1152cold timed replays/54restorations/cleanup and six untimed native FP32 finalizer probes pass. Exact exported maps, buffer generations, resets and mixed WS/WGS replays are checked. Worst global/row errors0.000126546/0.000233705; private preparation284.983602s. Finished2026-11-03 06:01:19UTC. **All six performance groups fail**, all24complete-six factors0.984922–0.998652, descriptive geometric mean0.992232. Sixteen of18affected rows have a1%regression cross; no unchanged-load guard breach. Retain the fused helper. Stop this exact topology without third-node/mask/ring/norm rescue, retry or integration. [Strict reader result](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/evidence/2026-11-02-gopt-ws-split/analysis.json).
+
+Same-process complete-component scope: banks1102031/1102037/1102049, fresh normal/skewed EP8 routes, two independent states per arm,8cold repetitions per placement/cell. Means below average duplicate placement medians and then three banks. Four paired cross factors, duplicate-log nulls and each route census are retained in the linked36-row report. No paired treatment CI or individual private replay samples are reported. Both nodes and metadata/reset work are timed.
+
+| Tokens | Routing | Fused control µs | Split µs | Delta µs | Delta % | Scope |
+|---:|---|---:|---:|---:|---:|---|
+| 1 | normal | 33.709 | 34.885 | +1.176 | +3.489% | Changed WS |
+| 8 | normal | 79.112 | 79.645 | +0.533 | +0.674% | Changed WS |
+| 16 | normal | 117.016 | 117.579 | +0.563 | +0.481% | Changed WS |
+| 32 | normal | 126.293 | 126.691 | +0.397 | +0.315% | Unchanged B4/MAIN drift |
+| 128 | normal | 186.896 | 186.109 | -0.787 | -0.421% | Unchanged B4/MAIN drift |
+| 256 | normal | 233.491 | 234.096 | +0.605 | +0.259% | Unchanged B4/MAIN drift |
+| 1 | skewed | 33.808 | 34.816 | +1.008 | +2.982% | Changed WS |
+| 8 | skewed | 40.875 | 41.064 | +0.189 | +0.463% | Changed WS |
+| 16 | skewed | 63.384 | 63.755 | +0.371 | +0.585% | Changed WS |
+| 32 | skewed | 56.893 | 56.773 | -0.120 | -0.211% | Unchanged B4/MAIN drift |
+| 128 | skewed | 102.365 | 102.661 | +0.296 | +0.289% | Unchanged B4/MAIN drift |
+| 256 | skewed | 159.317 | 159.565 | +0.248 | +0.156% | Unchanged B4/MAIN drift |
+
+Target profiles confirm two kernels at1/8/16 and one at32/128/256. Finalizer activity2.0/1.7/1.9us at1/8/16 is a separate profiler observation, not an exposed-time subtraction. Official5834.137938us/2.305139190×,95%CI[2.270562102,2.339716278], is versus SGLang. It is above the fresh standalone public5788.720720us point and supplies no release lead. The negative does not identify which mix of launch, metadata, reload, prefetch or code-generation costs caused the loss. [Owning profiles](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/evidence/2026-11-02-gopt-ws-split/profiles/paired.3e6852d30c5c4535.txt).
+
+### Sparse phase observer: failed report and global instrument gate
+
+MOE-PHASE-01 own6028cae5d12f4afb, publishede8998f7a/paired77ca05dc/native365c9eab versusc7c201ae, is a failed setup with return112. It reaches the12,000-character serialization bound at279.887460s. There are no official tests, benchmarks, profiles, score or CI. The bounded failure capsule retains all36private timing rows,18phase/sampling/repeat cases and counters378observations/54restores/216captures/4608timings/180extra traces. The representative raw CTA trace is explicitly omitted. Private worst global/row errors0.000087905/0.000226012 are separate from absent official correctness. Finished2026-11-03 05:27:13UTC. [Failed receipt and scope](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/2026-11-02-moe-sparse-phase-evidence.md#terminal-stop), [retained partial evidence](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/evidence/2026-11-02-moe-phase/partial.json).
+
+The frozen global perturbation/stability test also fails:13/18instrumented rows qualify individually, five do not. Invalid rows are T32normal/seed1102037, all three T32skewed rows and T256skewed/seed1102037. No subset qualifies incumbent phase attribution. Stop the exact observer without larger guard/bound, retry or subset rescue. It is an invalid instrument, not a kernel performance loss. The following complete-call means are **unqualified instrument observations**; phase intervals overlap and cannot be added or treated as removable costs. Three banks, normal/skewed EP8, duplicate originals/observers,32cold repeats per placement/cell. No paired treatment CI is recorded. [All18cost/uncertainty tests](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/evidence/2026-11-02-moe-phase/partial-gate.json).
+
+| Tokens | Routing | Original µs | Observed µs | Descriptive delta µs | Delta % | Scope |
+|---:|---|---:|---:|---:|---:|---|
+| 1 | normal | 33.779 | 33.963 | +0.184 | +0.545% | Unchanged short-path drift |
+| 8 | normal | 79.637 | 79.064 | -0.573 | -0.720% | Unchanged short-path drift |
+| 16 | normal | 117.200 | 117.179 | -0.021 | -0.018% | Unchanged short-path drift |
+| 32 | normal | 126.528 | 127.259 | +0.731 | +0.577% | Instrumented, globally invalid |
+| 128 | normal | 187.008 | 187.037 | +0.029 | +0.016% | Instrumented, globally invalid |
+| 256 | normal | 234.133 | 234.205 | +0.072 | +0.031% | Instrumented, globally invalid |
+| 1 | skewed | 33.941 | 33.891 | -0.051 | -0.149% | Unchanged short-path drift |
+| 8 | skewed | 40.733 | 40.565 | -0.168 | -0.412% | Unchanged short-path drift |
+| 16 | skewed | 63.304 | 63.525 | +0.221 | +0.350% | Unchanged short-path drift |
+| 32 | skewed | 60.349 | 60.405 | +0.056 | +0.093% | Instrumented, globally invalid |
+| 128 | skewed | 102.931 | 103.461 | +0.531 | +0.516% | Instrumented, globally invalid |
+| 256 | skewed | 159.747 | 159.877 | +0.131 | +0.082% | Instrumented, globally invalid |
+
+### Standalone base release and public board outcome
+
+A failed treatment against the newer control does not erase that control's public-release opportunity. New exact-file private64f9998ef238476f, published9edf1ef6/source5df257af/320466bytes, passes5/6/6 without flags, preparation182.675155s. It preserves the five selected normal compiler calls and incumbent fallbacks. Official5762.134395us/2.333944174×,95%CI[2.298935011,2.368953337], is5.065786% below old publicabe7651d's6069.607719us across jobs. It is release qualification for a complete base, not a matched mechanism gain. Finished2026-11-03 05:39:29UTC. Standard normal EP8 six loads; official exact-case seeds, warm/cold methodology and profiles are in the receipt. Each official benchmark records100paired repetitions versus SGLang; no same-process own control applies to this candidate-only check. [Owning exact-file release report](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/2026-11-02-moe-control-release-qualification.md#terminal-result-and-public-decision), [all official records](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/evidence/2026-11-02-moe-release/status-wait.raw.json).
+
+| Tokens | Load | Candidate adjusted µs | Owning SGLang µs | Candidate speedup |
+|---:|---|---:|---:|---:|
+| 1 | decode 1 | 25.275012 | 76.767997 | 3.037308× |
+| 8 | verify 1 | 64.619045 | 142.768002 | 2.209380× |
+| 16 | decode 16 | 95.442923 | 188.336002 | 1.973284× |
+| 32 | decode 32 | 127.401430 | 210.768001 | 1.654361× |
+| 128 | verify 16 | 178.951249 | 460.927994 | 2.575718× |
+| 256 | verify 32 | 220.020295 | 630.271987 | 2.864608× |
+
+Public4aa033ef23a142cd is now source-bound to the approved exact5df257af/320466bytes. It passes5tests/6benchmarks/6profiles, return0/no flags, preparation184.048388s. Official**5788.720720us/2.323224880×**,95%CI[2.288376507,2.358073253], is its own public result; it does not borrow private64f9's interval. Each official benchmark records100paired repetitions versus SGLang on normal EP8 scoring loads. Finished2026-11-03 05:56:27UTC. Verified rank373 replaces434; elapsed is4.627762% below old public6069.607719us across runs. This publishes the existing G layer engine as standalone MoE, not a new whole-layer result or isolated mechanism gain. [Public receipt, source and approval scope](https://github.com/yelgabo/okc/blob/1c09aa7639b0157f6d968a81e6f2e5604aa0d3f2/docs/steering/2026-11-02-moe-control-release-qualification.md#public-result-verified), [all six public records](https://github.com/yelgabo/okc/blob/1c09aa7639b0157f6d968a81e6f2e5604aa0d3f2/docs/steering/evidence/2026-11-02-moe-public/status-wait.raw.json).
+
+| Tokens | Public adjusted µs | Owning SGLang µs | Public speedup |
+|---:|---:|---:|---:|
+| 1 | 26.727990 | 80.192000 | 3.000300× |
+| 8 | 67.205227 | 146.976001 | 2.186973× |
+| 16 | 93.958463 | 186.640004 | 1.986410× |
+| 32 | 127.564857 | 210.096002 | 1.646974× |
+| 128 | 180.871585 | 464.256002 | 2.566771× |
+| 256 | 217.346150 | 620.224014 | 2.853623× |
+
+The current standalone variants are Tiny/Tiny2/MID at1/8/16, B4 at32 and weighted-stage MAIN at128/256, with the preserved eligibility/fallback routes. The older public uses skinny through32 and mode47 at128/256. Public source and all five compiler requests match the layer engine; the new standalone score cannot identify dispatch, packing or scheduling contributions separately. New diagrams reuse these source/receipt pins and show25% fewer scale bytes,2.78% less logical stage payload. Those byte counts are not measured traffic or timing savings. [Verified source/dispatch comparison](https://github.com/yelgabo/okc/blob/1c09aa7639b0157f6d968a81e6f2e5604aa0d3f2/docs/steering/2026-11-02-moe-release-diagram.md).
+
+**Pending, not measured:** MOE-LUT-01 privatec985bbdb2980407a, published5ff38524/physical542cd650/541745bytes, pairs native8c2cfc7c with controlc7c201ae. It changes packing plus a generic64KiB pair codebook in B4/MAIN at32/128/256;1/8/16 remain controls. Group16 scaling, BF16 boundaries, FP32 accumulation, waits/fences and output order are preserved by its source design. Thirteen CPU/source/reader tests and four local device builds are qualification evidence only. Accepted2026-11-03 06:11:52UTC; sole owner waiter73200. Target correctness/timings/CI are absent. Its prospective all-six1.01/twice-null/regression/coverage/295s gate controls; no duplicate poller, rescue sweep or new public permission. This is a G representation test, without isolated A–E attribution. [Exact source and accepted screen](https://github.com/yelgabo/okc/blob/1c09aa7639b0157f6d968a81e6f2e5604aa0d3f2/docs/steering/2026-11-02-moe-pair-lookup.md), [accepted binding](https://github.com/yelgabo/okc/blob/1c09aa7639b0157f6d968a81e6f2e5604aa0d3f2/docs/steering/evidence/2026-11-02-moe-pairlut/accepted.json).
+
+
+The promotion audit now separates public-base decisions from treatment gates:19current numerical private leads have zero missing dispositions after the changed public baseline, while earlier24lead dispositions remain historical. This split has an explicit stopped/no-current-public-lead entry. Public layer607 remains2.126083×; no component scores or standalone deltas are added to it. After NS4, norm and split-finalizer negatives, General returns to the same refill for a distinct source-qualified complete short-path implementation or required-byte/compute reorganization. BF16 has a bounded build brief, pickup unverified in the reviewed queue. No new allocation or ceiling claim follows. Historical A-versus-tested-B ordering and isolated C/D/E limits are unchanged. [Release dispositions](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/releases/promotion-queue.json), [same-refill next gap](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/2026-11-02-general-hotspot-search-refill.md#general-two-launch-endpoint-closed-next-distinct-ws-task-needed).
 
 ## November 2 review at 22:00 Vancouver time
 
@@ -2911,6 +2988,10 @@ paired differences.
 | E/G sliding eight-copy reduction, unchanged verify paths | Fresh G1b4 94ef, separate run | -1.729 µs (-0.631%) weighted | +1.557 µs (+0.437%) weighted | bd5776bdfcab42a7;13/12/12 pass. Only D32 sliding changes;128/256 differences are drift observations. [Cells and limits](https://github.com/yelgabo/okc/blob/3e11a37ed53424bf7ccfab2a74461124e05e9c9e/docs/steering/decode32/evidence/D32-REDUCE-01/control94ef-comparison.json). |
 | A-type skinny helper inside G: WS norm aggregation, unchanged large paths | Original G helper updates, same process | +0.204 µs (+0.142%) descriptive | +0.252 µs (+0.129%) descriptive | b38a9ed6dc9743e9;3 banks x normal/skewed EP8,8 cold repeats/placement. Only T8/T16 treatment changes; correctness passes, affected gate fails. [All36 rows](https://github.com/yelgabo/okc/blob/fdb935f66f7e953357f4a0c43d408da95a888280/docs/steering/2026-11-02-general-ws-norm-aggregation.md#terminal-decision-retain-baseline-stop-exact-aggregation). |
 | C+D inside G: complete-unit dynamic B claims | Same-process selected G weighted split B | normal +3.592 µs (+1.917%); skewed -0.376 µs (-0.365%) | normal +4.957 µs (+2.116%); skewed +3.093 µs (+1.937%) | e044121f822d47b1;3 banks x normal/skewed EP8,8 cold repeats/placement. Correctness passes, all6 groups fail. Combined design only. [Full evidence](https://github.com/yelgabo/okc/blob/2f8ae539434804b43af456ef070a10ab2b576471/docs/steering/2026-11-02-moe-worker-queue-experiment.md#terminal-decision-november-2-pacific). |
+| G WS two-node finalizer, unchanged large paths | Same-process fused WS controls | normal -0.787µs (-0.421%); skewed +0.296µs (+0.289%) | normal +0.605µs (+0.259%); skewed +0.248µs (+0.156%) | 3e6852d30c5c4535;3banks x EP8 normal/skewed,8repeats/placement. Only1/8/16 change; correctness passes and all6groups fail. Large-cell differences are drift. [Full result](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/2026-11-02-general-ws-split-finalizer.md#terminal-decision-retain-fused-ws-stop-the-two-launch-split). |
+| G sparse phase observer, globally invalid | Same-process unchanged complete-MoE originals | See descriptive table in current review | See descriptive table in current review | 6028cae5d12f4afb;3banks x EP8 normal/skewed,32repeats/placement. All36rows retained but serialization and global cost/stability gates fail. No phase attribution. [Failure](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/2026-11-02-moe-sparse-phase-evidence.md#terminal-stop). |
+| G standalone exact base release, cross-run | Historical old publicabe7651d, different source and inputs | 178.951µs candidate;192.869µs old point, descriptive -13.918µs (-7.216%) | 220.020µs candidate;240.839µs old point, descriptive -20.818µs (-8.644%) | 64f9998ef238476f;normal EP8 official single-arm5/6/6. No matched control or isolated mechanism attribution. Public4aa has separate per-cell records in the current review; do not substitute private timings into its result. [Exact-file receipt](https://github.com/yelgabo/okc/blob/7218b270ef2ad3a7bbd82072b2e6488060d603af/docs/steering/2026-11-02-moe-control-release-qualification.md#terminal-result-and-public-decision). |
+| G public standalone base, combined architecture and dispatch | Historical old publicabe7651d, separate run | 180.872µs;descriptive -11.998µs (-6.221%) | 217.346µs;descriptive -23.492µs (-9.754%) | 4aa033ef23a142cd/source5df257af;5/6/6,100official pairs/cell, normal EP8. Different inputs and SGLang baselines; no isolated-family or whole-layer gain. [Public receipt](https://github.com/yelgabo/okc/blob/1c09aa7639b0157f6d968a81e6f2e5604aa0d3f2/docs/steering/evidence/2026-11-02-moe-public/status-wait.raw.json). |
 
 ## Small-token results and rejected changes
 
@@ -2957,6 +3038,8 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
+The current G-hosted two-node WS finalizer is stopped after valid correctness and all-six matched losses. The sparse phase observer is invalid globally and stopped. The standalone base has a source-bound new public5788.720720us result; pair-LUTc985bbdb is separately pending. Layer607 remains unchanged. [Current review](#november-2-review-at-2316-vancouver-time).
+
 MID, lookahead diagnostics and the inconclusive observer remain closed. The sliding eight-copy reduction treatment is now stopped after a valid ordinary check without a useful affected-path signal. Identity4a2a79bdac04499a is closed on routing/coverage, with27/36 unqualified partial rows. The separate C+D whole-unit MoE queuee044121f822d47b1 also fails all6 matched groups. T8/T16 WS norm aggregationb38a9ed6dc9743e9 is now terminal: correctness passes and all6 performance groups fail. General needs a distinct MoE/BF16-first task or reserve exposure evidence. Attention remains unconfirmed and public607 remains retained. Broad dense backing remains unallocated reserve. [Current D32 ledger](https://github.com/yelgabo/okc/blob/3e11a37ed53424bf7ccfab2a74461124e05e9c9e/docs/steering/decode32/STATUS.md)
 
 The earlier complete-engine review closed both reviewed proposals at the source stage. Reopening grouped-contiguous Humming requires an exact legal workload and credible net whole-layer opportunity. The canonical attention continuity source is frozen pending stronger opportunity evidence. [Decisions](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md).
@@ -2983,6 +3066,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 23:16 MST (America/Vancouver): reviewed2f8ae539..1c09aa76, shared queue/run/negative/release records, new terminal3e6852d30c5c4535, invalid observer6028cae5d12f4afb, exact private64f9998ef238476f and source-bound public4aa033ef receipt/board, plus accepted pair-LUTc985bbdb. Last terminal2026-11-03 06:01:19UTC; pending accepted2026-11-03 06:11:52UTC. Own task closed before routine tracker work. All18provisional local profile JSONs remain readable, previously logged and untouched.
 
 - 2026-11-02 22:00 MST (America/Vancouver): reviewedfdb935f6..2f8ae539, changed run/negative ledgers, both new terminal receipts/analyses, withdrawn local-only gates, owner reassignment and source screens. Incorporated4a2a79bdac04499a failed27/36 coverage ande044121f822d47b1 complete matched loss. Last terminal2026-11-03 04:28:55 UTC. No new layer/family gain; public607 retained. All18 provisional local profile JSONs are readable, previously logged and untouched.
 
