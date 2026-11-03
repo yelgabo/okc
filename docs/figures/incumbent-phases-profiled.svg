@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 650" width="1280" height="650" role="img" aria-labelledby="phase-title phase-desc"><style>svg{background:#101013}text{font-family:"Avenir Next",Avenir,system-ui,sans-serif;fill:#f0ece3}.svg-title{font-size:22px;font-weight:650}.sub{font-size:17px;fill:#c0bcb6}.small{font-size:15px;fill:#c0bcb6}.label{font-size:16px;fill:#dec18a}.edge{stroke:#dec18a;stroke-width:2;fill:none}.profile-cost{font-size:27px;font-weight:650;fill:#efc58c}.profile-share{font-size:21px;font-weight:600;fill:#efc58c}.profile-detail{font-size:15px;fill:#d3c1a5}.unmeasured{font-size:14px;fill:#d3b88e}</style>
+<title id="phase-title">From gate and up to expert combination</title>
+<desc id="phase-desc">Phase A writes BF16 intermediate rows and readiness. The activation producer waits and loads those rows through its ring. Phase B computes down, followed by per-expert RMS and slot-ordered routing combination.</desc>
+<defs>
+<marker id="phase-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0 0L10 5L0 10Z" fill="#dec18a"/>
+</marker>
+</defs><g class="profile-overlay" aria-label="Whole fused kernel profiling envelope">
+<rect x="35" y="16" width="1200" height="105" rx="10" fill="#282119" stroke="#ad8c58" stroke-width="1.5"/>
+<text x="55" y="46" class="label">Whole launch · this total covers every component below</text>
+<text id="phase-whole-time" x="55" y="82" class="profile-cost">155.3 µs · entire fused expert kernel</text>
+<text id="phase-whole-share" x="765" y="48" class="profile-share">62.0% of layer activity</text>
+<text x="765" y="77" class="profile-detail">Includes loading, waits, Phase A/B and combine</text>
+<text id="phase-profile-context" x="55" y="106" class="profile-detail">128 tokens · sliding · MAIN WGS · job 607eb52b</text>
+</g><g class="core-architecture" transform="translate(0 140)">
+<rect x="45" y="50" width="280" height="135" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="65" y="85" class="svg-title">Phase A</text>
+<text x="65" y="114" class="sub">Gate + up projections</text>
+<text x="65" y="139" class="sub">SiLU(gate) × up</text>
+<text x="65" y="168" class="unmeasured">Phase A time: not isolated</text>
+<path d="M485 56A140.0 16 0 0 1 765 56V179A140.0 16 0 0 1 485 179Z" fill="#1b1b20" stroke="#a38e68" stroke-width="1.5"/>
+<ellipse cx="625.0" cy="56" rx="140.0" ry="16" fill="#25252a" stroke="#a38e68" stroke-width="1.5"/>
+<text x="625.0" y="95" class="svg-title" text-anchor="middle">Intermediate Xᵦ</text>
+<text x="625.0" y="122" class="sub" text-anchor="middle">BF16 rows in global memory</text>
+<text x="625.0" y="146" class="sub" text-anchor="middle">Per-unit readiness</text>
+<rect x="930" y="50" width="300" height="135" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="950" y="85" class="svg-title">Activation producer</text>
+<text x="950" y="114" class="sub">Wait for required publications</text>
+<text x="950" y="139" class="sub">TMA → activation ring</text>
+<text x="950" y="168" class="unmeasured">Readiness wait: not isolated</text>
+<path class="edge" d="M325 115H485" marker-end="url(#phase-arrow)"/>
+<text x="405" y="92" class="label" text-anchor="middle">Write + publish</text>
+<path class="edge" d="M765 115H930" marker-end="url(#phase-arrow)"/>
+<text x="847" y="92" class="label" text-anchor="middle">Ready rows</text>
+<rect x="485" y="330" width="280" height="135" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="505" y="365" class="svg-title">Phase B</text>
+<text x="505" y="394" class="sub">Down projection</text>
+<text x="505" y="419" class="sub">Full per-expert RMS</text>
+<text x="505" y="448" class="unmeasured">Phase B time: not isolated</text>
+<rect x="930" y="330" width="300" height="135" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="950" y="365" class="svg-title">Combine</text>
+<text x="950" y="394" class="sub">Routing weights</text>
+<text x="950" y="419" class="sub">Sum in routing-slot order</text>
+<text x="950" y="448" class="unmeasured">Combine time: not isolated</text>
+<path class="edge" d="M1080 185V260H625V330" marker-end="url(#phase-arrow)"/>
+<text x="850" y="245" class="label" text-anchor="middle">Shared Xᵦ tiles → WGMMA</text>
+<path class="edge" d="M765 395H930" marker-end="url(#phase-arrow)"/>
+<text x="845" y="373" class="label" text-anchor="middle">Expert outputs</text>
+<text x="45" y="355" class="sub">Readiness is per dependency.</text>
+<text x="45" y="385" class="sub">CTAs can reach Phase B</text>
+<text x="45" y="415" class="sub">at different times.</text>
+</g></svg>
