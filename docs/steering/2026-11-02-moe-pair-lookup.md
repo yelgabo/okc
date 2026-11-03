@@ -47,3 +47,5 @@ No target outcome is known. Public approval covered5df257af only. Author checked
 ## Accepted private screen
 
 Ownc985bbdb2980407a accepted for frozen542cd650/541745bytes, published5ff38524. Fresh shared list hadzero live jobs; MoE checks12left before dispatch. Exact accepted ID and source association are archived. No target result yet; collect only this ID with one foreground waiter.
+
+During the accepted job, the offline reader gained failed-partial support. One additional CPU test covers source/job/runtime binding, coverage bounds, incomplete evidence and a complete favorable timing table attached to a failed setup. Both remain unqualified. The existing full-reader test also passes after this change. The frozen runtime, payload, manifests and gates are unchanged. This raises the author-checked CPU test count to13.
