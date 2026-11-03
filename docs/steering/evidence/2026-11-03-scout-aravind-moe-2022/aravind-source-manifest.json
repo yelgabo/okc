@@ -1,0 +1,312 @@
+[
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "README.md",
+    "blob": "9d887649ce15a387909d61c7f873267fca478093",
+    "sha256": "52a1516165a5dd4a084ed20419d8e78f1ef796e9e35b6151d8d3744118ccbb13",
+    "bytes": 1610,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/README.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/README.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "TASK.md",
+    "blob": "1755b9ecebe4f52825244681682b68822af97b97",
+    "sha256": "e0bb1883b0ba1be360cecb9c7088fa1e7af2c1ded22607154c1a91780c9aacb0",
+    "bytes": 6782,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/TASK.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/TASK.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "baseline.py",
+    "blob": "489b210f27a38ffb3f83b8da3f297b6f569ea57f",
+    "sha256": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+    "bytes": 7086,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/baseline.py",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/baseline.py"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "checks.py",
+    "blob": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+    "sha256": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+    "bytes": 2484,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/checks.py",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/checks.py"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v07_first_custom_kernel.md",
+    "blob": "19afc95408aad61f78620a5cd557a0b7758a4e43",
+    "sha256": "5963e24016d73bdcbe51faf37f4bc93b0050d90145edace573820188eadef9f3",
+    "bytes": 3090,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v07_first_custom_kernel.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v07_first_custom_kernel.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v08_in_cta_split_k.md",
+    "blob": "392f5e8cea4d2ee83b363ed6de39db03d72f1d34",
+    "sha256": "1f383237a12790a76262d28bd664b124067a3fd411931f6e4352fe6abd072e1a",
+    "bytes": 2151,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v08_in_cta_split_k.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v08_in_cta_split_k.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v09_balanced_gemm2.md",
+    "blob": "2fa3f0486030fa4380c7f0dcdc05d2418549a6f5",
+    "sha256": "24226ff66af40e3192a80c6701ac114c8baf1dd20a21f5eaf0b72f5126aa8db0",
+    "bytes": 2865,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v09_balanced_gemm2.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v09_balanced_gemm2.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v15_token_tile_search.md",
+    "blob": "7a6d12c96f529364495f3713333e2a6155525451",
+    "sha256": "e6a11946074c042f9a4a14a5ceca0f3b00bf7e13a17b6c7b7e404c3af8cc49af",
+    "bytes": 1855,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v15_token_tile_search.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v15_token_tile_search.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v16_hoisted_gather.md",
+    "blob": "651c809487006031ca15d34e8f0317b3c25102ad",
+    "sha256": "dba2f987fece7baeed3c5528cfb5db90e74a7499393b68feb2178a0ca96f2fcc",
+    "bytes": 2368,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v16_hoisted_gather.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v16_hoisted_gather.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v21_memoized_scales.md",
+    "blob": "b89d7fffa061eca8158101a5358aeff54a33171d",
+    "sha256": "561ae99b27f504e15beed63dff522c8540a37a171b9ae03ba863129a3403bf3a",
+    "bytes": 2566,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v21_memoized_scales.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v21_memoized_scales.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v22_pdl.md",
+    "blob": "3bf0f7487d683ef0452e81cf171ebdbb5bacd05d",
+    "sha256": "519722edf6dedcb3c1be608425c3cd56524e30bbfd0ee8291bed8b7dbd23b170",
+    "bytes": 1569,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v22_pdl.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v22_pdl.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v24_early_weight_prefetch.md",
+    "blob": "a7d570806800a5022e02b9fe3b70903d56378f5e",
+    "sha256": "7eb0e7f5dccf53f4ef981fd6978513cd95bc2475d58e80ef2f12f33cd621c4f1",
+    "bytes": 1969,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v24_early_weight_prefetch.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v24_early_weight_prefetch.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v26_block_counters.md",
+    "blob": "d84e0a42c387353ee2e7ef7fa349ef67153f8452",
+    "sha256": "685cdddb96d6308b04798cebb79d96e296d9b59c288e05b0bcc8a2540f744c94",
+    "bytes": 2656,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v26_block_counters.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v26_block_counters.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v27_alu_to_fma_pipe.md",
+    "blob": "e8c95d4415ee04cbc00e0fb5850a83a82b53971c",
+    "sha256": "6158da0c603dc9685a5bf9c862b1b889fb62056a75bffa57d11a18eb7a735802",
+    "bytes": 3794,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v27_alu_to_fma_pipe.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v27_alu_to_fma_pipe.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v28_two_scales_per_word.md",
+    "blob": "88c228ba2da9832192ed486c94808756f55acb9b",
+    "sha256": "af01c7cb4ea7f75b44aefc82444f30926c31a75da1f7c6491360b126643724b1",
+    "bytes": 2008,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v28_two_scales_per_word.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v28_two_scales_per_word.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v31_router_in_gemm.md",
+    "blob": "a315683a728c3fc6dfce9f5059ce4d86ce8943c5",
+    "sha256": "d8a6f88d1d46751c373c11aa3778315c95394120c23d9f7ed15778e6a0d424c6",
+    "bytes": 3753,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v31_router_in_gemm.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v31_router_in_gemm.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "docs/v35_final_board.md",
+    "blob": "489bbbd2a943555c85e86b2ebd740bce0d5255da",
+    "sha256": "39c3e2d6cbde2be91ea4b80016ac95a0706ee8a7950eb519e415d848da0638fa",
+    "bytes": 2547,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/docs/v35_final_board.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/docs/v35_final_board.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "nvfp4.py",
+    "blob": "aa688f50e4bdbf500c5a09e9f546ec37c68e3dad",
+    "sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+    "bytes": 5929,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/nvfp4.py",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/nvfp4.py"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "reference.py",
+    "blob": "b937352204a206cc2de669d3aa36a014755afe86",
+    "sha256": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+    "bytes": 6764,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/reference.py",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/reference.py"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/LICENSE",
+    "blob": "9c422689c8f5c317c7c65153b1209349ec57007e",
+    "sha256": "1495e1e757ef4d0925a2350563cf5754bb23c51701a8ec4fb3c5cdcbedae6747",
+    "bytes": 11346,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/LICENSE",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/LICENSE"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/README.md",
+    "blob": "8f1ab579d5e97698932b4a58af7613949a0ef8e4",
+    "sha256": "42eb7d9d42c9a49e27c613041a7a8671a6e86d651d4c0e074d9660c49bfb40de",
+    "bytes": 1101,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/README.md",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/README.md"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/dequant.h",
+    "blob": "98b5af2573c4caa3873e90feb17f283c155d7caf",
+    "sha256": "f07f0e1284431bd630d605b438c054509573c495d66d3a2b2e017396d84887a0",
+    "bytes": 19313,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/dequant.h",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/dequant.h"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/kernel.h",
+    "blob": "eda2f05c1c7c61a915789e2aa3d9504a5203336b",
+    "sha256": "d2866eb1ad6342a106bdbc4edc87b5b3a8139d652af5bde4ca3f3d4d1ef69518",
+    "bytes": 1914,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/kernel.h",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/kernel.h"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/marlin.cuh",
+    "blob": "60ade8f4034615f10f3a0ed162675d8777429726",
+    "sha256": "bce2c9316e047749af8553b35a30a9d5decb062d174952b6d5e46f9096494419",
+    "bytes": 2163,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/marlin.cuh",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/marlin.cuh"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/marlin_dtypes.cuh",
+    "blob": "d36141a9ac1d275214e2500e25cedede8e7f8d23",
+    "sha256": "fbddccaab5802b44e6167ee3747a207b88defeda2addbb04f737b85843b36185",
+    "bytes": 1959,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/marlin_dtypes.cuh",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin/marlin_dtypes.cuh"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin_moe/kernel.h",
+    "blob": "ccc47e73920dc6d81d65e3d53f22a3bb770d9dca",
+    "sha256": "b7a0dfdbe8bd12dd4cf87236a0c7e102b8668e5d328b7ec2d8542b942fab4ec2",
+    "bytes": 2512,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin_moe/kernel.h",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin_moe/kernel.h"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin_moe/marlin_template.h",
+    "blob": "e5f1224b6d7a66290ec8dd9bbcf5e85ab96bb5b9",
+    "sha256": "6b43bc72d64a591bc86f62df2db14bdea5adce7b70b00af1a3e601a3c0d24fdb",
+    "bytes": 78037,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin_moe/marlin_template.h",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin_moe/marlin_template.h"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin_moe/moe_wna16_marlin.cuh",
+    "blob": "87647915df2760895c6723546a6e06ce31dfd890",
+    "sha256": "ec75c89142eeee6e7d39d2908d3eeae74d1cc0c481368caa1263aa9d4bdcdc0a",
+    "bytes": 39363,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin_moe/moe_wna16_marlin.cuh",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/python/sglang/kernels/jit/csrc/gemm/marlin_moe/moe_wna16_marlin.cuh"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/python/sglang/kernels/ops/moe/moe_wna16_marlin.py",
+    "blob": "1defc8a92d464021649e56f0e9217ba1429d847e",
+    "sha256": "a34fa1daf24a6286d5d027c6ae45dac5fea144abd606a65b722fecd091513398",
+    "bytes": 4905,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/python/sglang/kernels/ops/moe/moe_wna16_marlin.py",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/python/sglang/kernels/ops/moe/moe_wna16_marlin.py"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "sglang_baseline/python/sglang/srt/layers/quantization/marlin_utils_fp4.py",
+    "blob": "1a4b5d52699e2f9e7f608ec4a5823775440f0131",
+    "sha256": "a9011b5af7f8c9d25755d2ea4125e9fbdad06b862138be3ca27c85fc2f8a8e08",
+    "bytes": 21421,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/sglang_baseline/python/sglang/srt/layers/quantization/marlin_utils_fp4.py",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/sglang_baseline/python/sglang/srt/layers/quantization/marlin_utils_fp4.py"
+  },
+  {
+    "repository": "Aravind-11/muse-moe-w4a16-kernels",
+    "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+    "path": "submission.py",
+    "blob": "bd3d42df0c398809a6f696619ef38e5a296ec049",
+    "sha256": "badc756bfcd4bd4fc271f0fc4dcb312b7232733980d56d1d29cf1681a348fe52",
+    "bytes": 91057,
+    "url": "https://github.com/Aravind-11/muse-moe-w4a16-kernels/blob/dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40/submission.py",
+    "local": ".build/scout-2026-11-03-2022/aravind-source/submission.py"
+  }
+]

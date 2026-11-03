@@ -1,0 +1,386 @@
+[
+  {
+    "kind": "repositories",
+    "query": "muse_bf16_proj -repo:yelgabo/okc pushed:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "commits",
+    "query": "muse_bf16_proj -repo:yelgabo/okc committer-date:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "issues",
+    "query": "muse_bf16_proj is:issue -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "pull_requests",
+    "query": "muse_bf16_proj is:pr -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "repositories",
+    "query": "muse_attention_decode -repo:yelgabo/okc pushed:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "commits",
+    "query": "muse_attention_decode -repo:yelgabo/okc committer-date:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "issues",
+    "query": "muse_attention_decode is:issue -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "pull_requests",
+    "query": "muse_attention_decode is:pr -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "repositories",
+    "query": "muse_moe_w4a16 -repo:yelgabo/okc pushed:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 1,
+    "returned": 1,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "commits",
+    "query": "muse_moe_w4a16 -repo:yelgabo/okc committer-date:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "issues",
+    "query": "muse_moe_w4a16 is:issue -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "pull_requests",
+    "query": "muse_moe_w4a16 is:pr -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "repositories",
+    "query": "muse_decode_layer -repo:yelgabo/okc pushed:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "commits",
+    "query": "muse_decode_layer -repo:yelgabo/okc committer-date:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 1,
+    "returned": 1,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "issues",
+    "query": "muse_decode_layer is:issue -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "pull_requests",
+    "query": "muse_decode_layer is:pr -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "repositories",
+    "query": "muse_prefill_layer -repo:yelgabo/okc pushed:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "commits",
+    "query": "muse_prefill_layer -repo:yelgabo/okc committer-date:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 1,
+    "returned": 1,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "issues",
+    "query": "muse_prefill_layer is:issue -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "pull_requests",
+    "query": "muse_prefill_layer is:pr -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "repositories",
+    "query": "\"Muse Spark Open Kernel Challenge\" -repo:yelgabo/okc pushed:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "commits",
+    "query": "\"Muse Spark Open Kernel Challenge\" -repo:yelgabo/okc committer-date:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "issues",
+    "query": "\"Muse Spark Open Kernel Challenge\" is:issue -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "pull_requests",
+    "query": "\"Muse Spark Open Kernel Challenge\" is:pr -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "repositories",
+    "query": "\"openkernelchallenge.dev\" -repo:yelgabo/okc pushed:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "commits",
+    "query": "\"openkernelchallenge.dev\" -repo:yelgabo/okc committer-date:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "issues",
+    "query": "\"openkernelchallenge.dev\" is:issue -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "pull_requests",
+    "query": "\"openkernelchallenge.dev\" is:pr -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "repositories",
+    "query": "\"Muse Spark\" kernel -repo:yelgabo/okc pushed:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "commits",
+    "query": "\"Muse Spark\" kernel -repo:yelgabo/okc committer-date:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 0,
+    "returned": 0,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "issues",
+    "query": "\"Muse Spark\" kernel is:issue -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 14,
+    "returned": 14,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  },
+  {
+    "kind": "pull_requests",
+    "query": "\"Muse Spark\" kernel is:pr -repo:yelgabo/okc updated:>=2026-11-03T18:28:21Z",
+    "pages": [
+      1
+    ],
+    "total": 46,
+    "returned": 46,
+    "incomplete": false,
+    "error": null,
+    "truncated_by_page_limit": false
+  }
+]

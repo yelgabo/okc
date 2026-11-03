@@ -60,6 +60,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 
 ## Audits and monitors, November 2 to 3
 
+[Public scout: Aravind's compact MoE source](2026-11-03-scout-aravind-moe-2022.md) pins `dcf3ee7c`, verifies all 31 files and checks the final dispatch plus raw-ID/custom-norm guard. Author reports 1.8696x without a raw receipt and explicitly declines to attribute the noisy v35 increase to unselected WGMMA variants. Source reference only; current owners retain their queue.
+
 [Driver monitor18:36UTC](2026-11-03-driver-monitor-1836.md): bounded merge-order diagnosis,pdl8eprospectivegates,release-review evidence update,new BF16owners and fresh quota/boards.
 
 [Public scout: timing disagreement and B200 quality controls](2026-11-03-scout-guild-timing-caveat-1823.md) records Guild thread 147's local forecast/judge reversal without a source-bound receipt. SGLang PR47129's new public CSV has 2,638 paired rows, counted here, but compares opt-in OFF/ON on the same PR rather than clean main. Author measurements, data checks and unresolved qualification remain separate; no new GPU allocation.

@@ -1,0 +1,62 @@
+[
+  {
+    "path": "aravind-source-manifest.json",
+    "bytes": 17800,
+    "sha256": "f9a9611499ce3e6573873c85c4a0ca737551f25a3c29f310c7852e19346a6827",
+    "blob": "fde6b77f3cbbc3833b7646e3e58ada37eba1c0d2"
+  },
+  {
+    "path": "aravind-source.tar.gz",
+    "bytes": 87872,
+    "sha256": "a0e0e07c140425c016d06b831020c1c7edf6df2495f0dfc57fe9dad9165fd0dd",
+    "blob": "058af241195cee0962727bdd12dde79f97ad1379"
+  },
+  {
+    "path": "aravind-static-check.json",
+    "bytes": 553,
+    "sha256": "4bf82fbd6bd1a2e63958d6d90a5070e112f0ddefb83c573b6a64c94abe786126",
+    "blob": "1dc7b37406c44fcb13c104779de2d4773353a42a"
+  },
+  {
+    "path": "guild-body-diff.json",
+    "bytes": 4865,
+    "sha256": "09d8f01bfac8802decd0dca0612d8f358cec1ade97f2e1c3f8084aff586470d9",
+    "blob": "47ea94218b79f07f89e7503057e273d9df73b420"
+  },
+  {
+    "path": "query-coverage.json",
+    "bytes": 8735,
+    "sha256": "9063ef02bfaf85c6c9135ae83f940121c632996a1810fec2fb5e73df302140ba",
+    "blob": "48d729591ea5a6ec6eb185e009281e4cc48272b2"
+  },
+  {
+    "path": "search-captures.tar.gz",
+    "bytes": 957052,
+    "sha256": "23192b22fcf7ede62cfbe84f903ba8255274119954b77ff182a329ac452a3fea",
+    "blob": "05e3a7b9692b0ebcb7b4219050e09c22292004f5"
+  },
+  {
+    "path": "social-access.json",
+    "bytes": 692,
+    "sha256": "93cc31d1b92d3de1033d38911a131efd62233d9e99824d6038b25fbe5a2d639f",
+    "blob": "9e8030a5e75f4c499952e808018933f4421b2754"
+  },
+  {
+    "path": "summary.json",
+    "bytes": 19171,
+    "sha256": "857f431b4068dc4080a70042aafde2b7def65e09ccdc68fe436ce9200840dfb1",
+    "blob": "4fb9b0f48206a799ba5a78489c00d2c177145f97"
+  },
+  {
+    "path": "watch-comparisons.json",
+    "bytes": 319,
+    "sha256": "f16c573492ef90b73d7c723f951d9da1aa97dd1f469f88848eb568d7ed5e592e",
+    "blob": "611dbb47b37cd2ee8d26e52ddc00a7e420e5ade0"
+  },
+  {
+    "path": "web-coverage.json",
+    "bytes": 3339,
+    "sha256": "293e23bcb2b81eec16e85a8f08e312572a79a7d7ac2c7f4d89e64f0c497e2266",
+    "blob": "fc729a8dc6a6ee7b923a0630a0e4442fe9a5ee51"
+  }
+]
