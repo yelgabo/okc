@@ -202,3 +202,7 @@ ssh okc-h200 'cd /root/okc && . tools/box_env.sh && ncu --profile-from-start off
 `--profile` runs one warm eager call per case inside `cudaProfilerStart/Stop`, so prepare's kernels
 are skipped. Prepare's in-file benches do run under ncu, and their numbers there are invalid
 (observed: PDL8_AB T = 32 flips to a loss and a PDL8_STRESS T = 32 FAIL under ncu interception).
+
+## Comparison rule
+
+Every box number is a paired comparison against the public file's bytes run on the box in the same session (box-candidate versus box-control). Never compare a box run to a judge number; the judge decides keeps.

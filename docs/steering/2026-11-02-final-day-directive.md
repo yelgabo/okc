@@ -46,6 +46,10 @@ thing to build when work resumes.
 Each owner appends one line per check to the relevant run log and to this file's ledger below: job, source
 hash, affected cells before and after, decision. Chat-only results do not count.
 
+## Box rule (user, 2026-11-03 14:50 PT)
+
+The rented H200 (docs/box.md) is not one-to-one with the judge. A box measurement is only ever a paired comparison: the candidate against the current public file (the same bytes the board shows, for example the Family G release), both run on the box in the same session with the same inputs, reported as box-candidate versus box-control. A candidate that beats its box control is a new candidate for a judge check even when its absolute box time is far from the judge's number for the public file. Judge numbers are never the comparator for a box run, and a box win never replaces the judge check that decides a keep.
+
 ## Ledger
 
 - 2026-11-02 ~23:30 PT, user authorization: "yes, submit on confirmation" for the MoE factorized-output release (lead job 7479372115c64702, 5,698.5 us, 2.360x). The final-day lead submits the single-arm release file to the muse_moe_w4a16 board as soon as its own private check confirms within noise of that result, without a further ask. This authorization covers that one file only.
