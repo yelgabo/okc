@@ -5666,3 +5666,24 @@ exposure with a deterministic, low-risk fix.
 Own private check `b45cce36b47f4e81`, accepted 2026-11-03 00:07 PT (4 MoE checks left before it; another
 owner's public MoE run 5b61d2f03dd44614 was running and is not ours). Sole waiter writes
 `muse_moe_w4a16/profiles/tiny_bal.b45cce36b47f4e81.status.json` / `.log`. Result pending.
+
+MOE-BAL-01 terminal `b45cce36b47f4e81`: PASS 5 tests / 6 benchmarks, prepare 185.4 s, no flags. Score 5,832.0 us
+(2.3060x, CI 2.271-2.341). Medians T1 27.73 / T8 69.96 / T16 93.19 / T32 124.62 / T128 181.67 / T256 215.28 us
+against the public release's 26.73 / 67.21 / 93.96 / 127.56 / 180.87 / 217.35 and the dormant-instrument run
+19128cda79ca4e25's 26.57 / 69.52 on the same 8-warp loop: T1 +1.0 us (best-of-100 27.71 against 21.89, so the
+whole distribution moved, not one outlier), T8 +2.7 against the public and +0.4 against the same-day plain
+loop; the four unchanged cells inside noise. No gain; not shipped. The balanced counts did not shorten the
+tail measurably, so the finish spread at T <= 8 is rate variance across CTAs more than the one-unit count
+difference (inferred from this run and the timeline's 1.5 / 4.1 us spreads). Status and log:
+`muse_moe_w4a16/profiles/tiny_bal.b45cce36b47f4e81.status.json`, `.log`. Row added to docs/ruled-out.md.
+
+Lane summary (three checks, 2026-11-02 23:38 to 2026-11-03 00:19 PT): the timeline (19128cda79ca4e25) is the
+result. At T <= 8 the Tiny / Tiny2 unit loop and the 3-slot stream are both at 1.1-1.2 us per 36,864-byte
+unit, the warps wait under 0.1 us per unit for weights, and the exposed non-stream time is 7.4 us of 22.6 at
+T = 1 (ramp 3.1, handoff 2.2, tail 2.1) and about 10 us of 52.9 at T = 8 (ramp 3.5, handoff 2.2, tail 4.2).
+The two cheap fixes aimed at the loop (16 warps) and the tail (balanced counts) lost or tied; the phase B
+L2-prefetch idea was not dispatched because the phase B weights wait is 0.2-0.5 us. What is left for the
+short loads is structural: a faster unit loop at 8 warps (fewer instructions per unit than the 554 measured
+at parity with the public kernel), a cheaper handoff than a gpu-scope fence plus a credit per CTA, or the
+persistent post-attention kernel in the reframe's section 4, which removes the ramp and tail rather than the
+bytes.
