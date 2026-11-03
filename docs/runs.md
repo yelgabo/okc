@@ -2338,3 +2338,35 @@ kernel's first-CTA-to-last-CTA span without leaving the judged replay, so the ju
 cell carries a per-launch cost that a shorter kernel does not reduce; the same ~1 us separates the
 judged and profiled times of the router and slice cells in both runs. Any further short-cell work has
 to be judged on the status JSON cell medians, not on profiled kernel durations.
+
+
+### 2026-11-03 stream-K qkv_gate at 8 / 16 / 32 tokens (final-day BF16 lane, sanctioned exception)
+
+Preregistration before dispatch. Source: the rebuilt C2 (`tools/proj_sk_xor_control.py`, SHA256
+5610b8a6, job 9eba96894ee1402e) plus three tuner candidates written by `tools/proj_sks_make.py` into
+`muse_bf16_proj/experiments/qkv_sks.py` (SHA256 ab0f9c1a). The judged picks stay in the file; the
+tuner chooses per bucket as before.
+
+Hypothesis. qkv8 / qkv16 / qkv32 run 96 CTAs of 24 rows at one CTA per SM, so 36 SMs idle and each
+busy SM streams 393 KB at about 38 GB/s (3.7 TB/s in all). The candidates qkv8s / qkv16s / qkv32s keep
+the geometry, stages, consumer and escape warps and the 12-bit stream, and launch 128 CTAs over the
+96 x tst (row block, k stage) sequence in row-block-major order: each CTA takes 6 (m = 8) or 12
+(m = 16 / 32) consecutive stages, 3/4 of a row block (295 KB), spanning at most two blocks; every
+block has exactly two contributors (checked on the CPU for both stage counts). The stage-major
+stream needs no new layout: each stage of one row block is already one contiguous bulk copy, so the
+producer only changes the address arithmetic. 128 rather than 132 CTAs because the work unit is a
+stage: 768 / 1536 stages split evenly over 128, and 132 CTAs would leave the longest CTA at the same
+6 / 12 stages. Consumers add their FP32 partials with red.add.v2 into an FP32 scratch at the end of
+each block segment, escape warps add each correction with red.add over exactly the CTA's k range of
+that block (both blocks' tables are loaded), and the last arriver of a block (atomicInc counter)
+reads its rows from L2, stores bf16 through the row map and writes zeros back (the wd GRED join's
+ordering, docs/proj-port-guide.md). Expected: about 7.5 us of streaming plus the ramp, 8.0-8.5 us
+judged against 9.77 / 9.74 / 10.56; in the tuner (in-process, about 3.9 us above judged) qkv8s near
+12.2 against qkv8 13.9.
+
+Local evidence (no GPU): device and host code compile with nvcc 12.8 for sm_90a (Docker); the 92
+existing kernel instances have identical register and spill counts; the 8 new instances use 69-120
+registers, no spills, 3 barriers.
+
+Acceptance (brief): a bucket switches if its stream-K candidate wins by 1 us or more in the tuner and
+the judged cell confirms; stop after one more check if all three buckets are within 0.5 us or slower.
