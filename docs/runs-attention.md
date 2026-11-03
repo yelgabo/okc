@@ -4315,3 +4315,47 @@ cluster launch and barriers plus the 16-SM pull, not DRAM. No second check, no p
 closed in docs/ruled-out.md. The mode stays in attn_one.cu behind `ONE_CL` (default 0: no
 instance is built and every judged instance's register count is unchanged, local sm_90a
 compile). The candidate-only gate generator `tools/attn_make_cl_gate.py` is retained unused.
+
+## 2026-11-03 mode 51 timeline and per-head ring (verify 16 / 32 full), registered before dispatch
+
+Owner: attention, verify 16 / 32 full assignment of 2026-11-03 (user brief; the final-day
+directive's short-load rule is superseded for this owner by that brief). Base: the
+8914751e3b9f468b control body as merged (worktree commit 22f437a0; `ONE_LATE_TID 0`, `ONE_CL 0`).
+
+Static answer to the bytes-in-flight question: a stage is one 64-key tile of K and V, 2 x 8 KB.
+Mode 49 holds 3 stages x 16 KB x 2 CTAs = 96 KB per SM; mode 51 holds 4 x 16 KB x 2 = 128 KB
+per SM. Mode 51 already has more bytes in flight per SM, and a fifth stage does not fit
+(107,104 + 16,384 bytes per CTA x 2 exceeds 233,472). No ring-depth candidate follows.
+
+What the earlier stamps already say (8ac6563343f74bcd, verify 16 / 32 full, medians of five
+cold calls): every CTA has 76 / 152 tiles, yet the CTA that ends first on each SM (132 / 132
+the lower block index) ends at 85.7 / 156.0 us and its partner at 97.8 / 178.4; the last loop
+ends at 102.4 / 185.7 while the mean CTA ends at 91.8 / 167.4. The kernel end is the last SM.
+How much a balanced split would save depends on the partner's rate once it runs alone: equal
+to its co-run rate gives about -6 / -11 us, equal to the pair's combined rate gives 0. This
+check measures that rate.
+
+Source changes (default off, all 17 instances SASS-identical to 22f437a0 when off, local
+sm_90a compile):
+- `ONE_STAMP=2` (bench only): per CTA, warpgroup 0 / 1 full-barrier pass time and the producer's
+  empty-slot pass time of every fourth tile, and warpgroup 0's running wait, after the STAMP rows
+  (`TL_BASE`). 80 registers, 4 bytes of spill (probe only).
+- `ONE_HSPLIT=1`: one full and one empty mbarrier per KV head and stage (full count 64, empty
+  128). Producer warps 0-1 copy head 0's four 16-byte chunks of every row and warps 2-3 head 1's
+  (barrier choice warp-uniform), each warpgroup waits on and releases only its head, and
+  `patch_tile` writes only the patching warpgroup's own chunks (the other half of the stage may
+  still hold the tile the other warpgroup is reading). Fences, counts of arrivals per thread, the
+  cooperative attribute and the math are unchanged. 80 registers, no spills; 107,168 bytes per
+  CTA, two CTAs per SM.
+
+Check: `tools/attn_make_q8_tl.py` (arms ctrl, ctrl2 null, stamp_probe, hs, stamphs_probe; only
+verify 16 / 32 full timed, two held-out inputs, 120 cold rounds, seed 311301; non-control builds
+compile only instance 8/51; resource gate before timing). Reading: `TLINE` per call (pair rates
+a, b_co, b_solo, warpgroup skew, slot-to-full latency, consumer busy time per tile, producer
+tiles ahead, model end) and `STSUM` medians.
+Gate for hs as a candidate: hs - ctrl at most -5 us cold on both cells and both inputs and
+beyond |ctrl2 - ctrl|; ABCHECK clean. Pass: a full-shape candidate check plus the strict
+fresh-input replay gate. Fail: ruled-out row with the per-cell numbers.
+Decision rule for the next candidate: b_solo / b_co near 1 (the late CTA does not speed up when
+alone) means a run-time split of each pair's keys can recover most of the 12 / 23 us pair gap;
+near the pair's combined rate means it cannot.

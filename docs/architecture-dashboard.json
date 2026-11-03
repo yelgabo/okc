@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-03T01:23:00-07:00",
-  "snapshot": "fa762950",
+  "reviewed_at": "2026-11-03T02:16:00-07:00",
+  "snapshot": "a4660143",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public layer607 unchanged. Tiny observer is valid diagnostic evidence, not a gain. Cluster merge loses; BF16 short ramp and clean Factor-Y confirmation miss gates. Public MoE2821 is5737.989µs, physical source correspondence unverified here. Two separate Tiny balanced-range variants also miss cross-run endpoint gates."
+    "note": "Public607 unchanged. Corrected F3 has0.45/1.09µs paired component savings atT1/T8, but no qualified whole-layer gain. Original ready flags, Half+XS and UNP endpoints remain stopped."
   },
   "families": [
     {
@@ -21,10 +21,10 @@
       "label": "Combined layer gain; isolated A unresolved",
       "metric": "1.0052–1.0106×",
       "unit": "M1 + mode 51 paired layer ratios, two runs",
-      "summary": "Full-K T8/T16 ownership loses. Tiny/Tiny2 observer passes its frozen diagnostic gates; per-CTA waits are not speedups. Original fused WS/NS3 retained. Separate16-warp/balanced and balanced-only short variants also miss cross-run endpoint gates.",
+      "summary": "Ready flags pass tested correctness, fail complete matched timing and retain a publication proof gap. Combined Half+XS also loses cross-run. Original fused WS/NS3 retained.",
       "layer": "Earlier owned layer tests combine M1 and mode 51. The current retained layer belongs to G.",
       "pending": [],
-      "limit": "A+C changes remain combined. Distributed A-ready publication is target-untested at this snapshot and is owned by the existing MoE worker; General export audit complete.",
+      "limit": "Failures stay scoped to exact combined designs. No isolated family rejection or new tested B short-path comparison. The owner inbox has no qualified next correction.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -128,16 +128,14 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Public retained; ten component gates missed",
+      "label": "Public retained; eleven matched component gates missed",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "Ten matched component gates remain missed. The Tiny observer is valid diagnostic evidence, with no algorithm gain. Clean Factor-Y single-arm release confirmation fails its separate condition.",
-      "layer": "Public layer607 remains2.126083×. Public standalone MoE2821 is5737.988910µs/2.3438× in the08:11UTC board snapshot; physical source correspondence unverified here.",
+      "summary": "Ready flags add a failed matched gate with one unchanged drift breach. Half+XS and whole-layer UNP slice1 also stop; their separate cross-run/component scopes remain explicit. F3has small paired component signals but fails its complete-layer condition.",
+      "layer": "Public layer607 remains2.126083×. Public standalone MoE2821 is5737.988910µs/2.3438× in the09:14UTC board snapshot; physical source correspondence unverified here.",
       "pending": [],
-      "evaluation_pending": [
-        "MOE-SHORT-READY-01 distributed A-ready flags, target-untested"
-      ],
-      "limit": "No isolated family or whole-layer gain. Prepared-gamma/storage is parked under final-day short-load scope. Distributed A-ready flags are source-qualified, target-untested.",
+      "evaluation_pending": [],
+      "limit": "Original helper/public layer retained. Ready-flag ordering proof remains incomplete; no repair/retry allocation. Conditional confirmation/release drafts unsubmitted; qualified refill missing.",
       "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
@@ -199,13 +197,13 @@
     },
     {
       "name": "Final-day short-load scope",
-      "label": "Tiny source-qualified design; target-untested",
-      "summary": "T1/T8 only, T16 where the same change applies. Prepared-gamma/storage and BF16 large-M engineering parked. General independent export audit complete; existing owners retain implementation and jobs."
+      "label": "Finite short-load endpoints closed; qualified refill missing",
+      "summary": "Ready flags stopped after complete matched failure and publication-proof gap. Half+XS and UNP slice1 also close. No blind retry, flags/layout/epoch sweep, T32+engineering or manufactured next task."
     },
     {
       "name": "Local compiler-only closures",
       "label": "Target-performance rejection withdrawn",
-      "summary": "Local spills/registers or identical SASS do not establish H200 ineligibility or speed. Stable-pointer/group-only and repair cuts remain target-untested; independent source bugs and measured H200 losses retain their scope."
+      "summary": "Local spills/registers or identical SASS do not establish H200 ineligibility or speed. Stable-pointer/group-only and repair cuts remain target-untested; independent source bugs and measured H200 losses retain their scope. New local-screen audit corroborates gamma/G2as unmeasured engineering deferrals, not5070timing losses."
     },
     {
       "name": "Whole-unit B queue inside G",
@@ -220,7 +218,7 @@
     {
       "name": "Standalone MoE base promotion",
       "label": "New public numeric draw; source correspondence unverified",
-      "summary": "Public2821:5737.988910µs/2.3438× at08:11UTC. Prior source-bound4aa/5df remains historical5788.720720µs. No new algorithm, isolated-family or layer gain inferred.16private leads have explicit promotion dispositions."
+      "summary": "Public2821:5737.988910µs/2.3438× at09:14UTC. Prior source-bound4aa/5df remains historical5788.720720µs. No new algorithm, isolated-family or layer gain inferred.16private leads have explicit promotion dispositions."
     },
     {
       "name": "G group16 pair lookup and lossless packing",
@@ -245,7 +243,7 @@
     {
       "name": "Tiny/Tiny2 native observer",
       "label": "Valid diagnostic; no speedup established",
-      "summary": "f401 passes5/6/6 and frozen intrusion gates. General reproduces receipt and audits both T1/T8exports. Activation-ready waits median4.60/2.43µs per CTA; causal savings unresolved. Official5726.051478µs is unchanged control0, with explicit disposition."
+      "summary": "f401 passes5/6/6 and frozen intrusion gates. General reproduces receipt and audits both T1/T8exports. Activation-ready waits median4.60/2.43µs per CTA; causal savings unresolved. Official5726.051478µs is unchanged control0, with explicit disposition. The follow-on ready-flag treatment failed its matched gate; observed waits were not recovered speedups."
     },
     {
       "name": "Attention cluster merge mode136",
@@ -261,6 +259,36 @@
       "name": "Separate Tiny timeline and balanced-range lane",
       "label": "Diagnostic plus two cross-run gate failures; closed",
       "summary": "1912 dormant-instrument timeline is distinct from f401 and lacks matched intrusion qualification. ab54144f6c4d4727: T1/T8 +4.118/+3.990 µs versus public4aa. b45cce36b47f4e81: T1/T8 +0.998/+2.755 µs versus public4aa. All pass 5/6/6; no candidate ships. No isolated cause or ceiling established."
+    },
+    {
+      "name": "Distributed A-ready flags",
+      "label": "Matched gate failed; publication proof incomplete",
+      "summary": "e3e2495464f34b2c:5/6/6and54private cases pass;0/6groups,11regressions, one128normal drift. T1/T8candidate-minus-control medians+1.080/+0.592µs. Official5815.571639µs,95%CI2.277811–2.347186. Stop exact source; no confirmation or release."
+    },
+    {
+      "name": "Tiny half-phase + activation staging",
+      "label": "Combined endpoint loss; cause unresolved",
+      "summary": "abc831c68f174b68:5/6/6pass;T1/T8+7.314/+16.391µs across jobs versus4aa. Official6239.068183µs/2.155530×,95%CI2.123197–2.187863. Instrumentation/routing differ; no isolated removed handoff or unit-rate cause. Half-only draft target-untested, undispatched."
+    },
+    {
+      "name": "Whole-layer expert-to-unpooler slice1",
+      "label": "Three checks closed; no promotion",
+      "summary": "4c2d/0c35 select unchanged separate paths after slower fused preparation tails. c77b selects fused, passes13cases but scores2.081252× versus public2.126083×. Decode1loses, verify1unresolved. Other large paths unchanged; no component sums into layer gain."
+    },
+    {
+      "name": "Local RTX5070 profile",
+      "label": "Portable stages only; no H200 endpoint",
+      "summary": "SM12012GB,31cold rounds and11warm observations×64calls. Measured cuBLASfallback and two selected Triton stages, not native MoE/attention/SK2. No comparable control, whole-layer total or128/256coverage."
+    },
+    {
+      "name": "Revised boundary/attention opportunity claims",
+      "label": "F3 partial signal verified; corrected layer gate failed",
+      "summary": "43aa timed out in T8setup after a1.28µsT1paired fragment. Correctedc924 passes13/12/12 with T1/T8paired savings0.45/1.09µs, but no short layer gain and stop rule met. Cost/headroom estimates remain hypotheses, not ceilings."
+    },
+    {
+      "name": "F3 O + boundary + pooler/router fusion",
+      "label": "Small paired component wins; layer gate failed",
+      "summary": "43aa5951c822 failedT8setup,0official cells. Correctedc9249231e381 passes13/12/12 at2.089491×,95%CI2.058149–2.120834. T1separate fallback;T8fused. Nine paired rounds save0.45/1.09µs, with no duplicate-null/pairedCI. Both T8layer cells lose cross-run. Stop after two checks, no promotion. F3is a slice label, not familyF."
     }
   ]
 }
