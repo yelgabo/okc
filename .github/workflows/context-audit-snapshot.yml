@@ -1,0 +1,35 @@
+name: Context audit snapshot
+on:
+  push:
+    branches: [audit/context-cleanup-2026-11-02]
+    paths: [.github/workflows/context-audit-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Export pinned repository without executing its code
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -eu
+          git init source
+          cd source
+          git remote add origin "https://github.com/${REPOSITORY}.git"
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          git -c "http.extraheader=AUTHORIZATION: basic $auth" fetch --depth=1 origin 3a961a9da35c06adb6eaf04e2531b9d323587933
+          git archive --format=zip --output=../okc-source-3a961a9.zip FETCH_HEAD
+          git ls-tree -r -l FETCH_HEAD > ../okc-tree-3a961a9.txt
+          du -h ../okc-source-3a961a9.zip
+      - name: Retain private audit snapshot
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: okc-context-audit-source
+          path: |
+            okc-source-3a961a9.zip
+            okc-tree-3a961a9.txt
+          retention-days: 1
+          if-no-files-found: error
