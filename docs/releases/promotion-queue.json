@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-03T08:26:10.860662+00:00",
+  "observed_at": "2026-11-03T11:25:53.134709+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -417,6 +417,47 @@
       "base_family_public_job": "4aa033ef23a142cd",
       "base_family_public_source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
       "source_identity": "muse_moe_w4a16/fff81be45146d0fc66084baf8b4eb1934ed254c14ccb9d85354efc598664f5b6.py; physical106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81/492113B"
+    },
+    {
+      "job": "8f6acddaca2e4c50",
+      "problem": "muse_decode_layer",
+      "score_us": 10554.878080848863,
+      "owner": "Layer PDL implementation owner; final-day lead owns public dispatch",
+      "judged_arm": "single-arm PDL release; T1 on, T8 hard off; other T off",
+      "source_identity": "muse_decode_layer/cand/g1b4_pdl8.py; canonical Git SHA256 6c94513b0c614e89ce9a4c67594e84f4fe626901c5b3e092b97a293160747692; 890124 bytes",
+      "source_sha256": "6c94513b0c614e89ce9a4c67594e84f4fe626901c5b3e092b97a293160747692",
+      "artifact": "muse_decode_layer/cand/g1b4_pdl8.py",
+      "evidence": "muse_decode_layer/profiles/g1b4_pdl8.8f6acddaca2e4c50.status.json",
+      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-1122.md",
+      "release_state": "superseded-by-pdl8b-public-submission",
+      "reason": "Valid single-arm private10554.878081us below historical public60710639.426327us. T1 stress qualifies against off drift; T8stress fails, hard off. Superseded by lower private0cb69/7f5651e5 and lead publicfefd submission; do not submit this older file or request routine approval.",
+      "public_submission_approved": false,
+      "successor_private_job": "0cb69c8b68bd4d89",
+      "successor_public_job": "fefd7f7b8e834bd7"
+    },
+    {
+      "job": "0cb69c8b68bd4d89",
+      "problem": "muse_decode_layer",
+      "score_us": 10531.290311934601,
+      "owner": "Layer PDL implementation owner; final-day lead owns public dispatch",
+      "judged_arm": "single-arm PDL release; T1 on, T8 hard off; T16/T32 on",
+      "source_identity": "muse_decode_layer/cand/g1b4_pdl8b.py; canonical Git SHA256 7f5651e55f397158c7c5928013a11ba330bf3c50c8559b9dcf7b0666cdde79de; 901914 bytes",
+      "source_sha256": "7f5651e55f397158c7c5928013a11ba330bf3c50c8559b9dcf7b0666cdde79de",
+      "artifact": "muse_decode_layer/cand/g1b4_pdl8b.py",
+      "evidence": "muse_decode_layer/profiles/g1b4_pdl8b.0cb69c8b68bd4d89.status.json",
+      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-1122.md",
+      "release_state": "public-released-board-verified-owning-receipt-publication-pending",
+      "reason": "Valid private10531.290312us; registered score/stress gate met with T1/T16/T32on,T8hardoff. Lead submitted7f5651e5 asfefd under user02:58Pacific authorization.11:26UTC board independently verifies fefd10,419.876726us/2.1709x,rank369,matching shareddone/passed/no-flags. Source samebytes per owning lead; separate primary public receipt not yet published at6c7baa70. No duplicate submission or permission question.",
+      "public_submission_approved": true,
+      "public_submission_condition_satisfied": true,
+      "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
+      "public_submission_approval_scope": "Best clean PDL layer file below10554.9us, per-T stress at or under off drift, T8hardoff unless repaired; existing lead already submitted this exact file. No additional permission question.",
+      "public_job": "fefd7f7b8e834bd7",
+      "public_score_us_shared_list": 10419.876725867654,
+      "public_source_binding_status": "Same bytes per owning lead; separate public owning receipt not yet published at63fbed8d",
+      "public_board_verified": true,
+      "public_score_us": 10419.876725867654,
+      "public_rank_at_observation": 369
     }
   ]
 }
