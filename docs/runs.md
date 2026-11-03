@@ -2370,3 +2370,9 @@ registers, no spills, 3 barriers.
 
 Acceptance (brief): a bucket switches if its stream-K candidate wins by 1 us or more in the tuner and
 the judged cell confirms; stop after one more check if all three buckets are within 0.5 us or slower.
+
+2026-11-03 | c65acf82346c4493 | check (private) | d85610c3 | `muse_bf16_proj/experiments/qkv_sks.py` SHA256 ab0f9c1a: C2 plus qkv8s / qkv16s / qkv32s. PASS, 9 tests, 30 cells, no flags, prepare 91.2 s (C2 106.4 s). Score 3,216.9 us, 1.5017x (CI 1.4792-1.5242) against C2 3,161.9 us, 1.5278x. Status JSON and log tail `muse_bf16_proj/profiles/qkv_sks.c65acf82346c4493.{json,log}`.
+
+Tuner (in-process, cold L2, 24 reps), incumbent vs stream-K, compressed / raw: m = 8: qkv8 14.4 vs qkv8s 17.8 (+3.4), raw 15.8 vs 19.0 (+3.2); m = 16: 14.2 vs 18.4 (+4.2), raw 17.0 vs 20.1 (+3.1); m = 32: 15.2 vs 21.7 (+6.5), raw 16.5 vs 22.7 (+6.2); m = 1 (bucket 8 candidates) qkv8 14.1 vs qkv8s 17.8. Every candidate passed the FP64 self-test. Picks unchanged (qkv8 / qkv16 / qkv32, cgemv at m = 1), so no judged cell runs a new kernel: qkv_gate 9.77 -> 10.08 (verify 1), 9.74 -> 10.38 (decode 16), 10.56 -> 10.90 (decode 32) and the +0.3 to +0.8 us drift on most other cells is run-to-run noise on unchanged kernels (the 8 public repeat draws of C2 spread 3,166-3,354 us).
+
+Reading: the hypothesis (about -1.7 us per bucket) is rejected for this join. The loss is the same with and without escapes (raw twins), grows with tokens (MT 2 at m = 32 doubles the reds and the finisher's rows), and matches the 3.5-4 us that the same red + fence + last-arriver join cost on the wd router (a8de7b162c9f41d5, WV_GRED). Not yet separated: the join (fence after the reds, counter, finisher pass) against the reds themselves against the 128-CTA streaming. Next: one attribution check (ablation arms, timing only) before closing.
