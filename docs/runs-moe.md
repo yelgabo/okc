@@ -5641,3 +5641,13 @@ with T16 / T32 / T128 / T256 inside noise (about 1.5%).
 Own private check `ab54144f6c4d4727`, accepted 2026-11-02 23:58 PT (5 MoE checks left, no live MoE job of
 ours). Sole waiter writes `muse_moe_w4a16/profiles/tiny_nw16_bal.ab54144f6c4d4727.status.json` / `.log`.
 Result pending.
+
+MOE-NW16-BAL-01 terminal `ab54144f6c4d4727`: PASS 5 tests (relative L2 4.46e-3 to 4.57e-3, so the 16-warp
+scale addressing is exact) / 6 benchmarks, prepare 180.9 s, no flags. Medians T1 30.85 / T8 71.20 / T16 93.97 /
+T32 122.75 / T128 181.36 / T256 213.68 us against the public release's 26.73 / 67.21 / 93.96 / 127.56 /
+180.87 / 217.35: T1 +4.1 us and T8 +4.0 us (best-of-100 at T1 30.24 against 21.89), the unchanged cells inside
+noise. Loss. The 16-warp loop at the 544-thread register cap (96) is slower per unit than the 8-warp loop, by
+about 0.35 us per unit at T = 1 (cause not separated: the 512-thread unit barrier, the helper's 16-way
+reduction per unit, or the register cap). Balanced counts cannot be read from this run (masked). Status and
+log: `muse_moe_w4a16/profiles/tiny_nw16_bal.ab54144f6c4d4727.status.json`, `.log`. Not a candidate; row added
+to docs/ruled-out.md.
