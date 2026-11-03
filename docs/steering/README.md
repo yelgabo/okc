@@ -48,10 +48,11 @@ Read your owner's row, then its linked record. Check newer commits before acting
 
 | Owner | Assignment and next decision |
 |---|---|
-| **OKC MoE Worker → P0 whole-expert** | Public4aa/5df remains5788.720720us, target5559.8us. **Factorized7479372115c64702 terminal PASS5/6/6, lower private5698.508243us exposed**, but matched0/6groups/13regressions/two unchanged drifts against publicC7; stop exact storage-only source. **MOE-PARAM-Y-01 parked, target-untested under final-day short-load directive. MOE-TINY-TIMELINE-01 picked up**, T1/T8 source instrumentation in progress, no new job. [Tiny timeline source and bounds](2026-11-02-moe-tiny-timeline.md) · [Latest measured decision](2026-11-02-moe-factorized-output.md#terminal-decision-lower-point-with-failed-matched-gate) · [Combined contract](2026-11-02-moe-prepared-gamma.md) · [Public result](2026-11-02-moe-control-release-qualification.md#public-result-verified) · [Ledger](moe-worker/STATUS.md) |
-| **OKC CUDA Optimizer → P1 BF16** | **Bounded build brief available; pickup unconfirmed.** Four-hour engineering box for one fixed raw register-A kernel and exact packed twin versus actual C2, pooler/unpooler M128/M256. Fixed geometry, fragment-level raw fallback, FP32 partial reduction; no timing-win prerequisite to build and no ring/tile sweep. Four affected cells, all30 coverage; no measured gain or new GPU allocation. [Executable owner brief](2026-11-02-general-hotspot-search-refill.md#bf16-fixed-raw-register-a-skeleton-and-exact-packed-twin) · [Handoff](2026-11-02-worker-repurpose-moe-bf16.md) |
+| **OKC MoE Worker → P0 whole-expert** | Public4aa/5df remains5788.720720us, target5559.8us. **Factorized7479372115c64702 terminal PASS5/6/6, lower private5698.508243us exposed**, but matched0/6groups/13regressions/two unchanged drifts against publicC7; stop exact storage-only experiment. The separately authorized single-arm release belongs to the final-day lead below. **MOE-PARAM-Y-01 parked, target-untested under final-day short-load directive. MOE-TINY-TIMELINE-01 picked up**, T1/T8 source instrumentation in progress, no new job. [Tiny timeline source and bounds](2026-11-02-moe-tiny-timeline.md) · [Latest measured decision](2026-11-02-moe-factorized-output.md#terminal-decision-lower-point-with-failed-matched-gate) · [Combined contract](2026-11-02-moe-prepared-gamma.md) · [Public result](2026-11-02-moe-control-release-qualification.md#public-result-verified) · [Ledger](moe-worker/STATUS.md) |
+| **Final-day lead → factorY single-arm release** | Human **“yes, submit on confirmation”** at20a6cfa9 covers ONE factorized-output release derived from7479372115c64702 after the lead's own qualifying private check, without a second permission question. Retain the original matched0/6 loss alongside official5698.508243us. Not approval for combined MOE-PARAM-Y or large-load R&D; no duplicate source/check/public action by research or another owner. [Exact authorization](2026-11-02-final-day-directive.md#ledger) · [Owning evidence](2026-11-02-moe-factorized-output.md#terminal-decision-lower-point-with-failed-matched-gate) |
+| **OKC CUDA Optimizer → P1 BF16** | **Final-day short-load assignment supersedes the M128/M256 register-A/raw-packed brief.** Target M1–32 O/router/unpooler-slice load-set-at-entry scheduling with unchanged codec; one complete candidate comparison covers all30cells. Directive gate: >=1.5us summed decode1 or verify1 saving, no other-cell loss beyond noise. Bind actual C2 dispatch, bytes and complete-call costs; no large-M build or inferred pickup/inactivity. [Binding owner table](2026-11-02-final-day-directive.md#owner-assignments-for-the-day) |
 | **OKC General Optimizer → P0 MoE skinny/WS** | **Tiny timeline support picked up07:31UTC** under the final-day directive. General owns source-bound trace schema/coverage/budget tests only; MoE owner retains native integration and sole GPU dispatch. No new job. Row-owned7f10243c98e74746 is complete and stopped; no repeat. [Support record](2026-11-03-general-tiny-timeline-support.md) · [Row-owned closure](2026-11-02-general-ws-row-owned.md#terminal-decision-retain-original-fused-ws-stop-full-k-row-ownership) |
-| **Research/steering** | **Outcome-driven same-refill pass completed**,3ac45602. One General ownership reorganization, not boundary/helper tuning: explicit unchanged weight/MMA counts, added activation costs,2/6score coverage and finite complete-endpoint test. No pre-build timing-win prerequisite. BF16 brief retained without claiming pickup; newer whole-expert LUT/direct-input records preserved independently. No kernel, job, public, D32 or reminder action. [Decision](2026-11-02-general-hotspot-search-refill.md#post-split-research-decision-full-k-output-row-ownership--november-2-2026-pacific) · [CPU model and binary evidence](evidence/2026-11-02-hotspot-refill/ws-row-owned-evidence.json) |
+| **Research/steering** | **Superseding short-load scope actually read and picked up.** Broader General search stopped; no new brief outside the776f owner table. Support the existing Tiny/Tiny2 instrument; General's actual support pickup is separately recorded. Keep row-owned896b5350/7f102 terminal, phase6028 invalid and BF16 large-M brief superseded. FactorY's matched loss and the lead's narrow conditional release approval both stand. Same-refill reconciliation drafted; its append is NOT published because the connector blocked that file write. No kernel/job/public/D32/timer action. [Directive](2026-11-02-final-day-directive.md) · [Existing refill](2026-11-02-general-hotspot-search-refill.md) |
 | Public scout | Check public changes every two hours. The new cluster-projection reference needs source binding and a matched comparison. [Scout discovery](2026-11-02-scout-utterwqlnut-projection-0328.md) [Competition watch](2026-11-02-competition-watch.md) · [Source standing](2026-11-02-scout-source-standing-and-jobs.md) |
 
 ## Execution rules
@@ -64,7 +65,7 @@ The Decode32 Worker owns its checks and job waits. Each other owner retains its 
 
 [Driver monitor06:11UTC](2026-11-02-driver-monitor-0611.md): MoE public release verified at5788.7us/rank374; lookupc985 accepted; phase/WS split stopped;19promotion leads covered and9stale base-release relationships reconciled.
 
-[Faster standalone MoE diagram](2026-11-02-moe-release-diagram.md) compares the 5762.1 us private release and 5788.7 us public snapshot with the older 6069.6 us entry. The retained c7 engine matches the earlier layer diagram. T32 dispatch, large-batch work assignment and eligible scale packing differ from the older public source. Internal component times remain unqualified.
+[Faster standalone MoE diagram](2026-11-02-moe-release-diagram.md) compares the 5762.1 us private release and 5788.7 us public snapshot with the older6069.6us entry. The retained c7 engine matches the earlier layer diagram. T32 dispatch, large-batch work assignment and eligible scale packing differ from the older public source. Internal component times remain unqualified.
 
 [Bounded next decisions on the same P0/P1 refill](2026-11-02-general-hotspot-search-refill.md#next-decision-build-the-complete-discriminators--november-2-2026-pacific) replace the prior build HOLD with concrete WS two-node and BF16 raw/packed implementation briefs. Timing must decide complete endpoints; missing timing is not a prerequisite to implement. No new allocation or promotion claim.
 
@@ -122,7 +123,7 @@ A fresh G1b4 control is queued. The serial short producer awaits its candidate r
 
 ## Previous hourly report, November 2 04:32 Vancouver time
 
-The matched G short-counter treatment missed its gate. G224 and timed SiLU passed correctness and were parked. The four-cell infrastructure failure was refunded. [Review and job ledger](2026-11-02-0432-performance-review.md)
+The matched G short-counter treatment missed its gate. G224 and timed SiLU passed correctness and were parked. [Review and job ledger](2026-11-02-0432-performance-review.md)
 
 ## Previous hourly report, November 1 14:49 Vancouver time
 
@@ -160,8 +161,8 @@ Timeline routing counts are invalid and CUPTI access is denied. Prefill remains 
 
 **[2026-10-30 23:32 PDT: PBULK measured, mode 86 and fusion gates](2026-10-30-2332-performance-review.md)**
 
-Snapshot `8f2c89b`. PBULK1 passes with a gain below its bar; PBULK2 loses. Mode 86 misses
-its performance gate. M-C C-1 loses locally before a bench fault. New layer score 2.018705x
+Snapshot `8f2c89b`. PBULK1 passes with a gain below its bar; PBULK2 loses. Mode86 misses
+its performance gate. M-C C-1 loses locally before a bench fault. New layer score2.018705x
 remains within prior uncertainty; changed validation and sensitivity findings are retained.
 GTICKET review is complete, with corrected code awaiting benchmark validation.
 
@@ -175,7 +176,7 @@ GTICKET review is complete, with corrected code awaiting benchmark validation.
 
 ## Report history
 
-[Projection source comparison](2026-11-02-utterwqlnut-projection-comparison.md) checks the shared cluster/WGMMA design. Our C2 has lower times in 27/30 archived cells; O32 is an unpaired component lead.
+[Projection source comparison](2026-11-02-utterwqlnut-projection-comparison.md) checks the shared cluster/WGMMA design. Our C2 has lower times in27/30 archived cells; O32 is an unpaired component lead.
 
 Use the [shared report archive](../../archive/docs/steering/) for older decisions. The [index before compaction](https://github.com/yelgabo/okc/blob/977fd319/docs/steering/README.md) retains the previous audit and report history with links at that revision. See the [prior archive manifest](../../archive/manifest-2026-11-02.json) for earlier moves.
 
