@@ -1,3 +1,5 @@
+**MOE-TINY-TIMELINE-01 DISPATCH_STARTED**, exact106a05c5/492113bytes, source05e3e875. One private POST will be made; no accepted own ID yet. Fresh shared list/quota recorded. Public repeats and the lead's distinct factor-Y release check are separate; no other-ID polling.
+
 **MOE-TINY-TIMELINE-01 frozen 106a05c5**, selected Tiny/Tiny2 helper8324f079. Six CPU tests and four local builds pass. No own active job. Shared preflight has four unrelated queued jobs, so no POST. [Source, bounds and next action](../2026-11-02-moe-tiny-timeline.md).
 
 No active own GPU job. **Current public best4aa033ef23a142cd**, exact user-approved5df257af, PASS5/6/6,5788.720720us/2.323224880x CI[2.288376507,2.358073253],verified rank373from434. Target5559.8us remains228.920720us away. Waiter10826ended0. [Scored result and board proof](../2026-11-02-moe-control-release-qualification.md#public-result-verified). Prior private64f9998ef238476f was5762.134395us; keep the points separate.
