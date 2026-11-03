@@ -1,0 +1,282 @@
+[
+  {
+    "path": "/repos/keell0renz/muse-open-kernel-challenge/branches?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:53.042299+00:00",
+    "exit": 0,
+    "data": [
+      {
+        "commit": {
+          "sha": "890809cee421500b00126d084e81b338ef9181ab",
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/commits/890809cee421500b00126d084e81b338ef9181ab"
+        },
+        "name": "main",
+        "protected": false
+      }
+    ]
+  },
+  {
+    "path": "/repos/keell0renz/muse-open-kernel-challenge/forks?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:53.047663+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/keell0renz/muse-open-kernel-challenge/releases?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:53.026659+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/alygg77/okc-muse-spark-kernels/branches?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:53.461832+00:00",
+    "exit": 0,
+    "data": [
+      {
+        "commit": {
+          "sha": "6cae49a639ee6d14b929a5fd4a63c627f96d7dc0",
+          "url": "https://api.github.com/repos/alygg77/okc-muse-spark-kernels/commits/6cae49a639ee6d14b929a5fd4a63c627f96d7dc0"
+        },
+        "name": "main",
+        "protected": false
+      }
+    ]
+  },
+  {
+    "path": "/repos/alygg77/okc-muse-spark-kernels/forks?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:53.520543+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/alygg77/okc-muse-spark-kernels/releases?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:53.463083+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/NathenFernandes/muse-bf16-proj/branches?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:53.915572+00:00",
+    "exit": 0,
+    "data": [
+      {
+        "commit": {
+          "sha": "86aff75e6aca72511bf9b41b6dc190bf1e763373",
+          "url": "https://api.github.com/repos/NathenFernandes/muse-bf16-proj/commits/86aff75e6aca72511bf9b41b6dc190bf1e763373"
+        },
+        "name": "solution",
+        "protected": false
+      }
+    ]
+  },
+  {
+    "path": "/repos/NathenFernandes/muse-bf16-proj/forks?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:53.874328+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/NathenFernandes/muse-bf16-proj/releases?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:53.962474+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/ruwwww/open-kernel-challenge/branches?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:54.284642+00:00",
+    "exit": 0,
+    "data": [
+      {
+        "commit": {
+          "sha": "c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d",
+          "url": "https://api.github.com/repos/ruwwww/open-kernel-challenge/commits/c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d"
+        },
+        "name": "main",
+        "protected": false
+      }
+    ]
+  },
+  {
+    "path": "/repos/ruwwww/open-kernel-challenge/forks?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:54.336671+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/ruwwww/open-kernel-challenge/releases?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:54.399224+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/vjeux/okc-2026/branches?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:54.704827+00:00",
+    "exit": 0,
+    "data": [
+      {
+        "commit": {
+          "sha": "f35a41ee1c13e316dabbf772830d47b23b453393",
+          "url": "https://api.github.com/repos/vjeux/okc-2026/commits/f35a41ee1c13e316dabbf772830d47b23b453393"
+        },
+        "name": "main",
+        "protected": false
+      }
+    ]
+  },
+  {
+    "path": "/repos/vjeux/okc-2026/forks?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:54.786013+00:00",
+    "exit": 0,
+    "fallback": "raw gh api because gh-axi truncated its response",
+    "data": [
+      {
+        "id": 1443526194,
+        "node_id": "R_kgDOVgp2Mg",
+        "name": "okc-2026",
+        "full_name": "anencore94/okc-2026",
+        "private": false,
+        "owner": {
+          "login": "anencore94",
+          "id": 37469330,
+          "node_id": "MDQ6VXNlcjM3NDY5MzMw",
+          "avatar_url": "https://avatars.githubusercontent.com/u/37469330?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/anencore94",
+          "html_url": "https://github.com/anencore94",
+          "followers_url": "https://api.github.com/users/anencore94/followers",
+          "following_url": "https://api.github.com/users/anencore94/following{/other_user}",
+          "gists_url": "https://api.github.com/users/anencore94/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/anencore94/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/anencore94/subscriptions",
+          "organizations_url": "https://api.github.com/users/anencore94/orgs",
+          "repos_url": "https://api.github.com/users/anencore94/repos",
+          "events_url": "https://api.github.com/users/anencore94/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/anencore94/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "html_url": "https://github.com/anencore94/okc-2026",
+        "description": "Open Kernel Challenge 2026 - Muse Spark kernel entries (team vjeux)",
+        "fork": true,
+        "url": "https://api.github.com/repos/anencore94/okc-2026",
+        "forks_url": "https://api.github.com/repos/anencore94/okc-2026/forks",
+        "keys_url": "https://api.github.com/repos/anencore94/okc-2026/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/anencore94/okc-2026/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/anencore94/okc-2026/teams",
+        "hooks_url": "https://api.github.com/repos/anencore94/okc-2026/hooks",
+        "issue_events_url": "https://api.github.com/repos/anencore94/okc-2026/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/anencore94/okc-2026/events",
+        "assignees_url": "https://api.github.com/repos/anencore94/okc-2026/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/anencore94/okc-2026/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/anencore94/okc-2026/tags",
+        "blobs_url": "https://api.github.com/repos/anencore94/okc-2026/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/anencore94/okc-2026/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/anencore94/okc-2026/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/anencore94/okc-2026/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/anencore94/okc-2026/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/anencore94/okc-2026/languages",
+        "stargazers_url": "https://api.github.com/repos/anencore94/okc-2026/stargazers",
+        "contributors_url": "https://api.github.com/repos/anencore94/okc-2026/contributors",
+        "subscribers_url": "https://api.github.com/repos/anencore94/okc-2026/subscribers",
+        "subscription_url": "https://api.github.com/repos/anencore94/okc-2026/subscription",
+        "commits_url": "https://api.github.com/repos/anencore94/okc-2026/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/anencore94/okc-2026/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/anencore94/okc-2026/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/anencore94/okc-2026/issues/comments{/number}",
+        "contents_url": "https://api.github.com/repos/anencore94/okc-2026/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/anencore94/okc-2026/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/anencore94/okc-2026/merges",
+        "archive_url": "https://api.github.com/repos/anencore94/okc-2026/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/anencore94/okc-2026/downloads",
+        "issues_url": "https://api.github.com/repos/anencore94/okc-2026/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/anencore94/okc-2026/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/anencore94/okc-2026/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/anencore94/okc-2026/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/anencore94/okc-2026/labels{/name}",
+        "releases_url": "https://api.github.com/repos/anencore94/okc-2026/releases{/id}",
+        "deployments_url": "https://api.github.com/repos/anencore94/okc-2026/deployments",
+        "created_at": "2026-11-02T21:52:17Z",
+        "updated_at": "2026-11-02T21:52:17Z",
+        "pushed_at": "2026-11-02T21:54:02Z",
+        "git_url": "git://github.com/anencore94/okc-2026.git",
+        "ssh_url": "git@github.com:anencore94/okc-2026.git",
+        "clone_url": "https://github.com/anencore94/okc-2026.git",
+        "svn_url": "https://github.com/anencore94/okc-2026",
+        "homepage": null,
+        "size": 855,
+        "stargazers_count": 0,
+        "watchers_count": 0,
+        "language": null,
+        "has_issues": false,
+        "has_projects": true,
+        "has_downloads": false,
+        "has_wiki": true,
+        "has_pages": false,
+        "has_discussions": false,
+        "forks_count": 0,
+        "mirror_url": null,
+        "archived": false,
+        "disabled": false,
+        "open_issues_count": 0,
+        "license": {
+          "key": "apache-2.0",
+          "name": "Apache License 2.0",
+          "spdx_id": "Apache-2.0",
+          "url": "https://api.github.com/licenses/apache-2.0",
+          "node_id": "MDc6TGljZW5zZTI="
+        },
+        "allow_forking": true,
+        "is_template": false,
+        "web_commit_signoff_required": false,
+        "has_pull_requests": true,
+        "pull_request_creation_policy": "all",
+        "topics": [],
+        "visibility": "public",
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "default_branch": "main",
+        "permissions": {
+          "admin": false,
+          "maintain": false,
+          "push": false,
+          "triage": false,
+          "pull": true
+        }
+      }
+    ]
+  },
+  {
+    "path": "/repos/vjeux/okc-2026/releases?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:54.783859+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/utterwqlnut/muse_bf16_proj/branches?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:55.154720+00:00",
+    "exit": 0,
+    "data": [
+      {
+        "commit": {
+          "sha": "e5c79030dc251222c4e98cf79af8679c1b0f29c7",
+          "url": "https://api.github.com/repos/utterwqlnut/muse_bf16_proj/commits/e5c79030dc251222c4e98cf79af8679c1b0f29c7"
+        },
+        "name": "main",
+        "protected": false
+      }
+    ]
+  },
+  {
+    "path": "/repos/utterwqlnut/muse_bf16_proj/forks?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:55.192316+00:00",
+    "exit": 0,
+    "data": []
+  },
+  {
+    "path": "/repos/utterwqlnut/muse_bf16_proj/releases?per_page=100",
+    "retrieved_at": "2026-11-03T11:37:55.583709+00:00",
+    "exit": 0,
+    "data": []
+  }
+]

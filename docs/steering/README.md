@@ -36,6 +36,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 
 ## Audits and monitors, November 2 to 3
 
+[Public scout: router tactics beside the pooler](2026-11-03-scout-router-critical-path-1128.md) pins SGLang PR47636 at `07e2f70f` and verifies six changed files. The author selects the router tactic in serving context because larger isolated winners can wait for SMs. Blackwell and TF32 limits prevent treating the published timings as an H200 challenge gain. Includes new BF16 repository checks, changing search coverage and access limits; no new GPU assignment.
+
 [Driver monitor11:22UTC](2026-11-03-driver-monitor-1122.md): public PDL layer advance and rank369,source/receipt limits,composed-owner continuity,closed lanes and completed research gap.
 
 [Driver monitor10:24UTC](2026-11-03-driver-monitor-1024.md): stream-K/gather-probe scoped losses, selected PDL premise rejected without a run, same-refill direct delivery, live ranks/quotas and release guard.
