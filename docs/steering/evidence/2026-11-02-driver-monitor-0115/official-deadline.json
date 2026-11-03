@@ -1,0 +1,9 @@
+{
+  "observed_utc": "2026-11-03T01:15:23.256225+00:00",
+  "index_url": "https://openkernelchallenge.dev/",
+  "index_sha256": "6e2c7c881d669c63742ce2b3b2d54a927058806014625b8b1bf8abaa7ff230ef",
+  "current_asset": "https://openkernelchallenge.dev/assets/index-hNMNI-Nr.js",
+  "asset_sha256": "a40d07775d2797cba5e81933f905fdc858a07025a89ba78b58a27d7444c7c207",
+  "kernels_closes": "2026-11-05T00:00:00-08:00",
+  "campaign_active": true
+}
