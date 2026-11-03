@@ -1,0 +1,104 @@
+.73 19.4, L2:a66t104s35k1r0z0c0i0g6w0v0.64 19.4
+ltune qkv_gate  m=128: base 19.2, f0=L0:a66t92s35k1r0z0c0i0g5w0v0.73 19.6, f1=L2:a66t80s35k1r0z0c0i0g5w0v0.88 19.6, f2=L0:a66t92s35k1r0z0c0i0g2w0v0.73 19.6, f3=L2:a66t92s35k1r0z0c0i0g2w0v0.73 19.5, f4=L2:a66t104s35k1r0z0c0i0g6w0v0.64 19.5; pref base margin 0.30 f0 -0.35/2 f1 -0.38/1 f2 -0.26/1 f3 -0.22/1 f4 -0.42/1 -> base
+lt o m=128: 32 heuristic, 786 swept, 218 other, screen best L2:a66t18s35k1r0z0c4i0g2w0v0.97 10.8, L2:a66t18s35k1r0z0c4i0g5w0v0.97 10.9, L2:a66t18s35k1r0z0c6i0g5w0v0.97 10.9, L0:a66t18s35k1r0z0c4i0g2w0v0.97 11.0, L2:a66t18s35k1r0z0c7i0g5w0v0.97 11.1
+ltune o         m=128: base 11.3, f0=L2:a66t18s35k1r0z0c4i0g2w0v0.97 11.1, f1=L2:a66t18s35k1r0z0c4i0g5w0v0.97 11.0, f2=L2:a66t18s35k1r0z0c6i0g5w0v0.97 11.2, f3=L0:a66t18s35k1r0z0c4i0g2w0v0.97 11.1, f4=L2:a66t18s35k1r0z0c7i0g5w0v0.97 11.3; pref base margin 0.30 f0 +0.22/7 f1 +0.16/7 f2 +0.16/7 f3 +0.19/7 f4 +0.00/4 -> base
+lt pooler m=128: 60 heuristic, 792 swept, 184 other, screen best L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.8, L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.9, L0:a66t124s35k1r0z0c0i0g5w0v0.86 25.2, L0:a66t124s35k1r0z0c2i0g5w0v0.86 25.3, L2:a66t134s35k1r0z0c0i0g5w0v0.79 25.3
+ltune pooler    m=128: base 26.6, pref=L1:a66t15s35k1r0z0c4i0g2w0v0.97 24.1, f0=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.6, f1=L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.8, f2=L0:a66t124s35k1r0z0c0i0g5w0v0.86 25.7, f3=L0:a66t124s35k1r0z0c2i0g5w0v0.86 25.2, f4=L2:a66t134s35k1r0z0c0i0g5w0v0.79 25.3; pref pref margin 0.38 base -2.34/0 f0 -0.35/1 f1 -0.93/1 f2 -1.44/0 f3 -1.18/1 f4 -1.25/1 -> pref
+lt unpooler m=128: 44 heuristic, 785 swept, 224 other, screen best L3:a66t18s35k1r0z0c0i0g2w0v0.97 22.4, L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.5, L1:a66t18s35k1r0z0c4i0g2w0v0.97 22.5, L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.5, L1:a66t18s35k1r0z0c4i0g5w0v0.97 22.5
+ltune unpooler  m=128: base 23.9, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 22.7, f0=L3:a66t18s35k1r0z0c0i0g2w0v0.97 22.8, f1=L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.6, f2=L1:a66t18s35k1r0z0c4i0g2w0v0.97 22.6, f3=L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.7, f4=L1:a66t18s35k1r0z0c4i0g5w0v0.97 22.6; pref pref margin 0.30 base -1.22/2 f0 +0.16/6 f1 +0.06/5 f2 +0.26/7 f3 +0.03/5 f4 +0.16/6 -> pref
+lt qkv_gate m=256: 60 heuristic, 792 swept, 206 other, screen best L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.1, L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.5, L2:a66t134s35k1r0z0c0i0g9w0v0.88 21.8, L0:a66t134s35k1r0z0c0i0g9w0v0.88 21.9, L0:a66t134s35k1r0z0c2i0g9w0v0.88 21.9
+ltune qkv_gate  m=256: base 23.3, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.4, f0=L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.4, f1=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.4, f2=L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.1, f3=L0:a66t134s35k1r0z0c0i0g9w0v0.88 22.1, f4=L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.1; pref pref margin 0.30 base -1.86/0 f0 +0.03/5 f1 +0.10/5 f2 -0.58/1 f3 -0.70/0 f4 -0.74/1 -> pref
+lt o m=256: 32 heuristic, 788 swept, 210 other, screen best L0:a66t20s35k1r0z0c4i0g2w0v0.97 12.8, L1:a66t20s35k1r0z0c4i0g5w0v0.97 12.9, L1:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, L1:a66t17s35k1r0z0c0i0g2w0v1.94 13.0
+ltune o         m=256: base 13.2, pref=L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.7, f0=L0:a66t20s35k1r0z0c4i0g2w0v0.97 12.9, f1=L1:a66t20s35k1r0z0c4i0g5w0v0.97 12.8, f2=L1:a66t20s35k1r0z0c4i0g3w0v0.97 12.7, f3=L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.7, f4=L1:a66t17s35k1r0z0c0i0g2w0v1.94 12.8; pref pref margin 0.30 base -0.48/0 f0 -0.19/2 f1 -0.16/3 f2 -0.06/3 f3 +0.00/4 f4 -0.03/4 -> pref
+lt pooler m=256: 50 heuristic, 789 swept, 225 other, screen best L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, L1:a66t17s35k1r0z0c0i0g2w0v0.97 28.0, L3:a66t17s35k1r0z0c0i0g2w0v0.97 28.0, L3:a66t17s35k1r0z0c1i0g2w0v0.97 28.1
+ltune pooler    m=256: base 30.6, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, f0=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.4, f1=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, f2=L1:a66t17s35k1r0z0c0i0g2w0v0.97 27.7, f3=L3:a66t17s35k1r0z0c0i0g2w0v0.97 27.6, f4=L3:a66t17s35k1r0z0c1i0g2w0v0.97 28.0; pref pref margin 0.30 base -3.07/0 f0 +0.35/7 f1 +0.26/6 f2 -0.13/3 f3 -0.06/4 f4 -0.35/2 -> pref
+lt unpooler m=256: 32 heuristic, 788 swept, 208 other, screen best L1:a66t20s35k1r0z0c4i0g2w0v0.97 27.5, L2:a66t20s35k1r0z0c4i0g2w0v0.97 27.8, L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.8, L0:a66t20s35k1r0z0c4i0g2w0v0.97 27.8, L3:a66t20s35k1r0z0c4i0g5w0v0.97 27.9
+ltune unpooler  m=256: base 28.2, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.7, f0=L1:a66t20s35k1r0z0c4i0g2w0v0.97 27.5, f1=L2:a66t20s35k1r0z0c4i0g2w0v0.97 27.6, f2=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.9, f3=L0:a66t20s35k1r0z0c4i0g2w0v0.97 27.8, f4=L3:a66t20s35k1r0z0c4i0g5w0v0.97 27.6; pref pref margin 0.30 base -0.42/1 f0 +0.22/6 f1 +0.16/6 f2 -0.26/3 f3 +0.03/5 f4 +0.10/7 -> pref
+ablate pooler m=128: m128k2r4 34.5, m128k2r4_a1 30.5, m128k2r4_a3 29.6
+ablate o m=256: m256k1r4 25.4, m256k1r4_a1 23.1, m256k1r4_a3 18.6
+prepare done 89.6 s
+CB build 21.9 s
+CBRES qkv_gate regs/local/blocksSM ctrl2:40r/0l/5b ex0:40r/0l/5b exattr:40r/0l/5b cg:40r/0l/5b ord:40r/0l/5b wait:40r/0l/5b trig:40r/0l/5b trige:40r/0l/5b cgrep:40r/0l/5b full:40r/0l/5b fe:40r/0l/5b s2e:46r/0l/2b
+CBRES o regs/local/blocksSM ctrl2:32r/0l/21b ex0:32r/0l/21b exattr:32r/0l/21b cg:32r/0l/21b ord:32r/0l/21b wait:32r/0l/21b trig:32r/0l/21b trige:32r/0l/21b cgrep:32r/0l/21b full:32r/0l/21b fe:32r/0l/21b s4:32r/0l/5b s4e:32r/0l/5b s8e:32r/0l/2b
+CBRES unpooler regs/local/blocksSM ctrl2:40r/0l/9b ex0:40r/0l/9b exattr:40r/0l/9b cg:40r/0l/9b ord:40r/0l/9b wait:40r/0l/9b trig:40r/0l/9b trige:40r/0l/9b cgrep:40r/0l/9b full:40r/0l/9b fe:40r/0l/9b s4:45r/0l/2b s2e:46r/0l/4b s4e:45r/0l/2b
+CBCHECK qkv_gate FP64+probe ctrl2, 4 inputs bitwise to ctrl2: 19 PASS, failed []
+CBREPLAY qkv_gate 3 fresh captured inputs bitwise: 19 PASS
+CBNULL qkv_gate in0 ctrl2-ctrl=-0.080 MAD=0.240 ctrl=14.656
+CBNULL qkv_gate in1 ctrl2-ctrl=-0.096 MAD=0.288 ctrl=14.656
+CBNULL qkv_gate in2 ctrl2-ctrl=-0.064 MAD=0.224 ctrl=14.656
+CBT qkv_gate ctrl raw 14.66/14.66/14.66 d_ctrl2 +0.08(39)/+0.10(43)/+0.06(40)
+CBT qkv_gate c2pdl raw 17.84/18.27/18.02 d_ctrl2 +3.25(0)/+3.73(0)/+3.39(0)
+CBT qkv_gate ctrl2 raw 14.59/14.62/14.56 
+CBT qkv_gate ex0 raw 14.50/14.66/14.58 d_ctrl2 -0.03(55)/+0.03(43)/+0.00(44)
+CBT qkv_gate exattr raw 14.56/14.58/14.50 d_ctrl2 -0.02(50)/-0.02(50)/-0.06(55)
+CBT qkv_gate cg raw 15.07/15.39/15.07 d_ctrl2 +0.46(11)/+0.80(5)/+0.48(12)
+CBT qkv_gate ord raw 14.59/14.58/14.66 d_ctrl2 +0.03(45)/-0.02(50)/+0.06(38)
+CBT qkv_gate wait raw 14.62/14.56/14.66 d_ctrl2 +0.03(42)/+0.00(48)/+0.10(31)
+CBT qkv_gate trig raw 16.35/16.26/16.42 d_ctrl2 +1.71(0)/+1.63(0)/+1.86(0)
+CBT qkv_gate trige raw 14.62/14.56/14.69 d_ctrl2 +0.06(39)/-0.06(56)/+0.10(29)
+CBT qkv_gate cgrep raw 15.14/15.01/15.17 d_ctrl2 +0.51(8)/+0.48(14)/+0.61(11)
+CBT qkv_gate full raw 17.89/18.18/17.86 d_ctrl2 +3.26(0)/+3.58(0)/+3.36(0)
+CBT qkv_gate fe raw 15.01/15.31/15.10 d_ctrl2 +0.42(11)/+0.74(8)/+0.54(11)
+CBT qkv_gate s2e raw 19.78/19.42/19.81 d_ctrl2 +5.18(0)/+4.78(0)/+5.25(0)
+CBT qkv_gate chP raw 23.23/23.20/23.33 
+CBT qkv_gate chF1 raw 25.31/25.25/25.22 d_chP +2.11(0)/+2.14(0)/+1.86(0)
+CBT qkv_gate chFe0 raw 23.87/23.87/24.00 d_chP +0.66(12)/+0.61(13)/+0.67(15)
+CBT qkv_gate chFe1 raw 23.14/23.04/23.10 d_chP -0.08(54)/-0.24(63)/-0.21(62)
+CBT qkv_gate chS2e1 raw 27.06/27.09/26.94 d_chP +3.82(0)/+3.73(0)/+3.65(0)
+CBCHECK o FP64+probe ctrl2, 4 inputs bitwise to ctrl2: 23 PASS, failed []
+CBREPLAY o 3 fresh captured inputs bitwise: 23 PASS
+CBNULL o in0 ctrl2-ctrl=-0.032 MAD=0.160 ctrl=10.336
+CBNULL o in1 ctrl2-ctrl=-0.048 MAD=0.144 ctrl=10.368
+CBNULL o in2 ctrl2-ctrl=-0.016 MAD=0.128 ctrl=10.400
+CBT o ctrl raw 10.34/10.37/10.40 d_ctrl2 +0.03(42)/+0.05(38)/+0.02(45)
+CBT o c2pdl raw 15.07/15.15/15.10 d_ctrl2 +4.74(0)/+4.80(0)/+4.77(0)
+CBT o ctrl2 raw 10.32/10.30/10.40 
+CBT o ex0 raw 10.30/10.37/10.37 d_ctrl2 -0.02(50)/+0.06(38)/+0.02(47)
+CBT o exattr raw 10.35/10.37/10.35 d_ctrl2 +0.00(46)/+0.03(45)/-0.02(50)
+CBT o cg raw 13.15/13.12/13.12 d_ctrl2 +2.85(0)/+2.82(0)/+2.74(0)
+CBT o ord raw 10.40/10.50/10.43 d_ctrl2 +0.06(35)/+0.13(20)/+0.03(43)
+CBT o wait raw 10.38/10.43/10.40 d_ctrl2 +0.05(36)/+0.10(25)/+0.03(41)
+CBT o trig raw 12.14/12.32/12.19 d_ctrl2 +1.81(0)/+1.98(0)/+1.79(0)
+CBT o trige raw 11.14/11.26/11.30 d_ctrl2 +0.80(3)/+0.96(0)/+0.90(0)
+CBT o cgrep raw 10.62/10.61/10.74 d_ctrl2 +0.26(11)/+0.29(9)/+0.37(12)
+CBT o full raw 15.01/14.98/15.10 d_ctrl2 +4.64(0)/+4.64(0)/+4.74(0)
+CBT o fe raw 12.99/12.96/12.99 d_ctrl2 +2.67(0)/+2.69(0)/+2.59(0)
+CBT o s4 raw 10.88/10.88/10.88 d_ctrl2 +0.58(6)/+0.54(3)/+0.51(6)
+CBT o s4e raw 11.49/11.55/11.58 d_ctrl2 +1.15(0)/+1.25(0)/+1.15(0)
+CBT o s8e raw 11.26/11.33/11.33 d_ctrl2 +0.94(0)/+1.02(0)/+0.93(0)
+CBT o chP raw 18.98/19.02/18.99 
+CBT o chF1 raw 22.69/22.72/22.82 d_chP +3.74(0)/+3.78(0)/+3.81(0)
+CBT o chFe0 raw 22.40/22.30/22.34 d_chP +3.42(0)/+3.30(0)/+3.33(0)
+CBT o chFe1 raw 21.57/21.60/21.47 d_chP +2.56(0)/+2.59(0)/+2.51(0)
+CBT o chS4e0 raw 20.86/20.64/20.64 d_chP +1.87(0)/+1.66(1)/+1.70(0)
+CBT o chS4e1 raw 20.10/20.19/20.00 d_chP +1.18(2)/+1.20(1)/+1.09(1)
+CBT o chS8e1 raw 19.74/19.71/19.74 d_chP +0.77(3)/+0.80(8)/+0.80(7)
+CBCHECK unpooler FP64+probe ctrl2, 4 inputs bitwise to ctrl2: 23 PASS, failed []
+CBREPLAY unpooler 3 fresh captured inputs bitwise: 23 PASS
+CBNULL unpooler in0 ctrl2-ctrl=-0.160 MAD=0.192 ctrl=8.736
+CBNULL unpooler in1 ctrl2-ctrl=-0.176 MAD=0.144 ctrl=8.800
+CBNULL unpooler in2 ctrl2-ctrl=-0.080 MAD=0.144 ctrl=8.704
+CBT unpooler ctrl raw 8.74/8.80/8.70 d_ctrl2 +0.16(26)/+0.18(19)/+0.08(28)
+CBT unpooler c2pdl raw 9.94/10.30/9.95 d_ctrl2 +1.34(0)/+1.66(0)/+1.36(0)
+CBT unpooler ctrl2 raw 8.54/8.61/8.58 
+CBT unpooler ex0 raw 8.54/8.61/8.54 d_ctrl2 +0.00(47)/+0.00(48)/-0.03(52)
+CBT unpooler exattr raw 8.59/8.62/8.70 d_ctrl2 +0.03(35)/-0.03(52)/+0.10(26)
+CBT unpooler cg raw 8.80/9.25/8.93 d_ctrl2 +0.22(14)/+0.59(1)/+0.35(7)
+CBT unpooler ord raw 8.72/8.70/8.77 d_ctrl2 +0.16(29)/+0.11(31)/+0.19(20)
+CBT unpooler wait raw 8.74/8.70/8.80 d_ctrl2 +0.16(20)/+0.06(30)/+0.21(12)
+CBT unpooler trig raw 8.96/9.02/9.12 d_ctrl2 +0.38(6)/+0.42(3)/+0.54(4)
+CBT unpooler trige raw 8.74/8.70/8.83 d_ctrl2 +0.16(26)/+0.06(33)/+0.26(9)
+CBT unpooler cgrep raw 8.86/8.86/8.93 d_ctrl2 +0.29(10)/+0.22(10)/+0.34(5)
+CBT unpooler full raw 9.89/10.14/9.95 d_ctrl2 +1.34(0)/+1.57(0)/+1.39(1)
+CBT unpooler fe raw 8.75/9.18/8.83 d_ctrl2 +0.19(18)/+0.62(2)/+0.22(9)
+CBT unpooler s4 raw 9.50/9.47/9.54 d_ctrl2 +0.93(2)/+0.86(1)/+0.98(1)
+CBT unpooler s2e raw 10.67/10.72/10.75 d_ctrl2 +2.08(0)/+2.11(0)/+2.13(0)
+CBT unpooler s4e raw 9.41/9.38/9.47 d_ctrl2 +0.83(2)/+0.80(1)/+0.91(4)
+CBT unpooler chP raw 17.49/17.30/17.66 
+CBT unpooler chF1 raw 17.57/17.71/17.70 d_chP +0.16(31)/+0.42(19)/+0.06(47)
+CBT unpooler chFe0 raw 18.08/18.08/17.86 d_chP +0.64(10)/+0.80(3)/+0.22(33)
+CBT unpooler chFe1 raw 17.15/17.17/17.04 d_chP -0.29(78)/-0.03(54)/-0.51(92)
+CBT unpooler chS2e1 raw 19.23/19.09/19.07 d_chP +1.76(0)/+1.89(0)/+1.41(0)
+CBT unpooler chS4e0 raw 18.37/18.18/18.14 d_chP +0.90(1)/+0.91(2)/+0.54(11)
+CBT unpooler chS4e1 raw 17.31/17.23/17.20 d_chP -0.16(65)/-0.03(50)/-0.40(78)
+CBDONE elapsed=113.9 s
