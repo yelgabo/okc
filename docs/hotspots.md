@@ -370,44 +370,25 @@ SGLang kernels from the baseline-as-submission run in `muse_prefill_layer/baseli
 | first turn batch=1 ctx=32768 dist=soft layer=full page=1 q_len=16384 repeats=6 | 16 | 21209.9 | 17625.2 | 7710.0 | 2.8x | 2.3x | cutlass::device_kernel<flash::enable_sm90_or_lat 4528.7us 25%<br>humming<MmaOpClass, Shape<0u, 8192u, 4096u>, Sha 4139.7us 23%<br>nvjet_sm90_tst_192x192_64x4_2x1_v_bz_coopB_TNN 2541.9us 14% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 10155.6us 50%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 4496.3us 22%<br>nvjet_sm90_tst_192x192_64x4_2x1_v_bz_coopB_TNN 2521.9us 12% |
 | first turn batch=1 ctx=65536 dist=soft layer=full page=1 q_len=16384 repeats=6 | 16 | 24640.7 | 21199.5 | 9847.7 | 2.5x | 2.2x | cutlass::device_kernel<flash::enable_sm90_or_lat 8066.6us 38%<br>humming<MmaOpClass, Shape<0u, 8192u, 4096u>, Sha 3726.7us 18%<br>nvjet_sm90_tst_192x192_64x4_2x1_v_bz_coopB_TNN 2541.8us 12% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 10283.3us 42%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 8097.1us 33%<br>nvjet_sm90_tst_192x192_64x4_2x1_v_bz_coopB_TNN 2521.0us 10% |
 
-### muse_decode_layer: job cb71acec29d141c6, 2.043x (2.013-2.074)
-
-
-
-SGLang kernels from the baseline-as-submission run in `muse_decode_layer/baseline_profile/profiles/baseline.7d42771c3384449d.json`.
-
-
-
-| shape | weight | SGLang us | ours us | floor us | SGLang/floor | ours/floor | our top kernels | SGLang top kernels |
-
-|---|---|---|---|---|---|---|---|---|
-
-| decode 1 batch=1 ctx=80000 dist=soft layer=sliding page=1 repeats=60 | 46 | 173.8 | 76.2 | 40.0 | 4.3x | 1.9x | moe1::sk_8_3_0::moe_fused_ker... 38.1us 43%<br>cgemv_kernel<512, 1> 13.1us 15%<br>cgemv40_kernel<256, 2> 8.6us 10% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 40.8us 23%<br>nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT 31.4us 18%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 9.9us 6% |
-
-| decode 1 batch=1 ctx=80000 dist=soft layer=full page=1 repeats=60 | 16 | 183.0 | 82.2 | 44.2 | 4.1x | 1.9x | moe1::sk_8_3_0::moe_fused_ker... 24.8us 29%<br>cgemv_kernel<512, 1> 14.1us 17%<br>one::attn_one_kernel<1, 11> 12.3us 14% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 45.0us 24%<br>nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT 32.4us 17%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 18.3us 10% |
-
-| decode 16 batch=16 ctx=80000 dist=soft layer=sliding page=1 spread=agentic | 46 | 263.9 | 140.0 | 76.7 | 3.4x | 1.8x | moe1::sk_8_3_0::moe_fused_ker... 66.9us 48%<br>sk_kernel<1, 16, 2, 2, 2, 2, ... 21.9us 16%<br>sk_kernel<1, 16, 2, 2, 2, 4, ... 20.2us 14% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 96.1us 36%<br>nvjet_sm90_tst_64x16_64x16_2x1_v_bz_TNT 27.2us 10%<br>nvjet_sm90_tst_128x16_64x11_4x1_v_bz_splitK_TNT 19.4us 7% |
-
-| decode 16 batch=16 ctx=80000 dist=soft layer=full page=1 spread=agentic | 16 | 443.4 | 221.5 | 137.5 | 3.2x | 1.6x | one::attn_one_kernel<1, 49> 88.1us 40%<br>moe1::sk_8_3_0::moe_fused_ker... 61.4us 28%<br>sk_kernel<1, 16, 2, 2, 2, 2, ... 26.9us 12% | cutlass::device_kernel<flash::enable_sm90_or_lat 191.4us 42%<br>sglang::device::marlin_moe::Marlin<__nv_bfloat16 109.9us 24%<br>nvjet_sm90_tst_64x16_64x16_2x1_v_bz_TNT 28.1us 6% |
-
-| decode 32 batch=32 ctx=80000 dist=soft layer=sliding page=1 spread=agentic | 46 | 271.2 | 171.4 | 84.5 | 3.2x | 2.0x | moe1::moe_main_kernel<47> 82.2us 51%<br>sk_kernel<2, 32, 2, 2, 2, 2, ... 23.5us 14%<br>sk_kernel<2, 32, 2, 2, 2, 4, ... 21.8us 14% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 136.0us 49%<br>nvjet_sm90_tst_64x32_64x16_2x1_v_bz_TNT 27.4us 10%<br>nvjet_sm90_tst_128x32_64x10_4x1_v_bz_splitK_TNT 19.9us 7% |
-
-| decode 32 batch=32 ctx=80000 dist=soft layer=full page=1 spread=agentic | 16 | 641.3 | 323.2 | 208.1 | 3.1x | 1.6x | one::attn_one_kernel<1, 49> 171.9us 50%<br>moe1::moe_main_kernel<47> 99.3us 29%<br>sk_kernel<2, 32, 2, 2, 2, 2, ... 29.7us 9% | cutlass::device_kernel<flash::enable_sm90_or_lat 505.1us 68%<br>sglang::device::marlin_moe::Marlin<__nv_bfloat16 93.4us 13%<br>nvjet_sm90_tst_64x32_64x16_2x1_v_bz_TNT 26.7us 4% |
-
-| verify 1 batch=1 ctx=80000 dist=soft layer=sliding page=1 q_len=8 | 46 | 262.8 | 118.3 | 62.3 | 4.2x | 1.9x | moe1::sk_8_3_0::moe_fused_ker... 58.9us 49%<br>sk_kernel<1, 8, 1, 2, 2, 4, 3... 20.2us 17%<br>sk_kernel<1, 8, 3, 1, 4, 4, 4... 10.1us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 86.8us 35%<br>nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT 32.1us 13%<br>sm80_xmma_gemm_f32f32_f32f32_f32_tn_n_tilesize32 12.6us 5% |
-
-| verify 1 batch=1 ctx=80000 dist=soft layer=full page=1 q_len=8 | 16 | 276.1 | 127.8 | 66.4 | 4.2x | 1.9x | moe1::sk_8_3_0::moe_fused_ker... 66.6us 49%<br>sk_kernel<1, 8, 1, 2, 2, 4, 3... 20.2us 15%<br>one::attn_one_kernel<8, 11> 14.6us 11% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 115.4us 40%<br>nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT 32.3us 11%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 18.5us 6% |
-
-| verify 16 batch=16 ctx=80000 dist=soft layer=sliding page=1 q_len=8 spread=agentic | 46 | 538.3 | 263.3 | 126.6 | 4.3x | 2.1x | moe1::moe_main_kernel<51> 168.4us 63%<br>nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN 26.4us 10%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNN 21.2us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 353.6us 69%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 28.3us 6%<br>nvjet_sm90_tst_64x64_64x13_2x1_v_bz_TNT 27.0us 5% |
-
-| verify 16 batch=16 ctx=80000 dist=soft layer=full page=1 q_len=8 spread=agentic | 16 | 705.4 | 349.0 | 188.7 | 3.7x | 1.8x | moe1::moe_main_kernel<51> 165.0us 47%<br>one::attn_one_kernel<8, 51> 104.4us 30%<br>nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN 25.8us 7% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 368.8us 52%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 191.4us 27%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 28.9us 4% |
-
-| verify 32 batch=32 ctx=80000 dist=soft layer=sliding page=1 q_len=8 spread=agentic | 46 | 729.6 | 342.4 | 143.8 | 5.1x | 2.4x | moe1::moe_main_kernel<51> 202.6us 62%<br>nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN 32.9us 10%<br>nvjet_sm90_tst_128x128_64x6_2x1_v_bz_coopA_NNN 26.1us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 513.0us 73%<br>nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT 34.5us 5%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 31.0us 4% |
-
-| verify 32 batch=32 ctx=80000 dist=soft layer=full page=1 q_len=8 spread=agentic | 16 | 1093.1 | 512.2 | 267.2 | 4.1x | 1.9x | moe1::moe_main_kernel<51> 214.1us 42%<br>one::attn_one_kernel<8, 51> 187.7us 37%<br>nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN 32.6us 6% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 529.5us 48%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 368.4us 33%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 38.5us 4% |
-
-
-
+### muse_decode_layer: job cb71acec29d141c6, 2.043x (2.013-2.074)
+
+SGLang kernels from the baseline-as-submission run in `muse_decode_layer/baseline_profile/profiles/baseline.7d42771c3384449d.json`.
+
+| shape | weight | SGLang us | ours us | floor us | SGLang/floor | ours/floor | our top kernels | SGLang top kernels |
+|---|---|---|---|---|---|---|---|---|
+| decode 1 batch=1 ctx=80000 dist=soft layer=sliding page=1 repeats=60 | 46 | 173.8 | 76.2 | 40.0 | 4.3x | 1.9x | moe1::sk_8_3_0::moe_fused_ker... 38.1us 43%<br>cgemv_kernel<512, 1> 13.1us 15%<br>cgemv40_kernel<256, 2> 8.6us 10% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 40.8us 23%<br>nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT 31.4us 18%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 9.9us 6% |
+| decode 1 batch=1 ctx=80000 dist=soft layer=full page=1 repeats=60 | 16 | 183.0 | 82.2 | 44.2 | 4.1x | 1.9x | moe1::sk_8_3_0::moe_fused_ker... 24.8us 29%<br>cgemv_kernel<512, 1> 14.1us 17%<br>one::attn_one_kernel<1, 11> 12.3us 14% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 45.0us 24%<br>nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT 32.4us 17%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 18.3us 10% |
+| decode 16 batch=16 ctx=80000 dist=soft layer=sliding page=1 spread=agentic | 46 | 263.9 | 140.0 | 76.7 | 3.4x | 1.8x | moe1::sk_8_3_0::moe_fused_ker... 66.9us 48%<br>sk_kernel<1, 16, 2, 2, 2, 2, ... 21.9us 16%<br>sk_kernel<1, 16, 2, 2, 2, 4, ... 20.2us 14% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 96.1us 36%<br>nvjet_sm90_tst_64x16_64x16_2x1_v_bz_TNT 27.2us 10%<br>nvjet_sm90_tst_128x16_64x11_4x1_v_bz_splitK_TNT 19.4us 7% |
+| decode 16 batch=16 ctx=80000 dist=soft layer=full page=1 spread=agentic | 16 | 443.4 | 221.5 | 137.5 | 3.2x | 1.6x | one::attn_one_kernel<1, 49> 88.1us 40%<br>moe1::sk_8_3_0::moe_fused_ker... 61.4us 28%<br>sk_kernel<1, 16, 2, 2, 2, 2, ... 26.9us 12% | cutlass::device_kernel<flash::enable_sm90_or_lat 191.4us 42%<br>sglang::device::marlin_moe::Marlin<__nv_bfloat16 109.9us 24%<br>nvjet_sm90_tst_64x16_64x16_2x1_v_bz_TNT 28.1us 6% |
+| decode 32 batch=32 ctx=80000 dist=soft layer=sliding page=1 spread=agentic | 46 | 271.2 | 171.4 | 84.5 | 3.2x | 2.0x | moe1::moe_main_kernel<47> 82.2us 51%<br>sk_kernel<2, 32, 2, 2, 2, 2, ... 23.5us 14%<br>sk_kernel<2, 32, 2, 2, 2, 4, ... 21.8us 14% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 136.0us 49%<br>nvjet_sm90_tst_64x32_64x16_2x1_v_bz_TNT 27.4us 10%<br>nvjet_sm90_tst_128x32_64x10_4x1_v_bz_splitK_TNT 19.9us 7% |
+| decode 32 batch=32 ctx=80000 dist=soft layer=full page=1 spread=agentic | 16 | 641.3 | 323.2 | 208.1 | 3.1x | 1.6x | one::attn_one_kernel<1, 49> 171.9us 50%<br>moe1::moe_main_kernel<47> 99.3us 29%<br>sk_kernel<2, 32, 2, 2, 2, 2, ... 29.7us 9% | cutlass::device_kernel<flash::enable_sm90_or_lat 505.1us 68%<br>sglang::device::marlin_moe::Marlin<__nv_bfloat16 93.4us 13%<br>nvjet_sm90_tst_64x32_64x16_2x1_v_bz_TNT 26.7us 4% |
+| verify 1 batch=1 ctx=80000 dist=soft layer=sliding page=1 q_len=8 | 46 | 262.8 | 118.3 | 62.3 | 4.2x | 1.9x | moe1::sk_8_3_0::moe_fused_ker... 58.9us 49%<br>sk_kernel<1, 8, 1, 2, 2, 4, 3... 20.2us 17%<br>sk_kernel<1, 8, 3, 1, 4, 4, 4... 10.1us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 86.8us 35%<br>nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT 32.1us 13%<br>sm80_xmma_gemm_f32f32_f32f32_f32_tn_n_tilesize32 12.6us 5% |
+| verify 1 batch=1 ctx=80000 dist=soft layer=full page=1 q_len=8 | 16 | 276.1 | 127.8 | 66.4 | 4.2x | 1.9x | moe1::sk_8_3_0::moe_fused_ker... 66.6us 49%<br>sk_kernel<1, 8, 1, 2, 2, 4, 3... 20.2us 15%<br>one::attn_one_kernel<8, 11> 14.6us 11% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 115.4us 40%<br>nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT 32.3us 11%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 18.5us 6% |
+| verify 16 batch=16 ctx=80000 dist=soft layer=sliding page=1 q_len=8 spread=agentic | 46 | 538.3 | 263.3 | 126.6 | 4.3x | 2.1x | moe1::moe_main_kernel<51> 168.4us 63%<br>nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN 26.4us 10%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNN 21.2us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 353.6us 69%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 28.3us 6%<br>nvjet_sm90_tst_64x64_64x13_2x1_v_bz_TNT 27.0us 5% |
+| verify 16 batch=16 ctx=80000 dist=soft layer=full page=1 q_len=8 spread=agentic | 16 | 705.4 | 349.0 | 188.7 | 3.7x | 1.8x | moe1::moe_main_kernel<51> 165.0us 47%<br>one::attn_one_kernel<8, 51> 104.4us 30%<br>nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN 25.8us 7% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 368.8us 52%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 191.4us 27%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 28.9us 4% |
+| verify 32 batch=32 ctx=80000 dist=soft layer=sliding page=1 q_len=8 spread=agentic | 46 | 729.6 | 342.4 | 143.8 | 5.1x | 2.4x | moe1::moe_main_kernel<51> 202.6us 62%<br>nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN 32.9us 10%<br>nvjet_sm90_tst_128x128_64x6_2x1_v_bz_coopA_NNN 26.1us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 513.0us 73%<br>nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT 34.5us 5%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 31.0us 4% |
+| verify 32 batch=32 ctx=80000 dist=soft layer=full page=1 q_len=8 spread=agentic | 16 | 1093.1 | 512.2 | 267.2 | 4.1x | 1.9x | moe1::moe_main_kernel<51> 214.1us 42%<br>one::attn_one_kernel<8, 51> 187.7us 37%<br>nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN 32.6us 6% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 529.5us 48%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 368.4us 33%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 38.5us 4% |
+
 
 
 ## November 1 fastest measured repaired Family G (off-board)

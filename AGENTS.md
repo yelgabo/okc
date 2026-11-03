@@ -22,7 +22,7 @@ Comments explain a non-obvious reason in at most two lines. Remove narration, ba
 
 Generated benchmarks belong in ignored output paths; recover retired snapshots from exact Git pins. [.rgignore](.rgignore) omits historical copies from default searches. Use explicit paths or `rg --files --hidden --no-ignore -g '!.git'` for archived material. Keep current incumbent source and tests discoverable.
 
-Preserve original encodings during bulk document edits. Some historical Markdown is CP1252; never decode with replacement.
+Preserve original encodings during bulk document edits. Some historical Markdown is CP1252; never decode with replacement. For appending to historical mixed-line-ending files such as docs/hotspots.md, preserve the existing byte prefix; text-mode reads can normalize even CRCRLF sequences.
 
 Historical docs live in `archive/docs/`, outside default searches. Consult its move manifest or use `rg --files --no-ignore archive` when following older evidence. Keep files consumed by current tools at their existing paths.
 
