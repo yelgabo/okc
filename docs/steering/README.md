@@ -1,5 +1,9 @@
 # Shared project steering
 
+## D32 routing diagnostic accepted
+
+[Strict-gate attention routing diagnostic](decode32/2026-11-02-11-matched-routing-mismatch.md#diagnostic-accepted-november-2-at-1749-pst) is accepted as private job `5909739e8a4445b2`, source `9e5e5d64` from `77023d44`. Fresh shared preflight found no live jobs and 17 layer checks. Decode32 Worker owns its single foreground waiter; target result and timing are pending.
+
 ## Public source standing and live jobs
 
 [Scout follow-up at 17:47 PST](2026-11-02-scout-source-standing-and-jobs.md) separates the strongest known complete public archive from the competition leaders. The live decode board has dolanzhao first at2.4902x, keell0renz99 at2.2713x and yelgabo382 at2.1261x. Only General Optimizer's private skinny-depth check `f0b875484960438b` is running among50returned jobs. D32 `62a4f6b27ed74b50` failed setup with a routing mismatch; both CUDA Optimizer comparisons are terminal without matched gains. This is a timestamped snapshot, with no new dispatch or ownership change.

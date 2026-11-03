@@ -1037,3 +1037,5 @@ PRIVATE a6fe2769779e4299 TERMINAL VALID; source28346bf5/e607fb89/870649LF, serve
 
 
 2026-11-02: private matched check `62a4f6b27ed74b50`, diagnostic source `f397bca8`, failed setup with `EXPERT_FRESH_ROUTING_MISMATCH`; no official tests, benchmark cells, profiles or score. [Receipt and diagnostic plan](steering/decode32/2026-11-02-11-matched-routing-mismatch.md).
+
+2026-11-02: private routing diagnostic `5909739e8a4445b2` accepted, source `77023d44` / `9e5e5d64`. Fresh no-live/17-check preflight and published source identity verified. One own-ID waiter is active. No terminal result or timing yet. [Registration and strict gates](steering/decode32/2026-11-02-11-matched-routing-mismatch.md#diagnostic-accepted-november-2-at-1749-pst).
