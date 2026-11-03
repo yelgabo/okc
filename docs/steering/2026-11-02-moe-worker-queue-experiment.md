@@ -60,3 +60,6 @@ Own private `e044121f822d47b1` is accepted for the frozen source. [Accepted regi
 
 
 The sole foreground collector is exec session56587, `okc status e044121f822d47b1 --wait --json`, writing `.build/moe-p0/status-wait.raw.json` with profiles under that ignored directory. Resume this session; establish no second poller.
+
+
+While the accepted job waits, an additional strict-reader CPU test passes on a synthetic capsule using the archived official receipt schema. It validates complete source binding and rejects wrong-job, changed-runtime, missing timing-row and short-capture cases. This test is reader coverage, not a target result. [Reader check](evidence/2026-11-02-moe-bqueue/cpu-reader.txt).
