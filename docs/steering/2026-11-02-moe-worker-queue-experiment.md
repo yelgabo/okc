@@ -51,3 +51,9 @@ The unchanged strict six-load contract requires every bank/distribution and all 
 Preparation/measurement has the existing295s limit. On a Python failure, `MOE_BQUEUE_PARTIAL` retains source-bound accumulated rows, counters, stage and error before re-raising and resetting scratch. Blocking compiler/device failures can still prevent a capsule; such an outcome is inconclusive and fails qualification. No partial result can pass the reader. One source-policy, budget, correctness, guard, admission, regression or benefit failure stops this exact treatment. No seed/geometry/queue-granularity/cap sweep, larger guard or posthoc dispatch mask. A successful screen needs held-out confirmation before any integration decision.
 
 Next action at registration: publish exact bytes, verify remote identity, check fresh shared jobs/quota and any accepted phase-job ownership, record dispatch-started, submit exactly one private check, persist the accepted own ID and follow one waiter. No public submission.
+
+
+Dispatch checkpoint: exact bytes published in `b56bd8f1` and verified on origin/main. Fresh shared list has no live jobs and MoE quota has16 checks left. `dispatch-started.json` records the single submission intent before POST.
+
+
+Own private `e044121f822d47b1` is accepted for the frozen source. [Accepted registration](evidence/2026-11-02-moe-bqueue/accepted.json), [compact ledger](moe-worker/STATUS.md). The shell wrapper failed after receiving the accepted response because zsh reserves `status`; the accepted JSON is complete and no POST was repeated. CLI exit was not recorded. Future collector wrappers use task-specific exit variables. Follow this own ID only.

@@ -10,7 +10,7 @@ User continuation, November2: keep D32 execution moving toward2.3x. An empty res
 
 General Optimizer reads the newest queue and active assignment on every user/scheduled wake. Implementation and measurement precede tracker maintenance. Record actual pickup, selected source/job and next action.
 
-Write live collector output under ignored `.build/` and archive after exit. Rebase can replace a tracked redirect target's inode; recover ended output by its own job ID instead of resubmitting.
+Write live collector output under ignored `.build/` and archive after exit. In zsh collectors, use task-specific exit variables such as `moe_check_rc`; `status` is read-only. Rebase can replace a tracked redirect target's inode; recover ended output by its own job ID instead of resubmitting.
 
 Other owners retain unrelated work. Preserve accepted jobs/files, shared quota and single pollers. Never duplicate, cancel or resubmit another owner's job. Check live jobs/quota before a private run. No new agents or project-wide takeover. Publication, pickup and execution are separate facts. Escalate concrete access, technical or permission blockers.
 
