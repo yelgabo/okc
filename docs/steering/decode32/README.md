@@ -1,10 +1,14 @@
 # Decode32 task inbox
 
+## Current next action: confirm the completed attention experiment
+
+**[D32-06: proceed directly to matched confirmation](2026-11-02-06-confirm-attention-and-progress-watch.md)** — first private attention job `17383751c6a24010` is terminal and valid; C32=11.882275 ms. Its comparison with an earlier independent control is not a confirmed gain. Keep the treatment/control fixed, reuse existing matched infrastructure, verify attention outputs/cache/replay and all-load regressions, and execute the already-authorized confirmation without a Driver/research handoff. If already underway, continue the existing job rather than duplicate it. Record the accepted confirmation ID or specific blocker in [STATUS.md](STATUS.md). Research's hourly conditional GitHub watch is enabled; it cannot prove local activity or directly wake the session. [Owning first result](2026-11-02-05-attention-first-result.md).
+
 ## Latest user instruction: research plans, medium-effort worker executes
 
 **[D32-04: fixed design and implement/check/measure checklist](2026-11-02-04-research-plan-worker-execute.md)** is the current instruction. The user set Decode32 Worker to medium effort and asked okc research to supply the deeper design decisions. **Research owns architecture/experiment planning; Decode32 Worker owns implementation through private measurement, analysis, confirmation, integration and commits.** This is not a return to approval or Driver handoffs.
 
-Continue the already-picked-up D32-ATTN-01 **within-request next-tile QK score-carry** implementation. The brief fixes the intended mechanism, invariants, test path and result branches. Do not restart a literature survey, independent-review chain, ownership audit or general harness. Finish one conforming candidate, run the focused checks, send an ordinary private full-layer check yourself, and report D32 timings. A concrete correctness/progress/access blocker is still a stop; an unproved speedup is not a reason to delay an exploratory measurement.
+The initial D32-ATTN-01 within-request next-tile QK score-carry implementation and ordinary private check are complete; the current next step is confirmation above. Do not restart a literature survey, independent-review chain, ownership audit or general harness. A concrete correctness/progress/access blocker is still a stop; an unproved speedup is not a reason to delay an authorized exploratory measurement.
 
 ## Execution owner: end to end, batch32 only
 
@@ -18,7 +22,7 @@ Scope: decode batch32 / T32 / q_len1, both contexts; `C32 = 46*sliding_us + 16*f
 
 ## Current work and reusable evidence
 
-Continue **[D32-ATTN-01](2026-11-02-01-full-decode-attention.md)** from the [acknowledged 23:55 UTC pickup](2026-11-02-01-full-decode-attention-status.md), using **D32-04's fixed design and direct execution path**. Its historical source-only/no-check/Driver-handoff wording is superseded. A candidate/tests handoff is no longer completion. Record actual pickup of the new instruction in the existing status file and proceed; acknowledgment is not another gate.
+Continue **[D32-ATTN-01](2026-11-02-01-full-decode-attention.md)** from its [first result](2026-11-02-05-attention-first-result.md) using D32-04's direct execution authority and D32-06's confirmation continuation. The original [23:55 UTC pickup](2026-11-02-01-full-decode-attention-status.md) remains history. Historical source-only/no-check/Driver-handoff wording is superseded. A candidate/tests handoff is no longer completion. Record actual current work in STATUS.md and proceed; acknowledgment is not another gate.
 
 Reuse the existing [MID implementation and calibration](../2026-11-02-driver-d32-control-terminal-and-mid-gate.md) as evidence, not a fresh allocation. [MID accepted-job registration](../2026-11-02-driver-d32-mid-first-check.md) is preserved as history; its terminal result above controls. Decode32 Worker checks current shared quota/jobs and owns subsequent D32 submissions. OK Driver/OKC Developer retain unrelated tasks and must not open new overlapping D32 assignments.
 
@@ -36,4 +40,4 @@ Background:
 - [MID comparison design](../2026-11-02-driver-d32-mid-comparison.md).
 - [Inbox setup and monitoring contract](../2026-11-02-decode32-inbox.md).
 
-The recorded worker monitor checks this folder before work/between bounded work units and periodically through its desktop scheduler, including committed `origin/main` updates and the two documented local checkouts. That is periodic checking, not proof of an instantaneous notification or pickup. Preserve local work when fetching and push completed code/results under the normal repository workflow. This research chat has not created or changed that monitor.
+The recorded worker monitor checks this folder before work/between bounded work units and periodically through its desktop scheduler, including committed `origin/main` updates and the two documented local checkouts. That is periodic checking, not proof of an instantaneous notification or pickup. Preserve local work when fetching and push completed code/results under the normal repository workflow. Research's separate hourly GitHub watch does not change or verify that desktop monitor.
