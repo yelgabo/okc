@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T23:32:00-07:00",
-  "snapshot": "9d251b73",
+  "reviewed_at": "2026-11-03T00:23:00-07:00",
+  "snapshot": "c2187b69",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -8,10 +8,10 @@
     "source": "steering/2026-10-30-family-f-donor-baseline.md"
   },
   "layer": {
-    "score": "2.1261\u00d7",
-    "interval": "2.0942\u20132.1580",
+    "score": "2.1261×",
+    "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Layer607 retains2.126083\u00d7; standalone public4aa retains5788.720720us/2.323225\u00d7. Pair-LUTc985 now passes correctness and loses all6 matched groups. Fused WS, arithmetic c7 decoder and original norm/NS3 retained."
+    "note": "Public layer607 and standalone4aa remain retained. Direct input, A+C full-K short ownership and factorized storage all miss matched gates. Factorized private5698.508us is a disclosed cross-job point, not a qualified replacement."
   },
   "families": [
     {
@@ -19,12 +19,12 @@
       "name": "Hybrid persistent / legacy MoE",
       "status": "win",
       "label": "Combined layer gain; isolated A unresolved",
-      "metric": "1.0052\u20131.0106\u00d7",
+      "metric": "1.0052–1.0106×",
       "unit": "M1 + mode 51 paired layer ratios, two runs",
-      "summary": "Historical owned hybrid comparisons retained. Current standalone public base is G. G-hosted norm and two-node WS finalizer pass correctness and fail their matched gates; no isolated A gain.",
+      "summary": "Full-K row-owned T8/T16 passes correctness but loses all six matched groups. Original fused WS/NS3 retained. Historical combined layer gains remain scoped.",
       "layer": "Earlier owned layer tests combine M1 and mode 51. The current retained layer belongs to G.",
       "pending": [],
-      "limit": "Historical progress repairs remain target-untested. New WS split is a valid complete-call loss on G, not a whole-family rejection. No phase budget qualifies from the failed observer.",
+      "limit": "A+C changes ownership, packing and staging together. No isolated A/C effect or whole-family rejection; no qualified next General task.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -37,7 +37,7 @@
       "name": "Staged grouped MoE",
       "status": "loss",
       "label": "Retested loss",
-      "metric": "+180 / +232\u2013235 \u00b5s",
+      "metric": "+180 / +232–235 µs",
       "unit": "128 /256 tokens, masked library versus 51 on layer routing",
       "summary": "GROUPED_MASKED passes math but loses across all measured128/256 layer/std cases. Earlier staged 45+46 losses remain.",
       "layer": "Stopped at complete-MoE component gate",
@@ -49,28 +49,28 @@
       "id": "C",
       "name": "Owner-completes tiles",
       "status": "win",
-      "label": "Historical wins; C+D queue loses in G",
-      "metric": "\u22122.1 / \u22123.8 \u00b5s",
+      "label": "Historical wins; new A+C short ownership loses",
+      "metric": "−2.1 / −3.8 µs",
       "unit": "128 / 256 tokens: mode 20 versus mode 16",
-      "summary": "New complete-unit B ownership plus dynamic claiming inside G passes correctness and fails all6 matched groups. Historical whole-unit and VP2 results remain scoped; no isolated C loss.",
+      "summary": "Full-K 64-row output ownership at T8/T16 passes correctness and loses all 12 affected rows. Earlier C+D queue loss remains scoped.",
       "layer": "Large-token G uses split stages and fixups. Earlier owned layer descendants used whole phase-A units.",
       "pending": [],
-      "limit": "The private VP2 target win and owned cluster losses leave the contribution of output ownership unresolved.",
+      "limit": "No isolated C rejection. Large-token historical whole-unit wins and changed current designs remain separate.",
       "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss"
       ],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/2f8ae539434804b43af456ef070a10ab2b576471/docs/steering/2026-11-02-moe-worker-queue-experiment.md#terminal-decision-november-2-pacific"
+      "evidence_url": "https://github.com/yelgabo/okc/blob/c2187b692e4f09e5e715d4da8c4d9530f17039c1/docs/steering/2026-11-02-general-ws-row-owned.md#terminal-decision-retain-original-fused-ws-stop-full-k-row-ownership"
     },
     {
       "id": "D",
       "name": "Dependency-aware scheduling",
       "status": "partial",
       "label": "Historical claim wins; new C+D queue loses",
-      "metric": "+3.592 / +4.957 \u00b5s",
+      "metric": "+3.592 / +4.957 µs",
       "unit": "128 /256 normal routing, complete-MoE queue versus current G splits",
-      "summary": "Whole-unit B claiming inside G fails all6 matched groups; all24 whole-six factors0.954109\u20130.995527. Earlier owned mode23 wins remain historical, with no transfer established.",
+      "summary": "Whole-unit B claiming inside G fails all6 matched groups; all24 whole-six factors0.954109–0.995527. Earlier owned mode23 wins remain historical, with no transfer established.",
       "layer": "Component test only. Current G weighted static split ranges retained. Ownership and queue changes were combined.",
       "pending": [],
       "limit": "No isolated D loss or general scheduling rejection. Full ready-only queue remains untested. Old phase-A/K=0 losses and no-work reset trigger remain scoped to that owned baseline.",
@@ -87,9 +87,9 @@
       "name": "Attention producer / consumer",
       "status": "inconclusive",
       "label": "Lookahead unresolved; identity screen failed",
-      "metric": "\u22125.035 \u00b5s (\u22121.59%)",
+      "metric": "−5.035 µs (−1.59%)",
       "unit": "Earlier lookahead D32 full cell, separate run; unconfirmed",
-      "summary": "Lookahead remains unconfirmed. Sliding eight-copy reduction passes13/12/12 but its changed cell is+3.818\u00b5s (+2.42%) in a separate run; unchanged full improves more. Exact treatment stopped.",
+      "summary": "Lookahead remains unconfirmed. Sliding eight-copy reduction passes13/12/12 but its changed cell is+3.818µs (+2.42%) in a separate run; unchanged full improves more. Exact treatment stopped.",
       "layer": "Identity4a2a79bdac04499a fails routing at an unchanged128/full cell. Only27/36 private rows survive; no complete matched result, official score or integration.",
       "pending": [],
       "limit": "All D32 attempts are closed. Identity partial medians include six D32 rows but do not qualify any gain;128 full and256 timing coverage is absent. Failure occurs with treatment inactive, so no causal identity loss follows.",
@@ -107,7 +107,7 @@
       "name": "Donor-based baseline and hybrid (alygg77)",
       "status": "win",
       "label": "Historical donor and owned projection results",
-      "metric": "1.0897\u20131.0949\u00d7",
+      "metric": "1.0897–1.0949×",
       "unit": "F-LAYER paired weighted score ratio, not adoption",
       "summary": "Historical alygg77 comparisons retained. C3 router component wins remain; new QKV128 depth and push variants lose.",
       "layer": "PRQ layer descendant scored; no isolated projection/F gain",
@@ -117,7 +117,7 @@
         "Matched traffic/opportunity intervention"
       ],
       "limit": "Family G has its own attributed-fork policy. C2 remains best projection score; C3 paired component gains and comparator precision caveats retained.",
-      "source": "steering/2026-10-30-family-f-donor-baseline.md",
+      "source": "../archive/docs/steering/2026-10-30-family-f-donor-baseline.md",
       "outcomes": [
         "win",
         "loss"
@@ -128,41 +128,41 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Public standalone base; seven component gates fail",
-      "metric": "2.1261\u00d7",
-      "unit": "Public layer score, 95% CI 2.0942\u20132.1580",
-      "summary": "Current standalone public base remains5788.720720us. Group16 full-pair LUT passes5/6/6 and54private cases but loses all18affected rows and all6matched groups. Exact treatment stopped.",
-      "layer": "Public layer607 unchanged2.126083\u00d7. Same approved standalone source5df257af passes public5/6/6 at2.323225\u00d7, CI2.288377\u20132.358073.",
+      "label": "Public retained; ten component gates missed",
+      "metric": "2.1261×",
+      "unit": "Public layer score, 95% CI 2.0942–2.1580",
+      "summary": "Direct-input staging loses. A+C full-K short ownership loses. Factorized storage has a lower private official point but fails all six matched groups with drift.",
+      "layer": "Public layer607 unchanged2.126083×. Same approved standalone source5df257af passes public5/6/6 at2.323225×, CI2.288377–2.358073.",
       "pending": [],
       "evaluation_pending": [],
-      "limit": "No new layer gain. Direct phase-A input staging is source qualification only; no new accepted GPU job. General needs a distinct WS brief. Seven scoped component failures do not reject whole design families.",
+      "limit": "No new layer gain or qualified replacement. Prepared-gamma plus factorized storage is source work only; the lower private receipt has an explicit release disposition.",
       "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss"
       ],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/9d251b7333c3e3b697d98cac2b3ac60de7584378/docs/steering/2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup"
+      "evidence_url": "https://github.com/yelgabo/okc/blob/c2187b692e4f09e5e715d4da8c4d9530f17039c1/docs/steering/2026-11-02-general-ws-row-owned.md#terminal-decision-retain-original-fused-ws-stop-full-k-row-ownership"
     }
   ],
   "context_pending": [
     {
       "name": "Four-cell verify",
-      "label": "Infrastructure failure \u2022 refunded",
+      "label": "Infrastructure failure • refunded",
       "summary": "1fad70bbe3854cbc produced no correctness or timing records at 128 or 256 tokens."
     },
     {
       "name": "Outgoing dependency tests",
-      "label": "Setup failures \u2022 no timing verdict",
+      "label": "Setup failures • no timing verdict",
       "summary": "The first check failed its graph query. The second found mismatched routing across arms during preparation. The tested path is closed."
     },
     {
       "name": "Graph-owned PR buffer at 128/256 tokens",
-      "label": "Setup failed \u2022 no timing",
+      "label": "Setup failed • no timing",
       "summary": "Job 60b38a62a135442c compiled with C++17 while target Torch required C++20. No test or timing cells ran. Capacity returned. No retry was allocated."
     },
     {
       "name": "Complete expert-engine proposals",
-      "label": "Source review closed \u2022 no target timings",
+      "label": "Source review closed • no target timings",
       "summary": "Grouped-contiguous Humming lacks a qualified whole-layer path. Prepared BF16 expansion conflicts with the stored NVFP4 requirement. The earlier one-token and pre-gamma component losses remain recorded."
     },
     {
@@ -172,33 +172,33 @@
     },
     {
       "name": "D32 attention matched confirmation",
-      "label": "Routing/coverage failure \u2022 closed",
+      "label": "Routing/coverage failure • closed",
       "summary": "Identity4a2a79bdac04499a retains27/36 rows, then fails128/full ordered routing with treatment inactive. No complete timing verdict; stop exact source, no D32 retry."
     },
     {
       "name": "G native component experiments",
-      "label": "Seven checks closed without integration",
-      "summary": "Scale-only, scales/groups, NS4, norm, C+D queue, two-node WS finalizer and full-pair LUT fail matched gates after correctness. Published base retained; no exact-treatment rescue."
+      "label": "Ten gates missed; public control retained",
+      "summary": "Prior seven scoped tests plus direct input, full-K row ownership and factorized storage miss their matched gates. Exact variants stopped without automatic rescue."
     },
     {
       "name": "Historical wins transfer audit",
       "label": "Source audit; no new timing allocation",
-      "summary": "Most reviewed attention wins, code groups and final-pass sums remain present. Dynamic B claims and PDL are changed designs. O8 RD is absent but its old delta gives only a conditional0.050\u20130.055% whole-six scenario."
+      "summary": "Most reviewed attention wins, code groups and final-pass sums remain present. Dynamic B claims and PDL are changed designs. O8 RD is absent but its old delta gives only a conditional0.050–0.055% whole-six scenario."
     },
     {
       "name": "Selected helper-prefix proposal",
-      "label": "Source closure \u2022 inactive code",
+      "label": "Source closure • inactive code",
       "summary": "The serial WGS scan is compiled out in selected WS builds. The distinct active-helper norm aggregation test has now passed correctness and failed performance; both exact proposals are closed."
     },
     {
       "name": "Sliding D32 split-copy reduction",
-      "label": "Valid check \u2022 exact treatment stopped",
-      "summary": "bd5776bdfcab42a7 passes13/12/12. Changed sliding+3.818\u00b5s (+2.42%); unchanged full-12.148\u00b5s (-3.83%) across separate runs. No causal gain or routing repair established."
+      "label": "Valid check • exact treatment stopped",
+      "summary": "bd5776bdfcab42a7 passes13/12/12. Changed sliding+3.818µs (+2.42%); unchanged full-12.148µs (-3.83%) across separate runs. No causal gain or routing repair established."
     },
     {
       "name": "MoE/BF16-first research refill",
-      "label": "Untested source directions; no new General brief",
-      "summary": "MoE owner source-qualifies removal of phase-A xA gather. Separate short-row CPU model exists, with no native candidate/result or assigned executable General brief. BF16 build brief remains available."
+      "label": "General full-K check closed; distinct refill needed",
+      "summary": "7f10243c98e74746 passes correctness and loses all six groups. General awaits a distinct short-path mechanism. MoE coupled prepared-gamma/storage work is source-only; BF16 remains independently assigned."
     },
     {
       "name": "Local compiler-only closures",
@@ -217,13 +217,28 @@
     },
     {
       "name": "Standalone MoE base promotion",
-      "label": "Public5/6/6 \u2022 exact source verified",
-      "summary": "Same5df257af private64f9 is5762.134395us; public4aa is5788.720720us/2.323225\u00d7, CI2.288377\u20132.358073. Public elapsed4.6278% lower cross-run. Layer unchanged. The same c7 engine already existed in the layer diagram; packaging/release adds no isolated kernel gain."
+      "label": "Public5/6/6 • exact source verified",
+      "summary": "Same5df257af private64f9 is5762.134395us; public4aa is5788.720720us/2.323225×, CI2.288377–2.358073. Public elapsed4.6278% lower cross-run. Layer unchanged. The same c7 engine already existed in the layer diagram; packaging/release adds no isolated kernel gain."
     },
     {
       "name": "G group16 pair lookup and lossless packing",
-      "label": "Correctness pass \u2022 large matched loss",
-      "summary": "c985bbdb2980407a/source5ff38524/542cd650 passes5/6/6 and54cases;0/6groups,18affected regressions, factors0.473011\u20130.576767. Stop exact LUT without retry/layout/cache sweep. No public lead."
+      "label": "Correctness pass • large matched loss",
+      "summary": "c985bbdb2980407a/source5ff38524/542cd650 passes5/6/6 and54cases;0/6groups,18affected regressions, factors0.473011–0.576767. Stop exact LUT without retry/layout/cache sweep. No public lead."
+    },
+    {
+      "name": "A+C full-K short-row ownership",
+      "label": "Measured loss; original WS retained",
+      "summary": "7f10243c98e74746: normal T8/T16 +25.843/+56.779µs, 12 affected regressions, no unchanged drift failure. No row/warp/K/ring sweep or retry."
+    },
+    {
+      "name": "G direct-input staging",
+      "label": "Matched gate loss with drift caveat",
+      "summary": "94c57451574c4cd3: all 18 affected rows regress. Normal128/256 +151.853/+223.104µs. One unchanged drift breach. Exact mapping stopped."
+    },
+    {
+      "name": "Factorized output private point",
+      "label": "Lower cross-job score; matched gate fails",
+      "summary": "Provisional local7479372115c64702:5698.508us/2.360004×,95%CI2.324604–2.395404. Versus public5788.721us:1.558% lower across jobs, but0/6matched groups and2drifts. Explicit stopped/disclosed disposition; no public approval."
     }
   ]
 }
