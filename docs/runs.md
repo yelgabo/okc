@@ -2558,3 +2558,25 @@ unpooler m = 128 rau against its Lt pick in the same check. rap / rap3 / rau sel
 128 against FP64 with probe rows and are offered to the ltune stable pick, which ships them only if they
 beat the Lt pin by its margin. Stop rule (brief): if rap is not within 2 us of ctrl and a1 + a2 is much
 larger than rap (no overlap headroom), log the loss and stop.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 11-03 | 415b2ebb5c604af1 | check (bench ra 1) | 95123f6f (SHA256 a487f6e1) | ra at pooler / unpooler m = 128 with ablations, offered to the ltune pick | 1.518x (1.495-1.540) | rap / rap3 / rau failed to launch (cudaErrorLaunchOutOfResources at 180 / 192 registers x 288 threads), so the judged path is the incumbent; ablations ran, diag 0 |
+
+Check 1 bench (in-process us, cold L2, 9 rounds x 3 reps, includes the ~4 us replay cost; d = median
+paired delta against ctrl / rounds faster): ctrl (Lt pin) 24.58; a1 weights + wgmma, no decode 53.76
+(+29.12, 0/9); a2 weights + decode, no wgmma 16.03 (-8.58, 9/9); a3 memory only 15.68 (-8.93, 9/9);
+a4 x ring + wgmma on A = 0 15.68 -> 31.65 (+7.20, 0/9). `cudaOccupancyMaxActiveClusters` for the pooler
+launch: 30 clusters of 4 resident against 32 in the grid, so every pooler arm ran a second partial wave
+(measured; the P3 entry above listed this as untested). The memory pipeline is near the HBM bound:
+11.68 us after the replay cost for 50.3 MB of 12-bit weights = 4.31 TB/s (floor 10.49 at 4.8 TB/s),
+against P3's 2.2 TB/s; decode adds 0.35 us on top. The wgmma side is the cost: wgmma alone (a4) is
+7.2 us over the whole Lt GEMM, and with weight loads in flight (a1) 29 us over it. SASS (local, nvcc
+12.8) shows four chained `HGMMA.64x128x16.F32.BF16` from registers per unit, `gsb0` on the last and
+`WARPGROUP.DEPBAR.LE gsb0, 0x1`, with no extra waits inserted. The launch failure: the CTA's register
+allocation rounds 288 threads to 384, so 168 is the cap that ptxas chose under `__launch_bounds__(288, 1)`.
+
+Check 2 (registered): `__launch_bounds__(288, 1)` restored (168 registers, 20-byte spill); pooler rap,
+rap_a3, rap_a4 (two waves) and unpooler rau with a1-a4 (64 clusters of 2, one wave if the occupancy
+call confirms it), each against its Lt pin. Same stop rule: rau must come within 2 us of the unpooler
+ctrl; if rau_a4 alone is still above ctrl, the register-A wgmma path loses in one wave too, and the lane stops.

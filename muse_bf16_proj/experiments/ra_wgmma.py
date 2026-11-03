@@ -4550,16 +4550,20 @@ def rd_pack(w, geom_name):
 # --------------------------------------------------------------------------------------------
 RA_GEOM = {
     "rap": (4, 32, 6, 2, 0),
-    "rap3": (4, 32, 6, 3, 0),
-    "rap_a1": (4, 32, 6, 2, 1),
-    "rap_a2": (4, 32, 6, 2, 2),
     "rap_a3": (4, 32, 6, 2, 3),
     "rap_a4": (4, 32, 6, 2, 4),
     "rau": (2, 32, 6, 2, 0),
+    "rau_a1": (2, 32, 6, 2, 1),
+    "rau_a2": (2, 32, 6, 2, 2),
+    "rau_a3": (2, 32, 6, 2, 3),
+    "rau_a4": (2, 32, 6, 2, 4),
 }
 RA_NAMES = list(RA_GEOM)
-RA_USE = {("pooler", 128): ["rap", "rap3"], ("unpooler", 128): ["rau"]}
-RA_BENCH = {("pooler", 128): ["rap", "rap3", "rap_a1", "rap_a2", "rap_a3", "rap_a4"], ("unpooler", 128): ["rau"]}
+RA_USE = {("pooler", 128): ["rap"], ("unpooler", 128): ["rau"]}
+# Check 415b2ebb5c604af1: only 30 clusters of 4 are resident, so the pooler (32 clusters) runs a
+# second wave; the unpooler's 64 clusters of 2 test the same bytes and FLOPs in one wave.
+RA_BENCH = {("pooler", 128): ["rap", "rap_a3", "rap_a4"],
+            ("unpooler", 128): ["rau", "rau_a1", "rau_a2", "rau_a3", "rau_a4"]}
 RA_ESC = 32
 
 
@@ -4595,8 +4599,9 @@ struct RaCfg {
 };
 
 template <int CLK, int KU, int NST, int PF, int ABL>
-// __launch_bounds__(288, 1) let ptxas use only 168 registers (it spilled); 9 warps fit 224.
-__global__ void __maxnreg__(224)
+// 180 registers failed to launch (cudaErrorLaunchOutOfResources, 415b2ebb5c604af1): the CTA's
+// allocation rounds 288 threads up to 384, so 168 is the real cap; it costs a 20-byte spill.
+__global__ void __launch_bounds__(288, 1)
 ra_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ ws, const uint32_t* __restrict__ esc,
           __nv_bfloat16* __restrict__ out, int M, int N, uint32_t base4, int* diag) {
     using C = RaCfg<NST>;
@@ -5250,7 +5255,7 @@ def prepare(weights):
             continue
         n, k = state[layer].shape
         try:
-            occ = [int(state["wd_ext"].ra_clusters(RA_NAMES.index(nm), n, m)) for nm in names[:1]]
+            occ = [int(state["wd_ext"].ra_clusters(RA_NAMES.index(nm), n, m)) for nm in names if RA_GEOM[nm][4] == 0]
             diag.zero_()
             x, _ = _gen_x(m, k, gen, dev)
             rounds = _time_rounds([ctrl] + [ra_arms[(layer, nm)] for nm in names], x, flush, 9, 3)
