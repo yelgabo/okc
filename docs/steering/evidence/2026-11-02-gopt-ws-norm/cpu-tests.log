@@ -1,0 +1,14 @@
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_affected_gates_and_unchanged_drift (test_gopt_ws_norm.NormAggregation.test_affected_gates_and_unchanged_drift) ... ok
+test_ftz_counterexample_and_nonfinite (test_gopt_ws_norm.NormAggregation.test_ftz_counterexample_and_nonfinite) ... ok
+test_generated_entry_and_negative_replay (test_gopt_ws_norm.NormAggregation.test_generated_entry_and_negative_replay) ... ok
+test_nonnegative_regrouping_bound (test_gopt_ws_norm.NormAggregation.test_nonnegative_regrouping_bound) ... ok
+test_partition_flushes_no_lost_or_cross_job_contributions (test_gopt_ws_norm.NormAggregation.test_partition_flushes_no_lost_or_cross_job_contributions) ... FTZ_MODEL {"cases": 2048, "contributions": 524288, "worst_relative_difference": 9.433774058463243e-07}
+PARTITION_MODEL 88 passed
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 7.451s
+
+OK
