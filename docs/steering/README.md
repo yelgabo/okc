@@ -9,6 +9,11 @@
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
+- Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 3 13:18 PST — local H200 parity published; short-load transfer unqualified
+
+The existing box owner has now [published four-board correctness and timing parity](../box.md), superseding only the **older status claim** below that parity was not yet published. The H200 is useful for **same-box paired A/B and CUPTI kernel-time attribution**; do not use its absolute times as judge-equivalent scores. Its 3% cross-machine per-cell acceptance screen **fails on every layer decode-1/verify-1 cell** (local 9–18% faster), while BF16 short-load totals are 3–4% slower and MoE T1 is 3.4% slower. The largest layer short-load disagreement is attributed partly to in-layer MoE routing/placement, but the cause is not fully established. This is an **instrument parity limitation**, not a kernel gain or evidence that a candidate will transfer. Nsight Compute hardware counters are blocked by host permissions; CUPTI activity timing works. The existing box owner and existing P0 MoE BCLM2 / P1 BF16 clean selected-twin / layer PDL8e owners retain their respective jobs, check quotas, and official qualification gates. Do not start duplicate box jobs, change the user-authorized continuous pod lifetime, resume the paused worker timer, or authorize releases from these local measurements. No new experiment is allocated by this indexing note.
 
 ## November 3 20:41 UTC calibration and H200 continuity
 

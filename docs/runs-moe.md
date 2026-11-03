@@ -5989,22 +5989,36 @@ candidate build 76.3 s), every arm passed numerics on all 48 held-out inputs at 
 | 16 (untouched) | 7..18 | 100.35 | 100.22 | +0.03 [-0.19, +0.10] | +0.02 [-0.61, +0.35] | 21 / 48 |
 
 The box predicts a loss at both short sizes (T = 1 is affected whenever an input has 3 or more local experts, so the pool
-exists). Dispatched as ordered, as the first box-to-judge carryover test of a paired MoE delta. Judge result below.
+exists). Dispatched as ordered.
+
+Judge, check `2b3f078535cd4def`: PASS 5 / 5, prepare bench ran 48 of 48 repetitions (35.6 s of budget left, candidate
+build 62.1 s), control draw 5,750.6 us (2.339x, CI 2.304-2.374). Paired, us:
+
+| T | ctrl med | cand med | cand - ctrl | ctrl2 - ctrl (null) | cand faster in | numerics |
+|---|---:|---:|---|---|---:|---|
+| 1 | 27.42 | 29.09 | +1.71 [+1.31, +2.02] | +0.11 [-0.26, +0.42] | 0 / 48 | 48 / 48 every arm |
+| 8 | 71.74 | 74.11 | +1.25 [+0.80, +1.92] | +0.06 [-0.64, +0.51] | 4 / 48 | 48 / 48 every arm |
+| 16 (untouched) | 101.60 | 101.28 | +0.11 [-0.29, +0.45] | -0.13 [-0.32, +0.16] | 21 / 48 | 48 / 48 every arm |
+
+Decision: loss (keep gate <= -0.5 us at T = 8 beyond the null not met; the stop rule fires at both sizes). Row in
+docs/ruled-out.md, no layer port. The box's paired delta on the same bytes had the same sign and size at both sizes.
 
 ## 2026-11-03 What the judge's routing shape does to the layer's moe_fused (box)
 
-Full tables in docs/box.md, "Routing". The parity gap (box 18.1 / 42.2 us against judge 29.5 / 87.1 at decode 1 sliding /
-verify 1 full) was the box runner: it reused the case seed's `local_start` for every fresh input, while the judge's
-`case_fields` gives each input its own busiest 32-expert range. With per-input `local_start` the layer's short cells
-read box/judge 0.978 / 0.959 (decode 1) and 1.023 / 0.997 (verify 1).
+Full tables in docs/box.md, "Routing"; box numbers follow the comparison rule (box against box, judge only by shape
+ratio). The box runner reused the case seed's `local_start` for every fresh input, while the judge's `case_fields`
+gives each input its own busiest 32-expert range, so the box was timing a lighter MoE workload. With per-input
+`local_start` the same control bytes run 1.107 / 1.107 (decode 1) and 1.126 / 1.217 (verify 1) times slower on the box.
 
 Measured map (`tools/box_route_map.py`, 60 inputs per cell, per-replay profiler): moe_fused = 9.1-9.4 us + 6.4 us per
 distinct local expert at T = 1 (residual sd 0.7-0.9 us), 10.6-11.4 + 6.2-6.4 per expert at T = 8 (sd 2.8-3.1); routes
-and tokens per expert add nothing. 6.4 us per expert is the 28.3 MB expert at 4.42 TB/s. The judge profile's 29.5 us
-is a 3-expert input and its 87.1 us a 12-expert input, both on this line. Nothing in the kernel is slow for the judge's
-shape: the phase A / B weight stream runs at the HBM rate the timeline measured, and the fixed 9-11 us (ramp, doneA
-handoff, tail, routing) is the same at every expert count. Every in-kernel lever on the fixed part has now lost on the
-judge or the box (HALF +2.2 / +1.3, BAL, BCLM +1.8 / +1.6 on the box).
+and tokens per expert add nothing; on the box one expert costs one 28.3 MB weight stream. The judge profile's slow rows
+match the box line by shape ratio: decode 1 sliding / full 29.5 / 22.6 = 1.305 against the box's 3-expert / 2-expert
+1.29, verify 1 full / sliding 87.1 / 57.7 = 1.51 against the box's 12-expert / 7.5-expert 1.51. So the judge's slow
+shape is a heavier routing draw (3 experts at decode 1, about 12 at verify 1), not a slower kernel: the extra time is
+phase A / B weight stream, one expert's worth per distinct expert, and the fixed part (ramp, doneA handoff, tail,
+routing; MOE-TL-01) does not grow with the expert count. Every in-kernel lever on the fixed part has now lost on the
+judge (HALF +2.2 / +1.3, BAL, BCLM +1.7 / +1.3 paired).
 
 The only lever that scales with the per-expert cost is the number of local experts streamed. TASK.md allows routing to
 differ "where scores nearly tie": a local top-8 expert that beats the token's 9th best by at most 0.03 may be left out
@@ -6012,8 +6026,8 @@ if every expert picked is within 0.05 of the reference's 8th best and the totals
 distinct - 15% - 2. `tools/box_route_slack.py` (measurement only, conservative greedy: an expert is skipped only when
 every token on it has a non-local replacement inside the tolerance, one replacement per token) counts, on the same
 inputs: decode 1 0.72 / 0.68 skippable experts per input (43 / 60 and 41 / 60 inputs have one), verify 1 1.85 / 2.12
-(55 / 60 and 56 / 60 have one or more, up to 3). On the measured slope that is about -4.5 us per decode 1 cell and
--12 to -13.5 us per verify 1 cell (a model from the map, not a timed kernel), about 0.95% (decode 1, 0.212%/us)
+(55 / 60 and 56 / 60 have one or more, up to 3). On the box's measured slope that is about -4.5 us per decode 1 cell and
+-12 to -13.5 us per verify 1 cell (a model from the box map, not a timed kernel and not a judge prediction), about 0.95% (decode 1, 0.212%/us)
 plus 1.8% (verify 1, 0.144%/us) of the layer score. It applies to the layer only: the standalone MoE problem
 receives its routes as inputs. It changes which experts the model uses, away from SGLang's exact top 8,
 so it is a rules and intent decision for the user, not a lane decision; nothing is built.
