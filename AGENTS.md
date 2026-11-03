@@ -81,4 +81,6 @@ Preserve concurrent work; never force-push or claim blocked publication succeede
 
 Local SM90a cross-compilation is not a replica of the H200 execution environment. Label resources as local compiler observations until target toolchain, full build and binary parity are verified. Remote GPU correctness and timing results stand separately.
 
+Hardware discovery is host-specific. Check other known computers and saved GPU receipts before extending a Mac-only finding to all local execution. The [local GPU clarification](docs/steering/2026-11-02-internal-moe-profile-validation.md#other-computer-clarification) records RTX5070/SM120 helper execution; verify live hardware and exact kernel ISA compatibility before choosing a profiling host.
+
 Local spills, register counts or identical SASS may guide experiment priority, but cannot alone close a candidate as target-ineligible or slow without validated target-build correspondence. Even target spills do not establish a net slowdown. Separate source-correctness blockers, untested budget deferrals and measured H200 losses.
