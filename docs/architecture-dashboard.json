@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T18:54:00-07:00",
-  "snapshot": "93ed0192",
+  "reviewed_at": "2026-11-02T19:59:00-07:00",
+  "snapshot": "de262c5a",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public607 retains2.126083x. Constant scales, corrected scale/groups and skinny NS4 fail component gates. RetainNS3. Attention routing diagnostic5909739e8a4445b2 is pending."
+    "note": "Public607 retains2.126083×. Constant scales, corrected scale/groups and skinny NS4 fail component gates; NS3 stays. Attention diagnostics closed without matched timings. No qualified next D32 treatment."
   },
   "families": [
     {
@@ -59,7 +59,8 @@
       "outcomes": [
         "win",
         "loss"
-      ]
+      ],
+      "evidence_url": "https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-11-02-historical-wins-transfer-audit.md"
     },
     {
       "id": "D",
@@ -72,7 +73,8 @@
       "layer": "Earlier owned descendants used dynamic B claims. Current retained G uses weighted static stage ranges.",
       "pending": [],
       "limit": "Full ready-only queue untested. Phase-A claiming modes 62/63 lose; K=0 controls 66/69 also lose. Lean claimed mode 68 not timed. Mechanism remains open after code-layout failure.",
-      "source": "steering/2026-11-02-1854-performance-review.md"
+      "source": "steering/2026-11-02-1854-performance-review.md",
+      "evidence_url": "https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-11-02-historical-wins-transfer-audit.md"
     },
     {
       "id": "E",
@@ -82,18 +84,17 @@
       "metric": "−5.035 µs (−1.59%)",
       "unit": "Targeted D32 full-context layer cell, separate-run comparison",
       "summary": "Ordinary lookahead job17383751 passed timed-call reference checks. Unchanged sliding D32 improves more, so the observed gain remains inconclusive.",
-      "layer": "Layer-tested scheduling descendant inside G. Both matched4fe and corrected62a4 failed setup without timings. Public G1b4 remains retained.",
+      "layer": "Layer-tested scheduling descendant inside G. Matched4fe/62a4 and strict5909 fail setup; observer8b1e exceeds its preparation budget. No matched gain; public G1b4 retained.",
       "pending": [],
-      "limit": "Source changes only full-context single-query batches17–32. Standard128/256 verify paths are unchanged. Earlier VP2 cell win and six-load failure remain recorded.",
-      "source": "steering/2026-11-02-1854-performance-review.md",
+      "limit": "All diagnostic attempts are closed. Strict ordered routing remains; a distinct qualified comparison is missing. Only full-context batches17–32 change;128/256 verify paths remain unchanged. Earlier VP2 win/failure stays scoped.",
+      "source": "architecture-performance-tracker.md#november-2-review-at-1959-vancouver-time",
       "outcomes": [
         "win",
         "loss",
         "inconclusive"
       ],
-      "evaluation_pending": [
-        "Strict natural-routing diagnostic5909739e8a4445b2, payload9e5e5d64"
-      ]
+      "evaluation_pending": [],
+      "evidence_url": "https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/decode32/2026-11-02-17-observer-budget-closure-and-refill.md"
     },
     {
       "id": "F",
@@ -127,12 +128,13 @@
       "layer": "Public607 retains2.126083×. New calibration94ef scores2.091748×. MID scores2.089423×, with no useful D32 signal.",
       "pending": [],
       "evaluation_pending": [],
-      "limit": "The128/256 MAIN paths are unchanged. Their faster cross-run observations do not establish MID gains. Decode32 Worker owns subsequent D32 checks directly.",
+      "limit": "The128/256 MAIN paths are unchanged. General helper-prefix proposal is compiled out at T1/T8/T16, with no candidate or GPU run. Decode32 Worker awaits a distinct qualified task; B4 phase attribution remains separately owned.",
       "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss"
-      ]
+      ],
+      "evidence_url": "https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-11-02-general-optimizer-pipeline-depth.md"
     }
   ],
   "context_pending": [
@@ -163,8 +165,8 @@
     },
     {
       "name": "D32 attention matched confirmation",
-      "label": "Two setup failures; diagnostic accepted",
-      "summary": "4fe failed FP8 finiteness; corrected62a4 failed exact routing equality. Strict diagnostic5909739e8a4445b2 is accepted, without timings yet."
+      "label": "Diagnostics closed • no matched timings",
+      "summary": "4fe/62a4 and5909 failed setup. Observera099 was rejected before acceptance; explicit-tag8b1e failed its295-second prepare guard without observations. Closed, no retry; lookahead gain unresolved."
     },
     {
       "name": "G native component experiments",
@@ -175,6 +177,11 @@
       "name": "Historical wins transfer audit",
       "label": "Source audit; no new timing allocation",
       "summary": "Most reviewed attention wins, code groups and final-pass sums remain present. Dynamic B claims and PDL are changed designs. O8 RD is absent but its old delta gives only a conditional0.050–0.055% whole-six scenario."
+    },
+    {
+      "name": "Selected helper-prefix proposal",
+      "label": "Source closure • inactive code",
+      "summary": "Tiny/Tiny2/MID WS=1/WGS=0 preprocess the proposed serial WGS scan out. Three actual builds plus one forced-WGS detection control pass. No GPU job or measured gain; await a distinct qualified task."
     }
   ]
 }

@@ -23,6 +23,8 @@ data['tracker_hash'] = hashlib.sha256(tracker.read_bytes()).hexdigest()[:12]
 for f in data['families']:
     assert f['status'] in {'win', 'loss', 'partial', 'untested', 'inconclusive'}
     assert (ROOT / 'docs' / f['source'].split('#')[0]).is_file()
+    if 'evidence_url' in f:
+        assert re.fullmatch(r'https://github\.com/yelgabo/okc/blob/[0-9a-f]{40}/docs/[A-Za-z0-9_./-]+(?:#[A-Za-z0-9_-]+)?', f['evidence_url']), 'Evidence URL must pin a repository source'
 template = (ROOT / 'tools/architecture-dashboard-template.html').read_text()
 output = template.replace('__DASHBOARD_DATA__', json.dumps(data).replace('<', '\\u003c'))
 path = ROOT / '.lavish/architecture-performance/index.html'

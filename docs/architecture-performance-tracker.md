@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 18:54 MST. Evidence snapshot: `93ed0192`.
+Last review: 2026-11-02 19:59 MST. Evidence snapshot: `de262c5a`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -16,9 +16,25 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled 256 case. New grouped-contiguous Humming proposal stopped before measurement. |
 | C. Owner-completes tiles | Historical wins; large-token G uses stage cuts | The complete private VP2 design wins its eight-token sliding cell. Both owned cluster implementations previously lost. | The comparison leaves the contribution of output ownership unresolved. |
 | D. Dependency-aware scheduling | Historical claim wins; current G uses weighted static ranges | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
-| E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Matched4fe and corrected62a4 failed setup without timings. Strict diagnostic5909739e8a4445b2 is accepted; fresh paired qualification remains pending. |
+| E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Matched4fe/62a4 and strict diagnostic5909 failed setup. Observer8b1e hit its preparation budget without observations or timings and is closed. A distinct qualified comparison is missing. [Current evidence](#november-2-review-at-1959-vancouver-time). |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
 | G. Attributed keell0renz layer fork | Retained public layer2.126083×; MID17–32 parked | New unchanged control scores2.091748×. MID passes standard correctness but D32 is3.473% slower across separate runs. Earlier K128/shared-A/direct-weight losses remain scoped. | Attention E remains unconfirmed. Constant-scale, corrected scale/group and skinny NS4 components fail their gates. NS3 stays. Decode32 Worker owns D32 directly. |
+
+## November 2 review at 19:59 Vancouver time
+
+**The D32 observer is closed as inconclusive. No matched attention gain is established.** Public G1b4 remains2.126083×; the exploratory full-D32 reduction of5.035µs (1.588%) remains a separate-run observation with larger improvement on unchanged sliding. Neither new diagnostic supplies a comparable timing control, elapsed-time delta, treatment interval or completed timed repeat count. These are instrument/setup failures, not measured attention losses.
+
+| Attempt | Source and candidate/control scope | Workload and routing evidence | Correctness and terminal outcome | Timing evidence |
+|---|---|---|---|---|
+| `5909739e8a4445b2` | Revision77023d44, payload9e5e5d64; strict routing diagnostic for frozen full-D32 lookahead/control | T32 sliding, seed1102031, fresh replay7, row6, placement3 versus control0. Same expert set, experts93/153 swap slots3/4; captured attention treatment inactive. | Setup fails strict ordered-route equality, code112. Native56-replay startup marker is present; official tests/benchmarks/profiles:0/0/0. Finished2026-11-03 02:01:16 UTC. | No paired report, score, CI or timing cells. Stop exact source. [Receipt](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/decode32/evidence/D32-ATTN-04/status-wait.raw.json), [route analysis](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/decode32/evidence/D32-ATTN-04/routing-analysis.json). |
+| D32-ATTN-05, no accepted ID | Revision0ddbc284, payloada0998224; upstream observer | No target execution | HTTP422 source-policy rejection for frame inspection; no GPU correctness result. Explicit call-site tags replace it in ATTN-06. | No measurement. [Rejection and repair](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/decode32/2026-11-02-16-explicit-route-observer.md). |
+| `8b1e364dafb54c71` | Revisiona7e08ee4, payload00193aa2; explicit-tag observer on the same frozen attention/control devices, intentionally stops before timing | D32 upstream/fresh-replay investigation; no observer capsule or actual route distribution retained | Setup fails EXPERT_PREPARE_295S, code112. Native56-replay marker present; official tests/benchmarks/profiles:0/0/0. Six CPU observer tests pass, without establishing target correctness. Finished2026-11-03 02:47:05 UTC. | No timings, boundary attribution, score or CI. Closed under one-run stop, no retry. [Receipt](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/decode32/evidence/D32-ATTN-06/status-wait.raw.json), [terminal analysis](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/decode32/evidence/D32-ATTN-06/terminal-analysis.json). |
+
+The observer's295-second guard covers preparation and private work together; the receipt does not isolate which operation consumed the budget. Its failure establishes neither a lookahead loss nor a router/pooler cause. Five CPU selector fixtures confirm the existing conditional bfpf/bfp choice, without observing actual target banks or fallback cost. Keep ordered-routing gates. Decode32 Worker requests a distinct source-qualified task; CUDA Optimizer retains the separate B4/MAIN phase-attribution study. [Observer closure and research gap](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/decode32/2026-11-02-17-observer-budget-closure-and-refill.md).
+
+GOPT-SHORT-02 is **closed as inactive code**, with no candidate or GPU job. Exact Tiny/Tiny2/MID WS=1/WGS=0 preprocessing excludes the proposed serial WGS prefix at T1/T8/T16. Three real-flag checks and one synthetic forced-WGS detection control pass. This corrects the raw-literal interpretation; it is neither a timing loss nor a rejection of other active-helper designs. NS3 stays. B4/T32 and MAIN128/256 already use the parallel prefix. [Selected-source closure](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-11-02-general-short-prefix-result.md).
+
+**A versus B and combined designs remain unchanged.** No new128/256 component or whole-layer timing was recorded. The older A-over-tested-B ordering and C/D historical wins remain scoped to their implementations. G's static/split-stage policies remain distinct. Research's hypothetical WS work counts establish no executed instruction count, exposed cost or speedup. Its refill is acknowledged, without a qualified new General task. The source cleanup preserves frozen public607 bytes and creates no runtime gain. [CPU opportunity scope](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/evidence/2026-11-02-hotspot-refill/static-opportunity.json), [research refill](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-11-02-general-hotspot-search-refill.md), [cleanup validation](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-11-02-context-cleanup.md).
 
 ## November 2 review at 18:54 Vancouver time
 
@@ -2827,7 +2843,7 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
-The calibration and fixed MID-helper comparison have completed. MID is parked. Decode32 Worker owns the D32 lane directly, and both attention matched attempts failed setup. Strict diagnostic5909739e8a4445b2 is accepted. Broad dense backing remains unallocated reserve. [Current D32 ledger](https://github.com/yelgabo/okc/blob/2ffc98c1/docs/steering/decode32/STATUS.md)
+The calibration and fixed MID-helper comparison have completed. MID is parked. Decode32 Worker owns D32 directly. Matched4fe/62a4 and diagnostic5909 failed setup. Observer8b1e is closed as inconclusive after its preparation-budget failure, with no retry or qualified immediate D32 treatment. Attention remains unconfirmed. General Optimizer also awaits a distinct task after the inactive-prefix closure. Broad dense backing remains unallocated reserve. [Current D32 ledger](https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/decode32/STATUS.md)
 
 The earlier complete-engine review closed both reviewed proposals at the source stage. Reopening grouped-contiguous Humming requires an exact legal workload and credible net whole-layer opportunity. The canonical attention continuity source is frozen pending stronger opportunity evidence. [Decisions](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md).
 
@@ -2853,6 +2869,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 19:59 MST (America/Vancouver): inspected93ed0192..de262c5a, all changed run/negative ledgers and new archived diagnostic receipts. New terminal IDs5909739e8a4445b2 and8b1e364dafb54c71 are setup-only failures; sourcea0998224 was rejected before acceptance. GOPT-SHORT-02 closes at source stage. No new timings or A/B ordering change. All18 local provisional JSONs parse, correspond to logged jobs and remain untouched. Last evidence terminal2026-11-03 02:47:05 UTC. Current owner queue and research refill inspected at this snapshot. Dashboard family links now pin available remote source reports when the local review has not been pushed; the builder validates those URL pins.
 
 - November2, 18:54 Vancouver. Inspected through `93ed0192`. New terminal3c457881/f0b87548 pass correctness and fail component gates; NS3 retained. Diagnostic5909739e8a4445b2 accepted. Historical transfer mappings distinguish retained mechanisms from changed policies. All18 provisional local receipts untouched. [Full review](steering/2026-11-02-1854-performance-review.md)
 
@@ -3161,7 +3179,7 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 
 ## Visual dashboard
 
-Open the [local dashboard](http://127.0.0.1:4387/session/3de14ef757fbea5b) while Lavish is running,
+Open the [local dashboard](http://127.0.0.1:4387/artifact/3de14ef757fbea5b/index.html) while Lavish is running,
 or open the [standalone HTML](../.lavish/architecture-performance/index.html). It uses the
 existing gap-analysis palette and typography stack. Filters separate measured wins, tested
 losses, partial designs and candidates awaiting layer evidence.
