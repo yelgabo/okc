@@ -2525,3 +2525,36 @@ so the tuner keeps sk2's PDL path at o. Estimated layer effect from these benche
 qkv and slice edges about -0.1 to -0.5 us each, the o edge unchanged from pdl8b, so the T = 1 gain is at most
 about 1 us, below the layer's draw spread. Lane stopped after 2 of 4 checks. Receipts:
 `muse_bf16_proj/experiments/profiles/cg_pdl.aa5e4ae178d244de.{json,txt,log}` and `cg_pdl2.990758fa4f634261.{json,txt,log}`.
+
+## 2026-11-03 way 4: register-A wgmma (ra) at pooler m = 128 (branch worktree-agent-afc824c826a59610f)
+
+Brief: docs/steering/2026-11-03-bf16-proj-approaches.md, way 4. Budget: 4 checks of muse_bf16_proj today.
+
+Design (`muse_bf16_proj/experiments/ra_wgmma.py`, `ra_kernel`): 128 weight rows per CTA (two consumer
+warpgroups of 64 rows, one m64n128k16 accumulator each, 64 FP32 registers per thread) and a 128-token x
+tile over one K slice, K split over a CLK-CTA cluster (pooler CLK 4, unpooler CLK 2; 128 CTAs, one wave),
+plus one producer warp. Each consumer warp reads its 16 rows' 12-bit rd units straight into registers
+(PF units ahead), decodes them with `decode8` and patches escapes by XOR as rd_kernel does; the decoded
+`av[4]` per k16 step is passed as the wgmma register-A fragment (`wgmma.mma_async ... {a0..a3}, desc_b, p,
+1, 1, 0`, syntax from CUTLASS `SM90_64x128x16_F32BF16BF16_RS`; layout = CUTLASS `ALayout_64x16`, which is
+the mma.m16n8k16 A layout per warp). Weights never touch shared memory. x is the B operand from a 6-stage
+TMA ring of wd's 128B-swizzled {64 k, 128 token} boxes (16 KB each). Two A register sets alternate so unit
+s decodes while unit s - 1's wgmma group runs (wait_group 1). Partials go through wd's pull reduction (part
+over the ring, cluster barrier, rank r sums its 128 / CLK tokens from every rank in rank order, BF16 out).
+rd's lane layout holds k 16a + 4b + c at step b; the stream is rd_pack of W with columns permuted inside
+each 64-k block (`ra_perm`) so those slots carry the natural k 16b + 2a + (0, 1, 8, 9)[c] that the
+shared-memory B operand uses. `tools/proj_ra_emulate.py` decodes the stream on the CPU exactly as the
+kernel does and finds every weight's bits at its A position (0 mismatches with escapes; the identity
+permutation gives 61,385 of 65,536 mismatches, so the check can fail).
+
+Compile (local nvcc 12.8 sm_90a via tools/compile_check.sh, `__maxnreg__(224)`): rap (PF 2) 180
+registers, rap3 (PF 3) 192, rau 180, ablations a1 154 / a2 36 / a3 36 / a4 122; no spills, no wgmma
+serialization warning. With `__launch_bounds__(288, 1)` ptxas capped them at 168 and spilled 20-96 B.
+
+Registered before dispatch: arms ctrl = the cuBLASLt pooler m = 128 pick (LT_PREF), rap, rap3, and the
+ablations a1 decode off (raw words as A), a2 wgmma off, a3 both off (memory pipeline only), a4 weights off
+(x ring and wgmma on A = 0); 9 rounds x 3 reps of cold-L2 graph replay, order rotating (`_time_rounds`);
+unpooler m = 128 rau against its Lt pick in the same check. rap / rap3 / rau self-test at m = 65 / 100 /
+128 against FP64 with probe rows and are offered to the ltune stable pick, which ships them only if they
+beat the Lt pin by its margin. Stop rule (brief): if rap is not within 2 us of ctrl and a1 + a2 is much
+larger than rap (no overlap headroom), log the loss and stop.
