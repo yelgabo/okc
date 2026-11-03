@@ -29,3 +29,5 @@ Before exact-file dispatch, freeze the release recommendation screen: all5offici
 Exactlyone private POST accepted64f9998ef238476f for5df257af. [Accepted association](evidence/2026-11-02-moe-release/accepted.json). Target correctness, score and release decision are pending; no public submission.
 
 Sole foreground collector exec52146 waits only on64f9998ef238476f, writing ignored `.build/moe-release/status-wait.raw.json`. No second poller.
+
+The exact-file result reader has3passing schema/source/coverage tests using an explicitly synthetic association over an archived passing receipt. It rejects wrong-job/source and missing test/benchmark/profile records, preserves a failed outcome, and keeps public_submission_approved=false even for a material point lead. These are reader tests, not target results. The pending own receipt remains the only source of the new performance decision.
