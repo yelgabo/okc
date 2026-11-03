@@ -4779,3 +4779,86 @@ finalize at decode. What is left is structural: a q_len 8 tile body with fewer i
 tile (masking only on the boundary tile, address math hoisted per segment, the DCARRY / VHOIST
 carries of mode 51 brought to the per-request loop), and a merge tail with fewer dependent L2
 round trips than reds, release RMW and reload. Neither fits one check with a stop rule today.
+
+## 2026-11-03 main's merged attn_one.cu against the public build (certification), registered before dispatch
+
+Why: the 03:30 PT merge of the PSTEAL and sliding lanes left two stage-advance lines in
+`muse_attention_decode/attn_one.cu` (union script); the hand fix keeps
+`st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);` inside one_tile. That source had not been built
+at a judge. Public best is 8914751e3b9f468b (file `.build/repeats/attention_base.py`, SHA256
+aa3535d0f1fbb78c92da7e8628d264392c440a17ba756a2297d7566ee46e27e1).
+
+Local gate (Docker CUDA 12.8.1 nvcc, sm_90a, `tools/attn_one_sass.sh` on all 13 default
+instances): the public `_ONE_SRC` and main's attn_one.cu (SHA256 6c518aa6, every switch at its
+default: ONE_PSTEAL 0, ONE_STAMP 0, ONE_NSR8 3, ONE_LASTSKIP and ONE_POLLNS as defaulted, ONE_CL
+0) give the same registers (0 spills on both) and byte-identical SASS for all 15 functions after
+the anonymous-namespace hash is normalized (13 attn_one_kernel instances, coop_probe,
+smid_probe). The host-side differences are the ONE_CL launch branch (`if constexpr`, not
+instantiated) and the mode 136 plan line in submission.py, which needs `(L, 136)` in the
+residency table and so cannot fire without ONE_CL. This is a local compiler observation, not
+the judge's build.
+
+Check file: `.build/attn_cert/main_cert.py`, SHA256
+879f55064ea792f9c48c6cc0fe171fd2af45206c4b4dd74d62bb7dd63edefe01, written by
+`tools/attn_make_main_cert.py .build/attention_base.py OUT` (2 held-out inputs, 100 rounds). Its
+judged path is the public file byte for byte (the first 292,419 bytes are aa3535d0). At import it
+execs `ctrl2` (the public file again, its own one-launch extension and workspace: the null) and
+`main` (submission.py with main's attn_one.cu inlined, own extension and workspace), then dumps
+cuobjdump SASS of each arm's one-launch .so and compares it per function with ctrl, compares
+outputs and written cache rows bitwise on held-out inputs (seeds 1000, 1001) for all twelve
+scored cells, runs the judge-style FP32 check for ctrl and main on the batch-1 cells, and times
+cold-L2 graph replays in a random arm order per round.
+
+Hypothesis: main's attn_one.cu at defaults is the public kernel: the same SASS and bitwise-equal
+outputs. Gate: every attn_one_kernel function identical at the judge (or, if cuobjdump is
+missing or the text differs, every cell's paired main - ctrl inside the ctrl2 - ctrl null's
+range) and main bitwise equal to ctrl on every input where ctrl2 is bitwise equal to ctrl. Stop:
+pass, stop at one check; fail to compile or material SASS difference, one fix and one more
+check.
+
+Dispatch note: the first file (SHA256 dbdedb25) was refused before any job ID ("rejected: starts
+processes", 422; it ran cuobjdump). The dispatched file 879f5506 compares the machine code of the
+.text sections in each extension's embedded cubin in process instead; locally that parser finds
+the same 15 functions identical in the two Docker cubins and in an nvcc -fatbin image
+(uncompressed, one ELF). The SHA above is the dispatched file's.
+
+### Result: a4900aad5398426d, main's attn_one.cu is the public kernel
+
+Receipt `muse_attention_decode/profiles/main_cert.a4900aad5398426d.{json,log,txt}` (file SHA256
+879f5506). Judged arm (public bytes) PASS 16/16, 1,499.1 us, 2.512x (CI 2.475-2.550), no flags:
+a control draw inside the day-1 repeat range (1,449.7-1,497.1 us) plus this file's two extra
+extension builds in the import phase; not a candidate, nothing for the promotion queue.
+
+Machine code at the judge: `main` and `ctrl2` each match ctrl in all 15 functions of the
+one-launch cubin (13/13 attn_one_kernel instances, kernel digest 5983a332ea668d3c for all three
+builds). The judge-style FP32 check passes for ctrl and main on the four batch-1 cells with
+identical errors.
+
+Bitwise, held-out seeds 1000 / 1001, twelve cells: written K and V cache rows equal in every case.
+Outputs: ctrl2 (same code) equals ctrl on 12 of 24 inputs and main on 14 of 24; every difference
+is 1 to 4 elements at 1 BF16 ulp, the FP32 atomic merge order. The registered clause (main equal
+wherever ctrl2 is equal) misses on one input (decode 32 full in=1: ctrl2 equal, main 1 element at
+1 ulp); with byte-identical machine code and a null that differs on half the inputs, this is
+run-to-run order, not a code difference.
+
+Cold paired main - ctrl, median us [bootstrap 95%], null ctrl2 - ctrl:
+
+| cell | ctrl | main - ctrl | ctrl2 - ctrl |
+|---|---:|---:|---:|
+| decode 1 sliding | 9.25 | -0.19 [-0.22, +0.00] | -0.19 [-0.22, -0.03] |
+| decode 1 full | 17.18 | -0.22 [-0.32, -0.13] | -0.26 [-0.35, -0.16] |
+| decode 16 sliding | 12.93 | +0.03 [-0.06, +0.16] | -0.06 [-0.16, +0.03] |
+| decode 16 full | 100.51 | -0.13 [-0.29, +0.00] | -0.06 [-0.22, +0.10] |
+| decode 32 sliding | 15.74 | +0.00 [-0.10, +0.10] | +0.03 [-0.10, +0.16] |
+| decode 32 full | 179.42 | +0.00 [-0.26, +0.22] | +0.00 [-0.19, +0.29] |
+| verify 1 sliding | 10.88 | +0.00 [+0.00, +0.10] | +0.00 [+0.00, +0.06] |
+| verify 1 full | 18.98 | -0.03 [-0.13, +0.06] | +0.00 [-0.10, +0.06] |
+| verify 16 sliding | 15.58 | +0.06 [-0.06, +0.19] | -0.06 [-0.16, +0.06] |
+| verify 16 full | 112.61 | +0.16 [-0.13, +0.45] | +0.19 [-0.06, +0.45] |
+| verify 32 sliding | 19.71 | -0.03 [-0.16, +0.03] | -0.10 [-0.22, +0.00] |
+| verify 32 full | 192.38 | +0.16 [-0.29, +0.54] | -0.06 [-0.58, +0.22] |
+
+Every main - ctrl sits within 0.13 us of the null. At decode 1 both in-process copies run about
+0.2 us faster than the judged module, so that offset comes from the arm and not from the code.
+Decision: certified. The merged attn_one.cu at defaults builds the public kernel, and no source
+fix was needed. One check spent; the second was not used.
