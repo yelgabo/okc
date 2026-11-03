@@ -68,6 +68,8 @@ The Decode32 Worker owns its checks and job waits. Each other owner retains its 
 
 ## Latest audit
 
+[Local-screen decision audit](2026-11-03-worker-local-screen-decision-audit.md): scoped records establish no RTX5070-timing-based rejection. Gamma/G2 compiler-only stops remain unmeasured engineering deferrals; recorded H200 exact-variant losses and current allocations remain unchanged. Report/evidence published ate3989ffc/a38a3ad8.
+
 [Local RTX5070 incumbent-component profile](2026-11-03-worker-local-incumbent-profile.md): actual CUDA/CUPTI measurements of selected portable routing/final-norm stages and explicit cuBLAS dense fallbacks. Native SM90 MoE was not run or retargeted; these are local component results, not H200 or end-to-end layer timings. Source/evidence published atba48cd8f.
 
 [Post-split General row-ownership decision](2026-11-02-general-hotspot-search-refill.md#post-split-research-decision-full-k-output-row-ownership--november-2-2026-pacific) advances the same refill after the valid two-launch loss. One fixed full-call build; CPU byte-permutation/partition and archived SASS checks are not GPU correctness or a speedup. Other worker files/jobs remain independent.
