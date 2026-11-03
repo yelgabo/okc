@@ -1,0 +1,9 @@
+test_actual_arm_selection (__main__.IdentityPair) ... ok
+test_complete_coverage_and_private_hold (__main__.IdentityPair) ... ok
+test_partial_rows_and_budget_failure (__main__.IdentityPair) ... ok
+test_prepare_failure_retains_original_error_and_restores_hooks (__main__.IdentityPair) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 5.784s
+
+OK

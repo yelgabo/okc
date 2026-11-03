@@ -1,0 +1,46 @@
+[
+  {
+    "command": [
+      "python3",
+      "tools/d32_identity_rescale_test.py",
+      "-v"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "tools/d32_identity_pair_test.py",
+      "-v"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "tools/d32_attn_worker_read_test.py",
+      "-v"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network=none",
+      "--env",
+      "NVIDIA_VISIBLE_DEVICES=void",
+      "--volume",
+      "/Users/gretchengabo/Documents/ChatGPT/okc:/w",
+      "--workdir",
+      "/w/tools",
+      "--entrypoint",
+      "python3",
+      "okc-torch-headers",
+      "d32_identity_pair_torch_test.py",
+      "-v"
+    ],
+    "exit_code": 0
+  }
+]

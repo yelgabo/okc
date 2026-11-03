@@ -1,10 +1,10 @@
 # D32 status and job ledger
 
-## Current private experiment
+## Current experiment
 
-D32-REDUCE-01 tests one accumulator copy per attention split on sliding decode. Candidate SHA256 `93a05524b1c10b44ac5bd1ea307a25fdc906db4a617737a579cfae6332fd0d49`. The three host/address tests passed. The worker registered private job `bd5776bdfcab42a7` in `2b9bc042` for the source published in `0585bd21`. Its single waiter is `47403`. [Acceptance receipt](evidence/D32-REDUCE-01/accepted.json). [Candidate, exact selection and decision gates](2026-11-02-18-active-reduction-experiment.md).
+D32-IDENTITY-01 is implemented and locally qualified for one private full-context comparison. Frozen paired source `f7a5d1fb7fba3365f52285ef84f7d888e6f4b347280f257833469f85382bef9a`; native `b599e5b2`. Both CUDA twins compile with128 registers/zero spills; disabled SASS equals incumbent. Eleven CPU/source/host/reader tests pass. No accepted identity job or GPU result yet. Next publish/verify source and fresh shared preflight, then dispatch the registered comparison. [Source, tests, budgets and gates](2026-11-02-19-reduction-result-identity-next.md).
 
-The worker also picked up the full-context identity-rescale implementation and compiler comparison. After the sliding check completes, link the owning receipt, report the D32 sliding/full and other-load results, then record confirmation, closure or the next action. [Watched inbox](README.md).
+D32-REDUCE-01 job `bd5776bdfcab42a7` is terminal,13/12/12 passing. Source `93a05524`, published `0585bd21`. Adjusted sliding/full161.438408/304.957678us, C32=12.305490ms, own D32 baseline speedup1.814995x; whole-six2.119214x CI[2.087426,2.151002]. Stop exact eight-copy performance treatment: no useful affected sliding signal, no matched gain or routing correction established. Waiter47403 ended. [Owning receipt](evidence/D32-REDUCE-01/status-wait.raw.json), [all-six analysis and decision](2026-11-02-19-reduction-result-identity-next.md). [Watched inbox](README.md).
 
 ## Completed checks and closed instruments
 

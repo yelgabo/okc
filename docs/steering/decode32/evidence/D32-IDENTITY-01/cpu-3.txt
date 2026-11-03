@@ -1,0 +1,9 @@
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_complete_host_replay_and_report (__main__.GeneratedIdentityHost.test_complete_host_replay_and_report) ... ok
+test_failure_has_partial_and_preserves_route_gate (__main__.GeneratedIdentityHost.test_failure_has_partial_and_preserves_route_gate) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 5.277s
+
+OK
