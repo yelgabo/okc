@@ -1,0 +1,91 @@
+{
+  "job": "5909739e8a4445b2",
+  "source_sha256": "9e5e5d64e89c7e6f1d98a213f6ae95233ad576cb40a49263b894432c0d696600",
+  "receipt_sha256": "6e0d365c30bf977b3c6f76633721c3d6b08153412782b521f78b21fca816e3da",
+  "log_sha256": "794f848a17ad0fa625195d501fdde714849ae0fae26e1d718fd27d89128df226",
+  "event": {
+    "tokens": 32,
+    "context": "sliding",
+    "seed": 1102031,
+    "stage": "fresh-7",
+    "mismatches": [
+      {
+        "placement": 3,
+        "treatment": true,
+        "selected": [
+          false
+        ],
+        "row_count": 1,
+        "rows": [
+          6
+        ],
+        "control_ids": [
+          [
+            216,
+            156,
+            94,
+            93,
+            153,
+            49,
+            144,
+            221
+          ]
+        ],
+        "other_ids": [
+          [
+            216,
+            156,
+            94,
+            153,
+            93,
+            49,
+            144,
+            221
+          ]
+        ]
+      }
+    ]
+  },
+  "rows": [
+    {
+      "placement": 3,
+      "treatment": true,
+      "selected": [
+        false
+      ],
+      "row": 6,
+      "control_ids": [
+        216,
+        156,
+        94,
+        93,
+        153,
+        49,
+        144,
+        221
+      ],
+      "other_ids": [
+        216,
+        156,
+        94,
+        153,
+        93,
+        49,
+        144,
+        221
+      ],
+      "same_expert_set": true,
+      "different_slots": [
+        3,
+        4
+      ]
+    }
+  ],
+  "official_tests": 0,
+  "benchmarks": 0,
+  "profiles": 0,
+  "paired_report_present": false,
+  "decision": "STOP_THIS_ATTEMPT_KEEP_STRICT_GATE",
+  "cause": "UNRESOLVED",
+  "next": "Trace actual upstream routing tensors and replay repeatability; do not repeat this source"
+}

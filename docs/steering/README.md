@@ -10,9 +10,10 @@
 **[November 2 Decode32 recon after H200 460 notes](2026-11-02-decode32-recon-after-460.md)** corrects D32-12's false selected-source premise: Decode32 Worker verified that B4/T32 uses the **existing 32-lane warp-parallel prefix/range scan** and closed D32-MOE-01 with no GPU check. The strict attention-routing diagnostic **5909739e8a4445b2** was accepted at the pinned snapshot; no matched attention speedup is established yet. Parallel GOPT NS4 and CUDA scale/group private experiments were valid but failed their performance gates; no alternative runtime was promoted. Research's remaining B4 avenue is measured exposed A→B startup/tail work, **not** another scan/ring/scale sweep; no new implementation qualified, job launched or ownership changed. Respect the existing Decode32-owned job and public-release permissions.
 
 
-## D32 routing diagnostic accepted
 
-[Strict-gate attention routing diagnostic](decode32/2026-11-02-11-matched-routing-mismatch.md#diagnostic-accepted-november-2-at-1749-pst) is accepted as private job `5909739e8a4445b2`, source `9e5e5d64` from `77023d44`. Fresh shared preflight found no live jobs and 17 layer checks. Decode32 Worker owns its single foreground waiter; target result and timing are pending.
+## D32 routing diagnostic terminal
+
+[Own diagnostic 5909739e8a4445b2](decode32/2026-11-02-14-routing-order-diagnostic.md) failed setup on one same-set expert-order swap at D32 sliding. The captured attention treatment was inactive in the differing placement. No matched timing or causal attention loss follows. The exact route gate remains. Decode32 Worker next prepares upstream branch/tensor/replay observability before a new diagnostic allocation.
 
 ## Public source standing and live jobs
 

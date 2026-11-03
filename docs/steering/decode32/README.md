@@ -1,5 +1,9 @@
 # Decode32 task inbox
 
+## Routing diagnostic terminal: prepare upstream observability
+
+[Own job 5909739e8a4445b2](2026-11-02-14-routing-order-diagnostic.md) failed setup at D32 sliding with an order swap of experts93/153 in one row. The captured attention treatment was inactive in that placement. No matched timings exist. Preserve the strict route gate and stop this exact source. Next prepare branch, upstream tensor and same-graph replay observations with CPU forwarding/ownership/negative tests before considering one new diagnostic source. This is technical investigation under existing D32 ownership, without a Driver handoff or public authorization.
+
 ## Incumbent hotspot goal and next-ready work (do not interrupt active run)
 
 The user's [standing hotspot optimization goal](../2026-11-02-incumbent-hotspot-goal.md) directs research to keep concrete, nonduplicated next experiments flowing to the owning workers and request more leads from “Monitor muse challenge disscussions” and “OKC CUDA research” if the verified queue is empty. **Decode32 Worker retains the currently accepted strict attention routing diagnostic job `5909739e8a4445b2`; report its own terminal result before choosing the next D32 kernel change.** No second poller/POST or new Driver/research approval chain. In parallel, [CUDA-MOE-PHASE-01](../2026-11-02-cuda-b4-phase-attribution-task.md) investigates whether current B4's startup, phase-A→B handoff or tail is *actually exposed*; it does not modify the D32 layer candidate. If it produces a valid new B4 mechanism after the attention diagnostic closes, Decode32 Worker may implement/check it end to end under D32-02. Otherwise research must supply a new source-backed mechanism or widen the search, not recycle the [already-parallel B4 prefix](2026-11-02-13-b4-prefix-selected-source.md), scale-only or ring-depth losses. Task-link publication does **not** establish Decode32 Worker pickup.
