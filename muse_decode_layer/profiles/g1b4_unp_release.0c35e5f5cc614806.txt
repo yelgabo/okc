@@ -1,0 +1,23 @@
+✓ muse_decode_layer  passed  check run, off the board  job 0c35e5f5cc614806
+
+  2.096×  ━━━━━━━━━╋━━━━━━━━━─────────  faster than SGLang  95%: 2.064–2.127×
+
+  time        10.79 ms
+  tests       13/13 passed
+  profile     muse_decode_layer/cand/profiles/g1b4_unp_release.0c35e5f5cc614806.txt  and .json
+  output      muse_decode_layer/cand/profiles/g1b4_unp_release.0c35e5f5cc614806.log
+
+  CASE                      SGLANG      YOURS   SPEEDUP
+  ────────────────────────────────────────────────────────────────────
+  decode 1 · sliding      170.9 µs    77.5 µs    2.206×   ━━━━━━╋━━━━━
+  decode 1 · full         181.7 µs    84.8 µs    2.142×   ━━━━━━╋━━━━━
+  decode 16 · sliding     256.0 µs   132.8 µs    1.928×   ━━━━━━╋━━━━━
+  decode 16 · full        433.6 µs   210.9 µs    2.055×   ━━━━━━╋━━━━━
+  decode 32 · sliding     254.4 µs   152.7 µs    1.665×   ━━━━━━╋━━━──
+  decode 32 · full        615.1 µs   309.7 µs    1.986×   ━━━━━━╋━━━━━
+  verify 1 · sliding      266.8 µs   115.1 µs    2.318×   ━━━━━━╋━━━━━
+  verify 1 · full         273.2 µs   121.9 µs    2.241×   ━━━━━━╋━━━━━
+  verify 16 · sliding     521.6 µs   248.1 µs    2.103×   ━━━━━━╋━━━━━
+  verify 16 · full        698.3 µs   334.5 µs    2.087×   ━━━━━━╋━━━━━
+  verify 32 · sliding     717.6 µs   314.7 µs    2.280×   ━━━━━━╋━━━━━
+  verify 32 · full      1,079.2 µs   482.9 µs    2.235×   ━━━━━━╋━━━━━

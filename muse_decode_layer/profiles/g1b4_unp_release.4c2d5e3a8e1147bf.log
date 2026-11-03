@@ -1,0 +1,6 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+UNP_GATE T=1 ok fused rel m 1.7e-05 P 1.3e-04 s2 2.7e-05 out 1.9e-05 elem 2.0e-03 | control replay rel m 0.0e+00 P 0.0e+00 s2 0.0e+00 out 0.0e+00 elem 0.0e+00 | tails us sep 75.1 fused 81.2 -> separate
+UNP_GATE T=8 ok fused rel m 5.8e-06 P 1.9e-04 s2 2.5e-05 out 9.8e-05 elem 4.9e-03 | control replay rel m 5.8e-06 P 5.3e-05 s2 2.4e-05 out 9.7e-05 elem 4.5e-03 | tails us sep 126.7 fused 132.6 -> separate
