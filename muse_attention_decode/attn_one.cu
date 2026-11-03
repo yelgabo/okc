@@ -301,8 +301,21 @@ __host__ __device__ constexpr bool one_pb(int L, int mode) {
     return ONE_PBULK != 0 && L == 1 && (mode & M_PROD) && !(mode & M_SOLO);
 }
 
+// ONE_NSR8 / ONE_NSR1: ring depth of the per-request multi-tile instances without the
+// speculated length (q_len 8 mode 3, verify 16 / 32 sliding; q_len 1 mode 1, decode 16 / 32
+// sliding), default STAGES. Bench-only until judged.
+#ifndef ONE_NSR8
+#define ONE_NSR8 3
+#endif
+#ifndef ONE_NSR1
+#define ONE_NSR1 3
+#endif
 __host__ __device__ constexpr int one_ns(int L, int mode) {
-    return (mode & M_PROD) && L == 8 ? 4 : ((mode & M_PROD) && L == 1 ? ONE_NS1 : STAGES);
+    return (mode & M_PROD) && L == 8 ? 4
+           : (mode & M_PROD) && L == 1 ? ONE_NS1
+           : L == 8 && mode == 3 ? ONE_NSR8
+           : L == 1 && mode == 1 ? ONE_NSR1
+                                 : STAGES;
 }
 
 __host__ __device__ constexpr int one_threads(int L, int mode) {
@@ -1026,6 +1039,9 @@ attn_one_kernel(const Params p) {
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
     constexpr int NS = one_ns(L, MODE);
+    // Ring depth of the consumer-copy path (non-producer instances).
+    constexpr int SR = PROD ? STAGES : NS;
+    static_assert(SR >= 2 && 2 * SR - 2 <= NIDX, "the page-index ring holds 2 SR - 2 tiles");
     constexpr int ROWS = HQ * L;
     constexpr int SEGK = L == 8 ? SEGK8 : SEGK1;
     constexpr int PF = 3;
@@ -1766,7 +1782,7 @@ attn_one_kernel(const Params p) {
         if constexpr (!PROD) {
             // Group 0: page indices of the prologue tiles.
 #pragma unroll
-            for (int t = 0; t < STAGES - 1; ++t) {
+            for (int t = 0; t < SR - 1; ++t) {
                 issue_idx(t);
             }
             cp_commit();
@@ -1840,7 +1856,7 @@ attn_one_kernel(const Params p) {
                     seq = seq_real;
                     derive();
 #pragma unroll
-                    for (int t = 0; t < STAGES - 1; ++t) {
+                    for (int t = 0; t < SR - 1; ++t) {
                         issue_idx(t);
                     }
                     cp_commit();
@@ -1855,17 +1871,17 @@ attn_one_kernel(const Params p) {
             stamp(5);
             PHASE_EXIT(4)
             // K/V of the prologue tiles go out while the query group is still in flight;
-            // each later group also carries the page indices STAGES - 1 tiles ahead.
+            // each later group also carries the page indices SR - 1 tiles ahead.
 #pragma unroll
-            for (int t = 0; t < STAGES - 1; ++t) {
+            for (int t = 0; t < SR - 1; ++t) {
                 if (t < ntiles) {
                     issue_kv(t, t, false);
-                    issue_idx(t + STAGES - 1);
+                    issue_idx(t + SR - 1);
                 }
                 cp_commit();
             }
             stamp(6);
-            cp_wait<STAGES - 1>();
+            cp_wait<SR - 1>();
         } else {
             cp_wait<0>();
         }
@@ -1991,7 +2007,7 @@ attn_one_kernel(const Params p) {
             // Patch the new rows into the tiles issued before they were staged.
             if (hi > seq) {
 #pragma unroll
-                for (int t = 0; t < STAGES - 1; ++t) {
+                for (int t = 0; t < SR - 1; ++t) {
                     if (t < ntiles) {
                         patch_tile(t, lo + t * BN);
                     }
@@ -2069,7 +2085,7 @@ attn_one_kernel(const Params p) {
                     csync();
                 }
             } else {
-                cp_wait<STAGES - 2>();
+                cp_wait<SR - 2>();
                 if constexpr (L == 8) {
                     fence_proxy_async();
                 }
@@ -2086,9 +2102,9 @@ attn_one_kernel(const Params p) {
                     }
                 }
                 if constexpr (!ONE) {
-                    if (it + STAGES - 1 < ntiles) {
-                        issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
-                        issue_idx(it + 2 * STAGES - 2);
+                    if (it + SR - 1 < ntiles) {
+                        issue_kv(it + SR - 1, (st + SR - 1) % SR, true);
+                        issue_idx(it + 2 * SR - 2);
                     }
                     cp_commit();
                 }
@@ -2254,7 +2270,7 @@ attn_one_kernel(const Params p) {
                     }
                 }
                 release(st);
-                st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
+                st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);
             }
             if constexpr (STAMPS) {
                 s_loop += clock64() - s_l0;
@@ -2771,7 +2787,7 @@ attn_one_kernel(const Params p) {
                         vt_cur ^= vt_x;
                         vd_lo ^= vd_x;
                     }
-                    st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
+                    st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);
                 }
             } else if constexpr (PRQ != 0) {
                 constexpr bool TOV = (PRQ & 1) != 0;
@@ -2782,7 +2798,7 @@ attn_one_kernel(const Params p) {
                 for (int it = 0; it < ntiles; ++it) {
                     // acquire() of the judged loop, with the copy issue split off so QKF can
                     // place it after the Q.K issue.
-                    cp_wait<STAGES - 2>();
+                    cp_wait<SR - 2>();
                     fence_proxy_async();
                     if (it == 0) {
                         stamp(14);
@@ -2791,11 +2807,16 @@ attn_one_kernel(const Params p) {
                     if (it == 0) {
                         stamp(15);
                     }
+                    if constexpr (PSTAMP) {
+                        if (it < 16) {
+                            stamp(24 + it);
+                        }
+                    }
                     auto issue_next = [&]() {
                         if constexpr (!ONE) {
-                            if (it + STAGES - 1 < ntiles) {
-                                issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
-                                issue_idx(it + 2 * STAGES - 2);
+                            if (it + SR - 1 < ntiles) {
+                                issue_kv(it + SR - 1, (st + SR - 1) % SR, true);
+                                issue_idx(it + 2 * SR - 2);
                             }
                             cp_commit();
                         }
@@ -2956,7 +2977,7 @@ attn_one_kernel(const Params p) {
                     }
                     wg_wait<0>();
                     reg_fence(o);
-                    st = st == STAGES - 1 ? 0 : st + 1;
+                    st = st == SR - 1 ? 0 : st + 1;
                 }
             } else {
                 int st = PROD ? cst : 0;
@@ -3081,7 +3102,7 @@ attn_one_kernel(const Params p) {
                         reg_fence(o);
                     }
                     release(st);
-                    st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
+                    st = PROD ? cst : (st == SR - 1 ? 0 : st + 1);
                 }
             }
             if constexpr (STAMPS) {
