@@ -57,3 +57,6 @@ Dispatch checkpoint: exact bytes published in `b56bd8f1` and verified on origin/
 
 
 Own private `e044121f822d47b1` is accepted for the frozen source. [Accepted registration](evidence/2026-11-02-moe-bqueue/accepted.json), [compact ledger](moe-worker/STATUS.md). The shell wrapper failed after receiving the accepted response because zsh reserves `status`; the accepted JSON is complete and no POST was repeated. CLI exit was not recorded. Future collector wrappers use task-specific exit variables. Follow this own ID only.
+
+
+The sole foreground collector is exec session56587, `okc status e044121f822d47b1 --wait --json`, writing `.build/moe-p0/status-wait.raw.json` with profiles under that ignored directory. Resume this session; establish no second poller.
