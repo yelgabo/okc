@@ -1,0 +1,57 @@
+{
+  "observed_at": "2026-11-03T07:34:01.593342+00:00",
+  "repository_base": "f29abe6c",
+  "public_reference": {
+    "pr": "https://github.com/vllm-project/vllm/pull/64077",
+    "author": "djmmoss",
+    "created_at": "2026-10-27T15:35:38Z",
+    "updated_at": "2026-11-03T06:21:45Z",
+    "state": "open",
+    "merged_at": null,
+    "head": "31ebba9843cd6341d50434310d25b371eb2a12de",
+    "head_repository": "djmmoss/vllm",
+    "head_commit_date": "2026-11-03T05:01:33Z",
+    "diff_base": "9a519c0585b6cccb3d2363380725d974789551fd",
+    "verified_changed_files": 42,
+    "verified_bytes": 821606
+  },
+  "reported_performance": {
+    "hardware": "GB300 NVL72",
+    "tokens_per_request": 8,
+    "concurrency": 1,
+    "draft_tokens": 7,
+    "synthetic_acceptance_length": 6,
+    "baseline": "stock vLLM 1fd6337e22",
+    "stock_tokens_per_second": 698.6,
+    "reference_tokens_per_second": 1072.14,
+    "ratio": 1.534697967363298,
+    "source": "PR body, not independently reproduced"
+  },
+  "source_checks": [
+    "SM100-family runtime guard; H200/SM90 excluded",
+    "BF16 KV only, block16, TP4/8/16 and EP=TP",
+    "DSpark7, FULL graph, one request; unsupported steps use stock forward",
+    "NVFP4 expert inputs are quantized activations, distinct from standalone W4A16 contract",
+    "Router/pooler overlap uses an auxiliary stream; challenge transfer requires separate contract review",
+    "Direct unpooler-to-boundary mailbox publication is present in source"
+  ],
+  "validation_scope": "Static source checks, all42 downloaded blob IDs and SHA256 verified. No compile, GPU execution, independent numerical test or challenge performance comparison. Tests claimed in PR are not included in returned diff.",
+  "watch_summary": {
+    "code_pages": {
+      "muse_bf16_proj": 4,
+      "muse_attention_decode": 3,
+      "muse_moe_w4a16": 3,
+      "muse_decode_layer": 3,
+      "muse_prefill_layer": 1
+    },
+    "code_unique_files": 1028,
+    "code_new_files_over_previous_capture": 0,
+    "other_searches": 32,
+    "source_credit_queries": 3,
+    "guild_comparable_bodies": 44,
+    "guild_comparable_changed_bodies": 0,
+    "guild_registered_topic": "t/48 not read beyond access notice",
+    "watched_nondefault_heads_unchanged": 5
+  },
+  "decision": "NOTIFY for newly found public source, not a claimed H200 gain. No experiment, kernel edit, job, chat message or owner assignment."
+}

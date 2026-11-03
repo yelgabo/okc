@@ -1,0 +1,316 @@
+{
+  "experiment": "MOE-TINY-TIMELINE-01",
+  "source_sha256": "106a05c54e2ffd8b0f851b142e5d8ef3f74a47e92112d09d145c2017d637ee81",
+  "bytes": 492113,
+  "runtime_id": "c80be1d4a327041969c25c92651af8222d5eabbcb8c34a516e70710c0ddc4acd",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "observer_helper_sha256": "8324f07988fc396f0fab4137d06ce1823eb2fb8ff59caa4df794fc907f55512e",
+  "edits": [
+    [
+      "template <bool PB>\n__device__ void skinny_ring_ws(",
+      "\n__device__ __forceinline__ void tiny_stamp(const Params& p,int field) {\n  asm volatile(\"{ .reg .u64 t; mov.u64 t, %%globaltimer; st.global.u64 [%0], t; }\"\n               ::\"l\"(p.dbg + blockIdx.x * 1184 + field):\"memory\");\n}\n__device__ __forceinline__ void tiny_unit(const Params& p,int q,int event) {\n  if (q >= 192) asm volatile(\"trap;\");\n  tiny_stamp(p,32 + q * 6 + event);\n}\n\ntemplate <bool PB>\n__device__ void skinny_ring_ws(",
+      1
+    ],
+    [
+      "    if (j != curj) {\n      curj = j;\n      if (PB) {",
+      "    if (j != curj) {\n      curj = j;\n      if (PB) {\n        if (tid == 0) tiny_unit(p,seq0+i,0);",
+      1
+    ],
+    [
+      "        __syncwarp();\n      }\n      load_x_regs<PB>(p, S, j, lane, warp, x0);",
+      "        __syncwarp();\n        if (tid == 0) tiny_unit(p,seq0+i,1);\n      }\n      load_x_regs<PB>(p, S, j, lane, warp, x0);",
+      1
+    ],
+    [
+      "    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));\n    const unsigned char* slot",
+      "    if (tid == 0) tiny_unit(p,q,2);\n    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));\n    if (tid == 0) tiny_unit(p,q,3);\n    const unsigned char* slot",
+      1
+    ],
+    [
+      "    if (tid == 0) {\n      const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);",
+      "    if (tid == 0) {\n      tiny_unit(p,q,4);\n      const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);",
+      1
+    ],
+    [
+      "  const int njF = S.njF;\n  if (lane == 0)\n    for (int q = S.preissued;",
+      "  const int njF = S.njF;\n  if (lane == 0) {\n    p.dbg[blockIdx.x*1184+17]=a0; p.dbg[blockIdx.x*1184+18]=a1;\n    p.dbg[blockIdx.x*1184+19]=b0; p.dbg[blockIdx.x*1184+20]=b1;\n    p.dbg[blockIdx.x*1184+21]=OKC_WSBLK;\n    p.dbg[blockIdx.x*1184+22]=OKC_WSB && OKC_WSBL;\n    tiny_stamp(p,1);\n  }\n  if (lane == 0)\n    for (int q = S.preissued;",
+      1
+    ],
+    [
+      "  }\n  __threadfence();\n  WS_JOIN();  // every epilogue store",
+      "    if (lane == 0) tiny_unit(p,q,5);\n  }\n  if (lane == 0) tiny_stamp(p,16);\n  __threadfence();\n  WS_JOIN();  // every epilogue store",
+      1
+    ],
+    [
+      "  asm volatile(\"griddepcontrol.wait;\\n\" ::: \"memory\");",
+      "  asm volatile(\"griddepcontrol.wait;\\n\" ::: \"memory\");\n  if (tid == 0) tiny_stamp(p,0);",
+      1
+    ],
+    [
+      "  run_phase<false, BIG>(p, S, xbuf);\n  DBG(2);\n  run_phase<true, BIG>(p, S, xbuf);\n  DBG(3);",
+      "  if (tid == 0) tiny_stamp(p,2);\n  run_phase<false, BIG>(p, S, xbuf);\n  DBG(2);\n  if (tid == 0) tiny_stamp(p,3);\n  if (tid == 0) tiny_stamp(p,4);\n  run_phase<true, BIG>(p, S, xbuf);\n  DBG(3);\n  if (tid == 0) tiny_stamp(p,5);",
+      1
+    ],
+    [
+      "  CTA_SYNC();\n  if (tid == 0) {\n    int* bc = p.ctr + 4 + (S.gen & 1);",
+      "  CTA_SYNC();\n  if (tid == 0) {\n    tiny_stamp(p,6);\n    int* bc = p.ctr + 4 + (S.gen & 1);",
+      1
+    ],
+    [
+      "  DBG(4);\n  // phases A and B",
+      "  DBG(4);\n  if (tid == 0) tiny_stamp(p,7);\n  // phases A and B",
+      1
+    ],
+    [
+      "  DBG(5);  // nothing to reset at exit:",
+      "  if (tid == 0) tiny_stamp(p,8);\n  DBG(5);  // nothing to reset at exit:",
+      1
+    ]
+  ],
+  "compiler_calls": [
+    {
+      "name": "glue_moe_415a2bdc6eb73960_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_b2495a009a910301_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_1b555edc8284ed23_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_7e37cd900cb88979_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_45a005177ff52c30_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_dc13933de664b26c_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "8324f07988fc396f0fab4137d06ce1823eb2fb8ff59caa4df794fc907f55512e",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_63d940b3b0c9cb97_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "8324f07988fc396f0fab4137d06ce1823eb2fb8ff59caa4df794fc907f55512e",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    }
+  ],
+  "routes": [
+    {
+      "tokens": 1,
+      "key": "tiny"
+    },
+    {
+      "tokens": 8,
+      "key": "tiny2"
+    },
+    {
+      "tokens": 16,
+      "key": "mid"
+    },
+    {
+      "tokens": 32,
+      "key": "b4"
+    },
+    {
+      "tokens": 128,
+      "key": "main"
+    },
+    {
+      "tokens": 256,
+      "key": "main"
+    }
+  ],
+  "official_arm": "control0",
+  "target_qualified": false,
+  "scope": "T1/T8 observer, six-load controls/correctness, one bank normal; no treatment gain"
+}

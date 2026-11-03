@@ -1,0 +1,343 @@
+{
+  "repository": "djmmoss/vllm",
+  "head": "31ebba9843cd6341d50434310d25b371eb2a12de",
+  "base": "9a519c0585b6cccb3d2363380725d974789551fd",
+  "files": [
+    {
+      "path": "vllm/models/muse_spark/common/dspark.py",
+      "bytes": 25199,
+      "blob": "f667b306ea25f70d98ed41864ad830362073271e",
+      "sha256": "c803960d5d13a6e9eecc4b3ee0ad259a9119b2036edea4ed34c68c5d975f5b9c",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/common/dspark.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/common/dspark.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/model.py",
+      "bytes": 81439,
+      "blob": "8bb093bf1753d432109f5fecde159c4848171b39",
+      "sha256": "2d1463028b41b7ffc0770c0440b049c47480494bc1d0c1b92470de4cbf3c7faa",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/model.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/model.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/model_state.py",
+      "bytes": 1190,
+      "blob": "24b6dffabc395defc392b45cead7a0fbe5355f73",
+      "sha256": "fc7358160dc85467dc28bb7d144dbef62b608377b2bf081a16793fda5f2db017",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/model_state.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/model_state.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/__init__.py",
+      "bytes": 107,
+      "blob": "208f01a7cb5ee04c88d276fec2082cd4e830884b",
+      "sha256": "e3c55cbb0d7a8bd47df6f3378835644645f5d3bc89b45793b5d5a02d013e5c58",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/__init__.py",
+      "bytes": 107,
+      "blob": "208f01a7cb5ee04c88d276fec2082cd4e830884b",
+      "sha256": "e3c55cbb0d7a8bd47df6f3378835644645f5d3bc89b45793b5d5a02d013e5c58",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/attention/__init__.py",
+      "bytes": 107,
+      "blob": "208f01a7cb5ee04c88d276fec2082cd4e830884b",
+      "sha256": "e3c55cbb0d7a8bd47df6f3378835644645f5d3bc89b45793b5d5a02d013e5c58",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/attention/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/attention/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/attention/attn2.py",
+      "bytes": 59201,
+      "blob": "1aec1e851c69fc11af40378e358a5e2f2c5552f4",
+      "sha256": "27a47482a209fa726598dbc1c3978d1a6a522c37183609e61475a485bea1ee41",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/attention/attn2.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/attention/attn2.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/attention/qkv_front.py",
+      "bytes": 33118,
+      "blob": "602ae3d3cb64f865e4f526fb931b45ed52fa16b7",
+      "sha256": "2d0e9e3685c0727ce0c9ec5b82f54f71a10b0f81244700a27f9379865363d438",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/attention/qkv_front.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/attention/qkv_front.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/boundary/__init__.py",
+      "bytes": 107,
+      "blob": "208f01a7cb5ee04c88d276fec2082cd4e830884b",
+      "sha256": "e3c55cbb0d7a8bd47df6f3378835644645f5d3bc89b45793b5d5a02d013e5c58",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/boundary/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/boundary/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/boundary/all_gather_dual_norm.py",
+      "bytes": 26911,
+      "blob": "7b032ca2cda41f8f2cfbeadb4617560d5438bc14",
+      "sha256": "bbeb92427dd69f30300e55d93740e5a313403903126bf131e083b43e3aaefa41",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/boundary/all_gather_dual_norm.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/boundary/all_gather_dual_norm.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/boundary/layer_front.py",
+      "bytes": 3927,
+      "blob": "848a4252d044b625d02cf5382f8da729f674687f",
+      "sha256": "abf44fe94297c704793f0db168b11161758ac7eccb8d99a5e1728f9f2dd02feb",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/boundary/layer_front.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/boundary/layer_front.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/__init__.py",
+      "bytes": 107,
+      "blob": "208f01a7cb5ee04c88d276fec2082cd4e830884b",
+      "sha256": "e3c55cbb0d7a8bd47df6f3378835644645f5d3bc89b45793b5d5a02d013e5c58",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/draft_boundary.py",
+      "bytes": 20895,
+      "blob": "68623b3755af9850833b1546e9023c4c43266b6b",
+      "sha256": "d98dda0889c6316d1e502ccd8b68520a58b2f5e035abad56f1ffe44527074f5a",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/draft_boundary.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/draft_boundary.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/dual_norm.py",
+      "bytes": 17485,
+      "blob": "30fa2aa0d33bf6d23a894dbeeb28b6aafcee3e04",
+      "sha256": "fcfc4a06b569b75361dc4a1e07a0ea441bd4782ecee4a0bdd6771494d4ca378b",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/dual_norm.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/dual_norm.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/host.py",
+      "bytes": 6440,
+      "blob": "42f2c371a9fdc09312004012be38f9d8aeb7696e",
+      "sha256": "fd3a981b9f8e432919b2bddf11103cc7b51922763dd9d6c157710018e20f3c20",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/host.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/host.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/mailbox.py",
+      "bytes": 17456,
+      "blob": "04f543497ec3208b979931cf5b4fcdafb6629513",
+      "sha256": "0ada3cc8e8fbab77e0eab4b4e733d63164fa0b9173a2a90b7ab3534d12eb5096",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/mailbox.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/mailbox.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/policy.py",
+      "bytes": 2850,
+      "blob": "ff4b56dbb32038daa5c7209ac2bdbd924edc5fcb",
+      "sha256": "084ea41201de1b6fb37528981604d37a28d3ee8463b498bccc19587b74b99a43",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/policy.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/policy.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/primitives.py",
+      "bytes": 52704,
+      "blob": "46b9e2b76698188430f51a274ffbfaa2f3c7185f",
+      "sha256": "d98ffb5e105a2737967601a6e317608784eae49b427b3b719f2b67595cdeb30f",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/primitives.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/primitives.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/row_norm.py",
+      "bytes": 17064,
+      "blob": "ce39e7c753b571b00943b0006419d6d0e55cb91c",
+      "sha256": "ca7a7b15e69523f1ae04d595820877d9e699a1211bb5605bdb24111c6ce6fcf0",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/row_norm.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/common/row_norm.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/__init__.py",
+      "bytes": 107,
+      "blob": "208f01a7cb5ee04c88d276fec2082cd4e830884b",
+      "sha256": "e3c55cbb0d7a8bd47df6f3378835644645f5d3bc89b45793b5d5a02d013e5c58",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/context.py",
+      "bytes": 22384,
+      "blob": "ef669354edf68b5bc3d12eda5377ad0e3bcdf3c6",
+      "sha256": "8556ba182b2c351336fa487f7347d32952d05d2fd8d948e502e2dbfb8b471413",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/context.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/context.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/input_norm.py",
+      "bytes": 1992,
+      "blob": "b3cac6d12bc14a86bbffbb34683d037416e2dec1",
+      "sha256": "18f643952c7d15bb6d29df002fb1db9ba01c6338b5d669a5ba8b8329951cc3b6",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/input_norm.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/input_norm.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/markov.py",
+      "bytes": 59309,
+      "blob": "15eb1dcdbe61b173923d37f74d7e4be9afd08ce0",
+      "sha256": "7609ec8fe91573325b91d09ab9ac7d01388f6b0473f3580290031a8678e71c65",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/markov.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/draft/markov.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/gemm/__init__.py",
+      "bytes": 107,
+      "blob": "208f01a7cb5ee04c88d276fec2082cd4e830884b",
+      "sha256": "e3c55cbb0d7a8bd47df6f3378835644645f5d3bc89b45793b5d5a02d013e5c58",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/gemm/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/gemm/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/gemm/unpooler.py",
+      "bytes": 23029,
+      "blob": "1e7bd573028095e0a9b522c4a70ef742555671a1",
+      "sha256": "f4bb7a092893ceb757263cd5900151b0f9b99e97e3aac2ca0ce53f5735d422d3",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/gemm/unpooler.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/gemm/unpooler.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/__init__.py",
+      "bytes": 107,
+      "blob": "208f01a7cb5ee04c88d276fec2082cd4e830884b",
+      "sha256": "e3c55cbb0d7a8bd47df6f3378835644645f5d3bc89b45793b5d5a02d013e5c58",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/expert_norm.py",
+      "bytes": 1878,
+      "blob": "43c1b21cab63587e5530739decd2f155ec69c38b",
+      "sha256": "2dcfbba3345817037f136b293cccc7525f9d0e721828c7732e6355bf4b73b6e1",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/expert_norm.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/expert_norm.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/pooler_gather.py",
+      "bytes": 28473,
+      "blob": "c1ddfa87a18d6bafa4b93de31f9de9e39453d1b2",
+      "sha256": "e9f1b54eb11d0d1139f02638015a93b9e4c15a2caf47fed5044319c87140cd27",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/pooler_gather.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/pooler_gather.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/routing.py",
+      "bytes": 21292,
+      "blob": "1593462e22bdc5a4f6f23df0d5900e3702781d64",
+      "sha256": "ec458d51bcff4b3bd4127fb07e1dd072399eefa7595e623f560fd74ec10a0f9b",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/routing.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/routing.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/tail.py",
+      "bytes": 46014,
+      "blob": "826506fc56579e2a6c7682d92d9d26a0115b2e5c",
+      "sha256": "d22ff3f0062960bc8e0d7d6bd7432a178d01b4e60477ec2d435894214b8cd862",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/tail.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/moe/tail.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/__init__.py",
+      "bytes": 107,
+      "blob": "208f01a7cb5ee04c88d276fec2082cd4e830884b",
+      "sha256": "e3c55cbb0d7a8bd47df6f3378835644645f5d3bc89b45793b5d5a02d013e5c58",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/all_reduce_dual_norm.py",
+      "bytes": 20916,
+      "blob": "f04a299f1b3be7ea96b6f0b7b6fd316237bbaa6a",
+      "sha256": "df73255997a603b4c3a1ed639aed2061be312184888f6d1fa2a9b62dfa9db1c7",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/all_reduce_dual_norm.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/all_reduce_dual_norm.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/batt.py",
+      "bytes": 9799,
+      "blob": "2dadccde4268da420a842bce580fab4a498bb4f5",
+      "sha256": "17f17bd3ea7de3d122b93459ea6515235e2e7e89279e357fb5056c562d647166",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/batt.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/batt.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/draft_all_reduce_boundary.py",
+      "bytes": 24614,
+      "blob": "7a24750d412f712a4425107199da2c26118ef881",
+      "sha256": "9b2eaf55a04749c3a01c4a5b3280e1cbdfd934c7d72e4b540ca3bbcbf616c0f3",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/draft_all_reduce_boundary.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/cutedsl/oproj/draft_all_reduce_boundary.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/runtime/__init__.py",
+      "bytes": 6931,
+      "blob": "0c200f09aa514ff2885f6bceffe1fb68c65f2b16",
+      "sha256": "01fdf6c051ed6260bb277541f533695c2a5a17a7da6d6d15560b1b50e39010a6",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/runtime/__init__.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/runtime/__init__.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/runtime/cute_ops.py",
+      "bytes": 15280,
+      "blob": "7638f5877fb8f489e0bdc5888c33419c270ab7c2",
+      "sha256": "cc8a62d4417f01611f6389c28df12e8225ab2ece7c55e1c4f1ee9164e7ac8a79",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/runtime/cute_ops.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/runtime/cute_ops.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/runtime/decode.py",
+      "bytes": 15988,
+      "blob": "8c0c19d60c2c5e58b9cf3755b1f5aa7033bcde06",
+      "sha256": "bd538906fa4f27a684c3c000a4055f3e786ce1ecc5ab1acbd5766e99c444b423",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/runtime/decode.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/runtime/decode.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/runtime/draft.py",
+      "bytes": 47413,
+      "blob": "fb9940f33d7fd1210e2454303e0de6fead98edcf",
+      "sha256": "5045e52829f5c0f74f52ee2957b9455ae4a8b2b51c04d70e5032717eb3a1d216",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/runtime/draft.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/runtime/draft.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/runtime/expert_tp.py",
+      "bytes": 12113,
+      "blob": "01bc84749d959526697521c989c9a83262ad86ce",
+      "sha256": "3d8e42e7b7ff9ba320cc1c21ffb2b04d605a5605d1ffce21c85a2942f70be5f1",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/runtime/expert_tp.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/runtime/expert_tp.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/runtime/flashinfer_ops.py",
+      "bytes": 48438,
+      "blob": "37712703599e32d9e5d4085d476f1339bae99030",
+      "sha256": "0fd77d96f035a825fa5a064358b8992f6d57c3b0ed93d5d477bbcf368edf0690",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/runtime/flashinfer_ops.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/runtime/flashinfer_ops.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/runtime/markov.py",
+      "bytes": 26533,
+      "blob": "4ec925eb00c7f4206cd3ba3e4a2f8a2c96170ab7",
+      "sha256": "0ee9b51eb780b05617d17d56f82b62a4e65e245bb6372b1a142221e6d87a196e",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/runtime/markov.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/runtime/markov.py"
+    },
+    {
+      "path": "vllm/models/muse_spark/nvidia/specialized_decode/runtime/providers.py",
+      "bytes": 22368,
+      "blob": "211a5bc1d00a556d39ba18a7d7daaa6ee6fb407a",
+      "sha256": "d049a6bf069bc23dab78805696c15436f0a88cff78f3affcb4f3112c6d0fb28e",
+      "url": "https://github.com/djmmoss/vllm/blob/31ebba9843cd6341d50434310d25b371eb2a12de/vllm/models/muse_spark/nvidia/specialized_decode/runtime/providers.py",
+      "local": ".build/scout-2026-11-03-0724/specialized-source/vllm/models/muse_spark/nvidia/specialized_decode/runtime/providers.py"
+    }
+  ]
+}

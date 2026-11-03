@@ -1,0 +1,18 @@
+{
+  "helper_sha256": "17f1916dea8b76612a10c9fb4cb741638d3cfb142f07e8085246ff767d31fc49",
+  "results": [
+    {
+      "case": "actual",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "source_sha256": "7b1a3b78b2e925820820df2acf51f953d640c18247b83e1a29ae3f115d7f83ee"
+    },
+    {
+      "case": "injected-post-gamma-round",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "source_sha256": "fb3a93c963285a3c9450779e9998054cc729ae780145b3180dc775fc37a918ac"
+    }
+  ],
+  "scope": "Actual native helper under prepared BF16 gamma with CPU conversion/multiply stubs. No CUDA execution or H200 arithmetic claim."
+}
