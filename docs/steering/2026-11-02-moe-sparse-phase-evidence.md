@@ -37,3 +37,24 @@ Frozen payload77ca05dc3bd9cc4c0dcd1f1533bc37295fa7d303427b99334f8fa03a28d38b26,3
 Final validation:3source/trace tests,2strict-reader and variable-log-bound tests,4Torch CPU host tests pass. The host tests inject cleanup, post-cleanup budget, serialization and final-budget failures after all36rows, preserving completed evidence and failed status. They also preserve the primary guard failure when cleanup fails. All target GPU outcomes remain pending. Fresh five-board snapshots still identify23better private receipts, withzero missing promotion dispositions.
 
 Fresh preflight foundzero live jobs and15MoE checks available. Remote and local payload bytes match. Exactlyone POST accepted private6028cae5d12f4afb for77ca05dc. [Accepted registration](evidence/2026-11-02-moe-phase/accepted.json). No target outcome yet.
+
+## Terminal stop
+
+Own6028cae5d12f4afb is terminal, return112 and waiter23561 ended1. Source-policy checks pass without flags. Preparation reached serialization at279.887460s, then failed the frozen12,000-character success-capsule bound. Queue253.021123s, worker327.380771s. No official tests, benchmarks, profiles or score were produced. This is a report-size failure, not a measured kernel loss.
+
+The repaired failure wrapper retained an11,772-character compressed capsule with all36 timing rows,18 phase cases,18 sampling records,18 repeated-trace records and counters378observations/54restores/216captures/4,608timings/180extra traces. Worst global/row errors0.0000879050/0.0002260118. The representative raw CTA trace was explicitly omitted to fit the failure bound. Full success serialization was still too large on variable target evidence, despite the local size stress test; its coverage did not model all target entropy.
+
+Offline source/job/log/runtime validation and frozen perturbation recomputation show **13/18rows valid,5invalid, global observer_valid=false**. The invalid rows are T32normal seed1102037, allthree T32skewed rows and T256skewed seed1102037. Preserve every row rather than selecting the passing subset. This blocks qualified incumbent phase attribution independently of the serialization failure. [Retained capsule](evidence/2026-11-02-moe-phase/partial.json), [all18cost/uncertainty rows](evidence/2026-11-02-moe-phase/partial-gate.json), [owning receipt](evidence/2026-11-02-moe-phase/status-wait.raw.json), [validation and scope](evidence/2026-11-02-moe-phase/partial-validation.json).
+
+The table below describes **instrumented exploratory traces**, medians over two observed owners and three banks. It does not qualify the uninstrumented incumbent, establish removable time or reopen a closed treatment. The recorded spans overlap.
+
+| Tokens | Routing | A finishing spread us | Consumer finishing spread us | Last compute through final exit us |
+|---|---|---:|---:|---:|
+|32|normal|11.89|8.57|3.38|
+|32|skewed|9.91|8.67|3.42|
+|128|normal|17.17|12.30|5.81|
+|128|skewed|15.01|14.96|6.28|
+|256|normal|19.31|14.30|9.20|
+|256|skewed|14.02|14.48|9.13|
+
+Stop exact77ca05dc/365c9eab under the one-run contract. No observer retry, larger bound/guard, subset rescue or gain claim. Precise next kernel-treatment evidence remains missing: source-bound exposure with a valid cost/stability screen or a compatible complete alternative. This is a shared-repository refill request to existing research owners, not proof of delivery or permission for another agent/job. The immediate concrete next action is the independently justified exact current-control release check, source5df257af, which addresses the public-release gap without depending on invalid phase attribution. [Prepared release and gates](2026-11-02-moe-control-release-qualification.md).

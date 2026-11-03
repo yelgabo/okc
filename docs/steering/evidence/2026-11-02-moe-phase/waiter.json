@@ -2,5 +2,6 @@
   "job": "6028cae5d12f4afb",
   "exec_session": 23561,
   "output": ".build/moe-phase/status-wait.raw.json",
-  "mode": "sole foreground status --wait"
+  "state": "ENDED",
+  "exit_code": 1
 }
