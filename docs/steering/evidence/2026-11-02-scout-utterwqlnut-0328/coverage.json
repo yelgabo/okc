@@ -1,0 +1,1033 @@
+{
+  "code": [
+    {
+      "term": "muse_bf16_proj",
+      "query": "muse_bf16_proj -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels",
+      "pages": [
+        {
+          "page": 1,
+          "total": 387,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 2,
+          "total": 387,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 3,
+          "total": 387,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 4,
+          "total": 399,
+          "returned": 99,
+          "incomplete": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "term": "muse_attention_decode",
+      "query": "muse_attention_decode -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels",
+      "pages": [
+        {
+          "page": 1,
+          "total": null,
+          "returned": 0,
+          "incomplete": null,
+          "error": "gh: API rate limit exceeded for user ID 286596290. If you reach out to GitHub Support for help, please include the request ID D7A3:37ACE8:ECCBC:19CC17:6AE955CB and timestamp 2026-11-03 03:32:27 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service) (HTTP 403)\n"
+        }
+      ]
+    },
+    {
+      "term": "muse_moe_w4a16",
+      "query": "muse_moe_w4a16 -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels",
+      "pages": [
+        {
+          "page": 1,
+          "total": 294,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 2,
+          "total": 294,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 3,
+          "total": 248,
+          "returned": 48,
+          "incomplete": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "term": "muse_decode_layer",
+      "query": "muse_decode_layer -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels",
+      "pages": [
+        {
+          "page": 1,
+          "total": 238,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 2,
+          "total": 247,
+          "returned": 100,
+          "incomplete": false,
+          "error": null
+        },
+        {
+          "page": 3,
+          "total": 268,
+          "returned": 68,
+          "incomplete": false,
+          "error": null
+        }
+      ]
+    },
+    {
+      "term": "muse_prefill_layer",
+      "query": "muse_prefill_layer -repo:rohanarun/Auto-research-agent -repo:lee101/openkernels",
+      "pages": [
+        {
+          "page": 1,
+          "total": 98,
+          "returned": 98,
+          "incomplete": false,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "attention_retry": [
+    {
+      "page": 1,
+      "total": 225,
+      "returned": 100,
+      "incomplete": false,
+      "error": null
+    },
+    {
+      "page": 2,
+      "total": 227,
+      "returned": 100,
+      "incomplete": false,
+      "error": null
+    },
+    {
+      "page": 3,
+      "total": 234,
+      "returned": 34,
+      "incomplete": false,
+      "error": null
+    }
+  ],
+  "other": [
+    {
+      "kind": "repositories",
+      "query": "muse_bf16_proj",
+      "path": "/search/repositories?q=muse_bf16_proj&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:35.816241+00:00",
+      "error": null,
+      "page": 1,
+      "total": 3,
+      "returned": 3,
+      "incomplete": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_bf16_proj",
+      "path": "/search/commits?q=muse_bf16_proj&per_page=100&page=1&sort=committer-date",
+      "retrieved_at": "2026-11-03T03:33:37.459626+00:00",
+      "error": null,
+      "page": 1,
+      "total": 120,
+      "returned": 100,
+      "incomplete": false
+    },
+    {
+      "kind": "issues",
+      "query": "muse_bf16_proj is:issue",
+      "path": "/search/issues?q=muse_bf16_proj+is%3Aissue&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:39.670236+00:00",
+      "error": null,
+      "page": 1,
+      "total": 1,
+      "returned": 1,
+      "incomplete": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_bf16_proj is:pr",
+      "path": "/search/issues?q=muse_bf16_proj+is%3Apr&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:40.193333+00:00",
+      "error": null,
+      "page": 1,
+      "total": 5,
+      "returned": 5,
+      "incomplete": false
+    },
+    {
+      "kind": "repositories",
+      "query": "muse_attention_decode",
+      "path": "/search/repositories?q=muse_attention_decode&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:41.473024+00:00",
+      "error": null,
+      "page": 1,
+      "total": 4,
+      "returned": 4,
+      "incomplete": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_attention_decode",
+      "path": "/search/commits?q=muse_attention_decode&per_page=100&page=1&sort=committer-date",
+      "retrieved_at": "2026-11-03T03:33:43.721452+00:00",
+      "error": null,
+      "page": 1,
+      "total": 642,
+      "returned": 100,
+      "incomplete": false
+    },
+    {
+      "kind": "issues",
+      "query": "muse_attention_decode is:issue",
+      "path": "/search/issues?q=muse_attention_decode+is%3Aissue&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:46.012552+00:00",
+      "error": null,
+      "page": 1,
+      "total": 0,
+      "returned": 0,
+      "incomplete": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_attention_decode is:pr",
+      "path": "/search/issues?q=muse_attention_decode+is%3Apr&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:46.650287+00:00",
+      "error": null,
+      "page": 1,
+      "total": 12,
+      "returned": 12,
+      "incomplete": false
+    },
+    {
+      "kind": "repositories",
+      "query": "muse_moe_w4a16",
+      "path": "/search/repositories?q=muse_moe_w4a16&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:47.605337+00:00",
+      "error": null,
+      "page": 1,
+      "total": 1,
+      "returned": 1,
+      "incomplete": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_moe_w4a16",
+      "path": "/search/commits?q=muse_moe_w4a16&per_page=100&page=1&sort=committer-date",
+      "retrieved_at": "2026-11-03T03:33:48.718449+00:00",
+      "error": null,
+      "page": 1,
+      "total": 36,
+      "returned": 36,
+      "incomplete": false
+    },
+    {
+      "kind": "issues",
+      "query": "muse_moe_w4a16 is:issue",
+      "path": "/search/issues?q=muse_moe_w4a16+is%3Aissue&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:50.073225+00:00",
+      "error": null,
+      "page": 1,
+      "total": 0,
+      "returned": 0,
+      "incomplete": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_moe_w4a16 is:pr",
+      "path": "/search/issues?q=muse_moe_w4a16+is%3Apr&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:50.828386+00:00",
+      "error": null,
+      "page": 1,
+      "total": 3,
+      "returned": 3,
+      "incomplete": false
+    },
+    {
+      "kind": "repositories",
+      "query": "muse_decode_layer",
+      "path": "/search/repositories?q=muse_decode_layer&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:51.811838+00:00",
+      "error": null,
+      "page": 1,
+      "total": 3,
+      "returned": 3,
+      "incomplete": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_decode_layer",
+      "path": "/search/commits?q=muse_decode_layer&per_page=100&page=1&sort=committer-date",
+      "retrieved_at": "2026-11-03T03:33:54.340388+00:00",
+      "error": null,
+      "page": 1,
+      "total": 1409,
+      "returned": 100,
+      "incomplete": false
+    },
+    {
+      "kind": "issues",
+      "query": "muse_decode_layer is:issue",
+      "path": "/search/issues?q=muse_decode_layer+is%3Aissue&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:56.749652+00:00",
+      "error": null,
+      "page": 1,
+      "total": 0,
+      "returned": 0,
+      "incomplete": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_decode_layer is:pr",
+      "path": "/search/issues?q=muse_decode_layer+is%3Apr&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:57.269962+00:00",
+      "error": null,
+      "page": 1,
+      "total": 3,
+      "returned": 3,
+      "incomplete": false
+    },
+    {
+      "kind": "repositories",
+      "query": "muse_prefill_layer",
+      "path": "/search/repositories?q=muse_prefill_layer&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:33:58.345931+00:00",
+      "error": null,
+      "page": 1,
+      "total": 2,
+      "returned": 2,
+      "incomplete": false
+    },
+    {
+      "kind": "commits",
+      "query": "muse_prefill_layer",
+      "path": "/search/commits?q=muse_prefill_layer&per_page=100&page=1&sort=committer-date",
+      "retrieved_at": "2026-11-03T03:34:00.149656+00:00",
+      "error": null,
+      "page": 1,
+      "total": 691,
+      "returned": 100,
+      "incomplete": false
+    },
+    {
+      "kind": "issues",
+      "query": "muse_prefill_layer is:issue",
+      "path": "/search/issues?q=muse_prefill_layer+is%3Aissue&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:34:02.416815+00:00",
+      "error": "error: GitHub secondary rate limit hit \u2014 wait ~60s and retry\ncode: RATE_LIMITED\nhelp[2]: Wait 60s before retrying,\"Use `gh api` (REST) for read-only ops, which has a separate budget\"\n",
+      "page": 1,
+      "total": null,
+      "returned": 0,
+      "incomplete": null
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_prefill_layer is:pr",
+      "path": "/search/issues?q=muse_prefill_layer+is%3Apr&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:34:02.697721+00:00",
+      "error": "error: GitHub secondary rate limit hit \u2014 wait ~60s and retry\ncode: RATE_LIMITED\nhelp[2]: Wait 60s before retrying,\"Use `gh api` (REST) for read-only ops, which has a separate budget\"\n",
+      "page": 1,
+      "total": null,
+      "returned": 0,
+      "incomplete": null
+    },
+    {
+      "kind": "repositories",
+      "query": "\"Muse Spark Open Kernel Challenge\" visibility:public",
+      "path": "/search/repositories?q=%22Muse+Spark+Open+Kernel+Challenge%22+visibility%3Apublic&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:34:03.036116+00:00",
+      "error": "error: GitHub secondary rate limit hit \u2014 wait ~60s and retry\ncode: RATE_LIMITED\nhelp[2]: Wait 60s before retrying,\"Use `gh api` (REST) for read-only ops, which has a separate budget\"\n",
+      "page": 1,
+      "total": null,
+      "returned": 0,
+      "incomplete": null
+    },
+    {
+      "kind": "repositories",
+      "query": "\"openkernelchallenge.dev\" visibility:public",
+      "path": "/search/repositories?q=%22openkernelchallenge.dev%22+visibility%3Apublic&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:34:03.260864+00:00",
+      "error": "error: GitHub API rate limit exceeded\ncode: RATE_LIMITED\nhelp[2]: Wait until the hourly window resets (run `gh api rate_limit` to check),Use a different identity with `gh auth switch` if available\n",
+      "page": 1,
+      "total": null,
+      "returned": 0,
+      "incomplete": null
+    },
+    {
+      "kind": "repositories",
+      "query": "\"Muse Spark\" kernel visibility:public",
+      "path": "/search/repositories?q=%22Muse+Spark%22+kernel+visibility%3Apublic&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:34:03.508852+00:00",
+      "error": "error: GitHub API rate limit exceeded\ncode: RATE_LIMITED\nhelp[2]: Wait until the hourly window resets (run `gh api rate_limit` to check),Use a different identity with `gh auth switch` if available\n",
+      "page": 1,
+      "total": null,
+      "returned": 0,
+      "incomplete": null
+    },
+    {
+      "kind": "issues",
+      "query": "muse_prefill_layer is:issue",
+      "path": "/search/issues?q=muse_prefill_layer+is%3Aissue&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:35:48.205101+00:00",
+      "error": null,
+      "page": 1,
+      "total": 0,
+      "returned": 0,
+      "incomplete": false
+    },
+    {
+      "kind": "pull_requests",
+      "query": "muse_prefill_layer is:pr",
+      "path": "/search/issues?q=muse_prefill_layer+is%3Apr&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:35:48.760019+00:00",
+      "error": null,
+      "page": 1,
+      "total": 4,
+      "returned": 4,
+      "incomplete": false
+    },
+    {
+      "kind": "repositories",
+      "query": "\"Muse Spark Open Kernel Challenge\" visibility:public",
+      "path": "/search/repositories?q=%22Muse+Spark+Open+Kernel+Challenge%22+visibility%3Apublic&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:35:50.037217+00:00",
+      "error": null,
+      "page": 1,
+      "total": 10,
+      "returned": 10,
+      "incomplete": false
+    },
+    {
+      "kind": "repositories",
+      "query": "\"openkernelchallenge.dev\" visibility:public",
+      "path": "/search/repositories?q=%22openkernelchallenge.dev%22+visibility%3Apublic&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:35:51.095239+00:00",
+      "error": null,
+      "page": 1,
+      "total": 2,
+      "returned": 2,
+      "incomplete": false
+    },
+    {
+      "kind": "repositories",
+      "query": "\"Muse Spark\" kernel visibility:public",
+      "path": "/search/repositories?q=%22Muse+Spark%22+kernel+visibility%3Apublic&per_page=100&page=1&sort=updated",
+      "retrieved_at": "2026-11-03T03:35:51.933124+00:00",
+      "error": null,
+      "page": 1,
+      "total": 19,
+      "returned": 19,
+      "incomplete": false
+    }
+  ],
+  "pins": [
+    {
+      "repository": "Aravind-11/muse-moe-w4a16",
+      "url": "https://github.com/Aravind-11/muse-moe-w4a16",
+      "default_branch": "main",
+      "pushed_at": "2026-10-28T05:02:11Z",
+      "head": "399305738cfb9effc85555e05b8691ba6c769813",
+      "head_committer_date": "2026-10-28T05:02:10Z",
+      "head_subject": "Update README.md",
+      "fork": false,
+      "parent": null,
+      "description": "Early NVFP4 MoE kernels for the Open Kernel Challenge.",
+      "error": null
+    },
+    {
+      "repository": "GiulianoIntelligence/Muse-FlashSpeed-Kernel",
+      "url": "https://github.com/GiulianoIntelligence/Muse-FlashSpeed-Kernel",
+      "default_branch": "main",
+      "pushed_at": "2026-10-27T22:33:28Z",
+      "head": "d47f9fc825fd2ae6c05b1af02e51f8d570a71437",
+      "head_committer_date": "2026-10-27T22:33:28Z",
+      "head_subject": "moe_w4a16: sweep6 reverted (M<=8 wants w4); winner table = submitted 0.2376x",
+      "fork": false,
+      "parent": null,
+      "description": "Muse Spark Open Kernel Challenge entries",
+      "error": null
+    },
+    {
+      "repository": "KingCobra52/muse_bf16_optimization",
+      "url": "https://github.com/KingCobra52/muse_bf16_optimization",
+      "default_branch": "main",
+      "pushed_at": "2026-11-01T23:38:07Z",
+      "head": "1b17cdfd7b1d0b599ecc3a67ca1a91c298bd44a7",
+      "head_committer_date": "2026-11-01T23:38:06Z",
+      "head_subject": "Merge pull request #1 from KingCobra52/claude/cool-brahmagupta-afnvtm",
+      "fork": false,
+      "parent": null,
+      "description": "Optimizing the the muse_bf16 kernel in Meta's Muse Spark Open AI model for the Muse Spark Open Kernel Challenge",
+      "error": null
+    },
+    {
+      "repository": "Kushagrabainsla/muse-spark-open",
+      "url": "https://github.com/Kushagrabainsla/muse-spark-open",
+      "default_branch": "main",
+      "pushed_at": "2026-11-01T04:47:54Z",
+      "head": "ca71144194e993c9769f20654fade8008c6868c7",
+      "head_committer_date": "2026-11-01T04:25:37Z",
+      "head_subject": "Log L13: own boundary kernels not kept (exacter routing raises MoE work); measurement-noise note",
+      "fork": false,
+      "parent": null,
+      "description": "CUDA/Triton kernels for the Muse Spark Open Kernel Challenge on H200: gated attention decode, NVFP4 MoE, BF16 projections, decoder layer",
+      "error": null
+    },
+    {
+      "repository": "Lurrobert/guild",
+      "url": "https://github.com/Lurrobert/guild",
+      "default_branch": "main",
+      "pushed_at": "2026-10-24T02:18:09Z",
+      "head": "4f54907e56e4e4f6b17ffbca6460a173057db523",
+      "head_committer_date": "2026-10-24T02:18:07Z",
+      "head_subject": "Guild skill: step 0 for sandboxed agents (check reach, the one line to the human, where claude.ai/Cowork/Codex allow the domain), plain-HTTP curl block tested line by line, sandbox hint on the join card",
+      "fork": false,
+      "parent": null,
+      "description": "Open board for Open Kernel Challenge agents: end-to-end-encrypted cartels, read-only forum for humans",
+      "error": null
+    },
+    {
+      "repository": "Madhavan113/ParadigmKernelChallenge",
+      "url": "https://github.com/Madhavan113/ParadigmKernelChallenge",
+      "default_branch": "main",
+      "pushed_at": "2026-10-29T20:47:01Z",
+      "head": "721c62729fa0b407799692f311790643706f292d",
+      "head_committer_date": "2026-10-29T20:47:00Z",
+      "head_subject": "decode layer: recomposed with attention 012d92b (bulk-reduction merge ticket for per-request q1 plans: d16s ~-0.5 us, d1f ~-0.3 on the H200; other instances byte-identical); MoE/proj/glue unchanged",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "NathenFernandes/muse-bf16-proj",
+      "url": "https://github.com/NathenFernandes/muse-bf16-proj",
+      "default_branch": "solution",
+      "pushed_at": "2026-10-24T20:30:29Z",
+      "head": "86aff75e6aca72511bf9b41b6dc190bf1e763373",
+      "head_committer_date": "2026-10-24T20:30:27Z",
+      "head_subject": "docs(kernels): restore README license section",
+      "fork": false,
+      "parent": null,
+      "description": "H200 projection kernels for the Muse Spark Open Kernel Challenge. Best judged speedup: 1.5186x over SGLang.",
+      "error": null
+    },
+    {
+      "repository": "Okohedeki/autoinference",
+      "url": "https://github.com/Okohedeki/autoinference",
+      "default_branch": "main",
+      "pushed_at": "2026-10-30T02:13:40Z",
+      "head": "0454fb5059e95928c4236620142f51c287f572fb",
+      "head_committer_date": "2026-10-30T02:13:39Z",
+      "head_subject": "Fetch the target alignment once per protein in the Boltz-2 backend",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "PostTrainLLM/posttrainllm",
+      "url": "https://github.com/PostTrainLLM/posttrainllm",
+      "default_branch": "main",
+      "pushed_at": "2026-10-31T17:00:22Z",
+      "head": "2dd36b9a76d7db3a008979375ab1a6b2fc2f13eb",
+      "head_committer_date": "2026-10-31T17:00:19Z",
+      "head_subject": "Clarify tied small-evaluation results in comparison guide (#221)",
+      "fork": false,
+      "parent": null,
+      "description": "A Mac-local specialist-model factory for data, post-training, evaluation, packaging, and evidence-backed decisions.",
+      "error": null
+    },
+    {
+      "repository": "Ranoobaba/okc-campaign",
+      "url": "https://github.com/Ranoobaba/okc-campaign",
+      "default_branch": "master",
+      "pushed_at": "2026-10-25T17:00:19Z",
+      "head": "3831ab3c3538a9878031b667624240bd24bb7082",
+      "head_committer_date": "2026-10-25T17:00:18Z",
+      "head_subject": "ledger: night campaign close-out",
+      "fork": false,
+      "parent": null,
+      "description": "Autonomous kernel-optimization campaign for the Open Kernel Challenge: Modal H200 judge replica, overnight experiment loop, Triton kernels vs SGLang",
+      "error": null
+    },
+    {
+      "repository": "Reedo3/Muse_Attention_Decode",
+      "url": "https://github.com/Reedo3/Muse_Attention_Decode",
+      "default_branch": "main",
+      "pushed_at": "2026-10-27T23:42:40Z",
+      "head": "08f8a3caffd7619b55c0005f1e0d53947e8ce949",
+      "head_committer_date": "2026-10-27T23:42:39Z",
+      "head_subject": "Initial commit",
+      "fork": false,
+      "parent": null,
+      "description": "The Muse Spark Open Kernel Challenge had a competition for muse's attention decode. The link for this is located here: https://openkernelchallenge.dev/problems/muse_attention_decode",
+      "error": null
+    },
+    {
+      "repository": "Saikat-too/muse_spark_kernel_challenge",
+      "url": "https://github.com/Saikat-too/muse_spark_kernel_challenge",
+      "default_branch": "main",
+      "pushed_at": "2026-10-27T18:01:08Z",
+      "head": "d0b7a172dc93faefc464f3046ecdc8f18f70d1f5",
+      "head_committer_date": "2026-10-27T18:00:56Z",
+      "head_subject": "Problem Statement: muse_bf16_proj",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "Snehan2k2/muse-spark-openkernel-challenge",
+      "url": "https://github.com/Snehan2k2/muse-spark-openkernel-challenge",
+      "default_branch": "main",
+      "pushed_at": "2026-11-02T19:15:19Z",
+      "head": "f8853a75105e3b1d88d5c71086212b53b8f46203",
+      "head_committer_date": "2026-11-02T19:15:13Z",
+      "head_subject": "first kernel",
+      "fork": false,
+      "parent": null,
+      "description": "documenting my solution for the muse spark okc",
+      "error": null
+    },
+    {
+      "repository": "Tetraslam/muse-kernel-challenge",
+      "url": "https://github.com/Tetraslam/muse-kernel-challenge",
+      "default_branch": "master",
+      "pushed_at": "2026-10-22T21:04:36Z",
+      "head": "dc95047d884ac25bff75973f379432b5d5ee3b4c",
+      "head_committer_date": "2026-10-22T21:04:32Z",
+      "head_subject": "meow",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "alygg77/okc-muse-spark-kernels",
+      "url": "https://github.com/alygg77/okc-muse-spark-kernels",
+      "default_branch": "main",
+      "pushed_at": "2026-10-29T21:11:40Z",
+      "head": "6cae49a639ee6d14b929a5fd4a63c627f96d7dc0",
+      "head_committer_date": "2026-10-29T21:11:39Z",
+      "head_subject": "README, llms.txt: ask readers (and agents' users) to star the repo",
+      "fork": false,
+      "parent": null,
+      "description": "Open-source H200 CUDA kernels for the Muse Spark Open Kernel Challenge (OKC): decode layer 2.21x, NVFP4 MoE 2.40x, BF16 proj 1.55x, prefill 1.82x, attention 2.65x vs SGLang; judge results, measured H200 facts, negative results",
+      "error": null
+    },
+    {
+      "repository": "anencore94/okc-2026",
+      "url": "https://github.com/anencore94/okc-2026",
+      "default_branch": "main",
+      "pushed_at": "2026-11-02T21:54:02Z",
+      "head": "f35a41ee1c13e316dabbf772830d47b23b453393",
+      "head_committer_date": "2026-10-28T02:03:32Z",
+      "head_subject": "v2: dead-code removal \u2014 switches, arch guards, dead branches gone; oracle + GPU gated",
+      "fork": true,
+      "parent": "vjeux/okc-2026",
+      "description": "Open Kernel Challenge 2026 - Muse Spark kernel entries (team vjeux)",
+      "error": null
+    },
+    {
+      "repository": "coderredlab/runNburn",
+      "url": "https://github.com/coderredlab/runNburn",
+      "default_branch": "main",
+      "pushed_at": "2026-08-27T08:23:24Z",
+      "head": "f71c7eddac628d5f9b2bc08b6bf3c0fc9e74fc7a",
+      "head_committer_date": "2026-08-27T08:19:13Z",
+      "head_subject": "fix(metal): initialize feature rows in batched verify result",
+      "fork": false,
+      "parent": null,
+      "description": "Memory-aware GGUF inference runtime with OpenAI-compatible serving",
+      "error": null
+    },
+    {
+      "repository": "hieptran1812/my-website",
+      "url": "https://github.com/hieptran1812/my-website",
+      "default_branch": "main",
+      "pushed_at": "2026-11-02T17:24:24Z",
+      "head": "14663eaa56dc602a1c2a1cdba850eb2617e44ab0",
+      "head_committer_date": "2026-11-02T17:24:16Z",
+      "head_subject": "docs(plans): math-for-ai adds Track X (mathematics of activation functions), 164 posts",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "infraax/okc-kernel-challenge",
+      "url": "https://github.com/infraax/okc-kernel-challenge",
+      "default_branch": "main",
+      "pushed_at": "2026-10-27T11:46:00Z",
+      "head": "896b816dc5fd418e1f167578eb35680b116b68f3",
+      "head_committer_date": "2026-10-27T11:45:30Z",
+      "head_subject": "Open Kernel Challenge 2026: archived campaign (results, hypotheses, method, kernels, tools, tests, judge data)",
+      "fork": false,
+      "parent": null,
+      "description": "Open Kernel Challenge 2026 (Muse Spark Open, H200): an AI-agent-driven GPU kernel campaign \u2014 results, hypotheses, method, kernels and judge data, archived",
+      "error": null
+    },
+    {
+      "repository": "iyerramji/open-kernel-challenge",
+      "url": "https://github.com/iyerramji/open-kernel-challenge",
+      "default_branch": "main",
+      "pushed_at": "2026-10-29T15:20:39Z",
+      "head": "1d57ff7749433d0d18b294744e607cd82e33057f",
+      "head_committer_date": "2026-10-29T15:20:38Z",
+      "head_subject": "Reconcile recommendations with final scored selection and publication",
+      "fork": false,
+      "parent": null,
+      "description": "H200 Muse dense-projection kernel experiments with separate official and Modal measurements",
+      "error": null
+    },
+    {
+      "repository": "keell0renz/muse-open-kernel-challenge",
+      "url": "https://github.com/keell0renz/muse-open-kernel-challenge",
+      "default_branch": "main",
+      "pushed_at": "2026-11-02T19:51:30Z",
+      "head": "890809cee421500b00126d084e81b338ef9181ab",
+      "head_committer_date": "2026-11-02T19:51:29Z",
+      "head_subject": "Update README with notes on challenge experience",
+      "fork": false,
+      "parent": null,
+      "description": "Team keell0renz's fair H200 kernels for the OKC Muse Spark Open Kernel Challenge: decode layer 2.2659 (#38/1085, overall), attention #35, bf16 #26, prefill #29, MoE #58. Highest-ranked public OKC code we know of on all 5 boards (Nov 1). Apache-2.0, with lessons from ~460 experiments.",
+      "error": null
+    },
+    {
+      "repository": "lachydotmcg/muse-sputter",
+      "url": "https://github.com/lachydotmcg/muse-sputter",
+      "default_branch": "main",
+      "pushed_at": "2026-10-23T10:00:00Z",
+      "head": "527bd70472e3842bbd6147f8cc2bba6d6452cf43",
+      "head_committer_date": "2026-10-23T09:59:59Z",
+      "head_subject": "Update README.md",
+      "fork": false,
+      "parent": null,
+      "description": "Correct answers. Eventually. Muse Spark Open dense projections, deliberately 143.8x slower overall than PyTorch on an RTX 3060.",
+      "error": null
+    },
+    {
+      "repository": "lilaclilac09/open-kernel-challenge",
+      "url": "https://github.com/lilaclilac09/open-kernel-challenge",
+      "default_branch": "main",
+      "pushed_at": "2026-10-24T15:38:36Z",
+      "head": "d9bdcc9f01dff1018f2f256a0a1a63911a16557e",
+      "head_committer_date": "2026-10-24T15:38:36Z",
+      "head_subject": "muse_bf16_proj v6d: dual-output GEMV + ILP/ldg (no check; keep v6b board)",
+      "fork": false,
+      "parent": null,
+      "description": "Muse Spark Open Kernel Challenge (openkernelchallenge.dev) \u2014 kernel starters + notes",
+      "error": null
+    },
+    {
+      "repository": "manymoats/cleankpf",
+      "url": "https://github.com/manymoats/cleankpf",
+      "default_branch": "main",
+      "pushed_at": "2026-11-03T00:16:43Z",
+      "head": "cfaf4af98249215b8ad2819d5c613c6c4047fedc",
+      "head_committer_date": "2026-11-03T00:16:41Z",
+      "head_subject": "sync: approved receipts README 4a14b737c9ba",
+      "fork": false,
+      "parent": null,
+      "description": "CleanKPF: the public, receipted record of ManyMoats and ICEBLOCK (mirror of brennandec/cleankpf; both links stay live)",
+      "error": null
+    },
+    {
+      "repository": "msaroufim/openkernelchallenge-audit",
+      "url": "https://github.com/msaroufim/openkernelchallenge-audit",
+      "default_branch": "main",
+      "pushed_at": "2026-10-23T02:43:57Z",
+      "head": "0a68efe41f9372478e3986283c954f39df7484a7",
+      "head_committer_date": "2026-10-23T02:43:54Z",
+      "head_subject": "Add recovered evaluator worker source",
+      "fork": false,
+      "parent": null,
+      "description": "Evidence, limitations, and reproducible static analysis of Open Kernel Challenge and KernelBot similarities",
+      "error": null
+    },
+    {
+      "repository": "nibague/open-kernel-challenge",
+      "url": "https://github.com/nibague/open-kernel-challenge",
+      "default_branch": "master",
+      "pushed_at": "2026-11-02T19:56:04Z",
+      "head": "7a26501b73675ae22f5b9d16be05f01eb82c9151",
+      "head_committer_date": "2026-11-02T19:55:37Z",
+      "head_subject": "writing claude.md file",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "nvbkdw/muse-spark-open-challenge",
+      "url": "https://github.com/nvbkdw/muse-spark-open-challenge",
+      "default_branch": "main",
+      "pushed_at": "2026-11-01T17:50:04Z",
+      "head": "f13e75c51802e2cbc8f143a1128e88c66c15e74a",
+      "head_committer_date": "2026-11-01T17:50:04Z",
+      "head_subject": "Merge pull request #2 from nvbkdw/agentkit/model-opt-35cb0c72-e1413b91",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "ozgureyilmaz/okc-muse-kernels",
+      "url": "https://github.com/ozgureyilmaz/okc-muse-kernels",
+      "default_branch": "master",
+      "pushed_at": "2026-10-27T17:28:03Z",
+      "head": "74daa3a6990168b52359c80955014a945fc7aa4e",
+      "head_committer_date": "2026-10-27T17:28:03Z",
+      "head_subject": "Merge measured Muse BF16 kernel and scored result",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "ruwwww/agent-skills",
+      "url": "https://github.com/ruwwww/agent-skills",
+      "default_branch": "main",
+      "pushed_at": "2026-10-28T10:57:29Z",
+      "head": "469fbfa8ac2b6de75c66892f54b47ba94ff15a87",
+      "head_committer_date": "2026-10-28T10:56:58Z",
+      "head_subject": "chore: sync latest agent skills and superpowers 2026-10-28 10:56",
+      "fork": false,
+      "parent": null,
+      "description": "Universal agent skills and superpowers for coding agents (Claude Code, Codex, Hermes)",
+      "error": null
+    },
+    {
+      "repository": "ruwwww/open-kernel-challenge",
+      "url": "https://github.com/ruwwww/open-kernel-challenge",
+      "default_branch": "main",
+      "pushed_at": "2026-11-02T04:04:14Z",
+      "head": "c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d",
+      "head_committer_date": "2026-11-02T04:04:14Z",
+      "head_subject": "o.O",
+      "fork": false,
+      "parent": null,
+      "description": "High-performance GPU kernels on NVIDIA H200 (SM90a) for Meta's Muse Spark Open 816B NVFP4 MoE model (Open Kernel Challenge)",
+      "error": null
+    },
+    {
+      "repository": "theluckystrike/muse-spark-open-kernels",
+      "url": "https://github.com/theluckystrike/muse-spark-open-kernels",
+      "default_branch": "main",
+      "pushed_at": "2026-10-23T10:04:14Z",
+      "head": "778e47d7fe5836f6e19bb6d962caf02e40469035",
+      "head_committer_date": "2026-10-23T10:04:11Z",
+      "head_subject": "Open source must win",
+      "fork": false,
+      "parent": null,
+      "description": "Open source must win \u00b7 Muse Spark Open Kernel Challenge kernels (Apache-2.0), published after the boards close",
+      "error": null
+    },
+    {
+      "repository": "tommyyliu/okc",
+      "url": "https://github.com/tommyyliu/okc",
+      "default_branch": "main",
+      "pushed_at": "2026-10-27T15:57:12Z",
+      "head": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+      "head_committer_date": "2026-10-27T15:56:53Z",
+      "head_subject": "Import muse_bf16_proj with its history",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "trxphxle/okc-2026-muse-kernels",
+      "url": "https://github.com/trxphxle/okc-2026-muse-kernels",
+      "default_branch": "main",
+      "pushed_at": "2026-10-31T10:57:07Z",
+      "head": "72db638fa2718bc0ea5645fdd5c52a5511594579",
+      "head_committer_date": "2026-10-31T10:57:05Z",
+      "head_subject": "Muse Spark Open Kernel Challenge 2026: H200 decode-layer kernels, results and measurements",
+      "fork": false,
+      "parent": null,
+      "description": "Muse Spark Open Kernel Challenge 2026 (team trxphxle): H200 kernels, results, and every experiment we ran. Peaked top 200 (#185).",
+      "error": null
+    },
+    {
+      "repository": "utterwqlnut/muse_bf16_proj",
+      "url": "https://github.com/utterwqlnut/muse_bf16_proj",
+      "default_branch": "main",
+      "pushed_at": "2026-11-03T01:08:20Z",
+      "head": "e5c79030dc251222c4e98cf79af8679c1b0f29c7",
+      "head_committer_date": "2026-11-03T01:08:08Z",
+      "head_subject": "intra-cluster cuda kernel",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    },
+    {
+      "repository": "vjeux/okc-2026",
+      "url": "https://github.com/vjeux/okc-2026",
+      "default_branch": "main",
+      "pushed_at": "2026-10-28T02:03:36Z",
+      "head": "f35a41ee1c13e316dabbf772830d47b23b453393",
+      "head_committer_date": "2026-10-28T02:03:32Z",
+      "head_subject": "v2: dead-code removal \u2014 switches, arch guards, dead branches gone; oracle + GPU gated",
+      "fork": false,
+      "parent": null,
+      "description": "Open Kernel Challenge 2026 - Muse Spark kernel entries (team vjeux)",
+      "error": null
+    },
+    {
+      "repository": "xharshvardhan/open-kernel-challenge",
+      "url": "https://github.com/xharshvardhan/open-kernel-challenge",
+      "default_branch": "main",
+      "pushed_at": "2026-10-27T03:26:55Z",
+      "head": "4958d3141aa977c4b6b26df7a8d06c90dd094ee9",
+      "head_committer_date": "2026-10-27T03:26:53Z",
+      "head_subject": "Publish optimized GPU kernels and verified challenge results",
+      "fork": false,
+      "parent": null,
+      "description": "Optimized GPU kernels for Open Kernel Challenge with verified standings and concise implementation notes",
+      "error": null
+    },
+    {
+      "repository": "zhebrak/muse-spark-kernels",
+      "url": "https://github.com/zhebrak/muse-spark-kernels",
+      "default_branch": "main",
+      "pushed_at": "2026-10-28T19:39:37Z",
+      "head": "ff4d55ab669977f15874943044d20312d98a44d1",
+      "head_committer_date": "2026-10-28T19:39:35Z",
+      "head_subject": "Muse Spark Open kernels",
+      "fork": false,
+      "parent": null,
+      "description": null,
+      "error": null
+    }
+  ],
+  "branches_forks_releases": [
+    {
+      "path": "/repos/keell0renz/muse-open-kernel-challenge/branches?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.464809+00:00",
+      "count": 1,
+      "error": null
+    },
+    {
+      "path": "/repos/keell0renz/muse-open-kernel-challenge/forks?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.397479+00:00",
+      "count": 0,
+      "error": null
+    },
+    {
+      "path": "/repos/keell0renz/muse-open-kernel-challenge/releases?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.469762+00:00",
+      "count": 0,
+      "error": null
+    },
+    {
+      "path": "/repos/alygg77/okc-muse-spark-kernels/branches?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.428321+00:00",
+      "count": 1,
+      "error": null
+    },
+    {
+      "path": "/repos/alygg77/okc-muse-spark-kernels/forks?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.391196+00:00",
+      "count": 0,
+      "error": null
+    },
+    {
+      "path": "/repos/alygg77/okc-muse-spark-kernels/releases?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.881396+00:00",
+      "count": 0,
+      "error": null
+    },
+    {
+      "path": "/repos/NathenFernandes/muse-bf16-proj/branches?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.827058+00:00",
+      "count": 1,
+      "error": null
+    },
+    {
+      "path": "/repos/NathenFernandes/muse-bf16-proj/forks?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.780552+00:00",
+      "count": 0,
+      "error": null
+    },
+    {
+      "path": "/repos/NathenFernandes/muse-bf16-proj/releases?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.938320+00:00",
+      "count": 0,
+      "error": null
+    },
+    {
+      "path": "/repos/ruwwww/open-kernel-challenge/branches?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:46.900831+00:00",
+      "count": 1,
+      "error": null
+    },
+    {
+      "path": "/repos/ruwwww/open-kernel-challenge/forks?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:47.109647+00:00",
+      "count": 0,
+      "error": null
+    },
+    {
+      "path": "/repos/ruwwww/open-kernel-challenge/releases?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:47.471376+00:00",
+      "count": 0,
+      "error": null
+    },
+    {
+      "path": "/repos/vjeux/okc-2026/branches?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:47.294686+00:00",
+      "count": 1,
+      "error": null
+    },
+    {
+      "path": "/repos/vjeux/okc-2026/forks?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:47.303664+00:00",
+      "count": 1,
+      "error": null
+    },
+    {
+      "path": "/repos/vjeux/okc-2026/releases?per_page=100",
+      "retrieved_at": "2026-11-03T03:32:47.499241+00:00",
+      "count": 0,
+      "error": null
+    }
+  ],
+  "limits": [
+    "Code-search totals changed across pages. Queries excluded two already inventoried large repositories; their exact heads were rechecked separately.",
+    "Commit/issue/PR searches used first 100 results sorted newest; repository searches used first 100 updated results. No completeness claim.",
+    "gh-axi truncated large bodies; raw gh api supplied those responses. Temporary GitHub primary/secondary search limits were recorded; failed queries were retried after the cooldown.",
+    "No authenticated communities, registered-only Guild bodies or encrypted messages were accessed.",
+    "No kernel, judge/GPU job, foreign execution, public post or contact."
+  ]
+}

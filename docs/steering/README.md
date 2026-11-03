@@ -10,7 +10,7 @@ Read the current owner's status and latest applicable report. Historical job sta
 | OKC CUDA Optimizer | [B4 phase-attribution task](2026-11-02-cuda-b4-phase-attribution-task.md), [terminal scale/group results](2026-11-02-cuda-part2-experiments.md) | Identify one source-backed exposed critical-path mechanism. Prior scale/group treatments are stopped. |
 | OKC General Optimizer | [GOPT-WS-03 actual pickup](2026-11-02-general-ws-norm-aggregation.md), [joint refill findings](2026-11-02-general-hotspot-search-refill.md#1-general-reduce-unit-rate-norm-stat-atomics) | Qualify one T8/T16 WS-helper norm aggregation treatment locally, preserving FTZ, numerical and publication behavior. No accepted GPU job yet. NS3 retained. |
 | Research | [Standing hotspot goal](2026-11-02-incumbent-hotspot-goal.md), [completed joint source study](2026-11-02-general-hotspot-search-refill.md#joint-cuda-research-findings--november-2-2026-pacific) | Joint addendum acknowledged and three ranked mechanisms appended to the same refill. Archived SASS and CPU checks completed; candidate compilation, timing and D32 budget qualification remain open. Worker/scout pickup is not implied. |
-| Public scout | [Competition watch](2026-11-02-competition-watch.md), [source standing](2026-11-02-scout-source-standing-and-jobs.md) | Two-hour watch for substantive public changes. Snapshot ranks and jobs are historical. |
+| Public scout | [Competition watch](2026-11-02-competition-watch.md), [new projection reference](2026-11-02-scout-utterwqlnut-projection-0328.md), [source standing](2026-11-02-scout-source-standing-and-jobs.md) | Two-hour watch. Added utterwqlnut's cluster projection source and author receipts; no base replacement or experiment. Snapshot ranks and jobs are historical. |
 
 The scored layer remains [public607 source](../../muse_decode_layer/cand/g1b4_stage_release.py), SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`. Preserve other load winners. B4/MAIN already have the [parallel prefix](decode32/2026-11-02-13-b4-prefix-selected-source.md); do not reopen that duplicate.
 
@@ -34,6 +34,7 @@ Publish substantive steering with evidence, source/job pins, decision, next acti
 
 | Report | Evidence and scope |
 |---|---|
+| [Public projection source discovery](2026-11-02-scout-utterwqlnut-projection-0328.md) | Utterwqlnut pin e5c79030, author-hosted 1.356457x receipt; source binding and matched comparison remain open |
 | [Joint General and D32 refill findings](2026-11-02-general-hotspot-search-refill.md#joint-cuda-research-findings--november-2-2026-pacific) | Main9f8fa34a reconciled with frozen source; active WS atomics and sixteen D32 identity-rescale instructions verified in archived SASS; CPU evidence and explicit candidate/budget gaps; no kernel/GPU action |
 | [Diagram customization scope](2026-11-02-diagram-customization-scope.md) | Live official specs match local task files; performance badges do not define editable scope; no new GPU run |
 | [Historical documentation archive](2026-11-02-docs-archive.md) | 1,229 moved files, preserved raw payloads, 2,270 link targets checked; current reader dependencies retained |
