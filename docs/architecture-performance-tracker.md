@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-03 02:09 MST. Evidence snapshot: `b8579711`.
+Last review: 2026-11-03 02:16 MST. Evidence snapshot: `a4660143`.
 
 **Queue checkpoint:** the November 1 qualifier-repair backlog is historical. Use the [current shared owner queue](steering/README.md) and the dated review below for current tasks and outcomes. The old [backlog reconciliation](../archive/docs/steering/2026-11-01-immediate-backlog.md) is retained as history. No new GPU campaign is started by this tracker update.
 
@@ -27,6 +27,59 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | E. Attention producer-consumer pipeline | New D32 lookahead layer-tested; isolated gain inconclusive | Full-context D32 is 5.035 µs faster (1.588%) in a separate run, while unchanged sliding improves more. Earlier VP2 eight-token cell win remains scoped to its failed six-load gate. | Lookahead and observer closures stand. Split-copy reduction is stopped. Identity4a2a79bdac04499a fails routing/coverage with27/36 partial rows, not a causal treatment loss. [Current evidence](#november-2-review-at-2200-vancouver-time). |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
 | G. Attributed keell0renz layer fork | Public retained; eleven matched component gates missed | Ready flags add one matched gate failure. Half+XS and UNP integration also miss endpoint conditions; their comparisons remain separately scoped. | No new layer gain or qualified replacement. Exact ready-flag design stopped; no layer promotion or qualified refill. [Current evidence](#november-3-review-at-0209-vancouver-time). |
+
+## November 3 review at 02:16 Vancouver time
+
+**The F3 boundary-fusion experiment has small paired component signals and no qualified layer gain.** The earlier43aaclaim is now verified as a T1preparation fragment from a check that later timed out atT8. Its corrected second check passes official correctness but fails the prospective whole-layer/≥2µsbenefit condition. The exact slice stops after two checks; no third run or promotion follows. The incumbent remains public 607,2.126083×. “F3” is the owner's fusion-slice name, not architecture familyF.
+
+### Context: initial F3 check fails setup; its T1 fragment is retained
+
+Private `43aa191eb94948a4`, source revisione7ac9cbf, physical 5951c8225679ee771b82d61e4ed861d0fb6bd2d99d85d9d986dd25eab9ceef89,913188 bytes, `muse_decode_layer/cand/g1b4_f3.py`, combines O projection, attention residual/norm and pooler/FP32router into one cooperative128CTAlaunch atT≤8. It retains writer/reader proxy fences and uses counters between phases. The timed method is preparation-time cold-L2 paired chain replays. Finished2026-11-03T08:54:14.303982+00:00, status`timeout`, passedfalse, return-9, zero official tests/benchmarks/profiles and no score or CI. The owner attributes the T8self-test hang to cumulative counter targets using M-dependent increments. This cause is source analysis, not a measured latency effect. [Failed owning receipt](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/muse_decode_layer/profiles/g1b4_f3.43aa191eb94948a4.status.json), [surviving log](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/muse_decode_layer/profiles/g1b4_f3.43aa191eb94948a4.log).
+
+The surviving T1fragment reports off 62.56/on 61.06 µs arm medians, median paired saving 1.28 µs,9/9 winning rounds and max O relative difference5.98e-4. The paired saving divided by the displayed control median is2.046%, descriptive. It is not the difference between independently pooled arm medians. No duplicate-null, paired CI or spread is recorded. This partial same-process component result is retained, but it does not turn a timeout into completed correctness, T8coverage or an incumbent-layer gain.128/256 and other official endpoints are absent from this failed run. [Registered hypothesis, repair and finite stop](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/docs/runs-decode-layer.md).
+
+### Context: corrected F3 has limited component wins and fails the layer condition
+
+Private `c9240b8205904baf`, revisionb4aa2557, exact physical 9231e3813131002afc4dcd934084361d3e3740c26e7d1d434bd4196f4e3cb21d,913885 bytes, fixes the per-launch counter increments and bounds producer polling. The owner self-tests T1/8/1/8, eager plus three fresh-input graph replays each. This is the same combined fusion design, not an isolated familyA–E orF measurement. PASS13 tests/12 benchmarks/12 profiles, return0/no flags, preparation109.714277s,56 verified startup replays. Finished2026-11-03T09:03:58.013863+00:00. Official10825.744585 µs/2.089491381×,95%CI[2.058149010,2.120833751], versus public 607at10639.426327 µs/2.126083×. The elapsed difference is+186.318258 µs/+1.751% across different runs and inputs, not an isolated matched treatment effect. [Full terminal receipt](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/muse_decode_layer/profiles/g1b4_f3.c9240b8205904baf.status.json), [exact source at its revision](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/muse_decode_layer/cand/g1b4_f3.py).
+
+Nine same-process cold-L2 paired rounds per short token size produce:
+
+| Tokens | Off arm median µs | On arm median µs | Median paired saving µs | Saving/control, descriptive | Wins | Selected scored path |
+|---|---|---|---|---|---|---|
+|1|62.34|61.70|0.45|0.722%|8/9|Separate, below 0.5µsselector threshold|
+|8|104.51|103.36|1.09|1.043%|9/9|Fused|
+
+These paired deltas are the log's median of pairwise savings, not subtraction of pooled arm medians. No independent duplicate-control noise floor, paired CI or raw nine-pair distribution is saved. Correctness self-checks report bitwise boundary/pooler outputs and O max relative differences9.88e-7/1.17e-3 atT1/T8; official correctness is a separate full-layer check. [Paired tuner and startup log](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/muse_decode_layer/profiles/g1b4_f3.c9240b8205904baf.log).
+
+All official cells use80,000 context, page1, soft routing, sliding/full. Decode batches1/16/32 and verifyq_len8 are tested; larger batches use agentic spread. Decode1has60 official SGLang pairs per cell; other loads20. These CIs and repetitions compare a selected file with SGLang, not with 607. The following deltas are cross-run observations against the exact public 607receipt, with different routing/inputs. OnlyT8 uses the new fused path; T1 keeps the separate fallback and16/32/128/256 are source-unchanged.
+
+| Tokens | Attention | Public607 µs | Corrected F3 µs | Delta µs | Delta % | Scope |
+|---|---|---|---|---|---|---|
+| 1 | sliding | 76.748101 | 77.672625 | +0.924524 | +1.205% | Separate fallback |
+| 1 | full | 83.726757 | 84.438130 | +0.711372 | +0.850% | Separate fallback |
+| 16 | sliding | 138.660714 | 132.242799 | -6.417915 | -4.629% | Unchanged drift |
+| 16 | full | 214.534360 | 208.073602 | -6.460757 | -3.012% | Unchanged drift |
+| 32 | sliding | 154.820445 | 155.887614 | +1.067169 | +0.689% | Unchanged drift |
+| 32 | full | 297.882697 | 308.539750 | +10.657053 | +3.578% | Unchanged drift |
+| 8 | sliding | 115.431860 | 118.901303 | +3.469442 | +3.006% | Changed F3 |
+| 8 | full | 117.597840 | 125.153135 | +7.555295 | +6.425% | Changed F3 |
+| 128 | sliding | 247.130995 | 247.086008 | -0.044988 | -0.018% | Unchanged drift |
+| 128 | full | 333.218126 | 331.853555 | -1.364571 | -0.410% | Unchanged drift |
+| 256 | sliding | 316.389537 | 323.486260 | +7.096723 | +2.243% | Unchanged drift |
+| 256 | full | 482.656794 | 481.179232 | -1.477562 | -0.306% | Unchanged drift |
+
+
+The ≥2µswhole-layer/complete-chain stop is not met. ChangedT8sliding/full are slower than both607and94ef/cc474883references; T1 official movement is unchanged-fallback drift. Single profiler F3rows27.2/28.0 µs versus separately profiled27.7/27.9 µs sums do not form an isolated treatment comparison, particularly when routed MoE time also changes. The owner stops exact F3without a third check or public action. This preserves the small paired component signals without adding them to layer speedups or claiming all boundary fusion is ineffective. Proposed cluster-based follow-ups remain distinct untested ideas, not an allocation. [Full result and scoped negative](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/docs/ruled-out.md).
+
+### Current interpretation and evidence checkpoint
+
+The prior review's receipt gap for43aais resolved: its1.28 µsT1 component fragment is real recorded partial evidence, and its job failed setup. The fixed-sourceT1signal is0.45 µs, with 1.09µscomponent saving atT8, and no qualifying layer outcome. The reframe's fixed launch-cost,1µsremaining Tiny upside and persistent-kernel headroom estimates remain hypotheses, not ceilings established by these checks. A/B and historicalC/D/Ecomparisons remain unchanged; this is unrelated projection/boundary/layer integration context. No new General implementation or support assignment is opened.
+
+The separate local-screen audit confirms that compiler-only gamma/G2 stops are unmeasured engineering deferrals, not H200 timing losses or RTX5070 rejections. Its historical exact target negatives keep their earlier scopes. This reinforces, rather than reopens, the current source-only/local-profile distinctions. [Local-screen decision audit](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/docs/steering/2026-11-03-worker-local-screen-decision-audit.md).
+
+Fresh all-five-board snapshots collected2026-11-03T09:14:19.531396+00:00 retain the same owned best jobs and scores: MoE2821at5737.988910 µs, BF16C2at3161.918773 µs, attention8914at1446.190595 µs, layer607at10639.426327 µs and prefill1530at318441.990549 µs. Physical correspondence of the newer MoE public draw remains unverified here. [Previously published matching board points](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/docs/steering/evidence/2026-11-03-general-ready-audit/public-snapshot-summary.json); [fresh local snapshot summary](/Users/gretchengabo/GitHub/okc/.build/architecture-tracker/review-2026-11-03-0912/public-snapshots/summary.json). Required Documents-checkout guard uses these fresh saved boards/current ledger and passes with 16 numerical private leads/zero gaps. The new successful F3score is above public; failed43aahas no score. Older lower private control/candidate points retain explicit dispositions. [Current local guard](/Users/gretchengabo/Documents/ChatGPT/okc/.build/promotion-tracker/current.json), [promotion queue](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/docs/releases/promotion-queue.json).
+
+Reviewed source cuta4660143, including published F3source/run/negative records and local-screen clarification sinceb8579711. New jobs43aaandc924 are counted once; last terminal2026-11-03 09:03:58UTC. Prior source audits and all other terminal jobs remain closed. The 19untracked JSON profiles remain readable, provisionally inspected and untouched. Source links, arithmetic, filters and tracker/dashboard consistency are checked; no fresh independent reviewer of this tracker prose was available under the no-agent rule. No job polling, dispatch, benchmark, source edit, public action or tracker push occurred.
 
 ## November 3 review at 02:09 Vancouver time
 
@@ -3426,6 +3479,9 @@ paired differences.
 | Context UNP slice1 0c35, unchanged large paths | Public607, different run/inputs | sliding +0.925302µs (+0.374%); full +1.310916µs (+0.393%) | sliding -1.689987µs (-0.534%); full +0.263499µs (+0.055%) | 0c35e5f5cc614806/source79cb50f6;13tests/12cells/12profilespass,20pairs per large cell. Separate fallback selected onlyT1/T8; other large source unchanged. No causal layer gain. [Receipt](https://github.com/yelgabo/okc/blob/b8579711b0aa81f4253d989a362861266eafc17c/muse_decode_layer/profiles/g1b4_unp_release.0c35e5f5cc614806.json). |
 | Context UNP slice1 c77b, unchanged large paths | Public607, different run/inputs | sliding -5.754737µs (-2.329%); full -5.511092µs (-1.654%) | sliding -2.639203µs (-0.834%); full -9.059574µs (-1.877%) | c77b95102baf4232/source3d7f252f;13tests/12cells/12profilespass,20pairs per large cell. Fused tail selected onlyT1/T8; other large source unchanged. No causal layer gain. [Receipt](https://github.com/yelgabo/okc/blob/b8579711b0aa81f4253d989a362861266eafc17c/muse_decode_layer/profiles/g1b4_unp_release.c77b95102baf4232.json). |
 
+| Context F3 setup failure | Public607, separate run/inputs | No official timing, setup timeout | No official timing, setup timeout | 43aa191eb94948a4;zero official tests/cells/profiles, failedstatus-9; T1partial only. [Receipt](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/muse_decode_layer/profiles/g1b4_f3.43aa191eb94948a4.status.json). |
+| Context Corrected F3, unchanged large paths | Public607, separate run/inputs | sliding -0.044988µs (-0.018%); full -1.364571µs (-0.410%) | sliding +7.096723µs (+2.243%); full -1.477562µs (-0.306%) | c9240b8205904baf;13/12/12passes,20SGLang pairs/large cell. OnlyT8fused, T1fallback. No causal large-path gain. [Receipt](https://github.com/yelgabo/okc/blob/a466014323ba130fb120b556bb0f5455a531fe15/muse_decode_layer/profiles/g1b4_f3.c9240b8205904baf.status.json). |
+
 ## Small-token results and rejected changes
 
 For A's new `sk8w3s`, job `75bca9775f6f4b0b`, source `03887be`, uses six seeds per size and
@@ -3510,6 +3566,9 @@ review; codec and M-C one-token fusion ideas remain unbuilt. Never add component
 [projection evidence](runs.md), [F policy](../archive/docs/steering/2026-10-30-family-f-donor-baseline.md).
 
 ## Review history and checkpoint
+
+- 2026-11-03 02:16 MST (America/Vancouver): reviewed b8579711..a4660143. Resolved43aa receipt gap as failed setup with retained1.28µsT1fragment; added correctedc9240b8205904baf component signals and failed layer gate. No repeat counting of ready-flag/UNP/Half+XS. Fresh public snapshots09:14:19UTC and promotion16leads/0gaps; latest terminal09:03:58UTC. All19untracked JSONs remain provisional and untouched.
+
 
 - 2026-11-03 02:09 MST (America/Vancouver): inspected fa762950..b8579711. Added terminal e3e2495464f34b2c, abc831c68f174b68 and UNP4c2d/0c35/c77b with exact raw/CLI scopes; source proof25ad/research1fd98 now independently corroborated and adopted in AGENTS. Separate5070portable profile included as context.43aa gain claim remains receipt-unverified here. Public snapshots08:49:12UTC,16promotion leads/0gaps. Latest stamped H200 terminal2026-11-03T08:49:07.979878+00:00. Profiles remain provisional, deduplicated and untouched.
 

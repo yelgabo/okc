@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-03T02:09:00-07:00",
-  "snapshot": "b8579711",
+  "reviewed_at": "2026-11-03T02:16:00-07:00",
+  "snapshot": "a4660143",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public607 unchanged. Ready flags fail matched gate and retain a publication proof gap. Half+XS and UNP slice1 miss endpoint conditions. Original helper retained; no qualified next correction."
+    "note": "Public607 unchanged. Corrected F3 has0.45/1.09µs paired component savings atT1/T8, but no qualified whole-layer gain. Original ready flags, Half+XS and UNP endpoints remain stopped."
   },
   "families": [
     {
@@ -131,8 +131,8 @@
       "label": "Public retained; eleven matched component gates missed",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "Ready flags add a failed matched gate with one unchanged drift breach. Half+XS and whole-layer UNP slice1 also stop; their separate cross-run/component scopes remain explicit.",
-      "layer": "Public layer607 remains2.126083×. Public standalone MoE2821 is5737.988910µs/2.3438× in the08:49UTC board snapshot; physical source correspondence unverified here.",
+      "summary": "Ready flags add a failed matched gate with one unchanged drift breach. Half+XS and whole-layer UNP slice1 also stop; their separate cross-run/component scopes remain explicit. F3has small paired component signals but fails its complete-layer condition.",
+      "layer": "Public layer607 remains2.126083×. Public standalone MoE2821 is5737.988910µs/2.3438× in the09:14UTC board snapshot; physical source correspondence unverified here.",
       "pending": [],
       "evaluation_pending": [],
       "limit": "Original helper/public layer retained. Ready-flag ordering proof remains incomplete; no repair/retry allocation. Conditional confirmation/release drafts unsubmitted; qualified refill missing.",
@@ -203,7 +203,7 @@
     {
       "name": "Local compiler-only closures",
       "label": "Target-performance rejection withdrawn",
-      "summary": "Local spills/registers or identical SASS do not establish H200 ineligibility or speed. Stable-pointer/group-only and repair cuts remain target-untested; independent source bugs and measured H200 losses retain their scope."
+      "summary": "Local spills/registers or identical SASS do not establish H200 ineligibility or speed. Stable-pointer/group-only and repair cuts remain target-untested; independent source bugs and measured H200 losses retain their scope. New local-screen audit corroborates gamma/G2as unmeasured engineering deferrals, not5070timing losses."
     },
     {
       "name": "Whole-unit B queue inside G",
@@ -218,7 +218,7 @@
     {
       "name": "Standalone MoE base promotion",
       "label": "New public numeric draw; source correspondence unverified",
-      "summary": "Public2821:5737.988910µs/2.3438× at08:49UTC. Prior source-bound4aa/5df remains historical5788.720720µs. No new algorithm, isolated-family or layer gain inferred.16private leads have explicit promotion dispositions."
+      "summary": "Public2821:5737.988910µs/2.3438× at09:14UTC. Prior source-bound4aa/5df remains historical5788.720720µs. No new algorithm, isolated-family or layer gain inferred.16private leads have explicit promotion dispositions."
     },
     {
       "name": "G group16 pair lookup and lossless packing",
@@ -282,8 +282,13 @@
     },
     {
       "name": "Revised boundary/attention opportunity claims",
-      "label": "Hypotheses; one receipt-unverified gain claim",
-      "summary": "Reframe withdraws3.0TB/s target.43aa1.3µsboundary-fusion claim lacks receipt verification in this review. q_len8attention opportunity and fixed-cost/remaining-upside estimates are not measured family gains or established ceilings; no new General allocation."
+      "label": "F3 partial signal verified; corrected layer gate failed",
+      "summary": "43aa timed out in T8setup after a1.28µsT1paired fragment. Correctedc924 passes13/12/12 with T1/T8paired savings0.45/1.09µs, but no short layer gain and stop rule met. Cost/headroom estimates remain hypotheses, not ceilings."
+    },
+    {
+      "name": "F3 O + boundary + pooler/router fusion",
+      "label": "Small paired component wins; layer gate failed",
+      "summary": "43aa5951c822 failedT8setup,0official cells. Correctedc9249231e381 passes13/12/12 at2.089491×,95%CI2.058149–2.120834. T1separate fallback;T8fused. Nine paired rounds save0.45/1.09µs, with no duplicate-null/pairedCI. Both T8layer cells lose cross-run. Stop after two checks, no promotion. F3is a slice label, not familyF."
     }
   ]
 }
