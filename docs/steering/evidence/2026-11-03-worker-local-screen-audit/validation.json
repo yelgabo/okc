@@ -1,0 +1,15 @@
+{
+  "public_refresh_exit_codes": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "promotion_audit_exit_code": 0,
+  "promotion_check": {
+    "promotion_gaps": [],
+    "leads": 16
+  },
+  "new_gpu_or_judge_actions": false
+}

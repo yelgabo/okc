@@ -1,0 +1,338 @@
+{
+  "observed_at": "2026-11-03T09:02:49.408871+00:00",
+  "files_scanned": 530,
+  "query": "5070|sm[_ ]?120",
+  "scope": "current+archived steering markdown excluding evidence directories; current runs and ruled-out",
+  "limitations": "not all chat history, unpublished files, source code or experiments",
+  "matches": [
+    {
+      "path": "docs/steering/2026-11-02-captain-handle-delta-and-flute-decision.md",
+      "encoding": "utf-8",
+      "sha256": "6d453d30dcdeb6de7f49795164cd0184f0c5c629c1a61eb407d6f9a68b5316b1",
+      "matches": [
+        {
+          "line": 22,
+          "text": "- thomgardiner/sglang-sm120-nvfp4@e5509d20929f863110be4d5718df886800eaa138:110-entry tree and full README describe a Qwen/RTX5090 serving experiment. Actual b12x.patch adds its automatic backend only for capability-major12; the preceding8.x/9.x branch still chooses Marlin. Its token-rate and cold-GEMM claims are not H200 Muse evidence. The README's model/draft requantization changes are not approved challenge transformations. This is not a Hopper-engine performance rejection."
+        }
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-driver-monitor-0510.md",
+      "encoding": "utf-8",
+      "sha256": "de1d7a8802dad96f43a419cbd7fed8988723a97bf8e3f0e27ddf9002f0c73f8e",
+      "matches": [
+        {
+          "line": 25,
+          "text": "The existing observer review `62622650` found a concrete **CPU-reproduced** defect: a post-cleanup budget exception bypassed the partial-report handler. The audit owner already delivered that finding to the MoE worker; this monitor did not send it again. Partial evidence must survive cleanup/report/budget failures while preserving failure status. Snapshot `b436704c` and saved96-register device builds are local audit evidence, **not** a newly accepted payload or target phase measurement. [Validation and finite stop](2026-11-02-internal-moe-profile-validation.md). The newer hardware addendum `94a119ed` distinguishes actual RTX5070/SM120 helper execution from Mac-only limits; it does not establ"
+        }
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-internal-moe-profile-validation.md",
+      "encoding": "utf-8",
+      "sha256": "b6402dff400d64442cdb3afe3b0f22041178043b714e6bf8228917c525f69c5c",
+      "matches": [
+        {
+          "line": 45,
+          "text": "November 2 continuation. The user identifies Gretchie as another computer with an NVIDIA GPU. The Mac-only probe above does not inventory that computer. Saved November 1 [CUDA execution evidence](../../archive/docs/steering/evidence/2026-11-01-sk-stage-repair-local-gpu/result.json) reports NVIDIA GeForce RTX5070, capability12.0, Torch2.10.0+cu128 and23passing integer/shared-helper observations. This is actual GPU execution, distinct from CPU cross-compilation. It does not independently confirm Gretchie's current configuration or access from this chat."
+        },
+        {
+          "line": 47,
+          "text": "The selected MoE compiler calls use `compute_90a/sm_90a`. NVIDIA's [Blackwell compatibility guide](https://docs.nvidia.com/cuda/archive/12.9.2/blackwell-compatibility-guide/index.html) states that Hopper `compute_90a` PTX is unsupported on Blackwell. The recorded SM120 device therefore cannot execute the unchanged selected Hopper kernel. Retargeting or replacing its architecture-specific path would profile a different implementation. Portable helper correctness and profiler setup may be tested there, while incumbent H200 phase timings still require a compatible target run."
+        }
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-scout-vllm-specialized-0724.md",
+      "encoding": "utf-8",
+      "sha256": "4c360c743f6ea79cf83e56c80c6ac36cadac38a97352b5db23d87c18e4d0536e",
+      "matches": [
+        {
+          "line": 43,
+          "text": "A new indexed [Kempner serving recipe commit](https://github.com/KempnerInstitute/hpc-agentic-recipes/commit/cd81f355bef63610256c1e229a56134886c45f34), dated November3 at05:28UTC, publishes four-node H200 BF16 and one-node RTX NVFP4 serving configurations. Its README/engine diffs describe Marlin/FlashInfer choices for SM120. These are different deployment and precision settings, with author-reported throughput. They supply no standalone challenge kernel gain and remain a background reference."
+        }
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-03-worker-local-incumbent-profile.md",
+      "encoding": "cp1252",
+      "sha256": "30e3ec559c4dd1246f66d04f6c30098bf6ea6ccca20bed8a52d36b08ab00aa02",
+      "matches": [
+        {
+          "line": 3,
+          "text": "Actual CUDA execution completed on this computer's **RTX 5070 (SM120, 12 GB)**, using PyTorch 2.10.0+cu128 and driver 610.88. The measured artifact is the public layer incumbent `muse_decode_layer/cand/g1b4_stage_release.py`, LF SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`. Fresh public snapshot still identifies incumbent job **607eb52bdaf24160**, 10639.426326569794 us / 2.1261x. Those official H200 results are separate from these local measurements."
+        }
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-03-worker-local-screen-decision-audit.md",
+      "encoding": "utf-8",
+      "sha256": "efa3e823f82a5e0935776934d8e5562a92c9c8e60c7a97cf967c4d4bc80cf320",
+      "matches": [
+        {
+          "line": 3,
+          "text": "The user asked why prospects had been cut using RTX 5070 timings after learning those timings do not predict H200 performance. The records checked do **not** establish such a timing-based rejection. They do establish that some prospects were stopped before target measurement using local compiler resource gates. These are different evidence classes, and the latter can exclude a useful candidate without establishing that it is slow."
+        },
+        {
+          "line": 9,
+          "text": "| MAIN gamma ON `d6756bb5` | CPU-only NVRTC13/PTXAS13 **SM90a** cross-compilation; stack 8\u219216 B, spill-store/load totals 20/52\u219260/88 B; no GPU execution. [Owning screen](../../archive/docs/steering/2026-11-01-gamma13-main-screen.md). | Failed the registered no-worse resource screen. **H200 speed unmeasured**; target NVCC equivalence unresolved. This was not a 5070 timing loss. |"
+        },
+        {
+          "line": 12,
+          "text": "| Short RMW | Target job `c5e4f89672f743bb`; frozen matched reader valid, promotion gate false, all 12 bank/cross gains subthreshold. [Owning terminal](../../archive/docs/steering/2026-11-01-rmw-legal-fixture-terminal.md). | Actual H200 matched evidence closed this exact RMW promotion. Not a 5070 result or rejection of every RMW design. |"
+        },
+        {
+          "line": 14,
+          "text": "| Pre-gamma component | Target job `56e0c8b5634545e6`, strict matched component gate false. [Owning report](2026-11-02-worker-moe-component-terminal.md). | Actual H200 matched component evidence, not a 5070 timing loss. |"
+        },
+        {
+          "line": 17,
+          "text": "The three raw target receipts for RMW, timed SiLU and pre-gamma were reread and their exact IDs, boards, done/pass status, return code and score retained in the audit evidence. The historical campaign also explicitly states that Windows RTX 5070 is not used as a performance proxy. These findings are scoped to inspected steering/history/run/ruled-out records, not every prior chat, unpublished file or candidate."
+        },
+        {
+          "line": 25,
+          "text": "The new [RTX 5070 profile](2026-11-03-worker-local-incumbent-profile.md), publication `ba48cd8f`, is an actual local baseline of two portable selected stages plus explicitly selected projection fallbacks. It supplies no reason to reject an H200 candidate. Local timing can guide a hypothesis; target performance decisions require appropriate target evidence. Source-correctness, legality and proven target resource limits are separate questions."
+        }
+      ]
+    },
+    {
+      "path": "docs/steering/index-history-through-2026-11-02-2325.md",
+      "encoding": "utf-8",
+      "sha256": "7246f5d4031df0df9561c1e2c924cca462b75d7f5cbef9a675dc58f7e6b0cc0d",
+      "matches": [
+        {
+          "line": 31,
+          "text": "[Captain handle follow-up and FLUTE adoption](2026-11-02-captain-handle-delta-and-flute-decision.md): four exact handles paginated, concrete profile/SM120/training leads pinned, no new complete Muse source/receipt. Captain independently reran FLUTE own CPU proof and verified two primary blobs; adopts scoped STOP, not a blanket BF16-partial ban. Corrects stale overall-formula context. Retains newer c8538a57 restored capacity and existing developer20-minute scheduled-work decision; no duplicate allocation."
+        }
+      ]
+    },
+    {
+      "path": "docs/steering/README.md",
+      "encoding": "utf-8",
+      "sha256": "b02ea80c6a66d795041c946fcedf37af7d68c5d6214b752b5be912700096bd96",
+      "matches": [
+        {
+          "line": 71,
+          "text": "[Local RTX5070 incumbent-component profile](2026-11-03-worker-local-incumbent-profile.md): actual CUDA/CUPTI measurements of selected portable routing/final-norm stages and explicit cuBLAS dense fallbacks. Native SM90 MoE was not run or retargeted; these are local component results, not H200 or end-to-end layer timings. Source/evidence published atba48cd8f."
+        },
+        {
+          "line": 85,
+          "text": "[Other-computer clarification](2026-11-02-internal-moe-profile-validation.md#other-computer-clarification) retains successful local RTX5070/SM120 GPU evidence after the user identifies Gretchie. The Mac probe was host-specific. Hopper sm90a compatibility still prevents treating that RTX as an unchanged-incumbent profiling host; live Gretchie access remains unverified here."
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-10-31-top10-campaign.md",
+      "encoding": "utf-8",
+      "sha256": "6c1887a2118a0e193b4ea4bc211989d896a053630d97cfb6b93b1bec75bea443",
+      "matches": [
+        {
+          "line": 286,
+          "text": "remote checks report H200. The Windows RTX5070 is not used as a performance proxy."
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-10-31-top10-restart-checkpoint.md",
+      "encoding": "utf-8",
+      "sha256": "31e32b815255f61716418ffc345dc565cfee0a9c6f95dff4abd693433578b6c3",
+      "matches": [
+        {
+          "line": 167,
+          "text": "   not the Windows RTX5070."
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-g-highload-weight-census.md",
+      "encoding": "utf-8",
+      "sha256": "06428b4018d06c6d0d119e211d1544994ae3c5cba8d8a9f5429907798896141b",
+      "matches": [
+        {
+          "line": 64,
+          "text": "Backend: PyTorch2.10.0+cu128, CUDA12.8, RTX5070, capability12.0. Reference LFhash and all32"
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-g-public-layer-measurement.md",
+      "encoding": "utf-8",
+      "sha256": "032ef77beddc5152e8161aaeba0c4ff38d5c05c828b5377a41862567374437f3",
+      "matches": [
+        {
+          "line": 89,
+          "text": "We tested stream behavior locally on an RTX 5070 with CUDA PyTorch 2.10. The fixture recompiles the original router device function for SM120 and uses the original Triton routing and normalization code. It substitutes a same-size BF16 linear operation for the Hopper SK2 pooler. The final source passed two concurrent graph captures and 20 fresh replays with a maximum absolute discrepancy of 5.37e-7 in the router/downstream FP32 check. Its additional startup validator passed all 32 replays with separate owners for both token counts. Runtime performance and correctness of the complete native layer require the H200 receipt. [Local GPU fixture](../../../muse_decode_layer/profiles/short-overlap-lo"
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-g-short-split-overlap.md",
+      "encoding": "utf-8",
+      "sha256": "5a34823699f0375afce6d1f3a8a54ae652db143e9f7a9ebb0792f40761405c48",
+      "matches": [
+        {
+          "line": 99,
+          "text": "Root independently provisioned CUDA PyTorch2.10/cu128 on RTX5070, compiled the exact FP32"
+        },
+        {
+          "line": 100,
+          "text": "router forsm120 (maxabsolute error5.37e-7 versusFP64), and exercised unchanged helper with"
+        },
+        {
+          "line": 117,
+          "text": "PASS on RTX5070 with32qualified fresh replays, both expected natural-route/owner manifests,"
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-owned-moe-locality-scope.md",
+      "encoding": "utf-8",
+      "sha256": "1600bbec4ba9304ba3e037d37b405de67d883ef167b655353d2198e0a31c6be3",
+      "matches": [
+        {
+          "line": 161,
+          "text": "CUDA12.8, RTX5070 capability12.0,48SM. All original expert groups0\u20137 occur."
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-projection-sparse-xor-prototype.md",
+      "encoding": "utf-8",
+      "sha256": "faecbf6202ec7935717ba0963f7c98e3e0131bbfd3a167fb08b1fb6501d9d823",
+      "matches": [
+        {
+          "line": 122,
+          "text": "reports a local RTX5070 bit-only execution of the exact repair helper through"
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-projection-sparse-xor-release.md",
+      "encoding": "utf-8",
+      "sha256": "a398960a8c37de2005fb7316caef3a3a53f5620dcdc7a37111bed357c87678cc",
+      "matches": [
+        {
+          "line": 95,
+          "text": "RTX5070 probe exercises only the repair helper. Full H200 torch-extension"
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-projection-stage-xor-release.md",
+      "encoding": "utf-8",
+      "sha256": "4306c1c5ee9b75bdd20827080a07a47119fc345322f6a31e5b78d3c4293f1d32",
+      "matches": [
+        {
+          "line": 93,
+          "text": "all five real Torch CPU facade tests. Its additional RTX5070 helper-only"
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-selected-layer-pair.md",
+      "encoding": "utf-8",
+      "sha256": "202ce17f9b9a1d261307d73e9d494654343e5c8352e616aaa8a5e2d5ca9b4da1",
+      "matches": [
+        {
+          "line": 63,
+          "text": "5070. That validates the in-memory source mechanism. It supplies no H200 latency"
+        },
+        {
+          "line": 105,
+          "text": "November 1, 05:34 PST addendum. Independent package review found no remaining source ownership, precision or ordering blocker. It requested a final budget assertion after guard checks. Adding it changes the interim 850756-byte payload to the final 850769-byte pin above. The loader has executed a small Triton GPU kernel on the RTX 5070. Native H200 linking, preparation budget and measured comparison remain open."
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-sk-sparse-repair-independent.md",
+      "encoding": "utf-8",
+      "sha256": "81bb3ca015019fce41c3e1eb3259c4da4c905793263367db66d5caca281c21a6",
+      "matches": [
+        {
+          "line": 81,
+          "text": "**PASS on local NVIDIA GeForce RTX5070, capability12.0, PyTorch2.10.0+cu128/CUDA12.8.** NVRTC12.8 compiled sm120 CUBIN; CUDA driver loaded and launched it using Torch's current context/stream. No host compiler, new toolchain or environment migration was needed. Three eager banks and20CUDA-graph replays with changed input/header/record contents produced exact uint32 equality on all23observations. Output is poisoned inside the captured graph before the helper launch."
+        },
+        {
+          "line": 87,
+          "text": "Raw device source, sm120CUBIN, NVRTC log and result are retained under `evidence/2026-11-01-sk-sparse-repair-local-gpu/`. Device source SHA `ef46390cbe0f7cd57798694b6239ef43b4a48c5017e3b043851d1daa23d5c8ee`; CUBIN SHA `53dd6eb6edc841e0c2cdf870f3e8dcf0061a94aa728a984bda25a9f68fb10944`. The successful script's compile/setup/validation wall time1.867s is recorded solely for reproducibility, not a kernel performance result."
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-sk-stage-repair-independent.md",
+      "encoding": "utf-8",
+      "sha256": "c6c5f2ead58f64566bc55f86429402139c5e0225f11eee3a1098b994e82a727a",
+      "matches": [
+        {
+          "line": 37,
+          "text": "**PASS on local RTX5070/capability12.0, PyTorch2.10.0+cu128.** NVRTC12.8 compiles sm120 CUBIN and the CUDA driver launches it in Torch's existing context; no host compiler or toolchain migration. Three eager banks and20changed-input/header/record CUDA-graph replays all match exact uint32 CPU words. Each bank covers all65536BF16 patterns and explicit0/512/511/1patch units, including all lane/register/half fields and a last-lane/register/high-half singleton. Captured output poison precedes each replay's kernel. All23observations are checked."
+        }
+      ]
+    },
+    {
+      "path": "archive/docs/steering/2026-11-01-stage-local-projection-measurement.md",
+      "encoding": "utf-8",
+      "sha256": "38cc972be39db610a221279071908929cb2f1c7ff657989ec4b1eca76741fff9",
+      "matches": [
+        {
+          "line": 34,
+          "text": "The exact shared helper's separate RTX5070 probe passes23 bit checks; that is"
+        }
+      ]
+    },
+    {
+      "path": "docs/runs-decode-layer.md",
+      "encoding": "utf-8",
+      "sha256": "30158b7a67d1c23e6c0938c2ed1cae325b54ded570bdf99cf74d4e2acbb0aa10",
+      "matches": [
+        {
+          "line": 933,
+          "text": "2026-11-01 | 942ebdec400d4e68 | PUBLIC short pooler and FP32 router overlap, source 0b63a197aaf2, muse_decode_layer/cand/g1b4_short_overlap_release.py | 878527 bytes, SHA256 5b5ec131f1d9d427d04817bf1489903a9fabfa4a35c21eda05a15e6c5ae9a7d4. The single timed implementation forks and rejoins the normal stream at T1/T8 for eligible existing SK2 poolers. Other paths retain the incumbent implementation. Independent final source review cleared stream ownership, scratch lifetimes and exact startup coverage. Local RTX 5070 ran the actual router and route kernel with a substitute BF16 pooler. The H200 job must pass the real pooler, all 32 startup replay checks, incumbent native checks and all judge ca"
+        }
+      ]
+    },
+    {
+      "path": "docs/ruled-out.md",
+      "encoding": "utf-8",
+      "sha256": "b8e02f775feaaf031b0c4d8abcfa55c21fbcae498f43b829ef318e97afebc796",
+      "matches": [
+        {
+          "line": 491,
+          "text": "| G high-load duplicate-weight census | H200WGF1job1c6ebc76b91d4b7f exact20experts21jobs; local64bankSM120census with explicitH200mask mismatch; archive/docs/steering/2026-11-01-g-highload-weight-census.md | Duplicate64rowjobrequests exist, but not measuredHBM. Local proportional scoremean+.628% is a scenario, no physicalbound or reliable>=1%candidate. Parkrewrite untilH200L2/DRAM/exposedstall evidence; noGPUcheck. |"
+        }
+      ]
+    }
+  ],
+  "verified_receipts": [
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/own-terminal-receipt.json",
+      "sha256": "9bbdf8d0f63051259e6ff2aa90199d966059d8f97d8527252e37404e859ab653",
+      "id": "c5e4f89672f743bb",
+      "board": "muse_decode_layer",
+      "status": "done",
+      "passed": true,
+      "score_us": 10707.837538008971,
+      "returncode": 0
+    },
+    {
+      "path": "archive/docs/steering/evidence/2026-11-02-timed-silu-monitor/own-dc62cff972934f54.json",
+      "sha256": "138b7f07a8fd72c4e8b884ba6f91c263828aaa8b18a9c00a654648b957b013c0",
+      "id": "dc62cff972934f54",
+      "board": "muse_decode_layer",
+      "status": "done",
+      "passed": true,
+      "score_us": 10910.347534710007,
+      "returncode": 0
+    },
+    {
+      "path": "muse_moe_w4a16/profiles/expert_top100_pregamma.56e0c8b5634545e6.receipt.json",
+      "sha256": "f7cebd7c380acb1b03ba83052db9c6d4eec6d25b8f8e1a3022e8622f1768ce36",
+      "id": "56e0c8b5634545e6",
+      "board": "muse_moe_w4a16",
+      "status": "done",
+      "passed": true,
+      "score_us": 5765.743115976166,
+      "returncode": 0
+    }
+  ]
+}

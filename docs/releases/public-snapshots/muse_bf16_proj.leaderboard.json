@@ -96,9 +96,18 @@
       "value": 2935.134618456706
     },
     {
+      "attempts": 6,
+      "job": "c15f0037a4dc45f6",
+      "rank": 9,
+      "speedup": 1.6386,
+      "submitted_at": 1793696003.41612,
+      "team": "YounesElhjouji",
+      "value": 2948.043396646467
+    },
+    {
       "attempts": 35,
       "job": "b3f9665168214d30",
-      "rank": 9,
+      "rank": 10,
       "screened_speedup": 1.5892945436482728,
       "speedup": 1.6371,
       "submitted_at": 1793627935.375369,
@@ -108,21 +117,12 @@
     {
       "attempts": 16,
       "job": "9fbbc5dca31c427e",
-      "rank": 10,
+      "rank": 11,
       "screening": "screened",
       "speedup": 1.6367,
       "submitted_at": 1792976631.5721471,
       "team": "colinlikescode",
       "value": 2951.5383379980526
-    },
-    {
-      "attempts": 5,
-      "job": "715cf25a1f8a4ac0",
-      "rank": 11,
-      "speedup": 1.6306,
-      "submitted_at": 1793653116.7045226,
-      "team": "YounesElhjouji",
-      "value": 2962.5327228686747
     },
     {
       "attempts": 20,
@@ -1540,7 +1540,7 @@
       "value": 3076.8964607176213
     },
     {
-      "attempts": 36,
+      "attempts": 37,
       "job": "9b0429c74f204620",
       "rank": 167,
       "speedup": 1.57,
@@ -5272,9 +5272,18 @@
       "value": 3484.6506478462416
     },
     {
+      "attempts": 11,
+      "job": "af6d681d8e104fb3",
+      "rank": 580,
+      "speedup": 1.3861,
+      "submitted_at": 1793696013.9981096,
+      "team": "marco-krammer",
+      "value": 3485.073342616251
+    },
+    {
       "attempts": 20,
       "job": "be3ccf5e63814e71",
-      "rank": 580,
+      "rank": 581,
       "speedup": 1.3861,
       "submitted_at": 1793394402.0992975,
       "team": "sriharsha-sammeta",
@@ -5283,7 +5292,7 @@
     {
       "attempts": 9,
       "job": "2e6f3ce9dece47e5",
-      "rank": 581,
+      "rank": 582,
       "speedup": 1.3846,
       "submitted_at": 1793299798.6349335,
       "team": "drigo10",
@@ -5292,7 +5301,7 @@
     {
       "attempts": 5,
       "job": "01f1f15eccd34b09",
-      "rank": 582,
+      "rank": 583,
       "speedup": 1.3837,
       "submitted_at": 1792998340.7225034,
       "team": "RobertBarnettProjects",
@@ -5301,7 +5310,7 @@
     {
       "attempts": 26,
       "job": "fdf6748254344d97",
-      "rank": 583,
+      "rank": 584,
       "speedup": 1.3824,
       "submitted_at": 1793495162.8478127,
       "team": "daffainfo",
@@ -5310,7 +5319,7 @@
     {
       "attempts": 22,
       "job": "45a9ab1964b64cc8",
-      "rank": 584,
+      "rank": 585,
       "speedup": 1.3817,
       "submitted_at": 1793601184.6814036,
       "team": "3xC1ibR",
@@ -5319,7 +5328,7 @@
     {
       "attempts": 5,
       "job": "eda324649d474fc0",
-      "rank": 585,
+      "rank": 586,
       "speedup": 1.3791,
       "submitted_at": 1792930889.8732862,
       "team": "Ezra144israel",
@@ -5328,7 +5337,7 @@
     {
       "attempts": 2,
       "job": "f136dfd00bf54471",
-      "rank": 586,
+      "rank": 587,
       "speedup": 1.3784,
       "submitted_at": 1792812562.6739426,
       "team": "a11ce",
@@ -5337,7 +5346,7 @@
     {
       "attempts": 11,
       "job": "ce3cd4108fc14cc7",
-      "rank": 587,
+      "rank": 588,
       "speedup": 1.3779,
       "submitted_at": 1793201469.5072098,
       "team": "notnitsuj",
@@ -5346,7 +5355,7 @@
     {
       "attempts": 13,
       "job": "314cc14960644cb1",
-      "rank": 588,
+      "rank": 589,
       "speedup": 1.3767,
       "submitted_at": 1793386770.5397534,
       "team": "Ash8755",
@@ -5355,20 +5364,11 @@
     {
       "attempts": 10,
       "job": "7b81c46668814720",
-      "rank": 589,
+      "rank": 590,
       "speedup": 1.3764,
       "submitted_at": 1793325988.492544,
       "team": "VikramLex",
       "value": 3509.8427474989594
-    },
-    {
-      "attempts": 10,
-      "job": "b4c0f8e1c83546d6",
-      "rank": 590,
-      "speedup": 1.3735,
-      "submitted_at": 1793436507.979039,
-      "team": "marco-krammer",
-      "value": 3517.0363954444983
     },
     {
       "attempts": 10,
