@@ -1,7 +1,7 @@
 {
   "board": "muse_bf16_proj",
   "measure": "speedup over SGLang; higher ranks higher",
-  "ranked": 1670,
+  "ranked": 1671,
   "leader": {
     "rank": 1,
     "team": "olety",
@@ -10,18 +10,18 @@
     "ahead": 0
   },
   "you": {
-    "rank": 369,
+    "rank": 370,
     "team": "yelgabo",
     "speedup": 1.5278,
     "first": false,
-    "ahead": 368,
+    "ahead": 369,
     "to_first": 1.0994
   },
   "rows": [
     {
       "attempts": 33,
       "job": "9eba96894ee1402e",
-      "rank": 369,
+      "rank": 370,
       "speedup": 1.5278,
       "submitted_at": 1793509752.4725015,
       "team": "yelgabo",
@@ -29,5 +29,5 @@
     }
   ],
   "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
-  "raw_snapshot_sha256": "1b13287c9a407b978583cbbee267668f3a0dac9e1c03183f48d88e7077bda424"
+  "raw_snapshot_sha256": "13ae99a8fd068a6caa4983d114394b732d1d15db094a3a66c72435b40dd8c582"
 }

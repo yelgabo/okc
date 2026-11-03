@@ -10,18 +10,18 @@
     "ahead": 0
   },
   "you": {
-    "rank": 387,
+    "rank": 388,
     "team": "yelgabo",
     "speedup": 2.1261,
     "first": false,
-    "ahead": 386,
+    "ahead": 387,
     "to_first": 1.1713
   },
   "rows": [
     {
       "attempts": 42,
       "job": "607eb52bdaf24160",
-      "rank": 387,
+      "rank": 388,
       "speedup": 2.1261,
       "submitted_at": 1793534312.3883686,
       "team": "yelgabo",
@@ -29,5 +29,5 @@
     }
   ],
   "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
-  "raw_snapshot_sha256": "85a7f1292c4c22278c7a1c79382b495d3c792b92f8e76714c4c86f4f1cbe299b"
+  "raw_snapshot_sha256": "cdc7486a94589d7615a2cef241df23b61efa4bc738cda9e3f94bd74d07c23e38"
 }

@@ -1,7 +1,7 @@
 {
   "board": "muse_prefill_layer",
   "measure": "speedup over SGLang; higher ranks higher",
-  "ranked": 827,
+  "ranked": 828,
   "leader": {
     "rank": 1,
     "team": "can1357",
@@ -29,5 +29,5 @@
     }
   ],
   "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
-  "raw_snapshot_sha256": "a848df3af5654e4795f0dcf38120851b27df3991020c62a365e5151cc895616d"
+  "raw_snapshot_sha256": "ce997cbe59bdfe7ac2956fbdd28eedd837736b4a940a0f407c049498a7ac07ab"
 }

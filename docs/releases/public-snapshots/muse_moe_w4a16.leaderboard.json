@@ -10,24 +10,24 @@
     "ahead": 0
   },
   "you": {
-    "rank": 434,
+    "rank": 373,
     "team": "yelgabo",
-    "speedup": 2.2157,
+    "speedup": 2.3232,
     "first": false,
-    "ahead": 433,
-    "to_first": 1.2476
+    "ahead": 372,
+    "to_first": 1.1898
   },
   "rows": [
     {
-      "attempts": 25,
-      "job": "abe7651dbaa44458",
-      "rank": 434,
-      "speedup": 2.2157,
-      "submitted_at": 1793321438.0973241,
+      "attempts": 26,
+      "job": "4aa033ef23a142cd",
+      "rank": 373,
+      "speedup": 2.3232,
+      "submitted_at": 1793684818.1926465,
       "team": "yelgabo",
-      "value": 6069.607719056422
+      "value": 5788.7207203627
     }
   ],
   "scope": "Own public row only; complete untouched CLI snapshot archived compressed.",
-  "raw_snapshot_sha256": "d8d29900ce09f2e843eabb3e0c4c9f95d54ea4e19ab258971f6d5a6961280dac"
+  "raw_snapshot_sha256": "9a35fe8cc740405145102dc1de680f608747eaed99b424f4311592803a892b6c"
 }

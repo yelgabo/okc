@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-03T05:40:56.882292+00:00",
+  "observed_at": "2026-11-03T06:07:24.013946+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -319,6 +319,19 @@
       "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
       "artifact": "muse_moe_w4a16/cand/current_control_release.py",
       "public_job": "4aa033ef23a142cd"
+    },
+    {
+      "job": "3e6852d30c5c4535",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5834.137937519953,
+      "owner": "General Optimizer",
+      "release_state": "treatment-stopped-no-current-public-lead",
+      "reason": "Two-launch WS candidate2 passed correctness and failed all6 matched groups against current fused WS. Official5834.137938us is above refreshed public4aa033ef 5788.720720us. No retry, mask or integration. Original control base release is separately owned and now public; this treatment adds no release lead.",
+      "evidence": "docs/steering/evidence/2026-11-02-gopt-ws-split/status-wait.raw.json",
+      "disclosure_report": "docs/steering/2026-11-02-general-ws-split-finalizer.md",
+      "public_submission_approved": false,
+      "judged_arm": "candidate2; split finalizer atT1/T8/T16, unchanged B4/MAIN",
+      "source_identity": "7370f630; physicalb4da948d317165b18df8a0c47dca3ca139dac1fbfa47ab7c964165a3bd91b41d/352468B; service51ef7001cd8fdee2a51503898b6838f82e7d57de14981e2c0cf96b316b8192e8"
     }
   ]
 }

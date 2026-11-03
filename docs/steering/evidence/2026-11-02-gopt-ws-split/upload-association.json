@@ -1,0 +1,10 @@
+{
+  "job": "3e6852d30c5c4535",
+  "team": "yelgabo",
+  "mode": "check",
+  "board": "muse_moe_w4a16",
+  "content_hash": "51ef7001cd8fdee2a51503898b6838f82e7d57de14981e2c0cf96b316b8192e8",
+  "payload_ref": "muse_moe_w4a16/51ef7001cd8fdee2a51503898b6838f82e7d57de14981e2c0cf96b316b8192e8.py",
+  "source_sha256": "b4da948d317165b18df8a0c47dca3ca139dac1fbfa47ab7c964165a3bd91b41d",
+  "source_bytes": 352468
+}
