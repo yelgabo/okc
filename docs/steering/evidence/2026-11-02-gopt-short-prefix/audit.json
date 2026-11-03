@@ -1,0 +1,306 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "records": [
+    {
+      "name": "tiny",
+      "tokens": [
+        1
+      ],
+      "module": "glue_moe_415a2bdc6eb73960_sm90a",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "counterfactual": false,
+      "native_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "preprocessed_sha256": "fc710390721a9a88e86e8eca7429554afa7c44f17bd44b16cb23830757774186",
+      "exit_code": 0,
+      "wgs_functions_present": false,
+      "ws_kernel_body": "moe_fused(Params p) {\n  Smem& S = *reinterpret_cast<Smem*>(smem_raw);\n  __nv_bfloat16* xbuf = reinterpret_cast<__nv_bfloat16*>(smem_raw + ((sizeof(Smem) + 127) / 128) * 128);\n  const int tid = ((int)((threadIdx.x + NT) % NTL));\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (0)] = gtimer(); } while (0);\n\n\n  asm volatile(\"griddepcontrol.wait;\\n\" ::: \"memory\");\n\n  if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }\n# 2223 \"/w/helper.cu\"\n  if (tid >= NT - 32) {\n    const int ln = tid & 31;\n# 2254 \"/w/helper.cu\"\n    uint32_t m = 0;\n    const int E8 = p.M * 8;\n    const int ev0 = ln < E8 ? __ldg(p.topk_ids + ln) : 0, ev1 = ln + 32 < E8 ? __ldg(p.topk_ids + ln + 32) : 0;\n    if (ln == 0) {\n      for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);\n      for (int k = 0; k < 3; ++k) mbar_init(S.wse + k, NW);\n      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, 1 ? 1 : NW); mbar_init(S.wsre + k, 1); }\n      asm volatile(\"fence.mbarrier_init.release.cluster;\\n\" ::: \"memory\");\n    }\n    if (ln < E8) { const int e = ev0 - p.lo; if (e >= 0 && e < p.nloc) m |= 1u << e; }\n    if (ln + 32 < E8) { const int e = ev1 - p.lo; if (e >= 0 && e < p.nloc) m |= 1u << e; }\n    for (int i = ln + 64; i < E8; i += 32) {\n      const int e = __ldg(p.topk_ids + i) - p.lo;\n      if (e >= 0 && e < p.nloc) m |= 1u << e;\n    }\n    m = __reduce_or_sync(0xffffffffu, m);\n\n    if (ln == 0) {\n# 2281 \"/w/helper.cu\"\n      const int nS = __popc(m) * RB_A - dyn_pool(__popc(m) * RB_A, gridDim.x);\n      const float rG = __fdividef(1.f, (float)gridDim.x);\n      const int v0 = muldiv_g(nS, blockIdx.x, gridDim.x, rG), v1 = muldiv_g(nS, blockIdx.x + 1, gridDim.x, rG);\n      const int n = min(2, v1 - v0);\n\n      asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");\n\n\n\n\n\n\n\n      for (int i = 0; i < n; ++i) {\n        const int v = v0 + i;\n        const int e = (int)__fns(m, 0, (v >> RB_A_LOG) + 1);\n\n        const unsigned char* src = p.wAu + ((size_t)e * RB_A + (v & (RB_A - 1))) * (size_t)UNIT_BYTES;\n        unsigned char* slot = reinterpret_cast<unsigned char*>(xbuf) + i * UNIT_BYTES;\n        asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(S.bars + i)), \"r\"(UNIT_BYTES) : \"memory\");\n        asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes\" \"\" \" [%0], [%1], %2, [%3]\" \"\" \";\\n\"\n                     ::\"r\"(smem_u32(slot)), \"l\"(src), \"r\"(UNIT_BYTES), \"r\"(smem_u32(S.bars + i)) : \"memory\");\n      }\n      S.preissued = n > 0 ? n : 0;\n    }\n  }\n\n\n  for (int li = blockIdx.x * NT + tid; li < p.M * (HD * 2 / 128); li += gridDim.x * NT)\n    asm volatile(\"prefetch.global.L2 [%0];\\n\" ::\"l\"(reinterpret_cast<const char*>(p.x) + (size_t)li * 128));\n  for (int i = tid; i < (1 ? 0 : 256); i += NT) {\n    const int sgn = i >> 7, ex = (i >> 3) & 15, mt = i & 7;\n    uint32_t b;\n    if (ex == 15 && mt == 7) {\n      b = 0xFFFFu;\n    } else {\n      float v = ex == 0 ? (float)mt * 0x1p-9f : (1.f + (float)mt * 0.125f) * __int_as_float((ex - 7 + 127) << 23);\n      v *= 0x1p64f;\n      b = __float_as_uint(sgn ? -v : v) >> 16;\n    }\n    S.lut[i] = b | (b << 16);\n  }\n  if (tid == 0) {\n# 2335 \"/w/helper.cu\"\n    S.seq = 0;\n    S.fseq = 0;\n    S.preissuedB = 0;\n    S.xbuf_ptr = xbuf;\n\n    const int gen = *reinterpret_cast<volatile const int*>(p.ctr + 3);\n    S.gen = gen;\n    S.ssp = (gen & 1) ? p.ss1 : p.ss;\n  }\n\n\n\n  route(p, S);\n\n\n\n\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (1)] = gtimer(); } while (0);\n  {\n    float* other = (S.gen & 1) ? p.ss : p.ss1;\n    for (int i = blockIdx.x * NT + tid; i < EMAX; i += gridDim.x * NT) other[i] = 0.f;\n    if (blockIdx.x == 0 && tid == 0) p.ctr[4 + ((S.gen + 1) & 1)] = 0;\n  }\n\n  if (tid == 0) {\n    const int G = gridDim.x, c = blockIdx.x;\n    const float rG = __fdividef(1.f, (float)G);\n    const int nA = S.njS * RB_A, nB = S.njS * RB_B;\n    S.wsr[0] = muldiv_g(nA, c, G, rG); S.wsr[1] = muldiv_g(nA, c + 1, G, rG);\n    S.wsr[2] = muldiv_g(nB, c, G, rG); S.wsr[3] = muldiv_g(nB, c + 1, G, rG);\n  }\n  asm volatile(\"bar.sync 2, %0;\\n\" ::\"n\"(NTL) : \"memory\");\n# 2399 \"/w/helper.cu\"\n  run_phase<false, BIG>(p, S, xbuf);\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (2)] = gtimer(); } while (0);\n  run_phase<true, BIG>(p, S, xbuf);\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (3)] = gtimer(); } while (0);\n\n\n  asm volatile(\"bar.sync 2, %0;\\n\" ::\"n\"(NTL) : \"memory\");\n\n\n\n  asm volatile(\"griddepcontrol.launch_dependents;\\n\" ::: \"memory\");\n\n\n\n\n  constexpr int FSEGP = HD / (NT * 4);\n  const int itp = blockIdx.x;\n  const bool hasp = itp < p.M * FSEGP;\n  const int tkp = hasp ? itp / FSEGP : 0;\n  int qvp[8];\n  float wvp[8];\n#pragma unroll\n  for (int s = 0; s < 8; ++s) {\n    qvp[s] = hasp ? (int)S.pos[tkp * 8 + s] : -1;\n    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;\n  }\n\n  asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n  if (tid == 0) {\n    int* bc = p.ctr + 4 + (S.gen & 1);\n    __threadfence();\n    int old;\n    asm volatile(\"atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\\n\" : \"=r\"(old) : \"l\"(bc), \"r\"(1) : \"memory\");\n    if (old == (int)gridDim.x - 1) atomicAdd(p.ctr + 3, 1);\n    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);\n  }\n  asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (4)] = gtimer(); } while (0);\n\n  {\n    const int G = gridDim.x, i0 = blockIdx.x * NT + tid;\n    if (i0 < 2) p.ctr[i0] = 0;\n    for (int i = i0; i < JMAX; i += G * NT) p.doneA[i] = 0;\n\n\n\n\n  }\n# 2511 \"/w/helper.cu\"\n  constexpr int FSEG = HD / (NT * 4);\n  int it0 = blockIdx.x;\n\n  if (hasp) {\n    const int col = (itp % FSEG) * (NT * 4) + tid * 4;\n    float ssv[8];\n    float4 yv[8];\n#pragma unroll\n    for (int s = 0; s < 8; ++s) {\n      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;\n      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);\n    }\n    float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);\n#pragma unroll\n    for (int s = 0; s < 8; ++s) {\n      if (qvp[s] >= 0) {\n        const float r = wvp[s] * rsqrtf(ssv[s] * (1.f / HD) + 1e-8f);\n        acc.x += r * yv[s].x; acc.y += r * yv[s].y; acc.z += r * yv[s].z; acc.w += r * yv[s].w;\n      }\n    }\n    __nv_bfloat162 o0 = __floats2bfloat162_rn(acc.x, acc.y), o1 = __floats2bfloat162_rn(acc.z, acc.w);\n    uint2 o;\n    o.x = *reinterpret_cast<uint32_t*>(&o0);\n    o.y = *reinterpret_cast<uint32_t*>(&o1);\n    *reinterpret_cast<uint2*>(p.out + (size_t)tkp * HD + col) = o;\n  }\n  it0 += gridDim.x;\n\n  for (int it = it0; it < p.M * FSEG; it += gridDim.x) {\n    const int tk = it / FSEG, col = (it % FSEG) * (NT * 4) + tid * 4;\n    float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);\n#pragma unroll\n    for (int s = 0; s < 8; ++s) {\n      const int q = S.pos[tk * 8 + s];\n      if (q >= 0) {\n        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);\n        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));\n        acc.x += r * v.x; acc.y += r * v.y; acc.z += r * v.z; acc.w += r * v.w;\n      }\n    }\n    __nv_bfloat162 o0 = __floats2bfloat162_rn(acc.x, acc.y), o1 = __floats2bfloat162_rn(acc.z, acc.w);\n    uint2 o;\n    o.x = *reinterpret_cast<uint32_t*>(&o0);\n    o.y = *reinterpret_cast<uint32_t*>(&o1);\n    *reinterpret_cast<uint2*>(p.out + (size_t)tk * HD + col) = o;\n  }\n# 2586 \"/w/helper.cu\"\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (5)] = gtimer(); } while (0);\n}"
+    },
+    {
+      "name": "tiny-forced-wgs",
+      "tokens": [
+        1
+      ],
+      "module": "glue_moe_415a2bdc6eb73960_sm90a",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_WGS=1"
+      ],
+      "counterfactual": true,
+      "native_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "preprocessed_sha256": "c6e332c35e957e39fec8efaf4d942a51242d2c37138f2e28dbda4c258e2c57d2",
+      "exit_code": 0,
+      "wgs_functions_present": true,
+      "ws_kernel_body": "moe_fused(Params p) {\n  Smem& S = *reinterpret_cast<Smem*>(smem_raw);\n  __nv_bfloat16* xbuf = reinterpret_cast<__nv_bfloat16*>(smem_raw + ((sizeof(Smem) + 127) / 128) * 128);\n  const int tid = ((int)((threadIdx.x + NT) % NTL));\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (0)] = gtimer(); } while (0);\n\n\n  asm volatile(\"griddepcontrol.wait;\\n\" ::: \"memory\");\n\n  if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }\n\n\n  if (tid >= NT) {\n    if (tid < NT + 32) wgs_wproducer(p, S, reinterpret_cast<unsigned char*>(xbuf));\n    else wgs_xproducer(p, S, reinterpret_cast<unsigned char*>(xbuf));\n    return;\n  }\n\n\n\n\n  if (tid >= NT - 32) {\n    const int ln = tid & 31;\n# 2254 \"/w/helper.cu\"\n    uint32_t m = 0;\n    const int E8 = p.M * 8;\n    const int ev0 = ln < E8 ? __ldg(p.topk_ids + ln) : 0, ev1 = ln + 32 < E8 ? __ldg(p.topk_ids + ln + 32) : 0;\n    if (ln == 0) {\n      for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);\n      for (int k = 0; k < 3; ++k) mbar_init(S.wse + k, NW);\n      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, 1 ? 1 : NW); mbar_init(S.wsre + k, 1); }\n      asm volatile(\"fence.mbarrier_init.release.cluster;\\n\" ::: \"memory\");\n    }\n    if (ln < E8) { const int e = ev0 - p.lo; if (e >= 0 && e < p.nloc) m |= 1u << e; }\n    if (ln + 32 < E8) { const int e = ev1 - p.lo; if (e >= 0 && e < p.nloc) m |= 1u << e; }\n    for (int i = ln + 64; i < E8; i += 32) {\n      const int e = __ldg(p.topk_ids + i) - p.lo;\n      if (e >= 0 && e < p.nloc) m |= 1u << e;\n    }\n    m = __reduce_or_sync(0xffffffffu, m);\n\n    if (ln == 0) {\n# 2281 \"/w/helper.cu\"\n      const int nS = __popc(m) * RB_A - dyn_pool(__popc(m) * RB_A, gridDim.x);\n      const float rG = __fdividef(1.f, (float)gridDim.x);\n      const int v0 = muldiv_g(nS, blockIdx.x, gridDim.x, rG), v1 = muldiv_g(nS, blockIdx.x + 1, gridDim.x, rG);\n      const int n = min(2, v1 - v0);\n\n      asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");\n\n\n\n\n\n\n\n      for (int i = 0; i < n; ++i) {\n        const int v = v0 + i;\n        const int e = (int)__fns(m, 0, (v >> RB_A_LOG) + 1);\n\n        const unsigned char* src = p.wAu + ((size_t)e * RB_A + (v & (RB_A - 1))) * (size_t)UNIT_BYTES;\n        unsigned char* slot = reinterpret_cast<unsigned char*>(xbuf) + i * UNIT_BYTES;\n        asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(S.bars + i)), \"r\"(UNIT_BYTES) : \"memory\");\n        asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes\" \"\" \" [%0], [%1], %2, [%3]\" \"\" \";\\n\"\n                     ::\"r\"(smem_u32(slot)), \"l\"(src), \"r\"(UNIT_BYTES), \"r\"(smem_u32(S.bars + i)) : \"memory\");\n      }\n      S.preissued = n > 0 ? n : 0;\n    }\n  }\n\n\n  for (int li = blockIdx.x * NT + tid; li < p.M * (HD * 2 / 128); li += gridDim.x * NT)\n    asm volatile(\"prefetch.global.L2 [%0];\\n\" ::\"l\"(reinterpret_cast<const char*>(p.x) + (size_t)li * 128));\n  for (int i = tid; i < (1 ? 0 : 256); i += NT) {\n    const int sgn = i >> 7, ex = (i >> 3) & 15, mt = i & 7;\n    uint32_t b;\n    if (ex == 15 && mt == 7) {\n      b = 0xFFFFu;\n    } else {\n      float v = ex == 0 ? (float)mt * 0x1p-9f : (1.f + (float)mt * 0.125f) * __int_as_float((ex - 7 + 127) << 23);\n      v *= 0x1p64f;\n      b = __float_as_uint(sgn ? -v : v) >> 16;\n    }\n    S.lut[i] = b | (b << 16);\n  }\n  if (tid == 0) {\n# 2335 \"/w/helper.cu\"\n    S.seq = 0;\n    S.fseq = 0;\n    S.preissuedB = 0;\n    S.xbuf_ptr = xbuf;\n\n    const int gen = *reinterpret_cast<volatile const int*>(p.ctr + 3);\n    S.gen = gen;\n    S.ssp = (gen & 1) ? p.ss1 : p.ss;\n  }\n\n\n\n  route(p, S);\n\n  __threadfence_block();\n  asm volatile(\"bar.arrive 7, %0;\\n\" ::\"n\"(NT + 32) : \"memory\");\n\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (1)] = gtimer(); } while (0);\n  {\n    float* other = (S.gen & 1) ? p.ss : p.ss1;\n    for (int i = blockIdx.x * NT + tid; i < EMAX; i += gridDim.x * NT) other[i] = 0.f;\n    if (blockIdx.x == 0 && tid == 0) p.ctr[4 + ((S.gen + 1) & 1)] = 0;\n  }\n\n  if (tid == 0) {\n    const int G = gridDim.x, c = blockIdx.x;\n    const float rG = __fdividef(1.f, (float)G);\n    const int nA = S.njS * RB_A, nB = S.njS * RB_B;\n    S.wsr[0] = muldiv_g(nA, c, G, rG); S.wsr[1] = muldiv_g(nA, c + 1, G, rG);\n    S.wsr[2] = muldiv_g(nB, c, G, rG); S.wsr[3] = muldiv_g(nB, c + 1, G, rG);\n  }\n  asm volatile(\"bar.sync 2, %0;\\n\" ::\"n\"(NTL) : \"memory\");\n\n\n  if (tid < 32) {\n    const int nj = S.njF + S.njS;\n    int carry = 0;\n    for (int j0 = 0; j0 < nj; j0 += 32) {\n      const int j = j0 + tid;\n      const int v = j < nj ? (((S.jC[j] + 7) >> 3) << 3) : 0;\n      int incl = v;\n#pragma unroll\n      for (int d = 1; d < 32; d <<= 1) { const int t = __shfl_up_sync(0xffffffffu, incl, d); if (tid >= d) incl += t; }\n      if (j < nj) S.jrow[j] = carry + incl - v;\n      carry += __shfl_sync(0xffffffffu, incl, 31);\n    }\n    if (tid == 0) S.jrow[nj] = carry;\n  }\n  asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n\n\n  wgs_gather(p, S);\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (7)] = gtimer(); } while (0);\n  asm volatile(\"bar.sync 2, %0;\\n\" ::\"n\"(NTL) : \"memory\");\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (6)] = gtimer(); } while (0);\n  {\n    unsigned char* ring = reinterpret_cast<unsigned char*>(xbuf);\n    int seq = 0;\n    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);\n    do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (2)] = gtimer(); } while (0);\n    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);\n    do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (3)] = gtimer(); } while (0);\n  }\n\n\n\n\n\n\n\n  asm volatile(\"bar.sync 2, %0;\\n\" ::\"n\"(NTL) : \"memory\");\n\n\n\n  asm volatile(\"griddepcontrol.launch_dependents;\\n\" ::: \"memory\");\n# 2426 \"/w/helper.cu\"\n  asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n  if (tid == 0) {\n    int* bc = p.ctr + 4 + (S.gen & 1);\n    __threadfence();\n    int old;\n    asm volatile(\"atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\\n\" : \"=r\"(old) : \"l\"(bc), \"r\"(1) : \"memory\");\n    if (old == (int)gridDim.x - 1) atomicAdd(p.ctr + 3, 1);\n    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);\n  }\n  asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (4)] = gtimer(); } while (0);\n\n  {\n    const int G = gridDim.x, i0 = blockIdx.x * NT + tid;\n    if (i0 < 2) p.ctr[i0] = 0;\n    for (int i = i0; i < JMAX; i += G * NT) p.doneA[i] = 0;\n\n    for (int i = i0; i < JMAX; i += G * NT) p.xready[i] = 0;\n    for (int i = i0; i < JMAX * 16; i += G * NT) p.doneAs[i] = 0;\n\n  }\n\n\n\n\n  {\n    static_assert(HD == NT * 8, \"8 columns per thread\");\n    float* red = reinterpret_cast<float*>(xbuf);\n    const int lane = tid & 31, warp = ((tid) >> 5);\n    for (int tk = blockIdx.x; tk < p.M; tk += gridDim.x) {\n      int qv[8];\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl) qv[sl] = S.pos[tk * 8 + sl];\n      float ps[8];\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl) {\n        ps[sl] = 0.f;\n        if (qv[sl] >= 0) {\n          const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;\n          const float4 a = __ldcg(src), b = __ldcg(src + 1);\n          ps[sl] = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w + b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;\n        }\n      }\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl)\n        if (qv[sl] >= 0) {\n#pragma unroll\n          for (int o = 16; o > 0; o >>= 1) ps[sl] += __shfl_xor_sync(0xffffffffu, ps[sl], o);\n        }\n      if (lane == 0) {\n#pragma unroll\n        for (int sl = 0; sl < 8; ++sl) red[warp * 8 + sl] = ps[sl];\n      }\n      asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n      if (tid < 8) {\n        float tsum = 0.f;\n        for (int w = 0; w < NW; ++w) tsum += red[w * 8 + tid];\n        red[NW * 8 + tid] = tsum;\n      }\n      asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n      float acc[8];\n#pragma unroll\n      for (int i = 0; i < 8; ++i) acc[i] = 0.f;\n#pragma unroll\n      for (int sl = 0; sl < 8; ++sl)\n        if (qv[sl] >= 0) {\n          const float r = p.topk_w[tk * 8 + sl] * rsqrtf(red[NW * 8 + sl] * (1.f / HD) + 1e-8f);\n          const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;\n          const float4 a = __ldcg(src), b = __ldcg(src + 1);\n          acc[0] += r * a.x; acc[1] += r * a.y; acc[2] += r * a.z; acc[3] += r * a.w;\n          acc[4] += r * b.x; acc[5] += r * b.y; acc[6] += r * b.z; acc[7] += r * b.w;\n        }\n      uint4 o;\n      uint32_t* ow = reinterpret_cast<uint32_t*>(&o);\n#pragma unroll\n      for (int i = 0; i < 4; ++i) {\n        __nv_bfloat162 v = __floats2bfloat162_rn(acc[2 * i], acc[2 * i + 1]);\n        ow[i] = *reinterpret_cast<uint32_t*>(&v);\n      }\n      *reinterpret_cast<uint4*>(p.out + (size_t)tk * HD + tid * 8) = o;\n      asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n    }\n  }\n# 2586 \"/w/helper.cu\"\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (5)] = gtimer(); } while (0);\n}"
+    },
+    {
+      "name": "tiny2",
+      "tokens": [
+        8
+      ],
+      "module": "glue_moe_b2495a009a910301_sm90a",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "counterfactual": false,
+      "native_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "preprocessed_sha256": "db475ade9a21a928d2b1654ed8bd721c5ec05e628b92e7315b143e5b978c500b",
+      "exit_code": 0,
+      "wgs_functions_present": false,
+      "ws_kernel_body": "moe_fused(Params p) {\n  Smem& S = *reinterpret_cast<Smem*>(smem_raw);\n  __nv_bfloat16* xbuf = reinterpret_cast<__nv_bfloat16*>(smem_raw + ((sizeof(Smem) + 127) / 128) * 128);\n  const int tid = ((int)((threadIdx.x + NT) % NTL));\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (0)] = gtimer(); } while (0);\n\n\n  asm volatile(\"griddepcontrol.wait;\\n\" ::: \"memory\");\n\n  if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }\n# 2223 \"/w/helper.cu\"\n  if (tid >= NT - 32) {\n    const int ln = tid & 31;\n# 2254 \"/w/helper.cu\"\n    uint32_t m = 0;\n    const int E8 = p.M * 8;\n    const int ev0 = ln < E8 ? __ldg(p.topk_ids + ln) : 0, ev1 = ln + 32 < E8 ? __ldg(p.topk_ids + ln + 32) : 0;\n    if (ln == 0) {\n      for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);\n      for (int k = 0; k < 3; ++k) mbar_init(S.wse + k, NW);\n      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, 1 ? 1 : NW); mbar_init(S.wsre + k, 1); }\n      asm volatile(\"fence.mbarrier_init.release.cluster;\\n\" ::: \"memory\");\n    }\n    if (ln < E8) { const int e = ev0 - p.lo; if (e >= 0 && e < p.nloc) m |= 1u << e; }\n    if (ln + 32 < E8) { const int e = ev1 - p.lo; if (e >= 0 && e < p.nloc) m |= 1u << e; }\n    for (int i = ln + 64; i < E8; i += 32) {\n      const int e = __ldg(p.topk_ids + i) - p.lo;\n      if (e >= 0 && e < p.nloc) m |= 1u << e;\n    }\n    m = __reduce_or_sync(0xffffffffu, m);\n\n    if (ln == 0) {\n# 2281 \"/w/helper.cu\"\n      const int nS = __popc(m) * RB_A - dyn_pool(__popc(m) * RB_A, gridDim.x);\n      const float rG = __fdividef(1.f, (float)gridDim.x);\n      const int v0 = muldiv_g(nS, blockIdx.x, gridDim.x, rG), v1 = muldiv_g(nS, blockIdx.x + 1, gridDim.x, rG);\n      const int n = min(2, v1 - v0);\n\n      asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");\n\n\n\n\n\n\n\n      for (int i = 0; i < n; ++i) {\n        const int v = v0 + i;\n        const int e = (int)__fns(m, 0, (v >> RB_A_LOG) + 1);\n\n        const unsigned char* src = p.wAu + ((size_t)e * RB_A + (v & (RB_A - 1))) * (size_t)UNIT_BYTES;\n        unsigned char* slot = reinterpret_cast<unsigned char*>(xbuf) + i * UNIT_BYTES;\n        asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(S.bars + i)), \"r\"(UNIT_BYTES) : \"memory\");\n        asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes\" \".L2::cache_hint\" \" [%0], [%1], %2, [%3]\" \", %4\" \";\\n\"\n                     ::\"r\"(smem_u32(slot)), \"l\"(src), \"r\"(UNIT_BYTES), \"r\"(smem_u32(S.bars + i)) , \"l\"(0x12F0000000000000ull) : \"memory\");\n      }\n      S.preissued = n > 0 ? n : 0;\n    }\n  }\n\n\n  for (int li = blockIdx.x * NT + tid; li < p.M * (HD * 2 / 128); li += gridDim.x * NT)\n    asm volatile(\"prefetch.global.L2 [%0];\\n\" ::\"l\"(reinterpret_cast<const char*>(p.x) + (size_t)li * 128));\n  for (int i = tid; i < (1 ? 0 : 256); i += NT) {\n    const int sgn = i >> 7, ex = (i >> 3) & 15, mt = i & 7;\n    uint32_t b;\n    if (ex == 15 && mt == 7) {\n      b = 0xFFFFu;\n    } else {\n      float v = ex == 0 ? (float)mt * 0x1p-9f : (1.f + (float)mt * 0.125f) * __int_as_float((ex - 7 + 127) << 23);\n      v *= 0x1p64f;\n      b = __float_as_uint(sgn ? -v : v) >> 16;\n    }\n    S.lut[i] = b | (b << 16);\n  }\n  if (tid == 0) {\n# 2335 \"/w/helper.cu\"\n    S.seq = 0;\n    S.fseq = 0;\n    S.preissuedB = 0;\n    S.xbuf_ptr = xbuf;\n\n    const int gen = *reinterpret_cast<volatile const int*>(p.ctr + 3);\n    S.gen = gen;\n    S.ssp = (gen & 1) ? p.ss1 : p.ss;\n  }\n\n\n\n  route(p, S);\n\n\n\n\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (1)] = gtimer(); } while (0);\n  {\n    float* other = (S.gen & 1) ? p.ss : p.ss1;\n    for (int i = blockIdx.x * NT + tid; i < EMAX; i += gridDim.x * NT) other[i] = 0.f;\n    if (blockIdx.x == 0 && tid == 0) p.ctr[4 + ((S.gen + 1) & 1)] = 0;\n  }\n\n  if (tid == 0) {\n    const int G = gridDim.x, c = blockIdx.x;\n    const float rG = __fdividef(1.f, (float)G);\n    const int nA = S.njS * RB_A, nB = S.njS * RB_B;\n    S.wsr[0] = muldiv_g(nA, c, G, rG); S.wsr[1] = muldiv_g(nA, c + 1, G, rG);\n    S.wsr[2] = muldiv_g(nB, c, G, rG); S.wsr[3] = muldiv_g(nB, c + 1, G, rG);\n  }\n  asm volatile(\"bar.sync 2, %0;\\n\" ::\"n\"(NTL) : \"memory\");\n# 2399 \"/w/helper.cu\"\n  run_phase<false, BIG>(p, S, xbuf);\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (2)] = gtimer(); } while (0);\n  run_phase<true, BIG>(p, S, xbuf);\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (3)] = gtimer(); } while (0);\n\n\n  asm volatile(\"bar.sync 2, %0;\\n\" ::\"n\"(NTL) : \"memory\");\n\n\n\n  asm volatile(\"griddepcontrol.launch_dependents;\\n\" ::: \"memory\");\n\n\n\n\n  constexpr int FSEGP = HD / (NT * 4);\n  const int itp = blockIdx.x;\n  const bool hasp = itp < p.M * FSEGP;\n  const int tkp = hasp ? itp / FSEGP : 0;\n  int qvp[8];\n  float wvp[8];\n#pragma unroll\n  for (int s = 0; s < 8; ++s) {\n    qvp[s] = hasp ? (int)S.pos[tkp * 8 + s] : -1;\n    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;\n  }\n\n  asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n  if (tid == 0) {\n    int* bc = p.ctr + 4 + (S.gen & 1);\n    __threadfence();\n    int old;\n    asm volatile(\"atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\\n\" : \"=r\"(old) : \"l\"(bc), \"r\"(1) : \"memory\");\n    if (old == (int)gridDim.x - 1) atomicAdd(p.ctr + 3, 1);\n    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);\n  }\n  asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (4)] = gtimer(); } while (0);\n\n  {\n    const int G = gridDim.x, i0 = blockIdx.x * NT + tid;\n    if (i0 < 2) p.ctr[i0] = 0;\n    for (int i = i0; i < JMAX; i += G * NT) p.doneA[i] = 0;\n\n\n\n\n  }\n# 2511 \"/w/helper.cu\"\n  constexpr int FSEG = HD / (NT * 4);\n  int it0 = blockIdx.x;\n\n  if (hasp) {\n    const int col = (itp % FSEG) * (NT * 4) + tid * 4;\n    float ssv[8];\n    float4 yv[8];\n#pragma unroll\n    for (int s = 0; s < 8; ++s) {\n      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;\n      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);\n    }\n    float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);\n#pragma unroll\n    for (int s = 0; s < 8; ++s) {\n      if (qvp[s] >= 0) {\n        const float r = wvp[s] * rsqrtf(ssv[s] * (1.f / HD) + 1e-8f);\n        acc.x += r * yv[s].x; acc.y += r * yv[s].y; acc.z += r * yv[s].z; acc.w += r * yv[s].w;\n      }\n    }\n    __nv_bfloat162 o0 = __floats2bfloat162_rn(acc.x, acc.y), o1 = __floats2bfloat162_rn(acc.z, acc.w);\n    uint2 o;\n    o.x = *reinterpret_cast<uint32_t*>(&o0);\n    o.y = *reinterpret_cast<uint32_t*>(&o1);\n    *reinterpret_cast<uint2*>(p.out + (size_t)tkp * HD + col) = o;\n  }\n  it0 += gridDim.x;\n\n  for (int it = it0; it < p.M * FSEG; it += gridDim.x) {\n    const int tk = it / FSEG, col = (it % FSEG) * (NT * 4) + tid * 4;\n    float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);\n#pragma unroll\n    for (int s = 0; s < 8; ++s) {\n      const int q = S.pos[tk * 8 + s];\n      if (q >= 0) {\n        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);\n        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));\n        acc.x += r * v.x; acc.y += r * v.y; acc.z += r * v.z; acc.w += r * v.w;\n      }\n    }\n    __nv_bfloat162 o0 = __floats2bfloat162_rn(acc.x, acc.y), o1 = __floats2bfloat162_rn(acc.z, acc.w);\n    uint2 o;\n    o.x = *reinterpret_cast<uint32_t*>(&o0);\n    o.y = *reinterpret_cast<uint32_t*>(&o1);\n    *reinterpret_cast<uint2*>(p.out + (size_t)tk * HD + col) = o;\n  }\n# 2586 \"/w/helper.cu\"\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (5)] = gtimer(); } while (0);\n}"
+    },
+    {
+      "name": "mid",
+      "tokens": [
+        16
+      ],
+      "module": "glue_moe_1b555edc8284ed23_sm90a",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "counterfactual": false,
+      "native_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "preprocessed_sha256": "d61111a75bd4a7a0a3907a57d022f2e6649ce9f8d0785239be937bb2c2c0a522",
+      "exit_code": 0,
+      "wgs_functions_present": false,
+      "ws_kernel_body": "moe_fused(Params p) {\n  Smem& S = *reinterpret_cast<Smem*>(smem_raw);\n  __nv_bfloat16* xbuf = reinterpret_cast<__nv_bfloat16*>(smem_raw + ((sizeof(Smem) + 127) / 128) * 128);\n  const int tid = ((int)((threadIdx.x + NT) % NTL));\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (0)] = gtimer(); } while (0);\n\n\n  asm volatile(\"griddepcontrol.wait;\\n\" ::: \"memory\");\n\n  if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }\n# 2223 \"/w/helper.cu\"\n  if (tid >= NT - 32) {\n    const int ln = tid & 31;\n\n\n    S.fcnt[ln] = 0;\n    __syncwarp();\n    for (int i0 = 0; i0 < p.M * 8; i0 += 32) {\n      const int i = i0 + ln;\n      int e = -1;\n      if (i < p.M * 8) { e = __ldg(p.topk_ids + i) - p.lo; if (e < 0 || e >= p.nloc) e = -1; }\n      const unsigned peers = __match_any_sync(0xffffffffu, e);\n      if (e >= 0 && ln == __ffs(peers) - 1) atomicAdd(&S.fcnt[e], __popc(peers));\n    }\n    __syncwarp();\n    int jincl = (S.fcnt[ln] + SK_T - 1) / SK_T;\n#pragma unroll\n    for (int d = 1; d < 32; d <<= 1) { const int v = __shfl_up_sync(0xffffffffu, jincl, d); if (ln >= d) jincl += v; }\n    const int njob = __shfl_sync(0xffffffffu, jincl, 31);\n    const int nS1 = njob * RB_A - dyn_pool(njob * RB_A, gridDim.x);\n    const float rG1 = __fdividef(1.f, (float)gridDim.x);\n    const int v01 = muldiv_g(nS1, blockIdx.x, gridDim.x, rG1), v11 = muldiv_g(nS1, blockIdx.x + 1, gridDim.x, rG1);\n    const int n1 = min(2, v11 - v01);\n    int fex[2 > 0 ? 2 : 1];\n#pragma unroll\n    for (int i = 0; i < 2; ++i) {\n      const int jj = (v01 + i) >> RB_A_LOG;\n      fex[i] = i < n1 ? __ffs(__ballot_sync(0xffffffffu, jincl > jj)) - 1 : 0;\n    }\n# 2271 \"/w/helper.cu\"\n    if (ln == 0) {\n\n      for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);\n      for (int k = 0; k < 3; ++k) mbar_init(S.wse + k, NW);\n      for (int k = 0; k < NRB; ++k) { mbar_init(S.wsrf + k, 1 ? 1 : NW); mbar_init(S.wsre + k, 1); }\n      asm volatile(\"fence.mbarrier_init.release.cluster;\\n\" ::: \"memory\");\n\n\n      const int v0 = v01, n = n1;\n\n\n\n\n\n\n      asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");\n\n#pragma unroll\n      for (int i = 0; i < 2; ++i) {\n        if (i >= n) break;\n        const int v = v0 + i;\n        const int e = fex[i];\n\n\n\n\n\n        const unsigned char* src = p.wAu + ((size_t)e * RB_A + (v & (RB_A - 1))) * (size_t)UNIT_BYTES;\n        unsigned char* slot = reinterpret_cast<unsigned char*>(xbuf) + i * UNIT_BYTES;\n        asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(S.bars + i)), \"r\"(UNIT_BYTES) : \"memory\");\n        asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes\" \".L2::cache_hint\" \" [%0], [%1], %2, [%3]\" \", %4\" \";\\n\"\n                     ::\"r\"(smem_u32(slot)), \"l\"(src), \"r\"(UNIT_BYTES), \"r\"(smem_u32(S.bars + i)) , \"l\"(0x12F0000000000000ull) : \"memory\");\n      }\n      S.preissued = n > 0 ? n : 0;\n    }\n  }\n\n\n  for (int li = blockIdx.x * NT + tid; li < p.M * (HD * 2 / 128); li += gridDim.x * NT)\n    asm volatile(\"prefetch.global.L2 [%0];\\n\" ::\"l\"(reinterpret_cast<const char*>(p.x) + (size_t)li * 128));\n  for (int i = tid; i < (1 ? 0 : 256); i += NT) {\n    const int sgn = i >> 7, ex = (i >> 3) & 15, mt = i & 7;\n    uint32_t b;\n    if (ex == 15 && mt == 7) {\n      b = 0xFFFFu;\n    } else {\n      float v = ex == 0 ? (float)mt * 0x1p-9f : (1.f + (float)mt * 0.125f) * __int_as_float((ex - 7 + 127) << 23);\n      v *= 0x1p64f;\n      b = __float_as_uint(sgn ? -v : v) >> 16;\n    }\n    S.lut[i] = b | (b << 16);\n  }\n  if (tid == 0) {\n# 2335 \"/w/helper.cu\"\n    S.seq = 0;\n    S.fseq = 0;\n    S.preissuedB = 0;\n    S.xbuf_ptr = xbuf;\n\n    const int gen = *reinterpret_cast<volatile const int*>(p.ctr + 3);\n    S.gen = gen;\n    S.ssp = (gen & 1) ? p.ss1 : p.ss;\n  }\n\n\n\n  route(p, S);\n\n\n\n\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (1)] = gtimer(); } while (0);\n  {\n    float* other = (S.gen & 1) ? p.ss : p.ss1;\n    for (int i = blockIdx.x * NT + tid; i < EMAX; i += gridDim.x * NT) other[i] = 0.f;\n    if (blockIdx.x == 0 && tid == 0) p.ctr[4 + ((S.gen + 1) & 1)] = 0;\n  }\n\n  if (tid == 0) {\n    const int G = gridDim.x, c = blockIdx.x;\n    const float rG = __fdividef(1.f, (float)G);\n    const int nA = S.njS * RB_A, nB = S.njS * RB_B;\n    S.wsr[0] = muldiv_g(nA, c, G, rG); S.wsr[1] = muldiv_g(nA, c + 1, G, rG);\n    S.wsr[2] = muldiv_g(nB, c, G, rG); S.wsr[3] = muldiv_g(nB, c + 1, G, rG);\n  }\n  asm volatile(\"bar.sync 2, %0;\\n\" ::\"n\"(NTL) : \"memory\");\n# 2399 \"/w/helper.cu\"\n  run_phase<false, BIG>(p, S, xbuf);\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (2)] = gtimer(); } while (0);\n  run_phase<true, BIG>(p, S, xbuf);\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (3)] = gtimer(); } while (0);\n\n\n  asm volatile(\"bar.sync 2, %0;\\n\" ::\"n\"(NTL) : \"memory\");\n\n\n\n  asm volatile(\"griddepcontrol.launch_dependents;\\n\" ::: \"memory\");\n\n\n\n\n  constexpr int FSEGP = HD / (NT * 4);\n  const int itp = blockIdx.x;\n  const bool hasp = itp < p.M * FSEGP;\n  const int tkp = hasp ? itp / FSEGP : 0;\n  int qvp[8];\n  float wvp[8];\n#pragma unroll\n  for (int s = 0; s < 8; ++s) {\n    qvp[s] = hasp ? (int)S.pos[tkp * 8 + s] : -1;\n    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;\n  }\n\n  asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n  if (tid == 0) {\n    int* bc = p.ctr + 4 + (S.gen & 1);\n    __threadfence();\n    int old;\n    asm volatile(\"atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\\n\" : \"=r\"(old) : \"l\"(bc), \"r\"(1) : \"memory\");\n    if (old == (int)gridDim.x - 1) atomicAdd(p.ctr + 3, 1);\n    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);\n  }\n  asm volatile(\"bar.sync 1, %0;\\n\" ::\"n\"(NT) : \"memory\");\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (4)] = gtimer(); } while (0);\n\n  {\n    const int G = gridDim.x, i0 = blockIdx.x * NT + tid;\n    if (i0 < 2) p.ctr[i0] = 0;\n    for (int i = i0; i < JMAX; i += G * NT) p.doneA[i] = 0;\n\n\n\n\n  }\n# 2511 \"/w/helper.cu\"\n  constexpr int FSEG = HD / (NT * 4);\n  int it0 = blockIdx.x;\n\n  if (hasp) {\n    const int col = (itp % FSEG) * (NT * 4) + tid * 4;\n    float ssv[8];\n    float4 yv[8];\n#pragma unroll\n    for (int s = 0; s < 8; ++s) {\n      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;\n      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);\n    }\n    float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);\n#pragma unroll\n    for (int s = 0; s < 8; ++s) {\n      if (qvp[s] >= 0) {\n        const float r = wvp[s] * rsqrtf(ssv[s] * (1.f / HD) + 1e-8f);\n        acc.x += r * yv[s].x; acc.y += r * yv[s].y; acc.z += r * yv[s].z; acc.w += r * yv[s].w;\n      }\n    }\n    __nv_bfloat162 o0 = __floats2bfloat162_rn(acc.x, acc.y), o1 = __floats2bfloat162_rn(acc.z, acc.w);\n    uint2 o;\n    o.x = *reinterpret_cast<uint32_t*>(&o0);\n    o.y = *reinterpret_cast<uint32_t*>(&o1);\n    *reinterpret_cast<uint2*>(p.out + (size_t)tkp * HD + col) = o;\n  }\n  it0 += gridDim.x;\n\n  for (int it = it0; it < p.M * FSEG; it += gridDim.x) {\n    const int tk = it / FSEG, col = (it % FSEG) * (NT * 4) + tid * 4;\n    float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);\n#pragma unroll\n    for (int s = 0; s < 8; ++s) {\n      const int q = S.pos[tk * 8 + s];\n      if (q >= 0) {\n        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);\n        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));\n        acc.x += r * v.x; acc.y += r * v.y; acc.z += r * v.z; acc.w += r * v.w;\n      }\n    }\n    __nv_bfloat162 o0 = __floats2bfloat162_rn(acc.x, acc.y), o1 = __floats2bfloat162_rn(acc.z, acc.w);\n    uint2 o;\n    o.x = *reinterpret_cast<uint32_t*>(&o0);\n    o.y = *reinterpret_cast<uint32_t*>(&o1);\n    *reinterpret_cast<uint2*>(p.out + (size_t)tk * HD + col) = o;\n  }\n# 2586 \"/w/helper.cu\"\n  do { if (0 && ((int)((threadIdx.x + NT) % NTL)) == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (5)] = gtimer(); } while (0);\n}"
+    }
+  ],
+  "actual_factory_builds": [
+    {
+      "module": "glue_moe_415a2bdc6eb73960_sm90a",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "native_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "tokens": [
+        1
+      ],
+      "producer_body": "__device__ void wgs_xproducer(const Params& p, Smem& S, unsigned char* ring) {\n  // the routing tables are ready (the consumers arrive on barrier 7 right after routing): this idle warp computes the\n  // stage ranges while the consumers gather phase A's x\n  asm volatile(\"bar.sync 7, %0;\\n\" ::\"n\"(NT + 32) : \"memory\");\n  if ((TIDX & 31) == 0) wgs_ranges(p, S);\n  __syncwarp();\n  WS_JOIN();  // routing tables and this CTA's stage ranges are ready\n  if ((TIDX & 31) != 0) return;\n  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;\n  int xs = 0, n = 0;\n  uint32_t xph = 0;\n#pragma unroll 1\n  for (int pb = 0; pb < 2; ++pb) {\n    const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);\n    const int ubl = pb ? 4 : 5;\n    const __nv_bfloat16* xsrc = pb ? p.xB : p.xA;\n    int curj = -1, npad = 8;\n    const __nv_bfloat16* jb = xsrc;\n#pragma unroll 1\n    for (int i = 0, gs = sp; i < g1 - g0; ++i, ++gs, ++n) {\n      if (gs == g1) gs = g0;  // [sp, g1) done: then [g0, sp)\n      const int u = gs >> 4, st = gs & 15;\n      const int j = u >> ubl;\n      if (n >= WGS_NX) wgs_wait(S.bars + BX_E + xs, xph ^ 1, 2000000 + gs);\n      if (j != curj) {\n        curj = j;\n        npad = ((S.jC[j] + 7) >> 3) << 3;\n        jb = xsrc + (size_t)S.jrow[j] * HD;\n        if (!pb && !(OKC_WGSX & 8)) { while (ld_acquire(p.xready + j) < npad) __nanosleep(32); }  // every row gathered\n      }\n      // phase B stage st reads inter columns 256 st .. +255: the 2 phase-A units (x 4 warpgroups) that wrote them\n      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(p.doneAs + j * 16 + st) < 8) __nanosleep(32); }\n      uint64_t* bar = S.bars + BX_F + xs;\n      const uint32_t bytes = (uint32_t)npad * 512u;\n      asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(bar)), \"r\"(bytes) : \"memory\");\n      asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\\n\"\n                   ::\"r\"(smem_u32(xring + xs * WGS_XS)), \"l\"(jb + (size_t)st * npad * 256), \"r\"(bytes), \"r\"(smem_u32(bar)) : \"memory\");\n      if (++xs == WGS_NX) { xs = 0; xph ^= 1; }\n    }\n  }\n}",
+      "range_body": "__device__ __noinline__ void wgs_ranges(const Params& p, Smem& S) {\n  const int nj = S.njF + S.njS;\n  wgs_prefix(S, nj);\n  wgs_range(S, nj, 0, blockIdx.x, gridDim.x, S.wgr[0], S.wgr[1]);\n  wgs_range(S, nj, 1, blockIdx.x, gridDim.x, S.wgr[2], S.wgr[3]);\n}"
+    },
+    {
+      "module": "glue_moe_b2495a009a910301_sm90a",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "native_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "tokens": [
+        8
+      ],
+      "producer_body": "__device__ void wgs_xproducer(const Params& p, Smem& S, unsigned char* ring) {\n  // the routing tables are ready (the consumers arrive on barrier 7 right after routing): this idle warp computes the\n  // stage ranges while the consumers gather phase A's x\n  asm volatile(\"bar.sync 7, %0;\\n\" ::\"n\"(NT + 32) : \"memory\");\n  if ((TIDX & 31) == 0) wgs_ranges(p, S);\n  __syncwarp();\n  WS_JOIN();  // routing tables and this CTA's stage ranges are ready\n  if ((TIDX & 31) != 0) return;\n  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;\n  int xs = 0, n = 0;\n  uint32_t xph = 0;\n#pragma unroll 1\n  for (int pb = 0; pb < 2; ++pb) {\n    const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);\n    const int ubl = pb ? 4 : 5;\n    const __nv_bfloat16* xsrc = pb ? p.xB : p.xA;\n    int curj = -1, npad = 8;\n    const __nv_bfloat16* jb = xsrc;\n#pragma unroll 1\n    for (int i = 0, gs = sp; i < g1 - g0; ++i, ++gs, ++n) {\n      if (gs == g1) gs = g0;  // [sp, g1) done: then [g0, sp)\n      const int u = gs >> 4, st = gs & 15;\n      const int j = u >> ubl;\n      if (n >= WGS_NX) wgs_wait(S.bars + BX_E + xs, xph ^ 1, 2000000 + gs);\n      if (j != curj) {\n        curj = j;\n        npad = ((S.jC[j] + 7) >> 3) << 3;\n        jb = xsrc + (size_t)S.jrow[j] * HD;\n        if (!pb && !(OKC_WGSX & 8)) { while (ld_acquire(p.xready + j) < npad) __nanosleep(32); }  // every row gathered\n      }\n      // phase B stage st reads inter columns 256 st .. +255: the 2 phase-A units (x 4 warpgroups) that wrote them\n      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(p.doneAs + j * 16 + st) < 8) __nanosleep(32); }\n      uint64_t* bar = S.bars + BX_F + xs;\n      const uint32_t bytes = (uint32_t)npad * 512u;\n      asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(bar)), \"r\"(bytes) : \"memory\");\n      asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\\n\"\n                   ::\"r\"(smem_u32(xring + xs * WGS_XS)), \"l\"(jb + (size_t)st * npad * 256), \"r\"(bytes), \"r\"(smem_u32(bar)) : \"memory\");\n      if (++xs == WGS_NX) { xs = 0; xph ^= 1; }\n    }\n  }\n}",
+      "range_body": "__device__ __noinline__ void wgs_ranges(const Params& p, Smem& S) {\n  const int nj = S.njF + S.njS;\n  wgs_prefix(S, nj);\n  wgs_range(S, nj, 0, blockIdx.x, gridDim.x, S.wgr[0], S.wgr[1]);\n  wgs_range(S, nj, 1, blockIdx.x, gridDim.x, S.wgr[2], S.wgr[3]);\n}"
+    },
+    {
+      "module": "glue_moe_1b555edc8284ed23_sm90a",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "native_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "tokens": [
+        16
+      ],
+      "producer_body": "__device__ void wgs_xproducer(const Params& p, Smem& S, unsigned char* ring) {\n  // the routing tables are ready (the consumers arrive on barrier 7 right after routing): this idle warp computes the\n  // stage ranges while the consumers gather phase A's x\n  asm volatile(\"bar.sync 7, %0;\\n\" ::\"n\"(NT + 32) : \"memory\");\n  if ((TIDX & 31) == 0) wgs_ranges(p, S);\n  __syncwarp();\n  WS_JOIN();  // routing tables and this CTA's stage ranges are ready\n  if ((TIDX & 31) != 0) return;\n  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;\n  int xs = 0, n = 0;\n  uint32_t xph = 0;\n#pragma unroll 1\n  for (int pb = 0; pb < 2; ++pb) {\n    const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);\n    const int ubl = pb ? 4 : 5;\n    const __nv_bfloat16* xsrc = pb ? p.xB : p.xA;\n    int curj = -1, npad = 8;\n    const __nv_bfloat16* jb = xsrc;\n#pragma unroll 1\n    for (int i = 0, gs = sp; i < g1 - g0; ++i, ++gs, ++n) {\n      if (gs == g1) gs = g0;  // [sp, g1) done: then [g0, sp)\n      const int u = gs >> 4, st = gs & 15;\n      const int j = u >> ubl;\n      if (n >= WGS_NX) wgs_wait(S.bars + BX_E + xs, xph ^ 1, 2000000 + gs);\n      if (j != curj) {\n        curj = j;\n        npad = ((S.jC[j] + 7) >> 3) << 3;\n        jb = xsrc + (size_t)S.jrow[j] * HD;\n        if (!pb && !(OKC_WGSX & 8)) { while (ld_acquire(p.xready + j) < npad) __nanosleep(32); }  // every row gathered\n      }\n      // phase B stage st reads inter columns 256 st .. +255: the 2 phase-A units (x 4 warpgroups) that wrote them\n      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(p.doneAs + j * 16 + st) < 8) __nanosleep(32); }\n      uint64_t* bar = S.bars + BX_F + xs;\n      const uint32_t bytes = (uint32_t)npad * 512u;\n      asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(bar)), \"r\"(bytes) : \"memory\");\n      asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\\n\"\n                   ::\"r\"(smem_u32(xring + xs * WGS_XS)), \"l\"(jb + (size_t)st * npad * 256), \"r\"(bytes), \"r\"(smem_u32(bar)) : \"memory\");\n      if (++xs == WGS_NX) { xs = 0; xph ^= 1; }\n    }\n  }\n}",
+      "range_body": "__device__ __noinline__ void wgs_ranges(const Params& p, Smem& S) {\n  const int nj = S.njF + S.njS;\n  wgs_prefix(S, nj);\n  wgs_range(S, nj, 0, blockIdx.x, gridDim.x, S.wgr[0], S.wgr[1]);\n  wgs_range(S, nj, 1, blockIdx.x, gridDim.x, S.wgr[2], S.wgr[3]);\n}"
+    },
+    {
+      "module": "glue_moe_7e37cd900cb88979_sm90a",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "tokens": [
+        17,
+        24,
+        32
+      ],
+      "producer_body": "__device__ void wgs_xproducer(const Params& p, Smem& S, unsigned char* ring) {\n  // the routing tables are ready (the consumers arrive on barrier 7 right after routing): this idle warp computes the\n  // stage ranges while the consumers gather phase A's x\n  asm volatile(\"bar.sync 7, %0;\\n\" ::\"n\"(NT + 32) : \"memory\");\n  wgs_ranges(p, S);  // all 32 lanes (warp-parallel)\n  __syncwarp();\n  WS_JOIN();  // routing tables and this CTA's stage ranges are ready\n  if ((threadIdx.x & 31) != 0) return;\n  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;\n  int xs = 0, n = 0;\n  uint32_t xph = 0;\n#pragma unroll 1\n  for (int pb = 0; pb < 2; ++pb) {\n    const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);\n    const int ubl = pb ? 4 : 5;\n    const __nv_bfloat16* xsrc = pb ? p.xB : p.xA;\n    int curj = -1, npad = 8;\n    const __nv_bfloat16* jb = xsrc;\n#pragma unroll 1\n    for (int i = 0, gs = sp; i < g1 - g0; ++i, ++gs, ++n) {\n      if (gs == g1) gs = g0;  // [sp, g1) done: then [g0, sp)\n      const int u = gs >> 4, st = gs & 15;\n      const int j = u >> ubl;\n      if (n >= WGS_NX) wgs_wait(S.bars + BX_E + xs, xph ^ 1, 2000000 + gs);\n      if (j != curj) {\n        curj = j;\n        npad = ((S.jC[j] + 7) >> 3) << 3;\n        jb = xsrc + (size_t)S.jrow[j] * HD;\n        if (!pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_xr(p, S) + j) < npad) __nanosleep(32); }  // every row gathered\n      }\n      // phase B stage st reads inter columns 256 st .. +255: the 2 phase-A units (x 4 warpgroups) that wrote them\n      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_da(p, S) + j * 16 + st) < 8) __nanosleep(32); }\n      uint64_t* bar = S.bars + BX_F + xs;\n      const uint32_t bytes = (uint32_t)npad * 512u;\n      asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(bar)), \"r\"(bytes) : \"memory\");\n      asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\\n\"\n                   ::\"r\"(smem_u32(xring + xs * WGS_XS)), \"l\"(jb + (size_t)st * npad * 256), \"r\"(bytes), \"r\"(smem_u32(bar)) : \"memory\");\n      if (++xs == WGS_NX) { xs = 0; xph ^= 1; }\n    }\n  }\n}",
+      "range_body": "__device__ __noinline__ void wgs_ranges(const Params& p, Smem& S) {\n  const int lane = threadIdx.x & 31;\n  const int nj = S.njF + S.njS;\n  const int G = gridDim.x, c = blockIdx.x;\n  uint32_t carryA = 0, carryB = 0;\n  for (int j0 = 0; j0 < nj; j0 += 32) {\n    const int j = j0 + lane;\n    uint32_t ia = 0, ib = 0;\n    if (j < nj) {\n      ia = ((uint32_t)wgs_cost(0, S.jC[j]) * 16u + OKC_WGSU) << 5;\n      ib = ((uint32_t)wgs_cost(1, S.jC[j]) * 16u + OKC_WGSUB) << 4;\n    }\n    uint32_t sa = ia, sb = ib;\n#pragma unroll\n    for (int d = 1; d < 32; d <<= 1) {\n      const uint32_t va = __shfl_up_sync(0xffffffffu, sa, d), vb = __shfl_up_sync(0xffffffffu, sb, d);\n      if (lane >= d) { sa += va; sb += vb; }\n    }\n    if (j < nj) { S.wcp[j] = (int)(carryA + sa - ia); S.wcpB[j] = (int)(carryB + sb - ib); }\n    carryA += __shfl_sync(0xffffffffu, sa, 31);\n    carryB += __shfl_sync(0xffffffffu, sb, 31);\n  }\n  if (lane == 0) { S.wcp[nj] = (int)carryA; S.wcpB[nj] = (int)carryB; S.wtot = carryA; S.wtotB = carryB; }\n  __syncwarp();\n  const int l4 = lane & 3, pbl = l4 >> 1, kk = l4 & 1;\n  const uint32_t tot = pbl ? carryB : carryA;\n  int res;\n  if (kk == 1 && c == G - 1) res = nj << (9 - pbl);\n  else res = wgs_stage_at(S, nj, pbl, tot * (uint32_t)(c + kk) / (uint32_t)G);\n  if (lane < 4) S.wgr[lane] = res;\n  __syncwarp();\n}"
+    },
+    {
+      "module": "glue_moe_45a005177ff52c30_sm90a",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "tokens": [
+        33,
+        128,
+        256,
+        384
+      ],
+      "producer_body": "__device__ void wgs_xproducer(const Params& p, Smem& S, unsigned char* ring) {\n  // the routing tables are ready (the consumers arrive on barrier 7 right after routing): this idle warp computes the\n  // stage ranges while the consumers gather phase A's x\n  asm volatile(\"bar.sync 7, %0;\\n\" ::\"n\"(NT + 32) : \"memory\");\n  wgs_ranges(p, S);  // all 32 lanes (warp-parallel)\n  __syncwarp();\n  WS_JOIN();  // routing tables and this CTA's stage ranges are ready\n  if ((threadIdx.x & 31) != 0) return;\n  unsigned char* xring = ring + WGS_NS * UNIT_BYTES;\n  int xs = 0, n = 0;\n  uint32_t xph = 0;\n#pragma unroll 1\n  for (int pb = 0; pb < 2; ++pb) {\n    const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);\n    const int ubl = pb ? 4 : 5;\n    const __nv_bfloat16* xsrc = pb ? p.xB : p.xA;\n    int curj = -1, npad = 8;\n    const __nv_bfloat16* jb = xsrc;\n#pragma unroll 1\n    for (int i = 0, gs = sp; i < g1 - g0; ++i, ++gs, ++n) {\n      if (gs == g1) gs = g0;  // [sp, g1) done: then [g0, sp)\n      const int u = gs >> 4, st = gs & 15;\n      const int j = u >> ubl;\n      if (n >= WGS_NX) wgs_wait(S.bars + BX_E + xs, xph ^ 1, 2000000 + gs);\n      if (j != curj) {\n        curj = j;\n        npad = ((S.jC[j] + 7) >> 3) << 3;\n        jb = xsrc + (size_t)S.jrow[j] * HD;\n        if (!pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_xr(p, S) + j) < npad) __nanosleep(32); }  // every row gathered\n      }\n      // phase B stage st reads inter columns 256 st .. +255: the 2 phase-A units (x 4 warpgroups) that wrote them\n      if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_da(p, S) + j * 16 + st) < 8) __nanosleep(32); }\n      uint64_t* bar = S.bars + BX_F + xs;\n      const uint32_t bytes = (uint32_t)npad * 512u;\n      asm volatile(\"mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n\" ::\"r\"(smem_u32(bar)), \"r\"(bytes) : \"memory\");\n      asm volatile(\"cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\\n\"\n                   ::\"r\"(smem_u32(xring + xs * WGS_XS)), \"l\"(jb + (size_t)st * npad * 256), \"r\"(bytes), \"r\"(smem_u32(bar)) : \"memory\");\n      if (++xs == WGS_NX) { xs = 0; xph ^= 1; }\n    }\n  }\n}",
+      "range_body": "__device__ __noinline__ void wgs_ranges(const Params& p, Smem& S) {\n  const int lane = threadIdx.x & 31;\n  const int nj = S.njF + S.njS;\n  const int G = gridDim.x, c = blockIdx.x;\n  uint32_t carryA = 0, carryB = 0;\n  for (int j0 = 0; j0 < nj; j0 += 32) {\n    const int j = j0 + lane;\n    uint32_t ia = 0, ib = 0;\n    if (j < nj) {\n      ia = ((uint32_t)wgs_cost(0, S.jC[j]) * 16u + OKC_WGSU) << 5;\n      ib = ((uint32_t)wgs_cost(1, S.jC[j]) * 16u + OKC_WGSUB) << 4;\n    }\n    uint32_t sa = ia, sb = ib;\n#pragma unroll\n    for (int d = 1; d < 32; d <<= 1) {\n      const uint32_t va = __shfl_up_sync(0xffffffffu, sa, d), vb = __shfl_up_sync(0xffffffffu, sb, d);\n      if (lane >= d) { sa += va; sb += vb; }\n    }\n    if (j < nj) { S.wcp[j] = (int)(carryA + sa - ia); S.wcpB[j] = (int)(carryB + sb - ib); }\n    carryA += __shfl_sync(0xffffffffu, sa, 31);\n    carryB += __shfl_sync(0xffffffffu, sb, 31);\n  }\n  if (lane == 0) { S.wcp[nj] = (int)carryA; S.wcpB[nj] = (int)carryB; S.wtot = carryA; S.wtotB = carryB; }\n  __syncwarp();\n  const int l4 = lane & 3, pbl = l4 >> 1, kk = l4 & 1;\n  const uint32_t tot = pbl ? carryB : carryA;\n  int res;\n  if (kk == 1 && c == G - 1) res = nj << (9 - pbl);\n  else res = wgs_stage_at(S, nj, pbl, tot * (uint32_t)(c + kk) / (uint32_t)G);\n  if (lane < 4) S.wgr[lane] = res;\n  __syncwarp();\n}"
+    }
+  ],
+  "decision": "Close GOPT-SHORT-02: proposed WGS prefix is preprocessed out of all selected helper builds.",
+  "scope": "Exact selected flags; device prefix preprocessing only. Host extension excluded. Synthetic WGS override is a negative control, not a runnable candidate.",
+  "candidate_created": false,
+  "gpu_execution": false
+}
