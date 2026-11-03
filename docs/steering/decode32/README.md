@@ -1,5 +1,10 @@
 # Decode32 task inbox
 
+## Next experiment queued — source-backed B4/T32 warp-parallel job-cost scan
+
+**[D32-12: H200 ~460-experiment source reconciliation and P0 B4 task](2026-11-02-12-h200-460-next-leads.md)** uses the user-supplied research note to identify a concrete current-code bottleneck: the selected B4/T32 x-producer invokes a one-lane serial `wgs_prefix`, although an older, different-cost version in the same release file has a warp-parallel prefix/range scan. **D32-MOE-01** is queued for Decode32 Worker **after** it completes or classifies the already-owned attention matched-routing diagnostic (`EXPERT_FRESH_ROUTING_MISMATCH`, job `62a4f6b27ed74b50`; strict-gate diagnostic source `9e5e5d64`). Do not interrupt or duplicate that job. The task fixes a single B4-only source treatment, tests exact prefix/range equivalence, and prescribes one private full-layer D32 check if valid, no Driver handoff. The report also marks already present SC6, phase-B data flags and T32 conditional pooler/router fusion to avoid redundant work. External ~460-experiment gains lack raw source/receipts and are **not measured OKC benefits**. Pickup of D32-MOE-01 is unconfirmed.
+
+
 ## Current next action: confirm the completed attention experiment
 
 **[D32-06: proceed directly to matched confirmation](2026-11-02-06-confirm-attention-and-progress-watch.md)** — first private attention job `17383751c6a24010` is terminal and valid; C32=11.882275 ms. Its comparison with an earlier independent control is not a confirmed gain. Keep the treatment/control fixed, reuse existing matched infrastructure, verify attention outputs/cache/replay and all-load regressions, and execute the already-authorized confirmation without a Driver/research handoff. If already underway, continue the existing job rather than duplicate it. Record the accepted confirmation ID or specific blocker in [STATUS.md](STATUS.md). Research's hourly conditional GitHub watch is enabled; it cannot prove local activity or directly wake the session. [Owning first result](2026-11-02-05-attention-first-result.md).
