@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""pdl8e: pdl8c2 (tools/dl_pdl8c_patch.py --cgpdl) with the m = 1 cgemv PDL edits that keep the plain
-kernel's standalone time. Built, not dispatched; writes muse_decode_layer/cand/g1b4_pdl8e.py.
+"""cgfe (was pdl8e): pdl8c2 (tools/dl_pdl8c_patch.py --cgpdl) with the m = 1 cgemv PDL edits that keep the plain
+kernel's standalone time. Built, not dispatched; writes muse_decode_layer/cand/g1b4_cgfe.py.
 
-    python3 tools/dl_pdl8e_cgemv.py CG_TOOL C2 [--variant fe]
+    python3 tools/dl_cgfe_cgemv.py CG_TOOL C2 [--variant fe]
       CG_TOOL, C2  as for tools/dl_pdl8c_patch.py
 
 The BF16-board bench (CGPDL-01 aa5e4ae178d244de, CGPDL-02 990758fa4f634261, docs/runs.md
@@ -57,8 +57,8 @@ def main():
         sys.exit("the cgemv tool no longer reproduces the parity lane's check-2 bytes 440397ab")
     composed = plain.decode()
     head = "# okc: problem=muse_decode_layer\n"
-    composed = composed.replace(head, head + "# pdl8e: release + cgemv m = 1 port (tools/dl_cg_patch.py) + pdl8b"
-                                " + cgemv PDL edits variant " + variant + ", composed by tools/dl_pdl8e_cgemv.py.\n", 1)
+    composed = composed.replace(head, head + "# cgfe: release + cgemv m = 1 port (tools/dl_cg_patch.py) + pdl8b"
+                                " + cgemv PDL edits variant " + variant + ", composed by tools/dl_cgfe_cgemv.py.\n", 1)
     lit = next(ast.literal_eval(n.value) for n in ast.parse(composed).body if isinstance(n, ast.Assign)
                and len(n.targets) == 1 and isinstance(n.targets[0], ast.Name) and n.targets[0].id == "CG_CUDA_SRC")
     edits = FE_EDITS + P.CG_PDL_EDITS[1:]
@@ -74,7 +74,7 @@ def main():
         "# at the CTA's end; programmatic launch only while T = 1 runs with PDL on).")
     if "trigger\n# at the CTA's end" not in out:
         sys.exit("pdl8c2 block comment anchor changed")
-    dst = B.A.ROOT / "muse_decode_layer/cand/g1b4_pdl8e.py"
+    dst = B.A.ROOT / "muse_decode_layer/cand/g1b4_cgfe.py"
     dst.write_text(out)
     py_compile.compile(str(dst), doraise=True)
     print(dst, hashlib.sha256(dst.read_bytes()).hexdigest(), len(dst.read_bytes()))

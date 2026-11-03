@@ -2517,8 +2517,8 @@ stays under that: fe does at qkv_gate and the slice (net -0.1 to -0.5 us against
 Staging x into shared memory loses at every G tested (barrier and occupancy cost above the L2 saving).
 
 Decision against the registered gate (standalone d_ctrl2 <= +0.3 us on every shape and input, chain minus chP <=
--0.5 us): no arm passes; fe is the closest and the only composable variant. It is written as `tools/dl_pdl8e_cgemv.py
---variant fe` (`muse_decode_layer/cand/g1b4_pdl8e.py`, SHA256 3785f13a, built and compiled locally, not dispatched):
+-0.5 us): no arm passes; fe is the closest and the only composable variant. It is written as `tools/dl_cgfe_cgemv.py
+--variant fe` (`muse_decode_layer/cand/g1b4_cgfe.py`, SHA256 3785f13a, built and compiled locally, not dispatched):
 pdl8c2 with the trigger moved to the CTA's end. In the layer's tuner, fe is expected to stay below sk2 at qkv_gate
 (about 12.35 + 0.6 against 13.5 us) and the slice (7.0 + 0.3 against 8.0), and above it at o (8.7 + 2.7 against 9.4),
 so the tuner keeps sk2's PDL path at o. Estimated layer effect from these benches (not measured in the layer):
