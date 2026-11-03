@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-11-03T10:25:14.408837+00:00",
+  "page": "https://openkernelchallenge.dev/",
+  "referenced_asset": "https://openkernelchallenge.dev/assets/index-hNMNI-Nr.js",
+  "sha256": "a40d07775d2797cba5e81933f905fdc858a07025a89ba78b58a27d7444c7c207",
+  "kernels_closes": "2026-11-05T00:00:00-08:00",
+  "schedule_excerpt": "kernels_closes:`2026-11-05T00:00:00-08:00`,serving_opens:`2026-11-05T12:00:00-08:00`,serving_closes:`2026-11-20T00:00:00-08:00`},problems:[{name:`muse",
+  "retrieval": "curl.exe with browser user-agent after urllib403"
+}
