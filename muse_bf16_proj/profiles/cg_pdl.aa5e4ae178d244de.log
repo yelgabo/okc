@@ -1,0 +1,200 @@
+t=0/100 d_full=+0.064 lt=38/100
+CBTIME o in1 ctrl2 raw=10.016 d_full=-4.768 lt=100/100
+CBTIME o in1 ex0 raw=10.016 d_ctrl2=+0.000 lt=47/100 d_full=-4.736 lt=100/100
+CBTIME o in1 exattr raw=10.016 d_ctrl2=+0.000 lt=49/100 d_full=-4.736 lt=100/100
+CBTIME o in1 cg raw=12.800 d_ctrl2=+2.784 lt=0/100 d_full=-1.952 lt=100/100
+CBTIME o in1 ord raw=10.016 d_ctrl2=+0.000 lt=48/100 d_full=-4.768 lt=100/100
+CBTIME o in1 wait raw=10.048 d_ctrl2=-0.032 lt=52/100 d_full=-4.704 lt=100/100
+CBTIME o in1 trig raw=11.904 d_ctrl2=+1.888 lt=0/100 d_full=-2.848 lt=100/100
+CBTIME o in1 cgord raw=12.736 d_ctrl2=+2.720 lt=0/100 d_full=-2.064 lt=100/100
+CBTIME o in1 full raw=14.784 d_ctrl2=+4.768 lt=0/100
+CBTIME o in1 fullattr raw=14.816 d_ctrl2=+4.800 lt=0/100 d_full=+0.064 lt=40/100
+CBTIME o in1 cgrep raw=10.272 d_ctrl2=+0.224 lt=15/100 d_full=-4.512 lt=100/100
+CBTIME o in1 st1 raw=17.744 d_ctrl2=+7.680 lt=0/100 d_full=+2.976 lt=0/100
+CBTIME o in1 st2 raw=18.432 d_ctrl2=+8.416 lt=0/100 d_full=+3.648 lt=0/100
+CBTIME o in1 st4 raw=10.752 d_ctrl2=+0.752 lt=6/100 d_full=-4.000 lt=100/100
+CBTIME o in1 st2np raw=18.592 d_ctrl2=+8.576 lt=0/100 d_full=+3.808 lt=0/100
+CBTIME o in1 chP raw=18.720 d_chF0=-4.880 lt=100/100
+CBTIME o in1 chF0 raw=23.632 d_chP=+4.880 lt=0/100
+CBTIME o in1 chF1 raw=22.560 d_chP=+3.872 lt=0/100 d_chF0=-1.008 lt=99/100
+CBTIME o in1 chS10 raw=27.040 d_chP=+8.320 lt=0/100 d_chF0=+3.392 lt=0/100
+CBTIME o in1 chS11 raw=26.240 d_chP=+7.552 lt=0/100 d_chF0=+2.592 lt=0/100
+CBTIME o in1 chS20 raw=27.712 d_chP=+9.056 lt=0/100 d_chF0=+4.112 lt=0/100
+CBTIME o in1 chS21 raw=27.888 d_chP=+9.232 lt=0/100 d_chF0=+4.352 lt=0/100
+CBTIME o in1 chS40 raw=19.776 d_chP=+1.040 lt=4/100 d_chF0=-3.872 lt=100/100
+CBTIME o in1 chS41 raw=19.632 d_chP=+0.896 lt=5/100 d_chF0=-3.968 lt=100/100
+CBNULL o in2 ctrl2-ctrl=-0.112 MAD=0.192 ctrl=10.080
+CBTIME o in2 ctrl raw=10.080 d_ctrl2=+0.112 lt=32/100 d_full=-4.752 lt=100/100
+CBTIME o in2 c2pdl raw=14.800 d_ctrl2=+4.816 lt=0/100 d_full=-0.048 lt=52/100
+CBTIME o in2 c2pdlattr raw=14.848 d_ctrl2=+4.768 lt=0/100 d_full=+0.000 lt=46/100
+CBTIME o in2 ctrl2 raw=9.984 d_full=-4.832 lt=100/100
+CBTIME o in2 ex0 raw=10.048 d_ctrl2=+0.064 lt=40/100 d_full=-4.800 lt=100/100
+CBTIME o in2 exattr raw=9.984 d_ctrl2=+0.032 lt=42/100 d_full=-4.832 lt=100/100
+CBTIME o in2 cg raw=12.832 d_ctrl2=+2.832 lt=0/100 d_full=-2.016 lt=100/100
+CBTIME o in2 ord raw=10.048 d_ctrl2=+0.080 lt=34/100 d_full=-4.768 lt=100/100
+CBTIME o in2 wait raw=10.112 d_ctrl2=+0.144 lt=22/100 d_full=-4.704 lt=100/100
+CBTIME o in2 trig raw=11.968 d_ctrl2=+1.952 lt=0/100 d_full=-2.864 lt=100/100
+CBTIME o in2 cgord raw=12.768 d_ctrl2=+2.784 lt=0/100 d_full=-2.080 lt=100/100
+CBTIME o in2 full raw=14.816 d_ctrl2=+4.832 lt=0/100
+CBTIME o in2 fullattr raw=14.800 d_ctrl2=+4.784 lt=0/100 d_full=-0.032 lt=54/100
+CBTIME o in2 cgrep raw=10.624 d_ctrl2=+0.608 lt=3/100 d_full=-4.240 lt=100/100
+CBTIME o in2 st1 raw=17.760 d_ctrl2=+7.744 lt=0/100 d_full=+2.880 lt=0/100
+CBTIME o in2 st2 raw=18.368 d_ctrl2=+8.400 lt=0/100 d_full=+3.504 lt=0/100
+CBTIME o in2 st4 raw=10.816 d_ctrl2=+0.832 lt=2/100 d_full=-4.016 lt=100/100
+CBTIME o in2 st2np raw=18.560 d_ctrl2=+8.560 lt=0/100 d_full=+3.712 lt=0/100
+CBTIME o in2 chP raw=18.720 d_chF0=-4.768 lt=100/100
+CBTIME o in2 chF0 raw=23.488 d_chP=+4.768 lt=0/100
+CBTIME o in2 chF1 raw=22.464 d_chP=+3.760 lt=0/100 d_chF0=-1.024 lt=99/100
+CBTIME o in2 chS10 raw=26.912 d_chP=+8.224 lt=0/100 d_chF0=+3.456 lt=0/100
+CBTIME o in2 chS11 raw=26.240 d_chP=+7.472 lt=0/100 d_chF0=+2.720 lt=0/100
+CBTIME o in2 chS20 raw=27.664 d_chP=+8.928 lt=0/100 d_chF0=+4.192 lt=0/100
+CBTIME o in2 chS21 raw=27.872 d_chP=+9.152 lt=0/100 d_chF0=+4.352 lt=0/100
+CBTIME o in2 chS40 raw=19.904 d_chP=+1.232 lt=0/100 d_chF0=-3.488 lt=100/100
+CBTIME o in2 chS41 raw=19.712 d_chP=+1.024 lt=4/100 d_chF0=-3.808 lt=99/100
+CBCHECK unpooler FP64+probe ctrl2, 4 inputs bitwise to ctrl2 PASS ['c2pdl', 'c2pdlattr', 'cg', 'cgord', 'cgrep', 'chF0', 'chF1', 'chP', 'chS10', 'chS11', 'chS20', 'chS21', 'chS40', 'chS41', 'ctrl', 'ctrl2', 'ex0', 'exattr', 'full', 'fullattr', 'ord', 'st1', 'st2', 'st2np', 'st4', 'trig', 'wait']
+CBREPLAY unpooler 3 fresh captured inputs bitwise PASS ['c2pdl', 'c2pdlattr', 'cg', 'cgord', 'cgrep', 'chF0', 'chF1', 'chP', 'chS10', 'chS11', 'chS20', 'chS21', 'chS40', 'chS41', 'ctrl', 'ctrl2', 'ex0', 'exattr', 'full', 'fullattr', 'ord', 'st1', 'st2', 'st2np', 'st4', 'trig', 'wait']
+CBNULL unpooler in0 ctrl2-ctrl=-0.096 MAD=0.128 ctrl=8.512
+CBTIME unpooler in0 ctrl raw=8.512 d_ctrl2=+0.096 lt=29/100 d_full=-1.216 lt=100/100
+CBTIME unpooler in0 c2pdl raw=9.600 d_ctrl2=+1.184 lt=0/100 d_full=-0.080 lt=57/100
+CBTIME unpooler in0 c2pdlattr raw=9.632 d_ctrl2=+1.168 lt=0/100 d_full=-0.080 lt=57/100
+CBTIME unpooler in0 ctrl2 raw=8.448 d_full=-1.248 lt=100/100
+CBTIME unpooler in0 ex0 raw=8.448 d_ctrl2=+0.000 lt=48/100 d_full=-1.232 lt=99/100
+CBTIME unpooler in0 exattr raw=8.448 d_ctrl2=+0.000 lt=49/100 d_full=-1.216 lt=100/100
+CBTIME unpooler in0 cg raw=8.736 d_ctrl2=+0.352 lt=7/100 d_full=-0.912 lt=97/100
+CBTIME unpooler in0 ord raw=8.576 d_ctrl2=+0.128 lt=24/100 d_full=-1.120 lt=98/100
+CBTIME unpooler in0 wait raw=8.576 d_ctrl2=+0.128 lt=21/100 d_full=-1.104 lt=99/100
+CBTIME unpooler in0 trig raw=8.928 d_ctrl2=+0.528 lt=2/100 d_full=-0.752 lt=98/100
+CBTIME unpooler in0 cgord raw=8.736 d_ctrl2=+0.320 lt=6/100 d_full=-0.960 lt=99/100
+CBTIME unpooler in0 full raw=9.696 d_ctrl2=+1.248 lt=0/100
+CBTIME unpooler in0 fullattr raw=9.696 d_ctrl2=+1.264 lt=0/100 d_full=-0.032 lt=55/100
+CBTIME unpooler in0 cgrep raw=8.800 d_ctrl2=+0.368 lt=7/100 d_full=-0.864 lt=98/100
+CBTIME unpooler in0 st1 raw=10.720 d_ctrl2=+2.240 lt=0/100 d_full=+0.992 lt=0/100
+CBTIME unpooler in0 st2 raw=10.048 d_ctrl2=+1.568 lt=0/100 d_full=+0.304 lt=10/100
+CBTIME unpooler in0 st4 raw=9.312 d_ctrl2=+0.896 lt=0/100 d_full=-0.384 lt=92/100
+CBTIME unpooler in0 st2np raw=10.080 d_ctrl2=+1.648 lt=0/100 d_full=+0.416 lt=10/100
+CBTIME unpooler in0 chP raw=17.216 d_chF0=-1.216 lt=100/100
+CBTIME unpooler in0 chF0 raw=18.400 d_chP=+1.216 lt=0/100
+CBTIME unpooler in0 chF1 raw=17.408 d_chP=+0.240 lt=25/100 d_chF0=-1.088 lt=98/100
+CBTIME unpooler in0 chS10 raw=19.520 d_chP=+2.304 lt=0/100 d_chF0=+1.088 lt=0/100
+CBTIME unpooler in0 chS11 raw=19.600 d_chP=+2.384 lt=0/100 d_chF0=+0.992 lt=3/100
+CBTIME unpooler in0 chS20 raw=18.496 d_chP=+1.312 lt=0/100 d_chF0=+0.096 lt=35/100
+CBTIME unpooler in0 chS21 raw=17.968 d_chP=+0.784 lt=4/100 d_chF0=-0.448 lt=78/100
+CBTIME unpooler in0 chS40 raw=17.872 d_chP=+0.656 lt=3/100 d_chF0=-0.528 lt=88/100
+CBTIME unpooler in0 chS41 raw=17.024 d_chP=-0.128 lt=64/100 d_chF0=-1.408 lt=100/100
+CBNULL unpooler in1 ctrl2-ctrl=+0.032 MAD=0.160 ctrl=8.480
+CBTIME unpooler in1 ctrl raw=8.480 d_ctrl2=-0.032 lt=51/100 d_full=-1.312 lt=99/100
+CBTIME unpooler in1 c2pdl raw=9.728 d_ctrl2=+1.264 lt=0/100 d_full=+0.000 lt=48/100
+CBTIME unpooler in1 c2pdlattr raw=9.728 d_ctrl2=+1.280 lt=0/100 d_full=+0.000 lt=47/100
+CBTIME unpooler in1 ctrl2 raw=8.480 d_full=-1.312 lt=100/100
+CBTIME unpooler in1 ex0 raw=8.480 d_ctrl2=+0.000 lt=47/100 d_full=-1.264 lt=100/100
+CBTIME unpooler in1 exattr raw=8.416 d_ctrl2=+0.032 lt=45/100 d_full=-1.312 lt=100/100
+CBTIME unpooler in1 cg raw=8.672 d_ctrl2=+0.256 lt=13/100 d_full=-1.024 lt=98/100
+CBTIME unpooler in1 ord raw=8.512 d_ctrl2=+0.064 lt=31/100 d_full=-1.248 lt=100/100
+CBTIME unpooler in1 wait raw=8.528 d_ctrl2=+0.096 lt=32/100 d_full=-1.232 lt=100/100
+CBTIME unpooler in1 trig raw=8.832 d_ctrl2=+0.384 lt=7/100 d_full=-0.944 lt=98/100
+CBTIME unpooler in1 cgord raw=8.640 d_ctrl2=+0.192 lt=20/100 d_full=-1.088 lt=98/100
+CBTIME unpooler in1 full raw=9.760 d_ctrl2=+1.312 lt=0/100
+CBTIME unpooler in1 fullattr raw=9.696 d_ctrl2=+1.248 lt=0/100 d_full=-0.032 lt=51/100
+CBTIME unpooler in1 cgrep raw=8.736 d_ctrl2=+0.272 lt=9/100 d_full=-1.024 lt=97/100
+CBTIME unpooler in1 st1 raw=12.320 d_ctrl2=+3.872 lt=0/100 d_full=+2.560 lt=0/100
+CBTIME unpooler in1 st2 raw=10.496 d_ctrl2=+2.016 lt=0/100 d_full=+0.736 lt=1/100
+CBTIME unpooler in1 st4 raw=9.248 d_ctrl2=+0.816 lt=1/100 d_full=-0.528 lt=92/100
+CBTIME unpooler in1 st2np raw=10.528 d_ctrl2=+2.080 lt=0/100 d_full=+0.752 lt=0/100
+CBTIME unpooler in1 chP raw=17.072 d_chF0=-1.152 lt=97/100
+CBTIME unpooler in1 chF0 raw=18.240 d_chP=+1.152 lt=2/100
+CBTIME unpooler in1 chF1 raw=17.440 d_chP=+0.320 lt=19/100 d_chF0=-0.832 lt=97/100
+CBTIME unpooler in1 chS10 raw=19.440 d_chP=+2.336 lt=0/100 d_chF0=+1.184 lt=0/100
+CBTIME unpooler in1 chS11 raw=19.696 d_chP=+2.608 lt=0/100 d_chF0=+1.440 lt=0/100
+CBTIME unpooler in1 chS20 raw=18.624 d_chP=+1.520 lt=0/100 d_chF0=+0.400 lt=22/100
+CBTIME unpooler in1 chS21 raw=18.016 d_chP=+0.944 lt=4/100 d_chF0=-0.256 lt=65/100
+CBTIME unpooler in1 chS40 raw=18.048 d_chP=+0.912 lt=6/100 d_chF0=-0.192 lt=70/100
+CBTIME unpooler in1 chS41 raw=16.992 d_chP=-0.096 lt=61/100 d_chF0=-1.280 lt=99/100
+CBNULL unpooler in2 ctrl2-ctrl=-0.064 MAD=0.160 ctrl=8.512
+CBTIME unpooler in2 ctrl raw=8.512 d_ctrl2=+0.064 lt=30/100 d_full=-1.088 lt=100/100
+CBTIME unpooler in2 c2pdl raw=9.632 d_ctrl2=+1.184 lt=0/100 d_full=-0.032 lt=55/100
+CBTIME unpooler in2 c2pdlattr raw=9.680 d_ctrl2=+1.216 lt=1/100 d_full=+0.032 lt=44/100
+CBTIME unpooler in2 ctrl2 raw=8.480 d_full=-1.184 lt=100/100
+CBTIME unpooler in2 ex0 raw=8.384 d_ctrl2=+0.000 lt=47/100 d_full=-1.248 lt=100/100
+CBTIME unpooler in2 exattr raw=8.480 d_ctrl2=+0.000 lt=48/100 d_full=-1.184 lt=100/100
+CBTIME unpooler in2 cg raw=8.736 d_ctrl2=+0.256 lt=11/100 d_full=-0.880 lt=100/100
+CBTIME unpooler in2 ord raw=8.544 d_ctrl2=+0.096 lt=29/100 d_full=-1.088 lt=100/100
+CBTIME unpooler in2 wait raw=8.544 d_ctrl2=+0.064 lt=29/100 d_full=-1.088 lt=100/100
+CBTIME unpooler in2 trig raw=8.896 d_ctrl2=+0.416 lt=4/100 d_full=-0.736 lt=96/100
+CBTIME unpooler in2 cgord raw=8.736 d_ctrl2=+0.256 lt=15/100 d_full=-0.960 lt=99/100
+CBTIME unpooler in2 full raw=9.632 d_ctrl2=+1.184 lt=0/100
+CBTIME unpooler in2 fullattr raw=9.600 d_ctrl2=+1.120 lt=1/100 d_full=-0.064 lt=57/100
+CBTIME unpooler in2 cgrep raw=8.736 d_ctrl2=+0.288 lt=15/100 d_full=-0.928 lt=98/100
+CBTIME unpooler in2 st1 raw=10.720 d_ctrl2=+2.256 lt=0/100 d_full=+1.088 lt=2/100
+CBTIME unpooler in2 st2 raw=10.016 d_ctrl2=+1.552 lt=0/100 d_full=+0.368 lt=14/100
+CBTIME unpooler in2 st4 raw=9.280 d_ctrl2=+0.832 lt=3/100 d_full=-0.320 lt=89/100
+CBTIME unpooler in2 st2np raw=10.112 d_ctrl2=+1.664 lt=0/100 d_full=+0.448 lt=10/100
+CBTIME unpooler in2 chP raw=17.248 d_chF0=-1.152 lt=99/100
+CBTIME unpooler in2 chF0 raw=18.304 d_chP=+1.152 lt=1/100
+CBTIME unpooler in2 chF1 raw=17.520 d_chP=+0.224 lt=25/100 d_chF0=-0.832 lt=98/100
+CBTIME unpooler in2 chS10 raw=19.584 d_chP=+2.304 lt=0/100 d_chF0=+1.216 lt=2/100
+CBTIME unpooler in2 chS11 raw=19.568 d_chP=+2.304 lt=0/100 d_chF0=+1.264 lt=4/100
+CBTIME unpooler in2 chS20 raw=18.656 d_chP=+1.408 lt=0/100 d_chF0=+0.352 lt=19/100
+CBTIME unpooler in2 chS21 raw=17.936 d_chP=+0.704 lt=6/100 d_chF0=-0.416 lt=81/100
+CBTIME unpooler in2 chS40 raw=17.888 d_chP=+0.640 lt=6/100 d_chF0=-0.384 lt=85/100
+CBTIME unpooler in2 chS41 raw=16.976 d_chP=-0.224 lt=74/100 d_chF0=-1.344 lt=99/100
+CBDONE elapsed=117.5 s
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 17:19:31 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop

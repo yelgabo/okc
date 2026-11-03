@@ -24,7 +24,7 @@ ingredient at a time on C2's cgemv body, each bitwise against the plain kernel:
   ch*       two-kernel chain: a producer (8 MB streaming read, writes x, triggers at entry) then
             the cgemv; chP plain, chF0 / chF1 full without / with PDL, chS<G>0 / chS<G>1 the same for st<G>
 
-    python3 tools/proj_make_bench_cgpdl.py BASE OUT
+    python3 tools/proj_make_bench_cgpdl.py [--set 2] BASE OUT [DEVICE_CHECK.cu]
       BASE  .build/repeats/bf16_base.py (SHA256 5610b8a6...)
 """
 import ast
@@ -37,7 +37,7 @@ import types
 ROOT = Path(__file__).resolve().parents[1]
 BASE_SHA = "5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4"
 
-CG, WAIT, TRIG, ORD, REP, STG = 1, 2, 4, 8, 16, 32
+CG, WAIT, TRIG, ORD, REP, STG, TRIGEND = 1, 2, 4, 8, 16, 32, 64
 FULL = CG | WAIT | TRIG
 SHAPES = {"qkv_gate": (256, 2, 2304), "o": (64, 1, 8192), "unpooler": (128, 2, 1024)}
 # name -> (VAR, G, launch mode); mode 0 <<<>>>, 1 cudaLaunchKernelEx without attribute, 2 with PDL
@@ -51,20 +51,36 @@ ARMS = {
 CHAINS = {"chP": ("ctrl2", 0), "chF0": ("full", 1), "chF1": ("full", 2), "chS10": ("st1", 1), "chS11": ("st1", 2),
           "chS20": ("st2", 1), "chS21": ("st2", 2), "chS40": ("st4", 1), "chS41": ("st4", 2)}
 NREP = 16
+# CGPDL-02 (--set 2): check 1 lost the qkv_gate rows to the 16 KB log tail and showed the trigger
+# before the x loads costs +1.9 us on o; this set moves the trigger to the CTA's end (TRIGEND) and
+# shares one staged x copy between more row pairs. A fourth field limits an arm to some shapes.
+FE = CG | WAIT | TRIGEND
+SE = STG | WAIT | TRIGEND
+ARMS2 = {
+    "ctrl2": (0, 1, 0), "ex0": (0, 1, 1), "exattr": (0, 1, 2), "cg": (CG, 1, 0), "ord": (ORD, 1, 0),
+    "wait": (WAIT, 1, 0), "trig": (TRIG, 1, 0), "trige": (TRIGEND, 1, 0), "cgrep": (CG | REP, 1, 0),
+    "full": (FULL, 1, 1), "fe": (FE, 1, 1),
+    "s4": (STG | WAIT | TRIG, 4, 1, ("o", "unpooler")),
+    "s2e": (SE, 2, 1, ("qkv_gate", "unpooler")), "s4e": (SE, 4, 1, ("o", "unpooler")), "s8e": (SE, 8, 1, ("o",)),
+}
+CHAINS2 = {"chP": ("ctrl2", 0), "chF1": ("full", 2), "chFe0": ("fe", 1), "chFe1": ("fe", 2),
+           "chS2e1": ("s2e", 2), "chS4e0": ("s4e", 1), "chS4e1": ("s4e", 2), "chS8e1": ("s8e", 2)}
+SET = "1"
 
 
 def arms_for(layer):
     nth, cpt, n = SHAPES[layer]
     out = {}
-    for nm, (var, g, mode) in ARMS.items():
-        if g * (nth + 32) > 1024 or (n // 2) % g:
+    for nm, spec in (ARMS2 if SET == "2" else ARMS).items():
+        var, g, mode = spec[:3]
+        if g * (nth + 32) > 1024 or (n // 2) % g or (len(spec) > 3 and layer not in spec[3]):
             continue
         out[nm] = (var, g, mode)
     return out
 
 
 DEVICE = r'''
-constexpr int CB_CG = 1, CB_WAIT = 2, CB_TRIG = 4, CB_ORD = 8, CB_REP = 16, CB_STG = 32;
+constexpr int CB_CG = 1, CB_WAIT = 2, CB_TRIG = 4, CB_ORD = 8, CB_REP = 16, CB_STG = 32, CB_TRIGEND = 64;
 
 __device__ __forceinline__ void cb_wait() { asm volatile("griddepcontrol.wait;" ::: "memory"); }
 __device__ __forceinline__ void cb_trig() { asm volatile("griddepcontrol.launch_dependents;" ::: "memory"); }
@@ -162,6 +178,9 @@ __device__ __forceinline__ void cb_body(const uint8_t* __restrict__ stream, int 
             red[0][NW] = corr0;
             red[1][NW] = corr1;
         }
+    }
+    if constexpr ((VAR & CB_TRIGEND) != 0) {
+        cb_trig();
     }
     __syncthreads();
     if (t == 0) {
@@ -269,6 +288,9 @@ __device__ __forceinline__ void cb_body_stg(const uint8_t* __restrict__ stream, 
             red[grp][0][NW] = corr0;
             red[grp][1][NW] = corr1;
         }
+    }
+    if constexpr ((VAR & CB_TRIGEND) != 0) {
+        cb_trig();
     }
     __syncthreads();
     if (t == 0) {
@@ -479,6 +501,7 @@ _CB_NREP = @@NREP@@
 _CB_SRC = @@SRC@@
 _CB_CPP = @@CPP@@
 _CB_C2PDL_EDITS = @@C2EDITS@@
+_CB_COMPACT = @@COMPACT@@
 _CBLOG = []
 
 
@@ -514,10 +537,16 @@ def _cbbench(weights, state, started):
     ext = state.get("wd_ext")
     dev = state["o"].device
     nsm = torch.cuda.get_device_properties(dev).multi_processor_count
+    res = {}
     for i, layer, nm, nth, cpt, var, g, mode in _CB_ROWS:
         r = mod.cb_info(i)
-        _cbprint(f"CBRES {layer} {nm} var={var} G={g} mode={mode} regs={r[0]} local={r[1]} static={r[2]} "
-                 f"blocks/SM={r[3]} block={r[4]}")
+        if _CB_COMPACT:
+            res.setdefault(layer, []).append(f"{nm}:{r[0]}r/{r[1]}l/{r[3]}b")
+        else:
+            _cbprint(f"CBRES {layer} {nm} var={var} G={g} mode={mode} regs={r[0]} local={r[1]} static={r[2]} "
+                     f"blocks/SM={r[3]} block={r[4]}")
+    for layer, v in res.items():
+        _cbprint(f"CBRES {layer} regs/local/blocksSM " + " ".join(v))
     big = torch.ones(2 * 1024 * 1024, dtype=torch.float32, device=dev)
     sink = torch.zeros(256, dtype=torch.float32, device=dev)
     flush = torch.empty(FLUSH_BYTES, dtype=torch.uint8, device=dev)
@@ -563,7 +592,9 @@ def _cbbench(weights, state, started):
         # tag -> (fn, feed): feed maps the round's x to what fn takes
         plainfeed = lambda x, xr: x
         repfeed = lambda x, xr: xr
-        arms = {"ctrl": (ctrl, plainfeed), "c2pdl": (c2run(0), plainfeed), "c2pdlattr": (c2run(1), plainfeed)}
+        arms = {"ctrl": (ctrl, plainfeed), "c2pdl": (c2run(0), plainfeed)}
+        if not _CB_COMPACT:
+            arms["c2pdlattr"] = (c2run(1), plainfeed)
         for nm, (i, var, g, mode) in rows.items():
             rep = var & 16
             arms[nm] = (mk(i, _CB_NREP if rep else 1), repfeed if rep else plainfeed)
@@ -609,7 +640,8 @@ def _cbbench(weights, state, started):
             continue
         for tag in failed:
             arms.pop(tag, None)
-        _cbprint(f"CBCHECK {layer} FP64+probe ctrl2, 4 inputs bitwise to ctrl2 PASS {sorted(arms)}")
+        _cbprint(f"CBCHECK {layer} FP64+probe ctrl2, 4 inputs bitwise to ctrl2: "
+                 + (f"{len(arms)} PASS, failed {sorted(failed)}" if _CB_COMPACT else f"PASS {sorted(arms)}"))
         for tag, (fn, feed) in list(arms.items()):
             x, _ = _gen_x(1, k, gen, dev)
             xr = x.repeat(1, _CB_NREP).contiguous()
@@ -628,9 +660,11 @@ def _cbbench(weights, state, started):
                     arms.pop(tag)
                     _cbprint(f"CBFAIL {layer} {tag} captured replay not bitwise equal")
                     break
-        _cbprint(f"CBREPLAY {layer} 3 fresh captured inputs bitwise PASS {sorted(arms)}")
+        _cbprint(f"CBREPLAY {layer} 3 fresh captured inputs bitwise: "
+                 + (f"{len(arms)} PASS" if _CB_COMPACT else f"PASS {sorted(arms)}"))
         rounds = 100
         graphs = {}
+        acc = {}
         for inp in range(3):
             if time.time() - started > 250:
                 _cbprint(f"CBSTOP time guard {layer} input {inp}")
@@ -666,12 +700,22 @@ def _cbbench(weights, state, started):
             _cbprint(f"CBNULL {layer} in{inp} ctrl2-ctrl={nmed:+.3f} MAD={nmad:.3f} ctrl={_cbstats.median(times['ctrl']):.3f}")
             for tag, ts in times.items():
                 refs = ("chP", "chF0") if tag.startswith("ch") else ("ctrl2", "full")
+                if _CB_COMPACT:
+                    refs = ("chP",) if tag.startswith("ch") else ("ctrl2",)
                 parts = [f"raw={_cbstats.median(ts):.3f}"]
+                a = acc.setdefault(tag, {"raw": []})
+                a["raw"].append(f"{_cbstats.median(ts):.2f}")
                 for rf in refs:
                     if rf in times and rf != tag:
                         d = [p_ - q_ for p_, q_ in zip(ts, times[rf])]
                         parts.append(f"d_{rf}={_cbstats.median(d):+.3f} lt={sum(z < 0 for z in d)}/{rounds}")
-                _cbprint(f"CBTIME {layer} in{inp} {tag} " + " ".join(parts))
+                        a.setdefault(rf, []).append(f"{_cbstats.median(d):+.2f}({sum(z < 0 for z in d)})")
+                if not _CB_COMPACT:
+                    _cbprint(f"CBTIME {layer} in{inp} {tag} " + " ".join(parts))
+        if _CB_COMPACT:
+            for tag, a in acc.items():
+                extra = " ".join(f"d_{rf} " + "/".join(v) for rf, v in a.items() if rf != "raw")
+                _cbprint(f"CBT {layer} {tag} raw " + "/".join(a["raw"]) + " " + extra)
         del graphs
     _cbprint(f"CBDONE elapsed={time.time() - started:.1f} s")
 
@@ -707,9 +751,9 @@ def gemv_src(base):
 
 def make(base):
     src = cuda_source(gemv_src(base))
-    out = (base.rstrip("\n") + "\n" + RUN.replace("@@ROWS@@", repr(arm_table())).replace("@@CHAINS@@", repr(CHAINS))
+    out = (base.rstrip("\n") + "\n" + RUN.replace("@@ROWS@@", repr(arm_table())).replace("@@CHAINS@@", repr(CHAINS2 if SET == "2" else CHAINS))
            .replace("@@NREP@@", repr(NREP)).replace("@@SRC@@", repr(src)).replace("@@CPP@@", repr(CPP))
-           .replace("@@C2EDITS@@", repr(c2pdl_edits())))
+           .replace("@@C2EDITS@@", repr(c2pdl_edits())).replace("@@COMPACT@@", repr(SET == "2")))
     ast.parse(out)
     return out, src
 
@@ -752,11 +796,14 @@ def host_gate(text):
         assert f"case {i}: nth = {nth}; cpt = {cpt}; e = cb_launch<{nth}, {cpt}, {var}, {g}>" in src, nm
         assert f"case {i}: cb_info_one<{nth}, {cpt}, {var}, {g}>" in src, nm
     for cnm, (sec, smode) in ns["_CB_CHAINS"].items():
-        assert sec in ARMS and smode in (0, 1, 2)
+        assert sec in (ARMS2 if SET == "2" else ARMS) and smode in (0, 1, 2)
     return len(ns["_CB_ROWS"])
 
 
 if __name__ == "__main__":
+    if sys.argv[1] == "--set":
+        SET = sys.argv[2]
+        del sys.argv[1:3]
     base_path, out_path = sys.argv[1:3]
     base = Path(base_path).read_bytes()
     if hashlib.sha256(base).hexdigest() != BASE_SHA:
