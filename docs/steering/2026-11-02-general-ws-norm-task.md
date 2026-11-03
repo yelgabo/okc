@@ -1,4 +1,6 @@
-# GOPT-WS-NORM-03: one selected-helper norm-stat aggregation
+# WS norm-stat planning reference — active owner protocol takes precedence
+
+**Superseded planning brief:** before this local note was published, General Optimizer independently picked up the joint research findings at1e068258, qualified GOPT-WS-03 and accepted **b38a9ed6dc9743e9** for51d6286b/1e857ad4. Use [the owning source and frozen gates](2026-11-02-general-ws-norm-aggregation.md), including its1.01 affected-call factor, rather than the prospective1.005 planning value below. Do not retrofit criteria, build another treatment or dispatch a duplicate from this note. This is retained source-review history, not a new active allocation.
 
 November2 Pacific / November3,2026. **Owner: OKC General Optimizer.** Source-qualified implementation task under the standing hotspot goal, not a runnable candidate or measured gain. CUDA research supplied this proposal in its existing refill investigation; only its CPU opportunity counts were published at7c1d1086. This narrow brief independently verifies active source and archived machine code. It does not claim the research chat's blocked full-report append succeeded.
 

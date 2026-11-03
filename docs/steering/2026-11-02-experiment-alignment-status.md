@@ -6,7 +6,7 @@ Evidence checkpoint: `6110e4adedda3cb36dc80866a0a9c8a67723500c`, local main and 
 
 **The current work is relevant to the steering directions, but it has not produced a new performance-qualified winner.** The remaining shortcoming is execution/qualification, not a lack of relevance. The latest research's immediate hardware-compression decision was attempted but remains unanswered after a preventable host build mismatch. The subsequent T1-only three-launch prototype follows the research's second direction and the newer captain allocation. That is a reasonable bounded use of time while private layer quota is exhausted; it is not evidence of speedup.
 
-Read together: [research](2026-11-02-status-and-next-research.md), [captain terminal and next allocation](2026-11-02-captain-pr-terminal-next-implementation.md), and [blocked retry](2026-11-02-worker-pr-retry-blocked.md). The research introduction's one-private-check snapshot is superseded by the later terminal and 15:11 UTC quota receipt.
+Read together: [research](2026-11-02-status-and-next-research.md), [captain terminal and next allocation](2026-11-02-captain-pr-terminal-next-implementation.md), and [blocked retry](../../archive/docs/steering/2026-11-02-worker-pr-retry-blocked.md). The research introduction's one-private-check snapshot is superseded by the later terminal and 15:11 UTC quota receipt.
 
 ## Actual state and relevance
 

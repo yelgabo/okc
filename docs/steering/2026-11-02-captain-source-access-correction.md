@@ -20,6 +20,6 @@ One100-result code page for quoted muse_decode_layer excluding own, lee101 and R
 
 ## Decision and next gate
 
-Stop this discovery round. Do not repeat unchanged source audits or infer source improvement from team rank. The most actionable experiment remains the frozen T1 private check already assigned to the sole worker by [c66f5ce6](2026-11-02-captain-t1-one-check.md). No new readiness cycle, source rescue or second dispatch is allocated here. Its owning target result must decide numerics,295s fit/replay and paired whole-six gain; a component pass cannot substitute for layer qualification.
+Stop this discovery round. Do not repeat unchanged source audits or infer source improvement from team rank. The most actionable experiment remains the frozen T1 private check already assigned to the sole worker by [c66f5ce6](../../archive/docs/steering/2026-11-02-captain-t1-one-check.md). No new readiness cycle, source rescue or second dispatch is allocated here. Its owning target result must decide numerics,295s fit/replay and paired whole-six gain; a component pass cannot substitute for layer qualification.
 
 Reopen competitor work for a concrete changed complete file/prepare/dispatcher, newly retrievable source-associated stronger result, or materially different mechanism with scoped correctness obligations. Corrected access alone creates none of these. Prior pre-gamma/G224/SiLU/PDL closures and ownership remain. Top100 is unmet and incumbent unchanged; no fresh rank claim.

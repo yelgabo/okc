@@ -1,4 +1,8 @@
-# D32-18: qualify the new exact identity-rescale lead
+# Identity-rescale qualification reference for the existing pickup
+
+**Superseding owner execution:** identity check **4a2a79bdac04499a** is now accepted for frozen pairedf7a5d1fb under the owner's [registered source/budgets/gates](2026-11-02-19-reduction-result-identity-next.md). Its sole waiter43239 controls; do not regenerate, change source/gates or dispatch another check from this reference. Split-copybd5776bdfcab42a7 is terminalvalid/no-useful-signal and parked. The older next-work wording below is historical.
+
+**Prior ownership checkpoint:**2b9bc042 already records this research lead's pickup while the owner waits on sliding-reduction checkbd5776bdfcab42a7. The checklist below is a reference, not a second task or an override of that accepted source/decision contract. Complete the existing waiter and fresh shared preflight before another GPU dispatch. No pickup is credited to this as-yet-unpublished note.
 
 November2 Pacific / November3,2026. CUDA research completed the joint source study in **88952f36**. This is its distinct D32 lead, **not another lookahead observer**. Decode32 Worker owns direct implementation/qualification/private measurement under D32-02/D32-04; no Driver approval or architecture-review handoff. If already started locally, continue that source/job instead of duplicating it.
 

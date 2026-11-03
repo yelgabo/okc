@@ -4,7 +4,9 @@
 
 Read [shared steering](docs/steering/README.md), the latest applicable report and newer origin/main commits/run logs. Read only the records needed for the current decision. [Context](docs/context.md) is historical.
 
-Decode32 Worker owns T32/q_len1 sliding/full implementation, compilation, correctness, private checks, own-job analysis, integration and commits. Optimize `46*sliding_us + 16*full_us`; preserve other loads. First target is reproducible2x, then2.1-2.2x. Research owns architectural choices and concrete experiments. No routine Driver approval or handoff. Read the [directive](docs/steering/decode32/2026-11-02-02-end-to-end-ownership.md), [inbox](docs/steering/decode32/README.md) and [status](docs/steering/decode32/STATUS.md). Continue selected work and reuse existing MID evidence.
+Decode32 Worker owns T32/q_len1 sliding/full implementation, compilation, correctness, private checks, own-job analysis, integration and commits. Optimize `46*sliding_us + 16*full_us`; preserve other loads. The current user target is verified D32 speedup of at least2.3x. Research owns architectural choices and concrete experiments. No routine Driver approval or handoff. Read the [directive](docs/steering/decode32/2026-11-02-02-end-to-end-ownership.md), [inbox](docs/steering/decode32/README.md) and [status](docs/steering/decode32/STATUS.md). Continue selected work and reuse existing MID evidence.
+
+User continuation, November2: keep D32 execution moving toward2.3x. An empty research queue does not justify becoming only a polling monitor. Qualify bounded, nonoverlapping source-backed experiments while research continues; preserve closed variants and technical gates. [Current reduction experiment](docs/steering/decode32/2026-11-02-18-active-reduction-experiment.md).
 
 General Optimizer reads the newest queue and active assignment on every user/scheduled wake. Implementation and measurement precede tracker maintenance. Record actual pickup, selected source/job and next action.
 

@@ -1,4 +1,21 @@
-# Monitor: observer closed; one General implementation task restored
+# Monitor: reduction closed; identity and norm checks accepted
+
+## Current publication checkpoint — after concurrent owner commits
+
+The latest owner records through **3e11a37e** supersede the earlier same-turn snapshots below. Owners independently executed the research findings before Driver planning references were pushed; no execution credit or duplicate allocation is claimed for those local notes.
+
+| Owner / experiment | Exact source and own job | Verified state / next decision |
+|---|---|---|
+| D32 sliding split-copy |93a05524; **bd5776bdfcab42a7**|Terminal13/12/12 PASS; whole-six2.119213898x,CI[2.087425690,2.151002107]. Adjustedsliding161.438408us/full304.957678us,C32=12.305489629ms,ownD32ratio1.814994799x. No useful affectedsliding signal; exacteight-copy treatment PARKED, no demonstrated routing correction/matched gain.|
+| D32 full-context identity-rescale |pairedf7a5d1fb; **4a2a79bdac04499a**|Accepted; source59011284/registration3a87e998, sole waiter43239. Eleven local CPU/source/host/reader checks and CUDA twin compilation are not target results. Follow the owning contract; no new root waiter/POST.|
+| General WS norm aggregation |source51d6286b/payload1e857ad4; **b38a9ed6dc9743e9**|Accepted, last shared list RUNNING; local FTZ/partition/codegen checks passed. Owner's frozen1.01 affected-call/twice-null/all-load protocol controls; do not substitute Driver's historical1.005 planning value.|
+| CUDA B4 attribution |existing CUDA-MOE-PHASE-01|Separate scope retained; no duplicate task or result claimed here.|
+
+[Owner execution/receipt extraction](evidence/2026-11-02-driver-monitor-0315/owner-execution-update.json). [Live03:54:20UTC snapshot](evidence/2026-11-02-driver-monitor-0315/publication-live-summary.json): Generalnormrunning/identityqueued; layer13private/10scored,MoE16private/10scored; overall/layer386,public607still2.126082676x,layer1002.2715x. No new public action or target winner. User's current D32 target is verified2.3x or better; milestones/planning values are not promised gains.
+
+Current source/decision truth is in [D32 STATUS](decode32/STATUS.md), [D32 identity/reduction report](decode32/2026-11-02-19-reduction-result-identity-next.md), and [General's frozen norm protocol](2026-11-02-general-ws-norm-aggregation.md). Driver notes are supporting references only. Archived-doc and newer compact-index changes are preserved; no live collector redirect was touched.
+
+## Earlier same-turn observations and qualification provenance
 
 November2 Pacific / November3,2026. Heartbeat03:12UTC; live snapshot03:30UTC. Evidence **9f8fa34a991f63a26f53cccefbeade39b045f353**. Current compact instructions/index, owner ledger and joint refill were reconciled. No root GPU dispatch, kernel edit, new worker or other-owner status poll.
 
@@ -37,3 +54,11 @@ Incoming historical-doc moves and newer scope instructions were preserved during
 ## Canonical evidence reproduction
 
 The existing joint source verifier independently passed three WS-build checks, sixteen D32 FMUL sites and1,061,391 finite CPU identity cases after the merge. Initial raw-hash checks failed under Windows CRLF text checkout; a Git archive export here also carried CRLF. Exact `git show COMMIT:path` bytes were then exported into ignored .build and matched the original manifest without changing any tracked artifact or weakening a check. [Portability record](evidence/2026-11-02-driver-monitor-0315/source-check-portability.json), [result summary](evidence/2026-11-02-driver-monitor-0315/joint-reproduction-summary.json). This reproduces archived/source/CPU evidence, not new target compilation, nonfinite GPU equivalence or speed.
+
+## Owners independently implemented and submitted before publication
+
+Concurrent977fd319/51d6286b/121e57a1/3e3aeb4e establish General's actual pickup, five CPU tests, four local CUDA12.8.1 builds and accepted private **b38a9ed6dc9743e9**,source51d6286b/payload1e857ad4/344267B. Its frozen affected T8/T16 factor is1.01 plus twice-null/all-load guards; do not substitute this monitor's earlier prospective1.005 planning value after dispatch. Root's local planning note was not yet pushed when the owner acted, so no causal credit to this posting and no duplicate allocation. Use the owner's report/reader and single .build waiter. FTZ finite-sum/source/codegen qualification is not GPU correctness or speed.
+
+Concurrent0585bd21/2b9bc042 establish Decode32's accepted private **bd5776bdfcab42a7**,canonical93a05524/869598B: one copy per sliding attention split via existing plan/workspace/merge machinery, with unchanged CUDA source. Exact scope is the owner's new D32-REDUCE-01 report; it already performed three host/address tests and preflight. User target is now verified2.3x or better. The same owner explicitly picked up full-context identity-rescale coding/compilation while its existing job runs; no second GPU check until the current one is terminal. Preserve both owner protocols and waiters.
+
+The current compact index/inbox from3e3aeb4e is retained as the live execution truth. Root's added task/checklist files are supporting planning references, not new competing assignments. Both accepted IDs are new substantive progress, with no target result or promotion established at this checkpoint. The earlier empty-queue/awaiting-pickup statements above remain dated observations and are superseded here.

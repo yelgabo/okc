@@ -1,0 +1,11 @@
+{
+  "experiment": "GOPT-WS-03",
+  "source_revision": "51d6286b1697b0ae1e28e8e5fc31c2c3031fcbb0",
+  "source_sha256": "1e857ad48100bb898512d28baccd25e6938067607754506d83fbbfb6e6484b21",
+  "bytes": 344267,
+  "path": "muse_moe_w4a16/profiles/gopt-ws-norm-2026-11-02/paired.py",
+  "public": false,
+  "one_check": true,
+  "preflight_time": 1793677537.020191,
+  "collector": ".build/gopt-ws-norm"
+}

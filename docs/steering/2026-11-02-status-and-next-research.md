@@ -10,7 +10,7 @@ The second, higher-risk research direction is **output-owned low-token expert co
 
 ## 1. Verified status and what changed since the previous answer
 
-The latest authenticated snapshot inspected is the [13:26 UTC / 05:26 Pacific monitor](2026-11-02-serial-terminal-monitor.md): overall and layer rank **351**, public layer **2.1261x**, layer rank-100 point **2.2646x**, one private layer check and five scored slots left, no live job in the returned inventory. These are timestamped repository observations, not new queries made for this report. Overall is separately queried and exposes ranks, not a numerical formula we may invent.
+The latest authenticated snapshot inspected is the [13:26 UTC / 05:26 Pacific monitor](../../archive/docs/steering/2026-11-02-serial-terminal-monitor.md): overall and layer rank **351**, public layer **2.1261x**, layer rank-100 point **2.2646x**, one private layer check and five scored slots left, no live job in the returned inventory. These are timestamped repository observations, not new queries made for this report. Overall is separately queried and exposes ranks, not a numerical formula we may invent.
 
 The retained [release manifest](../release-manifest.md) identifies these public results:
 

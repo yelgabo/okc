@@ -5456,3 +5456,8 @@ Own PRIVATE `3c45788127e945c4`, source9669ee15, exact342999 LF bytes/c4e6d108, n
 ## November 2: GOPT-SHORT-02 source closure, no GPU job
 
 Actual pickup at ef50beab. The proposed serial WGS prefix is excluded from all selected Tiny/Tiny2/MID helper builds under WS=1/WGS=0. Three CUDA12.8.1 preprocessing checks pass; a synthetic forced-WGS control exposes the expected functions. No kernel, compiler-performance claim, runtime test, timing or judge job. NS3 remains unchanged. [Full source evidence and refill request](steering/2026-11-02-general-short-prefix-result.md).
+
+
+## November 2: T8/T16 WS norm aggregation accepted
+
+Own PRIVATE `b38a9ed6dc9743e9`, revision51d6286b/payload1e857ad4,344267 bytes, accepted for one same-process four-owner complete-MoE comparison. Explicit FTZ helper/job accumulation changes tiny2/MID only; NS3, tail/finalizer/publication remain. Four CUDA12.8.1 builds pass with145/152 registers,214784 shared bytes/288 threads,zero spills; five CPU tests pass. No target correctness/timing yet. [Frozen gates and source](steering/2026-11-02-general-ws-norm-aggregation.md).

@@ -1,0 +1,1202 @@
+{
+  "base": "2b9bc0423d10b83fefb5a6b5ab67b33e78a7fd31",
+  "records": [
+    {
+      "old": "docs/steering/2026-11-02-capacity-restored-next-measurement-decision.md",
+      "new": "archive/docs/steering/2026-11-02-capacity-restored-next-measurement-decision.md",
+      "original_sha256": "51517d40879f5d172be21d3af80ae54e870f518f4f4f1798637d8d8739249d69",
+      "archived_sha256": "51517d40879f5d172be21d3af80ae54e870f518f4f4f1798637d8d8739249d69",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md",
+      "new": "archive/docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md",
+      "original_sha256": "7efb55baf2d2431561a676095a3f6f6af31ef72eff9ec377b5f113808d4fafd9",
+      "archived_sha256": "7efb55baf2d2431561a676095a3f6f6af31ef72eff9ec377b5f113808d4fafd9",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-attention-continuity-allocation.md",
+      "new": "archive/docs/steering/2026-11-02-captain-attention-continuity-allocation.md",
+      "original_sha256": "7eab0130b76761907875573ecbd007071fe46b0afd12e4d53a6a124ce4cc0853",
+      "archived_sha256": "087c52910ceed33b58b79c2a9d2777666b3469e45e6aebd0dd018a3b0325e78c",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-attention-review-pivot.md",
+      "new": "archive/docs/steering/2026-11-02-captain-attention-review-pivot.md",
+      "original_sha256": "0a57ff0d905b222e7e1df766fd423ba2eea5a46b9be2b4543547642d4c82acd8",
+      "archived_sha256": "f674bfc86b5678b7b8889e3d75befb60c0acf7b6c69f52336bb8fc5b8dfe072a",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-b1-proof-and-build-gates.md",
+      "new": "archive/docs/steering/2026-11-02-captain-b1-proof-and-build-gates.md",
+      "original_sha256": "b5c3a5767fa8995367c6a3ea93d783b25f6905b565b072c57b6d57f7f89179ac",
+      "archived_sha256": "b5c3a5767fa8995367c6a3ea93d783b25f6905b565b072c57b6d57f7f89179ac",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-chunk-phased-allocation.md",
+      "new": "archive/docs/steering/2026-11-02-captain-chunk-phased-allocation.md",
+      "original_sha256": "9e5ebae3ca5896089749554e9b98c8eefcff4af0d131c89be308e2aac9b28bf2",
+      "archived_sha256": "af60f8dbedd09496898e0d6af9d75428d42c9efdbe9cb04a57ad24eecff54030",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-component-adapter-review.md",
+      "new": "archive/docs/steering/2026-11-02-captain-component-adapter-review.md",
+      "original_sha256": "f229ee6e1ae720e5dff65b27dbcf537b14669d695dd4afaad2118cfa1fd44bb3",
+      "archived_sha256": "f229ee6e1ae720e5dff65b27dbcf537b14669d695dd4afaad2118cfa1fd44bb3",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-evaluator-delta.md",
+      "new": "archive/docs/steering/2026-11-02-captain-evaluator-delta.md",
+      "original_sha256": "0ecdd433972ea82f474f4dfda85d55ae6093e43a39ab9f36b06cbece29d3c598",
+      "archived_sha256": "3cb30515cb25f1ed7a85a1de83d639790c464594c459cdd611718e0a1255b1ee",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-expert-p2-allocation.md",
+      "new": "archive/docs/steering/2026-11-02-captain-expert-p2-allocation.md",
+      "original_sha256": "eddcfa22b501ea9780c0dd86f9a371a9e0ac4a48137209e8b47b6a5c1ef152d7",
+      "archived_sha256": "eddcfa22b501ea9780c0dd86f9a371a9e0ac4a48137209e8b47b6a5c1ef152d7",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-g224-accepted.md",
+      "new": "archive/docs/steering/2026-11-02-captain-g224-accepted.md",
+      "original_sha256": "21bbcbf7e7a2095e36160d0b820e8322b7938d944177fb4ac8856b68a9deb9b6",
+      "archived_sha256": "5bd7976b672ea08ccbe02ee9b0f21c9e71ffef4c9c02be26bed89208bf2d7f24",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-g224-ordinary-check-gate.md",
+      "new": "archive/docs/steering/2026-11-02-captain-g224-ordinary-check-gate.md",
+      "original_sha256": "f895231420b976592d4b0d879b4bbf720aef852348764ea22fd0c002b742499e",
+      "archived_sha256": "653f101e8c356d131212958e658356de0619ac4ef16ef415ded06f2adecd8e85",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-g224-target-allocation.md",
+      "new": "archive/docs/steering/2026-11-02-captain-g224-target-allocation.md",
+      "original_sha256": "0dcc4abbbbe0d4a88a3e614f2cdc64b038867d2a76e65d30b25ebfaa4405e72c",
+      "archived_sha256": "831926d3090736d7905adb12c1653c30efe41690c619b5b8f4260c6682a31878",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-later-page-discovery.md",
+      "new": "archive/docs/steering/2026-11-02-captain-later-page-discovery.md",
+      "original_sha256": "3d50e53b9e963c94c85efb015f86433ab3f87c7e40e132bf1afaedddb4ea51a5",
+      "archived_sha256": "fca061f05a79022d6da2415d4f967661b5e077a1039152a8a39d8bc7350bc87e",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-measurement-continuity.md",
+      "new": "archive/docs/steering/2026-11-02-captain-measurement-continuity.md",
+      "original_sha256": "42d258b49b14a6ff4e2c0c0e7305d631de8dfaa63ca49970a130ec432bc73942",
+      "archived_sha256": "42d258b49b14a6ff4e2c0c0e7305d631de8dfaa63ca49970a130ec432bc73942",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-moe-one-check-allocation.md",
+      "new": "archive/docs/steering/2026-11-02-captain-moe-one-check-allocation.md",
+      "original_sha256": "639528040a32b054e97c5d1b030b706e8335b981888bae4d7032f66248fdc817",
+      "archived_sha256": "639528040a32b054e97c5d1b030b706e8335b981888bae4d7032f66248fdc817",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-pr-host-gate.md",
+      "new": "archive/docs/steering/2026-11-02-captain-pr-host-gate.md",
+      "original_sha256": "cc38e8da45fa8cb5821128e59d7da495452f90fe333366b6988ebed61d30a019",
+      "archived_sha256": "f0ba49ad57e2dccf8da16f6660ac112aec7715e3718209740e666efb8897f576",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-pregamma-terminal-t1-next.md",
+      "new": "archive/docs/steering/2026-11-02-captain-pregamma-terminal-t1-next.md",
+      "original_sha256": "f1eb4f14bd5cd5cb8fd1521df564d24612b45f9489fb308351235ab3f1838452",
+      "archived_sha256": "f1eb4f14bd5cd5cb8fd1521df564d24612b45f9489fb308351235ab3f1838452",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-serial-source-review.md",
+      "new": "archive/docs/steering/2026-11-02-captain-serial-source-review.md",
+      "original_sha256": "ac5918c1461f8eb425d78cbb641edb4c2ac3af7a662b1a0ff20c2f67b1d4979f",
+      "archived_sha256": "08dbc8172f1cefa6f4a2eddf75794619de482199c4783734db7f0af80e1afdec",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-silu-startup-audit.md",
+      "new": "archive/docs/steering/2026-11-02-captain-silu-startup-audit.md",
+      "original_sha256": "d816ed704020c1f44095cec83993b93a1489153d3496991431b3a19c0621088a",
+      "archived_sha256": "1e492afe103fffbddabc870309c195d0ecc78e05bab49c4f8d4f92ed3d9b1fd4",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-t1-handoff-review.md",
+      "new": "archive/docs/steering/2026-11-02-captain-t1-handoff-review.md",
+      "original_sha256": "87642a00d7af13c0e6c7dda329573c0b81008a65afadc965024a0d454b0cbfdf",
+      "archived_sha256": "63651d4c29855344cea88d7a7efad53aa0c3f6fd1da77c6f5ed57fa6ab615d34",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-t1-one-check.md",
+      "new": "archive/docs/steering/2026-11-02-captain-t1-one-check.md",
+      "original_sha256": "0827a90f36a1f626af184d7c578adef40eb6ce7edf862dad6915aad0d317b1a6",
+      "archived_sha256": "20422b79e1ede5a558babd290cbe4ebcb6209c78da9321b6515930b74027fd14",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-t1-terminal-decision.md",
+      "new": "archive/docs/steering/2026-11-02-captain-t1-terminal-decision.md",
+      "original_sha256": "9ea0fbc9a006b8bc9685e3ec83004c55808b9621e54f2e36e1d5595eae387325",
+      "archived_sha256": "68f6e1c97c6cf5c8a37a95e5d1649e8e4c56668c4e9b4ecc1395d5920f7e9f53",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-captain-timed-silu-exploratory-check.md",
+      "new": "archive/docs/steering/2026-11-02-captain-timed-silu-exploratory-check.md",
+      "original_sha256": "ddd4b1a0002af50691d8482b911b6316f49c0e501c1c07c44773399740f2ccc8",
+      "archived_sha256": "ddd4b1a0002af50691d8482b911b6316f49c0e501c1c07c44773399740f2ccc8",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-codex-sharing-wire-trace.md",
+      "new": "archive/docs/steering/2026-11-02-codex-sharing-wire-trace.md",
+      "original_sha256": "27fa6f5f40ad3176c26300f26f4b342a0a91c777d946bab73bf08a44f78342a0",
+      "archived_sha256": "7c1d23a013e8fc3abf71c91c1c411221173c0ec59d67f351962c235aafd8dc5a",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-decode32-recon-after-460.md",
+      "new": "archive/docs/steering/2026-11-02-decode32-recon-after-460.md",
+      "original_sha256": "2cace9b8502eb944a8a89ec95d6ae9c776de914734428db56584b82cb902ecae",
+      "archived_sha256": "36b08ac38f93f88b98f7583e6b8b9e467b88e934b71ecd6cf31fcfea74b3b83e",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-driver-captain-takeover.md",
+      "new": "archive/docs/steering/2026-11-02-driver-captain-takeover.md",
+      "original_sha256": "a31b491d1f97e71d241ad79359c2600ff03305141f60642ddbb71c38558c5f7e",
+      "archived_sha256": "2c560f3614db8b48beea88d5bb92d614443965506f028b1c5ee9290e3f5a48f8",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-driver-direct-weight-first-check.md",
+      "new": "archive/docs/steering/2026-11-02-driver-direct-weight-first-check.md",
+      "original_sha256": "df35bbdba59c8f81a017161f3223884c422f632c7afd8647ac8eb42dde11e51b",
+      "archived_sha256": "f840ca1588ff0df617f9111054626513fdbd9cdd045d77304b098bd2187cbbd9",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-driver-monitor-0115.md",
+      "new": "archive/docs/steering/2026-11-02-driver-monitor-0115.md",
+      "original_sha256": "761e3befc422395ffbbc293aa8bc29cb9c59152b5a527a6a1b822b0a21c057e5",
+      "archived_sha256": "761e3befc422395ffbbc293aa8bc29cb9c59152b5a527a6a1b822b0a21c057e5",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-driver-monitor-0215.md",
+      "new": "archive/docs/steering/2026-11-02-driver-monitor-0215.md",
+      "original_sha256": "eed37fd1f96f281c13633e3cb06eb9c7047728381642824f2fa24848678d0e1e",
+      "archived_sha256": "0ca92cb77e02ad3ba868ed2143fb5aa7bd55d331da67340779aedb6a68a8e147",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-driver-shared-a-first-check.md",
+      "new": "archive/docs/steering/2026-11-02-driver-shared-a-first-check.md",
+      "original_sha256": "69870440ded52e955407279560eff7481df86fdfd5046d323c5851b51e5a0925",
+      "archived_sha256": "1a9e5c1879744ae49285397c81b3699de9df830ae16a171fd4e4718ead5c38ff",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-g224-spill-attribution.md",
+      "new": "archive/docs/steering/2026-11-02-g224-spill-attribution.md",
+      "original_sha256": "007fde88718c570bbf1cba2aa030e9d3bd6790b8f040ce06917420e94deb461c",
+      "archived_sha256": "05b9557d3f399bcab3389b4466864aa471c607d74c57ab0c6d902a4dd95bc1b3",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-pr-build-failure-monitor.md",
+      "new": "archive/docs/steering/2026-11-02-pr-build-failure-monitor.md",
+      "original_sha256": "7cb872f54c8b86cfc006790ac1bc4565f21a34df8020d86b4f8f6283ef05e7ba",
+      "archived_sha256": "e080dc0c32254eb30511b9e62aabe95ae852b83ae7d6d1e436bda4fec92beaad",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-pregamma-terminal-monitor.md",
+      "new": "archive/docs/steering/2026-11-02-pregamma-terminal-monitor.md",
+      "original_sha256": "9d024b2425919f7361283458abe43320c49410546dab692b2dc115337e24248e",
+      "archived_sha256": "9d024b2425919f7361283458abe43320c49410546dab692b2dc115337e24248e",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-research-b1-real-lifetime.md",
+      "new": "archive/docs/steering/2026-11-02-research-b1-real-lifetime.md",
+      "original_sha256": "667ac8b301f42240cc701045a23b83d49879e2afc42db510706a06e1db32d4e3",
+      "archived_sha256": "667ac8b301f42240cc701045a23b83d49879e2afc42db510706a06e1db32d4e3",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-research-b1-user-object-proof.md",
+      "new": "archive/docs/steering/2026-11-02-research-b1-user-object-proof.md",
+      "original_sha256": "23461be84baa7cdd2e7b6298404cbbf242911ccf0b4f62b66c8b76e9b3287e47",
+      "archived_sha256": "23461be84baa7cdd2e7b6298404cbbf242911ccf0b4f62b66c8b76e9b3287e47",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-research-broad-expert-feasibility.md",
+      "new": "archive/docs/steering/2026-11-02-research-broad-expert-feasibility.md",
+      "original_sha256": "cff93076098b47876e92c3f2204b0f9260cb072d8e95da9a4e31ebeae54f9328",
+      "archived_sha256": "148de4d9f8815eff4fbecf5af3e4c6f977c1ad94eb4b149cc0c107fe6f359afc",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-research-short-output-ownership.md",
+      "new": "archive/docs/steering/2026-11-02-research-short-output-ownership.md",
+      "original_sha256": "6a384f21b8fb5b02bac8f20639a1d1d9b42166e423a74500b159b946032b2ae0",
+      "archived_sha256": "cfe64752cf0c24e8ba5e23b3dd251b7dfdab34761b03cad153eea6dee2173150",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-research-top100-handle-intake.md",
+      "new": "archive/docs/steering/2026-11-02-research-top100-handle-intake.md",
+      "original_sha256": "171862b70a05ee64b44ab923101b061db2d5f7d6e5c2cf278984b809e1254f46",
+      "archived_sha256": "171862b70a05ee64b44ab923101b061db2d5f7d6e5c2cf278984b809e1254f46",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-serial-terminal-monitor.md",
+      "new": "archive/docs/steering/2026-11-02-serial-terminal-monitor.md",
+      "original_sha256": "ae66bee3931ac98127d0ab35012d8a824d850a4053c1bda57f64b6eca1e051da",
+      "archived_sha256": "49d5f5b480492a340b9eee2708982cc5fcb07f73a9893736fa207d1799db7dda",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-t1-layer-roi-and-review-status.md",
+      "new": "archive/docs/steering/2026-11-02-t1-layer-roi-and-review-status.md",
+      "original_sha256": "53d42b6ec210e02461403c1b377cb5679538069a354f49ca8a48d3976045db2e",
+      "archived_sha256": "1d43147e28788dd608f72d4e966b010b915129483c034e8d35bd8fcfcdbff3f0",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-timed-silu-terminal-monitor.md",
+      "new": "archive/docs/steering/2026-11-02-timed-silu-terminal-monitor.md",
+      "original_sha256": "1f551f6dbb6908590dc66dd4ce9b87fb5eb083e4a7c10167bf4b3b130a94c21e",
+      "archived_sha256": "1f551f6dbb6908590dc66dd4ce9b87fb5eb083e4a7c10167bf4b3b130a94c21e",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-top100-delegated-hotspots.md",
+      "new": "archive/docs/steering/2026-11-02-top100-delegated-hotspots.md",
+      "original_sha256": "61227b6c89e69d42b683500012f0db0e1cd5e178a722231aaa4f4659ab023f47",
+      "archived_sha256": "61227b6c89e69d42b683500012f0db0e1cd5e178a722231aaa4f4659ab023f47",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-top100-expert-harness.md",
+      "new": "archive/docs/steering/2026-11-02-top100-expert-harness.md",
+      "original_sha256": "930580e313c7e30a166aa8032c68584a3685667666c5319fbe4aec68cc65b40a",
+      "archived_sha256": "d0f214105f89f286efc3c45e09c527792189aedfacde59b611636a7e54424601",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-top100-expert-host-validation.md",
+      "new": "archive/docs/steering/2026-11-02-top100-expert-host-validation.md",
+      "original_sha256": "f6e3df6d1342cd5b328a3f20f94a7dac2a2fab12dee6f26f8190221968e9ae04",
+      "archived_sha256": "c36cdd459a80dc90befd733cba85bf4f0214141c82abfdb832d3e64959fd980c",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-top100-moe-harness.md",
+      "new": "archive/docs/steering/2026-11-02-top100-moe-harness.md",
+      "original_sha256": "b793b996f68f529350ee1f6d3f101f839a9a5df2ddb13edf97a8d9d19792f0d1",
+      "archived_sha256": "c058d4b5bad986a443b635df397b2c278ab91f7ce6c1e8929871e516695d6101",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-top100-moe-qualification.md",
+      "new": "archive/docs/steering/2026-11-02-top100-moe-qualification.md",
+      "original_sha256": "f864335dd80650fc3cd4a8861139b517d290e63fff6b0f3347314ef8772b6ef3",
+      "archived_sha256": "56b3e08cbfbf2ba85ba1c5adaa5c1774eaffc244a860a15371026e062d547d45",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-top100-pair-package.md",
+      "new": "archive/docs/steering/2026-11-02-top100-pair-package.md",
+      "original_sha256": "0b4e68488a4d002a8abf8481b1ce955820f78cc63add22c30af7df4bb96a9d2f",
+      "archived_sha256": "0b4e68488a4d002a8abf8481b1ce955820f78cc63add22c30af7df4bb96a9d2f",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-worker-d32-mid-family.md",
+      "new": "archive/docs/steering/2026-11-02-worker-d32-mid-family.md",
+      "original_sha256": "09b6e93cf70e04f3af4004d98e533c19a604746bbce3cde868b32051400eeb2d",
+      "archived_sha256": "52e4959047e63991f179f4361e418e986071cd956c8455de556bef29e7d961cb",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-worker-direct-native-pair.md",
+      "new": "archive/docs/steering/2026-11-02-worker-direct-native-pair.md",
+      "original_sha256": "166e0994241925cc99df08505380a7b84a4bd85938b4c443bdced900a5969972",
+      "archived_sha256": "f9f29e78ad0b542bb2ccdeb76c20fcdca54c110474d8c6576f27e0a125d122b9",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-worker-direct-weight-registers.md",
+      "new": "archive/docs/steering/2026-11-02-worker-direct-weight-registers.md",
+      "original_sha256": "e98df1173f4643e24a9d241d7ad2651f282c380185eb1f49955c1e07d71ef062",
+      "archived_sha256": "684e5b0cf063a7a363aa5db985c4e3c4e3d9918e38b3bc63f9264fd9cfcf45b4",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-worker-mid-matched-reuse.md",
+      "new": "archive/docs/steering/2026-11-02-worker-mid-matched-reuse.md",
+      "original_sha256": "ccd2084fbd2e6e4cd7d973ff48de549e0c160015bc6a0995e73c9509175f3dea",
+      "archived_sha256": "9296d4fc2d649095d5069dad50fae4937b7033a2aaea8b80364fdfb685475eb1",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-worker-pr-retry-blocked.md",
+      "new": "archive/docs/steering/2026-11-02-worker-pr-retry-blocked.md",
+      "original_sha256": "1be746aaf6b86b0ee36ea79202017bbde6076dfcea10d05379b4cb33e8260abc",
+      "archived_sha256": "1be746aaf6b86b0ee36ea79202017bbde6076dfcea10d05379b4cb33e8260abc",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/2026-11-02-worker-shared-a-pipeline.md",
+      "new": "archive/docs/steering/2026-11-02-worker-shared-a-pipeline.md",
+      "original_sha256": "0332fd31440dd9a8323eeb0c82733641176d25e38d04546b50e8f09ddcb2d136",
+      "archived_sha256": "6beba440b7b0fdc5e4c5b2780dee2a39db211b97e13faa7d78fbed86d580d2f3",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/2026-11-02-worker-t1-moe.md",
+      "new": "archive/docs/steering/2026-11-02-worker-t1-moe.md",
+      "original_sha256": "919fcf240d3552ca829668f44b49714a58c27936b7c2b9f8fe6715669fed7eea",
+      "archived_sha256": "b5c25dd56a390966825211c91b137e58a96e1a397e08005641bf3668118a1473",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-01-full-decode-attention.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-01-full-decode-attention.md",
+      "original_sha256": "c082454307f17c71b698adbdc46483034c8eb1f4144a28f57ec068f7ec74c82a",
+      "archived_sha256": "bbf054061b0e541b4ab29c673d1383cdef27431cb8c845b5ceb5084c32773b90",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-02-driver-attention-source-feedback.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-02-driver-attention-source-feedback.md",
+      "original_sha256": "fa5fa4b45a143cc0bb441ca29584859b443263dc1eee71abf6a8665d8bcf65d5",
+      "archived_sha256": "b003a0f8b6a9cdf00cd3072dd3e526f62374fd487a8cacb3743fc0731b262d96",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-05-attention-first-result.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-05-attention-first-result.md",
+      "original_sha256": "69531df3f9b8b01a899868f5fcca2b11490e787f66049bdf51acf7ab6e79759f",
+      "archived_sha256": "e5d0ae94f2f3b3845ff41a8f008ab5b77d2b24643dfe5509667a7b74e67ec773",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-06-confirm-attention-and-progress-watch.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-06-confirm-attention-and-progress-watch.md",
+      "original_sha256": "1e12da64af0ec4ed08305698bf4949cd45a65b75bbba1fb602622d480e94ee53",
+      "archived_sha256": "1e12da64af0ec4ed08305698bf4949cd45a65b75bbba1fb602622d480e94ee53",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-07-confirmation-contract.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-07-confirmation-contract.md",
+      "original_sha256": "12d114fe694ba174793cf6cd6af7bf1b610b3ce288193a1ccd8c5e8606cbdc09",
+      "archived_sha256": "12d114fe694ba174793cf6cd6af7bf1b610b3ce288193a1ccd8c5e8606cbdc09",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-07-next-checkpoint-message.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-07-next-checkpoint-message.md",
+      "original_sha256": "1acb73334b4bdef2ecccaba8ad9936c4910616afc103f353e6c1bea57b2db962",
+      "archived_sha256": "1bd10b07b5972933d4d8e75003d283e9cf9cf6b75518fc745c4b1216e3e38a81",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-08-confirmation-payload.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-08-confirmation-payload.md",
+      "original_sha256": "28658e24f48552b71b960c60a191c862bafb579f04d5fee1b5c3dcba26885a29",
+      "archived_sha256": "28658e24f48552b71b960c60a191c862bafb579f04d5fee1b5c3dcba26885a29",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-09-pair-setup-failure.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-09-pair-setup-failure.md",
+      "original_sha256": "328c48e66a372084cc2de0949a0b3ee2e84d9dc39759e4e535f28db5467b50f9",
+      "archived_sha256": "fda0d31756953303781f768eb739825fc24e457f11b8082dbfbf0fe46eaa956d",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-10-driver-live-queue.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-10-driver-live-queue.md",
+      "original_sha256": "905cfe2319af63e9b1f1b31f613c2ca2b1c75829a12183304c63e1c4892d2470",
+      "archived_sha256": "905cfe2319af63e9b1f1b31f613c2ca2b1c75829a12183304c63e1c4892d2470",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-11-matched-routing-mismatch.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-11-matched-routing-mismatch.md",
+      "original_sha256": "ecd8a89bc1c9006f64ff8d5f4ae751bc1cd9b167a238505b739382b1c12043f3",
+      "archived_sha256": "29099d1391ead2f7eb04c2b960f9a1d5d83cc52be1ec7afe2276f7a444e80b62",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-12-h200-460-next-leads.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-12-h200-460-next-leads.md",
+      "original_sha256": "1efb372bb3c3003f87acd9ae4120532f7e5026f20e5b343aada09c584b3520d8",
+      "archived_sha256": "25dbfebb75dcf8daf4a9a6276e95743db2fd639c9cd69aeb96e3283be7304d9e",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-14-routing-order-diagnostic.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-14-routing-order-diagnostic.md",
+      "original_sha256": "3642c8a441aa44ebda3132679e563dc9b748525f5bfedb845ed4a9d87ad4c138",
+      "archived_sha256": "a0d32ea9572f57bf3fcab9c1cc572bd53ca6c3b2e90d2f8a389cc493fb6ddfba",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-15-upstream-route-observer.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-15-upstream-route-observer.md",
+      "original_sha256": "324b98906eaf6dacac4baed39c3278f64fb05fdc74b07906a54ffd0c6a35c295",
+      "archived_sha256": "bf9808fd2cc900832b03975cfe419187ead5b2c593613a7573f2f3b95ed10a96",
+      "bytes_unchanged": false
+    },
+    {
+      "old": "docs/steering/decode32/2026-11-02-16-explicit-route-observer.md",
+      "new": "archive/docs/steering/decode32/2026-11-02-16-explicit-route-observer.md",
+      "original_sha256": "fb5dacadeded775cc64b561ff525c1a6446c54d6bcc8a002046518d70f19e4b0",
+      "archived_sha256": "fb5dacadeded775cc64b561ff525c1a6446c54d6bcc8a002046518d70f19e4b0",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/accepted.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/accepted.json",
+      "original_sha256": "1c298b95d3982509d60e5402d6d300bf8cb29efbfd6184034de5ffdfac2a1da9",
+      "archived_sha256": "1c298b95d3982509d60e5402d6d300bf8cb29efbfd6184034de5ffdfac2a1da9",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/cpu-host-tests.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/cpu-host-tests.txt",
+      "original_sha256": "0ea7bbd244e41bcb124d7525aa0edb19176bf2946ca3969281aa439d184bc912",
+      "archived_sha256": "0ea7bbd244e41bcb124d7525aa0edb19176bf2946ca3969281aa439d184bc912",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/dispatch-started.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/dispatch-started.json",
+      "original_sha256": "f35c96d376e3a8ebcae201e541a17ac28dace27defd920ebcd2eb9da5437366e",
+      "archived_sha256": "f35c96d376e3a8ebcae201e541a17ac28dace27defd920ebcd2eb9da5437366e",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/dispatch.exit.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/dispatch.exit.txt",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archived_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/dispatch.stderr.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/dispatch.stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archived_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/dispatch.stdout.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/dispatch.stdout.json",
+      "original_sha256": "1c298b95d3982509d60e5402d6d300bf8cb29efbfd6184034de5ffdfac2a1da9",
+      "archived_sha256": "1c298b95d3982509d60e5402d6d300bf8cb29efbfd6184034de5ffdfac2a1da9",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/paired.manifest.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/paired.manifest.json",
+      "original_sha256": "6d1bf4d2a5065b8a55e681c0a93a9cf0ae8ba55ab2d6fcfcf7fa93025c1e0ba2",
+      "archived_sha256": "6d1bf4d2a5065b8a55e681c0a93a9cf0ae8ba55ab2d6fcfcf7fa93025c1e0ba2",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/paired.py",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/paired.py",
+      "original_sha256": "109cdb07dbe04fe6a9723b816a8fa5942969ce0150310dcdc02fca58b4f62929",
+      "archived_sha256": "109cdb07dbe04fe6a9723b816a8fa5942969ce0150310dcdc02fca58b4f62929",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/preflight-jobs.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/preflight-jobs.json",
+      "original_sha256": "902c23cf23c968990d85e09eb8ebd9cb867084acdf0961e3959cb68a0157b0e3",
+      "archived_sha256": "902c23cf23c968990d85e09eb8ebd9cb867084acdf0961e3959cb68a0157b0e3",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/preflight-quota.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/preflight-quota.json",
+      "original_sha256": "1f7d52627cf26923bf7e00919eabb7d7cbf439c03c86420594cc0a1b385d7e50",
+      "archived_sha256": "1f7d52627cf26923bf7e00919eabb7d7cbf439c03c86420594cc0a1b385d7e50",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/profiles/paired.4fece18b20a2447b.log",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/profiles/paired.4fece18b20a2447b.log",
+      "original_sha256": "f2a9e51c02fe7f9a5e73ba7b14f32030a922d2addf9be89bfeb67460ef192f4a",
+      "archived_sha256": "f2a9e51c02fe7f9a5e73ba7b14f32030a922d2addf9be89bfeb67460ef192f4a",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/status-wait.raw.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/status-wait.raw.json",
+      "original_sha256": "c3e248809cf3a6225a143207bf9ffe8638ada7823ca888df66a7ce3de4bafd58",
+      "archived_sha256": "c3e248809cf3a6225a143207bf9ffe8638ada7823ca888df66a7ce3de4bafd58",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-02/status-wait.stderr.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-02/status-wait.stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archived_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/cpu-tests.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/cpu-tests.txt",
+      "original_sha256": "a8ec911f559f0f4d6cf2930a1b426aa05257ccb60edcc83224191cb7261a7526",
+      "archived_sha256": "a8ec911f559f0f4d6cf2930a1b426aa05257ccb60edcc83224191cb7261a7526",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/dispatch-started.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/dispatch-started.json",
+      "original_sha256": "82ef3804833d4def3dc14beaab0e3632a6aa463ab5a84918ca9a10a4aa73669b",
+      "archived_sha256": "82ef3804833d4def3dc14beaab0e3632a6aa463ab5a84918ca9a10a4aa73669b",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/dispatch.exit.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/dispatch.exit.txt",
+      "original_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "archived_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/dispatch.stderr.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/dispatch.stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archived_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/dispatch.stdout.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/dispatch.stdout.json",
+      "original_sha256": "dd1c0781659c41cd71be78c3ba0385692a3587239bfbcf1715dfa080794f1762",
+      "archived_sha256": "dd1c0781659c41cd71be78c3ba0385692a3587239bfbcf1715dfa080794f1762",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/observer.manifest.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/observer.manifest.json",
+      "original_sha256": "4602a7f3991173521c2f4e22fff8e369e7c81479ef0d3cbd67c028a15802a75f",
+      "archived_sha256": "4602a7f3991173521c2f4e22fff8e369e7c81479ef0d3cbd67c028a15802a75f",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/observer.py",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/observer.py",
+      "original_sha256": "a09982243ff3bd5139f5ba87acc1a10905dda58614ad21246e1cefe99894a324",
+      "archived_sha256": "a09982243ff3bd5139f5ba87acc1a10905dda58614ad21246e1cefe99894a324",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/post-rejection-jobs.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/post-rejection-jobs.json",
+      "original_sha256": "983b0f71d200f72fba36700a9fe92b7d11ec1d4db9962d9d85c91d189e42bc70",
+      "archived_sha256": "983b0f71d200f72fba36700a9fe92b7d11ec1d4db9962d9d85c91d189e42bc70",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/preflight-jobs.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/preflight-jobs.json",
+      "original_sha256": "983b0f71d200f72fba36700a9fe92b7d11ec1d4db9962d9d85c91d189e42bc70",
+      "archived_sha256": "983b0f71d200f72fba36700a9fe92b7d11ec1d4db9962d9d85c91d189e42bc70",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/preflight-jobs.stderr.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/preflight-jobs.stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archived_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/preflight-quota.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/preflight-quota.json",
+      "original_sha256": "b0ebc44a6297fcd5ae8a4aed46cd2744f7ecc9b21fc6413fee1b4d9497431097",
+      "archived_sha256": "b0ebc44a6297fcd5ae8a4aed46cd2744f7ecc9b21fc6413fee1b4d9497431097",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/preflight-quota.stderr.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/preflight-quota.stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archived_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-05/source-identity.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-05/source-identity.json",
+      "original_sha256": "861699163a2114f5ef590d1f4158b844d42ddade83746ea019d02d6bb7382b1d",
+      "archived_sha256": "861699163a2114f5ef590d1f4158b844d42ddade83746ea019d02d6bb7382b1d",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/accepted.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/accepted.json",
+      "original_sha256": "f82b5756eca696bfb11e4bb5c809c82bb5dc9e86e6bd5a04ab54b03415c20f8c",
+      "archived_sha256": "f82b5756eca696bfb11e4bb5c809c82bb5dc9e86e6bd5a04ab54b03415c20f8c",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/cpu-tests.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/cpu-tests.txt",
+      "original_sha256": "77fe3fb2a49af3c9740a0e2edef9342841b6f2c4b368a9c7b318889d9867a419",
+      "archived_sha256": "77fe3fb2a49af3c9740a0e2edef9342841b6f2c4b368a9c7b318889d9867a419",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/dispatch-started.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/dispatch-started.json",
+      "original_sha256": "d6efc5d506327f313d142418004a819d9432fb92e66140c43144f4f935405dd3",
+      "archived_sha256": "d6efc5d506327f313d142418004a819d9432fb92e66140c43144f4f935405dd3",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/dispatch.exit.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/dispatch.exit.txt",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archived_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/dispatch.stderr.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/dispatch.stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archived_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/dispatch.stdout.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/dispatch.stdout.json",
+      "original_sha256": "f82b5756eca696bfb11e4bb5c809c82bb5dc9e86e6bd5a04ab54b03415c20f8c",
+      "archived_sha256": "f82b5756eca696bfb11e4bb5c809c82bb5dc9e86e6bd5a04ab54b03415c20f8c",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/observer.manifest.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/observer.manifest.json",
+      "original_sha256": "dfba5a97c6f2ddfb3b18e93256a22a5073410514819f9989cb3ccaf5065b647c",
+      "archived_sha256": "dfba5a97c6f2ddfb3b18e93256a22a5073410514819f9989cb3ccaf5065b647c",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/observer.py",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/observer.py",
+      "original_sha256": "00193aa2ef2f8cefd22e2949bfd98f90a47ebfef370639dbf7bebd776de07cb4",
+      "archived_sha256": "00193aa2ef2f8cefd22e2949bfd98f90a47ebfef370639dbf7bebd776de07cb4",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/pooler-choice-audit.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/pooler-choice-audit.json",
+      "original_sha256": "ebd1bb9581f73ea2d3866ad63163db2d44be54b3d094470d58cfd08a661310b4",
+      "archived_sha256": "ebd1bb9581f73ea2d3866ad63163db2d44be54b3d094470d58cfd08a661310b4",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/pooler-choice-audit.py",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/pooler-choice-audit.py",
+      "original_sha256": "15cdca30bba9fb385f65f3fc64aa8d557c07e26fd0c82f8fb3f5b339ea4ca090",
+      "archived_sha256": "15cdca30bba9fb385f65f3fc64aa8d557c07e26fd0c82f8fb3f5b339ea4ca090",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/preflight-jobs.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/preflight-jobs.json",
+      "original_sha256": "983b0f71d200f72fba36700a9fe92b7d11ec1d4db9962d9d85c91d189e42bc70",
+      "archived_sha256": "983b0f71d200f72fba36700a9fe92b7d11ec1d4db9962d9d85c91d189e42bc70",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/preflight-jobs.stderr.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/preflight-jobs.stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archived_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/preflight-quota.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/preflight-quota.json",
+      "original_sha256": "b0ebc44a6297fcd5ae8a4aed46cd2744f7ecc9b21fc6413fee1b4d9497431097",
+      "archived_sha256": "b0ebc44a6297fcd5ae8a4aed46cd2744f7ecc9b21fc6413fee1b4d9497431097",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/preflight-quota.stderr.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/preflight-quota.stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archived_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/profiles/observer.8b1e364dafb54c71.log",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/profiles/observer.8b1e364dafb54c71.log",
+      "original_sha256": "4b8a5aded4ef7166c9edc70e9bab6131d92c57a69bbb1b102a51b7de9612cced",
+      "archived_sha256": "4b8a5aded4ef7166c9edc70e9bab6131d92c57a69bbb1b102a51b7de9612cced",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/source-identity.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/source-identity.json",
+      "original_sha256": "861699163a2114f5ef590d1f4158b844d42ddade83746ea019d02d6bb7382b1d",
+      "archived_sha256": "861699163a2114f5ef590d1f4158b844d42ddade83746ea019d02d6bb7382b1d",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/status-wait.raw.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/status-wait.raw.json",
+      "original_sha256": "527b26fae4948a1fe0bdb76a58128ff85484e65c9b2599a04a6fe70d31a83952",
+      "archived_sha256": "527b26fae4948a1fe0bdb76a58128ff85484e65c9b2599a04a6fe70d31a83952",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/status-wait.stderr.txt",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/status-wait.stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archived_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/decode32/evidence/D32-ATTN-06/terminal-analysis.json",
+      "new": "archive/docs/steering/decode32/evidence/D32-ATTN-06/terminal-analysis.json",
+      "original_sha256": "0a9784fd45a126f88e9d0bd3d78006f75a71ddc0a9dd2de8e01377e5e24f0dbe",
+      "archived_sha256": "0a9784fd45a126f88e9d0bd3d78006f75a71ddc0a9dd2de8e01377e5e24f0dbe",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-capacity-restored/coordination.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-capacity-restored/coordination.json",
+      "original_sha256": "378dea77b915bc99020aaaed8efca69155be93ae1cf5292c0a5ff75606fa9302",
+      "archived_sha256": "378dea77b915bc99020aaaed8efca69155be93ae1cf5292c0a5ff75606fa9302",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-capacity-restored/snapshot.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-capacity-restored/snapshot.json",
+      "original_sha256": "4dfb856ef6a3ca570399cac007471f2a1df38c1dfbe72ea3c9886d7427170488",
+      "archived_sha256": "4dfb856ef6a3ca570399cac007471f2a1df38c1dfbe72ea3c9886d7427170488",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-component-adapter-review/adapter-cpu.txt",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-component-adapter-review/adapter-cpu.txt",
+      "original_sha256": "b9b9e01dc75094f21b8edcfe2af5d753f391b2a681e0e7089a272baede87b853",
+      "archived_sha256": "b9b9e01dc75094f21b8edcfe2af5d753f391b2a681e0e7089a272baede87b853",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-component-adapter-review/review.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-component-adapter-review/review.json",
+      "original_sha256": "2e0d36cd70a4fa24eb1948e96d71c5ec63d1ab8e28142813816573b84e54586e",
+      "archived_sha256": "2e0d36cd70a4fa24eb1948e96d71c5ec63d1ab8e28142813816573b84e54586e",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-existing-torch-probe/probe.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-existing-torch-probe/probe.json",
+      "original_sha256": "2c6b8f701825fc9c4164a527437eb16a7181573ff09ad530801e5a813d5d125f",
+      "archived_sha256": "2c6b8f701825fc9c4164a527437eb16a7181573ff09ad530801e5a813d5d125f",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-moe-terminal-decision/descriptive-six-load.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-moe-terminal-decision/descriptive-six-load.json",
+      "original_sha256": "1e8c1b3700fb57d66f02c6f4e60ff4ce218f57482832368ca9dcba559e354ac6",
+      "archived_sha256": "1e8c1b3700fb57d66f02c6f4e60ff4ce218f57482832368ca9dcba559e354ac6",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-moe-terminal-decision/independent-reader.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-moe-terminal-decision/independent-reader.json",
+      "original_sha256": "cc441ea4abe8b644ce0f128e0c3f452bc8be4f4c77cfc00c2fefa385fc5eeee0",
+      "archived_sha256": "cc441ea4abe8b644ce0f128e0c3f452bc8be4f4c77cfc00c2fefa385fc5eeee0",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-serial-source-review/comparison-tests.txt",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-serial-source-review/comparison-tests.txt",
+      "original_sha256": "d53eeb2544faa7ea077686ead7ab24f843821114407c020da3213f8ac552890f",
+      "archived_sha256": "d53eeb2544faa7ea077686ead7ab24f843821114407c020da3213f8ac552890f",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-serial-source-review/historical-regression.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-serial-source-review/historical-regression.json",
+      "original_sha256": "6b34c0229c9af5657e78181d128a656466fde574949e4e5c48dc6a591b6b450c",
+      "archived_sha256": "6b34c0229c9af5657e78181d128a656466fde574949e4e5c48dc6a591b6b450c",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-serial-source-review/serial-tests.txt",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-serial-source-review/serial-tests.txt",
+      "original_sha256": "194dc074e0739f380d90fc5d1908332f0bdf8bc60758e169cae51607586ba5bb",
+      "archived_sha256": "194dc074e0739f380d90fc5d1908332f0bdf8bc60758e169cae51607586ba5bb",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-serial-source-review/worker-source-verification.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-serial-source-review/worker-source-verification.json",
+      "original_sha256": "99f2ac3ba90f8672db6f9d1300252156066afec7e2473b9b3343199eb9f2cfdc",
+      "archived_sha256": "99f2ac3ba90f8672db6f9d1300252156066afec7e2473b9b3343199eb9f2cfdc",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-t1-handoff-review/independent-tests.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-t1-handoff-review/independent-tests.json",
+      "original_sha256": "2dcea5af727150b565b38d961a16a2535b4d7148de144509747b8498eac01f11",
+      "archived_sha256": "2dcea5af727150b565b38d961a16a2535b4d7148de144509747b8498eac01f11",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-captain-t1-handoff-review/verification.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-captain-t1-handoff-review/verification.json",
+      "original_sha256": "0f7d532feb2c3af1ef101b97c47abdfd16f492600d2214eaa75a8d973df93e43",
+      "archived_sha256": "0f7d532feb2c3af1ef101b97c47abdfd16f492600d2214eaa75a8d973df93e43",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-driver-monitor-0115/first-result-analysis.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-driver-monitor-0115/first-result-analysis.json",
+      "original_sha256": "c370018bc5c717cdc3c9bc72342b646a3394a69bd41a7505239108e4f0139bd0",
+      "archived_sha256": "c370018bc5c717cdc3c9bc72342b646a3394a69bd41a7505239108e4f0139bd0",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-driver-monitor-0115/live-summary.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-driver-monitor-0115/live-summary.json",
+      "original_sha256": "b79154e4e5972fd39190c9abf55cd2538d3474d784b2b595bcb24a80f5ed0cff",
+      "archived_sha256": "b79154e4e5972fd39190c9abf55cd2538d3474d784b2b595bcb24a80f5ed0cff",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-driver-monitor-0115/official-deadline.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-driver-monitor-0115/official-deadline.json",
+      "original_sha256": "c4fb58d6c7dd6c34b38dfcd177fde5e9a76ff9a43b3e0705e76f49d9613ed54e",
+      "archived_sha256": "c4fb58d6c7dd6c34b38dfcd177fde5e9a76ff9a43b3e0705e76f49d9613ed54e",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-driver-monitor-0215/live-summary.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-driver-monitor-0215/live-summary.json",
+      "original_sha256": "35038628271dd0f3f9bff2ddb2ea2bba0a2ad5e437a34077e0473ef90b6cbb6a",
+      "archived_sha256": "35038628271dd0f3f9bff2ddb2ea2bba0a2ad5e437a34077e0473ef90b6cbb6a",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-driver-monitor-0215/receipt-verification.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-driver-monitor-0215/receipt-verification.json",
+      "original_sha256": "1ad4073466d982df066268f5038cadc0791448ad5763094f81f34b9f5085392e",
+      "archived_sha256": "1ad4073466d982df066268f5038cadc0791448ad5763094f81f34b9f5085392e",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-driver-monitor-0215/refill-delivery.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-driver-monitor-0215/refill-delivery.json",
+      "original_sha256": "d94481431e71aaed6077c13599de79aef69224e4fde3e9086d2146f27ff2a2be",
+      "archived_sha256": "d94481431e71aaed6077c13599de79aef69224e4fde3e9086d2146f27ff2a2be",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/independent-reader.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/independent-reader.json",
+      "original_sha256": "cc441ea4abe8b644ce0f128e0c3f452bc8be4f4c77cfc00c2fefa385fc5eeee0",
+      "archived_sha256": "cc441ea4abe8b644ce0f128e0c3f452bc8be4f4c77cfc00c2fefa385fc5eeee0",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/jobs.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/jobs.json",
+      "original_sha256": "35b19a625bbee86f3e46bb2c04f8725216bfa648e0f1acd4109089bbbf2a65b1",
+      "archived_sha256": "35b19a625bbee86f3e46bb2c04f8725216bfa648e0f1acd4109089bbbf2a65b1",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/layer-board.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/layer-board.json",
+      "original_sha256": "d9510f2fff62c55a234331816dce2567a8c929c56cf928859af2f658ffcc29a7",
+      "archived_sha256": "d9510f2fff62c55a234331816dce2567a8c929c56cf928859af2f658ffcc29a7",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/overall-board.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/overall-board.json",
+      "original_sha256": "3a49dcd7122308dc505eb1e9507f57916e5b281e5a3b564e1c46f67d9940d17f",
+      "archived_sha256": "3a49dcd7122308dc505eb1e9507f57916e5b281e5a3b564e1c46f67d9940d17f",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/own-status.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/own-status.json",
+      "original_sha256": "9948180cfc106c4d288e090d5b447ebe4b15ba44846759d7c32673456c80a457",
+      "archived_sha256": "9948180cfc106c4d288e090d5b447ebe4b15ba44846759d7c32673456c80a457",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/quota.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/quota.json",
+      "original_sha256": "df340ce0ce77ac91ff632862478eba34fed4ebd10f3b30a8b32f06bd15b881b1",
+      "archived_sha256": "df340ce0ce77ac91ff632862478eba34fed4ebd10f3b30a8b32f06bd15b881b1",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/snapshot.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/snapshot.json",
+      "original_sha256": "503f4cdbb2f08062f34ea14d007ff81573e2dbeeab6651e537c65450560df9f9",
+      "archived_sha256": "503f4cdbb2f08062f34ea14d007ff81573e2dbeeab6651e537c65450560df9f9",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/validation.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-pregamma-terminal-monitor/validation.json",
+      "original_sha256": "c7bbf8db52e9a0072180a55dccdf5bbcf4e3e036672c0c5da454c1f0a7ece7c8",
+      "archived_sha256": "c7bbf8db52e9a0072180a55dccdf5bbcf4e3e036672c0c5da454c1f0a7ece7c8",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-b1-user-object-proof/primary-proof.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-b1-user-object-proof/primary-proof.json",
+      "original_sha256": "a113bff88f8bca8a1d90f16351b9e6e6972a7f3f80e7251e24d13526f44b4752",
+      "archived_sha256": "a113bff88f8bca8a1d90f16351b9e6e6972a7f3f80e7251e24d13526f44b4752",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/booth-algo-AgentPerfBench.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/booth-algo-AgentPerfBench.json",
+      "original_sha256": "7e2c293bdd1902f0c9360fbcc5a325214a652b1e39c3b20c73dc012a4f15c802",
+      "archived_sha256": "7e2c293bdd1902f0c9360fbcc5a325214a652b1e39c3b20c73dc012a4f15c802",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/booth-algo-agentic-serve.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/booth-algo-agentic-serve.json",
+      "original_sha256": "f4e46cd266f8a875803710d0953468b2fd6dd4d2951491825f35927c78b98c9d",
+      "archived_sha256": "f4e46cd266f8a875803710d0953468b2fd6dd4d2951491825f35927c78b98c9d",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/branch-followups.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/branch-followups.json",
+      "original_sha256": "766b150f3c5beb116236f5655c88f2999e7b006ba2c21a457b1a9d660c5b851a",
+      "archived_sha256": "766b150f3c5beb116236f5655c88f2999e7b006ba2c21a457b1a9d660c5b851a",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/branches.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/branches.json",
+      "original_sha256": "832e89eaf161d1e07a3aeda60f9a8917262a911953a691d63e127f6a1232dddc",
+      "archived_sha256": "832e89eaf161d1e07a3aeda60f9a8917262a911953a691d63e127f6a1232dddc",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/caoshiyi-EAT.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/caoshiyi-EAT.json",
+      "original_sha256": "f4c3b138287c45b41f08b6b5d70fcbb3a7846ed546c6b1a7d188c467f0874e7b",
+      "archived_sha256": "f4c3b138287c45b41f08b6b5d70fcbb3a7846ed546c6b1a7d188c467f0874e7b",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/caoshiyi-K-Search.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/caoshiyi-K-Search.json",
+      "original_sha256": "7a0f59b7b61376ece33ba1643031eb973320dd05b66fb6405e9dc9fb164234f5",
+      "archived_sha256": "7a0f59b7b61376ece33ba1643031eb973320dd05b66fb6405e9dc9fb164234f5",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/followups.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/followups.json",
+      "original_sha256": "5b1f31ec3d5142eed5ccae57621852c54d2e8d2f0a70ac3f0e43fb50d5efc444",
+      "archived_sha256": "5b1f31ec3d5142eed5ccae57621852c54d2e8d2f0a70ac3f0e43fb50d5efc444",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/full-tree-path-checks.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/full-tree-path-checks.json",
+      "original_sha256": "2bc3417b33cab81f007f6f85aa3304d20defd542e650bdba1d3c0824daa6c059",
+      "archived_sha256": "2bc3417b33cab81f007f6f85aa3304d20defd542e650bdba1d3c0824daa6c059",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/ntovas-vllm.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/ntovas-vllm.json",
+      "original_sha256": "2f8a79a616ac70d679c7c8fab90182c6a9a9368d75a52d7c4a1cb676e959359d",
+      "archived_sha256": "2f8a79a616ac70d679c7c8fab90182c6a9a9368d75a52d7c4a1cb676e959359d",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/owners.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/owners.json",
+      "original_sha256": "2b5a44a93eee01d85a8fa29997b1a2c84a189dde7d19213295ca8585ec219be7",
+      "archived_sha256": "2b5a44a93eee01d85a8fa29997b1a2c84a189dde7d19213295ca8585ec219be7",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/summary.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/summary.json",
+      "original_sha256": "fa6e08201c0b23e3f7aceca461170b6e4cf0eb1d872caba65b8f35cdbf3ffb70",
+      "archived_sha256": "fa6e08201c0b23e3f7aceca461170b6e4cf0eb1d872caba65b8f35cdbf3ffb70",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/vllm-model-lead.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-research-top100-handle-intake/vllm-model-lead.json",
+      "original_sha256": "6c5ad609942a7070f4efa19b2b5885433ae5ab10d50b96f65493868b86b40a28",
+      "archived_sha256": "6c5ad609942a7070f4efa19b2b5885433ae5ab10d50b96f65493868b86b40a28",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-serial-monitor/candidate.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-serial-monitor/candidate.json",
+      "original_sha256": "3f028fb86dc3011392c0ab1d4bcaf0c237ff5cf56ff856b0705ae7bbb7c814ea",
+      "archived_sha256": "3f028fb86dc3011392c0ab1d4bcaf0c237ff5cf56ff856b0705ae7bbb7c814ea",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-serial-monitor/control.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-serial-monitor/control.json",
+      "original_sha256": "ec5d70fada6daf329a2b9237fb4f7fb31e65565f2f96dd82797b1c41890a0918",
+      "archived_sha256": "ec5d70fada6daf329a2b9237fb4f7fb31e65565f2f96dd82797b1c41890a0918",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-serial-monitor/jobs.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-serial-monitor/jobs.json",
+      "original_sha256": "bd9a337fd68e3c48abbb3c969a2d0a48657d63a89963d5ac9a3fb50e7003c5b5",
+      "archived_sha256": "bd9a337fd68e3c48abbb3c969a2d0a48657d63a89963d5ac9a3fb50e7003c5b5",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-serial-monitor/layer.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-serial-monitor/layer.json",
+      "original_sha256": "04dc576903f4cec220d08525b0c4b916874b78419fee67f3315817945f3a3963",
+      "archived_sha256": "04dc576903f4cec220d08525b0c4b916874b78419fee67f3315817945f3a3963",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-serial-monitor/overall.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-serial-monitor/overall.json",
+      "original_sha256": "7d9a40d1ff01a17d3679eeb5a7b499a18fdbb44693f9feef94e3809c6c000013",
+      "archived_sha256": "7d9a40d1ff01a17d3679eeb5a7b499a18fdbb44693f9feef94e3809c6c000013",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-serial-monitor/quota.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-serial-monitor/quota.json",
+      "original_sha256": "95319bb00d6f0c80892225bdc4f308d9d56d4c8d8d0a4d6cb5c1b15db16ce9a9",
+      "archived_sha256": "95319bb00d6f0c80892225bdc4f308d9d56d4c8d8d0a4d6cb5c1b15db16ce9a9",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-serial-monitor/verified-summary.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-serial-monitor/verified-summary.json",
+      "original_sha256": "3c2629f77ef60a5261fd3aee750301eeaab7b6c7708a8a6edf738d220e6eebc7",
+      "archived_sha256": "3c2629f77ef60a5261fd3aee750301eeaab7b6c7708a8a6edf738d220e6eebc7",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-timed-silu-monitor/jobs.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-timed-silu-monitor/jobs.json",
+      "original_sha256": "a127b571c7f8804d21ac0d17dd4a991473c202d9937c1e3eb8c3fa1aa4474fb4",
+      "archived_sha256": "a127b571c7f8804d21ac0d17dd4a991473c202d9937c1e3eb8c3fa1aa4474fb4",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-timed-silu-monitor/layer.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-timed-silu-monitor/layer.json",
+      "original_sha256": "ccec935a86bb5262dab3a021136593254c4edae0badd55d787ae1a1d9c07e937",
+      "archived_sha256": "ccec935a86bb5262dab3a021136593254c4edae0badd55d787ae1a1d9c07e937",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-timed-silu-monitor/overall.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-timed-silu-monitor/overall.json",
+      "original_sha256": "a1702f62b3fc4efea5b3e4d8367a86aac814b5a5c8cbd594439019156d2e07d8",
+      "archived_sha256": "a1702f62b3fc4efea5b3e4d8367a86aac814b5a5c8cbd594439019156d2e07d8",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-timed-silu-monitor/own-dc62cff972934f54.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-timed-silu-monitor/own-dc62cff972934f54.json",
+      "original_sha256": "7febb8d4cf1fc8f88a70747553b1ddadd21065f6778ec6df72e62939f8a329bf",
+      "archived_sha256": "7febb8d4cf1fc8f88a70747553b1ddadd21065f6778ec6df72e62939f8a329bf",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-timed-silu-monitor/quota.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-timed-silu-monitor/quota.json",
+      "original_sha256": "3278e16ac03c2b883f4ceb5e948d5e25a23444e330e321847d3a45d0da75536a",
+      "archived_sha256": "3278e16ac03c2b883f4ceb5e948d5e25a23444e330e321847d3a45d0da75536a",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-timed-silu-monitor/verified-summary.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-timed-silu-monitor/verified-summary.json",
+      "original_sha256": "4b377af9876e0169063d0f32b34beb9bc72cc07a29a100ca91433dc9dec4f7be",
+      "archived_sha256": "4b377af9876e0169063d0f32b34beb9bc72cc07a29a100ca91433dc9dec4f7be",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-top100-pair-package/manifest.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-top100-pair-package/manifest.json",
+      "original_sha256": "403793e171e58ec651d3e805a014dbfbe4749ab183ed0a46dc21af8c2c079917",
+      "archived_sha256": "403793e171e58ec651d3e805a014dbfbe4749ab183ed0a46dc21af8c2c079917",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-worker-pr-retry/auth.txt",
+      "new": "archive/docs/steering/evidence/2026-11-02-worker-pr-retry/auth.txt",
+      "original_sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2",
+      "archived_sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-worker-pr-retry/jobs.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-worker-pr-retry/jobs.json",
+      "original_sha256": "7fd96ca7466afd0ddacf6823e9af7053e5998e1492af3202f667a38736e12ff1",
+      "archived_sha256": "7fd96ca7466afd0ddacf6823e9af7053e5998e1492af3202f667a38736e12ff1",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-worker-pr-retry/observed-at.txt",
+      "new": "archive/docs/steering/evidence/2026-11-02-worker-pr-retry/observed-at.txt",
+      "original_sha256": "b11d81ca8eda87a32d8c68458e64f271f643e00927ed43e86150d490c5128001",
+      "archived_sha256": "b11d81ca8eda87a32d8c68458e64f271f643e00927ed43e86150d490c5128001",
+      "bytes_unchanged": true
+    },
+    {
+      "old": "docs/steering/evidence/2026-11-02-worker-pr-retry/quota.json",
+      "new": "archive/docs/steering/evidence/2026-11-02-worker-pr-retry/quota.json",
+      "original_sha256": "308c457086221faecb6b4a1809453668d33b5b26c83a1a164abbc562aca60f6f",
+      "archived_sha256": "308c457086221faecb6b4a1809453668d33b5b26c83a1a164abbc562aca60f6f",
+      "bytes_unchanged": true
+    }
+  ]
+}

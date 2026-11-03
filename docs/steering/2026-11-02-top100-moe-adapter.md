@@ -1,6 +1,6 @@
 # Exact standalone expert adapter: source/CPU delivery, qualification incomplete
 
-November 2, 2026. Implementation sub-agent; no children. Started from `a58f058548249a3c5c1a5b5885b516fb15869603`, then fast-forwarded concurrent parent work through `e067e22` before publication. Implementation/evidence commit: **`ece009b8a51b9a10c8ce7a2ef6e3ca26b7831988`**. Allocation: [standalone qualification](2026-11-02-top100-moe-qualification.md). Parent/captain retains dispatch. No GPU execution, CLI POST/job, compiler invocation, installation, default change or candidate edit occurred.
+November 2, 2026. Implementation sub-agent; no children. Started from `a58f058548249a3c5c1a5b5885b516fb15869603`, then fast-forwarded concurrent parent work through `e067e22` before publication. Implementation/evidence commit: **`ece009b8a51b9a10c8ce7a2ef6e3ca26b7831988`**. Allocation: [standalone qualification](../../archive/docs/steering/2026-11-02-top100-moe-qualification.md). Parent/captain retains dispatch. No GPU execution, CLI POST/job, compiler invocation, installation, default change or candidate edit occurred.
 
 ## Decision and concrete deliverable
 
