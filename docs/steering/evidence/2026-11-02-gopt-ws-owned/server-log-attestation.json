@@ -1,0 +1,7 @@
+{
+  "owning_job": "7f10243c98e74746",
+  "local_log_sha256": "031d7cf545f1cb9453769986ae0af62a42833dd057696ffd870dd8bd5ab67d1e",
+  "server_tail_sha256": "dcc889e2c50a3e31daf2ff53350aabb420c162be6ffe27202fbe95c6dd67eacf",
+  "local_log_contains_report": true,
+  "server_tail_contains_report": true
+}

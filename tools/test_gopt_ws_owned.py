@@ -79,7 +79,7 @@ class SourceAndModel(unittest.TestCase):
     def test_complete_score_and_unchanged_guards(self):
         ns={};exec(contract_source(),ns)
         def rows(gain):
-            return [[seed,t,d,[100.,100.,100./(gain if t in (8,16) else 1)]*1+[100./(gain if t in (8,16) else 1)],
+            return [[seed,t,d,[100.,100.,100./(gain if t in (8,16) else 1)]+[100./(gain if t in (8,16) else 1)],
                      [t,1,t],[gain if t in (8,16) else 1]*4,[.0001,.0001]]
                     for seed in ns['BANKS'] for t in ns['LOADS'] for d in ns['DISTRIBUTIONS']]
         self.assertFalse(ns['decision'](rows(1.02))['component_pass'])

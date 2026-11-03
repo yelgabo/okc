@@ -1,0 +1,14 @@
+{
+  "experiment": "GOPT-WS-OWN-05",
+  "source_revision": "37964e414aaa36a52937c09418626ff4776c7406",
+  "source_sha256": "f31b652f2bf315465072f8c43771befd9a16101354d8bf131d34de8999b173a5",
+  "bytes": 389590,
+  "started_at": "2026-11-03T07:01:26.048428+00:00",
+  "command": [
+    "okc",
+    "check",
+    ".build/gopt-ws-owned/paired.py",
+    "--no-wait",
+    "--json"
+  ]
+}

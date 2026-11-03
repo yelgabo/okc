@@ -1,0 +1,35 @@
+{
+  "reviewed_at": "2026-11-03T07:05:43.948657+00:00",
+  "rows": [
+    {
+      "problem": "muse_moe_w4a16",
+      "job": "4aa033ef23a142cd",
+      "score_us": 5788.7207203627,
+      "rank": 374
+    },
+    {
+      "problem": "muse_bf16_proj",
+      "job": "9eba96894ee1402e",
+      "score_us": 3161.918773020326,
+      "rank": 369
+    },
+    {
+      "problem": "muse_attention_decode",
+      "job": "8914751e3b9f468b",
+      "score_us": 1446.1905945986007,
+      "rank": 263
+    },
+    {
+      "problem": "muse_decode_layer",
+      "job": "607eb52bdaf24160",
+      "score_us": 10639.426326569794,
+      "rank": 389
+    },
+    {
+      "problem": "muse_prefill_layer",
+      "job": "1530ec79d50a4f69",
+      "score_us": 318441.9905489318,
+      "rank": 640
+    }
+  ]
+}

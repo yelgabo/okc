@@ -1,0 +1,142 @@
+{
+  "job": "7f10243c98e74746",
+  "source_revision": "37964e414aaa36a52937c09418626ff4776c7406",
+  "physical_sha256": "f31b652f2bf315465072f8c43771befd9a16101354d8bf131d34de8999b173a5",
+  "service_payload_id": "b944695a7043b2ddc9a2dfd981eb51987cd53728ebafe91d34d65c4c89382d84",
+  "finished_at": "2026-11-03T07:09:31.005716+00:00",
+  "correctness_pass": true,
+  "official_score_us": 6679.194366823192,
+  "official_speedup": 2.0134913376381465,
+  "official_ci": [
+    1.9832889675735743,
+    2.0436937077027184
+  ],
+  "complete_six_factor_min": 0.8457256647919658,
+  "complete_six_factor_max": 0.9016337885322073,
+  "descriptive_geomean": 0.8757570720410083,
+  "groups_passed": 0,
+  "affected_regressions": 12,
+  "unresolved_drift": [],
+  "counters": {
+    "observations": 378,
+    "restorations": 54,
+    "captures": 216,
+    "timed_replays": 1152,
+    "worst": [
+      0.00459685642272234,
+      0.004795130342245102
+    ],
+    "fp32_reference_cases": 8
+  },
+  "prepare_s": 219.48096027800057,
+  "means": [
+    {
+      "tokens": 1,
+      "dist": "normal",
+      "affected": false,
+      "control_us": 34.20000026623408,
+      "candidate_us": 33.60799979418516,
+      "delta_us": -0.592000472048916,
+      "delta_pct": -1.730995518831624
+    },
+    {
+      "tokens": 8,
+      "dist": "normal",
+      "affected": true,
+      "control_us": 78.50933261215687,
+      "candidate_us": 104.35199985901515,
+      "delta_us": 25.842667246858284,
+      "delta_pct": 32.91668186064371
+    },
+    {
+      "tokens": 16,
+      "dist": "normal",
+      "affected": true,
+      "control_us": 116.64000029365222,
+      "candidate_us": 173.41866344213486,
+      "delta_us": 56.778663148482636,
+      "delta_pct": 48.67855195947959
+    },
+    {
+      "tokens": 32,
+      "dist": "normal",
+      "affected": false,
+      "control_us": 125.52266443769138,
+      "candidate_us": 125.8879986902078,
+      "delta_us": 0.36533425251641916,
+      "delta_pct": 0.291050428345363
+    },
+    {
+      "tokens": 128,
+      "dist": "normal",
+      "affected": false,
+      "control_us": 186.4213335017363,
+      "candidate_us": 186.50933106740317,
+      "delta_us": 0.08799756566685346,
+      "delta_pct": 0.04720359199985591
+    },
+    {
+      "tokens": 256,
+      "dist": "normal",
+      "affected": false,
+      "control_us": 233.89066755771637,
+      "candidate_us": 234.48533192276955,
+      "delta_us": 0.5946643650531769,
+      "delta_pct": 0.2542488639083684
+    },
+    {
+      "tokens": 1,
+      "dist": "skewed",
+      "affected": false,
+      "control_us": 33.954666617015995,
+      "candidate_us": 33.9279999025166,
+      "delta_us": -0.02666671449939173,
+      "delta_pct": -0.07853622831928142
+    },
+    {
+      "tokens": 8,
+      "dist": "skewed",
+      "affected": true,
+      "control_us": 40.5039998392264,
+      "candidate_us": 64.4933320581913,
+      "delta_us": 23.989332218964897,
+      "delta_pct": 59.22706970715581
+    },
+    {
+      "tokens": 16,
+      "dist": "skewed",
+      "affected": true,
+      "control_us": 63.20266673962275,
+      "candidate_us": 97.5226666778326,
+      "delta_us": 34.319999938209854,
+      "delta_pct": 54.30150610511202
+    },
+    {
+      "tokens": 32,
+      "dist": "skewed",
+      "affected": false,
+      "control_us": 56.61333321283261,
+      "candidate_us": 56.49066685388485,
+      "delta_us": -0.1226663589477539,
+      "delta_pct": -0.2166739741088941
+    },
+    {
+      "tokens": 128,
+      "dist": "skewed",
+      "affected": false,
+      "control_us": 102.5866661220789,
+      "candidate_us": 102.17066667973995,
+      "delta_us": -0.4159994423389435,
+      "delta_pct": -0.4055102461794635
+    },
+    {
+      "tokens": 256,
+      "dist": "skewed",
+      "affected": false,
+      "control_us": 159.22666837771735,
+      "candidate_us": 160.33600022395453,
+      "delta_us": 1.1093318462371826,
+      "delta_pct": 0.6966997787114515
+    }
+  ]
+}

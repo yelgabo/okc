@@ -8,7 +8,7 @@ from unittest.mock import patch
 import zlib
 
 from gopt_ws_owned import build
-from gopt_ws_owned_read import partial
+from gopt_ws_owned_read import partial, read
 
 
 class PartialReader(unittest.TestCase):
@@ -44,6 +44,38 @@ class PartialReader(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError,'payload association'): partial(folder,job)
                 receipt['payload_ref']='muse_moe_w4a16/'+'a'*64+'.py';receipt['result']['passed']=True;save()
                 with self.assertRaisesRegex(RuntimeError,'retain failed'): partial(folder,job)
+
+    def test_full_reader_binds_synthetic_receipt_to_payload_and_arm(self):
+        from gopt_ws_owned import ROOT, contract_source
+        archived=ROOT/'docs/steering/evidence/2026-11-02-gopt-ws-split'
+        receipt=json.loads((archived/'status-wait.raw.json').read_text())
+        report=json.loads((archived/'analysis.json').read_text())['report']
+        report['runtime_id']=self.manifest['runtime_id']
+        report['counters'].pop('finalizer_reference_cases')
+        report['counters']['fp32_reference_cases']=8
+        ns={};exec(contract_source(),ns)
+        report['component_pass']=ns['decision'](report['rows'])['component_pass']
+        job='0123456789abcdef'
+        receipt['id']=job
+        receipt['output']['log']='profiles/paired.'+job+'.log'
+        with tempfile.TemporaryDirectory() as tmp:
+            folder=Path(tmp);(folder/'profiles').mkdir()
+            (folder/'paired.py').write_text(self.source)
+            (folder/'paired.manifest.json').write_text(json.dumps(self.manifest))
+            (folder/'accepted.json').write_text(json.dumps(dict(job_id=job,source_sha256=self.manifest['source_sha256'])))
+            (folder/'status-wait.raw.json').write_text(json.dumps(receipt))
+            def save_report():
+                blob=base64.b64encode(zlib.compress(json.dumps(report).encode())).decode()
+                (folder/receipt['output']['log']).write_text('GOPT_WS_OWN_REPORT '+blob+'\n')
+            save_report()
+            result=read(folder,job)
+            self.assertFalse(result['target_qualified'])
+            self.assertFalse(result['decision']['component_pass'])
+            report['official_arm']='control';save_report()
+            with self.assertRaisesRegex(RuntimeError,'identity/arm'):read(folder,job)
+            report['official_arm']='candidate2';save_report()
+            (folder/'paired.py').write_text(self.source+'\n')
+            with self.assertRaisesRegex(RuntimeError,'accepted job/source'):read(folder,job)
 
 
 if __name__ == '__main__': unittest.main()

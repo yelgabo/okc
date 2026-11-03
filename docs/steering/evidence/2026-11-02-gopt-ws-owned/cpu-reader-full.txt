@@ -1,0 +1,7 @@
+test_failure_stays_failed_and_wrong_identity_is_rejected (test_gopt_ws_owned_read.PartialReader) ... ok
+test_full_reader_binds_synthetic_receipt_to_payload_and_arm (test_gopt_ws_owned_read.PartialReader) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 5.459s
+
+OK
