@@ -7,6 +7,10 @@ assignment before resuming on every user wake or scheduled wake. An active
 implementation/measurement assignment takes precedence over routine architecture
 tracker maintenance. Record actual pickup, the selected source/job and the next
 authorized action in the owned report. Preserve other workers' jobs and files.
+Live receipt collectors write under an ignored directory such as `.build/`. Archive
+output only after the process ends. Git rebase can replace a tracked empty redirect
+target while its writer still holds the old inode, losing the local terminal output.
+Recover an ended collector through its own job ID, without resubmitting GPU work.
 
 
 ## P0 user directive: Decode32 Worker owns the D32 lane end to end (2026-11-02)
