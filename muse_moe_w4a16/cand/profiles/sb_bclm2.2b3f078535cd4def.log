@@ -1,0 +1,12 @@
+MOE_SB bclm2 extra=-DOKC_BCLM=2 helper=aa48c4fa140f4cc4 sizes=1,8,16 reps=48 prep_s=181.7 cand_build_s=62.1
+MOE_SB timed reps=48 of 48, 35.6 s left
+MOE_SB T=1 local experts 2..4 | ctrl med 27.42 min 25.44 | ctrl2 med 27.84 min 25.66 | cand med 29.09 min 26.72
+MOE_SB T=1 d cand-ctrl +1.71 [+1.31,+2.02] mean +1.78 neg 0/48 | ctrl2-ctrl +0.11 [-0.26,+0.42] mean +0.12 neg 24/48 | cand-ctrl2 +1.66 [+1.38,+2.05] mean +1.66 neg 4/48
+MOE_SB T=1 num ctrl rel 4.81e-03 row 4.81e-03 pass 48/48 | ctrl2 rel 4.81e-03 row 4.81e-03 pass 48/48 | cand rel 4.81e-03 row 4.81e-03 pass 48/48 | cand-ctrl maxabs 0.00195 equal 26/48
+MOE_SB T=8 local experts 4..13 | ctrl med 71.74 min 40.80 | ctrl2 med 71.90 min 40.29 | cand med 74.11 min 42.66
+MOE_SB T=8 d cand-ctrl +1.25 [+0.80,+1.92] mean +1.55 neg 4/48 | ctrl2-ctrl +0.06 [-0.64,+0.51] mean -0.14 neg 22/48 | cand-ctrl2 +1.84 [+1.25,+2.21] mean +1.69 neg 4/48
+MOE_SB T=8 num ctrl rel 4.63e-03 row 4.85e-03 pass 48/48 | ctrl2 rel 4.63e-03 row 4.85e-03 pass 48/48 | cand rel 4.63e-03 row 4.85e-03 pass 48/48 | cand-ctrl maxabs 0.00195 equal 4/48
+MOE_SB T=16 local experts 7..18 | ctrl med 101.60 min 67.81 | ctrl2 med 101.44 min 68.48 | cand med 101.28 min 68.10
+MOE_SB T=16 d cand-ctrl +0.11 [-0.29,+0.45] mean +0.10 neg 21/48 | ctrl2-ctrl -0.13 [-0.32,+0.16] mean +0.02 neg 28/48 | cand-ctrl2 +0.05 [-0.22,+0.42] mean +0.08 neg 22/48
+MOE_SB T=16 num ctrl rel 4.65e-03 row 4.91e-03 pass 48/48 | ctrl2 rel 4.65e-03 row 4.91e-03 pass 48/48 | cand rel 4.65e-03 row 4.91e-03 pass 48/48 | cand-ctrl maxabs 0.00391 equal 12/48
+MOE_SB guards ok
