@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-03T02:16:00-07:00",
-  "snapshot": "a4660143",
+  "reviewed_at": "2026-11-03T02:57:00-07:00",
+  "snapshot": "8c09d605",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public607 unchanged. Corrected F3 has0.45/1.09µs paired component savings atT1/T8, but no qualified whole-layer gain. Original ready flags, Half+XS and UNP endpoints remain stopped."
+    "note": "Public607 remains2.126083×. Eper-head ring loses at128/256; pair-split estimates remain untested. Public MoE2821is a locally source-bound5df+comment repeat, not an architecture change."
   },
   "families": [
     {
@@ -86,21 +86,23 @@
       "id": "E",
       "name": "Attention producer / consumer",
       "status": "inconclusive",
-      "label": "Lookahead unresolved; identity screen failed",
-      "metric": "−5.035 µs (−1.59%)",
-      "unit": "Earlier lookahead D32 full cell, separate run; unconfirmed",
-      "summary": "Lookahead remains unconfirmed. Sliding eight-copy reduction passes13/12/12 but its changed cell is+3.818µs (+2.42%) in a separate run; unchanged full improves more. Exact treatment stopped.",
-      "layer": "Identity4a2a79bdac04499a fails routing at an unchanged128/full cell. Only27/36 private rows survive; no complete matched result, official score or integration.",
+      "label": "Per-head ring loses; lookahead unconfirmed",
+      "metric": "+22.17 / +50.17 µs",
+      "unit": "128 /256 full attention, cold displayed pooled medians, hs versus shared ring",
+      "summary": "4c0b0674c46d4ec2: two held-out inputs,120cold rounds/input. Per-head copy/ring/ownership changes lose together; no isolated barrier cause. Historical D32lookahead remains unconfirmed and stopped.",
+      "layer": "Standalone component screen only. Official2.517172× belongs to unchanged control; hs has2/2scoped correctness, no candidate-only full gate or layer integration.",
       "pending": [],
-      "limit": "All D32 attempts are closed. Identity partial medians include six D32 rows but do not qualify any gain;128 full and256 timing coverage is absent. Failure occurs with treatment inactive, so no causal identity loss follows.",
-      "source": "architecture-performance-tracker.md#november-2-review-at-1959-vancouver-time",
+      "limit": "Stamp probe costs+3.49/+5.02µs and lacks a recorded causal-intrusion gate. Pair-split−4.8/−6.2µs is a model, not a gain. Source draft remains target-untested; no new General task.",
+      "source": "architecture-performance-tracker.md#november-3-review-at-0257-vancouver-time",
       "outcomes": [
         "win",
         "loss",
         "inconclusive"
       ],
-      "evaluation_pending": [],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/2f8ae539434804b43af456ef070a10ab2b576471/docs/steering/2026-11-02-moe-worker-queue-experiment.md#decode32-accepted-job-discharged"
+      "evaluation_pending": [
+        "ONE_PSTEAL uncommitted pair-key split draft, target-untested in inspected source cut"
+      ],
+      "evidence_url": "https://github.com/yelgabo/okc/blob/8c09d60554e72db65e595c9c2a5eb35a743d87b6/docs/runs-attention.md"
     },
     {
       "id": "F",
@@ -132,7 +134,7 @@
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
       "summary": "Ready flags add a failed matched gate with one unchanged drift breach. Half+XS and whole-layer UNP slice1 also stop; their separate cross-run/component scopes remain explicit. F3has small paired component signals but fails its complete-layer condition.",
-      "layer": "Public layer607 remains2.126083×. Public standalone MoE2821 is5737.988910µs/2.3438× in the09:14UTC board snapshot; physical source correspondence unverified here.",
+      "layer": "Public layer607 remains2.126083×. Standalone public2821:5737.988910µs/2.343765×,95%CI2.308609–2.378922. Saved physical file/driver bind it locally to5df+comment; remote bytes not independently downloaded.",
       "pending": [],
       "evaluation_pending": [],
       "limit": "Original helper/public layer retained. Ready-flag ordering proof remains incomplete; no repair/retry allocation. Conditional confirmation/release drafts unsubmitted; qualified refill missing.",
@@ -217,8 +219,8 @@
     },
     {
       "name": "Standalone MoE base promotion",
-      "label": "New public numeric draw; source correspondence unverified",
-      "summary": "Public2821:5737.988910µs/2.3438× at09:14UTC. Prior source-bound4aa/5df remains historical5788.720720µs. No new algorithm, isolated-family or layer gain inferred.16private leads have explicit promotion dispositions."
+      "label": "Saved repeat source association verified locally",
+      "summary": "Public2821:5737.988910µs/2.343765×,95%CI2.308609–2.378922,5/6/6. Saved e85ef86f file exactly equals5df executable body plus trailing repeat comment. No new architecture or layer gain. Current09:47UTCboards retain this point;16private leads have explicit dispositions."
     },
     {
       "name": "G group16 pair lookup and lossless packing",
@@ -283,12 +285,32 @@
     {
       "name": "Revised boundary/attention opportunity claims",
       "label": "F3 partial signal verified; corrected layer gate failed",
-      "summary": "43aa timed out in T8setup after a1.28µsT1paired fragment. Correctedc924 passes13/12/12 with T1/T8paired savings0.45/1.09µs, but no short layer gain and stop rule met. Cost/headroom estimates remain hypotheses, not ceilings."
+      "summary": "43aa timed out in T8setup after a1.28µsT1paired fragment. Correctedc924 passes13/12/12 with T1/T8paired savings0.45/1.09µs, but no short layer gain and stop rule met. Cost/headroom estimates remain hypotheses, not ceilings. q_len8per-head-ring4c0bnow has a scoped measured loss; pair-key-split opportunity remains modeled/untested."
     },
     {
       "name": "F3 O + boundary + pooler/router fusion",
       "label": "Small paired component wins; layer gate failed",
       "summary": "43aa5951c822 failedT8setup,0official cells. Correctedc9249231e381 passes13/12/12 at2.089491×,95%CI2.058149–2.120834. T1separate fallback;T8fused. Nine paired rounds save0.45/1.09µs, with no duplicate-null/pairedCI. Both T8layer cells lose cross-run. Stop after two checks, no promotion. F3is a slice label, not familyF."
+    },
+    {
+      "name": "Attention mode51 per-head ring",
+      "label": "Measured component loss; no layer result",
+      "summary": "4c0b0674c46d4ec2:128full113.86→136.03µs,256full194.34→244.51µs cold.2inputs×120rounds;hs/ctrl/ctrl2each2/2ABCHECK. Producer copy layout and ring ownership changed together; exact source stopped."
+    },
+    {
+      "name": "Mode51 timeline and pair-key split",
+      "label": "Descriptive probe; modeled gain only",
+      "summary": "STAMP costs+3.49/+5.02µs; raw control-probe TLINErows lost from log tail. Five-call STSUM survives.−4.8/−6.2µs pair-split model assumes co-run rates, excludes coordination/merge cost. ONE_PSTEALdraft uncommitted,target-untested; original owner retains it."
+    },
+    {
+      "name": "Source-only b65 short-path comparison",
+      "label": "Finite source audit; no new candidate allocation",
+      "summary": "0d3ccb22 identifies dedicated T8issuer in the older external comparator. No selected legal≥2µs complete-call contribution after repairs/competing costs.5613.592490µs is old external evidence; no new measured loss, ceiling, guard removal or General assignment."
+    },
+    {
+      "name": "Restarted q_len1 attention ledger",
+      "label": "Old invalid observer deduplicated",
+      "summary": "Restart note refers3f44f891d0ef47db, already tracked from November1with all12causal rows invalid for intrusion. New ledger does not validate its attribution or create a fresh measurement. Gather probes remain target-untested source work. New untracked CLI copy matches its old1512.149609µs receipt and is deduplicated."
     }
   ]
 }
