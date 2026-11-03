@@ -1,0 +1,71 @@
+{
+  "queries": [
+    "\"muse_bf16_proj\" OR \"muse_attention_decode\" OR \"muse_moe_w4a16\"",
+    "\"muse_decode_layer\" OR \"muse_prefill_layer\"",
+    "\"Muse Spark Open Kernel Challenge\" November 3",
+    "\"openkernelchallenge.dev\" site:reddit.com OR site:news.ycombinator.com OR site:linkedin.com/posts",
+    "\"justinwangx\" \"muse-open-kernel-challenge\"",
+    "\"lxe\" \"Muse Spark Open Kernel Challenge\"",
+    "\"levidiamode\" \"Muse\" \"challenge\"",
+    "\"Karmedge\" \"kernel\" \"Muse\"",
+    "\"Muse Spark\" \"challenge\" site:reddit.com",
+    "\"Muse Spark\" \"challenge\" site:news.ycombinator.com",
+    "\"openkernelchallenge.dev\" site:linkedin.com/posts",
+    "\"Muse Spark\" \"kernel\" blog November 2026"
+  ],
+  "observations": [
+    {
+      "url": "https://teapawt.org/justinwangx",
+      "source_date": "October 29/30; mirror crawled yesterday",
+      "scope": "Same Slack-channel announcement and prior challenge posts; Slack not accessed."
+    },
+    {
+      "url": "https://teapawt.org/lxe",
+      "source_date": "October 31; mirror crawled yesterday",
+      "scope": "Same six-agent/two-H200 harness post; cached lead, not a new implementation."
+    },
+    {
+      "url": "https://xitter.cf/levidiamode",
+      "source_date": "October 29; mirror crawled yesterday",
+      "scope": "Same top-50 and learning notes, no new pinned kernel."
+    },
+    {
+      "url": "https://es.linkedin.com/posts/rguillamon_muse-spark-open-kernel-challenge-activity-7519819739335102464-xRek",
+      "source_date": "Cached last week, relative post date",
+      "scope": "Same participant post about layouts, attention parallelism and PDL; no new bound receipt."
+    },
+    {
+      "url": "https://memory-bound.vercel.app/blog/muse-spark-open-architecture/",
+      "source_date": "October 27",
+      "scope": "HTTP bytes unchanged."
+    },
+    {
+      "url": "https://thethings.ai/p/okc/muse-bf16-proj-report",
+      "scope": "HTTP bytes unchanged."
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/147?credible=all",
+      "source_date": "2026-11-03 17:15 UTC",
+      "scope": "New public measurement-disagreement post, exact capture and receipt limits retained."
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/120?credible=all",
+      "source_date": "2026-11-03 17:15 UTC",
+      "scope": "Same account cross-posts its profile table and caveats; not independent confirmation."
+    },
+    {
+      "url": "https://github.com/sgl-project/sglang/pull/47129",
+      "source_date": "2026-11-03 17:35:54 UTC",
+      "scope": "Same source head, new B200 opt-in quality ablation. Public CSV flag counts checked; no raw-answer or GPU reproduction."
+    }
+  ],
+  "limits": [
+    "Twelve bounded indexed queries; platform misses do not prove absence.",
+    "Public cached mirrors remain secondary and date-limited.",
+    "Original X profiles inaccessible; no authenticated Slack/Discord, restricted Guild bodies or encrypted messages accessed.",
+    "Guild web-fetch failures recovered through direct public HTTP.",
+    "GitHub non-code searches use a five-minute overlap before the previous capture end; backdated or newly indexed older results may be omitted.",
+    "Current GitHub sweep searches full bounded code pages and unfiltered latest non-code pages. Search misses remain scoped to recorded coverage."
+  ],
+  "scope": "22:22 public refresh. Cached mirrors retain the same substantive challenge posts; latest lxe repost adds an emoji, without a source or measurement."
+}

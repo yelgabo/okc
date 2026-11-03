@@ -1,0 +1,74 @@
+[
+  {
+    "path": "background-leads.json",
+    "bytes": 801,
+    "sha256": "80e4b6a770006a23c41898448b7611c3f56b6a286673701f4a71f06d3cf91347",
+    "blob": "a08ff2e6e9c3bd70a4f8ae806cf5569f89dfb33d"
+  },
+  {
+    "path": "benchmark-records.tar.gz",
+    "bytes": 15563,
+    "sha256": "af8d37e5c8bfad382bee87efdf9569c5661e81fcb35991ec1ca929c88cb13193",
+    "blob": "65c175c46e248c5076284afcdbb643e37893e495"
+  },
+  {
+    "path": "guild-body-diff.json",
+    "bytes": 4865,
+    "sha256": "09d8f01bfac8802decd0dca0612d8f358cec1ade97f2e1c3f8084aff586470d9",
+    "blob": "47ea94218b79f07f89e7503057e273d9df73b420"
+  },
+  {
+    "path": "mdzor-commit-metadata.json",
+    "bytes": 1026,
+    "sha256": "4643e05f9ddb103e57f18a5a787f29dc51510a50fafebfde5f85412ec3de5f39",
+    "blob": "3efabddf1fc8854f8c3a08c8330b633cdc9b9251"
+  },
+  {
+    "path": "mdzor-source-check.json",
+    "bytes": 577,
+    "sha256": "76275815b6fe322d3aee0ecb7df85da843a201a91aada1b4c3d692c105dab493",
+    "blob": "e602853637ab2a685cc948e71b54237a1da69fea"
+  },
+  {
+    "path": "mdzor-source-manifest.json",
+    "bytes": 14020,
+    "sha256": "96b8eafd31df11c71550573343da4e4666bfb7c15bff177d40e7344f3387ce81",
+    "blob": "0bbb1a70e1d07b7ae2ebdcf237162e825301a1f5"
+  },
+  {
+    "path": "query-coverage.json",
+    "bytes": 7723,
+    "sha256": "75cd60c4cfe8ee3e3ca40221bf02792473ef008ffcfb7903374e5db6fc26725f",
+    "blob": "dbc53a473b0dd9f0278259cbccdfc48b17bd3e55"
+  },
+  {
+    "path": "search-captures.tar.gz",
+    "bytes": 4150105,
+    "sha256": "1b475406f2def81a8c6674fdb1349321093d95981a50da337dcdb879b77940df",
+    "blob": "5cba63c6cb271b7812eca28f6affaf5c967ef77d"
+  },
+  {
+    "path": "social-access.json",
+    "bytes": 692,
+    "sha256": "93cc31d1b92d3de1033d38911a131efd62233d9e99824d6038b25fbe5a2d639f",
+    "blob": "9e8030a5e75f4c499952e808018933f4421b2754"
+  },
+  {
+    "path": "summary.json",
+    "bytes": 19550,
+    "sha256": "98ce3f59591fd2bc6779168ba0de941baa7d5c1e6c902a982ffec3ae07d85947",
+    "blob": "c94eb65313db525daa99834c8d20cc9a1fc103ba"
+  },
+  {
+    "path": "watch-comparisons.json",
+    "bytes": 1979,
+    "sha256": "9b8baddb669d4496d0d78cf7f6fffdef6a2d532e79c71f7ef68ee66496081661",
+    "blob": "a2f20bbca8f4b24dcabc69dbb2ce34a4796c7478"
+  },
+  {
+    "path": "web-coverage.json",
+    "bytes": 3493,
+    "sha256": "63c8ef566b0bbeafdcbf62872cb682c4b13ce2334b8e3c85c3a884e30dd79242",
+    "blob": "12fd57188e2d5d2094b75dc2f68ea4d9fe75c36d"
+  }
+]

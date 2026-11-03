@@ -1,0 +1,11 @@
+{
+  "repository": "mdzor/muse-decode-bench",
+  "pin": "d13ad99b45faf05934ec35c041522bc825870687",
+  "source_files_verified": 27,
+  "source_execution": false,
+  "service_requests": false,
+  "hardware_inspected": false,
+  "measurement_reproduced": false,
+  "source_scope": "Service, score_all.time_shape, harness._timed_replay and optional judgeroute call; byte relationships for full tree.",
+  "limits": "No raw receipt digest binding to the current service; no local/judge parity or observer-cost proof. Generic module routing caveats do not override the wrapper call path."
+}

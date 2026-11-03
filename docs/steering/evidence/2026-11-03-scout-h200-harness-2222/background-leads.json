@@ -1,0 +1,16 @@
+[
+  {
+    "url": "https://github.com/NVIDIA/TensorRT-LLM/pull/21580",
+    "title": "[None][perf] Muse Spark Open modeling_v2 TEP target: Vera Rubin low-latency levers and trtllm::fp4_block_scale_moe_prerouted",
+    "head": "701519ae027ddaa8e6ac4b2ed533904af354712f",
+    "updated_at": "2026-11-03T22:26:50Z",
+    "scope": "Different target hardware; source metadata and author claims read. No H200 challenge gain established."
+  },
+  {
+    "url": "https://github.com/ROCm/aiter/pull/6889",
+    "title": "[Triton/Gluon] Window-aware split-KV for sliding-window verify on gfx950",
+    "head": "32d29c9965a30a3cc57fdfa957478d98e007cd5b",
+    "updated_at": "2026-11-03T22:25:37Z",
+    "scope": "Different target hardware; source metadata and author claims read. No H200 challenge gain established."
+  }
+]

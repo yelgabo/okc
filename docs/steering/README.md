@@ -79,6 +79,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 
 ## Audits and monitors, November 2 to 3
 
+[Public scout: local H200 harness source](2026-11-03-scout-h200-harness-2222.md) pins mdzor's `d13ad99b`, verifies 27 file blobs and traces the final service-to-timer path. Paired graph timing, cold-cache flush and asynchronous service jobs are source facts; judge parity, observer cost and target execution remain unverified. Current owner queues continue.
+
 [Driver monitor20:41UTC](2026-11-03-driver-monitor-2041.md): fixed-cost quantities/limits,H200parityownership/continuous-runtime preference,sourcelead disposition and fresh boards/quota.
 
 [Public scout: Aravind's compact MoE source](2026-11-03-scout-aravind-moe-2022.md) pins `dcf3ee7c`, verifies all 31 files and checks the final dispatch plus raw-ID/custom-norm guard. Author reports 1.8696x without a raw receipt and explicitly declines to attribute the noisy v35 increase to unselected WGMMA variants. Source reference only; current owners retain their queue.
