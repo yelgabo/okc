@@ -9,4 +9,4 @@ D32 identity4a2a79bdac04499a is terminal and archived with failed routing/covera
 
 The5,725.7us historical candidate-only source is now recovered exactly as fde6b1ee/364234bytes. Its release qualification and the current c7 control's standalone release are separate from stopped queue99a6888d. [All-board audit and mandatory promotion guard](../2026-11-02-private-promotion-audit.md). Sparse phase observer source compiles locally; no observer GPU dispatch yet. Worker reminder remains paused, with active work continuing in this chat.
 
-Current standalone release425fc2a9/320519bytes is prepared, exact five control compiler calls preserved, oneCPU ownership/forwarding test passes. [Release qualification](../2026-11-02-moe-control-release-qualification.md). No exact-file GPU check yet; it follows current own job closure and fresh preflight.
+Current standalone release5df257af/320466bytes is prepared, exact five control compiler calls preserved, twoCPU ownership/forwarding/fallback tests pass. [Release qualification](../2026-11-02-moe-control-release-qualification.md). No exact-file GPU check yet; it follows current own job closure and fresh preflight.

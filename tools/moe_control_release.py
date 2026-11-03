@@ -37,6 +37,12 @@ def build():
     assert source.count(old)==1
     source=source.replace(old,"if arm is not False or '_expert_pair_arm_bound' in state:")
     source=source.replace('_expert_pair_bind','_moe_bind_control')
+    old="        if not state['ma_sfx']:\n            raise RuntimeError('EXPERT_MOE_NATIVE_SCALE_CONTRACT_NO_FALLBACK')\n"
+    assert source.count(old)==1
+    source=source.replace(old,'')
+    old="        if set(state['ma_ext']) != {'tiny', 'tiny2', 'mid', 'b4', 'main'}:"
+    assert source.count(old)==1
+    source=source.replace(old,"        expected={'tiny','tiny2','mid','main'} | ({'b4'} if state['ma_sfx'] else set())\n        if set(state['ma_ext']) != expected:")
     assert 'expert_top100_pregamma' not in source and '_EXPERT_PAIR_EDITS' not in source
     assert bindings(source)['MOE_CUDA_SRC']==bindings(adapter()[0])['MOE_CUDA_SRC']
     calls,routes=capture(source);old_calls,old_routes=capture(adapter()[0])
@@ -51,7 +57,7 @@ def build():
                        helper_sha256=prior['helper_sha256'],adapter_control_sha256=prior['source_sha256'],
                        compiler_calls=descriptors,routes=routes,judged_arm='control',public_submission_approved=False,
                        qualification='pending exact-file private check',
-                       scope='Current c7 B4/MAIN and unchanged tiny/tiny2/MID, original three scratch buffers')
+                       scope='Current c7 B4/MAIN, original tiny/tiny2/MID and scale fallbacks, original three scratch buffers')
 
 
 if __name__=='__main__':

@@ -6134,8 +6134,6 @@ def _expert_moe_prepare(weights, arm, deadline=None):
                      ma_ext={}, guards=[], identities=EXPERT_MOE_IDENTITIES)
         state['ma_sfx'] = _MA_SFX_IF_PRMT if (
             _MA_PRMT_SCALES and _ma_scales_prmt_exact(local['w13_sf'], local['w2_sf'])) else ()
-        if not state['ma_sfx']:
-            raise RuntimeError('EXPERT_MOE_NATIVE_SCALE_CONTRACT_NO_FALLBACK')
         state['ma_sc6'] = bool(SC6_WGS and state['ma_sfx'] and _wgs_on()
                                and _sc6_ok(local['w13_sf'], local['w2_sf']))
         _expert_moe_budget(deadline)
@@ -6147,7 +6145,8 @@ def _expert_moe_prepare(weights, arm, deadline=None):
         _fork_native_ma_prepare(local, state)
         torch.cuda.synchronize(device)
         _expert_moe_budget(deadline)
-        if set(state['ma_ext']) != {'tiny', 'tiny2', 'mid', 'b4', 'main'}:
+        expected={'tiny','tiny2','mid','main'} | ({'b4'} if state['ma_sfx'] else set())
+        if set(state['ma_ext']) != expected:
             raise RuntimeError('EXPERT_MOE_INCOMPLETE_BUILD')
         _expert_moe_check_guards(state)
         _expert_moe_budget(deadline)

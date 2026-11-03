@@ -1,6 +1,6 @@
 {
-  "source_sha256": "425fc2a99bc31d76e13a3f7f2d19799a289d8263465afa28c9542e3500f0a7e1",
-  "bytes": 320519,
+  "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+  "bytes": 320466,
   "native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
   "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
   "adapter_control_sha256": "19aeaf356be6329dea1031966a4b7efbab4f039748f122acc78300e670cb5b57",
@@ -185,5 +185,5 @@
   "judged_arm": "control",
   "public_submission_approved": false,
   "qualification": "pending exact-file private check",
-  "scope": "Current c7 B4/MAIN and unchanged tiny/tiny2/MID, original three scratch buffers"
+  "scope": "Current c7 B4/MAIN, original tiny/tiny2/MID and scale fallbacks, original three scratch buffers"
 }

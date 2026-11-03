@@ -58,4 +58,4 @@ Use the [shared report archive](../../archive/docs/steering/) for older decision
 
 [CUDA local-gate correction](2026-11-02-cuda-part2-experiments.md#correction-local-results-cannot-decide-target-performance) withdraws local-only spill/code-identity rejection as target-performance evidence. Unsafe flush prototypes remain blocked by source correctness; the pointer treatment is target-untested; both measured H200 failures retain their scope.
 
-[Concrete current-control release candidate](2026-11-02-moe-control-release-qualification.md) is prepared as425fc2a9, preserving the five actual compiler calls. Exact-file private qualification follows the existing phase job closure; no public approval or timing claim yet.
+[Concrete current-control release candidate](2026-11-02-moe-control-release-qualification.md) is prepared as5df257af, preserving the five actual compiler calls. Exact-file private qualification follows the existing phase job closure; no public approval or timing claim yet.
