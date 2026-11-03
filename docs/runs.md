@@ -2687,3 +2687,56 @@ orders; g the real m = 1 picks of o, pooler and router; h1 / h8 a one-thread poi
 Reported: per-arm median and MAD of round medians, paired deltas against b and the named differences.
 Compile check (local nvcc 12.8): 99 entries, no spills. Stop: one check; a second only if the small arms' MAD
 exceeds 0.3 us.
+| 11-03 | 24068e6fd73e4240 | check (bench FC-01) | a1960e7b (SHA256 e12b4097) | fixed-cost calibration arms in prepare(); judged arm is the incumbent | 1.527x (1.504-1.550), 3,162.8 us | PASS 9 tests; no pick changed; not below public 3,161.9 us, so no queue entry |
+
+Result, in-process us (median of 12 round medians, MAD; delta vs b paired). Every small arm's MAD is 0.10 or less,
+so no second check.
+
+| arm | median | MAD | minus b |
+|---|---:|---:|---:|
+| a empty graph (torch captured it) | 2.91 | 0.00 | -1.92 |
+| a 1-byte memset node | 4.45 | 0.00 | -0.40 |
+| b null 1 x 32 | 4.86 | 0.03 | 0 |
+| c null 132 x 128 | 5.04 | 0.05 | +0.19 |
+| cx null 128 x 128, cudaLaunchKernelEx | 5.01 | 0.02 | +0.16 |
+| d null 1024 x 96 | 5.66 | 0.00 | +0.83 |
+| d2 null 4096 x 96 | 7.63 | 0.10 | +2.78 |
+| e8 / e16 null 128 x 128 in clusters of 8 / 16 | 5.02 / 5.02 | 0.00 | +0.19 / +0.18 |
+| f stream 12.58 MB (o) / 50.3 MB (pooler) / 8.39 MB (router) | 11.42 / 19.58 / 10.53 | 0.03-0.08 | +6.56 / +14.70 / +5.68 |
+| fs same, per-CTA slabs | 12.10 / 20.24 / 11.09 | 0.06-0.11 | +7.22 / +15.36 / +6.16 |
+| g o cgemv / pooler rdp8 / router rgemv (real m = 1 picks) | 9.26 / 17.49 / 7.73 | 0.03-0.06 | +4.37 / +12.61 / +2.83 |
+| h1 / h8 pointer chase, 4 MB hops | 5.12 / 7.46 | 0.06 / 0.05 | +0.22 / +2.62 |
+
+Paired differences: d - c +0.66, d2 - c +2.61; e8 - cx +0.03, e16 - cx +0.03; g - f: o -2.21, pooler -2.11,
+router -2.77; h8 - h1 +2.37 (0.34 us per dependent cold hop).
+
+The judge's own calibration is in the status JSON (`replay_overhead` per cell): it times a one-node and a two-node
+graph and subtracts overhead = 2 x one - two (3.8-4.2 us). Its one-node graph is 4.93-5.31 us, the same as arm b
+(4.86). So on the judged scale a one-kernel graph is left at one - overhead = two - one = 1.0-1.15 us, in every cell.
+
+Analysis:
+1. Graph and launch floor: b = 4.86 in-process; an empty graph is 2.91, and a kernel node adds 1.92 (a memset
+   node 1.54). On the judge's scale the one kernel node of every cell costs 1.0-1.15 us after the subtraction.
+   That part is not ours: a one-kernel graph cannot drop its node.
+2. CTA count: 1024 CTAs cost +0.66 us and 4096 CTAs +2.61 us over 132 when the CTAs do nothing (CTA dispatch at
+   about 0.64 ns per CTA). In a streaming kernel the dispatch overlaps the loads: the ramp lane (793602020fd64ce9)
+   judged 256 x 544 and 4096 x 96 the same on o.
+3. Cluster launch: free (+0.03 us at 8 and at 16).
+4. Streaming floor: arm f did not measure one. 132 x 256 threads with 8 loads per iteration and no pipelining
+   between iterations reached only 1.9 TB/s on 12.6 MB and 3.4 TB/s on 50 MB, and the real kernels beat it by
+   2.1-2.8 us, so g - f is negative and gives no ramp figure. In place of f, the two 12-bit kernels give a slope:
+   (12.61 - 4.37) us / (50.33 - 12.58) MB = 4.58 TB/s, intercept 1.62 us above b (a two-point fit across two
+   different kernels, cgemv and rdp8; a derivation, not a measurement).
+5. Ramp, tail and epilogue, from the judged cells of this check, after the node cost (two - one of each cell) and
+   bytes at 4.8 TB/s: o 5.06 - 1.06 - 2.62 = 1.38 us; router 3.75 - 1.09 - 1.75 = 0.91; unpooler slice
+   (6.29 MB) 3.61 - 1.15 - 1.31 = 1.15; pooler 13.44 - 0.99 - 10.49 = 1.96 (1.46 at the fitted 4.58 TB/s).
+   Each includes at least one cold DRAM round trip before the first byte arrives (h: 0.34 us per dependent hop
+   with a TLB miss, 0.22 us for the first).
+
+Of the 2 to 3 us above the byte floor, about 1.0-1.1 us is the kernel node of the graph and is not ours, and
+about 0.3 us is the first DRAM round trip. What is left for us is 0.6-1.1 us per cell at o, the router and the slice
+(about 1.1-1.6 at the pooler), spent in ramp, tail and epilogue. Clusters and CTA count are not where it goes.
+Over the ten decode 1 / verify 1 cells that bounds the remaining kernel-side gain at about 8 us of the 35-38 us
+loads if all of it were recovered, which no tested variant has done. Next step if reopened: a stream arm that keeps
+loads in flight across iterations (more CTAs or a software-pipelined loop), so f is a true floor and g - f
+becomes a measurement. Receipts: `muse_bf16_proj/experiments/profiles/fixed_cost.24068e6fd73e4240.{json,txt,log}`.
