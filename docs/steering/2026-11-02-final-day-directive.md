@@ -48,4 +48,4 @@ hash, affected cells before and after, decision. Chat-only results do not count.
 
 ## Ledger
 
-(empty at creation)
+- 2026-11-02 ~23:30 PT, user authorization: "yes, submit on confirmation" for the MoE factorized-output release (lead job 7479372115c64702, 5,698.5 us, 2.360x). The final-day lead submits the single-arm release file to the muse_moe_w4a16 board as soon as its own private check confirms within noise of that result, without a further ask. This authorization covers that one file only.
