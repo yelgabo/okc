@@ -1,0 +1,39 @@
+# User-directed worker repurpose: former Decode32 → P0 MoE; CUDA Optimizer → P1 BF16
+
+November 2, 2026 Pacific. User requests consecutively: **“repurpose decode32 worker”** and **“repurpose CUDA optimzier”**, after explicitly demoting Decode32 to P4 and setting standalone `muse_moe_w4a16` as P0 and `muse_bf16_proj` as P1. This supersedes prior worker-specific research allocation; it does not rewrite completed history, permit a new public submission, or cancel an accepted job.
+
+## New lanes and ownership
+
+| Worker/session | New primary goal | First action | Avoid overlapping |
+|---|---|---|---|
+| **Former Decode32 Worker** (can retain its chat title, but the task is no longer Decode32) | **P0 standalone `muse_moe_w4a16`**. Recover 509.8µs from user-supplied 6,069.6µs toward top-100 cutoff 5,559.8µs (8.40% reduction). | First discharge the **already accepted** D32-IDENTITY-01 private layer job `4a2a79bdac04499a` through its owning single waiter/record and strict correctness/decision, *without new D32 iterations*. Then switch to a new standalone MoE algorithm/representation experiment. | General Optimizer is separately working on MoE skinny/WS research; CUDA Optimizer's former B4 phase attribution is not a separate owner after its transfer below. Do not re-run GOPT-PIPE-01 NS4, GOPT-SHORT-02 dormant prefix, GOPT-WS-03 norm aggregation, scale-only and scale+group failures, or the B4 prefix already shipped. |
+| **OKC CUDA Optimizer** | **P1 standalone `muse_bf16_proj`**. Recover 108.6µs from user-supplied 3,161.9µs to 3,053.3µs (3.43% reduction). | Reconcile selected production C2 projection source, actual 30-cell benchmark and prior project progress; identify a genuinely missing **projection** hotspot, then implement one source-qualified bounded BF16 projection optimization and measure under the owning problem's limits. | Discontinue ownership of **CUDA-MOE-PHASE-01** after any genuine active job is responsibly closed. It is a historical research brief, not a continuing CUDA optimizer assignment. No duplicate work with General Optimizer's MoE or historical projection C1/C2/C3, cluster and sparse-XOR failures. |
+| **OKC General Optimizer** | Continue independent P0 MoE work on active WS skinny / cost reduction, or await a distinct MoE candidate. | Its GOPT-WS-03 job `b38a9ed6dc9743e9` was terminal correctness pass/performance loss; retain NS3 and original norm publication. Propose distinct P0 candidate with selected-source and complete-call evidence. | Avoid overlap with the former Decode32 Worker's new standalone MoE architecture/representation lane. |
+
+**Work split inside standalone MoE:** Former Decode32 Worker takes *new, high-upside whole-expert algorithm/weight-representation and end-to-end schedule* exploration (including B4/MAIN only where not already assigned); General Optimizer retains *active WS skinny T1/T8/T16* and measured smaller-shape opportunities. If these cannot be separated on the actual selected implementation, record an explicit owner claim in shared steering **before** working or dispatching. The earlier CUDA-MOE-PHASE-01 B4/MAIN phase-attribution study may be transferred **as background research** to the former Decode32 Worker only after checking whether anyone has an accepted job; it is not permission for two owners to run the same experiment. No standalone result is automatically a decode-layer win.
+
+## Accepted-job handover safeguard
+
+The latest confirmed `docs/steering/decode32/STATUS.md` says D32-IDENTITY-01 `4a2a79bdac04499a`, source `f7a5d1fb`, published commit `59011284`, had a sole local waiter and no target result yet. **Do not abandon, cancel, or create a new poller** for this accepted job. The original owner completes archival, analyzes its registered acceptance/noise/correctness gates, closes or integrates only if already authorized, and updates its frozen D32 ledger. At the next normal checkpoint check newer main commits first: if terminal has already been recorded, skip the wait. **Do not open any new Decode32 performance work afterward** absent a separate explicit user re-prioritization. Decode32 P4 remains a project opportunity, but this worker's next allocation is P0 MoE.
+
+CUDA Optimizer has no accepted new B4 phase-trace job identified in the latest inspected shared steering; check latest own/local job status once before switching. If one exists, finish its own waiter and archive; no duplicate, cancellation or loss of evidence. Any phase-hotspot findings can inform the MoE owner, but **the CUDA Optimizer's new implementation lane is BF16 projection**, not continued B4 profiling.
+
+## Concrete first sprint for the two repurposed workers
+
+### Former Decode32 Worker — MoE P0
+
+1. Read current `docs/steering/README.md`, this handoff, `docs/runs-moe.md`, `docs/ruled-out.md`, current native `muse_moe_w4a16/submission.py` and selected WGS alternatives with compiled flags; reconcile `docs/research/h200-460-experiments.md` source corrections and General Optimizer's newest receipts. Recheck the top-100 cutoff (user provided 5,559.8µs; not claimed a current CLI value) only when available.
+2. Profile the standalone **6,069.6µs complete six-shape cost**, rank the top 1–2 *removable* bottlenecks, and identify one **nonduplicated architectural mechanism**: reduced mandatory weight bytes/scale decode, effective schedule/phase transition, or another source-backed solution. Do not simply cycle WGMMA groups, scale folding, slot depths, or unsafe fence shortcuts.
+3. Implement a single measurable treatment within existing private-check permissions, retain exact BF16 stage boundaries, FP8/NVFP4 lossless requirements, natural routing, proxy ordering, graph replay, scratch isolation, and resident-grid progress. Use same-codegen controls and full six-shape timing, with duplicate/null and regression checks. Record source hash, job ID and keep/park decision. If still a hypothesis without credible upside, ask the established research/scout agents for a stronger mechanism rather than burning quota.
+
+### CUDA Optimizer — BF16 P1
+
+1. Read `docs/runs.md`, current selected `muse_bf16_proj/submission.py`, `docs/ruled-out.md`, prior C2/C3, sparse-XOR/cluster/packed weight experiments, and `docs/steering/2026-11-02-historical-wins-transfer-audit.md`. Recover **actual selected C2 production path and per-shape score contributions**, not just old prose. User's target: 3,161.9→3,053.3µs; 108.6µs to save.
+2. Choose one untested projection mechanism with a credible complete-score potential: e.g., underperforming selected QKV/o projection shapes, bounded compact weight codec crossover, or a distinct load/store arrangement. Verify source novelty against old experiments (especially public C1/C2, the prior QKV cluster residency loss and the two sparse-XOR losses). Skip if the only expected gain is below measurement noise.
+3. Implement one isolated candidate with correct exact BF16 math/escape handling, compiler and replay checks, and matched private projection timing across all scored shapes before promoting. Report actual complete weighted time/speedup and per-shape contribution, not only microkernel throughput. Public/scored submission remains approval-gated.
+
+## No silent priorities or fake delivery
+
+Priority: **MoE P0, BF16 P1, Decode32 P4**. Attention decode/whole-layer opportunities are ordered by measured ROI, not by previous D32 project obsession; prefill is a separately scoped large-gap opportunity. Do not assume standalone MoE/BF16 gaps add to layer gap. Research/steering and the existing hourly hotspot monitor will replenish P0/P1 queues first.
+
+This is a **GitHub inbox handoff**, not direct delivery to running Codex chats. Separate agent acknowledgment/pickup is unverified at publication. Worker sessions should read the shared index at their next normal checkpoint. No GPU action, kernel modification, cancellation, public submit or terminal job claim is performed by this note.

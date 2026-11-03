@@ -1,0 +1,131 @@
+{
+  "scope": "canonical repository bytes; compressed evidence is archive-only, payload is plain LF Python",
+  "files": [
+    {
+      "path": "tools/g224_reference_readiness.py",
+      "git_blob": "3c891e8425587aff4f6f56246e0ba019a31f2af4",
+      "bytes": 5836,
+      "sha256": "7b969c62492ab38d99a2bc512d48a68657cf1863f787058dbc37f09e3c3fcb35"
+    },
+    {
+      "path": "tools/test_g224_reference_readiness.py",
+      "git_blob": "1c82eec7b3343bf94b187366354bb0b331dd6cfc",
+      "bytes": 16342,
+      "sha256": "fe26afa979c173ea1dd87185a5b00e4694dd12cfcd6615752349a5be588b70bf"
+    },
+    {
+      "path": "tools/g224_reference_pack.py",
+      "git_blob": "21291c58883392b41c650b1f779600e18bde4198",
+      "bytes": 4908,
+      "sha256": "44e3085e0f5fd83569942a32c2f279bdf165d822661b10039529092293812c9e"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-g224-reference-readiness.md",
+      "git_blob": "8fbb394c54f28da4a508f23bfc7cefcff0ed7aa1",
+      "bytes": 15324,
+      "sha256": "a3b231c55e770d58188106ebfceee37fcac7c1df1fae474456ae20a1c0b30544"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/B4-device.cubin.gz",
+      "git_blob": "cc480e7d505a9764b6f26f09841bbb3c822c73c6",
+      "bytes": 782164,
+      "sha256": "001c24063399a16d9b2519a5cfce571ff85c1bc3588c05d36ce12bab784bd7a1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/B4-device.ptx.gz",
+      "git_blob": "ced4d19d3aba8fc2e4d1563426addef095dad1c1",
+      "bytes": 551528,
+      "sha256": "e42b51f2ef4204c8ead00f528bc522cc2a210d74827893c2ba6d4b314f453d97"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/B4-manifest.json",
+      "git_blob": "9a975530dd998fd8dea1c570c321debd2f4e9b1d",
+      "bytes": 2937,
+      "sha256": "fb27b15e65dab6c1225f7e5ce8cf2a5b030ae4c08c51e75820278831f99ac4af"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/B4-nvrtc.log",
+      "git_blob": "8e6bb7cb76c23f06c2a9fbbd874557f688ede6c6",
+      "bytes": 3270,
+      "sha256": "be3b5369425141a3dcf2b8a4b55a393ed6d5bbe5d55e8528e46bf34cf7f4f5aa"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/B4-ptxas.log",
+      "git_blob": "5d03910cedfc5b57966ae0d56b3d80962268111b",
+      "bytes": 1375,
+      "sha256": "c47ed13ef738fc104d938333f54ec84b40502b652c4ceb9aa9703a1bf081549d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/contracts.log",
+      "git_blob": "0d2515b1e79eada7c675408ebc8a9f319ee669d8",
+      "bytes": 110,
+      "sha256": "530202c36e6a60e2efb535cb16770aec4d82376793c4ed62dff23cd201539eb9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/MAIN-device.cubin.gz",
+      "git_blob": "3b4302cc7ad43f247ffa390f0aae95ca1ebae68e",
+      "bytes": 699719,
+      "sha256": "7c24ab20a434074e39bc4f87d8f1e75bccf0beafcdcd0c9cdb2479179e11a12b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/MAIN-device.ptx.gz",
+      "git_blob": "a81caf9d1619624bf30797dbcacd4210d7475330",
+      "bytes": 497011,
+      "sha256": "c7841141b4ae1298ffb3b1fb6add34c4bf59169f705c549b32b9303f986dd09d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/MAIN-manifest.json",
+      "git_blob": "b6ff027e633d275b30c915b3299c11d090ffc118",
+      "bytes": 2916,
+      "sha256": "c88ec75715028502e2c93dacbc27f1cea689c1e2509139cde926e729342e8289"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/MAIN-nvrtc.log",
+      "git_blob": "8e6bb7cb76c23f06c2a9fbbd874557f688ede6c6",
+      "bytes": 3270,
+      "sha256": "be3b5369425141a3dcf2b8a4b55a393ed6d5bbe5d55e8528e46bf34cf7f4f5aa"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/MAIN-ptxas.log",
+      "git_blob": "6d0ed8a8aba98aed8b78d4fcb9641fc0a235fd03",
+      "bytes": 1363,
+      "sha256": "8ac5c2f4fccac39af8565fa378295be97f50d98fa3f166c4c08974167e401245"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/original-control-nvrtc-driver.py",
+      "git_blob": "40321e8490518f2336b401d6204d072794e0715a",
+      "bytes": 7180,
+      "sha256": "e695ef03bda22d86167b829618429c7d139c23ad9cf96294edd1211388d5620c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/original-selected.cu.gz",
+      "git_blob": "a88215fe5911815e6623acd33d281a38d64d242b",
+      "bytes": 39641,
+      "sha256": "21a65567e4140d44f637af3033ca469f00a97f0d3b0a143b2a24388b1af10d7e"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/package-result.json",
+      "git_blob": "47a0d0c40fd7c680d83ed93b1a9b4e6012631154",
+      "bytes": 5188,
+      "sha256": "374bbd29c36873fe715903cbe16a8e745c219d791ca74e2c83594eecf6f0eabc"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/resource-result.json",
+      "git_blob": "2c463ec700d2566c70482b756e429bc897ac1981",
+      "bytes": 26099,
+      "sha256": "706d8443127f4ccc63c454d4da79e25e3c5bf8831b6b7a37ed6b6fe1a411ed76"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/variant.py",
+      "git_blob": "413ad17338d4c1725e58337c1057850ce022c869",
+      "bytes": 999601,
+      "sha256": "3615f0603a41184efec6f31a2ae88b080f6c4e049f77db16787896d0df6b009d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-reference-readiness/verification.json",
+      "git_blob": "87fe07501ff47d95fbf7f65746a2ce3e785f82b1",
+      "bytes": 3929,
+      "sha256": "4bfc80fcc82363d78f3ba970eed2a7e2eefc67c3efb2b38c3273f78c6b8bffd1"
+    }
+  ]
+}

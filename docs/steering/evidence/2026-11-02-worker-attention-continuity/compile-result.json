@@ -1,0 +1,12 @@
+{
+  "started_utc": "2026-11-02T19:22:34Z",
+  "driver_sha256": "135ddcabb8f5b81b0b7e288496b76d87f1a5bba8c4df75579bb7b9957b7f7edf",
+  "adapted_driver_sha256": "75bb76b3dedeb4bc85e40745c5018bc1250ec4f9bd899cc5cafea04ac555d43c",
+  "adapter": "existing declaration-only virtual standard headers and host-prefix removal; emitted sizeof/Cfg constant probes only",
+  "probes": "\nextern \"C\" {\n__device__ __constant__ unsigned int okc_layout[] = {\n  sizeof(Smem<1, true>), sizeof(Smem<1, false>),\n  sizeof(Smem<8, true>), sizeof(Smem<8, false>),\n  Cfg<1, true>::NTX, Cfg<8, true>::NTX,\n  Cfg<1, true>::STAGES, Cfg<8, true>::STAGES,\n  Cfg<1, true>::PREGS, Cfg<1, true>::CREGS,\n  Cfg<8, true>::PREGS, Cfg<8, true>::CREGS,\n  Cfg<1, true>::MINB, Cfg<8, true>::MINB\n};\n}\n",
+  "records": [],
+  "scope": "secondary CPU-only, no driver or GPU; exactly four selected instances",
+  "decision": "STOP_FIXED_SECONDARY",
+  "error": "RuntimeError('NVRTC status 7')",
+  "finished_utc": "2026-11-02T19:22:35Z"
+}

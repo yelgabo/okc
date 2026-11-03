@@ -1,0 +1,42 @@
+[
+  {
+    "path": "muse_decode_layer/TASK.md",
+    "raw_sha256": "e69be33e7066493da1647b6c9dec9f025dca8469717133fe7447ac166055a126",
+    "lf_sha256": "22cae4f18fe204ab9d5a4aa34dae4e839363beb1f5967f33668a39d173507c46"
+  },
+  {
+    "path": "muse_decode_layer/baseline.py",
+    "raw_sha256": "715237e330358a186beea7356186e596ceea7806cb1120a53ffb4249fe7cc54e",
+    "lf_sha256": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4"
+  },
+  {
+    "path": "muse_decode_layer/reference.py",
+    "raw_sha256": "764a3cf60282ae414b1210ee295a79c9225c1325c1808106572cc26096686938",
+    "lf_sha256": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163"
+  },
+  {
+    "path": "muse_decode_layer/cand/g1b2_native_experts.py",
+    "raw_sha256": "258c848c662149f9c6ac178039f179de6f0b0ec4cb0b503451d2974c7a7a8dfc",
+    "lf_sha256": "258c848c662149f9c6ac178039f179de6f0b0ec4cb0b503451d2974c7a7a8dfc"
+  },
+  {
+    "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+    "raw_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "lf_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+  },
+  {
+    "path": "tools/dl_fork_moe.py",
+    "raw_sha256": "976be12c7a0b8d3cc915a5996808ea72919cec84c28aa1483a9f13ccba51d35d",
+    "lf_sha256": "1350676ca93663b1379ed6520381c20b6c7b164ef2c45aabccafe39e62266eed"
+  },
+  {
+    "path": "tools/dl_fork_projection.py",
+    "raw_sha256": "542a9350b6386170bddad0b0975b05eb4af93dc305ef73ed130da9f6fb41b837",
+    "lf_sha256": "773d42a02cddac7af1d8292c772a21c2103d640bc5a53754aa466097e0b802cc"
+  },
+  {
+    "path": "tools/dl_build_attributed_fork.py",
+    "raw_sha256": "b1e8e09e1e245b60b13e8b15f4d2b7ac17213fe68272da98a7364fc63fdab280",
+    "lf_sha256": "b1e8e09e1e245b60b13e8b15f4d2b7ac17213fe68272da98a7364fc63fdab280"
+  }
+]

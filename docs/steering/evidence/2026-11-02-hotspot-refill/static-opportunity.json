@@ -1,0 +1,46 @@
+{
+  "evidence_commit": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+  "reconciled_main": "0ddbc284652b20ceec7f2ecbc5eb6b070c745e84",
+  "layer_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "scope": "CPU enumeration of selected WS contiguous partitions. Hypothetical job counts, one valid route per job. Equal occupancies multiply the atomic counts equally. Not observed routing, SASS instruction counts, timing, a speedup estimate, or kernel execution.",
+  "grid_ctas": 132,
+  "phase_a_units_per_job": 512,
+  "phase_b_units_per_job": 256,
+  "method": {
+    "a0": "floor(jobs*512*cta/132)",
+    "a1": "floor(jobs*512*(cta+1)/132)",
+    "b0": "floor(jobs*256*cta/132)",
+    "b1": "floor(jobs*256*(cta+1)/132)",
+    "tail_count": "min(WSBLK,b1-b0)",
+    "helper_end": "b1-tail_count",
+    "helper_job_flushes": "0 if helper_end==b0, else floor((helper_end-1)/256)-floor(b0/256)+1",
+    "proposed_ss_updates": "sum_over_ctas(helper_job_flushes+tail_count)",
+    "original_ss_updates": "jobs*256",
+    "crossing_phase_a_cta": "a1>a0 and floor(a0/512)!=floor((a1-1)/512)",
+    "delayed_later_job_units": "a1-(floor(a0/512)+1)*512 for crossing CTAs, else 0"
+  },
+  "validation": {
+    "cases": 88,
+    "job_counts": "1 through 44 inclusive",
+    "WSBLK_values": [1,2],
+    "assertions_passed": ["A ranges cover exactly 512 units per job", "each tested A range has at most 512 units", "proposed scalar ss updates never exceed original updates"]
+  },
+  "examples": [
+    {"jobs":1,"WSBLK":1,"original_ss_updates":256,"proposed_ss_updates":256,"crossing_ctas":0,"max_later_job_units":0},
+    {"jobs":1,"WSBLK":2,"original_ss_updates":256,"proposed_ss_updates":256,"crossing_ctas":0,"max_later_job_units":0},
+    {"jobs":4,"WSBLK":1,"original_ss_updates":1024,"proposed_ss_updates":264,"crossing_ctas":0,"max_later_job_units":0},
+    {"jobs":4,"WSBLK":2,"original_ss_updates":1024,"proposed_ss_updates":396,"crossing_ctas":0,"max_later_job_units":0},
+    {"jobs":8,"WSBLK":1,"original_ss_updates":2048,"proposed_ss_updates":268,"crossing_ctas":4,"max_later_job_units":15},
+    {"jobs":8,"WSBLK":2,"original_ss_updates":2048,"proposed_ss_updates":400,"crossing_ctas":4,"max_later_job_units":15},
+    {"jobs":16,"WSBLK":1,"original_ss_updates":4096,"proposed_ss_updates":276,"crossing_ctas":12,"max_later_job_units":46},
+    {"jobs":16,"WSBLK":2,"original_ss_updates":4096,"proposed_ss_updates":408,"crossing_ctas":12,"max_later_job_units":46},
+    {"jobs":32,"WSBLK":1,"original_ss_updates":8192,"proposed_ss_updates":292,"crossing_ctas":28,"max_later_job_units":108},
+    {"jobs":32,"WSBLK":2,"original_ss_updates":8192,"proposed_ss_updates":424,"crossing_ctas":28,"max_later_job_units":108}
+  ],
+  "compiler_evidence": "../2026-11-02-gopt-skinny-depth/compile.json",
+  "preprocessor_evidence": "../2026-11-02-gopt-short-prefix/audit.json",
+  "sass_status": "Existing compressed archives located; independent instruction inspection not completed. fetch_blob on mid-control.sass.gz blob 6494e9c63dba3749bcf5933692cab8de1345bf1a failed UTF-8 decoding. No local CUDA compiler was available.",
+  "kernel_modified": false,
+  "gpu_execution": false
+}

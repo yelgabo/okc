@@ -172,9 +172,12 @@ Update 2026-10-28:
   of steps on full verify) saved nothing, so the rescale is not what the FP32 math costs. The
   entry stays var 16 (submission.py).
 
-Update 2026-10-28 (the rewrite push; details in docs/audit-2026-10-28.md, docs/gap-analysis-2026-10-28.md and the runs logs):
-- Decision: the overall board ranks by the decode-layer entry, so every component rewrite is judged by its
-  effect inside the layer. Target changed from "beat 1.0x" to top 50 (2.135x on 10-28, rising).
+Update 2026-10-28 (the rewrite push; details in archive/docs/audit-2026-10-28.md, archive/docs/gap-analysis-2026-10-28.md and the runs logs):
+- Historical decision (2026-10-28): we assumed the overall board ranked by the decode-layer entry and judged
+  component rewrites by their effect inside the layer. Target changed from "beat 1.0x" to top 50
+  (2.135x on 10-28, rising). Correction, 2026-11-02: the November1 snapshot differs at95 positions
+  between the first500 overall/layer rows. Query overall independently; no universal formula is established.
+  See archive/docs/steering/2026-11-01-post-xor-ranking-pivot.md and .claude/agents/okc-coordinator.md.
 - Orchestration (W0, merged): X5 with SGLang's two BF16 roundings (bitwise), own pre-expert norm and attention
   boundary kernels, PDL across our chain (no gain of its own inside a captured graph), a front tuner that picks
   one concatenated pooler + router GEMM above 8 tokens; checks 1.431-1.463x.

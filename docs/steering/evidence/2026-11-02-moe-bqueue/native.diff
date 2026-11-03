@@ -1,0 +1,123 @@
+--- control
++++ candidate
+@@ -1827,13 +1827,14 @@
+   return (OKC_WGSREORD && pb == 0 && (g1 & 15) != 0 && ue > g0) ? ue : g0;
+ }
+ __device__ void wgs_ranges(const Params& p, Smem& S);  // below (needs the cost tables)
++__device__ __forceinline__ void moe_bqueue(const Params& p, Smem& S, unsigned char* ring, int role, int seq);
+ __device__ void wgs_wproducer(const Params& p, Smem& S, unsigned char* ring) {
+   WS_JOIN();  // routing tables and this CTA's stage ranges are ready
+-  if ((threadIdx.x & 31) != 0) return;
++  if ((threadIdx.x & 31) == 0) {
+   int ws = 0, n = 0;
+   uint32_t wph = 0;
+ #pragma unroll 1
+-  for (int pb = 0; pb < 2; ++pb) {
++  for (int pb = 0; pb < 1; ++pb) {
+     const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);
+     const int ubl = pb ? 4 : 5;  // log2 of 256-row units per job
+     const unsigned char* base = pb ? p.wBs : p.wAs;
+@@ -1853,6 +1854,8 @@
+       if (++ws == WGS_NS) { ws = 0; wph ^= 1; }
+     }
+   }
++  }
++  moe_bqueue(p, S, ring, 1, S.wgr[1] - S.wgr[0]);
+ }
+ // x producer: one bulk copy per stage (lane 0): the job's x slice for the stage is contiguous in xA (phase A, written
+ // by every CTA's gather pass at the start) or xB (phase B, written by the phase-A epilogues), N_pad x 512 B
+@@ -1864,12 +1867,12 @@
+   wgs_ranges(p, S);  // all 32 lanes (warp-parallel)
+   __syncwarp();
+   WS_JOIN();  // routing tables and this CTA's stage ranges are ready
+-  if ((threadIdx.x & 31) != 0) return;
++  if ((threadIdx.x & 31) == 0) {
+   unsigned char* xring = ring + WGS_NS * UNIT_BYTES;
+   int xs = 0, n = 0;
+   uint32_t xph = 0;
+ #pragma unroll 1
+-  for (int pb = 0; pb < 2; ++pb) {
++  for (int pb = 0; pb < 1; ++pb) {
+     const int g0 = S.wgr[2 * pb], g1 = S.wgr[2 * pb + 1], sp = wgs_split(pb, g0, g1);
+     const int ubl = pb ? 4 : 5;
+     const __nv_bfloat16* xsrc = pb ? p.xB : p.xA;
+@@ -1897,6 +1900,8 @@
+       if (++xs == WGS_NX) { xs = 0; xph ^= 1; }
+     }
+   }
++  }
++  moe_bqueue(p, S, ring, 2, S.wgr[1] - S.wgr[0]);
+ }
+ // phase A's x gather (all consumer threads of every CTA, once, at the start): this CTA's share of the jobs' padded rows
+ // copied into xA's per-stage wgmma layout, then counted into xready (padding rows are counted, not written)
+@@ -2247,6 +2252,61 @@
+   }
+   wgs_flush<PB>(p, S, pd);
+ }
++
++__device__ __forceinline__ void moe_bqueue(const Params& p, Smem& S, unsigned char* ring, int role, int seq) {
++  static_assert(!OKC_MFIN, "queue reset requires the retained grid barrier");
++  const int lane = threadIdx.x & 31;
++  const int total = (S.njF + S.njS) * 16;
++  for (;;) {
++    WS_JOIN();
++    if (threadIdx.x == 0) S.wgr[2] = atomicAdd(p.ctr + 1, 1);
++    WS_JOIN();
++    const int unit = S.wgr[2];
++    if (unit >= total) break;
++    if (role == 0) {
++      WgsPend pending{0, 0, 0, 0};
++      switch ((S.jC[unit >> 4] + 7) >> 3) {
++        case 1: wgs_seg<true, 1>(p, S, ring, unit, 0, 16, -1, seq, pending); break;
++        case 2: wgs_seg<true, 2>(p, S, ring, unit, 0, 16, -1, seq, pending); break;
++        case 3: wgs_seg<true, 3>(p, S, ring, unit, 0, 16, -1, seq, pending); break;
++        case 4: wgs_seg<true, 4>(p, S, ring, unit, 0, 16, -1, seq, pending); break;
++        case 5: wgs_seg<true, 5>(p, S, ring, unit, 0, 16, -1, seq, pending); break;
++        case 6: wgs_seg<true, 6>(p, S, ring, unit, 0, 16, -1, seq, pending); break;
++        case 7: wgs_seg<true, 7>(p, S, ring, unit, 0, 16, -1, seq, pending); break;
++        default: wgs_seg<true, 8>(p, S, ring, unit, 0, 16, -1, seq, pending); break;
++      }
++    } else if (lane == 0) {
++      const int job = unit >> 4, ub = unit & 15;
++      const int npad = ((S.jC[job] + 7) >> 3) << 3;
++      for (int st = 0; st < 16; ++st, ++seq) {
++        if (role == 1) {
++          const int ws = seq % WGS_NS;
++          if (seq >= WGS_NS) wgs_wait(S.bars + BW_E + ws, ((seq / WGS_NS) & 1u) ^ 1u, 7100 + seq);
++          if (seq >= 2 && p.M <= 64) {
++            const int pn = seq - 2;
++            wgs_wait(S.bars + BW_F + pn % WGS_NS, (pn / WGS_NS) & 1u, 7200 + seq);
++          }
++          uint64_t* bar = S.bars + BW_F + ws;
++          const unsigned char* src = p.wBs + (size_t)(((S.jE[job] * 16 + ub) * 16 + st)) * WGS_STG;
++          asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(WGS_STG) : "memory");
++          asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\n"
++                       ::"r"(smem_u32(ring + ws * UNIT_BYTES)), "l"(src), "r"(WGS_STG), "r"(smem_u32(bar)) L2H_ARG : "memory");
++        } else {
++          const int xs = seq % WGS_NX;
++          if (seq >= WGS_NX) wgs_wait(S.bars + BX_E + xs, ((seq / WGS_NX) & 1u) ^ 1u, 7300 + seq);
++          while (ld_acquire(mf_da(p, S) + job * 16 + st) < 8) __nanosleep(32);
++          uint64_t* bar = S.bars + BX_F + xs;
++          const uint32_t bytes = (uint32_t)npad * 512u;
++          const __nv_bfloat16* src = p.xB + (size_t)S.jrow[job] * HD + (size_t)st * npad * 256;
++          asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(bytes) : "memory");
++          asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];\n"
++                       ::"r"(smem_u32(ring + WGS_NS * UNIT_BYTES + xs * WGS_XS)), "l"(src), "r"(bytes), "r"(smem_u32(bar)) : "memory");
++        }
++      }
++    }
++  }
++}
++
+ // cost-weighted stage ranges: per-stage cost by the job's n-tiles, a prefix per job and phase (S.wcp, S.wcpB)
+ // all 32-bit (tot * c < 2^32: tot <= 136 jobs x 512 stages x 255 x 132): no 64-bit divide subroutine calls, which run
+ // from a cold instruction cache at the start of every launch
+@@ -2589,7 +2649,7 @@
+     int seq = 0;
+     wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);
+     DBG(2);
+-    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);
++    moe_bqueue(p, S, ring, 0, seq);
+     DBG(3);
+   }
+ #else

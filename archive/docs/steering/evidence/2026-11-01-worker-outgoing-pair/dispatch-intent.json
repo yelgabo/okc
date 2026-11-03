@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-02T04:51:07.546Z",
+  "command": [
+    "wsl.exe",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/usr/local/bin/okc",
+    "check",
+    ".build/outgoing-pair/check.py",
+    "--no-wait",
+    "--json"
+  ],
+  "publication": "3d00a6211e3b65e8399e1fabca6f0e05061514ab",
+  "source": "f25d714e928835fba07741ca56fa8783137032f268652c22ec4f5511d771bc9a",
+  "bytes": 934942,
+  "private_checks_left": 7,
+  "live_layer_jobs": 0,
+  "one_check_maximum": true
+}

@@ -1,0 +1,70 @@
+{
+  "scope": "captain CPU-only host gate, no target run",
+  "files": [
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/apt-history.txt",
+      "bytes": 2335,
+      "sha256": "9c630a2cea3b661cf88871337b98444c4b5bc381b928fae314e1a1a163edcfef"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/event-syntax/result.json",
+      "bytes": 1430,
+      "sha256": "18580576b13ead93581498801607b59fe9c1d7ca267fc2f6993a874f51c6fcd9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/event-syntax/stderr.txt",
+      "bytes": 759,
+      "sha256": "723d3f75a5cdc753cec87dde43f141313607c09b33d64d0368735bf3de498660"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/event-syntax/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/event-syntax-ready/result.json",
+      "bytes": 1429,
+      "sha256": "b5055499ec2ae7b6aec55e9f4e4a782d1c0568933168b66bd1a37672b7085b40"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/event-syntax-ready/stderr.txt",
+      "bytes": 3406,
+      "sha256": "9d6bae62e9038d1b00f3050d09b355890ec489d5b9a674227c91ca8b7e0e9546"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/event-syntax-ready/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/independent-cpu-observation.json",
+      "bytes": 356,
+      "sha256": "a375d7a6a723901ddf5718228c04a628464df89bd90cb81eae440d1e2d322c21"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/manifest-verification.json",
+      "bytes": 4035,
+      "sha256": "504e3fb63105dc58cb63e30ddaaf93c62b86935b34c58fa9a0bec31102c02c90"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/publication-verification.json",
+      "bytes": 6840,
+      "sha256": "8db3e63c1747dec29132bfda406773b00227e7b12ed8c41b4b397762bd65dd8d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/relaxed-syntax/result.json",
+      "bytes": 1424,
+      "sha256": "6d2ce39bea608ed015ba4dcf32a3204fc8f33fc30897cdd400b7cbff33a3360a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/relaxed-syntax/stderr.txt",
+      "bytes": 3409,
+      "sha256": "5e46bf104d8430b9134ad8a68a89e2118c275602795b5a2c608533fe52a7ec35"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-host-gate/relaxed-syntax/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

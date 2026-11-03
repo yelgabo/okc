@@ -1,0 +1,36 @@
+{
+  "status": "SOURCE_ONLY_REOPENING_CONDITION",
+  "ordering": {
+    "wc_accesses": 6,
+    "prefix_range_callers": 1,
+    "routing_end_barrier": true,
+    "producer_barrier7_handoff": true,
+    "scope": "pinned WGS/WGSPR selected path; source assertions, not GPU proof"
+  },
+  "negative_checks_rejected": [
+    "no_route_barrier",
+    "no_producer_barrier",
+    "late_wc_read"
+  ],
+  "original_sizeof": 23776,
+  "alias_sizeof": 23096,
+  "original_ring_start": 23808,
+  "alias_ring_start": 23168,
+  "dynamic_request": 115328,
+  "allocated_per_block_at_assumed_1024_reserve_zero_static": 116352,
+  "two_block_bytes": 232704,
+  "shared_capacity_assumption": 233472,
+  "remaining_shared_bytes_per_sm": 768,
+  "ring_depths_unchanged": [
+    3,
+    3
+  ],
+  "token_tile_unchanged": 24,
+  "source_patch_exact_reverse": true,
+  "source_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "patched_cuda_sha256": "08d712657052bdf0bf371a6188c4f57d845510efd939d1f24b3d9fb077239333",
+  "target_reserved_shared": null,
+  "compiled_cpp_union": null,
+  "target_occupancy": null,
+  "numerical_and_timing_results": null
+}

@@ -1,0 +1,27 @@
+{
+  "artifact_sha256": "f0426f7160768de01997b271744542ae3442d0851a1c27e586ced322a8fc6864",
+  "bytes": 906841,
+  "tests_passed": 6,
+  "test_seconds": 2.648,
+  "command": "WSL /root/.cache/okc-host-validate/bin/python tools/proj_g_short_rmw_host_test.py -v",
+  "GPU": false,
+  "scope": "Actual generated host orchestration/validators; CUDA/native/reference arithmetic stand-ins",
+  "file_pins": [
+    {
+      "path": "tools\\proj_g_short_rmw_host_test.py",
+      "sha256": "433c1e351f3e8c8db96610ee766f879c0121e725a712a03b3195fd04f85d71aa"
+    },
+    {
+      "path": "..\\okc-today-moe\\tools\\g_short_rmw_check.py",
+      "sha256": "df565b5461aba8bf00b33dcc44b4d8e5af851213056edc68fe5ef1ca60a6ae25"
+    },
+    {
+      "path": "..\\okc-today-moe\\tools\\g_short_rmw_check_body.py",
+      "sha256": "7e3b929732430f83d4cf0ba207376e2d42117b5c842041da83a9d918e0e15ffd"
+    },
+    {
+      "path": "..\\okc-today-moe\\tools\\reset_host_facade_test.py",
+      "sha256": "5ad2ae4b15c62c3a99b8eebb0e7cc613de90be915e56fce24d566ee0eba95437"
+    }
+  ]
+}

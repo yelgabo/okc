@@ -1,0 +1,45 @@
+{
+  "scope": "Offline source-only double regeneration; payloads never imported or executed",
+  "payloads": [
+    {
+      "name": "stage",
+      "sha256": "aa49352105b39538b79c454f49e9f8e2014fa99b5c8205f145131169f18358e4",
+      "bytes": 907822,
+      "repetitions": 2,
+      "identical": true
+    },
+    {
+      "name": "short",
+      "sha256": "4a1a68f5824bd51c130e03eb736a2e1fb19e011735169400b0be2c0d17448183",
+      "bytes": 904020,
+      "repetitions": 2,
+      "identical": true
+    },
+    {
+      "name": "verify",
+      "sha256": "195bba34415dd614733100cc4e26022fd25891fad747ee393aaac9ab4c8d4fa0",
+      "bytes": 969272,
+      "repetitions": 2,
+      "identical": true,
+      "old_sha256": "195bba34415dd614733100cc4e26022fd25891fad747ee393aaac9ab4c8d4fa0"
+    }
+  ],
+  "proof": {
+    "job_id": "74a29e0384324952",
+    "candidate_pin": "1607293eee3403109df5d37b6e2d1ee34b528c3578afa6c2c8668440afde1658",
+    "status": "done_pass13_native_empty",
+    "evaluator_code": "2999d8a201bb2b0bad6c7b3998af2143a1ed720d531dbb4d15670721ee9f957b"
+  },
+  "dependency_raw_sha256": {
+    "dl_g1_layer_gate.py": "a97d29eb6a39a690c633c9472f23500f805ae578fac71709b756cb85b699de81",
+    "dl_g1_layer_body.py": "0a290a64e5d9b2188452d73ee3a2b55ecdf29be5709609df49a502402234e18d",
+    "dl_g1_layer_owners.py": "052781c3aea5bafd4f20f1b04da4b52757d98f15f315b1ff7a33169963db7309",
+    "dl_g1_stage_retire.py": "5121b2605474b0fc1ce169e30841148370dffd1e03e38a0cc734125332da9524",
+    "moe_make_sc6_compare.py": "e60f7f39e2f4127e426e29a8b27ff6961e46781b79a034c9fff4ba518396986b",
+    "dl_make_bench_pub.py": "b286a256c8589ca4daf379c71ceb5e2cc94bdee3a738554c93bfcb1d95959722",
+    "dl_short_path_trace.py": "d18a8d4eb764fa53b75c679d4c3525eb2b4954aaf55e72dae448a8d7d54c6bfb",
+    "dl_short_path_body.py": "717160827a6183fda102d060b36ad2236ae0dc5ce084a93c57e15a00bc5a563e",
+    "dl_timeline_codec.py": "1d7ab30ff92611378b26050d5631785c5c3d78c019e8e652e4b48f772fc56b48"
+  },
+  "owners_override_sha256": null
+}

@@ -1,0 +1,8 @@
+test_all_geometry_sparse_empty_and_max_unit (test_sk_stage_repair_independent.StageRecords.test_all_geometry_sparse_empty_and_max_unit) ... ok
+test_dense_stage_prefix_capacity (test_sk_stage_repair_independent.StageRecords.test_dense_stage_prefix_capacity) ... ok
+test_source_transport_and_lifetime (test_sk_stage_repair_independent.StageRecords.test_source_transport_and_lifetime) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.504s
+
+OK

@@ -1,0 +1,31 @@
+{
+  "model": "conditional activity-to-net-endpoint translation; no measured saving/ceiling",
+  "affected": [
+    "decode 32",
+    "verify 16",
+    "verify 32"
+  ],
+  "scenarios": [
+    {
+      "expert_activity_reduction": 0.1,
+      "conditional_layer_gain": 0.026236606868023538
+    },
+    {
+      "expert_activity_reduction": 0.2,
+      "conditional_layer_gain": 0.05469521360893892
+    },
+    {
+      "expert_activity_reduction": 0.3,
+      "conditional_layer_gain": 0.08571442398438456
+    }
+  ],
+  "cutoff2664_required_fraction": 0.23747119688387236,
+  "conditional_twocta_layout": {
+    "dynamic_upper_illustration": 99968,
+    "reserved_assumed": 1024,
+    "two_cta_allocated": 201984,
+    "sm_capacity": 233472,
+    "margin": 31488
+  },
+  "actual_layout_and_admission_required": true
+}

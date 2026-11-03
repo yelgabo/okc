@@ -1,0 +1,8 @@
+{
+  "command": "wsl -d Ubuntu -- env PYTHONPATH=/mnt/c/Users/gretc/Documents/GitHub/okc/tools /root/.cache/okc-host-validate/bin/python -m unittest test_g_common_rmw_pair.Pair.test_actual_entry_rejects_frozen_duplicate_fixture test_g_common_rmw_pair.Pair.test_actual_entry_rejects_duplicate_below_capacity -v",
+  "exit_code": 0,
+  "tests_run": 2,
+  "test_runtime_s": 0.374,
+  "observed_result": "Both named routing-domain regressions passed. This executes generated host entry points with native math/CUDA mocked; it does not reproduce or localize the GPU719 instruction.",
+  "scope": "Independent execution during this audit; no new GPU check."
+}

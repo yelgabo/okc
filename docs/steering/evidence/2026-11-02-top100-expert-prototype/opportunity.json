@@ -1,0 +1,83 @@
+{
+  "profile_commit": "80eef4d",
+  "audit_sha256": "ab0516c292503a6f70de2ea4fc1fb6bdb96e77935f216f76af7894bc9f64ad53",
+  "affected": [
+    "d32",
+    "v16",
+    "v32"
+  ],
+  "unaffected": [
+    "d1",
+    "d16",
+    "v1"
+  ],
+  "loads": [
+    {
+      "load": "d1",
+      "endpoint_us": 78.76453088391268,
+      "reference_us": 173.36206506156634,
+      "expert_activity_us": 27.422580645161293,
+      "full_attention_activity_us": 11.7,
+      "whole_load_one_us_log_score_percent": 0.2116011671704219,
+      "sliding_cell_one_us_log_score_percent": 0.1569944143522485,
+      "full_cell_one_us_log_score_percent": 0.05460675281817339
+    },
+    {
+      "load": "d16",
+      "endpoint_us": 152.01624972636304,
+      "reference_us": 301.7150956025768,
+      "expert_activity_us": 69.56129032258065,
+      "full_attention_activity_us": 88.6,
+      "whole_load_one_us_log_score_percent": 0.10963740190056992,
+      "sliding_cell_one_us_log_score_percent": 0.0813438788294551,
+      "full_cell_one_us_log_score_percent": 0.028293523071114816
+    },
+    {
+      "load": "d32",
+      "endpoint_us": 191.8978122973195,
+      "reference_us": 354.6477409770652,
+      "expert_activity_us": 75.39032258064516,
+      "full_attention_activity_us": 171.4,
+      "whole_load_one_us_log_score_percent": 0.08685178047180621,
+      "sliding_cell_one_us_log_score_percent": 0.06443841776940461,
+      "full_cell_one_us_log_score_percent": 0.022413362702401605
+    },
+    {
+      "load": "v1",
+      "endpoint_us": 112.68166177082166,
+      "reference_us": 263.0673500769321,
+      "expert_activity_us": 59.65806451612904,
+      "full_attention_activity_us": 14.8,
+      "whole_load_one_us_log_score_percent": 0.1479093084424356,
+      "sliding_cell_one_us_log_score_percent": 0.10973916432825868,
+      "full_cell_one_us_log_score_percent": 0.038170144114176935
+    },
+    {
+      "load": "v16",
+      "endpoint_us": 261.71304474650816,
+      "reference_us": 544.7576774073946,
+      "expert_activity_us": 146.14193548387095,
+      "full_attention_activity_us": 104.9,
+      "whole_load_one_us_log_score_percent": 0.0636829802763931,
+      "sliding_cell_one_us_log_score_percent": 0.047248662785711014,
+      "full_cell_one_us_log_score_percent": 0.016434317490682093
+    },
+    {
+      "load": "v32",
+      "endpoint_us": 351.0802216924128,
+      "reference_us": 787.8895486674963,
+      "expert_activity_us": 197.33870967741936,
+      "full_attention_activity_us": 185.2,
+      "whole_load_one_us_log_score_percent": 0.04747253088289494,
+      "sliding_cell_one_us_log_score_percent": 0.03522155517118011,
+      "full_cell_one_us_log_score_percent": 0.012250975711714822
+    }
+  ],
+  "one_percent_equal_affected_endpoint_us": 4.972565826473982,
+  "dated_cutoff_factor": 1.0657628817201583,
+  "cutoff_equal_affected_endpoint_us": 30.078978240688727,
+  "hypothetical_ten_percent_expert_activity": 1.0262366068680235,
+  "hypothetical_ten_percent_long_full_attention_activity": 1.0104844515479796,
+  "hypothetical_ten_percent_t1_expert_activity": 1.0059235450635655,
+  "warning": "Conditional endpoint equations only. Activities, bytes, and compiler counts do not establish exposed savings."
+}

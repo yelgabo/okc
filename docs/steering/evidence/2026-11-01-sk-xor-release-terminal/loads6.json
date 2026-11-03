@@ -1,0 +1,68 @@
+[
+  {
+    "m": 1,
+    "candidate_sum_us": 34.51674331806679,
+    "archived_C2_sum_us": 35.18261665185722,
+    "candidate_baseline_sum_us": 59.72799984738231,
+    "archived_baseline_sum_us": 59.93600049987435,
+    "candidate_official_load_ratio": 1.7304065825966675,
+    "archived_official_load_ratio": 1.7035685859570784,
+    "counterfactual_replace10_sum_us": 35.18261665185722,
+    "counterfactual_factor_vs_archived_load": 1.0
+  },
+  {
+    "m": 8,
+    "candidate_sum_us": 40.46777315110526,
+    "archived_C2_sum_us": 37.66806931485636,
+    "candidate_baseline_sum_us": 74.35200084000826,
+    "archived_baseline_sum_us": 75.80800028517842,
+    "candidate_official_load_ratio": 1.837313868553638,
+    "archived_official_load_ratio": 2.0125268341077307,
+    "counterfactual_replace10_sum_us": 41.46420702892594,
+    "counterfactual_factor_vs_archived_load": 0.9084478400510265
+  },
+  {
+    "m": 16,
+    "candidate_sum_us": 59.024313796162346,
+    "archived_C2_sum_us": 46.91407552731611,
+    "candidate_baseline_sum_us": 75.79200156033039,
+    "archived_baseline_sum_us": 74.47999902069569,
+    "candidate_official_load_ratio": 1.2840810284059287,
+    "archived_official_load_ratio": 1.5875832185444878,
+    "counterfactual_replace10_sum_us": 58.47353169597275,
+    "counterfactual_factor_vs_archived_load": 0.8023130152500644
+  },
+  {
+    "m": 32,
+    "candidate_sum_us": 64.52808985462862,
+    "archived_C2_sum_us": 51.72098772193554,
+    "candidate_baseline_sum_us": 76.86400040984154,
+    "archived_baseline_sum_us": 77.03999849036336,
+    "candidate_official_load_ratio": 1.1911711718571514,
+    "archived_official_load_ratio": 1.4895306892542135,
+    "counterfactual_replace10_sum_us": 64.7748021511571,
+    "counterfactual_factor_vs_archived_load": 0.7984738818845103
+  },
+  {
+    "m": 128,
+    "candidate_sum_us": 68.59134554388433,
+    "archived_C2_sum_us": 67.09578548704545,
+    "candidate_baseline_sum_us": 85.31199861317873,
+    "archived_baseline_sum_us": 85.90400032699108,
+    "candidate_official_load_ratio": 1.2437720522423144,
+    "archived_official_load_ratio": 1.2803188710500608,
+    "counterfactual_replace10_sum_us": 67.09578548704545,
+    "counterfactual_factor_vs_archived_load": 1.0
+  },
+  {
+    "m": 256,
+    "candidate_sum_us": 84.07024718207242,
+    "archived_C2_sum_us": 82.41636891736354,
+    "candidate_baseline_sum_us": 102.04799892380834,
+    "archived_baseline_sum_us": 100.97600007429719,
+    "candidate_official_load_ratio": 1.213842023121464,
+    "archived_official_load_ratio": 1.2251935070755526,
+    "counterfactual_replace10_sum_us": 82.41636891736354,
+    "counterfactual_factor_vs_archived_load": 1.0
+  }
+]

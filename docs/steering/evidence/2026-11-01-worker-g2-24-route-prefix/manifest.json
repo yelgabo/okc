@@ -1,0 +1,99 @@
+{
+  "schema": "worker-g224-route-prefix-stop-v1",
+  "authorization_commit": "5f904c445e73045beec58aa4d6d583fb8263e319",
+  "old_archive_immutable": "73edd656a52836ca85071bf5cb990b41e45387e2",
+  "decision": "STOP_REQUIRED_NATIVE_OFFSET_CONSTANT_PROOF_UNAVAILABLE",
+  "hash_domain": "canonical Git blob bytes; manifest excludes itself",
+  "files": [
+    {
+      "path": "tools/g_expert_g224_prefix.py",
+      "git_blob": "c6f4fc2a6f6319e5731e9250a3d244f8dfb73743",
+      "sha256": "114ed80ae87b485ade24a6db2dab6fbab7ab8ff2c4cbc512ca58c4bb7f799e1a",
+      "bytes": 15495
+    },
+    {
+      "path": "tools/test_g_expert_g224_prefix.py",
+      "git_blob": "20e9da9dcd6228a458296245e651faa18c88afde",
+      "sha256": "881f8ee672d76ef622e6c694241bdec5dea39b7dbfc38f18c1ffdd1716512247",
+      "bytes": 11533
+    },
+    {
+      "path": "tools/g_expert_g224_prefix_compile.py",
+      "git_blob": "f628389aec279dcf74eafc430bf412cfc238e6ec",
+      "sha256": "9ba40770116d507b61988338aae05a4a804cb712320a234a85e808b9e181cfb8",
+      "bytes": 3952
+    },
+    {
+      "path": "docs/steering/2026-11-01-worker-g2-24-route-prefix.md",
+      "git_blob": "5642440d30b46cc1c4938f6aeea1e98eda9d67ce",
+      "sha256": "f2b1148714d1aa97d43c14acb30497fb6eb7b24e9633cb9d64bb54d0bb90d1ac",
+      "bytes": 12241
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/attempt1-loader.log",
+      "git_blob": "8e00d3d00914c900cd418f192982e1f8eb1ef626",
+      "sha256": "3dd4a7ca1e53db33ae8c295a9c70e79b4ce33a0fdbb1d1c0230aa8b12c4aa949",
+      "bytes": 941
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/attempt2-undeclared-offset.log",
+      "git_blob": "b8a3528fff47768b01dce4be384d9baa869b5e08",
+      "sha256": "e21410fbdb8a202985ee9d55954ea9ce8f59142dd045f7e8ed742178fe6e3ace",
+      "bytes": 5855
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/attempt3-builtin-offset.log",
+      "git_blob": "d2f5611f88d0292000163353e03157fb30f597bc",
+      "sha256": "bf26a641cec35c1de882d440cb9f6cc0c40d464dd8e33ff06a288e10901a7858",
+      "bytes": 6125
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/attempt4-final.log",
+      "git_blob": "a3ed06297b28e4ffd0b18212c88f6e93790c29c8",
+      "sha256": "52c7b3a36da21672e2382ae7b6f9d2596dac9244c8af7affc8589771b416dd1f",
+      "bytes": 5183
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/compile-result.json",
+      "git_blob": "da5c2ba1b6f5c007992768dece869195dad2da9f",
+      "sha256": "9114488fc9bba42a30fb486fcccf8047a2aec0abc7735aedde628efb40091a49",
+      "bytes": 3609
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/cpu-tests.txt",
+      "git_blob": "0acff65a7560bd585f91fb908d7d7d4ce64b1e19",
+      "sha256": "84a6226397c59116d9e92a1ee6981e0cc26a9e675f1743c91fa69067b9817f7b",
+      "bytes": 2136
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/generated-manifest.json",
+      "git_blob": "54727e5456f4d8a2cf4adb6b5b9595168a994cd4",
+      "sha256": "51eeca9c8304b79b7fef58c140805cbd16a02a51693deeb1452d358240362c23",
+      "bytes": 565
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/native.diff",
+      "git_blob": "71503fdff7674d6282e7d627c2a41e4eec54f2f1",
+      "sha256": "005213d23420f7a657fb28995e4269ea6c72c1fadafcfc08067213bb7e92fecc",
+      "bytes": 40387
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/nvrtc-final.log",
+      "git_blob": "0bc67a4a1315ae8be281532a866562858495d72f",
+      "sha256": "b524824801bb647c3c6a553d28bd086d5abddf771e647326557f8fd5e15a117f",
+      "bytes": 4364
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/selected.cu",
+      "git_blob": "659dd3f8f4ac4f9ebd8ad30707896de381629778",
+      "sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+      "bytes": 149352
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-route-prefix/summary.json",
+      "git_blob": "9dbd83c158802f9c6b0699daf0a32d808a368f51",
+      "sha256": "3ec87edf3fc71beeda78afa9253cd8917f6262397727a5bf4ceea2b7c88485bc",
+      "bytes": 2328
+    }
+  ]
+}

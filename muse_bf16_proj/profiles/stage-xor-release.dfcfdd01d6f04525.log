@@ -1,0 +1,60 @@
+ublas 13.5, b1n128c2 21.6, b2n256c2 17.5, m128k2r4 27.1, m128k1r4 23.4, m128k1r8 24.8, m128k2r8 28.0, m128k4r2 35.8, m256k2r4 29.3, m256k1r4 25.1, m256k1r8 25.6, m256k2r8 29.9, m256k2r2 28.9, b1n128c2s8h 29.3, b1n128c3s8h 39.9 -> cublas
+tune pooler    m= 1: pool8 18.4, pool8raw 22.0, rdp8 17.8, cgemv 17.9, cublas 25.2 -> rdp8
+tune pooler    m= 8: pool8 18.5, pool8raw 21.9, rdp8 17.7, cublas 25.6 -> rdp8
+tune pooler    m=16: pool16 18.5, pool16raw 22.0, cublas 25.7 -> pool16
+tune pooler    m=32: pool32 19.5, pool32raw 22.4, cublas 26.0 -> pool32
+tune pooler    m=64: cublas 27.0, b1n64c2 25.7, m64k2r4 30.4, m64k1r8 39.5 -> b1n64c2
+tune pooler    m=128: cublas 29.8, b1n64c2 32.2, b1n128c2 30.3, m64k2r4 48.3, m64k1r8 50.5, m128k2r4 34.9, m128k1r4 48.3, m128k1r8 50.6, m128k2r8 37.3, m128k4r2 40.0, b1n128c2s8h 26.9, b1n128c3s8h 33.0 -> b1n128c2s8h
+tune pooler    m=256: cublas 33.8, b1n128c2 37.4, b2n256c2 49.9, m128k2r4 61.4, m128k1r4 53.1, m128k1r8 54.6, m128k2r8 64.5, m128k4r2 60.6, m256k2r4 59.1, m256k1r4 52.8, m256k1r8 55.1, m256k2r8 61.0, m256k2r2 59.0, b1n128c2s8h 48.0, b1n128c3s8h 57.9, cut128x64 30.7 -> cut128x64
+tune qkv_gate  m= 1: qkv8 13.5, qkv8raw 15.3, cgemv 12.7, cublas 17.9 -> cgemv
+tune qkv_gate  m= 8: qkv8 13.5, qkv8raw 16.1, cublas 18.0 -> qkv8
+tune qkv_gate  m=16: qkv16 14.1, qkv16raw 16.4, cublas 18.5 -> qkv16
+tune qkv_gate  m=32: qkv32 15.1, qkv32raw 16.4, cublas 19.0 -> qkv32
+tune qkv_gate  m=64: cublas 19.1, b1n64c2 23.3, m64k2r4 24.2 -> cublas
+tune qkv_gate  m=128: cublas 21.7, b1n64c2 27.5, b1n128c2 28.3, m64k2r4 29.8, m128k2r4 29.2, m128k1r4 46.6, m128k4r2 22.9, b1n128c2s8h 22.2, b1n128c3s8h 18.9 -> b1n128c3s8h
+tune qkv_gate  m=256: cublas 23.7, b1n128c2 32.8, b2n256c2 49.1, m128k2r4 33.1, m128k1r4 47.1, m128k4r2 39.6, m256k2r4 32.7, m256k1r4 51.4, m256k2r2 32.0, b1n128c2s8h 39.5, b1n128c3s8h 34.1 -> cublas
+tune router    m= 1: rgemv 8.0, router8 9.5, rt8w8 8.4, rt16w8 8.7, rt16w8p8 8.6, baseline 15.2 -> rgemv
+tune router    m= 8: router8 9.5, rt8w8 8.5, rt16w8 8.7, rt16w8p8 8.8, baseline 31.3 -> rt8w8
+tune router    m=16: router16 9.7, rt8w8 9.1, rt16w8 8.9, rt16w8p8 9.0, baseline 21.2 -> rt16w8
+tune router    m=32: router32 9.8, rt8w8 11.7, rt16w8 9.5, rt16w8p8 9.6, baseline 20.9 -> rt16w8
+tune router    m=64: baseline 21.4, r64c8 13.3, r64c16 11.5, r64c8s8 12.0, r64c4s8 15.9, rm64k4r4 18.9, r64c8s8k 11.1, r64c4s8a 14.7 -> r64c8s8k
+tune router    m=128: baseline 22.0, r64c8 13.5, r64c16 14.3, r128c8 14.8, r128c16 13.3, r64c8s8 12.0, r64c4s8 16.0, r128c8s6 14.6, rm64k4r4 19.1, rm128k4r4 21.8, r64c8s8k 11.2, r128c8s6k 13.6, r64c4s8a 14.8 -> r64c8s8k
+tune router    m=256: baseline 23.2, r64c8 15.0, r64c16 19.7, r128c8 14.9, r128c16 21.2, r64c8s8 19.6, r64c4s8 16.2, r128c8s6 14.5, rm64k4r4 19.1, rm128k4r4 21.8, r64c8s8k 17.3, r128c8s6k 13.8, r64c4s8a 14.8 -> r128c8s6k
+tune unpooler  m= 1: slice8 8.7, slice8raw 9.0, cgemv 7.8, sgemv 8.1, cublas 11.5 -> cgemv
+tune unpooler  m= 8: slice8 8.8, slice8raw 9.0, cublas 11.7 -> slice8
+tune unpooler  m=16: unp16 18.4, unp16raw 22.0, cublas 22.6 -> unp16
+tune unpooler  m=32: unp32 18.9, unp32raw 23.0, cublas 22.7 -> unp32
+tune unpooler  m=64: cublas 24.2, b1n64c2 24.5, m64k2r4 35.5, m64k1r8 30.5 -> cublas
+tune unpooler  m=128: cublas 24.3, b1n64c2 43.0, b1n128c2 25.5, m64k2r4 53.1, m64k1r8 49.0, m128k2r4 38.4, m128k1r4 35.6, m128k1r8 36.3, m128k2r8 41.6, m128k4r2 39.6, b1n128c2s8h 29.5, b1n128c3s8h 38.8 -> cublas
+tune unpooler  m=256: cublas 28.5, b1n128c2 46.9, b2n256c2 32.5, m128k2r4 60.3, m128k1r4 61.0, m128k1r8 63.8, m128k2r8 62.8, m128k4r2 65.6, m256k2r4 54.7, m256k1r4 58.3, m256k1r8 60.1, m256k2r8 56.8, m256k2r2 54.7, b1n128c2s8h 53.1, b1n128c3s8h 65.7 -> cublas
+lt build 19.1 s, cublasLt 130101, torch cuda 13.0
+lt qkv_gate m=128: 64 heuristic, 792 swept, 211 other, screen best L0:a66t80s35k1r0z0c0i0g2w0v0.88 19.3, L2:a66t80s35k1r0z0c0i0g2w0v0.88 19.3, L0:a66t92s35k1r0z0c0i0g5w0v0.73 19.3, L0:a66t80s35k1r0z0c2i0g5w0v0.88 19.4, L2:a66t92s35k1r0z0c0i0g2w0v0.73 19.4
+ltune qkv_gate  m=128: base 19.0, f0=L0:a66t80s35k1r0z0c0i0g2w0v0.88 19.8, f1=L2:a66t80s35k1r0z0c0i0g2w0v0.88 19.6, f2=L0:a66t92s35k1r0z0c0i0g5w0v0.73 19.5, f3=L0:a66t80s35k1r0z0c2i0g5w0v0.88 19.7, f4=L2:a66t92s35k1r0z0c0i0g2w0v0.73 20.1; pref base margin 0.30 f0 -0.80/0 f1 -0.70/0 f2 -0.51/0 f3 -0.77/0 f4 -1.25/0 -> base
+lt o m=128: 32 heuristic, 788 swept, 203 other, screen best L0:a66t18s35k1r0z0c4i0g2w0v0.97 10.6, L2:a66t18s35k1r0z0c0i0g5w0v0.97 10.8, L2:a66t18s35k1r0z0c6i0g5w0v0.97 10.9, L0:a66t18s35k1r0z0c0i0g5w0v0.97 10.9, L2:a66t18s35k1r0z0c4i0g5w0v0.97 11.0
+ltune o         m=128: base 11.3, f0=L0:a66t18s35k1r0z0c4i0g2w0v0.97 11.3, f1=L2:a66t18s35k1r0z0c0i0g5w0v0.97 11.3, f2=L2:a66t18s35k1r0z0c6i0g5w0v0.97 11.1, f3=L0:a66t18s35k1r0z0c0i0g5w0v0.97 11.1, f4=L2:a66t18s35k1r0z0c4i0g5w0v0.97 11.1; pref base margin 0.30 f0 +0.10/7 f1 +0.10/7 f2 +0.26/9 f3 +0.19/8 f4 +0.22/9 -> base
+lt pooler m=128: 60 heuristic, 792 swept, 192 other, screen best L0:a66t124s35k1r0z0c0i0g4w0v0.86 24.3, L2:a66t124s35k1r0z0c0i0g5w0v0.86 24.9, L2:a66t134s35k1r0z0c0i0g7w0v0.79 24.9, L0:a66t143s35k1r0z0c0i0g7w0v0.71 25.0, L2:a66t124s35k1r0z0c0i0g4w0v0.86 25.0
+ltune pooler    m=128: base 26.8, pref=L1:a66t15s35k1r0z0c4i0g2w0v0.97 25.3, f0=L0:a66t124s35k1r0z0c0i0g4w0v0.86 24.0, f1=L2:a66t124s35k1r0z0c0i0g5w0v0.86 25.9, f2=L2:a66t134s35k1r0z0c0i0g7w0v0.79 24.5, f3=L0:a66t143s35k1r0z0c0i0g7w0v0.71 25.0, f4=L2:a66t124s35k1r0z0c0i0g4w0v0.86 24.4; pref pref margin 0.38 base -1.25/0 f0 +1.28/9 f1 -0.51/2 f2 +0.77/7 f3 +0.51/8 f4 +0.93/9 -> f0
+lt unpooler m=128: 44 heuristic, 785 swept, 216 other, screen best L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.5, L1:a66t18s35k1r0z0c4i0g5w0v0.97 22.6, L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.7, L1:a66t18s35k1r0z0c6i0g5w0v0.97 22.7, L1:a66t18s35k1r0z0c5i0g5w0v0.97 22.7
+ltune unpooler  m=128: base 24.2, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 22.7, f0=L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.6, f1=L1:a66t18s35k1r0z0c4i0g5w0v0.97 22.6, f2=L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.4, f3=L1:a66t18s35k1r0z0c6i0g5w0v0.97 22.5, f4=L1:a66t18s35k1r0z0c5i0g5w0v0.97 22.6; pref pref margin 0.83 base -1.50/1 f0 +0.35/5 f1 +0.16/6 f2 +0.38/7 f3 +0.26/7 f4 +0.22/5 -> pref
+lt qkv_gate m=256: 60 heuristic, 792 swept, 190 other, screen best L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.1, L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.2, L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.0, L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.0, L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.1
+ltune qkv_gate  m=256: base 23.5, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.7, f0=L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.3, f1=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.5, f2=L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.4, f3=L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.2, f4=L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.4; pref pref margin 0.58 base -1.82/0 f0 +0.26/6 f1 +0.22/6 f2 -0.74/1 f3 -0.45/2 f4 -0.64/1 -> pref
+lt o m=256: 32 heuristic, 788 swept, 210 other, screen best L1:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, L2:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, L3:a66t20s35k1r0z0c4i0g5w0v0.97 12.9, L0:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, L3:a66t18s35k1r0z0c0i0g2w0v1.94 12.9
+ltune o         m=256: base 13.2, pref=L3:a66t20s35k1r0z0c4i0g3w0v0.97 13.2, f0=L1:a66t20s35k1r0z0c4i0g3w0v0.97 12.8, f1=L2:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, f2=L3:a66t20s35k1r0z0c4i0g5w0v0.97 12.8, f3=L0:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, f4=L3:a66t18s35k1r0z0c0i0g2w0v1.94 12.9; pref pref margin 0.30 base -0.13/4 f0 +0.32/7 f1 +0.26/6 f2 +0.26/7 f3 +0.16/7 f4 +0.19/8 -> pref
+lt pooler m=256: 50 heuristic, 790 swept, 222 other, screen best L1:a66t17s35k1r0z0c0i0g2w0v0.97 27.2, L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.3, L3:a66t17s35k1r0z0c0i0g2w0v0.97 27.3, L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, L1:a66t18s35k1r0z0c1i0g2w0v0.97 27.8
+ltune pooler    m=256: base 30.8, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.4, f0=L1:a66t17s35k1r0z0c0i0g2w0v0.97 27.6, f1=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, f2=L3:a66t17s35k1r0z0c0i0g2w0v0.97 27.9, f3=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.4, f4=L1:a66t18s35k1r0z0c1i0g2w0v0.97 28.4; pref pref margin 0.32 base -3.58/0 f0 -0.29/2 f1 +0.00/4 f2 -0.61/1 f3 -0.13/2 f4 -1.12/0 -> pref
+lt unpooler m=256: 32 heuristic, 788 swept, 216 other, screen best L1:a66t20s35k1r0z0c4i0g5w0v0.97 27.5, L3:a66t20s35k1r0z0c4i0g5w0v0.97 27.6, L0:a66t20s35k1r0z0c4i0g3w0v0.97 27.6, L3:a66t21s35k1r0z0c0i0g2w0v0.97 27.7, L1:a66t20s35k1r0z0c0i0g2w0v0.97 27.7
+ltune unpooler  m=256: base 28.4, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.6, f0=L1:a66t20s35k1r0z0c4i0g5w0v0.97 27.9, f1=L3:a66t20s35k1r0z0c4i0g5w0v0.97 27.3, f2=L0:a66t20s35k1r0z0c4i0g3w0v0.97 27.7, f3=L3:a66t21s35k1r0z0c0i0g2w0v0.97 27.7, f4=L1:a66t20s35k1r0z0c0i0g2w0v0.97 27.7; pref pref margin 0.30 base -0.67/1 f0 -0.32/1 f1 +0.35/7 f2 -0.16/3 f3 +0.06/6 f4 +0.00/4 -> pref
+ablate pooler m=128: m128k2r4 35.1, m128k2r4_a1 30.6, m128k2r4_a3 28.6
+ablate o m=256: m256k1r4 25.3, m256k1r4_a1 23.1, m256k1r4_a3 18.4
+prepare done 109.5 s
+SXSRELEASE_ROUTE qkv_gate 8 override checks=16 capacity=10 arena_bytes=32 resources=[[78, 0, 0, 220992, 288, 288, 1], [77, 0, 0, 218352, 160, 160, 1], [83, 0, 0, 220992, 288, 288, 1], [78, 0, 0, 218352, 160, 160, 1]]
+SXSRELEASE_ROUTE qkv_gate 16 override checks=16 capacity=8 arena_bytes=16 resources=[[66, 0, 0, 182096, 288, 288, 1], [68, 0, 0, 180480, 160, 160, 1], [71, 0, 0, 182096, 288, 288, 1], [76, 0, 0, 180480, 160, 160, 1]]
+SXSRELEASE_ROUTE qkv_gate 32 override checks=16 capacity=8 arena_bytes=16 resources=[[112, 0, 0, 219200, 288, 288, 1], [101, 0, 0, 210160, 160, 160, 1], [112, 0, 0, 219200, 288, 288, 1], [101, 0, 0, 210160, 160, 160, 1]]
+SXSRELEASE_ROUTE o 16 override checks=16 capacity=4 arena_bytes=16 resources=[[54, 0, 0, 69248, 256, 256, 3], [58, 0, 0, 65760, 160, 160, 3], [61, 0, 0, 69248, 256, 256, 3], [58, 0, 0, 65760, 160, 160, 3]]
+SXSRELEASE_ROUTE o 32 override checks=16 capacity=4 arena_bytes=16 resources=[[83, 0, 0, 100160, 256, 256, 2], [74, 0, 0, 90336, 160, 160, 2], [92, 0, 0, 100160, 256, 256, 2], [83, 0, 0, 90336, 160, 160, 2]]
+SXSRELEASE_ROUTE pooler 16 override checks=16 capacity=9 arena_bytes=32 resources=[[60, 0, 0, 174080, 288, 288, 1], [61, 0, 0, 169200, 160, 160, 1], [63, 0, 0, 174080, 288, 288, 1], [67, 0, 0, 169200, 160, 160, 1]]
+SXSRELEASE_ROUTE pooler 32 override checks=16 capacity=9 arena_bytes=32 resources=[[85, 0, 0, 186480, 256, 256, 1], [85, 0, 0, 176352, 160, 160, 1], [111, 0, 0, 186480, 256, 256, 1], [84, 0, 0, 176352, 160, 160, 1]]
+SXSRELEASE_ROUTE unpooler 8 override checks=16 capacity=5 arena_bytes=16 resources=[[60, 0, 0, 118384, 416, 416, 1], [55, 0, 0, 120048, 288, 288, 1], [60, 0, 0, 118384, 416, 416, 1], [55, 0, 0, 120048, 288, 288, 1]]
+SXSRELEASE_ROUTE unpooler 16 override checks=16 capacity=6 arena_bytes=16 resources=[[54, 0, 0, 69376, 256, 256, 3], [58, 0, 0, 65760, 160, 160, 3], [61, 0, 0, 69376, 256, 256, 3], [58, 0, 0, 65760, 160, 160, 3]]
+SXSRELEASE_ROUTE unpooler 32 override checks=16 capacity=6 arena_bytes=16 resources=[[83, 0, 0, 100288, 256, 256, 2], [74, 0, 0, 90336, 160, 160, 2], [92, 0, 0, 100288, 256, 256, 2], [83, 0, 0, 90336, 160, 160, 2]]
+SXSRELEASE_DONE overrides=10 fallbacks=0 pick_keys=110 checks=160 captures=10 fresh=30

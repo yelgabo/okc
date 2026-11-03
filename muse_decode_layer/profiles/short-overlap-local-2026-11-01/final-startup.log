@@ -1,0 +1,4 @@
+SOURCE 5b5ec131f1d9d427d04817bf1489903a9fabfa4a35c21eda05a15e6c5ae9a7d4 CUDA 12.8 2.10.0+cu128 NVIDIA GeForce RTX 5070
+CONCURRENT_CAPTURE_PASS
+FRESH_REPLAY_PASS 20 max_abs 5.364418029785156e-07
+G_SPLIT_FRONT_STARTUP_OK 32 verified-replays [(1, "'bfpf'", "('sk2',)"), (8, "'bfpf'", "('sk2',)")] [(1, 180749168, 239519152), (1, 239622272, 239621824), (8, 239667712, 239667264), (8, 239713152, 239712704)] sizes1/8 owners2each private-sk2-debug+routeoutputs math/natural-routes/concurrent-replay

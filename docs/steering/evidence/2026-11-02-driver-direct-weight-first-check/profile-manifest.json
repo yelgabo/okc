@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "log",
+    "path": "docs/steering/evidence/2026-11-02-worker-direct-weight-registers/generated/profiles/candidate.0b684a4065354fc5.log",
+    "bytes": 697,
+    "sha256": "cee37f0ca5e55c502afd9fa7fe570a578d921e5dba183b8b57cd13a8a8a51d6d"
+  },
+  {
+    "kind": "json",
+    "path": "docs/steering/evidence/2026-11-02-worker-direct-weight-registers/generated/profiles/candidate.0b684a4065354fc5.json",
+    "bytes": 57795,
+    "sha256": "83a281d35b188b287a4e45b63cfdf2d81c1f7ea7b892dd6f3d137723c4c47ad3"
+  },
+  {
+    "kind": "text",
+    "path": "docs/steering/evidence/2026-11-02-worker-direct-weight-registers/generated/profiles/candidate.0b684a4065354fc5.txt",
+    "bytes": 13893,
+    "sha256": "aab57102246526d08b0ffe5d4b430755d842317cff11e96d01016df8a8fcc514"
+  }
+]

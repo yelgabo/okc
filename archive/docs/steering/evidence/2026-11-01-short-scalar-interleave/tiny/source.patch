@@ -1,0 +1,21 @@
+--- common_off/tiny
++++ scalar_interleave/tiny
+@@ -1540,11 +1540,17 @@
+     const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
+     if (!PB) {
+       const float gsc = p.gsA[ce] * TWO62;
++      float gates[2];
++#pragma unroll
++      for (int h = 0; h < 2; ++h) {
++        const int tk = 2 * tt + h;
++        if (tk < cnt) gates[h] = fork_bf16((h ? sm.y : sm.x) * gsc);
++      }
+ #pragma unroll
+       for (int h = 0; h < 2; ++h) {
+         const int tk = 2 * tt + h;
+         if (tk < cnt) {
+-          const float gt = fork_bf16((h ? sm.y : sm.x) * gsc), up = fork_bf16((h ? sm.w : sm.z) * gsc);
++          const float gt = gates[h], up = fork_bf16((h ? sm.w : sm.z) * gsc);
+           st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));
+         }
+       }

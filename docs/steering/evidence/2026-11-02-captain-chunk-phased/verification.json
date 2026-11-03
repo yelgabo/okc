@@ -1,0 +1,19 @@
+{
+  "scope": "Source-derived mapping/schedule witness, NOT transformed-source validation, CUDA execution or emitted liveness",
+  "source_sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+  "gather_sha256": "9d9533f0f465c8edfe1bd37f682affd1bf2a165f47dd6d79b5df39c7be8a50bc",
+  "mapping_counts": 24,
+  "schedule_ranges": 171,
+  "current_source_dimensional_32bit_slots": {
+    "payload": 64,
+    "pointers": 32
+  },
+  "proposed_source_dimensional_32bit_slots": {
+    "payload": 32,
+    "pointers": 16
+  },
+  "unchanged_gather_batch": 8,
+  "gpu_actions": 0,
+  "performance": null,
+  "exit_code": 0
+}

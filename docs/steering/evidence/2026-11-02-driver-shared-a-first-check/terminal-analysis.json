@@ -1,0 +1,83 @@
+{
+  "job": "5adf172986ff43dc",
+  "official_score": 1.6127943994197347,
+  "official_CI": [
+    1.5886024834284387,
+    1.6369863154110305
+  ],
+  "reconstructed_official_score": 1.6127943994197347,
+  "record_counts": {
+    "setup": 1,
+    "test": 13,
+    "benchmark": 12,
+    "profile": 12
+  },
+  "prepare_s": 99.364714113,
+  "rows": [
+    {
+      "load": "decode 1",
+      "candidate_us": 79.00838534936638,
+      "fresh_control_us": 78.76453088391268,
+      "candidate_baseline_us": 171.94270814258246,
+      "fresh_baseline_us": 173.36206506156634,
+      "descriptive_latency_change_pct": 0.30959933705831943
+    },
+    {
+      "load": "decode 16",
+      "candidate_us": 165.21797611118294,
+      "fresh_control_us": 152.01624972636304,
+      "candidate_baseline_us": 320.17136637061355,
+      "fresh_baseline_us": 301.71509560257675,
+      "descriptive_latency_change_pct": 8.684417888603146
+    },
+    {
+      "load": "decode 32",
+      "candidate_us": 302.1112941881054,
+      "fresh_control_us": 191.89781229731952,
+      "candidate_baseline_us": 357.7883830894866,
+      "fresh_baseline_us": 354.6477409770652,
+      "descriptive_latency_change_pct": 57.433422805271526
+    },
+    {
+      "load": "verify 1",
+      "candidate_us": 113.31610863354233,
+      "fresh_control_us": 112.68166177082168,
+      "candidate_baseline_us": 262.3215526522648,
+      "fresh_baseline_us": 263.0673500769321,
+      "descriptive_latency_change_pct": 0.5630435802508993
+    },
+    {
+      "load": "verify 16",
+      "candidate_us": 467.09368900589186,
+      "fresh_control_us": 261.71304474650816,
+      "candidate_baseline_us": 559.8291820516029,
+      "fresh_baseline_us": 544.7576774073945,
+      "descriptive_latency_change_pct": 78.47550910513945
+    },
+    {
+      "load": "verify 32",
+      "candidate_us": 628.1421002227823,
+      "fresh_control_us": 351.0802216924128,
+      "candidate_baseline_us": 797.7063412207269,
+      "fresh_baseline_us": 787.8895486674962,
+      "descriptive_latency_change_pct": 78.91697151003511
+    }
+  ],
+  "descriptive_endpoint_factor_vs_fresh": 0.7524092355086301,
+  "official_score_ratio_vs_public": 0.7585755800113458,
+  "node": "n-5imphluruu3bb3ci5c2w24thxw",
+  "driver": "580.159.03",
+  "fresh_node": "n-434neka4hbrvz7ee7sd46ord7g",
+  "fresh_driver": "595.91.07",
+  "evaluator_file_diffs": {},
+  "admission_lines": [
+    "SSA_ADMISSION b4=1 big=0 m=32 sm=132 grid=132 threads=672 dynamic=221952 static=0 local=40 regs=80 resident=1",
+    "SSA_ADMISSION b4=0 big=0 m=33 sm=132 grid=132 threads=672 dynamic=221952 static=0 local=24 regs=80 resident=1",
+    "SSA_ADMISSION b4=0 big=1 m=128 sm=132 grid=132 threads=672 dynamic=221952 static=0 local=24 regs=80 resident=1"
+  ],
+  "startup_lines": [
+    "G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays"
+  ],
+  "limitation": "Different job inputs/cluster/node/driver: descriptive continuation screen, not matched causal effect or spill/shared-bandwidth attribution.",
+  "decision": "PARK_EXACT_SHARED_A_FIXED_IMPLEMENTATION_NO_CONFIRMATION_OR_TUNING"
+}

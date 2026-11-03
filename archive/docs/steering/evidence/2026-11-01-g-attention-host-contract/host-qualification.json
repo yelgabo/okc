@@ -1,0 +1,20 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "enabled": true,
+  "source_sha256": "dfac8955e5c45789b0cec40082498d75a133533253c84a5284db4c3dade80bbe",
+  "bytes": 870861,
+  "repair_sha256": "a8c2600f76977ecb42dfff360f281de5bb5c893275cc09dedb0eb44d51de76ca",
+  "scope": "OFF source-only; no runtime qualification or speedup",
+  "gpu_execution": false,
+  "cpu_source_tests": 3,
+  "host_mock": "2cooperative 2ordinary 13rejects PASS",
+  "real_cuda_header_compile": "L1/L8 adapter compile-only PASS; no linking or device execution",
+  "compiler": "/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig c++ -std=c++17 -O2",
+  "runtime_include": "/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+  "nvcc_include": "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+  "command": "python tools/test_attention_g_cooperative_host.py --emit-api SCRATCH.cpp; zig c++ -std=c++17 -O2 -I[RUNTIME] -I[NVCC] -c SCRATCH.cpp -o SCRATCH.o",
+  "fixture_hashes": {
+    "host-mock.cpp": "04dc69e0bf430aba865cb1c7017b56259f4c5624b7128850ea7844db585a5692",
+    "host-api.cpp": "e480ebad834699f2eaf5a4aeda6cedb78ec29c8c49c1aa090561a834c62318c3"
+  }
+}

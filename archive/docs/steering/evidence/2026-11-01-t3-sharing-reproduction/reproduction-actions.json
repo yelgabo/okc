@@ -1,0 +1,35 @@
+{
+  "launch": {
+    "threadId": "mcp:launch:439478037f2ebf14913317acee5b9359e3735c6a34ea557935ae942a42516664",
+    "link": "<t3-thread://v2/471a5a44-f247-4d6c-b35d-7f45e6f30552/mcp:launch:439478037f2ebf14913317acee5b9359e3735c6a34ea557935ae942a42516664>",
+    "projectId": "48fc691c-be27-4756-be2a-3eadd9863476",
+    "modelSelection": {
+      "instanceId": "codex",
+      "model": "gpt-6-astra",
+      "options": [
+        {
+          "id": "reasoningEffort",
+          "value": "high"
+        }
+      ]
+    },
+    "runId": "run:thread:mcp%3Alaunch%3A439478037f2ebf14913317acee5b9359e3735c6a34ea557935ae942a42516664:ordinal:1",
+    "status": "preparing"
+  },
+  "spawn": {
+    "threadId": "mcp:launch:439478037f2ebf14913317acee5b9359e3735c6a34ea557935ae942a42516664",
+    "link": "<t3-thread://v2/471a5a44-f247-4d6c-b35d-7f45e6f30552/mcp:launch:439478037f2ebf14913317acee5b9359e3735c6a34ea557935ae942a42516664>",
+    "messageId": "message:mcp:dd0f67b3-f656-441e-8669-2cd9304f168d:thread-send:okc-sharing-repro-spawn-20261101-01",
+    "runId": "run:thread:mcp%3Alaunch%3A439478037f2ebf14913317acee5b9359e3735c6a34ea557935ae942a42516664:ordinal:2",
+    "status": "starting",
+    "delivery": "started"
+  },
+  "followup": {
+    "threadId": "mcp:launch:439478037f2ebf14913317acee5b9359e3735c6a34ea557935ae942a42516664",
+    "link": "<t3-thread://v2/471a5a44-f247-4d6c-b35d-7f45e6f30552/mcp:launch:439478037f2ebf14913317acee5b9359e3735c6a34ea557935ae942a42516664>",
+    "messageId": "message:mcp:dd0f67b3-f656-441e-8669-2cd9304f168d:thread-send:okc-sharing-repro-huh-20261101-01",
+    "runId": "run:thread:mcp%3Alaunch%3A439478037f2ebf14913317acee5b9359e3735c6a34ea557935ae942a42516664:ordinal:3",
+    "status": "starting",
+    "delivery": "started"
+  }
+}

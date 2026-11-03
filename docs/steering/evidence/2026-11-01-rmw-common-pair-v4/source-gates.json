@@ -1,0 +1,18 @@
+{
+  "changed_ast_nodes": [
+    "_srp_occupied_empty",
+    "_WL_CORE_SHA"
+  ],
+  "exact_only_two_fixture_replacements": true,
+  "production_device_prefix_byte_identical": true,
+  "native_factories_exactly_equal": true,
+  "factory_count": 7,
+  "timed_and_other_host_nodes_ast_identical": true,
+  "old_and_new_readers_cross_reject_sources": true,
+  "deterministic_regeneration": true,
+  "failing_source_preserved": true,
+  "new_source_sha256": "785a90ca08ddde0c3b194fc219a0645cb8cd14bac02620d8714f0b66163a0b66",
+  "new_source_bytes": 924005,
+  "GPU": false,
+  "compile_reuse_scope": "Unchanged source/flags allow reuse of prior local12.8 selected compiler evidence only; H200/runtime13 remains own-job gate."
+}

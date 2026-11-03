@@ -1,0 +1,98 @@
+{
+  "observed_utc": "2026-11-01T20:12:00.034194+00:00",
+  "results": {
+    "overall": {
+      "keys": [
+        "board",
+        "measure",
+        "ranked",
+        "leader",
+        "you",
+        "rows"
+      ],
+      "rows": 1824,
+      "you": {
+        "rank": 322,
+        "team": "yelgabo",
+        "first": false,
+        "ahead": 321
+      }
+    },
+    "layer": {
+      "keys": [
+        "board",
+        "measure",
+        "ranked",
+        "leader",
+        "you",
+        "rows"
+      ],
+      "rows": 1170,
+      "you": {
+        "rank": 322,
+        "team": "yelgabo",
+        "speedup": 2.1261,
+        "first": false,
+        "ahead": 321,
+        "to_first": 1.1685
+      }
+    },
+    "proj": {
+      "keys": [
+        "board",
+        "measure",
+        "ranked",
+        "leader",
+        "you",
+        "rows"
+      ],
+      "rows": 1609,
+      "you": {
+        "rank": 322,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 321,
+        "to_first": 1.0815
+      }
+    },
+    "attn": {
+      "keys": [
+        "board",
+        "measure",
+        "ranked",
+        "leader",
+        "you",
+        "rows"
+      ],
+      "rows": 1243,
+      "you": {
+        "rank": 229,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 228,
+        "to_first": 1.2821
+      }
+    },
+    "moe": {
+      "keys": [
+        "board",
+        "measure",
+        "ranked",
+        "leader",
+        "you",
+        "rows"
+      ],
+      "rows": 1298,
+      "you": {
+        "rank": 398,
+        "team": "yelgabo",
+        "speedup": 2.2157,
+        "first": false,
+        "ahead": 397,
+        "to_first": 1.2476
+      }
+    }
+  }
+}

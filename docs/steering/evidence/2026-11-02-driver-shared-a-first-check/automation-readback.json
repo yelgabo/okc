@@ -1,0 +1,8 @@
+{
+  "id": "review-family-g-progress-and-dispatch-the-next-experiment",
+  "rrule": "FREQ=HOURLY;INTERVAL=1",
+  "status": "ACTIVE",
+  "target_thread_id": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+  "updated_at": 1793660299241,
+  "own_accepted_job_and_no_repost_confirmed": true
+}

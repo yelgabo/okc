@@ -1,0 +1,42 @@
+{
+  "source_sha256": "c1c6065a095efb407a15c8a1fe8f6936fc3078750b1ca7adb27447846342205e",
+  "device_sha256": "a4e0f51cb4741513741844dca87d5ef77ae7b364e5163e6ea112e00a64507d1f",
+  "adapters": [
+    "owned selected literal; remove host launcher/Instance only; preserve all device bodies",
+    "Torch/ATen and host std includes removed; CUDA runtime and fixed-width declarations",
+    "ONE infinity declaration adapter and DONE_TRIG=1; no host API proof"
+  ],
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "expressions": [
+    "&moe1::moe_main_kernel<51>"
+  ],
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_dcaac4b3_3274moe115moe_main_kernelILi51EEEvNS0_6ParamsE"
+  ],
+  "cubin_sha256": "ea20b844a7ab9b45488b6a0ee1f595ececcf3a4626eb66355975b462b83b7a2d",
+  "ptx_sha256": "179fb4efea5d67c0f10bba4c6c5d9c697a3897ef08659918a7653f42282490c5",
+  "sass_sha256": "4074dadf086c558512c5bc0b4d0d4d42ee4dab7ba2dae7fdacc43bc8c038bcfc",
+  "ptxas_command": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    ".build/today-moe/verify-owned-progress/control-compile/device.ptx",
+    "-o",
+    ".build/today-moe/verify-owned-progress/control-compile/device.cubin"
+  ],
+  "ptxas_status": 0,
+  "driver_source_sha256": "33648bbd67d7f4961a5040f42b5f74533c2cca2a1fb38657e5c66cd7227400ee",
+  "kind": "moe"
+}

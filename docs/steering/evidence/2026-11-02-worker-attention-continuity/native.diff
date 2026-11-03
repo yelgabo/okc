@@ -1,0 +1,53 @@
+--- control-attention.cu
++++ treatment-attention.cu
+@@ -71,7 +71,7 @@
+                         // it finishes first on every SM) instead of by arrival
+ #define OKC_DBGON 0     // phase timestamps (diagnostic builds): compiled out, the checks cost cold instructions
+ #define OKC_BALPART 0   // flat: balanced integer shares (one 32-bit division) instead of c*T/G
+-#define OKC_CONT 0      // flat producer mode: one continuous stage pipeline across segments (no drain per segment)
++#define OKC_CONT 1      // flat producer mode: one continuous stage pipeline across segments (no drain per segment)
+ #define OKC_DYN 0       // flat producer mode: dynamic chunks claimed from a global counter (needs OKC_CONT)
+ #define OKC_FINWARM 0   // dry call of the last-CTA finalize during the prologue (instruction cache warm-up)
+ #define OKC_PVW1 1      // flat q_len 8: wait for the previous PV wgmma before the V transpose (frees its registers)
+@@ -572,8 +572,15 @@
+   return v;
+ }
+ 
++template <bool Enabled>
++struct ContinuityMergeStorage {};
++template <>
++struct ContinuityMergeStorage<true> {
++  alignas(16) float continuity_merge[64 * 18];
++};
++
+ template <int L, bool F>
+-struct Smem {
++struct Smem : ContinuityMergeStorage<(L == 1 && F && OKC_CONT)> {
+   uint8_t k[Cfg<L, F>::STAGES * STAGE_BYTES];
+   uint8_t v[Cfg<L, F>::STAGES * STAGE_BYTES];
+   uint64_t mbar[8];   // TMA mode: one per stage (64 bytes keeps the members after it 16-byte aligned)
+@@ -2524,12 +2531,14 @@
+   // ---- merge: rescale to the fixed reference 2^0 and accumulate with FP32 atomics ----
+   bool do_red = true;
+   if constexpr (Cfg<L, FLAT>::F2) do_red = (warp >> 3) == 0;   // stream 1's state was merged into stream 0
+-  if (L == 1 && !CONT && !(OKC_NOXCH1 && !M_CL)) {
++  if (L == 1 && !(OKC_NOXCH1 && !M_CL)) {
+     // warps 2,3 (second key half) hand their state to warps 0,1 (same heads) through shared memory
+     // (OKC_NOXCH1: outside cluster mode both halves add their own rescaled state to the workspace instead)
+     cp_wait<0>();
+     csync<WS, NT>();
+-    float* xs = reinterpret_cast<float*>(S.k) + ((warp & 1) * 32 + lane) * 18;
++    float* xs;
++    if constexpr (L == 1 && CONT) xs = S.continuity_merge + ((warp & 1) * 32 + lane) * 18;
++    else xs = reinterpret_cast<float*>(S.k) + ((warp & 1) * 32 + lane) * 18;
+     if (wsub == 1) {
+       xs[0] = m_r[0];
+       xs[1] = l_r[0];
+@@ -3332,6 +3341,7 @@
+       }
+       mbar_fence_init();
+     }
++    __syncthreads();
+   }
+   // segment list in shared memory (keeps the per-segment loop state out of registers)
+   if (threadIdx.x == 0 && !fpart) {

@@ -1,0 +1,37 @@
+{
+  "input_bytes": 854399,
+  "output_bytes": 720525,
+  "output_sha256": "a6f97289c7abc8e49e7b7943e63f9b8138a8682988bb4c1b2603e3704fdc6464",
+  "records": [
+    {
+      "targets": [
+        "MOE_CUDA_SRC",
+        "_MA_ALT_SRCS['moe_helper0']"
+      ],
+      "shared_chunks": 56,
+      "common_bytes": 131792,
+      "saved_source_bytes": 126435,
+      "runtime_sha256": {
+        "MOE_CUDA_SRC": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "_MA_ALT_SRCS['moe_helper0']": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+      },
+      "outside_AST_unchanged": true
+    },
+    {
+      "targets": [
+        "_GRAFT_GLUE_CUDA",
+        "_SL_GLUE_CUDA"
+      ],
+      "shared_chunks": 7,
+      "common_bytes": 8085,
+      "saved_source_bytes": 7439,
+      "runtime_sha256": {
+        "_GRAFT_GLUE_CUDA": "39c020a1a59cf2f82e5b64f1ec72d873bdcb0714adb5b55d7ead6299f5546a62",
+        "_SL_GLUE_CUDA": "a2ce67a78cbc3bf1bfaa1f3fe49a503b6fe6bf0fefec88ddb33dfb4c41220172"
+      },
+      "outside_AST_unchanged": true
+    }
+  ],
+  "gpu_execution": false,
+  "readable_multiline_chunks": true
+}

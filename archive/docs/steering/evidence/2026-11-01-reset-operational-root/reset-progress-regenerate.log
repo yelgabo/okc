@@ -1,0 +1,87 @@
+{
+  "scope": "Offline source-only double regeneration; payloads never imported or executed",
+  "payloads": [
+    {
+      "name": "stage",
+      "sha256": "aa49352105b39538b79c454f49e9f8e2014fa99b5c8205f145131169f18358e4",
+      "bytes": 907822,
+      "repetitions": 2,
+      "identical": true
+    },
+    {
+      "name": "short",
+      "sha256": "4a1a68f5824bd51c130e03eb736a2e1fb19e011735169400b0be2c0d17448183",
+      "bytes": 904020,
+      "repetitions": 2,
+      "identical": true
+    },
+    {
+      "name": "verify",
+      "sha256": "094841bd26822392d9bcabbe80297dbd84df10a8f29a9749edc0a9dd143b8f3a",
+      "bytes": 970042,
+      "repetitions": 2,
+      "identical": true,
+      "old_sha256": "195bba34415dd614733100cc4e26022fd25891fad747ee393aaac9ab4c8d4fa0"
+    }
+  ],
+  "proof": {
+    "job_id": "74a29e0384324952",
+    "candidate_pin": "1607293eee3403109df5d37b6e2d1ee34b528c3578afa6c2c8668440afde1658",
+    "status": "done_pass13_native_empty",
+    "evaluator_code": "2999d8a201bb2b0bad6c7b3998af2143a1ed720d531dbb4d15670721ee9f957b"
+  },
+  "dependency_raw_sha256": {
+    "dl_g1_layer_gate.py": "a97d29eb6a39a690c633c9472f23500f805ae578fac71709b756cb85b699de81",
+    "dl_g1_layer_body.py": "0a290a64e5d9b2188452d73ee3a2b55ecdf29be5709609df49a502402234e18d",
+    "dl_g1_layer_owners.py": "052781c3aea5bafd4f20f1b04da4b52757d98f15f315b1ff7a33169963db7309",
+    "dl_g1_stage_retire.py": "5121b2605474b0fc1ce169e30841148370dffd1e03e38a0cc734125332da9524",
+    "moe_make_sc6_compare.py": "e60f7f39e2f4127e426e29a8b27ff6961e46781b79a034c9fff4ba518396986b",
+    "dl_make_bench_pub.py": "b286a256c8589ca4daf379c71ceb5e2cc94bdee3a738554c93bfcb1d95959722",
+    "dl_short_path_trace.py": "d18a8d4eb764fa53b75c679d4c3525eb2b4954aaf55e72dae448a8d7d54c6bfb",
+    "dl_short_path_body.py": "717160827a6183fda102d060b36ad2236ae0dc5ce084a93c57e15a00bc5a563e",
+    "dl_timeline_codec.py": "1d7ab30ff92611378b26050d5631785c5c3d78c019e8e652e4b48f772fc56b48"
+  },
+  "owners_override_sha256": null,
+  "owned_progress": {
+    "package_input_sha256": "195bba34415dd614733100cc4e26022fd25891fad747ee393aaac9ab4c8d4fa0",
+    "package_output_sha256": "094841bd26822392d9bcabbe80297dbd84df10a8f29a9749edc0a9dd143b8f3a",
+    "package_input_bytes": 969272,
+    "package_output_bytes": 970042,
+    "only_owned_backend_and_private_pin_change": true,
+    "backend": {
+      "input_sha256": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3",
+      "output_sha256": "a841443465c47656f3614885c41d851bb796cd917f6ef2505b8c77e6f8cabc08",
+      "input_bytes": 511911,
+      "output_bytes": 512681,
+      "device_before_sha256": "35fc183846d5b9bf23efb5c3f0d0f7f556b00bfbe5ea45a3c30c59a9a054b300",
+      "device_after_sha256": "2a9a386762ca7814c98537d89c8478895ebdb635664837046da634d5dc89f617",
+      "reused_launcher_sha256": "38026abe7a6f3c70dc36980317c17d62e82e3823f9a78de16246c9e7502b2d28",
+      "changes": [
+        "exact existing checked cooperative host launcher",
+        "kernel_fn selected MAIN51 call PDLFalse",
+        "spin_failed timeout traps before return",
+        "distinct extension module name"
+      ],
+      "device_delta_only_host_launcher_and_timeout": true,
+      "GPU": false,
+      "H200_qualified": false
+    },
+    "first_two_G_payloads_unchanged": true,
+    "GPU": false,
+    "H200_qualified": false
+  },
+  "verify_dependency_normalized_sha256": {
+    "dl_verify_pair.py": "664dc768fcc38e13cd2f3d94d2179f01ee4412cf70a2f5d53a057f6451d8a06e",
+    "dl_verify_pair_body.py": "56a7d2c8d7e23c2f9cfe15e31629f00f851fbd7adf88e56a922eb9e9d7bc6882",
+    "dl_verify_pair_slices.py": "4ba6bb495b80b4444aa79de5ac9d9b87e3bc9e9a0009778c02256b3d931d629b",
+    "dl_selected_pair.py": "38c0fa7ee281e1d7bee8cdbb80fefa70e661ffdc6a6c8389665c0cdc96dd7953",
+    "dl_selected_pair_body.py": "f1f8e568174a6702a8dc46f72682dca07942e2b1e3d8f74f75a58274e40149bf",
+    "dl_owned_slice.py": "8700d6e3938203e46ebbd5e1f9e4783b145966332e79c98dcf65bc1ce6138aac",
+    "dl_owned_main_slice.py": "4a8b14c20c47530acf9af4e38efd8bfb8ab0bddf6f0cc21ad19083e922178e5d",
+    "dl_owned_attention_boundary.py": "c38fcb84a2e9d837bc6b2eab8add20206b2647545e2c4aeea152ec67a2576834",
+    "dl_g_verify_slice.py": "2b8ffde9738679bc7ba8f8b44530208ed365a9d817bf3807d49922f45fa9c5fe",
+    "verify_owned_progress.py": "a2ee51b2a4898ffe39a76d368117cc0bd4c5bdc169e9ec693889c9ba58d89969",
+    "verify_owned_progress_compose.py": "e9a5942a3a968ff63584e7526faf501334d49646dc8c71cc78603e6becfc32ab",
+    "dl_fork_owned_cooperative.py": "bae3970712c5a318e8dae76f72135b2f0a3ada1fcd4a6d4afb70424c973e52c4"
+  }
+}

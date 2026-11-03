@@ -32,7 +32,7 @@ def records(path):
 
 
 # The judge's streaming line, t = 1.3 us + bytes / 4.05 TB/s, measured with cold L2
-# (docs/runs-moe.md:24, docs/audit-2026-10-28.md 5.4). 700 TFLOP/s is what the m = 256 cuBLASLt
+# (docs/runs-moe.md:24, archive/docs/audit-2026-10-28.md 5.4). 700 TFLOP/s is what the m = 256 cuBLASLt
 # picks reach (docs/runs.md, P2 / P3 work model); 989 is the datasheet dense BF16 peak.
 FIXED_US = 1.3
 

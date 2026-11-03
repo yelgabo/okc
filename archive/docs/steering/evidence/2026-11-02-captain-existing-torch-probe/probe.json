@@ -1,0 +1,15 @@
+{
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    "-c",
+    "import json,sys,torch; value=torch.arange(8,dtype=torch.float32); view=value[2:6]; normal_version=value._version; view.add_(1); normal=dict(shared_storage=value.untyped_storage().data_ptr()==view.untyped_storage().data_ptr(),version_before=normal_version,version_after=value._version,values=value.tolist()); result=dict(executable=sys.executable,torch_version=torch.__version__,torch_file=torch.__file__,cuda_build=torch.version.cuda,normal=normal,installed=False,policy_changed=False,gpu_called=False);\nwith torch.inference_mode():\n inferred=torch.ones(4); result['inference_tensor_values']=inferred.tolist();\n try: result['inference_version']=inferred._version\n except RuntimeError as error: result['inference_version_error']=str(error)\nprint(json.dumps(result,indent=2))"
+  ],
+  "exitcode": 0,
+  "stdout": "{\n  \"executable\": \"/root/.cache/okc-host-validate/bin/python\",\n  \"torch_version\": \"2.10.0+cpu\",\n  \"torch_file\": \"/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/__init__.py\",\n  \"cuda_build\": null,\n  \"normal\": {\n    \"shared_storage\": true,\n    \"version_before\": 0,\n    \"version_after\": 1,\n    \"values\": [\n      0.0,\n      1.0,\n      3.0,\n      4.0,\n      5.0,\n      6.0,\n      6.0,\n      7.0\n    ]\n  },\n  \"installed\": false,\n  \"policy_changed\": false,\n  \"gpu_called\": false,\n  \"inference_tensor_values\": [\n    1.0,\n    1.0,\n    1.0,\n    1.0\n  ],\n  \"inference_version_error\": \"Inference tensors do not track version counter.\"\n}\n",
+  "stderr": "",
+  "scope": "existing documented WSL CPU environment; no install/policy changes or blocked Windows DLL execution; not target ABI qualification"
+}

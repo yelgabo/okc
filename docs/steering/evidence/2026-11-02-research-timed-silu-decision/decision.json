@@ -1,0 +1,209 @@
+{
+  "observed_utc": "2026-11-02T10:45:06.822968+00:00",
+  "checkout": "e9c9612302c1f8d4cb9cf063ef615550c2ef3d72",
+  "worker_publication": "9a1f6e4533ae2ab7708134c29c88369f46b96fb4",
+  "captain_pins": [
+    "8f69050113d8f3bb9102f8f7b36c3ec4cb9fa70e",
+    "fd277700a819c47c12d99dc365977d2a583f771c"
+  ],
+  "source_identity": {
+    "candidate_bytes": 870087,
+    "candidate_sha256": "d70a1bcc6202e37562b675fbab3251cdbe1b6fd81569442b3a179270aebae401",
+    "native_sha256": "f5344c9d8d82cae177050a8d4bfa80b3f5f88b9fcfb35f726f777d55ad22f355"
+  },
+  "source_anchors": {
+    "const float v = __ldg(p.silu_table": [
+      1976
+    ],
+    "if (FIRST && ci == OKC_WGSFCI": [
+      2189
+    ],
+    "for (int st = s0 + 1": [
+      2200
+    ],
+    "for (int nt = 0; nt < NTT; ++nt) wgs_epi_tile": [
+      2216
+    ],
+    "if (pb && !(OKC_WGSX & 8))": [
+      1892
+    ],
+    "timed_silu_table_build<<<256, 256": [
+      3006
+    ],
+    "cudaLaunchCooperativeKernel": [
+      3009
+    ],
+    "__global__ void timed_silu_table_build": [
+      2875
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/generated/candidate.py",
+      "bytes": 870087,
+      "sha256": "d70a1bcc6202e37562b675fbab3251cdbe1b6fd81569442b3a179270aebae401"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/generated/selected.cu",
+      "bytes": 156624,
+      "sha256": "f5344c9d8d82cae177050a8d4bfa80b3f5f88b9fcfb35f726f777d55ad22f355"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/final-link-codegen-roi.json",
+      "bytes": 10165,
+      "sha256": "ffefa73ab59a53757862e9d3133264f977aec64a83fdd2d45fd89fa36618b242"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/compile-result.json",
+      "bytes": 29463,
+      "sha256": "77e7e3bc280ee80043fdd60eab825c959be45c8236b0bcf6bec6336b521e9262"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/B4/manifest.json",
+      "bytes": 3153,
+      "sha256": "71fcfeb69a7f61ff55729fb9556f9dd8e9350670e9a2493572f31461c1978d21"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/MAIN/manifest.json",
+      "bytes": 3132,
+      "sha256": "beb12b5549973c3724bf3981c3eb336afd18e139c3b3747e21dbca16874a6564"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-timed-silu/conditional-budget.json",
+      "bytes": 2082,
+      "sha256": "d4b077a8c0ee491630a0a9d8925c4595e702e5795320afcc931b2333053a87aa"
+    }
+  ],
+  "secondary_summary": {
+    "B4": {
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 16,
+          "spill_store_bytes": 120,
+          "spill_load_bytes": 216,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 16,
+          "spill_store_bytes": 120,
+          "spill_load_bytes": 216,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc22timed_silu_table_buildEPf": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 10,
+          "barriers": 0
+        }
+      },
+      "options": [
+        "--gpu-architecture=compute_90a",
+        "--std=c++17",
+        "--generate-line-info",
+        "--device-as-default-execution-space",
+        "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+        "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+        "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "final_equals_compiled_device_prefix": true,
+      "worker_linkage_receipt": true
+    },
+    "MAIN": {
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 20,
+          "spill_load_bytes": 52,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 20,
+          "spill_load_bytes": 52,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc22timed_silu_table_buildEPf": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 10,
+          "barriers": 0
+        }
+      },
+      "options": [
+        "--gpu-architecture=compute_90a",
+        "--std=c++17",
+        "--generate-line-info",
+        "--device-as-default-execution-space",
+        "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+        "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+        "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "final_equals_compiled_device_prefix": true,
+      "worker_linkage_receipt": true
+    }
+  },
+  "primary_docs": [
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-c-programming-guide/index.html",
+      "sha256": "b176ad74b8a634da6eb824f34ee7bfa02f7d7103e4a3a5de5197bb7640b16bdf",
+      "bytes": 3921458,
+      "sections": [
+        "6.2.8.5 Streams",
+        "10.10 Read-Only Data Cache Load Function"
+      ],
+      "use": "Ordering/cache semantics only; no cycle, peak-rate or exposed-time estimate."
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/hopper-tuning-guide/index.html",
+      "sha256": "5201e5f17c41cd8f86bcc486a42e5f97b7f86dff2c196895f5db5de39d89120f",
+      "bytes": 34695,
+      "sections": [
+        "1.4.2.4 Unified Shared Memory/L1/Texture Cache"
+      ],
+      "use": "Ordering/cache semantics only; no cycle, peak-rate or exposed-time estimate."
+    }
+  ],
+  "logical_work_only": {
+    "producer_evaluations": 65536,
+    "producer_store_bytes": 262144,
+    "consumer_evaluations_replaced": "4096*R",
+    "consumer_FP32_requested_bytes": "16384*R",
+    "nonlinear_count_break_even_R": 16,
+    "not_known": [
+      "actual R by case",
+      "exposed old nonlinear duration",
+      "net producer/launch increment",
+      "dependent lookup latency/cache transactions",
+      "whole-layer timing"
+    ]
+  },
+  "recommendation": "NO-GO for spending one private check under unchanged credible>=1% gate; park exact treatment, not technique family. Technical net effect remains indeterminate.",
+  "scope": "Read-only pinned source/archive and primary documentation; no candidate execution, tests, compiler, GPU/driver, challenge CLI, install, harness or production edits."
+}

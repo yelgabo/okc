@@ -1,0 +1,229 @@
+{
+  "source_pin": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "bytes": 854399,
+  "sha256": "3bdbaed0ddbe8d8d1e4b63139d91292fea4b154baa47bcdd54363fdee4e63045",
+  "removed": [
+    {
+      "line": 3727,
+      "kind": "Assign",
+      "name": "_WS7",
+      "bytes": 10
+    },
+    {
+      "line": 3728,
+      "kind": "Assign",
+      "name": "_PF7",
+      "bytes": 84
+    },
+    {
+      "line": 3823,
+      "kind": "Assign",
+      "name": "_CL7",
+      "bytes": 10
+    },
+    {
+      "line": 6883,
+      "kind": "Assign",
+      "name": "_MA_SC6W",
+      "bytes": 106
+    },
+    {
+      "line": 6957,
+      "kind": "FunctionDef",
+      "name": "_moe_mid",
+      "bytes": 148
+    },
+    {
+      "line": 6969,
+      "kind": "FunctionDef",
+      "name": "_moe_tiny2",
+      "bytes": 160
+    },
+    {
+      "line": 6976,
+      "kind": "FunctionDef",
+      "name": "_moe_tiny",
+      "bytes": 155
+    },
+    {
+      "line": 7051,
+      "kind": "FunctionDef",
+      "name": "_sc6_unit",
+      "bytes": 636
+    },
+    {
+      "line": 10187,
+      "kind": "FunctionDef",
+      "name": "_to_i32",
+      "bytes": 119
+    },
+    {
+      "line": 10192,
+      "kind": "FunctionDef",
+      "name": "_repack_q",
+      "bytes": 723
+    },
+    {
+      "line": 10208,
+      "kind": "FunctionDef",
+      "name": "_repack_s",
+      "bytes": 421
+    },
+    {
+      "line": 12477,
+      "kind": "FunctionDef",
+      "name": "dl_pair_prewarm",
+      "bytes": 71
+    },
+    {
+      "line": 15174,
+      "kind": "FunctionDef",
+      "name": "_df_patch",
+      "bytes": 3312
+    },
+    {
+      "line": 16216,
+      "kind": "Assign",
+      "name": "GLE_T",
+      "bytes": 37
+    },
+    {
+      "line": 16219,
+      "kind": "Assign",
+      "name": "GLE_CAPTURE",
+      "bytes": 101
+    },
+    {
+      "line": 16220,
+      "kind": "Assign",
+      "name": "GLE_RC",
+      "bytes": 126
+    },
+    {
+      "line": 16534,
+      "kind": "FunctionDef",
+      "name": "_gle_carry",
+      "bytes": 464
+    },
+    {
+      "line": 16548,
+      "kind": "FunctionDef",
+      "name": "_gle_route",
+      "bytes": 3515
+    },
+    {
+      "line": 16649,
+      "kind": "FunctionDef",
+      "name": "_gle_o_choice",
+      "bytes": 313
+    },
+    {
+      "line": 16657,
+      "kind": "FunctionDef",
+      "name": "_gle_after_attention",
+      "bytes": 2980
+    },
+    {
+      "line": 16733,
+      "kind": "Assign",
+      "name": "_moe_tiny",
+      "bytes": 25
+    },
+    {
+      "line": 16734,
+      "kind": "Assign",
+      "name": "_moe_tiny2",
+      "bytes": 26
+    },
+    {
+      "line": 16735,
+      "kind": "Assign",
+      "name": "_moe_mid",
+      "bytes": 24
+    }
+  ],
+  "literals": {
+    "ATT7_CUDA_SRC": {
+      "bytes": 191991,
+      "sha256": "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5"
+    },
+    "MOE_CUDA_SRC": {
+      "bytes": 155790,
+      "sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71"
+    },
+    "bfp_CUDA_SRC": {
+      "bytes": 3252,
+      "sha256": "550220a9a6c63afcf46a67eaeb970a4fe9bde15a108c381b1ee32696cbb37254"
+    },
+    "bfp_MBAR_HELPERS": {
+      "bytes": 2838,
+      "sha256": "8cbb12ce757e6307c00f48e8ae93df53d72b105f9929d8fbb12800ef9694407b"
+    },
+    "bfp_TMA_SRC": {
+      "bytes": 19176,
+      "sha256": "96c551c04ebcea3465a1797f933dcab38592a0b1a6bb4fa48eba4076781b5982"
+    },
+    "bfp_MAP_SRC": {
+      "bytes": 3024,
+      "sha256": "0d96ca5053a1117ac9cdda24941996a5432beceae87919e488d8b3fdc6441f11"
+    },
+    "bfp_GEMM_SRC": {
+      "bytes": 7569,
+      "sha256": "fe44a932771327ffbd450832fdbfb90c5b4baf1fad96b29e947d5833b2f1d506"
+    },
+    "bfp_SK2_SRC": {
+      "bytes": 32498,
+      "sha256": "fde7b73e118417c74c5e80f054c674a65c5a1b7f9da6986f93d8436f18cf1573"
+    },
+    "bfp_WIDE_SRC": {
+      "bytes": 12585,
+      "sha256": "d8fd2c7d6ccd09e467f496728b5875b1459a03b2c16b7d09f2419282a25bffcd"
+    },
+    "bfp_CPP_SRC": {
+      "bytes": 1470,
+      "sha256": "e87f0e88a7668a88b3295709a4d97ea49eaece797c223bc5805dd9aa8da76165"
+    },
+    "bfp_GQ_SRC": {
+      "bytes": 12209,
+      "sha256": "99629b55527b0152de4057860aaf645c360f7e0280ac49df13aeb52396a633fc"
+    },
+    "_GRAFT_GLUE_CUDA": {
+      "bytes": 10146,
+      "sha256": "39c020a1a59cf2f82e5b64f1ec72d873bdcb0714adb5b55d7ead6299f5546a62"
+    },
+    "_GRAFT_B2_CUDA": {
+      "bytes": 7147,
+      "sha256": "a708871061263b97d5a8f8a0107118d9c0081d2ab748c8c1ca8c57e3f8cb575d"
+    },
+    "_MA_ALT_SRCS['moe_helper0']": {
+      "bytes": 139768,
+      "sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+    },
+    "_SL_GLUE_CUDA": {
+      "bytes": 10575,
+      "sha256": "a2ce67a78cbc3bf1bfaa1f3fe49a503b6fe6bf0fefec88ddb33dfb4c41220172"
+    },
+    "_ROUTER_FP32_CUDA": {
+      "bytes": 1605,
+      "sha256": "fca15f68b4c78e113650cb7145b22874463b69a5e5c3f95904791e6029d94092"
+    }
+  },
+  "removed_literals": {},
+  "fold_proof": {
+    "flag": "GLE_T",
+    "value": {},
+    "reads": "two get calls in sole short-circuit condition",
+    "removed_lines": [
+      16712,
+      16724
+    ],
+    "active_GLE_FRT_preserved": true
+  },
+  "roots": [
+    "prepare",
+    "kernel_fn"
+  ],
+  "scope": "Whole original prepare and all12 incumbent input routes, no native transforms",
+  "proof_status": "Conservative static dependency prototype; independent source/runtime gates required",
+  "H200_qualified": false
+}

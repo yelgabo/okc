@@ -1,0 +1,1236 @@
+{
+  "tests": 13,
+  "passed": true,
+  "torch": "2.10.0+cpu",
+  "native_math": "NOT RUN: facaded; no CUDA numerical oracle",
+  "timing": "synthetic all-one event times",
+  "payload_sha256": "f2e11de2d0b30321437bbd55f32c8337886b762724eb914125dee7a439d87b96",
+  "selection": [
+    {
+      "placement": 0,
+      "tokens": 1,
+      "family": "tiny",
+      "descriptor": {
+        "name": "glue_moe_415a2bdc6eb73960_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 0,
+      "tokens": 4,
+      "family": "tiny",
+      "descriptor": {
+        "name": "glue_moe_415a2bdc6eb73960_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 0,
+      "tokens": 8,
+      "family": "tiny2",
+      "descriptor": {
+        "name": "glue_moe_b2495a009a910301_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 0,
+      "tokens": 16,
+      "family": "mid",
+      "descriptor": {
+        "name": "glue_moe_1b555edc8284ed23_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_SPLIT=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 0,
+      "tokens": 32,
+      "family": "b4",
+      "descriptor": {
+        "name": "glue_moe_7e37cd900cb88979_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 0,
+      "tokens": 33,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 0,
+      "tokens": 128,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 0,
+      "tokens": 256,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 0,
+      "tokens": 257,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 1,
+      "tokens": 1,
+      "family": "tiny",
+      "descriptor": {
+        "name": "glue_moe_415a2bdc6eb73960_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 1,
+      "tokens": 4,
+      "family": "tiny",
+      "descriptor": {
+        "name": "glue_moe_415a2bdc6eb73960_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 1,
+      "tokens": 8,
+      "family": "tiny2",
+      "descriptor": {
+        "name": "glue_moe_b2495a009a910301_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 1,
+      "tokens": 16,
+      "family": "mid",
+      "descriptor": {
+        "name": "glue_moe_1b555edc8284ed23_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_SPLIT=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 1,
+      "tokens": 32,
+      "family": "b4",
+      "descriptor": {
+        "name": "glue_moe_7e37cd900cb88979_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 1,
+      "tokens": 33,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 1,
+      "tokens": 128,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 1,
+      "tokens": 256,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 1,
+      "tokens": 257,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 2,
+      "tokens": 1,
+      "family": "T1-three",
+      "descriptor": {
+        "name": "t1_three_launch_v1",
+        "cpp_sources": "64986286b26616a9fe70c885b53aee9c409af0ed694cd16f1ece47df62193b75",
+        "cuda_sources": "dbdd3381cc9b823afb9e7d8678bba536cd5d6e3731896153aee9908652237447",
+        "functions": [
+          "t1_three_run"
+        ],
+        "extra_cflags": [
+          "-O3",
+          "-std=c++20"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 2,
+      "tokens": 4,
+      "family": "tiny",
+      "descriptor": {
+        "name": "glue_moe_415a2bdc6eb73960_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 2,
+      "tokens": 8,
+      "family": "tiny2",
+      "descriptor": {
+        "name": "glue_moe_b2495a009a910301_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 2,
+      "tokens": 16,
+      "family": "mid",
+      "descriptor": {
+        "name": "glue_moe_1b555edc8284ed23_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_SPLIT=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 2,
+      "tokens": 32,
+      "family": "b4",
+      "descriptor": {
+        "name": "glue_moe_7e37cd900cb88979_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 2,
+      "tokens": 33,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 2,
+      "tokens": 128,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 2,
+      "tokens": 256,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 2,
+      "tokens": 257,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 3,
+      "tokens": 1,
+      "family": "T1-three",
+      "descriptor": {
+        "name": "t1_three_launch_v1",
+        "cpp_sources": "64986286b26616a9fe70c885b53aee9c409af0ed694cd16f1ece47df62193b75",
+        "cuda_sources": "dbdd3381cc9b823afb9e7d8678bba536cd5d6e3731896153aee9908652237447",
+        "functions": [
+          "t1_three_run"
+        ],
+        "extra_cflags": [
+          "-O3",
+          "-std=c++20"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 3,
+      "tokens": 4,
+      "family": "tiny",
+      "descriptor": {
+        "name": "glue_moe_415a2bdc6eb73960_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 3,
+      "tokens": 8,
+      "family": "tiny2",
+      "descriptor": {
+        "name": "glue_moe_b2495a009a910301_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 3,
+      "tokens": 16,
+      "family": "mid",
+      "descriptor": {
+        "name": "glue_moe_1b555edc8284ed23_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_SPLIT=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 3,
+      "tokens": 32,
+      "family": "b4",
+      "descriptor": {
+        "name": "glue_moe_7e37cd900cb88979_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 3,
+      "tokens": 33,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 3,
+      "tokens": 128,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 3,
+      "tokens": 256,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    },
+    {
+      "placement": 3,
+      "tokens": 257,
+      "family": "main",
+      "descriptor": {
+        "name": "glue_moe_45a005177ff52c30_sm90a",
+        "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "functions": [
+          "okc_run",
+          "okc_set_pdl",
+          "okc_attrs"
+        ],
+        "extra_cuda_cflags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "verbose": false
+      }
+    }
+  ]
+}

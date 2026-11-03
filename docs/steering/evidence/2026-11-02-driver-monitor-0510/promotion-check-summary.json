@@ -1,0 +1,189 @@
+{
+  "scope": "Saved own receipts, including archives and ignored files. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+  "observed_at": "2026-11-03T05:12:29.496087+00:00",
+  "json_files_scanned": 2546,
+  "distinct_clean_passing_own_receipts": 181,
+  "leads": 23,
+  "promotion_gaps": [],
+  "command": "python tools/release_audit.py --snapshots .build/driver-monitor-0510/public-snapshots --out .build/driver-monitor-0510/release-audit.json --ledger docs/releases/promotion-queue.json --check",
+  "exit_code": 0,
+  "runtime": "Windows Python; WSL first attempt could not find rg, then corrected runtime completed the full check.",
+  "ledger_sha256": "712fccd283c42a56d52beaef261d5bd7b33afede5f1a8fe74ce666ad5402a538",
+  "public": {
+    "muse_moe_w4a16": {
+      "job": "abe7651dbaa44458",
+      "score_us": 6069.607719056422,
+      "rank": 434,
+      "speedup": 2.2157,
+      "snapshot": ".build\\driver-monitor-0510\\public-snapshots\\muse_moe_w4a16.leaderboard.json"
+    },
+    "muse_bf16_proj": {
+      "job": "9eba96894ee1402e",
+      "score_us": 3161.918773020326,
+      "rank": 369,
+      "speedup": 1.5278,
+      "snapshot": ".build\\driver-monitor-0510\\public-snapshots\\muse_bf16_proj.leaderboard.json"
+    },
+    "muse_attention_decode": {
+      "job": "8914751e3b9f468b",
+      "score_us": 1446.1905945986007,
+      "rank": 263,
+      "speedup": 2.6043,
+      "snapshot": ".build\\driver-monitor-0510\\public-snapshots\\muse_attention_decode.leaderboard.json"
+    },
+    "muse_decode_layer": {
+      "job": "607eb52bdaf24160",
+      "score_us": 10639.426326569794,
+      "rank": 387,
+      "speedup": 2.1261,
+      "snapshot": ".build\\driver-monitor-0510\\public-snapshots\\muse_decode_layer.leaderboard.json"
+    },
+    "muse_prefill_layer": {
+      "job": "1530ec79d50a4f69",
+      "score_us": 318441.9905489318,
+      "rank": 637,
+      "speedup": 1.2166,
+      "snapshot": ".build\\driver-monitor-0510\\public-snapshots\\muse_prefill_layer.leaderboard.json"
+    }
+  },
+  "numerical_leads": [
+    {
+      "job": "cd6805e7ebce45ee",
+      "problem": "muse_attention_decode",
+      "score_us": 1426.841504095996,
+      "elapsed_reduction_pct": 1.337935025637138
+    },
+    {
+      "job": "80415fe736bb4890",
+      "problem": "muse_attention_decode",
+      "score_us": 1435.839528231834,
+      "elapsed_reduction_pct": 0.7157470395276366
+    },
+    {
+      "job": "3c6a2baf7b4b4bf3",
+      "problem": "muse_bf16_proj",
+      "score_us": 3071.044087992324,
+      "elapsed_reduction_pct": 2.874036037971872
+    },
+    {
+      "job": "bac995b3b94541c4",
+      "problem": "muse_bf16_proj",
+      "score_us": 3116.5034536012295,
+      "elapsed_reduction_pct": 1.4363215085286707
+    },
+    {
+      "job": "b103af15ba564ef6",
+      "problem": "muse_bf16_proj",
+      "score_us": 3144.6115056857234,
+      "elapsed_reduction_pct": 0.547365969115976
+    },
+    {
+      "job": "3a5f879df0d44825",
+      "problem": "muse_decode_layer",
+      "score_us": 10058.873726017206,
+      "elapsed_reduction_pct": 5.4566156363410006
+    },
+    {
+      "job": "17383751c6a24010",
+      "problem": "muse_decode_layer",
+      "score_us": 10625.699452428964,
+      "elapsed_reduction_pct": 0.12901893127968966
+    },
+    {
+      "job": "b65c4c878014416c",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5613.592490285424,
+      "elapsed_reduction_pct": 7.5130922767755015
+    },
+    {
+      "job": "46aafddc195c4c57",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5725.692982284411,
+      "elapsed_reduction_pct": 5.666177332881661
+    },
+    {
+      "job": "3c45788127e945c4",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5726.825020062481,
+      "elapsed_reduction_pct": 5.647526411265835
+    },
+    {
+      "job": "3aa3885f6b734f8c",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5744.7258087458995,
+      "elapsed_reduction_pct": 5.35260144227292
+    },
+    {
+      "job": "f147d06a64504c1e",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5746.540010389314,
+      "elapsed_reduction_pct": 5.32271150988538
+    },
+    {
+      "job": "56e0c8b5634545e6",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5765.743115976166,
+      "elapsed_reduction_pct": 5.006330180552332
+    },
+    {
+      "job": "b38a9ed6dc9743e9",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5769.290637794547,
+      "elapsed_reduction_pct": 4.947882880782972
+    },
+    {
+      "job": "e044121f822d47b1",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5856.634194815913,
+      "elapsed_reduction_pct": 3.5088515452464386
+    },
+    {
+      "job": "f0b875484960438b",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5864.173672837475,
+      "elapsed_reduction_pct": 3.384634653965468
+    },
+    {
+      "job": "05e51ddeb7014dd9",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5952.478749508835,
+      "elapsed_reduction_pct": 1.929761773233607
+    },
+    {
+      "job": "1c6ebc76b91d4b7f",
+      "problem": "muse_moe_w4a16",
+      "score_us": 5960.105358079474,
+      "elapsed_reduction_pct": 1.8041093600357216
+    },
+    {
+      "job": "63f5a2a8ed2341d1",
+      "problem": "muse_moe_w4a16",
+      "score_us": 6008.864077605009,
+      "elapsed_reduction_pct": 1.0007836463747033
+    },
+    {
+      "job": "defbb042449d44e7",
+      "problem": "muse_prefill_layer",
+      "score_us": 297780.60668370064,
+      "elapsed_reduction_pct": 6.488272425886732
+    },
+    {
+      "job": "f92ffc2953284a9a",
+      "problem": "muse_prefill_layer",
+      "score_us": 299350.07599605137,
+      "elapsed_reduction_pct": 5.995413645031455
+    },
+    {
+      "job": "e9bd4269a6584df8",
+      "problem": "muse_prefill_layer",
+      "score_us": 304181.849040534,
+      "elapsed_reduction_pct": 4.478097088834332
+    },
+    {
+      "job": "2bd4f06042864771",
+      "problem": "muse_prefill_layer",
+      "score_us": 306796.6918581915,
+      "elapsed_reduction_pct": 3.656960776644469
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "source_sha256": "4efb67147807327c18cea0554dd09fa733d0d686c8700c707d047205a528c8e0",
+  "device_sha256": "e11c62efc5627642acc26cff3ddecc4f05b216ce037ff02fea6992f228cb9d82",
+  "target_flags": [
+    "-DOKC_QDIRECT=0",
+    "-DOKC_PK2=0",
+    "-DOKC_W0ENABLE=1",
+    "-O3",
+    "-DOKC_SM90=1",
+    "--expt-relaxed-constexpr"
+  ],
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+    "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+    "-DOKC_QDIRECT=0",
+    "-DOKC_PK2=0",
+    "-DOKC_W0ENABLE=1",
+    "-DOKC_SM90=1"
+  ],
+  "omitted_nvcc_only_flags": [
+    "-O3",
+    "--expt-relaxed-constexpr"
+  ],
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n",
+    "stdlib.h": "#pragma once\ntypedef unsigned long size_t; typedef long ptrdiff_t;\n"
+  },
+  "nvrtc_status": 0,
+  "expression": "&attn_kernel<1,true,0>",
+  "declaration_adapters": [
+    "Torch/ATen host includes removed; cuda_runtime added",
+    "INFINITY exact positive-FP32-infinity declaration",
+    "constant-only continuity_layout sizeof witness outside selected kernels"
+  ],
+  "scope": "secondary NVRTC13/PTXAS13 device-only; host NVCC, admission, numerical accuracy NOT_RUN",
+  "ptxas_command": [
+    "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    ".build/attention-continuity/treatment-L1/device.ptx",
+    "-o",
+    ".build/attention-continuity/treatment-L1/device.cubin"
+  ],
+  "ptxas_status": 0,
+  "ptx_sha256": "2b5b4db7b067480e079892ec27d2f64e4be50d6108b7aec5bb126be92878bbba",
+  "ptxas_output": "ptxas info    : 146 bytes gmem\nptxas info    : Compiling entry function '_ZN45_GLOBAL__N__00000000_12_attention_cu_a802839411attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE' for 'sm_90a'\nptxas info    : Function properties for _ZN45_GLOBAL__N__00000000_12_attention_cu_a802839411attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 128 registers, used 3 barriers\nptxas info    : Compile time = 159.438 ms\nptxas info    : Function properties for _ZN43_INTERNAL_00000000_12_attention_cu_a802839445_GLOBAL__N__00000000_12_attention_cu_a80283949spin_failEv\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+  "cubin_sha256": "9f8e87206460e6db9ecf3306609dca1400ea5fda312a41a4e1975622de70525d"
+}

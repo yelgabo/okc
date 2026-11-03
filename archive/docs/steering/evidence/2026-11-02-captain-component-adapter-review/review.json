@@ -1,0 +1,61 @@
+{
+  "review_base": "c5a9d1284c01ae2fa2581ffb6b34173f2694098f",
+  "date_utc": "2026-11-02T16:54:26.824Z",
+  "test_command": [
+    "wsl",
+    "-d",
+    "Ubuntu",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/expert_top100_moe_test.py"
+  ],
+  "returncode": 0,
+  "tests": 10,
+  "reported_test_seconds": 1.618,
+  "scope": "Independent CPU host/storage/packing/wiring tests with explicit native and preparation facades; no GPU/numerical/timing qualification",
+  "files": [
+    {
+      "path": "docs/steering/evidence/2026-11-02-top100-moe-adapter/payload.py",
+      "raw_bytes": 323514,
+      "raw_sha256": "19aeaf356be6329dea1031966a4b7efbab4f039748f122acc78300e670cb5b57",
+      "lf_bytes": 323514,
+      "lf_sha256": "19aeaf356be6329dea1031966a4b7efbab4f039748f122acc78300e670cb5b57"
+    },
+    {
+      "path": "tools/expert_top100_moe_body.py",
+      "raw_bytes": 6631,
+      "raw_sha256": "ef15d54658450e9194e190dbe9f87f0c8fd4048464ace796e4d031817de10e24",
+      "lf_bytes": 6482,
+      "lf_sha256": "8b9bd523cf11a3196ae19273709ef3a15a40f68c6d5b318f299dcdf45e812e58"
+    },
+    {
+      "path": "tools/expert_top100_moe_adapter.py",
+      "raw_bytes": 7894,
+      "raw_sha256": "76ef04663f8f2cace18a85a154a12dd1f90089694fafbdcef91debf65ca6160a",
+      "lf_bytes": 7748,
+      "lf_sha256": "d834e38f349ef7db9f1c344fc3ae1257da5313b752f8a3b5f551969428c9b106"
+    },
+    {
+      "path": "tools/expert_top100_moe_test.py",
+      "raw_bytes": 18596,
+      "raw_sha256": "4c49ec61564271b009f3115a5a9cbabbdd193c4d3955dbaba73e9bc1af862a9a",
+      "lf_bytes": 18247,
+      "lf_sha256": "ed7d4399f74388996804d0f7c2291f62c3117ab832a2600297f13f92e14ca69c"
+    },
+    {
+      "path": "tools/expert_top100_harness_runtime.py",
+      "raw_bytes": 16516,
+      "raw_sha256": "847babdde26d5792cc4fa52c029e90e5fd4b3bab3e8d729c5a19c5ddd92d4d8a",
+      "lf_bytes": 16220,
+      "lf_sha256": "183b93b96951b1a82a904f139bc5cc28600bc31d6d3303cc78ac63ad2eeb2c63"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-component-adapter-review/adapter-cpu.txt",
+      "raw_bytes": 3860,
+      "raw_sha256": "b9b9e01dc75094f21b8edcfe2af5d753f391b2a681e0e7089a272baede87b853",
+      "lf_bytes": 1898,
+      "lf_sha256": "652ebe5bf45d1d72dac5106ffb0d03eb624491750cc4ad9b18dd5e4c26c596f2",
+      "text_encoding": "utf16le"
+    }
+  ]
+}

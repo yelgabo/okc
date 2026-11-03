@@ -1,0 +1,267 @@
+{
+  "guild": [
+    {
+      "url": "https://guild.1nterface.ai/?sort=new",
+      "status": 200,
+      "sha256": "aa61ed6141397414baaa6b75f62ee32d5319ce7e38f50c38cc36635618e17c34",
+      "error": null,
+      "threads": [
+        "/t/10",
+        "/t/105",
+        "/t/108",
+        "/t/109",
+        "/t/11",
+        "/t/114",
+        "/t/115",
+        "/t/116",
+        "/t/12",
+        "/t/120",
+        "/t/123",
+        "/t/125",
+        "/t/18",
+        "/t/21",
+        "/t/23",
+        "/t/28",
+        "/t/29",
+        "/t/37",
+        "/t/39",
+        "/t/4",
+        "/t/40",
+        "/t/42",
+        "/t/46",
+        "/t/48",
+        "/t/49",
+        "/t/5",
+        "/t/6",
+        "/t/7",
+        "/t/82",
+        "/t/93"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/r/decode?sort=new",
+      "status": 200,
+      "sha256": "e27f530da5f5dd957ce81155bf288e622fde01e5c8d7d706b253c27fd0337bdf",
+      "error": null,
+      "threads": [
+        "/t/3"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/r/bf16?sort=new",
+      "status": 200,
+      "sha256": "04a9a95b12fc181ef0b7d07435e87c0f8d7977597a6beacb8320ea97756d518e",
+      "error": null,
+      "threads": [
+        "/t/12",
+        "/t/5"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/r/moe?sort=new",
+      "status": 200,
+      "sha256": "1c79dd404d58de4286733e9789bae74e06fb7dd1b5af699044fce00e8d377d55",
+      "error": null,
+      "threads": [
+        "/t/4"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/r/attention?sort=new",
+      "status": 200,
+      "sha256": "cd0600b439aea5ad4240903062f40ec61c1528f81af7f208a862524eb557de9c",
+      "error": null,
+      "threads": [
+        "/t/40",
+        "/t/48",
+        "/t/6"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/r/prefill?sort=new",
+      "status": 200,
+      "sha256": "80299afee7693b730e24c231faa07bbe78e3151c32cec5814db1183f51119d16",
+      "error": null,
+      "threads": []
+    },
+    {
+      "url": "https://guild.1nterface.ai/?sort=new&page=2",
+      "status": 200,
+      "sha256": "d7cead5f40a09f49c8d480f1c2d2ec1213e7676775d4a27666c6d3a0b9cd9031",
+      "error": null,
+      "threads": [
+        "/t/1",
+        "/t/2",
+        "/t/3"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/125?credible=all",
+      "status": 200,
+      "sha256": "24dd63ba81ad4ce311d35117a2c855a712a9b6118b9bf96f42074d36151f07ef",
+      "error": null,
+      "threads": [
+        "/t/125",
+        "/t/125?credible=all",
+        "/t/125?credible=top10",
+        "/t/125?credible=top25",
+        "/t/125?credible=top50"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/123?credible=all",
+      "status": 200,
+      "sha256": "68b57af4ecde9ee8378b87d25d3d846031bf21195e83f28e97f54be4545afe9b",
+      "error": null,
+      "threads": [
+        "/t/123",
+        "/t/123?credible=all",
+        "/t/123?credible=top10",
+        "/t/123?credible=top25",
+        "/t/123?credible=top50"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/120?credible=all",
+      "status": 200,
+      "sha256": "86b0adf3ad1f5563f39b1e519026d097d2e398f5ef68d5d82bf4ed98ed6c5b1a",
+      "error": null,
+      "threads": [
+        "/t/120",
+        "/t/120?credible=all",
+        "/t/120?credible=top10",
+        "/t/120?credible=top25",
+        "/t/120?credible=top50"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/3?credible=all",
+      "status": 200,
+      "sha256": "abd0802e810066b1a0ed1ebb6a2ffb65fe78995992750eb61f2e86a86293796a",
+      "error": null,
+      "threads": [
+        "/t/3",
+        "/t/3?credible=all",
+        "/t/3?credible=top10",
+        "/t/3?credible=top25",
+        "/t/3?credible=top50"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/12?credible=all",
+      "status": 200,
+      "sha256": "000c04190055c593b2a0ab9a3cb017064b5f87aa652ceff82c0650e207c1706f",
+      "error": null,
+      "threads": [
+        "/t/12",
+        "/t/12?credible=all",
+        "/t/12?credible=top10",
+        "/t/12?credible=top25",
+        "/t/12?credible=top50"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/5?credible=all",
+      "status": 200,
+      "sha256": "f47c2b5ef90b2168eb0c2934f6dc4c6bd6a5af092f3574d48e9e31e86fdb9105",
+      "error": null,
+      "threads": [
+        "/t/5",
+        "/t/5?credible=all",
+        "/t/5?credible=top10",
+        "/t/5?credible=top25",
+        "/t/5?credible=top50"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/4?credible=all",
+      "status": 200,
+      "sha256": "999ea55c2cb2972c03ad33d887c901865bb76a3fbb4c32dfa50a4820c0c41bf6",
+      "error": null,
+      "threads": [
+        "/t/4",
+        "/t/4?credible=all",
+        "/t/4?credible=top10",
+        "/t/4?credible=top25",
+        "/t/4?credible=top50"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/40?credible=all",
+      "status": 200,
+      "sha256": "5283e159f81e15152b8e82a87e831c69e357cd55ee7b3da6e223fde2ba748aee",
+      "error": null,
+      "threads": [
+        "/t/40",
+        "/t/40?credible=all",
+        "/t/40?credible=top10",
+        "/t/40?credible=top25",
+        "/t/40?credible=top50"
+      ]
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/6?credible=all",
+      "status": 200,
+      "sha256": "eed402516b3cc9f2b5c61136638ae90327ac65ac9f5f83e59da03359a5fd751d",
+      "error": null,
+      "threads": [
+        "/t/6",
+        "/t/6?credible=all",
+        "/t/6?credible=top10",
+        "/t/6?credible=top25",
+        "/t/6?credible=top50"
+      ]
+    }
+  ],
+  "other_observations": [
+    {
+      "url": "https://teapawt.net/RohanArun/status/2117256734687326243",
+      "provenance": "Third-party X mirror, crawled today, displayed relative time 3h",
+      "observation": "Author reports 2000 experiments, rank56 and testing physical-bound-guided search with Lean. No source-bound result checked. No separate alert."
+    },
+    {
+      "url": "https://thethings.ai/p/okc/muse-bf16-proj-report",
+      "observation": "Author reports 1.331x scored/1.343x check and a slower compressed WGMMA attempt. Publication date not established; no new stronger implementation established."
+    },
+    {
+      "url": "https://es.linkedin.com/posts/rguillamon_muse-spark-open-kernel-challenge-activity-7519819739335102464-xRek",
+      "observation": "Participant aulafy account of shape/layout/PDL work, weaker reported results, no exact source/receipt established."
+    }
+  ],
+  "web_queries": [
+    "\"muse_bf16_proj\" github",
+    "\"muse_attention_decode\" github",
+    "\"muse_moe_w4a16\" github",
+    "\"muse_decode_layer\" github",
+    "\"muse_prefill_layer\" github",
+    "\"Muse Spark Open Kernel Challenge\"",
+    "\"openkernelchallenge.dev\" after:2026-11-02",
+    "\"Muse Spark kernel\" github",
+    "\"Muse Spark\" \"kernel\" site:x.com after:2026-11-01",
+    "\"Muse Spark\" \"kernel\" site:reddit.com",
+    "\"openkernelchallenge\" site:news.ycombinator.com",
+    "\"Open Kernel Challenge\" site:linkedin.com/posts",
+    "\"Muse Spark\" \"kernel\" \"November 2\"",
+    "\"openkernelchallenge\" \"dolanzhao\"",
+    "\"Muse Spark\" \"kernel\" \"lxe\"",
+    "\"Muse Spark\" \"Karmedge\""
+  ],
+  "access": [
+    {
+      "url": "https://agents.kernarc.com",
+      "error": "Web tool inaccessible again; existing gap."
+    },
+    {
+      "url": "https://guild.1nterface.ai/t/48",
+      "error": "Registered-only body left unread."
+    },
+    {
+      "url": "https://teapawt.org/Karmedge",
+      "error": "Mirror inaccessible; no authentication attempted."
+    },
+    {
+      "url": "https://guild.1nterface.ai/?sort=new",
+      "error": "Web tool timed out; public HTTP fallback succeeded."
+    }
+  ]
+}

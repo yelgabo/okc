@@ -1,0 +1,69 @@
+{
+  "job": "3fd1317143304bd5",
+  "problem": "muse_decode_layer",
+  "mode": "run",
+  "terminal_status": "done",
+  "result_status": "ok",
+  "passed": false,
+  "returncode": 112,
+  "failure": "prepare budget guard, no RMW performance or numerical conclusion",
+  "source_sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+  "source_bytes": 914572,
+  "server_content_hash": "8c737fa4b32be7cb9bc01b38eb56d62a3eedb796bd3b3ff1fe53270bf4d4c58d",
+  "owning_original_log": "/mnt/c/Users/gretc/Documents/GitHub/okc/muse_decode_layer/cand/profiles/g1b4_common_short_rmw_release.3fd1317143304bd5.log",
+  "owning_log_sha256": "bbc41310626690bf647f303ec45c97bf961a01bd504b7bdb376f46a7c0da5bce",
+  "original_expert_G56_success_marker_present": true,
+  "official_counts": {
+    "setup": 1,
+    "test": 0,
+    "benchmark": 0,
+    "profile": 0
+  },
+  "GPU": "H200",
+  "machine": {
+    "gpu_after": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 1980,
+      "driver_version": "595.91.07",
+      "name": "NVIDIA H200",
+      "power.draw": 127.86,
+      "power.limit": 700,
+      "temperature.gpu": 34
+    },
+    "gpu_before": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 360,
+      "driver_version": "595.91.07",
+      "name": "NVIDIA H200",
+      "power.draw": 85.2,
+      "power.limit": 700,
+      "temperature.gpu": 32
+    },
+    "node": "n-2bbs7xxbcpmk3emdvrn5jsqeic"
+  },
+  "evaluator": {
+    "code_sha256": "1ba270d841be831b06a5862f4094cd0d5072edfbd0f6e84b95f79248296367dd",
+    "files": {
+      "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+      "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+      "configs/muse-spark-open.yaml": "60e242544d5f5a5fc143870461f7373b85accb677a536cb337581ded938c4a48",
+      "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+      "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+      "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+      "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+      "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+      "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+      "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+    },
+    "image": "localhost:30500/kc/judge@sha256:4b146294503891e0315a38db9a291989a679afb5c3dd47bb7a28df1371e4283f"
+  },
+  "score": null,
+  "CI": null,
+  "actual_setup_duration_unknown": true,
+  "actual_stage_or_cell_at_timeout_unknown": true,
+  "worker_started_UTC": "2026-11-01T23:04:18.295910+00:00",
+  "worker_finished_UTC": "2026-11-01T23:10:10.610105+00:00",
+  "next_gate": "Source/CPU/independent review of concrete full-validation setup-cost fix; no blind repeat or relaxed deadline/checks"
+}

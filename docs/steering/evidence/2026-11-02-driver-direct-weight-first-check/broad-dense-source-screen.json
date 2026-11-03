@@ -1,0 +1,35 @@
+{
+  "reviewer": "root/next_material_measurement",
+  "decision": "CONDITIONAL_FIXED_IMPLEMENTATION_SURVIVOR_NOT_MEASURED",
+  "source_basis": "ba9/c7 actualselectedbanks andGaussianBF16densegenerator",
+  "reference_git_sha256": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+  "owning_evaluator_reference_sha256": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+  "reference_matches_owning_evaluator": true,
+  "selected_short_stream_MiB": 209,
+  "prepared_short_stream_MiB": 305,
+  "long_actual_Lt_MiB": 188,
+  "selected_sum_MiB": 397,
+  "all_prepared_sum_MiB": 493,
+  "escape_tables_extra": "selected7/prepared9; ncta*pmax*8 each, pmaxactual",
+  "dense_activities_us": [
+    38.706,
+    49.171,
+    54.239,
+    39.842,
+    70.79,
+    87.697
+  ],
+  "conditional_10percent_net_activity_conversion_layer_gain": 0.03401,
+  "conditional_3percent_required_proportional_conversion": 0.08857,
+  "critical_guards": [
+    "bfp__run_sk2 with saved_DE_RUN",
+    "bfp_fused_pooler_router",
+    "_gle_frt",
+    "_graft_lt_run"
+  ],
+  "critical_producers": [
+    "insidebfp_sk2_prepare beforefirstselftest/tune",
+    "actual_graft_lt_planoperandsincludingNNtransposes/specialQKV256"
+  ],
+  "limitation": "No hardwarecompressionratio/physicalbytes/timeforecast. 12bitstreams alreadycompressed. Source/CPU/runtime lifetime/build/295sgatesremain."
+}

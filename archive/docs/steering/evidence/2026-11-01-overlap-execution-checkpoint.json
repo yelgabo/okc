@@ -1,0 +1,36 @@
+{
+  "at_utc": "2026-11-02T04:19:37.123011+00:00",
+  "evidence_commit": "add8873c174475e46575921469c2e012e6e34085",
+  "scope": "Read-only live check; no dispatch, kernel or ownership change",
+  "quota": {
+    "name": "muse_decode_layer",
+    "title": "Whole decoder layer",
+    "limits": {
+      "scored": {
+        "per_day": 5,
+        "used": 0,
+        "left": 5
+      },
+      "checks": {
+        "per_day": 10,
+        "used": 3,
+        "left": 7
+      }
+    }
+  },
+  "jobs": {
+    "latest_job": {
+      "flags": [],
+      "job_id": "c5e4f89672f743bb",
+      "mode": "check",
+      "passed": true,
+      "problem": "muse_decode_layer",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 10707.837538008971,
+      "status": "done",
+      "submitted_at": 1793586166.5734322
+    },
+    "live_jobs": []
+  }
+}

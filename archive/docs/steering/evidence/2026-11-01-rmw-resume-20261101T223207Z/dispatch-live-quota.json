@@ -1,0 +1,13 @@
+{
+  "start_UTC": "2026-11-01T22:33:39.735145+00:00",
+  "argv": [
+    "okc",
+    "problems",
+    "--json"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"problems\": [\n    {\n      \"name\": \"muse_bf16_proj\",\n      \"title\": \"Dense projections\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 10,\n          \"used\": 6,\n          \"left\": 4\n        },\n        \"checks\": {\n          \"per_day\": 20,\n          \"used\": 20,\n          \"left\": 0\n        }\n      }\n    },\n    {\n      \"name\": \"muse_attention_decode\",\n      \"title\": \"Gated attention decode\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 10,\n          \"used\": 3,\n          \"left\": 7\n        },\n        \"checks\": {\n          \"per_day\": 20,\n          \"used\": 17,\n          \"left\": 3\n        }\n      }\n    },\n    {\n      \"name\": \"muse_moe_w4a16\",\n      \"title\": \"Routed experts\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 10,\n          \"used\": 2,\n          \"left\": 8\n        },\n        \"checks\": {\n          \"per_day\": 20,\n          \"used\": 20,\n          \"left\": 0\n        }\n      }\n    },\n    {\n      \"name\": \"muse_decode_layer\",\n      \"title\": \"Whole decoder layer\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 10,\n          \"used\": 8,\n          \"left\": 2\n        },\n        \"checks\": {\n          \"per_day\": 20,\n          \"used\": 20,\n          \"left\": 0\n        }\n      }\n    },\n    {\n      \"name\": \"muse_prefill_layer\",\n      \"title\": \"Prefill layer\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 10,\n          \"used\": 3,\n          \"left\": 7\n        },\n        \"checks\": {\n          \"per_day\": 20,\n          \"used\": 19,\n          \"left\": 1\n        }\n      }\n    }\n  ]\n}\n",
+  "stderr": "",
+  "local_timeout": false,
+  "finished_UTC": "2026-11-01T22:33:41.024561+00:00"
+}

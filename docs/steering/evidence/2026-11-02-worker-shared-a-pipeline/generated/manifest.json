@@ -1,0 +1,9 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "native_sha256": "c2958fc997e11cb4670e108a0509976cd9ce1763a8af89d2012cfc0ff6cea2c9",
+  "candidate_sha256": "fbca3b75125dd45b3e2801358e95aa14a16750860482989a5fef444a576cd578",
+  "candidate_bytes": 894471,
+  "gpu": false,
+  "dispatch": false
+}

@@ -1,0 +1,11 @@
+{
+  "observed_utc": "2026-11-01T20:06:42.868824+00:00",
+  "args": [
+    "status",
+    "1fad70bbe3854cbc",
+    "--json"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "\u2717 the API answered 530 ; try again in a minute\n"
+}

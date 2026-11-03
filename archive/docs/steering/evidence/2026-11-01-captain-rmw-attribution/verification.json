@@ -1,0 +1,48 @@
+{
+  "evidence_commit": "516a93a4fc5fc882565ff0d67661b03d798e2480",
+  "job": "c1931f0c9e834485",
+  "board": "muse_decode_layer",
+  "mode": "check",
+  "status": "done",
+  "passed": true,
+  "reader_exit": 0,
+  "source_sha256": "978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a",
+  "source_bytes": 918978,
+  "owning_log_sha256": "bb1f08781b14f03479f8a1e33d796eb49d73984c32ff069cd731b20ce32e82ff",
+  "owning_log_matches_observation": true,
+  "official_score": 2.1212410493206884,
+  "independently_reconstructed_score": 2.1212410493206884,
+  "startup_status": "complete_native",
+  "rmw_exercised": true,
+  "prepare_seconds": 109.269811068,
+  "normal_prepare_seconds": 106.90144866799892,
+  "paired": false,
+  "promotion": false,
+  "short_path_sensitivity": {
+    "interpretation": "Algebra only: same hypothetical exposed microseconds removed from both contexts of decode1 and verify1; other four loads held fixed; not measured removable time or predicted score.",
+    "rows": [
+      {
+        "assumed_exposed_us_removed_per_short_context": 1,
+        "six_load_factor": 1.0036489349337734
+      },
+      {
+        "assumed_exposed_us_removed_per_short_context": 2,
+        "six_load_factor": 1.0073531393947015
+      },
+      {
+        "assumed_exposed_us_removed_per_short_context": 3,
+        "six_load_factor": 1.0111141322301158
+      },
+      {
+        "assumed_exposed_us_removed_per_short_context": 5,
+        "six_load_factor": 1.0188128702864878
+      }
+    ],
+    "one_percent_full_six_requires_equal_short_fractional_latency_reduction": 0.02940985207235558
+  },
+  "input_sha256": {
+    "c1931f0c9e834485.terminal.json": "a6c51d6b971ba67d8074aeb7bd345f449d75f9db7acd5fc5cfa2ce74db8c62d8",
+    "c1931f0c9e834485.observation.json": "07b8dc21f5b02f2a77c358addd75edd2077038cb1e001e7af3171ad52d896d4e",
+    "c1931f0c9e834485.measured-summary.json": "696d0d4dad80e6a5e61024bed233d72dd32fad12f1a48dc983e793e2ac1a98d8"
+  }
+}

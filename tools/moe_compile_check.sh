@@ -22,7 +22,16 @@ cuda = prelude + cuda + "void compile_check_uses() {\n" + "\n".join(uses) + "\n}
 open(f"{sys.argv[2]}/moe.cu", "w").write(cuda)
 PY
 
+keep=${KEEP:-.build/moe_compile_check.log}
+mkdir -p "$(dirname "$keep")"
+status=0
 docker run --rm --platform linux/arm64 -v "$work:/w" nvidia/cuda:12.8.1-devel-ubuntu24.04 \
     nvcc -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v -c /w/moe.cu \
-    -o /dev/null 2>&1 | grep -E 'error|warning|Compiling entry|registers|spill' \
-    | sed -E 's/ptxas info *: //'
+    -o /dev/null > "$keep" 2>&1 || status=$?
+if [ "$status" -ne 0 ]; then
+    cat "$keep"
+    exit "$status"
+fi
+grep -E 'error|warning|Compiling entry|registers|spill|C75' "$keep" \
+    | sed -E 's/ptxas info *: //' || true
+printf 'Full compiler log: %s\n' "$keep"

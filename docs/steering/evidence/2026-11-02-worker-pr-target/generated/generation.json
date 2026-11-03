@@ -1,0 +1,14 @@
+{
+  "sha256": "0f90a2a806dd5cb3247f1843f936621dfef7de4f9f2e104bd7898caee72e93fb",
+  "bytes": 882844,
+  "exact_reversal": true,
+  "native_sources_unchanged": true,
+  "host_syntax_checked": false,
+  "target_qualified": false,
+  "completion": "fresh per-eager-use events; graph references for captures",
+  "capture_mode": "helper-only RELAXED with exact previous restore; cleanup errors restore before abort",
+  "frozen_prefix_sha256": "4c6d3f13e0b9c72c4d4ab67f440a35f6ae39a954c818f78d35f3ff3d9090423b",
+  "host_sha256": "a61640986eb181394636fa88b210e4ad6dccccf31617a3959ea17954f8762ca9",
+  "receipt_schema_version": 1,
+  "receipt_only_append": true
+}

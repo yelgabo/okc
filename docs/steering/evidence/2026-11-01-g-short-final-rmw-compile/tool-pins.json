@@ -1,0 +1,10 @@
+[
+  {
+    "path": "..\\okc-today-moe\\tools\\g_short_final_rmw.py",
+    "sha256": "cf613c75b81951bafef77798fc39ae5ad6daa53af0c205ba3a2da1a75a36d2e6"
+  },
+  {
+    "path": "..\\okc\\tools\\local_cuda128_compile.py",
+    "sha256": "4cfaaaec7ba2f90302fe32e7cca0d3517879912bf1b35984b0e37c53cc6bf078"
+  }
+]

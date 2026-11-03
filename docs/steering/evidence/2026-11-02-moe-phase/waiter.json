@@ -1,0 +1,7 @@
+{
+  "job": "6028cae5d12f4afb",
+  "exec_session": 23561,
+  "output": ".build/moe-phase/status-wait.raw.json",
+  "state": "ENDED",
+  "exit_code": 1
+}

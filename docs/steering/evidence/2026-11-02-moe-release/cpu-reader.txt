@@ -1,0 +1,8 @@
+test_complete_official_point_is_a_release_lead_not_submission_authority (test_moe_release_read.ReleaseRead.test_complete_official_point_is_a_release_lead_not_submission_authority) ... ok
+test_failed_result_stays_failed (test_moe_release_read.ReleaseRead.test_failed_result_stays_failed) ... ok
+test_incomplete_wrong_source_or_owner_rejected (test_moe_release_read.ReleaseRead.test_incomplete_wrong_source_or_owner_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+OK

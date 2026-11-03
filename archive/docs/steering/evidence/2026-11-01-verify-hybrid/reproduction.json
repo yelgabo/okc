@@ -1,0 +1,8 @@
+{
+  "matrix_sha256": "1b871c3644647a94e116542b9e66a0eb89925d855d38bef6717af353569faa1c",
+  "all16_reproduced": true,
+  "private_preserved": true,
+  "single_verify32_bytes": 1072104,
+  "all_four_bytes": 1125548,
+  "initial_JSON_newline_drift_corrected": true
+}

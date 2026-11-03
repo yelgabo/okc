@@ -1,0 +1,6 @@
+test_complete_binding_and_incomplete_rejection (test_moe_bqueue_read.Receipt.test_complete_binding_and_incomplete_rejection) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 5.528s
+
+OK

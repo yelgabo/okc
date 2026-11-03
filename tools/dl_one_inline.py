@@ -1,24 +1,4 @@
-"""Copy the one-launch attention kernel from muse_attention_decode/attn_one.cu into
-muse_decode_layer/submission.py's _ONE_SRC string.
-
-The device code goes into a nested `one` namespace inside the anonymous one, so its names (D,
-Params, cp_async16, Instance, ...) cannot collide with the other attention kernels' if the block
-is ever compiled into the layer's main extension. The INSTANTIATE notes and the torch host
-functions after the namespace are dropped; the layer's own host wrapper (_ONE_HOST_SRC) builds
-only the instances its plan uses.
-
-The layer launches attention after a qkv projection that triggers its dependents early, so the
-copy also gets the two `griddepcontrol.wait` lines the port guide asks for (before the query
-group, whose rows are the projection's output and whose constants group reads the epoch, and
-before the flat kernel's epoch read). Each insertion needs its anchor verbatim; a changed
-kernel fails here instead of compiling without the wait. Without the PDL launch attribute the
-instruction returns at once, so the plain launch is unchanged.
-
-    python3 tools/dl_one_inline.py [path/to/attn_one.cu] [path/to/layer.py]
-
-The second argument names the layer file to rewrite (default muse_decode_layer/submission.py),
-so a candidate can be built in muse_decode_layer/cand/ while submission.py stays the release.
-"""
+"""Keep attention names isolated and order PDL reads after producer publication."""
 
 import re
 import sys
@@ -30,14 +10,13 @@ CU = ROOT / "muse_attention_decode/attn_one.cu"
 
 WAIT = 'asm volatile("griddepcontrol.wait;" ::: "memory");'
 
-# (anchor, lines inserted before it); the anchors are the first lines of the blocks that must
-# follow the wait.
+
 PATCHES = [
     (
         "        // Query rows, the block's new key/value rows (if this range may hold them),\n",
-        "        // Everything above reads inputs. The query rows are the qkv projection's output\n"
-        "        // and the constants group reads the epoch the previous launch wrote, so under PDL\n"
-        "        // both follow the wait (which returns at once on a plain launch).\n"
+        "        // Query rows and the epoch depend on the producer's writes.\n"
+        "        // PDL requires the wait before either read.\n"
+        "\n"
         f"        {WAIT}\n",
     ),
     (

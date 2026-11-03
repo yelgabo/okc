@@ -1,0 +1,137 @@
+{
+  "allocation": "1df00005d3eceb467c38b17ac0d4cad632efbc78",
+  "terminal_publication": "87cfa4afb1328d51de4924570adc37ff1f3cca5a",
+  "observed_utc": [
+    {
+      "file": "auth.txt",
+      "command": [
+        "okc",
+        "whoami"
+      ],
+      "started": "2026-11-02T13:03:01.827Z",
+      "finished": "2026-11-02T13:03:05.164Z",
+      "exit_code": 0
+    },
+    {
+      "file": "quota.json",
+      "command": [
+        "okc",
+        "problems",
+        "--json"
+      ],
+      "started": "2026-11-02T13:03:05.164Z",
+      "finished": "2026-11-02T13:03:05.633Z",
+      "exit_code": 0
+    },
+    {
+      "file": "jobs.json",
+      "command": [
+        "okc",
+        "jobs",
+        "--json"
+      ],
+      "started": "2026-11-02T13:03:05.633Z",
+      "finished": "2026-11-02T13:03:06.887Z",
+      "exit_code": 0
+    },
+    {
+      "file": "overall.json",
+      "command": [
+        "okc",
+        "leaderboard",
+        "--json"
+      ],
+      "started": "2026-11-02T13:03:06.887Z",
+      "finished": "2026-11-02T13:03:08.404Z",
+      "exit_code": 0
+    },
+    {
+      "file": "layer.json",
+      "command": [
+        "okc",
+        "leaderboard",
+        "muse_decode_layer",
+        "--json"
+      ],
+      "started": "2026-11-02T13:03:08.404Z",
+      "finished": "2026-11-02T13:03:09.983Z",
+      "exit_code": 0
+    }
+  ],
+  "overall_you": {
+    "rank": 350,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 349
+  },
+  "overall_rank100": [
+    {
+      "rank": 100,
+      "solved": 4,
+      "team": "Danishlynx"
+    }
+  ],
+  "overall_ranked": 1856,
+  "layer_you": {
+    "rank": 350,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 349,
+    "to_first": 1.1685
+  },
+  "layer_rank100": [
+    {
+      "attempts": 44,
+      "job": "b1997d7350f34b62",
+      "rank": 100,
+      "speedup": 2.2646,
+      "submitted_at": 1793562407.3555424,
+      "team": "Danishlynx",
+      "value": 9988.840552535645
+    }
+  ],
+  "layer_reported_ranked": 1183,
+  "layer_rows": 1184,
+  "layer_public_job": [
+    {
+      "attempts": 42,
+      "job": "607eb52bdaf24160",
+      "rank": 350,
+      "speedup": 2.1261,
+      "submitted_at": 1793534312.3883686,
+      "team": "yelgabo",
+      "value": 10639.426326569794
+    }
+  ],
+  "layer_limits": {
+    "scored": {
+      "per_day": 5,
+      "used": 0,
+      "left": 5
+    },
+    "checks": {
+      "per_day": 10,
+      "used": 9,
+      "left": 1
+    }
+  },
+  "jobs_returned": 50,
+  "non_done_returned_jobs": [
+    {
+      "flags": [],
+      "job_id": "1fad70bbe3854cbc",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_decode_layer",
+      "result_status": "infra_error",
+      "score": null,
+      "score_us": null,
+      "status": "failed",
+      "submitted_at": 1793562974.3583002
+    }
+  ],
+  "new_checks": 0,
+  "new_submissions": 0,
+  "decision": "PRESERVE_TERMINAL_PARK_NO_REDISPATCH"
+}

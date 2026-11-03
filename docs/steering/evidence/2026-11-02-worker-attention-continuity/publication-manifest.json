@@ -1,0 +1,131 @@
+{
+  "created_utc": "2026-11-02T19:31:55.279Z",
+  "evidence_head": "409757ec7fb4210a5f2cf10411fc172c9854966d",
+  "allocation": "48111acef2ddccb42e166d06fa5cb32d33b43c76",
+  "decision": "DUPLICATE_DRAFT_STOP_CANONICAL_E912_FROZEN",
+  "canonical_commit": "6e1811647d0f525be53a0ebf28bc98e9ca10731e",
+  "canonical_source_sha256": "e912a5f4378301d62cd978b5012bc5d334dd0894f135784cf0c6cb50c87d6631",
+  "index_owner": "captain; unchanged by worker",
+  "files": [
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/actual-builder-cases.json",
+      "bytes": 576,
+      "sha256": "0a80a0a5be97ff454955799e8231abc8bc0a6cc4c1e9dca659d136aa05a0d490"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/actual-entry-cases.json",
+      "bytes": 8841,
+      "sha256": "aca434cf1bb6bd83fab03acb1d5eb07d2447fd7ba4f15ae0cc59726c1743659d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/adapted-compile-driver.py",
+      "bytes": 5576,
+      "sha256": "75bb76b3dedeb4bc85e40745c5018bc1250ec4f9bd899cc5cafea04ac555d43c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/compile-console.txt",
+      "bytes": 1003,
+      "sha256": "f1a432f376166f2cceea903cd128ce94b6f5362f472d829d93aa5e3a73d45399"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/compile-result.json",
+      "bytes": 1000,
+      "sha256": "c949f36dac2508d4a66cc96e00cc87d45ef434d034ce348acd670caf6ac7ec11"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/control-attention.cu",
+      "bytes": 191991,
+      "sha256": "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/control-L1flat/device.cu",
+      "bytes": 181311,
+      "sha256": "192194c2dd5cd6235b18dda08c3c92def86157d09bfcdcb7c875bfd3aae6f46b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/control-L1flat/manifest.json",
+      "bytes": 1919,
+      "sha256": "bbf2cedd2f93a01aea7d503434ebb7bb5e88facafc97b1eafa9a7640a973f422"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/control-L1flat/nvrtc.log",
+      "bytes": 122,
+      "sha256": "71ab682fc635c1dc54af59ce2bdd73a172880191e425d16161f8755c5cba5e61"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/cpu-tests.txt",
+      "bytes": 1197,
+      "sha256": "44f8082bb50b25ef5af42c4f8c30ec85f861671735d1fc91067e3a78b7838f21"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/manifest.json",
+      "bytes": 1986,
+      "sha256": "6dcfde81203106eeed1e80ad7de2bb6acab10583eaf3e1b45e52e87e984fc40f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/native.diff",
+      "bytes": 2588,
+      "sha256": "8f3154cac5baf14ba61ad0175afa1ca8bc73101eaffd4382949b49c99cc3523b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/preregister.md",
+      "bytes": 1700,
+      "sha256": "f87780e62cda22b4303852b20af1d87e1e16bf48ee65d10335cf5dfc7b2e8eaf"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/proposal.diff",
+      "bytes": 4907,
+      "sha256": "dda94fe89fc4013dc8602d9478cb18117af036c86a65b43d94a8b3eedad3472c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/proposal.py",
+      "bytes": 872403,
+      "sha256": "7d6635245017f88269189a25efe43f650f6b740c703ab109e0536f3bd930cc90"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/published-reconciliation-console.txt",
+      "bytes": 1654,
+      "sha256": "e830ee068f1941ae55d3886a0f3934fe885f8ea6961b99a5e337a01b55ef5a9b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/published-reconciliation.json",
+      "bytes": 7112,
+      "sha256": "57236ae1b653a2c41299bb559d89017e090cfe92f15901f556aa93e78ca2e72f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/published-tests.txt",
+      "bytes": 892,
+      "sha256": "ca44df904256e1abf86cb44c5c1e251e9b95aab144920a319b64e0358cf18c45"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-attention-continuity/treatment-attention.cu",
+      "bytes": 192318,
+      "sha256": "3fa5ac28206c75a94e0f05112dbad7b55dcd0f4cc7a82574e6956bbae001b9c2"
+    },
+    {
+      "path": "tools/attention_layer_continuity.py",
+      "bytes": 6774,
+      "sha256": "1c8ec20713fa651fb3e1752d00d9a0c2290bb42c47f6d13a6e59ec72032cd059"
+    },
+    {
+      "path": "tools/test_attention_layer_continuity.py",
+      "bytes": 14897,
+      "sha256": "f97d5bad5dc906d83ba80acaa01ce08baffbd2cf04610fe1d9e78fa480d8167a"
+    },
+    {
+      "path": "tools/attention_layer_continuity_compile.py",
+      "bytes": 4569,
+      "sha256": "b9820f83887c2f03e690978a0cd206743bd59a227a96da1478f1efb737c0c409"
+    },
+    {
+      "path": "tools/attention_continuity_handoff_audit.py",
+      "bytes": 5368,
+      "sha256": "d208b04640d16093920639a235937b533eed7e065029de2b24171266f6125334"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-attention-continuity-reconciliation.md",
+      "bytes": 8277,
+      "sha256": "ab55f981350c9b571f04a6cb1d6eb8f918977cd968f78094db6a56d6096f2929"
+    }
+  ]
+}

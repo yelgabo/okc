@@ -1,0 +1,17 @@
+{
+  "job_id": "63f5a2a8ed2341d1",
+  "problem": "muse_moe_w4a16",
+  "command": "okc check muse_moe_w4a16 .build/today/g1_stage_retire_ab.py --no-wait --json",
+  "source_commit": "a1031ff",
+  "base_generator_commit": "0cb1f0d",
+  "physical_sha256": "a08276dbd1dfe5551c360e2debe0fa67c4fdcfeb56d10ba347b858e3c60270c9",
+  "bytes": 388351,
+  "public": false,
+  "judged_path": "repaired SC6 control",
+  "changed_sizes": [
+    32,
+    128,
+    256
+  ],
+  "standalone_m32_matches_layer_b4fin": false
+}

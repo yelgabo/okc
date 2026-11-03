@@ -1,0 +1,38 @@
+{
+  "source_pins": {
+    ".build\\today\\round2-published-rohan\\muse_attention_decode.py": "394f2517ca8eaf69b7d422832edfd59451a9f73103981d13b1059070abb17b4b",
+    ".build\\today\\kel\\kernels\\muse_attention_decode.py": "56c380b72001f88c1638c9315a02af4618b5af78263b1832ea6565e8676c95e4",
+    "muse_attention_decode\\attn_one.cu": "a140bf580827cb12d6a2b31b237787a069f97d14c827948cd0f9eb7934e98ef3",
+    "muse_attention_decode\\submission.py": "0627edb55a4f28e8943c9e605246757287cde74f54ddc4306e0c8cca81457ea4"
+  },
+  "clean_control_job": "3f44f891d0ef47db",
+  "short_sensitivity": {
+    "decode 1": {
+      "sliding_us": 5.491642135424615,
+      "full_us": 12.329774613107825,
+      "sliding_only_us_required_for_1pct_sixload": 0.5668126322253402
+    },
+    "verify 1": {
+      "sliding_us": 7.4057823842882895,
+      "full_us": 14.541421333008566,
+      "sliding_only_us_required_for_1pct_sixload": 0.7223289505961334
+    }
+  },
+  "owned_complete_head_transport": {
+    "owner_rows": 4,
+    "senders": 16,
+    "row_stride_f32": 68,
+    "buffer_bytes": 17408,
+    "meaningful_bytes_per_sender": 1040,
+    "expected_tx_bytes": 16640,
+    "with_one_u64_mbarrier_bytes": 17416
+  },
+  "v1_logical_partial_payload_not_hbm": {
+    "owned_global_updates_bytes": 1098240,
+    "owned_final_read_plus_zero_bytes": 66560,
+    "failed_HC_DSM_payload_bytes": 532480,
+    "VP2_DSM_payload_bytes": 540672
+  },
+  "decision": "No source-only >=1% matched BF16 causal headroom established; requalify exact VP2 BF16 boundary before owned rewrite.",
+  "scope": "No GPU; source fingerprints/structural facts/conditional arithmetic only."
+}

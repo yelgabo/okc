@@ -1,0 +1,37 @@
+{
+  "source_sha256": "da2d1d2040f03a8db6cfc270f84dcab25b91a8fa4803a974469a87625fb7d6db",
+  "device_sha256": "da2d1d2040f03a8db6cfc270f84dcab25b91a8fa4803a974469a87625fb7d6db",
+  "adapters": [
+    "Generated device-only input, no device body removed",
+    "stdint.h virtual fixed-width declarations"
+  ],
+  "virtual_stdint": "#pragma once\ntypedef unsigned char uint8_t; typedef signed char int8_t;\ntypedef unsigned short uint16_t; typedef short int16_t;\ntypedef unsigned int uint32_t; typedef int int32_t;\ntypedef unsigned long uint64_t; typedef long int64_t;\ntypedef unsigned long uintptr_t; typedef long intptr_t;\n",
+  "virtual_stdlib": "#pragma once\ntypedef unsigned long size_t; typedef long ptrdiff_t;\n",
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "expressions": [],
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [],
+  "cubin_sha256": "b3fa9b221018ade767c8e946eacf28b1974d9fe66b089e4a5a46b664059a8540",
+  "ptx_sha256": "f3c785e0ea407d50826cdae5fc82c8a8452be040433312d3060525c4714541b9",
+  "sass_sha256": "a34a25ed34625a0f7e9c090e99fb98d9f9156d56c0f01320ac253e5d91b76275",
+  "ptxas_command": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/root/.cache/okc-sparse-xor-before-a/device.ptx",
+    "-o",
+    "/root/.cache/okc-sparse-xor-before-a/device.cubin"
+  ],
+  "ptxas_status": 0
+}

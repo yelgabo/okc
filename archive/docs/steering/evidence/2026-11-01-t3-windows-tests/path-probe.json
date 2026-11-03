@@ -1,0 +1,77 @@
+{
+  "platform": "win32",
+  "results": [
+    {
+      "service": "effect-posix",
+      "input": "C:\\Users\\test\\AppData\\Local\\Temp\\t3-start\\project\\worktree",
+      "separator": "/",
+      "isAbsolute": false,
+      "resolved": "<CHECKOUT>/C:\\Users\\test\\AppData\\Local\\Temp\\t3-start\\project\\worktree",
+      "normalized": false,
+      "leaseKeyMatchesCleanup": false
+    },
+    {
+      "service": "effect-posix",
+      "input": "/tmp/provider-turn-start-worktrees/project/restore",
+      "separator": "/",
+      "isAbsolute": true,
+      "resolved": "/tmp/provider-turn-start-worktrees/project/restore",
+      "normalized": true,
+      "leaseKeyMatchesCleanup": true
+    },
+    {
+      "service": "node-native",
+      "input": "C:\\Users\\test\\AppData\\Local\\Temp\\t3-start\\project\\worktree",
+      "separator": "\\",
+      "isAbsolute": true,
+      "resolved": "C:\\Users\\test\\AppData\\Local\\Temp\\t3-start\\project\\worktree",
+      "normalized": true,
+      "leaseKeyMatchesCleanup": true
+    },
+    {
+      "service": "node-native",
+      "input": "/tmp/provider-turn-start-worktrees/project/restore",
+      "separator": "\\",
+      "isAbsolute": true,
+      "resolved": "C:\\tmp\\provider-turn-start-worktrees\\project\\restore",
+      "normalized": false,
+      "leaseKeyMatchesCleanup": false
+    },
+    {
+      "service": "node-win32",
+      "input": "C:\\Users\\test\\AppData\\Local\\Temp\\t3-start\\project\\worktree",
+      "separator": "\\",
+      "isAbsolute": true,
+      "resolved": "C:\\Users\\test\\AppData\\Local\\Temp\\t3-start\\project\\worktree",
+      "normalized": true,
+      "leaseKeyMatchesCleanup": true
+    },
+    {
+      "service": "node-win32",
+      "input": "/tmp/provider-turn-start-worktrees/project/restore",
+      "separator": "\\",
+      "isAbsolute": true,
+      "resolved": "C:\\tmp\\provider-turn-start-worktrees\\project\\restore",
+      "normalized": false,
+      "leaseKeyMatchesCleanup": false
+    },
+    {
+      "service": "node-posix",
+      "input": "C:\\Users\\test\\AppData\\Local\\Temp\\t3-start\\project\\worktree",
+      "separator": "/",
+      "isAbsolute": false,
+      "resolved": "<CHECKOUT>/C:\\Users\\test\\AppData\\Local\\Temp\\t3-start\\project\\worktree",
+      "normalized": false,
+      "leaseKeyMatchesCleanup": false
+    },
+    {
+      "service": "node-posix",
+      "input": "/tmp/provider-turn-start-worktrees/project/restore",
+      "separator": "/",
+      "isAbsolute": true,
+      "resolved": "/tmp/provider-turn-start-worktrees/project/restore",
+      "normalized": true,
+      "leaseKeyMatchesCleanup": true
+    }
+  ]
+}

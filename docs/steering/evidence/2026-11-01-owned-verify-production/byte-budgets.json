@@ -1,0 +1,42 @@
+[
+  {
+    "input_pin": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3",
+    "tokens": [
+      128
+    ],
+    "bytes": 389440,
+    "sha256": "038a08e20effd39ecbc455a57b5e0587536a01d282218fdf85af05d07d5847f9",
+    "unchanged_large_active_literals": {
+      "_ONE_SRC": "beba98d82228815d58d4a5be3e7a3836ef58064ad06085542f198782fca66708",
+      "_MOE1_SRC": "35fc183846d5b9bf23efb5c3f0d0f7f556b00bfbe5ea45a3c30c59a9a054b300"
+    },
+    "GPU_qualified": false
+  },
+  {
+    "input_pin": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3",
+    "tokens": [
+      256
+    ],
+    "bytes": 345746,
+    "sha256": "83c5436ad5801422f51377b32b168d27889a1b3ea4dc1e02097e646179b8101f",
+    "unchanged_large_active_literals": {
+      "_ONE_SRC": "beba98d82228815d58d4a5be3e7a3836ef58064ad06085542f198782fca66708",
+      "_MOE1_SRC": "35fc183846d5b9bf23efb5c3f0d0f7f556b00bfbe5ea45a3c30c59a9a054b300"
+    },
+    "GPU_qualified": false
+  },
+  {
+    "input_pin": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3",
+    "tokens": [
+      128,
+      256
+    ],
+    "bytes": 399155,
+    "sha256": "6de124667ee5b56c81771b4fd5d2591dc62e1bcfbf60f18baa680438d543bf42",
+    "unchanged_large_active_literals": {
+      "_ONE_SRC": "beba98d82228815d58d4a5be3e7a3836ef58064ad06085542f198782fca66708",
+      "_MOE1_SRC": "35fc183846d5b9bf23efb5c3f0d0f7f556b00bfbe5ea45a3c30c59a9a054b300"
+    },
+    "GPU_qualified": false
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "C:\\Users\\gretc\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "tools/expert_top100_harness_probe.py"
+  ],
+  "returncode": 0,
+  "seconds": 0.21197810000012396,
+  "stdout": "{\n  \"executable\": \"C:\\\\Users\\\\gretc\\\\AppData\\\\Local\\\\Python\\\\pythoncore-3.14-64\\\\python.exe\",\n  \"version\": \"3.14.5 (tags/v3.14.5:5607950, May 10 2026, 10:43:50) [MSC v.1944 64 bit (AMD64)]\",\n  \"platform\": \"Windows-11-10.0.26200-SP0\",\n  \"torch_spec\": null,\n  \"status\": \"STOP_CPU_HOST_GATE\"\n}\n",
+  "stderr": ""
+}

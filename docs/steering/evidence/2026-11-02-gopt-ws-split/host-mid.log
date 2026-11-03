@@ -1,0 +1,101 @@
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/nn/modules/container/any_module_holder.h(93): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+            module->_forward_populate_default_args(std::move(arguments)));
+            ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(93): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+    module.attr(name) = wrapper_class;
+    ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(155): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                module.to(
+                ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(159): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                module.to(detail::py_object_to_dtype(object), non_blocking);
+                ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(170): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                  module.to(detail::py_object_to_dtype(dtype), non_blocking);
+                  ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(172): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                  module.to(detail::py_object_to_device(device), non_blocking);
+                  ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(174): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                  module.to(
+                  ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/nn/modules/container/any_module_holder.h(93): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+            module->_forward_populate_default_args(std::move(arguments)));
+            ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(93): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+    module.attr(name) = wrapper_class;
+    ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(155): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                module.to(
+                ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(159): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                module.to(detail::py_object_to_dtype(object), non_blocking);
+                ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(170): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                  module.to(detail::py_object_to_dtype(dtype), non_blocking);
+                  ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(172): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                  module.to(detail::py_object_to_device(device), non_blocking);
+                  ^
+
+/usr/local/lib/python3.12/dist-packages/torch/include/torch/csrc/api/include/torch/python.h(174): warning #3189-D: "module" is parsed as an identifier rather than a keyword because the tokens that follow it do not match those of a preprocessor directive
+                  module.to(
+                  ^
+
+/w/mid.cu(1489): warning #177-D: variable "ce" was declared but never referenced
+      const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
+                                             ^
+          detected during:
+            instantiation of "void okc::run_phase<PB,BIG>(const okc::Params &, okc::Smem &, __nv_bfloat16 *) [with PB=false, BIG=false]" at line 2407
+            instantiation of "void okc::moe_fused<BIG>(okc::Params) [with BIG=false]" at line 2723
+
+/w/mid.cu(2663): warning #550-D: variable "g_okc_pdl" was set but never used
+  static int g_okc_pdl = 0;
+             ^
+
+/w/mid.cu(143): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;
+                ^
+
+/w/mid.cu(149): warning #177-D: variable "okc::XP_SK" was declared but never referenced
+  constexpr int XP_SK = HD + 8;
+                ^
+
+/w/mid.cu(152): warning #177-D: variable "okc::NST" was declared but never referenced
+  constexpr int NST = 3;
+                ^
+
+ptxas info    : 11 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 145 registers, used 3 barriers
+ptxas info    : Compile time = 235.380 ms
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 145 registers, used 3 barriers
+ptxas info    : Compile time = 192.664 ms
+ptxas info    : Compiling entry function '_ZN3okc11ws_finalizeENS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc11ws_finalizeENS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 0 barriers
+ptxas info    : Compile time = 14.519 ms

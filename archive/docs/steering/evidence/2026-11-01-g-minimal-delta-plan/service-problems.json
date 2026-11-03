@@ -1,0 +1,10 @@
+{
+  "utc": "2026-11-01T21:23:53.609871+00:00",
+  "argv": [
+    "okc",
+    "problems"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "\u2717 the API answered 530 ; try again in a minute\n"
+}

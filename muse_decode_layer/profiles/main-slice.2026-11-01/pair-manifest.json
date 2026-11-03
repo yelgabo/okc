@@ -1,0 +1,23 @@
+{
+  "bytes": 850769,
+  "sha256": "305d8e2804d8d10c3fdda902d659c25177ce7ad31d7575dda803c318830e8dc7",
+  "arm_pins": {
+    "G": "3526204bd59e0b231e8b9278dd5bd9bd2ec5cae805b5b618a3cc736742cd912b",
+    "owned": "0cfaca8da24836962978e1722a3e7cecd20db1daa02feb326bb570c020dca8ba",
+    "baseline": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4"
+  },
+  "G_manifest": {
+    "source_pin": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "bytes": 406300,
+    "sha256": "3526204bd59e0b231e8b9278dd5bd9bd2ec5cae805b5b618a3cc736742cd912b",
+    "selected_native_literals": {
+      "ATT7_CUDA_SRC": 191991,
+      "MOE_CUDA_SRC": 155790
+    },
+    "source_review_and_host_tests_required": true,
+    "gpu_execution": false
+  },
+  "scope": "verify32 sliding only, all official cases use SGLang",
+  "H200_qualified": false,
+  "prepare_budget_measured": false
+}

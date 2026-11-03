@@ -1,0 +1,21 @@
+{
+  "reviewer": "root/next_material_measurement",
+  "decision": "STOP_CURRENT_MATERIAL_INCOMING_PREFIX_NO_IMPLEMENTATION_OR_CHECK",
+  "edits": false,
+  "GPU_or_CLI": false,
+  "provenance": "Wholelayerroute/sl_tile_route/gle_route generatecurrentids/lids/wts/xm; nativeS.jE/ranges/first usefulpacket address dependon them. StandaloneMoEinputprovenancecannotbetransferred.",
+  "safe_independent_prefix": "OnlyCTA-localbarrier/LUT/smallimmutablemetadata identified;no substantialbudget",
+  "API_scope": "CUDA13cooperative/programmaticattributes documented;boundedreview foundnoexplicitprohibitionbuttargetjoint/capture/concurrentadmissionunqualified",
+  "sources": [
+    "docs/steering/2026-11-01-g-native-repair-inventory.md",
+    "docs/steering/evidence/2026-11-02-worker-direct-weight-registers/generated/selected.cu",
+    "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__EXEC.html",
+    "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-c-programming-guide/index.html#programmatic-dependent-launch-and-synchronization"
+  ],
+  "not_claimed": [
+    "historical5.77gapexplained",
+    "globalPDLincompatibility",
+    "smaller shared guarantees concurrency",
+    "outgoingclosuresapplytoallincomingedges"
+  ]
+}

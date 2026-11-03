@@ -1,0 +1,54 @@
+[
+  {
+    "section": "8.7. Morally strong operations\uf0c1",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#morally-strong-operations"
+  },
+  {
+    "section": "8.7.1. Conflict and Data-races\uf0c1",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#conflict-and-data-races"
+  },
+  {
+    "section": "8.7.2. Limitations on Mixed-size Data-races\uf0c1",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#limitations-on-mixed-size-data-races"
+  },
+  {
+    "section": "8.8. Release and Acquire Patterns\uf0c1",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#release-and-acquire-patterns"
+  },
+  {
+    "section": "8.9.2. Observation Order\uf0c1",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#observation-order"
+  },
+  {
+    "section": "8.9.4. Memory synchronization\uf0c1",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#memory-synchronization"
+  },
+  {
+    "section": "8.10.3. Atomicity\uf0c1",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#atomicity"
+  },
+  {
+    "section": "8.10.5. Sequential Consistency Per Location\uf0c1",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#sequential-consistency-per-location"
+  },
+  {
+    "section": "9.7.13.2. Parallel Synchronization and Communication Instructions: bar.warp.sync\uf0c1",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-bar-warp-sync"
+  },
+  {
+    "section": "8.9.5. Causality Order",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#causality-order"
+  },
+  {
+    "section": "9.7.13.1. bar, barrier",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-bar-barrier"
+  },
+  {
+    "section": "9.7.13.4. membar/fence",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-membar-fence"
+  },
+  {
+    "section": "9.7.13.5. atom",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-atom"
+  }
+]

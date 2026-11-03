@@ -1,0 +1,16 @@
+test_all_eligible_pairs_and_signed_zero (test_moe_pairlut.Codec.test_all_eligible_pairs_and_signed_zero) ... FAIL
+test_four_register_layout_matches_original_packing (test_moe_pairlut.Codec.test_four_register_layout_matches_original_packing) ... ok
+
+======================================================================
+FAIL: test_all_eligible_pairs_and_signed_zero (test_moe_pairlut.Codec.test_all_eligible_pairs_and_signed_zero)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_pairlut.py", line 40, in test_all_eligible_pairs_and_signed_zero
+    self.assertEqual(data[sf*256+pair]&0xffffffff,expected[0]|expected[1]<<16,(sf,pair))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 8320 : (0, 1)
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.192s
+
+FAILED (failures=1)

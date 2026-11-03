@@ -1,0 +1,11 @@
+{
+  "recorded_utc": "2026-11-01T21:12:19.088578+00:00",
+  "id": "qualify-family-g-at-the-november-1-h200-reset",
+  "status": "ACTIVE",
+  "rrule": "FREQ=DAILY;BYHOUR=16;BYMINUTE=0;BYSECOND=0;COUNT=1",
+  "prompt_sha256": "d9b4618ebd24ada3b6ce2b247cdc011ba514770a00a2c1b41939900ba84521b8",
+  "same_existing_schedule": true,
+  "no_new_automation": true,
+  "first_two_order_unchanged": true,
+  "node_identity_and_same_runner_control_required": true
+}

@@ -1,0 +1,376 @@
+[
+  {
+    "build": "tiny",
+    "normalized_ptx_one_atomic_delta": true,
+    "control_ptx_sha256": "6e60ce9f2b78e4255bfcfc8f66f29d0cd08467b270264b64d96193f9f06c7866",
+    "treatment_ptx_sha256": "c37fa8e4361a6e41981e5754ea34f2bd04841cbc7b81b8170b35880b05232dd0",
+    "returned_old_compared": true,
+    "preceding_membar_gl": true,
+    "post_counter_global_nc": 0,
+    "post_counter_loads": [
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f983, [%rd578];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1324,%f1325,%f1326,%f1327}, [%rd581];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f993, [%rd585];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1329,%f1330,%f1331,%f1332}, [%rd588];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1003, [%rd592];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1334,%f1335,%f1336,%f1337}, [%rd595];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1013, [%rd599];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1339,%f1340,%f1341,%f1342}, [%rd602];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1023, [%rd606];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1344,%f1345,%f1346,%f1347}, [%rd609];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1033, [%rd613];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1349,%f1350,%f1351,%f1352}, [%rd616];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1043, [%rd620];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1354,%f1355,%f1356,%f1357}, [%rd623];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1053, [%rd627];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1359,%f1360,%f1361,%f1362}, [%rd630];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1095, [%rd73];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1090, [%rd647];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1091,%f1092,%f1093,%f1094}, [%rd648];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1104, [%rd73+4];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1099, [%rd654];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1100,%f1101,%f1102,%f1103}, [%rd655];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1113, [%rd73+8];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1108, [%rd661];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1109,%f1110,%f1111,%f1112}, [%rd662];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1122, [%rd73+12];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1117, [%rd668];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1118,%f1119,%f1120,%f1121}, [%rd669];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1131, [%rd73+16];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1126, [%rd675];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1127,%f1128,%f1129,%f1130}, [%rd676];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1140, [%rd73+20];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1135, [%rd682];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1136,%f1137,%f1138,%f1139}, [%rd683];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1149, [%rd73+24];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1144, [%rd689];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1145,%f1146,%f1147,%f1148}, [%rd690];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1158, [%rd73+28];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1153, [%rd696];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1154,%f1155,%f1156,%f1157}, [%rd697];"
+      },
+      {
+        "loc": ".loc\t1 1563 7, function_name $L__info_string0, inlined_at 1 2212 3",
+        "instruction": "ld.global.f32 \t%f1287, [%rd823];"
+      },
+      {
+        "loc": ".loc\t1 1565 7, function_name $L__info_string0, inlined_at 1 2212 3",
+        "instruction": "ld.global.u16 \t%rs58, [%rd826];"
+      },
+      {
+        "loc": ".loc\t1 1565 7, function_name $L__info_string0, inlined_at 1 2212 3",
+        "instruction": "ld.global.u16 \t%rs61, [%rd826+16];"
+      },
+      {
+        "loc": ".loc\t1 1542 7, function_name $L__info_string0, inlined_at 1 2212 3",
+        "instruction": "ld.global.f32 \t%f1258, [%rd810];"
+      }
+    ]
+  },
+  {
+    "build": "tiny2",
+    "normalized_ptx_one_atomic_delta": true,
+    "control_ptx_sha256": "ae94e8e28a2070912f6b1520a822fcfc4777e41d8ab3406643879e3377a6d298",
+    "treatment_ptx_sha256": "679b7599b5afbbf444be87a5e199082c55654853250c219a807d4cfe1775c976",
+    "returned_old_compared": true,
+    "preceding_membar_gl": true,
+    "post_counter_global_nc": 0,
+    "post_counter_loads": [
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f987, [%rd592];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1332,%f1333,%f1334,%f1335}, [%rd595];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f997, [%rd599];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1337,%f1338,%f1339,%f1340}, [%rd602];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1007, [%rd606];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1342,%f1343,%f1344,%f1345}, [%rd609];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1017, [%rd613];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1347,%f1348,%f1349,%f1350}, [%rd616];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1027, [%rd620];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1352,%f1353,%f1354,%f1355}, [%rd623];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1037, [%rd627];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1357,%f1358,%f1359,%f1360}, [%rd630];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1047, [%rd634];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1362,%f1363,%f1364,%f1365}, [%rd637];"
+      },
+      {
+        "loc": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1057, [%rd641];"
+      },
+      {
+        "loc": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1367,%f1368,%f1369,%f1370}, [%rd644];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1099, [%rd74];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1094, [%rd661];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1095,%f1096,%f1097,%f1098}, [%rd662];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1108, [%rd74+4];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1103, [%rd668];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1104,%f1105,%f1106,%f1107}, [%rd669];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1117, [%rd74+8];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1112, [%rd675];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1113,%f1114,%f1115,%f1116}, [%rd676];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1126, [%rd74+12];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1121, [%rd682];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1122,%f1123,%f1124,%f1125}, [%rd683];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1135, [%rd74+16];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1130, [%rd689];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1131,%f1132,%f1133,%f1134}, [%rd690];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1144, [%rd74+20];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1139, [%rd696];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1140,%f1141,%f1142,%f1143}, [%rd697];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1153, [%rd74+24];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1148, [%rd703];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1149,%f1150,%f1151,%f1152}, [%rd704];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1162, [%rd74+28];"
+      },
+      {
+        "loc": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1157, [%rd710];"
+      },
+      {
+        "loc": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1158,%f1159,%f1160,%f1161}, [%rd711];"
+      },
+      {
+        "loc": ".loc\t1 1563 7, function_name $L__info_string0, inlined_at 1 2212 3",
+        "instruction": "ld.global.f32 \t%f1291, [%rd847];"
+      },
+      {
+        "loc": ".loc\t1 1565 7, function_name $L__info_string0, inlined_at 1 2212 3",
+        "instruction": "ld.global.u16 \t%rs60, [%rd849];"
+      },
+      {
+        "loc": ".loc\t1 1565 7, function_name $L__info_string0, inlined_at 1 2212 3",
+        "instruction": "ld.global.u16 \t%rs63, [%rd849+16];"
+      },
+      {
+        "loc": ".loc\t1 1542 7, function_name $L__info_string0, inlined_at 1 2212 3",
+        "instruction": "ld.global.f32 \t%f1262, [%rd828];"
+      }
+    ]
+  }
+]

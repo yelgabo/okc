@@ -1,0 +1,11 @@
+[
+  "wsl",
+  "-d",
+  "Ubuntu",
+  "--",
+  "/usr/local/bin/okc",
+  "check",
+  "/mnt/c/Users/gretc/Documents/GitHub/okc/docs/steering/evidence/2026-11-02-worker-wgs-k128-full-reuse/generated/candidate.py",
+  "--no-wait",
+  "--json"
+]

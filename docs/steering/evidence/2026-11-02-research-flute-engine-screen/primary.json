@@ -1,0 +1,310 @@
+{
+  "allocation": "dbcb61db3bd986509ef311f7ac8acba5ef030576",
+  "pickup_utc": "2026-11-02T20:18:08Z",
+  "source_observed_utc": "2026-11-02T20:28:13.518Z",
+  "repository": "HanGuo97/flute",
+  "pin": "9eb83a12d56949bbe7fe9c836ba97a67bd1e3761",
+  "tree_sha": "9eb83a12d56949bbe7fe9c836ba97a67bd1e3761",
+  "tree_truncated": false,
+  "tree_blob_count": 53,
+  "primary_files": [
+    {
+      "path": ".github/workflows/scripts/build.sh",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/.github/workflows/scripts/build.sh",
+      "status": 200,
+      "git_blob": "6c4ce5624066830fb67a32ae05668b241e869e83",
+      "git_blob_verified": true,
+      "bytes": 1068,
+      "sha256": "2e04eda922f828f49edd945f7cf2c255b6cc809dba9e7671929568d0a7647985"
+    },
+    {
+      "path": ".github/workflows/scripts/cutlass-install.sh",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/.github/workflows/scripts/cutlass-install.sh",
+      "status": 200,
+      "git_blob": "af7af2abbe207f916ed5ef65c5f4271dae8e465d",
+      "git_blob_verified": true,
+      "bytes": 169,
+      "sha256": "cb0fc1aa508299aa6afa1a9500c8fff8f628ab6e5e49a229bf58df2b29322147"
+    },
+    {
+      "path": "flute/__init__.py",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/__init__.py",
+      "status": 200,
+      "git_blob": "0a210b6efd01441ca9da7b52b7274d21b70df382",
+      "git_blob_verified": true,
+      "bytes": 1977,
+      "sha256": "a18f92214852d284569398496b5be4766847aba2efe213e6f700a67a54fd232a"
+    },
+    {
+      "path": "flute/codegen_utils.py",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/codegen_utils.py",
+      "status": 200,
+      "git_blob": "d90e37dc30ce64cc175605aabff91a028190599c",
+      "git_blob_verified": true,
+      "bytes": 7237,
+      "sha256": "94b1f95fe5060a672ffac69fa526d5a7cf1cb0c3364ce3728ba115d3cb3c5ad4"
+    },
+    {
+      "path": "flute/csrc/config.hpp",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/csrc/config.hpp",
+      "status": 200,
+      "git_blob": "880ecfa3a3dd5ece766e8cafbe0389a3d77c2265",
+      "git_blob_verified": true,
+      "bytes": 27300,
+      "sha256": "d3c5f5827dcd2dd0c26cdd50677716f991287bbf8a5cc61f66b0eff0e0dcd4f5"
+    },
+    {
+      "path": "flute/csrc/conversion_utils.hpp",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/csrc/conversion_utils.hpp",
+      "status": 200,
+      "git_blob": "3115cf0c2bf73f91cca8ced85316309641e39f6c",
+      "git_blob_verified": true,
+      "bytes": 2402,
+      "sha256": "c7a03d5bb748415bdba2441ff1232b6bde2f2f579f62cd51e219ea1b2e9c9c17"
+    },
+    {
+      "path": "flute/csrc/cutlass_extensions_bf16.h",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/csrc/cutlass_extensions_bf16.h",
+      "status": 200,
+      "git_blob": "37ae6ff8235d990adbd4527be338a7bc9a135aaa",
+      "git_blob_verified": true,
+      "bytes": 1225,
+      "sha256": "f2459f08d8eeb6e0773c74dcbf197ad97cd580b3c6ec325ec364f6c11e8f1bb4"
+    },
+    {
+      "path": "flute/csrc/marlin_utils.hpp",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/csrc/marlin_utils.hpp",
+      "status": 200,
+      "git_blob": "8574b8ad9916a4113cdba45b83e57899e5a24603",
+      "git_blob_verified": true,
+      "bytes": 3133,
+      "sha256": "e76d8c16150bf77e828aa786f1b6408bcd3c4d960d015e0e2a5754facf78a3ce"
+    },
+    {
+      "path": "flute/csrc/packbits_utils.hpp",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/csrc/packbits_utils.hpp",
+      "status": 200,
+      "git_blob": "48a0ddb81c283d5b8b4cfa82729abcf40d53ea66",
+      "git_blob_verified": true,
+      "bytes": 21241,
+      "sha256": "abefabff7d2b4d4e2416c17c4d64bafca96c22cdda3af17d3a11cfe58e80efb8"
+    },
+    {
+      "path": "flute/csrc/qgemm_kernel_raw_generated.cu",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/csrc/qgemm_kernel_raw_generated.cu",
+      "status": 200,
+      "git_blob": "81f322bc7acf2acb6595121cd06d058d1a9fa6f8",
+      "git_blob_verified": true,
+      "bytes": 44157,
+      "sha256": "384833611cb9a7b4ea7ebf63b98ff5a5ef3a45b76acfaa5974d48677042665f3"
+    },
+    {
+      "path": "flute/csrc/qgemm_kernel.hpp",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/csrc/qgemm_kernel.hpp",
+      "status": 200,
+      "git_blob": "f4f2732941c86d50f5173402881652094cb957c3",
+      "git_blob_verified": true,
+      "bytes": 40858,
+      "sha256": "4393c715f17d677082524c8b9f795f4c8de5ff29e70427470c61c1f3018a68d1"
+    },
+    {
+      "path": "flute/csrc/qgemm.cpp",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/csrc/qgemm.cpp",
+      "status": 200,
+      "git_blob": "184f39496ca849e7996c979c23bc4184b8a73d74",
+      "git_blob_verified": true,
+      "bytes": 8834,
+      "sha256": "123a492a7b998214dae5d9c14d7d058170d261780ed329d6fa2015d990e821ec"
+    },
+    {
+      "path": "flute/csrc/tile_scheduler_utils.hpp",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/csrc/tile_scheduler_utils.hpp",
+      "status": 200,
+      "git_blob": "5c0daab530682511de1c2adbdfb9cb8118ccb0a0",
+      "git_blob_verified": true,
+      "bytes": 37492,
+      "sha256": "0a3cacb7234dd00c0f0173a49ac93677d38c696c03935c74709d0e917e0b006b"
+    },
+    {
+      "path": "flute/integrations/base.py",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/integrations/base.py",
+      "status": 200,
+      "git_blob": "eda15a5044db4cafde4875d06043a06a241c76c0",
+      "git_blob_verified": true,
+      "bytes": 13859,
+      "sha256": "f4f9efa425778a1f00895e3b69f9b8c234e5118b463790cf9166a47d3c1a54ac"
+    },
+    {
+      "path": "flute/ops.py",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/ops.py",
+      "status": 200,
+      "git_blob": "6dd5c5117748ba9f064845bd247abcb765b606b3",
+      "git_blob_verified": true,
+      "bytes": 2111,
+      "sha256": "4cecb64eb058ead65d63458770e49d8fc1a70a3dc0eacbe1ce4b7b322c1ddd44"
+    },
+    {
+      "path": "flute/tune.py",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/tune.py",
+      "status": 200,
+      "git_blob": "0d9ddb01f316e90104e0581f25f4b868b9279271",
+      "git_blob_verified": true,
+      "bytes": 16162,
+      "sha256": "6952db778a534f78db92ceb7d2f81754e24ca509ea0f23fe03caa9b8ae42551e"
+    },
+    {
+      "path": "flute/utils.py",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/flute/utils.py",
+      "status": 200,
+      "git_blob": "967cac656d2ba7c37bde07192552f8b1f8a1c41e",
+      "git_blob_verified": true,
+      "bytes": 13355,
+      "sha256": "33474cf409dc88b60cc19264fd025baa38eb5baf5c1cfc557f97602cf964c461"
+    },
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/LICENSE",
+      "status": 200,
+      "git_blob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "git_blob_verified": true,
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/README.md",
+      "status": 200,
+      "git_blob": "a305f9a67f81b7a2644d5c908d33c209c6cd12cf",
+      "git_blob_verified": true,
+      "bytes": 24929,
+      "sha256": "76fe114ebd120e3740aa811fd56704fdedc3954ac7bad379e7ffdd31fa6bccba"
+    },
+    {
+      "path": "setup.py",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/setup.py",
+      "status": 200,
+      "git_blob": "cc46f6937a9aa15f10aa8a0d6e60e85d877f886d",
+      "git_blob_verified": true,
+      "bytes": 3990,
+      "sha256": "051258b51425934b6d1c906e1bb2f91ee4aeccc194d37ae3a213d53ae93f7e92"
+    },
+    {
+      "path": "tests/kernel.py",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/tests/kernel.py",
+      "status": 200,
+      "git_blob": "07ee4a459d8d9dae8cd2161be0d51b6f168f4748",
+      "git_blob_verified": true,
+      "bytes": 4668,
+      "sha256": "172a007e0d156379d3883bec1cdf657a9a1a6c69569e883980b780c3adc571e9"
+    },
+    {
+      "path": "tests/shapes.py",
+      "url": "https://raw.githubusercontent.com/HanGuo97/flute/9eb83a12d56949bbe7fe9c836ba97a67bd1e3761/tests/shapes.py",
+      "status": 200,
+      "git_blob": "a28ac4e1b112ffd03b15fa7420429aa52375d9e3",
+      "git_blob_verified": true,
+      "bytes": 1696,
+      "sha256": "58dd0bed553ae7f970402a54543e5ece1e8b1643f8a067d63e3621c863f05202"
+    }
+  ],
+  "notice_paths": [],
+  "all_downloaded_source_blobs_verified": true,
+  "retrieval": "GitHub recursive immutable tree and raw HTTP reads, never imported/executed; general web opens returned empty bodies, direct primary HTTP succeeded.",
+  "generated": {
+    "parsed_template_calls": 216,
+    "accumulation": [
+      "kMixed"
+    ],
+    "scheduler": [
+      "kStreamK"
+    ],
+    "tileM": [
+      32,
+      16
+    ],
+    "tileK": [
+      64
+    ],
+    "lookup": [
+      "kVectorized",
+      "kVectorized_32",
+      "kVectorized_16",
+      "kVectorized_8"
+    ],
+    "host_group_switch": [
+      64,
+      128,
+      256
+    ],
+    "group32_instantiations": "commented out",
+    "group16": "no host case or explicit instantiation",
+    "bf16_output": true,
+    "fp32_mma_bf16_fixup": true
+  },
+  "cpu_witness": {
+    "group16_counterexample": {
+      "codes_per_group": "0..15",
+      "scale_bytes": [
+        "0x38",
+        "0x39",
+        "0x3a",
+        "0x3b"
+      ],
+      "scale_values": [
+        1,
+        1.125,
+        1.25,
+        1.375
+      ],
+      "required_unique_values": 57,
+      "single_4bit_group64_capacity": 16,
+      "all_products_exact_bf16": true
+    },
+    "mixed_partial_counterexample": {
+      "partial_fp32": [
+        257,
+        -256
+      ],
+      "full_fp32_sum": 1,
+      "bf16_partials": [
+        256,
+        -256
+      ],
+      "reduced_bf16_result": 0
+    },
+    "postscale_counterexample": {
+      "dot": 257,
+      "global_scale": 1.125,
+      "required": 290,
+      "round_dot_before_global": 288
+    },
+    "table_bytes": {
+      "pair256_bf16x2": 1024,
+      "duplicate8": 8192,
+      "duplicate16": 16384,
+      "duplicate32": 32768
+    }
+  },
+  "hopper_primary": {
+    "url": "https://docs.nvidia.com/cuda/hopper-compatibility-guide/index.html",
+    "status": 200,
+    "sha256": "2b26707bfd5aa5d382c0c344527deeea8ff0de9a1fec88fc27fbdebcef35346c",
+    "sections": [
+      "1.2 Application Compatibility on Hopper Architecture",
+      "1.4 Building Applications with Hopper Architecture Support"
+    ],
+    "paraphrase": "8.x cubins are not supported on 9.0; compatible PTX or native Hopper cubin is required. No binary compatibility test was run."
+  },
+  "incumbent": {
+    "job": "607eb52bdaf24160",
+    "fresh": "cc474883117947c0",
+    "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "native": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "p2_commit": "ba0e1ff94491b1362c96391fb5a0aeafdab54110"
+  },
+  "limitations": [
+    "No .pth deserialization or tuned-config execution; exact group16 template absent before any selection question.",
+    "No same-format same-shaped cold Muse result found in the inspected source/tests/readme/tree; this is scoped to this pin, not all external publications.",
+    "Full runtime expert-count histogram absent from fresh receipt; examples are conditional, not measured routing."
+  ]
+}

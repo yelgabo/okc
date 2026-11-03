@@ -1,0 +1,83 @@
+{
+  "job": "0b684a4065354fc5",
+  "score": 1.9264235913174548,
+  "CI": [
+    1.897527237447693,
+    1.9553199451872163
+  ],
+  "reconstructed_score": 1.9264235913174548,
+  "counts": {
+    "setup": 1,
+    "test": 13,
+    "benchmark": 12,
+    "profile": 12
+  },
+  "prepare_s": 109.370262382,
+  "rows": [
+    {
+      "load": "decode 1",
+      "candidate_us": 78.85993246527786,
+      "fresh_control_us": 78.76453088391268,
+      "candidate_baseline_us": 174.49703573760004,
+      "fresh_baseline_us": 173.36206506156634,
+      "descriptive_latency_change_pct": 0.12112251580065347
+    },
+    {
+      "load": "decode 16",
+      "candidate_us": 156.0924525559117,
+      "fresh_control_us": 152.01624972636304,
+      "candidate_baseline_us": 306.4510971608181,
+      "fresh_baseline_us": 301.71509560257675,
+      "descriptive_latency_change_pct": 2.6814257271088104
+    },
+    {
+      "load": "decode 32",
+      "candidate_us": 221.36618887845398,
+      "fresh_control_us": 191.89781229731952,
+      "candidate_baseline_us": 357.1829650731337,
+      "fresh_baseline_us": 354.6477409770652,
+      "descriptive_latency_change_pct": 15.35628584211124
+    },
+    {
+      "load": "verify 1",
+      "candidate_us": 118.59781706323717,
+      "fresh_control_us": 112.68166177082168,
+      "candidate_baseline_us": 272.9852882273976,
+      "fresh_baseline_us": 263.0673500769321,
+      "descriptive_latency_change_pct": 5.250326627635382
+    },
+    {
+      "load": "verify 16",
+      "candidate_us": 335.97247409697883,
+      "fresh_control_us": 261.71304474650816,
+      "candidate_baseline_us": 579.9256687713487,
+      "fresh_baseline_us": 544.7576774073945,
+      "descriptive_latency_change_pct": 28.37437064797339
+    },
+    {
+      "load": "verify 32",
+      "candidate_us": 442.79750494508966,
+      "fresh_control_us": 351.0802216924128,
+      "candidate_baseline_us": 812.6327718698209,
+      "fresh_baseline_us": 787.8895486674962,
+      "descriptive_latency_change_pct": 26.124309370247545
+    }
+  ],
+  "descriptive_endpoint_factor_vs_fresh": 0.8893514668733644,
+  "score_ratio_vs_public": 0.9060906298142845,
+  "node": "n-td72fo4wauotceojbgm4smtst7",
+  "driver": "580.159.03",
+  "fresh_node": "n-434neka4hbrvz7ee7sd46ord7g",
+  "fresh_driver": "595.91.07",
+  "evaluator_file_diffs": {},
+  "admission_lines": [
+    "DW_ADMISSION b4=1 big=0 m=32 sm=132 grid=132 threads=544 dynamic=120576 static=0 local=24 regs=96 resident=1",
+    "DW_ADMISSION b4=0 big=0 m=33 sm=132 grid=132 threads=544 dynamic=120576 static=0 local=16 regs=96 resident=1",
+    "DW_ADMISSION b4=0 big=1 m=128 sm=132 grid=132 threads=544 dynamic=120576 static=0 local=16 regs=96 resident=1"
+  ],
+  "startup_lines": [
+    "G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays"
+  ],
+  "decision": "PARK_EXACT_DIRECT_WEIGHT_NO_CONFIRMATION_OR_TUNING",
+  "limitation": "Different input jobs/cluster/node/driver, descriptive continuation screen, not matched causal or spill/global-bandwidth attribution."
+}

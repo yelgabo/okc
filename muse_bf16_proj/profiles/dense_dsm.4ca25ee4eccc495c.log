@@ -1,0 +1,91 @@
+2r4 27.0, m128k1r4 22.6, m128k1r8 24.8, m128k2r8 27.9, m128k4r2 35.1, m256k2r4 29.2, m256k1r4 25.1, m256k1r8 25.7, m256k2r8 29.9, m256k2r2 29.1, b1n128c2s8h 29.3, b1n128c3s8h 40.0 -> cublas
+tune pooler    m= 1: pool8 18.5, pool8raw 22.0, rdp8 17.6, cgemv 17.8, cublas 25.8 -> rdp8
+tune pooler    m= 8: pool8 18.5, pool8raw 21.9, rdp8 17.6, cublas 25.3 -> rdp8
+tune pooler    m=16: pool16 18.5, pool16raw 22.2, cublas 25.7 -> pool16
+tune pooler    m=32: pool32 19.7, pool32raw 22.4, cublas 26.0 -> pool32
+tune pooler    m=64: cublas 27.2, b1n64c2 25.5, m64k2r4 30.2, m64k1r8 39.4 -> b1n64c2
+tune pooler    m=128: cublas 29.2, b1n64c2 29.5, b1n128c2 30.5, m64k2r4 48.4, m64k1r8 50.8, m128k2r4 35.2, m128k1r4 49.1, m128k1r8 50.9, m128k2r8 36.9, m128k4r2 39.8, b1n128c2s8h 26.4, b1n128c3s8h 32.8 -> b1n128c2s8h
+tune pooler    m=256: cublas 34.0, b1n128c2 38.5, b2n256c2 49.6, m128k2r4 61.2, m128k1r4 52.7, m128k1r8 54.5, m128k2r8 63.8, m128k4r2 60.6, m256k2r4 59.0, m256k1r4 52.9, m256k1r8 54.6, m256k2r8 61.4, m256k2r2 58.8, b1n128c2s8h 48.5, b1n128c3s8h 58.1, cut128x64 30.7 -> cut128x64
+tune qkv_gate  m= 1: qkv8 13.5, qkv8raw 15.3, cgemv 12.7, cublas 17.9 -> cgemv
+tune qkv_gate  m= 8: qkv8 13.4, qkv8raw 16.0, cublas 18.1 -> qkv8
+tune qkv_gate  m=16: qkv16 14.0, qkv16raw 16.4, cublas 18.6 -> qkv16
+tune qkv_gate  m=32: qkv32 15.4, qkv32raw 16.4, cublas 19.0 -> qkv32
+tune qkv_gate  m=64: cublas 19.3, b1n64c2 23.1, m64k2r4 24.0 -> cublas
+tune qkv_gate  m=128: cublas 21.6, b1n64c2 27.4, b1n128c2 28.2, m64k2r4 29.6, m128k2r4 28.9, m128k1r4 46.8, m128k4r2 22.8, b1n128c2s8h 22.3, b1n128c3s8h 19.0 -> b1n128c3s8h
+tune qkv_gate  m=256: cublas 23.8, b1n128c2 33.4, b2n256c2 48.4, m128k2r4 33.0, m128k1r4 46.6, m128k4r2 39.8, m256k2r4 32.5, m256k1r4 51.1, m256k2r2 32.0, b1n128c2s8h 39.9, b1n128c3s8h 33.4 -> cublas
+tune router    m= 1: rgemv 7.9, router8 9.4, rt8w8 8.4, rt16w8 8.6, rt16w8p8 8.6, baseline 15.1 -> rgemv
+tune router    m= 8: router8 9.5, rt8w8 8.5, rt16w8 8.6, rt16w8p8 8.7, baseline 31.6 -> rt8w8
+tune router    m=16: router16 9.6, rt8w8 9.1, rt16w8 9.0, rt16w8p8 9.0, baseline 20.9 -> rt16w8
+tune router    m=32: router32 9.9, rt8w8 11.7, rt16w8 9.5, rt16w8p8 9.6, baseline 20.6 -> rt16w8
+tune router    m=64: baseline 21.2, r64c8 13.3, r64c16 11.5, r64c8s8 12.0, r64c4s8 15.8, rm64k4r4 18.8, r64c8s8k 11.2, r64c4s8a 14.6, r64c8s8fv 10.7, r64c8s8ordfv 12.4 -> r64c8s8fv
+tune router    m=128: baseline 22.0, r64c8 13.4, r64c16 14.4, r128c8 14.8, r128c16 13.3, r64c8s8 12.0, r64c4s8 15.9, r128c8s6 14.5, rm64k4r4 19.0, rm128k4r4 21.7, r64c8s8k 11.3, r128c8s6k 13.7, r64c4s8a 14.8, r64c8s8fv 10.8, r64c8s8ordfv 12.4 -> r64c8s8fv
+tune router    m=256: baseline 22.9, r64c8 14.8, r64c16 19.6, r128c8 14.9, r128c16 20.9, r64c8s8 19.0, r64c4s8 16.1, r128c8s6 14.5, rm64k4r4 19.3, rm128k4r4 21.9, r64c8s8k 17.2, r128c8s6k 13.8, r64c4s8a 14.9, r64c8s8fv 16.5, r64c8s8ordfv 12.9 -> r64c8s8ordfv
+tune unpooler  m= 1: slice8 8.8, slice8raw 9.1, cgemv 7.8, sgemv 8.2, cublas 11.6 -> cgemv
+tune unpooler  m= 8: slice8 8.7, slice8raw 9.1, cublas 11.4 -> slice8
+tune unpooler  m=16: unp16 18.2, unp16raw 21.8, cublas 22.6 -> unp16
+tune unpooler  m=32: unp32 19.1, unp32raw 22.8, cublas 22.8 -> unp32
+tune unpooler  m=64: cublas 24.1, b1n64c2 24.5, m64k2r4 33.9, m64k1r8 30.3 -> cublas
+tune unpooler  m=128: cublas 24.8, b1n64c2 43.0, b1n128c2 25.6, m64k2r4 52.6, m64k1r8 48.7, m128k2r4 39.4, m128k1r4 35.0, m128k1r8 36.6, m128k2r8 41.3, m128k4r2 39.4, b1n128c2s8h 29.4, b1n128c3s8h 38.9 -> cublas
+tune unpooler  m=256: cublas 28.5, b1n128c2 47.0, b2n256c2 32.6, m128k2r4 60.5, m128k1r4 56.1, m128k1r8 63.1, m128k2r8 62.7, m128k4r2 65.4, m256k2r4 54.6, m256k1r4 58.1, m256k1r8 59.6, m256k2r8 57.0, m256k2r2 54.3, b1n128c2s8h 53.4, b1n128c3s8h 65.5 -> cublas
+lt build 19.0 s, cublasLt 130101, torch cuda 13.0
+lt qkv_gate m=128: 64 heuristic, 792 swept, 210 other, screen best L2:a66t80s35k1r0z0c2i0g5w0v0.88 19.4, L2:a66t92s35k1r0z0c2i0g5w0v0.73 19.4, L0:a66t80s35k1r0z0c2i0g5w0v0.88 19.6, L0:a66t80s35k1r0z0c0i0g2w0v0.88 19.6, L2:a66t80s35k1r0z0c0i0g5w0v0.88 19.6
+ltune qkv_gate  m=128: base 19.0, f0=L2:a66t80s35k1r0z0c2i0g5w0v0.88 19.5, f1=L2:a66t92s35k1r0z0c2i0g5w0v0.73 19.7, f2=L0:a66t80s35k1r0z0c2i0g5w0v0.88 19.4, f3=L0:a66t80s35k1r0z0c0i0g2w0v0.88 19.7, f4=L2:a66t80s35k1r0z0c0i0g5w0v0.88 19.7; pref base margin 0.30 f0 -0.42/0 f1 -0.67/1 f2 -0.32/0 f3 -0.70/0 f4 -0.86/0 -> base
+lt o m=128: 32 heuristic, 788 swept, 225 other, screen best L3:a66t18s35k1r0z0c4i0g2w0v0.97 10.9, L1:a66t18s35k1r0z0c4i0g5w0v0.97 11.1, L3:a66t18s35k1r0z0c0i0g5w0v0.97 11.1, L3:a66t18s35k1r0z0c4i0g5w0v0.97 11.1, L0:a66t18s35k1r0z0c4i0g2w0v0.97 11.1
+ltune o         m=128: base 11.3, f0=L3:a66t18s35k1r0z0c4i0g2w0v0.97 11.2, f1=L1:a66t18s35k1r0z0c4i0g5w0v0.97 11.1, f2=L3:a66t18s35k1r0z0c0i0g5w0v0.97 11.3, f3=L3:a66t18s35k1r0z0c4i0g5w0v0.97 11.1, f4=L0:a66t18s35k1r0z0c4i0g2w0v0.97 11.2; pref base margin 0.30 f0 +0.16/8 f1 +0.22/8 f2 +0.03/5 f3 +0.32/9 f4 +0.13/8 -> f3
+lt pooler m=128: 60 heuristic, 792 swept, 189 other, screen best L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.8, L0:a66t134s35k1r0z0c0i0g7w0v0.79 25.2, L0:a66t143s35k1r0z0c2i0g7w0v0.71 25.3, L2:a66t143s35k1r0z0c2i0g7w0v0.71 25.4, L2:a66t143s35k1r0z0c0i0g7w0v0.71 25.4
+ltune pooler    m=128: base 26.6, pref=L1:a66t15s35k1r0z0c4i0g2w0v0.97 25.7, f0=L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.6, f1=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.7, f2=L0:a66t143s35k1r0z0c2i0g7w0v0.71 25.2, f3=L2:a66t143s35k1r0z0c2i0g7w0v0.71 25.0, f4=L2:a66t143s35k1r0z0c0i0g7w0v0.71 25.2; pref pref margin 0.30 base -0.77/1 f0 +1.12/8 f1 +0.99/9 f2 +0.48/8 f3 +0.77/8 f4 +0.42/8 -> f0
+lt unpooler m=128: 44 heuristic, 785 swept, 192 other, screen best L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.4, L1:a66t18s35k1r0z0c4i0g5w0v0.97 22.6, L3:a66t18s35k1r0z0c1i0g5w0v0.97 22.6, L3:a66t18s35k1r0z0c0i0g5w0v0.97 22.6, L1:a66t18s35k1r0z0c6i0g5w0v0.97 22.6
+ltune unpooler  m=128: base 24.1, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 22.6, f0=L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.7, f1=L1:a66t18s35k1r0z0c4i0g5w0v0.97 22.5, f2=L3:a66t18s35k1r0z0c1i0g5w0v0.97 22.5, f3=L3:a66t18s35k1r0z0c0i0g5w0v0.97 22.7, f4=L1:a66t18s35k1r0z0c6i0g5w0v0.97 23.4; pref pref margin 0.30 base -1.57/0 f0 -0.10/3 f1 +0.03/5 f2 +0.06/5 f3 +0.00/4 f4 -0.67/1 -> pref
+lt qkv_gate m=256: 60 heuristic, 792 swept, 190 other, screen best L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.3, L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.7, L0:a66t134s35k1r0z0c2i0g9w0v0.88 21.9, L0:a66t134s35k1r0z0c0i0g9w0v0.88 22.2, L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.3
+ltune qkv_gate  m=256: base 23.5, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.4, f0=L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.5, f1=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.7, f2=L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.2, f3=L0:a66t134s35k1r0z0c0i0g9w0v0.88 22.2, f4=L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.1; pref pref margin 0.45 base -1.98/0 f0 +0.00/4 f1 -0.06/3 f2 -0.74/2 f3 -0.77/1 f4 -0.74/2 -> pref
+lt o m=256: 32 heuristic, 788 swept, 216 other, screen best L2:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, L1:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, L0:a66t20s35k1r0z0c4i0g2w0v0.97 13.0, L1:a66t20s35k1r0z0c5i0g3w0v0.97 13.1, L1:a66t17s35k1r0z0c0i0g2w0v1.94 13.1
+ltune o         m=256: base 13.2, pref=L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, f0=L2:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, f1=L1:a66t20s35k1r0z0c4i0g3w0v0.97 12.8, f2=L0:a66t20s35k1r0z0c4i0g2w0v0.97 13.0, f3=L1:a66t20s35k1r0z0c5i0g3w0v0.97 12.7, f4=L1:a66t17s35k1r0z0c0i0g2w0v1.94 13.2; pref pref margin 0.32 base -0.22/1 f0 -0.10/3 f1 +0.06/6 f2 -0.06/4 f3 +0.13/6 f4 -0.13/1 -> pref
+lt pooler m=256: 50 heuristic, 790 swept, 222 other, screen best L3:a66t17s35k1r0z0c0i0g2w0v0.97 27.3, L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, L1:a66t17s35k1r0z0c0i0g2w0v0.97 27.6, L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.7, L3:a66t18s35k1r0z0c1i0g2w0v0.97 28.0
+ltune pooler    m=256: base 30.5, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.7, f0=L3:a66t17s35k1r0z0c0i0g2w0v0.97 27.6, f1=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, f2=L1:a66t17s35k1r0z0c0i0g2w0v0.97 27.7, f3=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, f4=L3:a66t18s35k1r0z0c1i0g2w0v0.97 28.4; pref pref margin 0.30 base -2.75/0 f0 +0.16/5 f1 +0.16/8 f2 -0.19/4 f3 +0.22/7 f4 -0.61/0 -> pref
+lt unpooler m=256: 32 heuristic, 788 swept, 202 other, screen best L3:a66t20s35k1r0z0c4i0g2w0v0.97 27.5, L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.8, L0:a66t20s35k1r0z0c0i0g2w0v0.97 27.8, L3:a66t20s35k1r0z0c4i0g3w0v0.97 27.8, L1:a66t20s35k1r0z0c0i0g2w0v0.97 27.8
+ltune unpooler  m=256: base 28.2, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.7, f0=L3:a66t20s35k1r0z0c4i0g2w0v0.97 27.6, f1=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.6, f2=L0:a66t20s35k1r0z0c0i0g2w0v0.97 27.9, f3=L3:a66t20s35k1r0z0c4i0g3w0v0.97 27.6, f4=L1:a66t20s35k1r0z0c0i0g2w0v0.97 27.7; pref pref margin 0.30 base -0.54/0 f0 +0.06/7 f1 +0.03/5 f2 -0.19/2 f3 +0.10/6 f4 +0.03/5 -> pref
+ablate pooler m=128: m128k2r4 34.9, m128k2r4_a1 30.5, m128k2r4_a3 28.6
+ablate o m=256: m256k1r4 25.6, m256k1r4_a1 23.4, m256k1r4_a3 18.5
+prepare done 109.0 s
+DRES as3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK as3 m=129 True err=0.00157/0
+DCHECK as3 m=200 True err=0.00159/0
+DCHECK as3 m=256 True err=0.00162/0
+DRES as4 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[30, 1, 90, 0, 0, 132160]
+DSKIP as4 active clusters below36 for144CTA grid
+DRES bs3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK bs3 m=129 True err=0.00158/0
+DCHECK bs3 m=200 True err=0.0016/0
+DCHECK bs3 m=256 True err=0.00162/0
+DRES bs4 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[30, 1, 90, 0, 0, 132160]
+DSKIP bs4 active clusters below36 for144CTA grid
+DREPLAY prod rep=0 True err=0.0016/0
+DREPLAY as3 rep=0 True err=0.0016/0
+DREPLAY bs3 rep=0 True err=0.0016/0
+DREPLAY prod rep=1 True err=0.0016/0
+DREPLAY as3 rep=1 True err=0.0016/0
+DREPLAY bs3 rep=1 True err=0.0016/0
+DTIME prod median_raw_us=26.6240 delta=+0.0000 faster=0/100
+DTIME as3 median_raw_us=39.4720 delta=+12.6560 faster=0/100
+DTIME bs3 median_raw_us=39.4080 delta=+12.8160 faster=0/100
+DRES as3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK as3 m=129 True err=0.00157/0
+DCHECK as3 m=200 True err=0.00159/0
+DCHECK as3 m=256 True err=0.00162/0
+DRES as4 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[30, 1, 90, 0, 0, 132160]
+DSKIP as4 active clusters below36 for144CTA grid
+DRES bs3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK bs3 m=129 True err=0.00158/0
+DCHECK bs3 m=200 True err=0.0016/0
+DCHECK bs3 m=256 True err=0.00162/0
+DRES bs4 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[30, 1, 90, 0, 0, 132160]
+DSKIP bs4 active clusters below36 for144CTA grid
+DREPLAY prod rep=0 True err=0.0016/0
+DREPLAY as3 rep=0 True err=0.0016/0
+DREPLAY bs3 rep=0 True err=0.0016/0
+DREPLAY prod rep=1 True err=0.0016/0
+DREPLAY as3 rep=1 True err=0.0016/0
+DREPLAY bs3 rep=1 True err=0.0016/0
+DTIME prod median_raw_us=26.6240 delta=+0.0000 faster=0/100
+DTIME as3 median_raw_us=39.4720 delta=+12.6560 faster=0/100
+DTIME bs3 median_raw_us=39.4080 delta=+12.8160 faster=0/100

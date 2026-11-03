@@ -1,0 +1,61 @@
+{
+  "source_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "source_line": 1975,
+  "scope": "Archived original secondary PTX only; no new compile, SASS census, runtime or timing.",
+  "families": [
+    {
+      "family": "B4",
+      "ptx_sha256": "07e50fbe32ca0d28d770ebd66a1542e62de8ac7d48b50316ee3e7afdf49ce6e3",
+      "static_copies": 216,
+      "per_entry": {
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 108,
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 108
+      },
+      "opcodes": [
+        "mul.f32",
+        "ex2.approx.f32",
+        "add.f32",
+        "div.approx.f32",
+        "mul.f32"
+      ],
+      "example": {
+        "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "ptx_line": 12583,
+        "instructions": [
+          "mul.f32 \t%f18810, %f18806, 0fBFB8AA3B;",
+          "ex2.approx.f32 \t%f18811, %f18810;",
+          "add.f32 \t%f18812, %f18811, 0f3F800000;",
+          "div.approx.f32 \t%f18813, %f18806, %f18812;",
+          "mul.f32 \t%f18809, %f18808, %f18813;"
+        ]
+      }
+    },
+    {
+      "family": "MAIN",
+      "ptx_sha256": "275c98b308f9fc7d330e7100861ebb930af09d0bbd306333fa98bd661b24e054",
+      "static_copies": 216,
+      "per_entry": {
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 108,
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 108
+      },
+      "opcodes": [
+        "mul.f32",
+        "ex2.approx.f32",
+        "add.f32",
+        "div.approx.f32",
+        "mul.f32"
+      ],
+      "example": {
+        "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "ptx_line": 12576,
+        "instructions": [
+          "mul.f32 \t%f17403, %f17399, 0fBFB8AA3B;",
+          "ex2.approx.f32 \t%f17404, %f17403;",
+          "add.f32 \t%f17405, %f17404, 0f3F800000;",
+          "div.approx.f32 \t%f17406, %f17399, %f17405;",
+          "mul.f32 \t%f17402, %f17401, %f17406;"
+        ]
+      }
+    }
+  ]
+}

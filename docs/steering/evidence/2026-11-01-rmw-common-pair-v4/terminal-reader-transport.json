@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/root/.cache/okc-host-validate/bin/python",
+    "tools/g_common_rmw_pair_read.py",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/own-terminal-receipt.json",
+    "--job",
+    "c5e4f89672f743bb",
+    "--source",
+    ".build/rmw-pair-v4/check.py",
+    "--log",
+    "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.log",
+    "--archive-attestation",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-log-attestation.json",
+    "--output",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader-observation.json"
+  ],
+  "exitcode": 0,
+  "expected_rejection": false,
+  "reason": "Frozen owning reader evaluated without edits."
+}

@@ -1,0 +1,9 @@
+test_actual_sass_wait_mix_and_resources (__main__.StageRetireTests.test_actual_sass_wait_mix_and_resources) ... ok
+test_exact_delta (__main__.StageRetireTests.test_exact_delta) ... ok
+test_exhaustive_stage_edges_and_phase_rollover (__main__.StageRetireTests.test_exhaustive_stage_edges_and_phase_rollover) ... ok
+STAGE_EDGE_CASES 49794 both phases incl empty/partial/wrap
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.407s
+
+OK

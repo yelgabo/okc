@@ -1,0 +1,10 @@
+owned_decoder.cu(53): warning #177-D: function "<unnamed>::bnd::boundary_kernel" was declared but never referenced
+  __global__ void __cluster_dims__(CTAS, 1, 1) __launch_bounds__(THREADS) boundary_kernel(
+                                                                          ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+owned_decoder.cu(132): warning #177-D: function "<unnamed>::bnd::attn_boundary_kernel" was declared but never referenced
+  __global__ void __cluster_dims__(CTAS, 1, 1) __launch_bounds__(THREADS) attn_boundary_kernel(
+                                                                          ^
+

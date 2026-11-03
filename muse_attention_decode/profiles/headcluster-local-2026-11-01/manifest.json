@@ -1,0 +1,58 @@
+{
+  "source": ".build/today-attn/headcluster.cu",
+  "source_sha256": "457f3c9199c0472f4d3ce02b813dce0e2989e9c5bb9952217f573b1bd20588f6",
+  "original_device_prefix_sha256": "7e5deee1b5549546e03bf178748549e5a380e28b66bc99358686bd7b79155673",
+  "compiled_device_prefix_sha256": "c1c72331a3a1ef66315e58bb2838805db5a7b343396f0085106baf8b669ad963",
+  "host_boundary": "template <int L, int MODE>\nstruct Instance {",
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\n#include <cuda/std/cstdint>\n"
+  },
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+    "-DONE_HEADCLUSTER=1"
+  ],
+  "declaration_adapter": {
+    "old": "constexpr float NEG_INF = -INFINITY;",
+    "new": "#define NEG_INF (__int_as_float((int)0xff800000u))"
+  },
+  "header_adapter": "Torch/ATen/algorithm/vector removed; cuda_runtime, CUDA cstdint, overflow float literal INFINITY (positive infinity); anonymous namespace closed after extract",
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_5ed0f248_32315attn_one_kernelILi8ELi3EEEvNS_6ParamsE"
+  ],
+  "ptx_sha256": "8b667d9f686a0abfeee12b2ed7be38048232f429abfab5739cdc67b8506b1e66",
+  "cubin_sha256": "430a6c817af4cf358afcd9b6351c7b311e024464c9a311621b43cc57cdc29194",
+  "ptxas": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    ".build/today-attn/headcluster-push-bf16-compile/device.ptx",
+    "-o",
+    ".build/today-attn/headcluster-push-bf16-compile/device.cubin"
+  ],
+  "exitcode": 0,
+  "resources": {
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_5ed0f248_32315attn_one_kernelILi8ELi3EEEvNS_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 96,
+      "barriers": 16
+    }
+  },
+  "ptx_launch_bounds": [
+    ".maxntid 128, 1, 1",
+    ".minnctapersm 2"
+  ],
+  "ptxas_wgmma_serialization_warnings": 0
+}

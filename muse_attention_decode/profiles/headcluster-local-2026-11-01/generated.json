@@ -1,0 +1,6 @@
+{
+  "bench_sha256": "4559fc2ff4541d2db6f0aa7e9b7da75fcccad225d06c551c04c58e20ec5120f5",
+  "pure_control_git": "6da000f",
+  "gpu_execution": false,
+  "cpu_tests": 5
+}

@@ -1,0 +1,51 @@
+{
+  "utc": "2026-11-01T17:27:24.539293+00:00",
+  "board": "muse_decode_layer",
+  "you": {
+    "rank": 316,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 315,
+    "to_first": 1.1685
+  },
+  "rows": [
+    {
+      "attempts": 50,
+      "job": "0585b7cd8ed1462d",
+      "rank": 10,
+      "screened_speedup": 2.3462738673160075,
+      "speedup": 2.4035,
+      "submitted_at": 1793540784.6411228,
+      "team": "ntovas",
+      "value": 9411.429986884334
+    },
+    {
+      "attempts": 16,
+      "job": "9694f906cdd94cbc",
+      "rank": 50,
+      "speedup": 2.2907,
+      "submitted_at": 1793507237.643405,
+      "team": "jiangularity",
+      "value": 9874.937841541087
+    },
+    {
+      "attempts": 7,
+      "job": "c19d91a0386c4dbb",
+      "rank": 100,
+      "speedup": 2.2506,
+      "submitted_at": 1793507646.6163836,
+      "team": "maxgrev",
+      "value": 10050.65975637392
+    },
+    {
+      "attempts": 41,
+      "job": "607eb52bdaf24160",
+      "rank": 316,
+      "speedup": 2.1261,
+      "submitted_at": 1793534312.3883686,
+      "team": "yelgabo",
+      "value": 10639.426326569794
+    }
+  ]
+}

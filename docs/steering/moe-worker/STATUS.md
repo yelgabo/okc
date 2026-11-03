@@ -1,0 +1,15 @@
+No active own GPU job. **Current public best4aa033ef23a142cd**, exact user-approved5df257af, PASS5/6/6,5788.720720us/2.323224880x CI[2.288376507,2.358073253],verified rank373from434. Target5559.8us remains228.920720us away. Waiter10826ended0. [Scored result and board proof](../2026-11-02-moe-control-release-qualification.md#public-result-verified). Prior private64f9998ef238476f was5762.134395us; keep the points separate.
+
+MOE-LUT-01 terminal loss, ownc985bbdb2980407a, paired542cd650/native8c2cfc7c, published5ff38524. Correctness5/6/6/all54cases passes, all6matched groups fail andall18affected cells regress. Official12337.764699us. Waiter73200ended0; full archive complete. Stop exact lookup without retry/LUT-size/layout/cache-policy sweep. [Decision and all six loads](../2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup).
+
+MOE-DIRECT-X-01 terminal loss94c57451574c4cd3, paired1191e44c/nativec705df6a publishedf1955498. Correctness5/6/6/all54cases passes;0/6matched groups,18affected regressions andone unchanged-path drift. Official7194.998534us. Waiter38355ended0, archive complete. Stop exact mapping/cache/ring design without retry. [Decision](../2026-11-02-moe-direct-input.md#terminal-decision-retain-global-gather).
+
+Next owned source preparation is lossless factorized expert-output storage, retaining BF16 down results and reconstructing the identical FP32 gamma product. No GPU allocation yet. General retains WS, reminder stays paused, no further public permission.
+
+| Closed own experiment | Result and stop |
+|---|---|
+|MOE-PHASE-01 6028cae5d12f4afb, source77ca05dc/native365c9eab|Setup serialization-bound failure after279.887460s; complete36private timing rows/18phase cases/4608timings/180extra traces retained, raw representative omitted. Global cost/stability gate false,13/18rows pass. No official score or qualified phase attribution. Stop exact observer, no retry/larger bound/guard/subset rescue. Waiter23561ended1. [Closure](../2026-11-02-moe-sparse-phase-evidence.md#terminal-stop).|
+|MOE-BQUEUE-01 e044121f822d47b1, paired4c8c470f/native99a6888d|PASS5/6/6 and complete54private cases;0/6matched groups,24six-load factors0.954109–0.995527,15affected regressions. Official5856.634195us/2.296284786x CI[2.261841,2.330729]. Stop exact queue and same-native wrapper, no retry/sweep/integration. Waiter56587ended0. [Closure](../2026-11-02-moe-worker-queue-experiment.md#terminal-decision-november-2-pacific).|
+|D32-IDENTITY-01 4a2a79bdac04499a|Terminal routing/coverage failure, archived; no further D32 experiments. [D32 ledger](../../steering/decode32/STATUS.md).|
+
+Factorized output storage is being checked as the next complete alternative. Further scheduling treatments still need valid current-source phase/tail exposure. Invalid observer spans cannot supply it. The exact control release advances independently rather than hiding its public gap behind a treatment loss. Historical5725.7us candidate46aafddc remains separately recovered asfde6b1ee/364234bytes; its T32 dispatcher differs from current c7. [All23better private scores and dispositions](../2026-11-02-private-promotion-audit.md).

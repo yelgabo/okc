@@ -1,0 +1,8 @@
+test_changed_payload_is_rejected (tools.test_cuda_scale_read.ReceiptIdentity) ... ok
+test_wrong_job_is_rejected_before_opening_its_log (tools.test_cuda_scale_read.ReceiptIdentity) ... ok
+test_wrong_problem_is_rejected_before_opening_its_log (tools.test_cuda_scale_read.ReceiptIdentity) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+OK

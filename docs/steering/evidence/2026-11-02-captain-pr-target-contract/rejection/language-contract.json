@@ -1,0 +1,17 @@
+{
+  "extra_cflags": [
+    "-O2",
+    "-std=c++17",
+    "-pthread"
+  ],
+  "target_default_standard": "-std=c++20",
+  "observed_target_effective_standard": 17,
+  "candidate_effective_standard": 17,
+  "target_minimum_standard": 20,
+  "target_language_contract_pass": false,
+  "target_environment_reproduced": false,
+  "target_abi_proved": false,
+  "candidate_sha256": "0f90a2a806dd5cb3247f1843f936621dfef7de4f9f2e104bd7898caee72e93fb",
+  "source_sha256": "a61640986eb181394636fa88b210e4ad6dccccf31617a3959ea17954f8762ca9",
+  "target_build_log_sha256": "dc9d89cf66ce81a8355fcef8e8230dbe42a31b101a100badb996be9ecc8d4dcb"
+}

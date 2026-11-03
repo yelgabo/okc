@@ -1,0 +1,1323 @@
+{
+  "source_pins": [
+    {
+      "path": ".build/today/kel/kernels/muse_decode_layer.py",
+      "sha256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a",
+      "bytes": 995999,
+      "lf_sha256": "82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19",
+      "lf_bytes": 979654
+    },
+    {
+      "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+      "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "bytes": 869076,
+      "lf_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "lf_bytes": 869076
+    }
+  ],
+  "jobs": [
+    {
+      "label": "G0",
+      "receipt": "muse_decode_layer/profiles/kel.3a5f879df0d44825.json",
+      "sha256": "60e7b55e80af0b613bb09d2f7b67043077e1a6902184adf6b52b030efc503289",
+      "id": "3a5f879df0d44825",
+      "content_hash": "c53f66a694fdf2b2a9f123300d9a7f9df2250b6bce3f69ebf4b8da54776aa05e",
+      "mode": "check",
+      "node": "n-hg25ugy45aa3trrcfa4kf5iljz",
+      "evaluator": "2999d8a201bb2b0bad6c7b3998af2143a1ed720d531dbb4d15670721ee9f957b",
+      "score": 2.2487905322335195,
+      "ci": [
+        2.2150586742500167,
+        2.282522390217022
+      ],
+      "latency_us": {
+        "decode 1": 68.20387439088347,
+        "decode 16": 149.7007097249302,
+        "decode 32": 190.71903248703518,
+        "verify 1": 103.61862499583594,
+        "verify 16": 258.67070643168705,
+        "verify 32": 350.7969725295353
+      },
+      "baseline_us": {
+        "decode 1": 174.45522626381248,
+        "decode 16": 312.0758657103344,
+        "decode 32": 365.74710588601806,
+        "verify 1": 262.2379428526807,
+        "verify 16": 571.2108385689075,
+        "verify 32": 793.8616825868526
+      }
+    },
+    {
+      "label": "G607",
+      "receipt": "muse_decode_layer/profiles/scored.607eb52bdaf24160.json",
+      "sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+      "id": "607eb52bdaf24160",
+      "content_hash": "5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e",
+      "mode": "run",
+      "node": "n-fwq5zu7sgu2oyb5nsz3gf5n23p",
+      "evaluator": "2999d8a201bb2b0bad6c7b3998af2143a1ed720d531dbb4d15670721ee9f957b",
+      "score": 2.1260826764231098,
+      "ci": [
+        2.0941914362767626,
+        2.1579739165694556
+      ],
+      "latency_us": {
+        "decode 1": 78.54904481802232,
+        "decode 16": 158.24100957331896,
+        "decode 32": 191.73973579615887,
+        "verify 1": 115.99082289963329,
+        "verify 16": 269.3470291119481,
+        "verify 32": 359.2972160894351
+      },
+      "baseline_us": {
+        "decode 1": 173.2898073631429,
+        "decode 16": 310.5388330746322,
+        "decode 32": 357.24438862093996,
+        "verify 1": 266.5878654637885,
+        "verify 16": 583.5463209528356,
+        "verify 32": 826.1760061366424
+      }
+    }
+  ],
+  "cells": [
+    {
+      "load": "decode 1",
+      "layer": "sliding",
+      "G0_seed": "8286697271054136343",
+      "G607_seed": "2594116087711408936",
+      "seeds_equal": false,
+      "G0_adjusted_us": 66.35249414906673,
+      "G607_adjusted_us": 76.74810129226927,
+      "G0_raw_us": 68.49600002169609,
+      "G607_raw_us": 81.02400228381157,
+      "G0_expert_profile_us": 23.6,
+      "G607_expert_profile_us": 29.8,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 23.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+          "us": 17.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+          "us": 11.4,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 4, 1, 4, true...",
+          "us": 6.3,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, false, 13>((an...",
+          "us": 5.2,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          "us": 4.5,
+          "calls": 1
+        },
+        {
+          "name": "_gle_route",
+          "us": 2.6,
+          "calls": 1
+        },
+        {
+          "name": "_sl_cluster_finish",
+          "us": 1.9,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 29.8,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+          "us": 17.9,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+          "us": 10.5,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          "us": 6.0,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, false, 13>((an...",
+          "us": 5.4,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          "us": 4.4,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, true, fal...",
+          "us": 3.4,
+          "calls": 1
+        },
+        {
+          "name": "_sl_cluster_finish",
+          "us": 2.3,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.0,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "G0_seed": "8286943481265429916",
+      "G607_seed": "2594202932468765874",
+      "seeds_equal": false,
+      "G0_adjusted_us": 73.52659258610663,
+      "G607_adjusted_us": 83.72675745456237,
+      "G0_raw_us": 79.6000026166439,
+      "G607_raw_us": 86.64000034332275,
+      "G0_expert_profile_us": 21.8,
+      "G607_expert_profile_us": 42.8,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 21.8,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+          "us": 17.4,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, false, 11>((an...",
+          "us": 11.8,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+          "us": 11.3,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 4, 1, 4, true...",
+          "us": 6.2,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          "us": 4.6,
+          "calls": 1
+        },
+        {
+          "name": "_gle_route",
+          "us": 2.5,
+          "calls": 1
+        },
+        {
+          "name": "_sl_cluster_finish",
+          "us": 1.9,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 42.8,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+          "us": 17.9,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, false, 11>((an...",
+          "us": 12.1,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+          "us": 10.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          "us": 5.9,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          "us": 4.5,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, true, fal...",
+          "us": 3.3,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.0,
+          "calls": 1
+        },
+        {
+          "name": "_sl_cluster_finish",
+          "us": 1.9,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "G0_seed": "8287189691476723490",
+      "G607_seed": "2594289777226122813",
+      "seeds_equal": false,
+      "G0_adjusted_us": 130.18737489708104,
+      "G607_adjusted_us": 138.66071382597238,
+      "G0_raw_us": 132.62400031089783,
+      "G607_raw_us": 139.8720070719719,
+      "G0_expert_profile_us": 65.5,
+      "G607_expert_profile_us": 77.0,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 65.5,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+          "us": 18.9,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+          "us": 15.3,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+          "us": 10.6,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, false, 1>((ano...",
+          "us": 7.8,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+          "us": 6.0,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, true, false, false, tru...",
+          "us": 3.8,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, false, tr...",
+          "us": 3.3,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 1.9,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 77.0,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+          "us": 18.9,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+          "us": 14.9,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+          "us": 10.6,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, false, 1>((ano...",
+          "us": 8.0,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+          "us": 6.1,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, true, false, false, tru...",
+          "us": 3.4,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, false, tr...",
+          "us": 3.1,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.0,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "G0_seed": "8287435901688017065",
+      "G607_seed": "2594376621983479753",
+      "seeds_equal": false,
+      "G0_adjusted_us": 205.8015473549966,
+      "G607_adjusted_us": 214.53435984694036,
+      "G0_raw_us": 210.704006254673,
+      "G607_raw_us": 218.56000274419785,
+      "G0_expert_profile_us": 57.4,
+      "G607_expert_profile_us": 65.2,
+      "G0_profile_rows": [
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, true, 0>((anon...",
+          "us": 89.0,
+          "calls": 1
+        },
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 57.4,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+          "us": 17.3,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+          "us": 14.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+          "us": 10.1,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+          "us": 9.9,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, true, false, false, tru...",
+          "us": 3.7,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, false, tr...",
+          "us": 3.7,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.1,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, true, 0>((anon...",
+          "us": 87.5,
+          "calls": 1
+        },
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 65.2,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+          "us": 17.3,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+          "us": 14.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+          "us": 10.4,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+          "us": 6.1,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, true, false, false, tru...",
+          "us": 3.7,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, false, tr...",
+          "us": 3.5,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.1,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "G0_seed": "8287682111899310641",
+      "G607_seed": "2594463466740836694",
+      "seeds_equal": false,
+      "G0_adjusted_us": 152.17241208225775,
+      "G607_adjusted_us": 154.82044500163073,
+      "G0_raw_us": 155.8080017566681,
+      "G607_raw_us": 157.76000171899796,
+      "G0_expert_profile_us": 81.7,
+      "G607_expert_profile_us": 70.6,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 81.7,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+          "us": 22.0,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+          "us": 18.2,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+          "us": 11.2,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, false, 1>((ano...",
+          "us": 9.4,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary_pre",
+          "us": 7.5,
+          "calls": 2
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+          "us": 6.9,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.0,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 70.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+          "us": 20.4,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+          "us": 16.0,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+          "us": 11.4,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, false, 1>((ano...",
+          "us": 9.6,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary_pre",
+          "us": 6.9,
+          "calls": 2
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+          "us": 6.2,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.1,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "G0_seed": "8287928322110604218",
+      "G607_seed": "2594550311498193636",
+      "seeds_equal": false,
+      "G0_adjusted_us": 301.54056615077025,
+      "G607_adjusted_us": 297.8826968304272,
+      "G0_raw_us": 305.87200820446014,
+      "G607_raw_us": 312.3199939727783,
+      "G0_expert_profile_us": 82.4,
+      "G607_expert_profile_us": 87.6,
+      "G0_profile_rows": [
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, true, 0>((anon...",
+          "us": 169.9,
+          "calls": 1
+        },
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 82.4,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+          "us": 20.9,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+          "us": 17.8,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+          "us": 11.9,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+          "us": 11.3,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary_pre",
+          "us": 10.0,
+          "calls": 2
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.1,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void (anonymous namespace)::attn_kernel<1, true, 0>((anon...",
+          "us": 170.0,
+          "calls": 1
+        },
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 87.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+          "us": 19.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+          "us": 15.9,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+          "us": 11.4,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary_pre",
+          "us": 7.5,
+          "calls": 2
+        },
+        {
+          "name": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+          "us": 6.2,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.1,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "G0_seed": "8288174532321897796",
+      "G607_seed": "2594637156255550579",
+      "seeds_equal": false,
+      "G0_adjusted_us": 100.60625839685392,
+      "G607_adjusted_us": 115.43186043519749,
+      "G0_raw_us": 106.06399923563004,
+      "G607_raw_us": 120.78399956226349,
+      "G0_expert_profile_us": 44.2,
+      "G607_expert_profile_us": 71.6,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 44.2,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+          "us": 19.9,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_narrow_1858d55769b5<1, 8, 3, 1, 4, 2, 5, ...",
+          "us": 9.9,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, false, 15>((an...",
+          "us": 7.2,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          "us": 6.1,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          "us": 4.5,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, true, tru...",
+          "us": 3.2,
+          "calls": 1
+        },
+        {
+          "name": "_sl_cluster_finish",
+          "us": 2.0,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 1.9,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 71.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+          "us": 18.7,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...",
+          "us": 9.1,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, false, 15>((an...",
+          "us": 7.4,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          "us": 6.0,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          "us": 4.7,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, true, tru...",
+          "us": 3.0,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 1.9,
+          "calls": 1
+        },
+        {
+          "name": "_sl_cluster_finish",
+          "us": 1.7,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "verify 1",
+      "layer": "full",
+      "G0_seed": "8288420742533191375",
+      "G607_seed": "2594724001012907523",
+      "seeds_equal": false,
+      "G0_adjusted_us": 112.27917896790929,
+      "G607_adjusted_us": 117.59783998488622,
+      "G0_raw_us": 115.13600125908852,
+      "G607_raw_us": 122.48000130057335,
+      "G0_expert_profile_us": 57.6,
+      "G607_expert_profile_us": 58.8,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 57.6,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+          "us": 18.6,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, false, 11>((an...",
+          "us": 15.0,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_narrow_1858d55769b5<1, 8, 3, 1, 4, 2, 5, ...",
+          "us": 9.2,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          "us": 6.0,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          "us": 4.8,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, true, tru...",
+          "us": 3.4,
+          "calls": 1
+        },
+        {
+          "name": "_sl_cluster_finish",
+          "us": 2.0,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.0,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<false>(okc::Params)",
+          "us": 58.8,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+          "us": 18.6,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, false, 11>((an...",
+          "us": 15.0,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...",
+          "us": 9.3,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          "us": 6.1,
+          "calls": 1
+        },
+        {
+          "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          "us": 4.5,
+          "calls": 1
+        },
+        {
+          "name": "void glue_cluster_boundary<4, 32, false, false, true, tru...",
+          "us": 3.2,
+          "calls": 1
+        },
+        {
+          "name": "_sl_tile_route",
+          "us": 2.0,
+          "calls": 1
+        },
+        {
+          "name": "_sl_cluster_finish",
+          "us": 1.9,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "G0_seed": "8288666952744484955",
+      "G607_seed": "2594810845770264468",
+      "seeds_equal": false,
+      "G0_adjusted_us": 237.37301270655368,
+      "G607_adjusted_us": 247.13099535493978,
+      "G0_raw_us": 240.64000695943832,
+      "G607_raw_us": 253.21601331233978,
+      "G0_expert_profile_us": 161.1,
+      "G607_expert_profile_us": 155.3,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<true>(okc::Params)",
+          "us": 161.1,
+          "calls": 1
+        },
+        {
+          "name": "void rq<128, 5, 1, 0, 0, 0, 42999939, 1>(RqP, RqTmap, RqT...",
+          "us": 30.7,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+          "us": 25.2,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, false, 3>((ano...",
+          "us": 11.9,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary",
+          "us": 9.8,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+          "us": 8.5,
+          "calls": 1
+        },
+        {
+          "name": "_graft_route",
+          "us": 2.7,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<true>(okc::Params)",
+          "us": 155.3,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+          "us": 28.5,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+          "us": 25.4,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN",
+          "us": 16.9,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, false, 3>((ano...",
+          "us": 11.8,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary",
+          "us": 9.7,
+          "calls": 2
+        },
+        {
+          "name": "_graft_route",
+          "us": 2.8,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "verify 16",
+      "layer": "full",
+      "G0_seed": "8288913162955778536",
+      "G607_seed": "2594897690527621414",
+      "seeds_equal": false,
+      "G0_adjusted_us": 319.9015758914454,
+      "G607_adjusted_us": 333.21812616334677,
+      "G0_raw_us": 323.88800382614136,
+      "G607_raw_us": 336.11199259757996,
+      "G0_expert_profile_us": 145.2,
+      "G607_expert_profile_us": 178.1,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<true>(okc::Params)",
+          "us": 145.2,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, true, 0>((anon...",
+          "us": 107.2,
+          "calls": 1
+        },
+        {
+          "name": "void rq<128, 5, 1, 0, 0, 0, 42999939, 1>(RqP, RqTmap, RqT...",
+          "us": 30.6,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+          "us": 24.7,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary",
+          "us": 9.2,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+          "us": 7.2,
+          "calls": 1
+        },
+        {
+          "name": "_graft_route",
+          "us": 2.6,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<true>(okc::Params)",
+          "us": 178.1,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, true, 0>((anon...",
+          "us": 104.1,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+          "us": 28.6,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+          "us": 24.9,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN",
+          "us": 16.8,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary",
+          "us": 9.4,
+          "calls": 2
+        },
+        {
+          "name": "_graft_route",
+          "us": 2.8,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "verify 32",
+      "layer": "sliding",
+      "G0_seed": "8289159373167072118",
+      "G607_seed": "2594984535284978361",
+      "seeds_equal": false,
+      "G0_adjusted_us": 308.6912949593431,
+      "G607_adjusted_us": 316.3895368878032,
+      "G0_raw_us": 316.1280006170273,
+      "G607_raw_us": 318.7520056962967,
+      "G0_expert_profile_us": 197.2,
+      "G607_expert_profile_us": 204.8,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<true>(okc::Params)",
+          "us": 197.2,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+          "us": 32.0,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+          "us": 25.9,
+          "calls": 1
+        },
+        {
+          "name": "void rq<256, 5, 1, 0, 1, 0, 65603, 1>(RqP, RqTmap, RqTmap)",
+          "us": 18.1,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, false, 3>((ano...",
+          "us": 15.8,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary",
+          "us": 13.9,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+          "us": 9.9,
+          "calls": 1
+        },
+        {
+          "name": "_graft_route",
+          "us": 3.4,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<true>(okc::Params)",
+          "us": 204.8,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+          "us": 31.5,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+          "us": 25.6,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN",
+          "us": 20.7,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, false, 3>((ano...",
+          "us": 15.4,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary",
+          "us": 13.6,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+          "us": 9.1,
+          "calls": 1
+        },
+        {
+          "name": "_graft_route",
+          "us": 3.6,
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "load": "verify 32",
+      "layer": "full",
+      "G0_seed": "8289405583378365701",
+      "G607_seed": "2595071380042335309",
+      "seeds_equal": false,
+      "G0_adjusted_us": 471.85079554383793,
+      "G607_adjusted_us": 482.6567937941269,
+      "G0_raw_us": 475.95199942588806,
+      "G607_raw_us": 487.44000494480133,
+      "G0_expert_profile_us": 190.2,
+      "G607_expert_profile_us": 203.3,
+      "G0_profile_rows": [
+        {
+          "name": "void okc::moe_fused<true>(okc::Params)",
+          "us": 190.2,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, true, 0>((anon...",
+          "us": 186.7,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+          "us": 32.2,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+          "us": 25.4,
+          "calls": 1
+        },
+        {
+          "name": "void rq<256, 5, 1, 0, 1, 0, 65603, 1>(RqP, RqTmap, RqTmap)",
+          "us": 18.0,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary",
+          "us": 13.5,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+          "us": 9.0,
+          "calls": 1
+        },
+        {
+          "name": "_graft_route",
+          "us": 3.5,
+          "calls": 1
+        }
+      ],
+      "G607_profile_rows": [
+        {
+          "name": "void okc::moe_fused<true>(okc::Params)",
+          "us": 203.3,
+          "calls": 1
+        },
+        {
+          "name": "void (anonymous namespace)::attn_kernel<8, true, 0>((anon...",
+          "us": 186.2,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+          "us": 31.8,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+          "us": 25.4,
+          "calls": 1
+        },
+        {
+          "name": "nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN",
+          "us": 20.5,
+          "calls": 1
+        },
+        {
+          "name": "_graft_row_boundary",
+          "us": 13.4,
+          "calls": 2
+        },
+        {
+          "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+          "us": 9.0,
+          "calls": 1
+        },
+        {
+          "name": "_graft_route",
+          "us": 3.6,
+          "calls": 1
+        }
+      ]
+    }
+  ],
+  "loads": [
+    {
+      "load": "decode 1",
+      "G0_us": 68.20387439088347,
+      "G607_us": 78.54904481802232,
+      "G607_latency_increase_pct": 15.168009910770763
+    },
+    {
+      "load": "decode 16",
+      "G0_us": 149.7007097249302,
+      "G607_us": 158.24100957331896,
+      "G607_latency_increase_pct": 5.704916071594623
+    },
+    {
+      "load": "decode 32",
+      "G0_us": 190.71903248703518,
+      "G607_us": 191.73973579615887,
+      "G607_latency_increase_pct": 0.5351869164883061
+    },
+    {
+      "load": "verify 1",
+      "G0_us": 103.61862499583594,
+      "G607_us": 115.99082289963329,
+      "G607_latency_increase_pct": 11.940129396905764
+    },
+    {
+      "load": "verify 16",
+      "G0_us": 258.67070643168705,
+      "G607_us": 269.3470291119481,
+      "G607_latency_increase_pct": 4.1273798751852775
+    },
+    {
+      "load": "verify 32",
+      "G0_us": 350.7969725295353,
+      "G607_us": 359.2972160894351,
+      "G607_latency_increase_pct": 2.4231234091349307
+    }
+  ],
+  "official_score_ratio_G0_over_G607": 1.057715467592658,
+  "conditional_all_original_times_factor": 1.065243721279844,
+  "conditional_short_original_times_factor": 1.0432449180720351,
+  "same_evaluator": true,
+  "same_gpu_node": false,
+  "matched_inputs": false,
+  "scope": "Historical unmatched whole-load observations. Rounded profiler activities are not exposed critical-path times or causal repair costs."
+}

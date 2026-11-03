@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-02T05:58:55.943Z",
+  "job": "6f83ee875dd847c1",
+  "session_id": 47783,
+  "command": [
+    "wsl.exe",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/wait-own.py"
+  ],
+  "scope": "own accepted ID only; no additional check"
+}

@@ -1,0 +1,88 @@
+{
+  "board": "muse_decode_layer",
+  "call_id": "kc-16b4db27421d4714",
+  "cluster": "sfo3",
+  "content_hash": "09017717fcca125fa947d2e8e143da7409080668cd55c77d6229bf252d6ebed1",
+  "created_at": 1793583100.5552702,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793584803.4106703,
+  "id": "16b4db27421d4714",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/rmw-pair-v3/profiles/check.16b4db27421d4714.log"
+  },
+  "payload_ref": "muse_decode_layer/09017717fcca125fa947d2e8e143da7409080668cd55c77d6229bf252d6ebed1.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "1ba270d841be831b06a5862f4094cd0d5072edfbd0f6e84b95f79248296367dd",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "60e242544d5f5a5fc143870461f7373b85accb677a536cb337581ded938c4a48",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:8c102d00529abd8b80898116ac64a9c8f66bbd256d56142be4b96fb626e89452"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True\nFORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off\nG1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]\nG_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-q88ddrci/run/worker.py\", line 423, in child_main\n    send(_setup_op(msg, module, state, sync, perf))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-q88ddrci/run/worker.py\", line 322, in _setup_op\n    state[\"prep\"] = prepare(weights)\n                    ^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-q88ddrci/run/submission.py\", line 18258, in prepare\n    return _srp_prepare(weights)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-q88ddrci/run/submission.py\", line 17868, in _srp_prepare\n    result,report=_wl_prepare(weights,production)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-q88ddrci/run/submission.py\", line 18191, in _wl_prepare\n    occupied_empty_checks=_srp_occupied_empty(arms);budget()\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-q88ddrci/run/submission.py\", line 17841, in _srp_occupied_empty\n    graph.replay();torch.cuda.synchronize()\n                   ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/cuda/__init__.py\", line 1281, in synchronize\n    return torch._C._cuda_synchronize()\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntorch.AcceleratorError: CUDA error: unspecified launch failure\nSearch for `cudaErrorLaunchFailure' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nThe CUDA driver logged these messages, which may provide useful details:\nReturning 719 (CUDA_ERROR_LAUNCH_FAILED) from cuCtxSynchronize_v2\n\n\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "595.91.07",
+        "name": "NVIDIA H200",
+        "power.draw": 126.43,
+        "power.limit": 700,
+        "temperature.gpu": 38
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 345,
+        "driver_version": "595.91.07",
+        "name": "NVIDIA H200",
+        "power.draw": 90.78,
+        "power.limit": 700,
+        "temperature.gpu": 36
+      },
+      "node": "n-nzf2vzn536ewibf7w3dgpswb6g"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 2,
+        "baseline_prepare_pad": 13243392,
+        "copies": null,
+        "error": "AcceleratorError: CUDA error: unspecified launch failure\nSearch for `cudaErrorLaunchFailure' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nThe CUDA driver logged these messages, which may provide useful details:\nReturning 719 (CUDA_ERROR_LAUNCH_FAILED) from cuCtxSynchronize_v2\n\n",
+        "event": "setup",
+        "first": "submission",
+        "prepare_pad": null,
+        "prepare_s": null,
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793584565.829248,
+  "status": "done",
+  "team": "yelgabo"
+}

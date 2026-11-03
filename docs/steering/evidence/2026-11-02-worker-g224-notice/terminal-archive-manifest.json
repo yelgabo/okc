@@ -1,0 +1,205 @@
+{
+  "job_id": "e1271ad5e5e34b24",
+  "decision": "ORDINARY_PRIVATE_COMPLETE_CORRECTNESS_PASS_PERFORMANCE_DESCRIPTIVE_ONLY",
+  "canonical_repository_bytes": true,
+  "files": [
+    {
+      "path": "tools/g224_notice_pack.py",
+      "git_blob": "ac8c3d7dd2a6752d2d44529e34e6c4b2f2679197",
+      "bytes": 4652,
+      "sha256": "a012cc498b4975e5c3bf71621a53c017a0d49089182d7fceb568f0d2e4caec7e"
+    },
+    {
+      "path": "tools/test_g224_notice_pack.py",
+      "git_blob": "1d398458bd02493df4eea8ffbc168d19c7a72b32",
+      "bytes": 1754,
+      "sha256": "c1f80bfba69fc11863f328b7a5bbb3b085826375dacf5621d83b74c60c38d71f"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-g224-notice-registration.md",
+      "git_blob": "c3f7a077f3612fdc7ed0be80ee87e5942e0a0263",
+      "bytes": 5911,
+      "sha256": "f05e1637de4f95d560113f3548dc6531e6c3598a9aea0178af8cf9c620d614c3"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-g224-notice-accepted.md",
+      "git_blob": "070fada6087ff8dce02b0954fff83b18dce16116",
+      "bytes": 2243,
+      "sha256": "3ec9de667e8881ef79bcbcaa538babcb3e66d6027fbfaf9b81b5714ef7bf6a65"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-g224-notice-terminal.md",
+      "git_blob": "7bfb808f6812c35b216039600386aa1505fb915d",
+      "bytes": 7408,
+      "sha256": "dd86aac13d4a39a5c9cbad8d39227c1b25e626a60687546cc154ea8b14f3a66c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/acceptance-association.json",
+      "git_blob": "c3b64cacb4a61282700584fa2c9c49e8fb616cb2",
+      "bytes": 774,
+      "sha256": "21ffbd62f5e76db4d999a8572ac90253cd24d9f116dcf9f0d95c0d79e721b798"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/accepted-status.json",
+      "git_blob": "84cc43a521f60ed1994b85605a498bdf87b3fc65",
+      "bytes": 59,
+      "sha256": "42c8dcfa6363b6fb77d37be23c30d3c751f2cd5b90ba9c69e78ccfc2d4eafabb"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/dispatch-intent.json",
+      "git_blob": "3da330470a2e51b159f9293c65b1f4138bd8d9af",
+      "bytes": 534,
+      "sha256": "aeaa404a5630da004c8703e140bf55c5ee38c446263682afb51f1c378aa86fde"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/dispatch.json",
+      "git_blob": "83360166296541c190815c2f0f2d769e1e526a2b",
+      "bytes": 69,
+      "sha256": "8b4ef4a91409969188ab3648bcdc8ebdf550a757d7d847ca04d09a8e771b9ee0"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/dispatch.stderr",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/generate.log",
+      "git_blob": "f5c0ad7c2683c2390e3720d5129c782c8e0d3dc5",
+      "bytes": 4977,
+      "sha256": "5c1dbe880d00432ed862493ef69e4a65641fb915829fa36f065de850b3015485"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/own-server-receipt.json",
+      "git_blob": "fbf38d57802d5e578aa5ec5015a03ca22bde1af5",
+      "bytes": 352,
+      "sha256": "8c73c97317ba4b9d820ea1109f58d9c22c18fdd93f0dfa5d0fbc8fa8e7b4530e"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/package-manifest.json",
+      "git_blob": "f5c0ad7c2683c2390e3720d5129c782c8e0d3dc5",
+      "bytes": 4977,
+      "sha256": "5c1dbe880d00432ed862493ef69e4a65641fb915829fa36f065de850b3015485"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/postaccept-problems.json",
+      "git_blob": "2a06f77dcf07c392c3bc7878adfe28d4d8ff322d",
+      "bytes": 1536,
+      "sha256": "763e83a8ea1deb90bb88dd164315e380604842063507f32cd70caa105366f132"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/preflight-jobs.json",
+      "git_blob": "dcd4d8b7aaf4f19dca90480554bd024ca075e8ac",
+      "bytes": 13826,
+      "sha256": "80d767b4b15b531a279d6e9c56498780b5ac319066c43b9756fd00e36c02ea2e"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/preflight-problems.json",
+      "git_blob": "2a06f77dcf07c392c3bc7878adfe28d4d8ff322d",
+      "bytes": 1536,
+      "sha256": "763e83a8ea1deb90bb88dd164315e380604842063507f32cd70caa105366f132"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/preregistration-manifest.json",
+      "git_blob": "62a9c3851680af375f87757430cc215abc7df05e",
+      "bytes": 1865,
+      "sha256": "7c00438595eb8def4928b5e5c1316ca06d67bae0cbccb6480324966f250191f3"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/preregistration-remote.json",
+      "git_blob": "4c33b7b04958c4884466a467fd0d540062d29154",
+      "bytes": 275,
+      "sha256": "38785de7c19c6c69cdf8c61638d32637915cf78eff35cb1b6944bfa8d0de8b82"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/rebuild.log",
+      "git_blob": "f5c0ad7c2683c2390e3720d5129c782c8e0d3dc5",
+      "bytes": 4977,
+      "sha256": "5c1dbe880d00432ed862493ef69e4a65641fb915829fa36f065de850b3015485"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/reconcile-jobs.json",
+      "git_blob": "7bffc57c287aafab77b19b588f3b970495086c03",
+      "bytes": 13813,
+      "sha256": "3866563f24824aa1f2e632da15013ed0f5c75b5b14b8731cb8483ab6eea611de"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/reconciled-own-status.json",
+      "git_blob": "437f47f3205bac38b16c392d0f4090ea6ca40f44",
+      "bytes": 394,
+      "sha256": "dde9f50d282bd00b7dea77e05cfc8c31c930659bfc23da5b036e7d9c8b80fbc1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/reconciled-problems.json",
+      "git_blob": "95299c79a2e263995e1bdc627c1793b57443466d",
+      "bytes": 1536,
+      "sha256": "c864046096ae65c7ada70b0bead18c03878c539e698b4b14866485a2beb1b585"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/terminal-decision.json",
+      "git_blob": "ee0365ceb9c55f61c9ebf88231f56744a2a6f1e9",
+      "bytes": 5626,
+      "sha256": "9755fbd2f0c8b08f6a0d000628348794a462bd58383596816bb99278fe18004c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/terminal-log-tail.txt",
+      "git_blob": "9a76cf3c49f9b5c77736485f31822a45b1abc4a0",
+      "bytes": 2325,
+      "sha256": "0f49c221323e58536094e17c4aef3f740df420e4df12bf9186694780a68b732a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/terminal-status-resumed.json",
+      "git_blob": "3e0d4341f9b8039aec8164ccc6a935c36cf3cf4c",
+      "bytes": 73665,
+      "sha256": "0eea121c946a8ee9e6092895cfcd968d707b134f328c75a074b2b1cad369d944"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/terminal-status.json",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/tests.log",
+      "git_blob": "3e450e10662fc44039512ebceab11f1fa479ee3c",
+      "bytes": 103,
+      "sha256": "3ac5b79aa9ec6805d0e450b24fdfc26a52c94c46cd72a7a0197c4ef312bdd80d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/variant.e1271ad5e5e34b24.json",
+      "git_blob": "9698a17fc6c3aff640ad7d3ffedccd63a7836fd6",
+      "bytes": 57765,
+      "sha256": "68983009d769950e8b69597c04a958329eb3936aa82692d11ccaba5dc82766b7"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/variant.e1271ad5e5e34b24.log",
+      "git_blob": "6adced62144454c75801459186d8b97c07ac97e0",
+      "bytes": 369,
+      "sha256": "6499b6142d73be1b11b3d769321a4d98d81948528cac631eb1c4a8eb617a17dd"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/variant.e1271ad5e5e34b24.txt",
+      "git_blob": "18a3d21dff77615eb7a854b11214fce89fe0e6c7",
+      "bytes": 13849,
+      "sha256": "11e63666d3b781578824dc911de267510e8073f14108d65cc3bd87ea6b7320cd"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/variant.py",
+      "git_blob": "1fb324dbe51b33e2bb5ad638d1e3dee75151bba5",
+      "bytes": 999492,
+      "sha256": "0d84d0e34303f2a154a914ace131cbae661cc61def18f7bfcbc20ed3f218cf76"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/wait-resumed.stderr",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/wait.stderr",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

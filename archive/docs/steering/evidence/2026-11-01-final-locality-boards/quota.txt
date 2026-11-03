@@ -1,0 +1,9 @@
+muse_bf16_proj         Dense projections       6 of 10 runs left today, 0 of 20 checks
+muse_attention_decode  Gated attention decode  7 of 10 runs left today, 4 of 20 checks
+muse_moe_w4a16         Routed experts          8 of 10 runs left today, 0 of 20 checks
+muse_decode_layer      Whole decoder layer     2 of 10 runs left today, 0 of 20 checks
+muse_prefill_layer     Prefill layer           7 of 10 runs left today, 1 of 20 checks
+
+Kernel submissions close Nov 4 at 11:59 pm PT. The serving track opens Nov 5 at noon PT.
+
+next  okc show muse_bf16_proj

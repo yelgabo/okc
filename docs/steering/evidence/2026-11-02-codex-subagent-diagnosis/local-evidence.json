@@ -1,0 +1,309 @@
+{
+  "captured_utc": "2026-11-02T10:03:21.600Z",
+  "protocol": [
+    {
+      "line": 384,
+      "timestamp": "2026-11-02T09:54:44.862Z",
+      "thread_id": "01a19bae-c402-79c3-a27f-baff9e5fd2ac",
+      "method": "turn/start",
+      "direction": "outgoing",
+      "params": {
+        "threadId": "01a19bae-c402-79c3-a27f-baff9e5fd2ac"
+      }
+    },
+    {
+      "line": 503,
+      "timestamp": "2026-11-02T09:55:48.674Z",
+      "thread_id": "01a19bae-c402-79c3-a27f-baff9e5fd2ac",
+      "method": "item/started",
+      "direction": "incoming",
+      "item": {
+        "type": "subAgentActivity",
+        "id": "call_bb3e37f2f0864f708e3dc31d48e7e8ef",
+        "model": "gpt-6.1-sol",
+        "reasoningEffort": "xhigh"
+      }
+    },
+    {
+      "line": 505,
+      "timestamp": "2026-11-02T09:55:48.682Z",
+      "thread_id": "01a19bae-c402-79c3-a27f-baff9e5fd2ac",
+      "method": "item/completed",
+      "direction": "incoming",
+      "item": {
+        "type": "subAgentActivity",
+        "id": "call_bb3e37f2f0864f708e3dc31d48e7e8ef",
+        "model": "gpt-6.1-sol",
+        "reasoningEffort": "xhigh"
+      }
+    },
+    {
+      "line": 516,
+      "timestamp": "2026-11-02T09:55:51.978Z",
+      "thread_id": "01a19baf-be3b-7453-8a89-11e9fc085579",
+      "method": "error",
+      "direction": "incoming",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false
+    },
+    {
+      "line": 517,
+      "timestamp": "2026-11-02T09:55:51.980Z",
+      "thread_id": "01a19baf-be3b-7453-8a89-11e9fc085579",
+      "method": "turn/completed",
+      "direction": "incoming",
+      "turn": {
+        "id": "01a19baf-bf44-76f1-bd84-28dc9a76e4e3",
+        "status": "failed",
+        "error": {
+          "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+          "codexErrorInfo": "other",
+          "additionalDetails": null,
+          "misalignment": null
+        }
+      }
+    },
+    {
+      "line": 526,
+      "timestamp": "2026-11-02T09:55:55.952Z",
+      "thread_id": "01a19bae-c402-79c3-a27f-baff9e5fd2ac",
+      "method": "error",
+      "direction": "incoming",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false
+    },
+    {
+      "line": 528,
+      "timestamp": "2026-11-02T09:55:55.957Z",
+      "thread_id": "01a19bae-c402-79c3-a27f-baff9e5fd2ac",
+      "method": "turn/completed",
+      "direction": "incoming",
+      "turn": {
+        "id": "01a19bae-c605-7183-bc87-167a80609316",
+        "status": "failed",
+        "error": {
+          "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+          "codexErrorInfo": "other",
+          "additionalDetails": null,
+          "misalignment": null
+        }
+      }
+    }
+  ],
+  "rollouts": [
+    {
+      "name": "rollout-2026-11-02T01-54-44-01a19bae-c402-79c3-a27f-baff9e5fd2ac.jsonl",
+      "sha256": "0481df4a715ac7935066ff31b48a15e7c80c646615dfee0c0a57866b51a41af3",
+      "bytes": 1038165,
+      "response_items": [
+        {
+          "line": 77,
+          "timestamp": "2026-11-02T09:55:48.402Z",
+          "type": "function_call",
+          "id": "fc_011a35d2bbc27346016ae85e22ac54819b9bd6b2da33e8f92d",
+          "namespace": "collaboration",
+          "name": "spawn_agent",
+          "call_id": "call_bb3e37f2f0864f708e3dc31d48e7e8ef"
+        },
+        {
+          "line": 80,
+          "timestamp": "2026-11-02T09:55:48.684Z",
+          "type": "function_call_output",
+          "id": "fco_01a19baf-bf4c-7c02-ac14-ec9569aabe14",
+          "call_id": "call_bb3e37f2f0864f708e3dc31d48e7e8ef"
+        },
+        {
+          "line": 83,
+          "timestamp": "2026-11-02T09:55:53.484Z",
+          "type": "custom_tool_call",
+          "id": "ctc_011a35d2bbc27346016ae85e278358819baadffb2ce5d5b120",
+          "name": "exec",
+          "call_id": "call_d78558e99f09499d8a0f61d971c9d91b"
+        },
+        {
+          "line": 87,
+          "timestamp": "2026-11-02T09:55:54.158Z",
+          "type": "custom_tool_call_output",
+          "id": "ctco_01a19baf-d4ae-77b2-bf19-93fb2c27bc22",
+          "call_id": "call_d78558e99f09499d8a0f61d971c9d91b"
+        },
+        {
+          "line": 90,
+          "timestamp": "2026-11-02T09:55:54.160Z",
+          "type": "agent_message",
+          "id": "amsg_01a19baf-d4b0-75a3-805c-cba64e00608f",
+          "author": "/root/diagnostic_crosscheck",
+          "recipient": "/root"
+        }
+      ],
+      "metadata": {
+        "id": "01a19bae-c402-79c3-a27f-baff9e5fd2ac",
+        "cli_version": "0.166.0",
+        "model_provider": "openai_token_sharing",
+        "source": "vscode"
+      },
+      "response_item_count": 41,
+      "selection": "agent_message, spawn_agent and last five response items; content omitted"
+    },
+    {
+      "name": "rollout-2026-11-02T01-55-48-01a19baf-be3b-7453-8a89-11e9fc085579.jsonl",
+      "sha256": "5c5ec01e71962cd82e5c7a1eb85028dbfccf4b479abb74f3d748b9bbbb70afad",
+      "bytes": 520202,
+      "response_items": [
+        {
+          "line": 42,
+          "timestamp": "2026-11-02T09:55:48.647Z",
+          "type": "function_call",
+          "id": "fc_011a35d2bbc27346016ae85e22ac54819b9bd6b2da33e8f92d",
+          "namespace": "collaboration",
+          "name": "spawn_agent",
+          "call_id": "call_bb3e37f2f0864f708e3dc31d48e7e8ef"
+        },
+        {
+          "line": 44,
+          "timestamp": "2026-11-02T09:55:48.648Z",
+          "type": "message",
+          "id": "msg_01a19baf-be3b-7453-8a89-11c7b717e4a5",
+          "role": "developer"
+        },
+        {
+          "line": 45,
+          "timestamp": "2026-11-02T09:55:48.648Z",
+          "type": "message",
+          "id": "msg_01a19baf-be3b-7453-8a89-11d5b84bbf17",
+          "role": "developer"
+        },
+        {
+          "line": 48,
+          "timestamp": "2026-11-02T09:55:48.897Z",
+          "type": "message",
+          "id": "msg_01a19baf-c021-78f2-aece-86a149566ff4",
+          "role": "developer"
+        },
+        {
+          "line": 49,
+          "timestamp": "2026-11-02T09:55:48.897Z",
+          "type": "message",
+          "id": "msg_01a19baf-c021-78f2-aece-86ba81749f0a",
+          "role": "developer"
+        },
+        {
+          "line": 53,
+          "timestamp": "2026-11-02T09:55:48.902Z",
+          "type": "agent_message",
+          "id": "amsg_01a19baf-c026-7210-8a84-e54deaa27887",
+          "author": "/root",
+          "recipient": "/root/diagnostic_crosscheck"
+        }
+      ],
+      "metadata": {
+        "id": "01a19bae-c402-79c3-a27f-baff9e5fd2ac",
+        "cli_version": "0.166.0",
+        "model_provider": "openai_token_sharing",
+        "source": "vscode"
+      },
+      "response_item_count": 42,
+      "selection": "agent_message, spawn_agent and last five response items; content omitted"
+    }
+  ],
+  "sources": [
+    {
+      "name": "events.d8754d09-1fc2-4819-8189-18d8dda5cd73.log",
+      "bytes": 1841336,
+      "sha256": "a59fa3e7d6447babaeeb0b2fb80fa8671eb2da3bfb03e248ed4595eb734ab533"
+    },
+    {
+      "name": "app.asar",
+      "bytes": 18279277,
+      "sha256": "c2668373dad61f7dd4a10a3688588974409abe439b36ba75fd15112809f39650"
+    },
+    {
+      "name": "server.asar",
+      "bytes": 190112121,
+      "sha256": "42d80f7b8ed083b9d7baf62f0a92abf5a0f02375c57878f7cd2ae3d56759a167"
+    }
+  ],
+  "app": {
+    "name": "t3code",
+    "version": "0.1.6",
+    "buildVersion": "0.1.6",
+    "t3codeCommitHash": "2359643cffa6"
+  },
+  "installed_bundle": {
+    "name": "binCli-C12fvdZY.mjs",
+    "bytes": 14696322,
+    "sha256": "472d7e2d82900ae9da669da1dfd9cd4b7075f61e6e6ac9bda9d6dd9644550d25"
+  },
+  "managed_launch_source": "const managedCodexLaunchArgs = (command, args) => [\n\t\"model_provider=\\\"openai_token_sharing\\\"\",\n\t`model_providers.openai_token_sharing={name=\"OpenAI Token Sharing\",base_url=\"https://api.openai.com/v1\",model_catalog_url=\"https://api.openai.com/v1/models\",wire_api=\"responses\",requires_openai_auth=false,supports_websockets=false,auth={command=${JSON.stringify(command)},args=${JSON.stringify(args)},timeout_ms=${COMMAND_TIMEOUT_MS},refresh_interval_ms=0}}`,\n\t\"features.api_key_model_discovery=true\",\n\t\"features.multi_agent=false\",\n\t\"features.multi_agent_v2=false\"\n].map((value) => `-c ${JSON.stringify(value)}`).join(\" \");\n",
+  "current_cli_version": "codex-cli 0.166.0",
+  "catalog_selected": [
+    {
+      "slug": "gpt-6.1-sol",
+      "multi_agent_version": "v2",
+      "multi_agent_reasoning_effort": "xhigh"
+    },
+    {
+      "slug": "gpt-6-astra",
+      "multi_agent_version": "v2",
+      "multi_agent_reasoning_effort": "xhigh"
+    }
+  ],
+  "limitations": [
+    "No agent spawned; no new provider inference requests.",
+    "Catalog is shared cached state, not captured rejected request.",
+    "Native rollout IDs and transport thread IDs differ; mappings retained rather than normalized.",
+    "Rollout agent_message adjacency does not capture the exact rejected HTTP item.",
+    "Log hash is a snapshot of an actively appended file."
+  ],
+  "identity": {
+    "t3_thread": "6a582167-166e-49e8-b0c1-29cd50228f79",
+    "parent_native_thread": "01a19bae-c402-79c3-a27f-baff9e5fd2ac",
+    "parent_native_turn": "01a19bae-c605-7183-bc87-167a80609316",
+    "worker_native_thread": "01a19baf-be3b-7453-8a89-11e9fc085579",
+    "worker_native_turn": "01a19baf-bf44-76f1-bd84-28dc9a76e4e3",
+    "note": "Child rollout includes inherited parent session_meta; filename and protocol identify the child."
+  },
+  "process": {
+    "observed_executable": "AppData/Roaming/npm/node_modules/@openai/codex/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe",
+    "pid": 37100,
+    "feature_overrides": [
+      "features.api_key_model_discovery=true",
+      "features.multi_agent=false",
+      "features.multi_agent_v2=false"
+    ],
+    "agents_enabled_override_present": false,
+    "inspection": "Win32_Process allowlisted executable path and matching boolean flags only; full command omitted."
+  },
+  "upstream": {
+    "observed_utc": "2026-11-02T10:05:13.731Z",
+    "recovery": {
+      "pr": 28962,
+      "state": "open",
+      "merged": false,
+      "head": "332447eea868c2b89328187309e063c99fce1ebb"
+    },
+    "prevention": {
+      "pr": 28143,
+      "state": "open",
+      "merged": false,
+      "head": "3e12accb4bef36d2d30da3691e4b285956b9aef2"
+    },
+    "earlier_prevention": {
+      "pr": 20270,
+      "state": "closed",
+      "merged": false,
+      "head": "9e7de4f3490a4716bb55a85fec209d467d2be4d2"
+    },
+    "source": "GitHub connector get_pr_info; author-reported mock tests not independently rerun."
+  }
+}

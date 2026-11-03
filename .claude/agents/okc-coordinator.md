@@ -20,22 +20,26 @@ duplicate state here: the facts live in the files listed under "Where state live
 
 ## What decides the score
 
-- Overall rank equals the decode-layer rank (checked 2026-10-29: every team ranked 89-112
-  overall had the same rank on muse_decode_layer). Standalone problems are also where kernels
-  get built before they are ported into the layer.
+- Overall/layer ranks matched the sampled89-112 cohort on2026-10-29 and the first500
+  pairs in an early November1 snapshot. The November1 18:21UTC snapshot differs
+  at95 positions within the first500, beginning at121. Overall's API provides
+  ranks only; label numerical speedup cutoffs as problem-board cutoffs and query
+  overall directly instead of assuming a universal ranking formula.
+  Evidence: `archive/docs/steering/2026-11-01-post-xor-ranking-pivot.md`. Standalone
+  problems also supply kernels before they are ported into the layer.
 - Since 2026-10-30 the user also wants better standings on the standalone attention and
   projection boards, so those owners have their own promotion gate (standalone score) separate
-  from layer promotion (`docs/steering/2026-10-30-attention-projection-standalone-roadmap.md`).
+  from layer promotion (`archive/docs/steering/2026-10-30-attention-projection-standalone-roadmap.md`).
 - Layer score: per load, C = 46 * t_sliding + 16 * t_full; the score is the geometric mean of
   the six baseline/ours load ratios (decode 1/16/32, verify 1/16/32; verify is 8 tokens per
   request). A microsecond at 1 or 8 tokens is worth 3-4x one at 128 or 256
-  (`docs/gap-map-2026-10-30.md` has the per-us table). Refresh the gap map after big rounds.
+  (`archive/docs/gap-map-2026-10-30.md` has the per-us table). Refresh the gap map after big rounds.
 - Matching the public entry everywhere is not enough for top 100; something must beat it.
 
 ## Judge mechanics (the okc CLI)
 
 - Per problem per UTC day: 20 checks (off-board) and 10 scored runs (public). Both reset at
-  00:00 UTC (17:00 PDT). Withdrawn runs still count. Quotas are shared with other sessions:
+  00:00 UTC (16:00 PST / 17:00 PDT). Withdrawn runs still count. Quotas are shared with other sessions:
   re-query before dispatch.
 - `okc check|submit <file> --no-wait --json` returns `job_id`; then
   `okc status <job> --wait --json`; confirm problem and job id (checks from parallel sessions
@@ -61,6 +65,11 @@ duplicate state here: the facts live in the files listed under "Where state live
   go-ahead. Have agents write the file to the scratchpad and SendMessage you its path; you
   submit and reply with the job id.
 - Before submitting, `diff` the file against the commit that was checked.
+- Before dispatching a queued diagnostic, regenerate from current tracked dependencies
+  and compare against its current manifest. Shared helper fixes can invalidate every
+  dependent payload. The November1 set-owner defect and replacement manifests are in
+  `archive/docs/steering/2026-11-01-reset-host-readiness.md` and
+  `muse_decode_layer/profiles/reset-ready.2026-11-01/manifest.json`.
 - Never let a bench file that embeds another entrant's source become a board entry. If its
   judged path could beat the entry, do not submit it as a scored run (lesson: e9085c86).
 - Log every scored run in the problem's runs file right away (job, commit, score, before).
@@ -113,6 +122,18 @@ duplicate state here: the facts live in the files listed under "Where state live
 
 ## Research method
 
+At campaign restart and before renewing a family of experiments, refresh public comparators.
+Search by problem identifier and challenge name without entrant names, inspect result pages
+beyond the first few entries, then cross-check target-board handles, forks and credited upstream
+projects. Record the date, queries, coverage limits, candidate pins and available judge evidence.
+A team score and an exact-file score are separate observations.
+
+For the strongest unexplained comparator, record the loads it wins, the end-to-end gap,
+and one experiment that distinguishes competing explanations. If an owned port loses while
+the comparator wins, retain the discrepancy in the queue. Inspect consumer dependencies,
+bytes actually moved and preparation/dispatch before spending another round on local tuning.
+See archive/docs/steering/2026-11-01-discovery-and-reasoning.md for the retrieval check and limits.
+
 - Whole picture first: separate the goal from inherited choices and test one structurally
   different alternative with a budget, not only tuning.
 - Parked is not pruned: a family that lost keeps a revisit trigger in `docs/ruled-out.md`;
@@ -139,6 +160,6 @@ duplicate state here: the facts live in the files listed under "Where state live
 - Scores and runs: `docs/runs-decode-layer.md`, `docs/runs-moe.md`, `docs/runs-attention.md`,
   `docs/runs.md` (projections). Losers: `docs/ruled-out.md`.
 - Porting: `docs/moe-port-guide.md`, `docs/attention-port-guide.md`, `docs/proj-port-guide.md`.
-- Plans and gaps: `docs/plan-2026-10-29-steering.md`, latest `docs/gap-map-*.md`,
+- Plans and gaps: `archive/docs/plan-2026-10-29-steering.md`, latest `archive/docs/gap-map-*.md`,
   `docs/steering/`, `docs/architecture-performance-tracker.md`.
 - Background: `docs/context.md`.

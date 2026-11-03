@@ -1,0 +1,17 @@
+test_actual_facade_replay_not_python_callback (__main__.GeneratedTorch.test_actual_facade_replay_not_python_callback) ... ok
+test_budget_failure_after_preparation_cleans_guards (__main__.GeneratedTorch.test_budget_failure_after_preparation_cleans_guards) ... ok
+test_final_budget_and_report_failures_rollback_official_guards (__main__.GeneratedTorch.test_final_budget_and_report_failures_rollback_official_guards) ... ok
+test_generated_entry_all_rows_and_inference_contexts (__main__.GeneratedTorch.test_generated_entry_all_rows_and_inference_contexts) ... ok
+test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) ... ok
+test_missing_pre_replay_restore_is_detected_by_full_oracle (__main__.GeneratedTorch.test_missing_pre_replay_restore_is_detected_by_full_oracle) ... ok
+test_natural_routing_and_local_id_negatives (__main__.GeneratedTorch.test_natural_routing_and_local_id_negatives) ... ok
+test_original_hold_prevents_all_device_facades (__main__.GeneratedTorch.test_original_hold_prevents_all_device_facades) ... ok
+test_prepare_failure_cleans_new_guards (__main__.GeneratedTorch.test_prepare_failure_cleans_new_guards) ... ok
+test_reference_cache_real_versions_and_inference_front (__main__.GeneratedTorch.test_reference_cache_real_versions_and_inference_front) ... ok
+test_selected_source_negative_runs_generated_entry (__main__.GeneratedTorch.test_selected_source_negative_runs_generated_entry) ... ok
+test_storage_clone_aliases_private_policies_and_owner_negative (__main__.GeneratedTorch.test_storage_clone_aliases_private_policies_and_owner_negative) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 18.866s
+
+OK

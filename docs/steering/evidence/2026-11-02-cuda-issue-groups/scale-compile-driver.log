@@ -1,0 +1,19 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "candidate_native_sha256": "49866eb4b9be0ca1b20a17325e62dbe72443e49d780c5bd16faf9fdf5071aea9",
+  "edits": [
+    [
+      "const uint32_t k16c = (OKC_SC6W ? 4u : 16u) + p.zero;",
+      "const uint32_t k16c = (OKC_SC6W ? 4u : 16u);",
+      1
+    ]
+  ],
+  "exact_reverse": true,
+  "adapter": "Remove host tail, add declaration-only wgs_cta_of adapter and two compile-only launch references",
+  "gpu": false
+}
+b4 control 0
+b4 candidate 0
+main control 0
+main candidate 0

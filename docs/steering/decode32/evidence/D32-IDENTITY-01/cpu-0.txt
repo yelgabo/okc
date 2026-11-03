@@ -1,0 +1,8 @@
+test_disabled_twin_and_preserved_denominator (__main__.IdentityRescale) ... ok
+test_finite_identity_and_vote_model (__main__.IdentityRescale) ... ok
+test_selected_entries_and_direct_override_guard (__main__.IdentityRescale) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.993s
+
+OK

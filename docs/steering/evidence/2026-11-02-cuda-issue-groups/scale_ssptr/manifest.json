@@ -1,0 +1,20 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "candidate_native_sha256": "86d1e3cf0ca4609138d09818a2f912ea9015e3fc0a7079331601c2fbb4bc5b4d",
+  "edits": [
+    [
+      "const uint32_t k16c = (OKC_SC6W ? 4u : 16u) + p.zero;  // opaque 16 (4 with SC6W): the scale decode's multiply stays an IMAD (FMA pipe)",
+      "const uint32_t k16c = (OKC_SC6W ? 4u : 16u);",
+      1
+    ],
+    [
+      "// a volatile shared load at every use: hoisted, the pointer would stay live across the accumulate loops (96-register\n// cap: spills)\n__device__ __forceinline__ float* ss_cur() {\n#if OKC_WGS\n  unsigned long long v;\n  asm volatile(\"ld.volatile.shared.u64 %0, [%1];\\n\" : \"=l\"(v) : \"r\"(smem_u32(&reinterpret_cast<const Smem*>(smem_raw)->ssp)));\n  return reinterpret_cast<float*>(v);\n#else\n  return reinterpret_cast<const Smem*>(smem_raw)->ssp;  // the skinny / fat builds have registers to spare: let it hoist\n#endif\n}",
+      "__device__ __forceinline__ float* ss_cur() {\n  return reinterpret_cast<const Smem*>(smem_raw)->ssp;\n}",
+      1
+    ]
+  ],
+  "exact_reverse": true,
+  "adapter": "Remove host tail, add declaration-only wgs_cta_of adapter and two compile-only launch references",
+  "gpu": false
+}

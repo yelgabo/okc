@@ -1,0 +1,13 @@
+test_all_BF16_patterns_and_windows (test_sk_sparse_repair_independent.IndependentSKRepair.test_all_BF16_patterns_and_windows) ... ok
+test_geometry_bijection_and_inverse (test_sk_sparse_repair_independent.IndependentSKRepair.test_geometry_bijection_and_inverse) ... ok
+test_pair_half_repair_isolated (test_sk_sparse_repair_independent.IndependentSKRepair.test_pair_half_repair_isolated) ... ok
+test_sparse_record_and_header_bit_domains (test_sk_sparse_repair_independent.IndependentSKRepair.test_sparse_record_and_header_bit_domains) ... ok
+test_actual_all_offered_geometry_packs (test_sk_sparse_repair_packer_cpu.ActualPacker.test_actual_all_offered_geometry_packs) ... ok
+test_actual_dense_all_bit_patterns_transport (test_sk_sparse_repair_packer_cpu.ActualPacker.test_actual_dense_all_bit_patterns_transport) ... ok
+test_empty_and_nonfinite_rejection (test_sk_sparse_repair_packer_cpu.ActualPacker.test_empty_and_nonfinite_rejection) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 14.483s
+
+OK
+INDEPENDENT_SX_PACKER_SHA 4907db9cd12e47269f79c2d1e08e5362c537225ee654cccaeb1176cb9d1de3d7

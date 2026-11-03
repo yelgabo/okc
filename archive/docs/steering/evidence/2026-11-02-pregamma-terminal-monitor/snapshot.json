@@ -1,0 +1,41 @@
+{
+  "observed_at": "2026-11-02T18:28:31.456603+00:00",
+  "evidence_commit": "ce14d11f5c8acf3984bbb28dafb12ef79e15d1db",
+  "own_job": "56e0c8b5634545e6",
+  "fresh_result_equals_worker_archive": true,
+  "physical_source_sha256": "8f12932a4d0fc8a2ca42a165610fd7659d4db960d8c65c8ea97281b75ec46d5d",
+  "physical_source_bytes": 344689,
+  "reader_canonical_lf_sha256": "dc0fd553b8b4b701c7f6eaa99aff52abd9a2ab9191712c0d178bd5b3ae704b35",
+  "public_incumbent": "607eb52bdaf24160",
+  "layer_you": {
+    "rank": 365,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 364,
+    "to_first": 1.1704
+  },
+  "overall_you": {
+    "rank": 365,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 364
+  },
+  "layer_cutoff100": [
+    {
+      "attempts": 19,
+      "job": "b229df1a118245c5",
+      "rank": 100,
+      "speedup": 2.2657,
+      "submitted_at": 1793593522.5730236,
+      "team": "CerebralCoding",
+      "value": 9983.803085496771
+    }
+  ],
+  "live_jobs": [],
+  "official_schedule": {
+    "url": "https://openkernelchallenge.dev/assets/index-hNMNI-Nr.js",
+    "sha256": "a40d07775d2797cba5e81933f905fdc858a07025a89ba78b58a27d7444c7c207",
+    "kernels_closes": "2026-11-05T00:00:00-08:00"
+  }
+}

@@ -1,0 +1,1230 @@
+{
+  "repo": "vllm-project/humming",
+  "pin": "948e6fd547e703065be51529ac1db5569256774e",
+  "files": [
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/LICENSE",
+      "status": 200,
+      "bytes": 11358,
+      "sha256": "c95bae1d1ce0235ecccd3560b772ec1efb97f348a79f0fbe0a634f0c2ccefe2c",
+      "git_blob": "57bc88a15a0ee8266c259b2667e64608d3f7e292"
+    },
+    {
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/README.md",
+      "status": 200,
+      "bytes": 3410,
+      "sha256": "4cd912ddf0ab827f0137130b006263f52afaa4ea6296e0918a8ac61db8e188a4",
+      "git_blob": "148eea6b1cae8298fa7f5b50039a91fd52f18256"
+    },
+    {
+      "path": "humming/__init__.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/__init__.py",
+      "status": 200,
+      "bytes": 444,
+      "sha256": "4ada2947dc99e51c5441f71f8360b857fba7c6afded7b041acc3032ea7a35ef6",
+      "git_blob": "e85c1b3f2617e2ff76c9c178faab37cecf79fae2"
+    },
+    {
+      "path": "humming/build.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/build.py",
+      "status": 200,
+      "bytes": 5277,
+      "sha256": "33ae9d905daca901bd778e0ce95a4cf34de4b748130dbd1d0f0766e96b262601",
+      "git_blob": "3d03bf9047b4a4a5857ecd609839cbef817e1df5"
+    },
+    {
+      "path": "humming/config/__init__.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/config/__init__.py",
+      "status": 200,
+      "bytes": 805,
+      "sha256": "e3c4baeb7d8534f6431bfc04bd24f750006701fb76bfa4b21edb5a1ef8fb4d97",
+      "git_blob": "e0c5e7961b871f80b963922cc376d43c2750f7a8"
+    },
+    {
+      "path": "humming/config/base.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/config/base.py",
+      "status": 200,
+      "bytes": 4950,
+      "sha256": "a2099f4aa25b45e7c5d5ca25916b88d8295090befa8a60ef0b74bad539ff15dc",
+      "git_blob": "4555b203049154050f28521328b4078554647d8f"
+    },
+    {
+      "path": "humming/config/config.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/config/config.py",
+      "status": 200,
+      "bytes": 32135,
+      "sha256": "00eceae9c35e0402b33a214c24ace7f3079a519f91161332faa3e83fba1297ae",
+      "git_blob": "ed5bdc916a3f37cb78108bed9a878165669d615b"
+    },
+    {
+      "path": "humming/config/enum.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/config/enum.py",
+      "status": 200,
+      "bytes": 2812,
+      "sha256": "f0c3c28b5c198f3cf1312d343788ed1bb8047f859a0bb99e033d0329e1ecdb12",
+      "git_blob": "9083472abd232e1f60b413d128b164ca2205f6ff"
+    },
+    {
+      "path": "humming/config/mma.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/config/mma.py",
+      "status": 200,
+      "bytes": 33301,
+      "sha256": "426a3a55008f16dff8890650e4961d5571f37941c0b56be511507c1f47b500b6",
+      "git_blob": "f5dd5ffb8da0b36f81adb84ca43446ccbb4c264b"
+    },
+    {
+      "path": "humming/csrc/device_info.cpp",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/device_info.cpp",
+      "status": 200,
+      "bytes": 18775,
+      "sha256": "9ae9f69d9a3b18a8a154fc7a88c9477acb72d7e5b92f82d3ea6263cc05e0c07d",
+      "git_blob": "02f8b63f4e831e0b0b90385a08422472e989e5e9"
+    },
+    {
+      "path": "humming/csrc/launcher/elf.h",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/launcher/elf.h",
+      "status": 200,
+      "bytes": 3534,
+      "sha256": "3fdf3ff5a30bbfd2e776d16587af2da612b183a369c311b11aba0c9ed74d657d",
+      "git_blob": "ae44ef7204fd544f866b4040cf0b2510a0c0a989"
+    },
+    {
+      "path": "humming/csrc/launcher/launcher.cpp",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/launcher/launcher.cpp",
+      "status": 200,
+      "bytes": 19002,
+      "sha256": "f770b473715a6f5389fb77c6e3a17390357a2df162558512d363d2afc1a29eae",
+      "git_blob": "ae700401deacb2d3b2db18ddda0139545a33549c"
+    },
+    {
+      "path": "humming/csrc/launcher/mapped_file.h",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/launcher/mapped_file.h",
+      "status": 200,
+      "bytes": 2832,
+      "sha256": "8e24967d97c2d96d280371f24f11db099eecc1971b69f68e7e8b450a8ef6771c",
+      "git_blob": "dca22133e32aca58057cf50180e8de2ff971db44"
+    },
+    {
+      "path": "humming/csrc/launcher/process_input.h",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/launcher/process_input.h",
+      "status": 200,
+      "bytes": 27783,
+      "sha256": "7429d3a1f4d3df306dcbff66968a09f582c995ed215df0f00aca7d0ec5da2369",
+      "git_blob": "355e4b3ff4a17ff02136e4be2c5a6ec712c0e081"
+    },
+    {
+      "path": "humming/csrc/launcher/tensor.h",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/launcher/tensor.h",
+      "status": 200,
+      "bytes": 27660,
+      "sha256": "c738823573594ab6662cc3462bdeb22e6755c7ad3b860965f7616c7c28e2566f",
+      "git_blob": "ee82dda27d30248e545112edf4dddb0fcc94d0e8"
+    },
+    {
+      "path": "humming/csrc/launcher/tma.h",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/launcher/tma.h",
+      "status": 200,
+      "bytes": 3192,
+      "sha256": "7fd8646c5fe981582e79e8282161cfeadb3d57d7693552091178cf8944befbcb",
+      "git_blob": "b7b55f583ba28eb2a9b35c8afa69157b70e38e43"
+    },
+    {
+      "path": "humming/csrc/launcher/torch_api.h",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/launcher/torch_api.h",
+      "status": 200,
+      "bytes": 2348,
+      "sha256": "7db80bf14ea331891634a94950a837390a104b4119751c76ac178f963325bc74",
+      "git_blob": "952027d71a71ac586128822b08e7660a97c5a60b"
+    },
+    {
+      "path": "humming/csrc/launcher/utils.h",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/launcher/utils.h",
+      "status": 200,
+      "bytes": 5150,
+      "sha256": "d3ff1c9c19da6bb0f7e155543ace02af9a10b2be68031fce11577aa91c83c5c5",
+      "git_blob": "bd326d5d4ac919dc26dee25acb12ae04b27db70f"
+    },
+    {
+      "path": "humming/csrc/nvrtc_compile.cpp",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/nvrtc_compile.cpp",
+      "status": 200,
+      "bytes": 10361,
+      "sha256": "a85bf2a8667021fd0f6f0e5ecc4fab2830aa820b4297b414f6536b4d0968f367",
+      "git_blob": "68dda9ac36b88f086ab63a5dc5235aa73a5cd9aa"
+    },
+    {
+      "path": "humming/csrc/patch_cubin.cpp",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/csrc/patch_cubin.cpp",
+      "status": 200,
+      "bytes": 15996,
+      "sha256": "1982b9e532d4eb68e2619df9c76c846d5cb68854ec73b7c207110ba56528a827",
+      "git_blob": "877598851ab8fac91e2644b99954d5a591271a8a"
+    },
+    {
+      "path": "humming/device.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/device.py",
+      "status": 200,
+      "bytes": 4292,
+      "sha256": "76157b39ef2cdfa12eb3146023d8a7753d7a68d3a5eb8ac14f6f46db3a7aabb1",
+      "git_blob": "e134faef31dc0b632c3c6b6123ccada5721fae7a"
+    },
+    {
+      "path": "humming/dtypes.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/dtypes.py",
+      "status": 200,
+      "bytes": 7466,
+      "sha256": "bc1acd4155bb4c940247c1227b80b231695496912a7d969de7d0dfa2b51aacaa",
+      "git_blob": "ae3a078bff2b4a82d8ee45f4a7b80fe2af728f97"
+    },
+    {
+      "path": "humming/forward.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/forward.py",
+      "status": 200,
+      "bytes": 7747,
+      "sha256": "0bacc502c43919cc573505f507af699f33db700f1029c4668fb1c26df9544b36",
+      "git_blob": "1b638352c73be030dd1c6c3fb11a9dca655aad00"
+    },
+    {
+      "path": "humming/include/humming/arith/epilogue_arith.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/arith/epilogue_arith.cuh",
+      "status": 200,
+      "bytes": 10689,
+      "sha256": "0a0a1c8c48f43d3533144b7a8cdf9ed40aa13fd6c36f3a85eeaadf3d79129c98",
+      "git_blob": "7ad3a66fb8163a46d9cae5740d3765f1e16e1ec1"
+    },
+    {
+      "path": "humming/include/humming/arith/exp_offset.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/arith/exp_offset.cuh",
+      "status": 200,
+      "bytes": 6916,
+      "sha256": "1e49492b96e5ffc7e61033dfee570cf271fb395519a101cdce5db299877d6941",
+      "git_blob": "bd1bb23bd079b3818cb62402a3b0e4715e006de4"
+    },
+    {
+      "path": "humming/include/humming/arith/mainloop_arith.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/arith/mainloop_arith.cuh",
+      "status": 200,
+      "bytes": 30688,
+      "sha256": "0359b08464e835d4bf20dca2ecd8da1870a6648640f0a29dab78da008108b1c2",
+      "git_blob": "1b605f6a317698f5d5b996463c114bafb6fc0c5d"
+    },
+    {
+      "path": "humming/include/humming/datatype/base_conversion.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/datatype/base_conversion.cuh",
+      "status": 200,
+      "bytes": 1411,
+      "sha256": "2abd001be09a5cee4609f3e0123f981143e4157a6a28f893a9f1b37fb7dc8f73",
+      "git_blob": "08833aa54fffda1b40c41d5d3e245d5ccacbd28a"
+    },
+    {
+      "path": "humming/include/humming/datatype/dequant.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/datatype/dequant.cuh",
+      "status": 200,
+      "bytes": 8858,
+      "sha256": "a2d90418bf32be15dee0dd49adc1071d1e527969aa5694fd4dcad410ad9cd80d",
+      "git_blob": "624714736fd6678561855a0d5c07789886522700"
+    },
+    {
+      "path": "humming/include/humming/datatype/dequant_fused.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/datatype/dequant_fused.cuh",
+      "status": 200,
+      "bytes": 2554,
+      "sha256": "f424681b654a114f08fd07bc71dce4f2b9991c9a692e9d74178c3a7c3ed54561",
+      "git_blob": "34fcd2b15ad8b76a89d6aaf0c06da5179b9316f0"
+    },
+    {
+      "path": "humming/include/humming/datatype/dequant_native.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/datatype/dequant_native.cuh",
+      "status": 200,
+      "bytes": 6129,
+      "sha256": "62c52ae50591060f13a2d4d83d7c6572d6227bf625a4001fb77860dee326fa8a",
+      "git_blob": "7a128ac9f5c33a0d13c4fbc54a620d229bb2db97"
+    },
+    {
+      "path": "humming/include/humming/datatype/dequant_prepare.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/datatype/dequant_prepare.cuh",
+      "status": 200,
+      "bytes": 3126,
+      "sha256": "d1b17ca2bfef89a836f4afad5d18fad50f6c331aa8118221261b13f99bbc5f28",
+      "git_blob": "f8bf5ca8e365e24ffde1b3f9861b0ea723587445"
+    },
+    {
+      "path": "humming/include/humming/datatype/dequant_single.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/datatype/dequant_single.cuh",
+      "status": 200,
+      "bytes": 8995,
+      "sha256": "6a2d658b16d7ca17071a34507e003f3061591b53e65730e2e183a82f6ffe30b0",
+      "git_blob": "8529b9be4e9d6096f7a589e826bace97bb5d5c3e"
+    },
+    {
+      "path": "humming/include/humming/datatype/dtypes.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/datatype/dtypes.cuh",
+      "status": 200,
+      "bytes": 2957,
+      "sha256": "5880085b25479eee83a42daf261a26fa2d0139c5452fb979279047c9c8ea8118",
+      "git_blob": "4b9c7a3237e30f45e110344b1e3d7b3556f362da"
+    },
+    {
+      "path": "humming/include/humming/epilogue/gmem_writer.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/epilogue/gmem_writer.cuh",
+      "status": 200,
+      "bytes": 11293,
+      "sha256": "429cb068e24d1106a4e59a420f29bd61491353d0bd5eb64132c4b8da4e9710df",
+      "git_blob": "6b9dbd0aed470f915ab0e683e0fd5915bc8753bd"
+    },
+    {
+      "path": "humming/include/humming/epilogue/pipeline.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/epilogue/pipeline.cuh",
+      "status": 200,
+      "bytes": 7876,
+      "sha256": "ff293e2d9401769e7acad74331b573bff8e98bb190092956652ae634e53fed48",
+      "git_blob": "3e8125eaf3f07b48fac56e66f30d54a81e870c97"
+    },
+    {
+      "path": "humming/include/humming/epilogue/smem_reducer.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/epilogue/smem_reducer.cuh",
+      "status": 200,
+      "bytes": 4930,
+      "sha256": "221d30e929c2fc14a31fb4839b3ea219f6a818c9f4322109f7e5eb37bdbb52c6",
+      "git_blob": "1a4fcc5a7bdb7d56e0166e758395c1cd9e384c85"
+    },
+    {
+      "path": "humming/include/humming/epilogue/smem_writer.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/epilogue/smem_writer.cuh",
+      "status": 200,
+      "bytes": 15330,
+      "sha256": "2ea7af1603a00650ca758a24223b9bfdfd5deea9b5610d15c2a84ff86bc01c51",
+      "git_blob": "aafb142bfaf6f1507418f5a22bf5fdf1c19ca8a4"
+    },
+    {
+      "path": "humming/include/humming/kernel/dequant_weight.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/dequant_weight.cuh",
+      "status": 200,
+      "bytes": 1590,
+      "sha256": "29203ea109247d66250f14ced9cb8402e5c9addcec39c0d739fd4fbbd07c4a89",
+      "git_blob": "e1b4fba5edc09fc7b34b80e1b54da009aed53416"
+    },
+    {
+      "path": "humming/include/humming/kernel/humming.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/humming.cuh",
+      "status": 200,
+      "bytes": 10839,
+      "sha256": "c3f6f3a859a22994cf649b2ba2c8bdce93bdbc5bfc2abe3e1d8f0586b8f6147e",
+      "git_blob": "e6f04f2b5be43a50007561a64daac1df27175999"
+    },
+    {
+      "path": "humming/include/humming/kernel/humming_umma.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/humming_umma.cuh",
+      "status": 200,
+      "bytes": 21849,
+      "sha256": "ba52a1607acf4472d3ea89bbe0f7fc2a911c03010278ed8cd08040de6d344c37",
+      "git_blob": "a9d194555d6e5a93793d4ea35198b4da4224569a"
+    },
+    {
+      "path": "humming/include/humming/kernel/humming_ws.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/humming_ws.cuh",
+      "status": 200,
+      "bytes": 12324,
+      "sha256": "70b88113671d993fad05643b60380ad95f3965d5e91ee10319efd0904baf18c6",
+      "git_blob": "65b1082f8d61129b984e45ee1bc2eb41cb101fd3"
+    },
+    {
+      "path": "humming/include/humming/kernel/pack_weight.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/pack_weight.cuh",
+      "status": 200,
+      "bytes": 3326,
+      "sha256": "3b3673b631bb16dbb7ca0df9a04b0c98cd6dbeace4efc99656c0cc65d14daf20",
+      "git_blob": "f71323f43e956bd7339f085b11fe70fd02ac4136"
+    },
+    {
+      "path": "humming/include/humming/kernel/process.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/process.cuh",
+      "status": 200,
+      "bytes": 13789,
+      "sha256": "3d4b0d56aa1bd877de0071c8a499f258680ac543cd1a60ec336615426705ba4e",
+      "git_blob": "8f803098382279983ed82d8114e38a0dd2ad1e46"
+    },
+    {
+      "path": "humming/include/humming/kernel/process_input.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/process_input.cuh",
+      "status": 200,
+      "bytes": 13888,
+      "sha256": "244f4bf777170fa5887e6a37f4d5b36397a5c1b632aae428637e7faab5e2a85b",
+      "git_blob": "37c9e4069cfd594073c37e588c5725f3475ee121"
+    },
+    {
+      "path": "humming/include/humming/kernel/process_input/activation.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/process_input/activation.cuh",
+      "status": 200,
+      "bytes": 6574,
+      "sha256": "a52a32bf45c8e1de80d3a052944eff05219ae29dcf105309ce95e179bb905996",
+      "git_blob": "a74b3293c20406bee00ba2f20d6df60ad0435c1b"
+    },
+    {
+      "path": "humming/include/humming/kernel/process_input/context.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/process_input/context.cuh",
+      "status": 200,
+      "bytes": 10115,
+      "sha256": "5e190eb0362812515d630038ab369578b08824db0fd136c0bd6b1889e26dddec",
+      "git_blob": "11acae74e7e858d4602a729af1885c8c80c51ee2"
+    },
+    {
+      "path": "humming/include/humming/kernel/process_input/hadamard.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/process_input/hadamard.cuh",
+      "status": 200,
+      "bytes": 3468,
+      "sha256": "eb15fc31d322ba8904c967c5cd1f9fd46512d872b46e3cffce949cdb7d042a0a",
+      "git_blob": "9586b462e34d2e8e51cefba236472f5da0145ee4"
+    },
+    {
+      "path": "humming/include/humming/kernel/process_input/quantization.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/process_input/quantization.cuh",
+      "status": 200,
+      "bytes": 22299,
+      "sha256": "42c48fa3b7497f66a93947f6d281433eac14d5cda6dc4dd6698ba7c9bb3ed0e4",
+      "git_blob": "db5b56444b58db2a8e567ba844163d6a68a2e1c3"
+    },
+    {
+      "path": "humming/include/humming/kernel/process_input/thread_task.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/process_input/thread_task.cuh",
+      "status": 200,
+      "bytes": 1489,
+      "sha256": "22b935f2af6daeb8c56de356fd5f9ca37110f8458f282e6a20e18d1f570731b1",
+      "git_blob": "554788c452df4a049c4bfa0f592cc261056fefb4"
+    },
+    {
+      "path": "humming/include/humming/kernel/process_mxfp4.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/process_mxfp4.cuh",
+      "status": 200,
+      "bytes": 2079,
+      "sha256": "a3be517bcc506854a6aab4deabf5aecc5889a86a14186a080324e511eaffceea",
+      "git_blob": "b685bff5c4749cb42b6f1bb99e3d265d979a9c97"
+    },
+    {
+      "path": "humming/include/humming/kernel/quant_weight.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/quant_weight.cuh",
+      "status": 200,
+      "bytes": 11461,
+      "sha256": "500ea9b9cb4467be44025b983352e06c1f444cc965d20ba0a45292e49ea5347a",
+      "git_blob": "2cbe642b2de53044351485041df29be2ba060469"
+    },
+    {
+      "path": "humming/include/humming/kernel/tops_bench.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/tops_bench.cuh",
+      "status": 200,
+      "bytes": 1676,
+      "sha256": "d58f6d84fae5228110c1d29240342da7b6827b8942527dd54c093f491ecd783f",
+      "git_blob": "9f886ba1ce14b9ca9f638657f1ca13f28e0992d5"
+    },
+    {
+      "path": "humming/include/humming/memory/g2s_loader/loader_a.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/g2s_loader/loader_a.cuh",
+      "status": 200,
+      "bytes": 9772,
+      "sha256": "42a9cca3fb59c05e29d32eb7c8bbe5f7da7c42378355454424808be0c80cbd6d",
+      "git_blob": "c01733f72440ead04e977932ce66eed19b2f568d"
+    },
+    {
+      "path": "humming/include/humming/memory/g2s_loader/loader_as.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/g2s_loader/loader_as.cuh",
+      "status": 200,
+      "bytes": 19033,
+      "sha256": "ed0329a0b3c21398fcfac7e7e32115427eba1b78718b25ac20bcca43006b0534",
+      "git_blob": "ddc5032ee7e7cbc633a35c76ab5d87079aebd726"
+    },
+    {
+      "path": "humming/include/humming/memory/g2s_loader/loader_b.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/g2s_loader/loader_b.cuh",
+      "status": 200,
+      "bytes": 9880,
+      "sha256": "6feb815b123cf7bd97fafc162d0b61228729f241e50f732386e3dbda03a214ef",
+      "git_blob": "ee5abb825228c9df2ec2c990bed4cb73f4820f49"
+    },
+    {
+      "path": "humming/include/humming/memory/g2s_loader/loader_bias.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/g2s_loader/loader_bias.cuh",
+      "status": 200,
+      "bytes": 1975,
+      "sha256": "245ab688ef7bf9bc3cb194e9aa06ba231818b4780fd62d7a62abae6f4ec12948",
+      "git_blob": "99cba1ae94bf201670d531c33d82e066f8568751"
+    },
+    {
+      "path": "humming/include/humming/memory/g2s_loader/loader_bs.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/g2s_loader/loader_bs.cuh",
+      "status": 200,
+      "bytes": 7973,
+      "sha256": "21e9bf79a8f843a1f176cd670690a584fea0b508d4e52c9b8a54060597e3b5ee",
+      "git_blob": "b4749cd412cc4eda7a72e87643be92d853904716"
+    },
+    {
+      "path": "humming/include/humming/memory/g2s_loader/loader_bs2.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/g2s_loader/loader_bs2.cuh",
+      "status": 200,
+      "bytes": 1971,
+      "sha256": "80e5fb118093ffa702720b3695df89d97c20b995780fa117bfb72f957b9c9b4d",
+      "git_blob": "4ff1203d9b18e2857b2180f2d5f867919c674aaa"
+    },
+    {
+      "path": "humming/include/humming/memory/g2s_loader/loader_bzp.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/g2s_loader/loader_bzp.cuh",
+      "status": 200,
+      "bytes": 4107,
+      "sha256": "29139171224b0f2f4578e57f94dda13649a9637c82d92ceea53861ae57e732cc",
+      "git_blob": "e2092e03566fc2ac29364be1fe8cec6851eb4b95"
+    },
+    {
+      "path": "humming/include/humming/memory/g2s_pipeline.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/g2s_pipeline.cuh",
+      "status": 200,
+      "bytes": 22367,
+      "sha256": "be2e6bfd5b5dd187d4ada9c7931a491e5e1c85abe3662d49a8931aa400fc85b8",
+      "git_blob": "494e913b8580c535e5914691f0c533fd45ec440c"
+    },
+    {
+      "path": "humming/include/humming/memory/s2r_loader/loader_a.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/s2r_loader/loader_a.cuh",
+      "status": 200,
+      "bytes": 2996,
+      "sha256": "325fbcb2b4bd794dae913945aeb796ef2dd7eadf07b2de16308c92a3856bf7ec",
+      "git_blob": "3113850319d4f4615fea2d4c112447e8b88bd4c7"
+    },
+    {
+      "path": "humming/include/humming/memory/s2r_loader/loader_as.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/s2r_loader/loader_as.cuh",
+      "status": 200,
+      "bytes": 4146,
+      "sha256": "34bb40e1f614efa8e46447cc36cb06e7e5964a7dd55c26510fa5b2de3ac6ccbf",
+      "git_blob": "fa2f3431f4b74e36f230ab125c5fa178e38a7397"
+    },
+    {
+      "path": "humming/include/humming/memory/s2r_loader/loader_b.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/s2r_loader/loader_b.cuh",
+      "status": 200,
+      "bytes": 6673,
+      "sha256": "29ea66e70d1f1968de39aba91a1b5a2816bd6f12ffb0d65ab454706dd9297ff3",
+      "git_blob": "1da4bb076b6774f7b938a1866828f2f31edf9d1f"
+    },
+    {
+      "path": "humming/include/humming/memory/s2r_loader/loader_bias.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/s2r_loader/loader_bias.cuh",
+      "status": 200,
+      "bytes": 1687,
+      "sha256": "f04c87f9e58cbf0c6cc1d3dd627b60ad9c874869fc49ff102f49bf0250f468f0",
+      "git_blob": "7689ddc61bb75551a2257fc9f1ca89337d588108"
+    },
+    {
+      "path": "humming/include/humming/memory/s2r_loader/loader_bs.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/s2r_loader/loader_bs.cuh",
+      "status": 200,
+      "bytes": 10417,
+      "sha256": "02f2459b5f3f58c5d1f5282639cbb7040da0f5bf513c07bed28998b4118e79dd",
+      "git_blob": "548ab9ace5ba31bb861ac5656b597938c5e1a51e"
+    },
+    {
+      "path": "humming/include/humming/memory/s2r_loader/loader_bzp.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/s2r_loader/loader_bzp.cuh",
+      "status": 200,
+      "bytes": 3400,
+      "sha256": "f020906af7b9b54a415cd3281741284b59b15d9cf2c34fc28708de9eb42bba04",
+      "git_blob": "176bc76507921e8976e1c2ec72da3900d4fba938"
+    },
+    {
+      "path": "humming/include/humming/memory/s2r_pipeline.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/memory/s2r_pipeline.cuh",
+      "status": 200,
+      "bytes": 6049,
+      "sha256": "68038c85ffb635c2bb9a82f20a2e0bba31fd0625e8dbd5bce2949988909dd372",
+      "git_blob": "d0e6c66205ff423eebbcb2b4f72aed186fa47756"
+    },
+    {
+      "path": "humming/include/humming/mma/all.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/mma/all.cuh",
+      "status": 200,
+      "bytes": 874,
+      "sha256": "f2cf035acecf4bd55340a95020c4e589f1f6b7e5cb44611f17a3731f5813da68",
+      "git_blob": "e7ee90c2b37a31b4386eaefd13b8acfec281a145"
+    },
+    {
+      "path": "humming/include/humming/mma/mxmma.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/mma/mxmma.cuh",
+      "status": 200,
+      "bytes": 7816,
+      "sha256": "99fa742f5b83b10b6deaab8065da97548f22634b8233e06a8354fde7f5b70eea",
+      "git_blob": "39b970f1bfdafea2be20c3c36a1e19e23427a24e"
+    },
+    {
+      "path": "humming/include/humming/mma/umma.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/mma/umma.cuh",
+      "status": 200,
+      "bytes": 23113,
+      "sha256": "43f79f8515e284743178a14f30295b6b9331f7c1cb50339645ff54a089aca9c8",
+      "git_blob": "bd3fe90ca1aa5bb8d99b0b43f9689e4caae54f41"
+    },
+    {
+      "path": "humming/include/humming/mma/wgmma.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/mma/wgmma.cuh",
+      "status": 200,
+      "bytes": 12036,
+      "sha256": "40d9ca42688399cf38babc91f421fca36bdbd5535234089e048e28021e76777e",
+      "git_blob": "6f5953167f61804add0afd3513db9992856b6179"
+    },
+    {
+      "path": "humming/include/humming/mma/wmma.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/mma/wmma.cuh",
+      "status": 200,
+      "bytes": 7306,
+      "sha256": "7666f08f013d083d632601dfaf75100c1fdb6f5a240bdce5293779da666664b5",
+      "git_blob": "5a4804e2a442ce7340655f7db17bb328b09d5909"
+    },
+    {
+      "path": "humming/include/humming/scheduler.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/scheduler.cuh",
+      "status": 200,
+      "bytes": 17100,
+      "sha256": "7dc0223cb2c2237166ace9d91665ce58c635137699a2c5b9605a101109a3204b",
+      "git_blob": "fc1b820cce4b7f139bdacfca5b06c717bcc1e4aa"
+    },
+    {
+      "path": "humming/include/humming/utils/all.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/all.cuh",
+      "status": 200,
+      "bytes": 430,
+      "sha256": "7cfd604795f05da3598333a6d8e4638a3523134036966c12d07b85b190f79ccb",
+      "git_blob": "d7d6f4072abc1424053c530f8305b756a6a2d25e"
+    },
+    {
+      "path": "humming/include/humming/utils/base.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/base.cuh",
+      "status": 200,
+      "bytes": 3159,
+      "sha256": "f33fb01cdb2d2384728ba7f959af8b8011c995008652774f1821a7d2c6a96606",
+      "git_blob": "a6f0105cee1188e45af6e7d79df807714d16acd1"
+    },
+    {
+      "path": "humming/include/humming/utils/context.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/context.cuh",
+      "status": 200,
+      "bytes": 12587,
+      "sha256": "8377c2fe8bff6dfb53bb28f5557ebfab508ea64334159005a629918bd296f6ee",
+      "git_blob": "07dd6d3b1abf8870ca144bfc8819e3e6a5dcaa0d"
+    },
+    {
+      "path": "humming/include/humming/utils/enum.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/enum.cuh",
+      "status": 200,
+      "bytes": 823,
+      "sha256": "6a1bd5ff43155c7fe51179a5974d06b86175818574d445bbf4ec032d7d457997",
+      "git_blob": "cfd1353fde9e4ff1cc978db68aa5b06cafcce5be"
+    },
+    {
+      "path": "humming/include/humming/utils/ptx/barrier.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/ptx/barrier.cuh",
+      "status": 200,
+      "bytes": 6280,
+      "sha256": "851d2cc785c295e573265b323ce39037e2577e06edb3136590a9f07e82ce8790",
+      "git_blob": "be32490b9d24cb12063f60885bf3c195dd0ba172"
+    },
+    {
+      "path": "humming/include/humming/utils/ptx/legacy_load.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/ptx/legacy_load.cuh",
+      "status": 200,
+      "bytes": 12506,
+      "sha256": "b31344764602e889f90432f39526eefd19885a681f0ffecc4865a9e58448ca41",
+      "git_blob": "870c41a664119b2234fd3482c511bea6b14c48ae"
+    },
+    {
+      "path": "humming/include/humming/utils/ptx/math.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/ptx/math.cuh",
+      "status": 200,
+      "bytes": 751,
+      "sha256": "fbb9012c8c0f12747130a4a0da2db6adf642fdfad80f2ead11c54b5557173c6f",
+      "git_blob": "fe9ef02b07af0b3a9d7e35b60a562f13b247f58f"
+    },
+    {
+      "path": "humming/include/humming/utils/ptx/shared.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/ptx/shared.cuh",
+      "status": 200,
+      "bytes": 4707,
+      "sha256": "c328ff1d86c9078f008ca6e048f2f3686f5f6d6db0602c2be085eb51f505924c",
+      "git_blob": "4f8df0f439bc06f0e01ad59ac0b7a8f9b313bac0"
+    },
+    {
+      "path": "humming/include/humming/utils/ptx/tcgen05.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/ptx/tcgen05.cuh",
+      "status": 200,
+      "bytes": 20272,
+      "sha256": "7766f3388002623a4d64d86dda7e4541387ca7bd06ce59ea601c3ea57e2155fa",
+      "git_blob": "15530caa32d497edb78272dbf4f903169aacb5da"
+    },
+    {
+      "path": "humming/include/humming/utils/ptx/tma.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/ptx/tma.cuh",
+      "status": 200,
+      "bytes": 15478,
+      "sha256": "b15e3f34cc3eaaa2166e88a4d80695f7a828623945732d641da5fa28f048f3e3",
+      "git_blob": "5fea8de598638310806712b63ca0aa4dae415243"
+    },
+    {
+      "path": "humming/include/humming/utils/ptx/warp.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/ptx/warp.cuh",
+      "status": 200,
+      "bytes": 749,
+      "sha256": "b0fde9b624450ae0a5a928dab091d0e9d0dad005efee695277692e1840ef89a4",
+      "git_blob": "c18c46d9421e17681fef14e0fc1aa513e07772ec"
+    },
+    {
+      "path": "humming/include/humming/utils/ptx/wgmma.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/ptx/wgmma.cuh",
+      "status": 200,
+      "bytes": 659,
+      "sha256": "61780c7b2551c8ece346b516cd773ec5aed1eb9bf9376322f245bd4e869c4619",
+      "git_blob": "a1de75283d96b8ddaf426f76faf0283dcc3ea675"
+    },
+    {
+      "path": "humming/include/humming/utils/storage.cuh",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/utils/storage.cuh",
+      "status": 200,
+      "bytes": 15571,
+      "sha256": "eaf9f0a6dc1004ba09cc54cea9a7572f2471c6b2a572bb72988edf0f91f80de9",
+      "git_blob": "64d5ad59b8d61fd01ddeb538c75b349dbd7e5322"
+    },
+    {
+      "path": "humming/jit/__init__.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/jit/__init__.py",
+      "status": 200,
+      "bytes": 75,
+      "sha256": "a4826b5d609d069f9a1136afaead1a9596f17ccf30f1830d66b6a2da96a1282a",
+      "git_blob": "89baa753dd2217c04c65b51c41125233327d0a98"
+    },
+    {
+      "path": "humming/jit/compiler.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/jit/compiler.py",
+      "status": 200,
+      "bytes": 11371,
+      "sha256": "189f0b71c6c62f4017cba4454c306ff5c4c286e294c46d72d9c0cf1457783b40",
+      "git_blob": "5bcfa23f25e3c88272e9f9f9ad189bd61da83c24"
+    },
+    {
+      "path": "humming/jit/runtime.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/jit/runtime.py",
+      "status": 200,
+      "bytes": 5659,
+      "sha256": "98890a69b95ad6ce0cf2be79f69149edc280e6956eb37235578713cbe6c74257",
+      "git_blob": "2c0dd159d0bf41b7e72624ba1a720a79374980cd"
+    },
+    {
+      "path": "humming/kernel/__init__.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/__init__.py",
+      "status": 200,
+      "bytes": 574,
+      "sha256": "bd0704f1af42e306741991cc08066a8ffb8ea1a34ceb5486d6a5fbb22ef751e2",
+      "git_blob": "f4469234238865b8ac6109ee2bf41a609a3c9c1a"
+    },
+    {
+      "path": "humming/kernel/dequant_weight.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/dequant_weight.py",
+      "status": 200,
+      "bytes": 1657,
+      "sha256": "396a50d08ce4441e993f1fb79270430322b8ff616b229fa26be74b8f2d56e7d1",
+      "git_blob": "818afbcd3188feeee02a61a05dd86c9848afd290"
+    },
+    {
+      "path": "humming/kernel/humming.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/humming.py",
+      "status": 200,
+      "bytes": 34325,
+      "sha256": "fcb8e8c78cc91ef304a85dc7d529959ac0fc8fd35f5166b45981fa32de0c74a6",
+      "git_blob": "a50fcccf0bffd2317f17054cce465f0f90855804"
+    },
+    {
+      "path": "humming/kernel/pack_weight.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/pack_weight.py",
+      "status": 200,
+      "bytes": 1305,
+      "sha256": "b325f54789c3d019babf612e62a920a07b812602c5ea9de42954f71df3ac4493",
+      "git_blob": "be33f1c7b30b5533dfc4274df05dc33f0aab12f3"
+    },
+    {
+      "path": "humming/kernel/process_input.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/process_input.py",
+      "status": 200,
+      "bytes": 8885,
+      "sha256": "bcc24dd9113b3ec912e7e2f52c4e03f5eda1ac3fa9654e111d53bb088ebfc912",
+      "git_blob": "6fb507f7036e1808362461ab334c0b0962d90306"
+    },
+    {
+      "path": "humming/kernel/process_mxfp4.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/process_mxfp4.py",
+      "status": 200,
+      "bytes": 1803,
+      "sha256": "535812a912222a9d1b0b6a5874b3c304f92dabd55f8437ba888427369d8239e8",
+      "git_blob": "e71014f37c2c24af95d2b9409cdaa075b2d75548"
+    },
+    {
+      "path": "humming/kernel/quant_weight.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/quant_weight.py",
+      "status": 200,
+      "bytes": 2734,
+      "sha256": "066cf9d867bb039603e85fdf3dd69920ccaa52ac6a9be2f2afb630e51e0ea3fa",
+      "git_blob": "5700074ea6ab1d50c40b9aaa47b61b20710742f2"
+    },
+    {
+      "path": "humming/kernel/repack_weight.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/repack_weight.py",
+      "status": 200,
+      "bytes": 3608,
+      "sha256": "3e681df5c36d87b7a48329e3e68160fb52d7e64b879a8cb73cf8be5c0d10e03f",
+      "git_blob": "19b93008b2df560df5e79bc93ab1eeb741b57e97"
+    },
+    {
+      "path": "humming/kernel/tops_bench.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/tops_bench.py",
+      "status": 200,
+      "bytes": 2997,
+      "sha256": "48a5e3a171553404f24840497ce11f4d458c19ab594ec69d877aa0f202754773",
+      "git_blob": "c77f1a00c9267d0b8c39e2791138d70268be4ce5"
+    },
+    {
+      "path": "humming/kernel/unpack_weight.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/kernel/unpack_weight.py",
+      "status": 200,
+      "bytes": 1335,
+      "sha256": "593d4e8a24af95dd51ee5f4b144411b28b0210b2cd93ef076833c5e50b70ed43",
+      "git_blob": "ff2830fa176a3843dc3f3fe7737a34a42e271257"
+    },
+    {
+      "path": "humming/layer.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/layer.py",
+      "status": 200,
+      "bytes": 28543,
+      "sha256": "56df3c5eb35bf8e4316c6793c8e3405d307b81d41c3994204bd5a36bb2bf3c64",
+      "git_blob": "b03854293bd5a90ea32d36b0ccf404035caa64c1"
+    },
+    {
+      "path": "humming/ops/__init__.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/ops/__init__.py",
+      "status": 200,
+      "bytes": 743,
+      "sha256": "194fcf84d6b317c80597b5e4d6f585ce2fcb684856484036dc9b58d994aab08d",
+      "git_blob": "01505ce318e166bc882fad3af9de0ab36a404399"
+    },
+    {
+      "path": "humming/ops/bench.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/ops/bench.py",
+      "status": 200,
+      "bytes": 1436,
+      "sha256": "39b15e8df39f48d5683b99d494a8b339901bbddcfb884db65717c6dcd89a885c",
+      "git_blob": "c9853d6e59f960bd78fc771bc329737251559284"
+    },
+    {
+      "path": "humming/ops/gemm.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/ops/gemm.py",
+      "status": 200,
+      "bytes": 3693,
+      "sha256": "98150b7115587259fc02463e35ad89e5dd520d74452636ea2e1b08e8ef30a6e1",
+      "git_blob": "5fb1f57987ff4669c18637fff879909ff64f388f"
+    },
+    {
+      "path": "humming/ops/input.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/ops/input.py",
+      "status": 200,
+      "bytes": 7596,
+      "sha256": "004c8cbcdd46d9335e6499fd1498d8d520c9e29b441f332347ff5304c15de937",
+      "git_blob": "2642b049d9228545209b54f3be5963a64ee151a0"
+    },
+    {
+      "path": "humming/ops/launcher.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/ops/launcher.py",
+      "status": 200,
+      "bytes": 2326,
+      "sha256": "bc2d3fb62a9d08ea83ef9192fc56d2e145a2698364c4d423376e68f5377396cb",
+      "git_blob": "593bad16f1155dab54319a696e6ea9733e67f28a"
+    },
+    {
+      "path": "humming/ops/utils.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/ops/utils.py",
+      "status": 200,
+      "bytes": 9468,
+      "sha256": "f40116b995c7c2bb20b5ee1293964d62d4d919b2205a13efb92093c3168a7ec7",
+      "git_blob": "6459f322b0a0a6b37d60ffd0df617476b3a4046d"
+    },
+    {
+      "path": "humming/ops/weight.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/ops/weight.py",
+      "status": 200,
+      "bytes": 13264,
+      "sha256": "7f6bca1efd58fa99146bf13c34ef74bb8d1aa8dc036224b28da0a78088e9016a",
+      "git_blob": "7cd63c8592ab2c6727547cca483b677a721a2d67"
+    },
+    {
+      "path": "humming/schema/__init__.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/__init__.py",
+      "status": 200,
+      "bytes": 1831,
+      "sha256": "34eef2fe4f6e8e269976c9c3113f7b3480c7ab468d399c6efa21594eff734dee",
+      "git_blob": "d3d8afd385dcf605a5d3ada9db11d0df08053413"
+    },
+    {
+      "path": "humming/schema/autoround.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/autoround.py",
+      "status": 200,
+      "bytes": 3385,
+      "sha256": "b8494cd4d2e83b4bdcc23ecef223eab48b0b0a307941bd161aaed25f31e57e0b",
+      "git_blob": "b0419b87576fdd2e01717141a58e00ef65e0c822"
+    },
+    {
+      "path": "humming/schema/awq.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/awq.py",
+      "status": 200,
+      "bytes": 4250,
+      "sha256": "75a2a510b063059fb2becdbfcc8323da21c58588ecaa3d46e54b0fb393d7d8fd",
+      "git_blob": "ab719542a82c7125e51dc830b8f12b3a5f0dd2a7"
+    },
+    {
+      "path": "humming/schema/base.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/base.py",
+      "status": 200,
+      "bytes": 11963,
+      "sha256": "23dbcd7d0023b4a33027720c7eeb4f06ab1956935d80e88858fef2a6d70bebaf",
+      "git_blob": "bb559e29fa291da085de2071c544b04bc05170eb"
+    },
+    {
+      "path": "humming/schema/bitnet.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/bitnet.py",
+      "status": 200,
+      "bytes": 4085,
+      "sha256": "50a7566681305143c6bba3e8b5a6302a58bc0eb93cc8da7b5968aec947fc8c50",
+      "git_blob": "d62f45432651c18b658dc4ff277d5cb09cabfae0"
+    },
+    {
+      "path": "humming/schema/compressed_tensors.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/compressed_tensors.py",
+      "status": 200,
+      "bytes": 15390,
+      "sha256": "1b4099af6796fa6de104dd25a64dcc9251da11156d49870ec24e9c5ea7bf2cae",
+      "git_blob": "933019c165405b7322745a9ce0d535319049f572"
+    },
+    {
+      "path": "humming/schema/fp8.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/fp8.py",
+      "status": 200,
+      "bytes": 6162,
+      "sha256": "480a652c61b54dbd2a4a9bc19be0b0d3da8e477b17a47e68c817df50a0e14a8a",
+      "git_blob": "5ad41bd35cd270c85ab8f2a1daa2ccee76ca7ac7"
+    },
+    {
+      "path": "humming/schema/gpt_oss_mxfp4.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/gpt_oss_mxfp4.py",
+      "status": 200,
+      "bytes": 1227,
+      "sha256": "38b09bd2bb972f791ad0c137d5e26b53d8be1f8b71db2e5e3ae67222916c374e",
+      "git_blob": "d1b30e85628f764a419a87983dbf0aff44af0bc9"
+    },
+    {
+      "path": "humming/schema/gptq.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/gptq.py",
+      "status": 200,
+      "bytes": 3803,
+      "sha256": "e08f18111d57682ecc3afa8325d058cf8ff59127d62c00fc5665db84de8ace23",
+      "git_blob": "a96bbcfc16888d9d26751ba1c05f9c0ab4901032"
+    },
+    {
+      "path": "humming/schema/humming.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/humming.py",
+      "status": 200,
+      "bytes": 25754,
+      "sha256": "d722939748250f4d02d177af5349e0604fa79e24213b6a5a6222ed36d68668e0",
+      "git_blob": "2090c9596bc35f95388eefd4a59d1dc1b3623629"
+    },
+    {
+      "path": "humming/schema/modelopt.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/modelopt.py",
+      "status": 200,
+      "bytes": 9847,
+      "sha256": "dada7c559a9e592e30c88cd09b4b964c4f518ea482a986f2462bb448a70f55c5",
+      "git_blob": "ce3a8085a08c54d6ce7c0e6772269ab05bc6628f"
+    },
+    {
+      "path": "humming/schema/mxfp4.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/mxfp4.py",
+      "status": 200,
+      "bytes": 2521,
+      "sha256": "643ae9de8c510c42d10ee2a65ce5453b256121a1e898cafe180bb6644880899b",
+      "git_blob": "e0e9ce1d822b947073ea3461bfc767342208d901"
+    },
+    {
+      "path": "humming/schema/quark.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/quark.py",
+      "status": 200,
+      "bytes": 29357,
+      "sha256": "0f2eb56472bc651e7ee3f344e8637d142809759871a0a56aee3029ec4c10be92",
+      "git_blob": "dc3c55c42c10adb8e1bb7351327060722e002fc9"
+    },
+    {
+      "path": "humming/testing/__init__.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/testing/__init__.py",
+      "status": 200,
+      "bytes": 535,
+      "sha256": "92822abc0ffa13aecd2a831d4282ab5c042c5e4548fb9096965477413c5ed8fe",
+      "git_blob": "bd162779f255afe51f0aac1b9182136e39ab27d0"
+    },
+    {
+      "path": "humming/testing/benchmark.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/testing/benchmark.py",
+      "status": 200,
+      "bytes": 1623,
+      "sha256": "6f360434e123766f6ca885413c7f567a74d69adc87b65376b1da644b0905fa15",
+      "git_blob": "7183f8b81ac0018272cf0c39e5d76ad66a37030e"
+    },
+    {
+      "path": "humming/testing/data.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/testing/data.py",
+      "status": 200,
+      "bytes": 6368,
+      "sha256": "da4eeeaf3d649f7077a94c4664b86fa05677bed72299be854acdc7b5740fc30f",
+      "git_blob": "bd06e3f724486a889e96e56cc1efeff1495f5a24"
+    },
+    {
+      "path": "humming/testing/device.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/testing/device.py",
+      "status": 200,
+      "bytes": 2396,
+      "sha256": "5d5850cc14e75985beabfc29ef79f400be185de2f8b99f7513c5b26388936809",
+      "git_blob": "0e832e6cd650a23b99d7bf07871cb4cc68a2fd60"
+    },
+    {
+      "path": "humming/testing/process_input.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/testing/process_input.py",
+      "status": 200,
+      "bytes": 20234,
+      "sha256": "51ddaa1972220ac9bbbf30e1e0c93b13575fcd222b841949372e6b742bca4b4b",
+      "git_blob": "db38226cc2a9151cb55f220a6a3319809c9df15d"
+    },
+    {
+      "path": "humming/testing/runner.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/testing/runner.py",
+      "status": 200,
+      "bytes": 30561,
+      "sha256": "04a6bb1ff2500a22ef96fa62366be7f7c0a20cf6bdcdce36d69e0ad0c1e0ce83",
+      "git_blob": "9aaac9304f7aa4e541c728f1190ee8808e3c0929"
+    },
+    {
+      "path": "humming/testing/tuning.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/testing/tuning.py",
+      "status": 200,
+      "bytes": 21932,
+      "sha256": "8fe24d6ba58219311ebb2b20890a89bfbf9bceb891c5701a6afd2bddce3b19fa",
+      "git_blob": "fc83c74db762b8d394d0b5237364e3cb0ffe33ab"
+    },
+    {
+      "path": "humming/transform.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/transform.py",
+      "status": 200,
+      "bytes": 28365,
+      "sha256": "0d9197adc80cb6fd5d078fb5a4e86cce7970cb96938f7b5862396ac73b1e24b3",
+      "git_blob": "360993c5743f504824e9b3b7b88c18236495c093"
+    },
+    {
+      "path": "humming/tune/__init__.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/__init__.py",
+      "status": 200,
+      "bytes": 6631,
+      "sha256": "a4ce78b93fb237dc978150b9c74c25cc5895cdd9561a09b94f4fe71ac44719b1",
+      "git_blob": "a43f0a9745e0e562cf7b42f941c3f189482370cd"
+    },
+    {
+      "path": "humming/tune/base.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/base.py",
+      "status": 200,
+      "bytes": 27115,
+      "sha256": "a83dddabf93c5dca8d2f4d0d576b49b5a9c43313fbda78d6011f730e1a6b607f",
+      "git_blob": "a61b48aa7ebf6dffa602d07096a866fb3691dbb9"
+    },
+    {
+      "path": "humming/tune/candidate.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/candidate.py",
+      "status": 200,
+      "bytes": 24156,
+      "sha256": "fe32cc32b3c5d02a9f8407db5c58f8c930ebcefe293d3d96f575cabb0f9e212b",
+      "git_blob": "6c8f18f7ee24d9081e2f5c7348a09a6a164e2f4e"
+    },
+    {
+      "path": "humming/tune/ppu_sm80.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/ppu_sm80.py",
+      "status": 200,
+      "bytes": 5481,
+      "sha256": "2b111e08a0ec56c28efc7f77cd94fdfb447b4f62e2306f967943f0aad5a1df9e",
+      "git_blob": "2799138e4e98ffb1a738c2dbd729e5188ee5aa18"
+    },
+    {
+      "path": "humming/tune/process_input.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/process_input.py",
+      "status": 200,
+      "bytes": 28141,
+      "sha256": "466c44fed11fd4c42cc66626d2803815175cc1d0b6b12504ad38398c9e540230",
+      "git_blob": "9ef8797b8e135597c6401a8c1e034ab1128c16a3"
+    },
+    {
+      "path": "humming/tune/raster.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/raster.py",
+      "status": 200,
+      "bytes": 1760,
+      "sha256": "87208d3982ac213af75b3a4bfde7ce7e933c9de49a9001076d6b7311cd99f3dd",
+      "git_blob": "55eaf4c1661fe3b83e3448626da878a12cfe5f9f"
+    },
+    {
+      "path": "humming/tune/sm100.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/sm100.py",
+      "status": 200,
+      "bytes": 54512,
+      "sha256": "52c62a1e46f9d1df74218f1c91dce391f052f3c7066593c3ea225189450fa814",
+      "git_blob": "c66169d012dfd04c9f1fae64f198cec5b575c9aa"
+    },
+    {
+      "path": "humming/tune/sm120.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/sm120.py",
+      "status": 200,
+      "bytes": 43901,
+      "sha256": "6433bbd30f730b52b40b724e86b01f8a085bdc05c79151e331908ee04b36dbc0",
+      "git_blob": "91e952babc8806ad86dc7a6b7828f28755783888"
+    },
+    {
+      "path": "humming/tune/sm121.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/sm121.py",
+      "status": 200,
+      "bytes": 2890,
+      "sha256": "2b5ec612c655c58b1497a263c27e2ed0040a165ea786d775c4b93fb359f1c119",
+      "git_blob": "eb031b7b4ab1c772cc26edf3d9db047551a07fe6"
+    },
+    {
+      "path": "humming/tune/sm75.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/sm75.py",
+      "status": 200,
+      "bytes": 1977,
+      "sha256": "4566f150627308b5cf1a728907bfc211c10e826f342461f6e2c52a86fa6628cc",
+      "git_blob": "9fedfe5536c17f0865fdfbbf88475ffc537eb7d6"
+    },
+    {
+      "path": "humming/tune/sm8x.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/sm8x.py",
+      "status": 200,
+      "bytes": 4050,
+      "sha256": "6d747f73b0a7c469410ee86622a2920256b96082cf975b5570039b70fa7d2839",
+      "git_blob": "0c4e342f37ac366a8f3d620b5a8da3d39626fb60"
+    },
+    {
+      "path": "humming/tune/sm90.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/sm90.py",
+      "status": 200,
+      "bytes": 13078,
+      "sha256": "31e7314c95932bd4380430b20ac17bee7070a14bb59e058067f09e27b885c0ba",
+      "git_blob": "4b53a2d0ef4faf36b693e0e68835d67e10005f7b"
+    },
+    {
+      "path": "humming/tune/sm90_h20.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/sm90_h20.py",
+      "status": 200,
+      "bytes": 29187,
+      "sha256": "4a254126c7a72587258dbe028b3f57f0c59756708a60e917d976c91baec45159",
+      "git_blob": "9bec0a7b6f4c9ab483a46c1ecee4daeb55b1a8d8"
+    },
+    {
+      "path": "humming/tune/sm90_policies.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/tune/sm90_policies.py",
+      "status": 200,
+      "bytes": 75062,
+      "sha256": "861ec1ab367331a514a0ab30b994f45d32cddde54ca5b8c612d55aefef5227d7",
+      "git_blob": "fb4fa06254f3eb41d410b28965e70f1f6564f438"
+    },
+    {
+      "path": "humming/utils/__init__.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/__init__.py",
+      "status": 200,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "humming/utils/cpu.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/cpu.py",
+      "status": 200,
+      "bytes": 3680,
+      "sha256": "441e028829c28ad49c0d013fa3f88283f3709fafd86727e3144b4c0c9a32b153",
+      "git_blob": "074333c400aced46e3c02aa2bc0ff6f4f09a6f85"
+    },
+    {
+      "path": "humming/utils/cubin.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/cubin.py",
+      "status": 200,
+      "bytes": 7294,
+      "sha256": "1e27774f4ddc1dcc8c88e9e99fa4491643b749414f12032c6e098980a8e1b375",
+      "git_blob": "d92153019e83425da3a0629b4a0e1157c222ba70"
+    },
+    {
+      "path": "humming/utils/cuda.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/cuda.py",
+      "status": 200,
+      "bytes": 8663,
+      "sha256": "9a2cefbc285eece8270c30a093d077960dda0cb58afec8b6342d2eb43c44e664",
+      "git_blob": "ab72c5b0d5b8544a879502a6785ea15c5d915998"
+    },
+    {
+      "path": "humming/utils/device.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/device.py",
+      "status": 200,
+      "bytes": 4528,
+      "sha256": "84bd2235270df5c223e9a54cf67f0053872c9f676150a7fa8cd6bbb6efc8de18",
+      "git_blob": "da8a681295d1cd19d56078a411069c57dd55d837"
+    },
+    {
+      "path": "humming/utils/jit.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/jit.py",
+      "status": 200,
+      "bytes": 8707,
+      "sha256": "e1a8544bafcac2e2baa48e3ad3e88be78e03d406b5d884381feba184cf949a19",
+      "git_blob": "419b77f9c660274958139790a06d34319ee49f25"
+    },
+    {
+      "path": "humming/utils/math.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/math.py",
+      "status": 200,
+      "bytes": 758,
+      "sha256": "f95087e5195c91db27d9c6d295450c4381a63adcfd1a264a2414007233891287",
+      "git_blob": "d1d983a842865d0b1e09b7a06b502a1226a2c5e4"
+    },
+    {
+      "path": "humming/utils/nvrtc.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/nvrtc.py",
+      "status": 200,
+      "bytes": 5416,
+      "sha256": "60f4af46281fe5d52ecc0a8f95d27cead33b3c0a9f76f3f4c043918dbbaf6d9b",
+      "git_blob": "1770c0ca2a1e718df9c1c4626ad183595663cafb"
+    },
+    {
+      "path": "humming/utils/smem.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/smem.py",
+      "status": 200,
+      "bytes": 11574,
+      "sha256": "77949ca1b9cc618b2f8da7291bf0d4ea0be95d963f7a27e2e8f66e45ae71c00c",
+      "git_blob": "65182e759c339ddc8b9b6cae3e1fc5aebf88b3d8"
+    },
+    {
+      "path": "humming/utils/weight.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/utils/weight.py",
+      "status": 200,
+      "bytes": 12499,
+      "sha256": "57e0fb1e6001310bf16406ef3653192c1d992eb2889b17b93028a3d52d5901e6",
+      "git_blob": "7a007244904a9562d9713205b3f28abd84eddb86"
+    },
+    {
+      "path": "tests/kernels/humming/test_moe.py",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/tests/kernels/humming/test_moe.py",
+      "status": 200,
+      "bytes": 13312,
+      "sha256": "97ae52e131c593832b0c2091e745a889a968f73c21bcb7047d019dfb50a86014",
+      "git_blob": "fa52b55601b739139f1be482d363511357e1d302"
+    }
+  ]
+}

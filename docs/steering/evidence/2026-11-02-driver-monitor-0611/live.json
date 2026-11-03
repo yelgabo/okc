@@ -1,0 +1,269 @@
+{
+  "time": "2026-11-03T06:12:30.275921+00:00",
+  "scope": "Shared jobs/quota and all five public boards; no owning status poll or target dispatch. A missing shared job is not proof of no accepted POST.",
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 1,
+            "left": 9
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 8,
+            "left": 12
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 7,
+            "left": 13
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      }
+    ]
+  },
+  "shared_live_jobs": [],
+  "overall": {
+    "rank": 386,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 385
+  },
+  "boards": {
+    "muse_moe_w4a16": {
+      "you": {
+        "rank": 374,
+        "team": "yelgabo",
+        "speedup": 2.3232,
+        "first": false,
+        "ahead": 373,
+        "to_first": 1.1898
+      },
+      "you_row": [
+        {
+          "attempts": 26,
+          "job": "4aa033ef23a142cd",
+          "rank": 374,
+          "speedup": 2.3232,
+          "submitted_at": 1793684818.1926465,
+          "team": "yelgabo",
+          "value": 5788.7207203627
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 13,
+          "job": "8997cf3666d7462a",
+          "rank": 100,
+          "screened_speedup": 2.36240302413021,
+          "speedup": 2.4196,
+          "submitted_at": 1793201937.301997,
+          "team": "deepak-foundryai",
+          "value": 5558.059632625665
+        }
+      ]
+    },
+    "muse_bf16_proj": {
+      "you": {
+        "rank": 370,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 369,
+        "to_first": 1.0994
+      },
+      "you_row": [
+        {
+          "attempts": 33,
+          "job": "9eba96894ee1402e",
+          "rank": 370,
+          "speedup": 1.5278,
+          "submitted_at": 1793509752.4725015,
+          "team": "yelgabo",
+          "value": 3161.918773020326
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 13,
+          "job": "240f37313ef34052",
+          "rank": 100,
+          "speedup": 1.5832,
+          "submitted_at": 1793531715.2204165,
+          "team": "arkintof",
+          "value": 3051.336526898207
+        }
+      ]
+    },
+    "muse_attention_decode": {
+      "you": {
+        "rank": 263,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 262,
+        "to_first": 1.2821
+      },
+      "you_row": [
+        {
+          "attempts": 25,
+          "job": "8914751e3b9f468b",
+          "rank": 263,
+          "speedup": 2.6043,
+          "submitted_at": 1793510570.8706555,
+          "team": "yelgabo",
+          "value": 1446.1905945986007
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 56,
+          "job": "d283144045e74f86",
+          "rank": 100,
+          "speedup": 2.679,
+          "submitted_at": 1793661878.3739555,
+          "team": "rohanarun",
+          "value": 1405.8454485457505
+        }
+      ]
+    },
+    "muse_decode_layer": {
+      "you": {
+        "rank": 386,
+        "team": "yelgabo",
+        "speedup": 2.1261,
+        "first": false,
+        "ahead": 385,
+        "to_first": 1.1713
+      },
+      "you_row": [
+        {
+          "attempts": 42,
+          "job": "607eb52bdaf24160",
+          "rank": 386,
+          "speedup": 2.1261,
+          "submitted_at": 1793534312.3883686,
+          "team": "yelgabo",
+          "value": 10639.426326569794
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 53,
+          "job": "3c5d290cfecb42a3",
+          "rank": 100,
+          "speedup": 2.2716,
+          "submitted_at": 1793534808.3961608,
+          "team": "prateekm1007",
+          "value": 9957.88902007095
+        }
+      ]
+    },
+    "muse_prefill_layer": {
+      "you": {
+        "rank": 637,
+        "team": "yelgabo",
+        "speedup": 1.2166,
+        "first": false,
+        "ahead": 636,
+        "to_first": 1.7259
+      },
+      "you_row": [
+        {
+          "attempts": 3,
+          "job": "1530ec79d50a4f69",
+          "rank": 637,
+          "speedup": 1.2166,
+          "submitted_at": 1793513800.5948975,
+          "team": "yelgabo",
+          "value": 318441.9905489318
+        }
+      ],
+      "rank100": [
+        {
+          "attempts": 12,
+          "job": "4352cda010fd4fad",
+          "rank": 100,
+          "speedup": 1.8938,
+          "submitted_at": 1793527849.3753119,
+          "team": "yairbarak22",
+          "value": 204565.23063582397
+        }
+      ]
+    }
+  },
+  "accepted_owner_job": {
+    "job_id": "c985bbdb2980407a",
+    "problem": "muse_moe_w4a16",
+    "source_sha256": "542cd6506c72fa4823abd79217d2817f5647ebd6675c0ab1c222e0b2ba427036",
+    "source_commit": "5ff38524",
+    "accepted_at": "2026-11-03T06:11:52.124393+00:00",
+    "experiment": "MOE-LUT-01",
+    "public_submission": false
+  },
+  "accepted_ledger_commit": "50efe87e",
+  "source_checkpoint": "1c09aa76"
+}

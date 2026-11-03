@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "job_id": "6f83ee875dd847c1",
+  "board": "muse_decode_layer",
+  "mode": "check",
+  "status": "done",
+  "passed": false,
+  "returncode": 112,
+  "complete": false,
+  "private_raw_gate": null,
+  "closure": "Campaign outgoing seam lane CLOSED; no rescue/retry or further measurement authorized.",
+  "hash_scope": "Exact canonical Git blob bytes after repository clean conversion; excludes this manifest itself. Working-tree CRLF may differ. Physical upload is separately pinned below.",
+  "preregistration_commit": "c40930c5e49efb05ff7ac476e34c8b50fdc1541a",
+  "acceptance_commit": "120a069d51c0ee93aa5eddbfc2edfd2dcc13cceb",
+  "frozen_upload": {
+    "path": ".build/outgoing-driver-pair/check.py",
+    "archive": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/check.py.gz",
+    "bytes": 943363,
+    "sha256": "ad314060c98ccdde81a1a38b9f7454d7e4fdbb185d178094e3f197f9c8baa75b"
+  },
+  "frozen_reader": {
+    "path": "tools/g_outgoing_driver_pair_read.py",
+    "sha256": "a79a59c58d4035f7a247bdc247145827d9c5c000078602f2d5f7df699851f2b9"
+  },
+  "file_count": 34,
+  "files": [
+    {
+      "path": "docs/steering/2026-11-01-worker-outgoing-driver-pair-registration.md",
+      "git_blob": "86ed664a5e397601f2284ff1d075359824b277a7",
+      "bytes": 8393,
+      "sha256": "355f109c025e35e7b3a8fe170d6441c2ff5ddd77b054c87b912d4ec1c5d2de2f"
+    },
+    {
+      "path": "docs/steering/2026-11-01-worker-outgoing-driver-pair-terminal.md",
+      "git_blob": "6b065de9e52f7091a8ff27a9bb95bfb091bba9cf",
+      "bytes": 7677,
+      "sha256": "417f91121958cbd8ca860da688c2c169e20bc72b698b86c8f00d8cde5702c287"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/accepted-status.json",
+      "git_blob": "ded421fb3be996fec245c7771b2f9025ab59c3dd",
+      "bytes": 395,
+      "sha256": "f77546b6b150b7ae8f6e3216cc69efadd4ae706815372bd943465e9e624869f9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/check.py.gz",
+      "git_blob": "b8431f888647875b7ee8e739ae71e2f3c951bada",
+      "bytes": 252732,
+      "sha256": "6d81636cc47eb61f6b7245b180b992e2adc7ce3ed7481184e02b25c73f9b0661"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/cpu-tests.txt",
+      "git_blob": "fceb50d2815fb2134ae2868c93e9f687f6a8a498",
+      "bytes": 3994,
+      "sha256": "723fa1e738544dc5c42e44f515fe41a82c1f81c34a1f244aa6753acf40e1af1b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/dispatch-intent.json",
+      "git_blob": "8eccb9668baa50727495c0dcdf16953e7fe61ac5",
+      "bytes": 622,
+      "sha256": "d79a9be42499969d114c5577de3c2d6bc1d5bf36dbfa53196eccf154c53f3897"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/dispatch.json",
+      "git_blob": "75b08591e6cae547289bfca672a04f53ccdbf76b",
+      "bytes": 69,
+      "sha256": "a5e9506a672a5f52fab8a458cf4ed535d1d4a0c5aa95df5bc1324bf93e42d012"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/dispatch.transport.json",
+      "git_blob": "d142de42e7e1fa3a7e98277a05ffb22997d56f02",
+      "bytes": 68,
+      "sha256": "d3f09a9926381bd8e4c7e7cbf82324b7e8d0c0ec81c508703a7b2cf911ccc4fc"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/freeze-offline.py",
+      "git_blob": "b2940b2aa7f7056acac1eed02088d85614c38c06",
+      "bytes": 3432,
+      "sha256": "bb17f38c4ff641aaae1afe62f885332cd070a2af85d72d06f7f36c7d1117d3b3"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/frozen-reader-rejection.json",
+      "git_blob": "9a22749cfe0b16983bb4c5930442ffe2e1d82997",
+      "bytes": 808,
+      "sha256": "13d09faa1e11d0e76005109ebb533481c64274be55a638a3d57b06a6cf121aaf"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/host-only.diff.gz",
+      "git_blob": "056df684c49379a1ce3412a2bf6538a60512fb08",
+      "bytes": 6833,
+      "sha256": "26c4db4addc6aa1501c37c19b787529a31d5a17d6d6188b2a4e5b7f9a0ba5285"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/manifest.json",
+      "git_blob": "ddeb59b479741f15155b0cc700a29170c52b4061",
+      "bytes": 1698,
+      "sha256": "fb8727799dfe2593e537834724256f8286a45e8ccae0b7d0cce958fa74542bab"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/offline-pins.json",
+      "git_blob": "19dfcc07fe3b39b7d64da8f580f3219300328dc8",
+      "bytes": 3674,
+      "sha256": "2a7ecd9dad7e63ffb9021fa981bb5dd3623a039211a852ad338c94996fdf9f95"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/own-terminal-receipt.json",
+      "git_blob": "08fe05df6b6f8e52c6cf1ef6a3a1c6719b21163a",
+      "bytes": 20005,
+      "sha256": "497031d0adb9f9a02cda915e919604af921fde2ebfb27c7d1e255d9262c9c357"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/own-terminal-transport.json",
+      "git_blob": "001247aa91a5a7f0bf065565040a45b3f7d7b168",
+      "bytes": 147,
+      "sha256": "d83bcc6069d668fd6076f4a440c5bc130b6ae94c291dd90b0b9d50bcc6d56f87"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/post-dispatch-quota.json",
+      "git_blob": "2a06f77dcf07c392c3bc7878adfe28d4d8ff322d",
+      "bytes": 1536,
+      "sha256": "763e83a8ea1deb90bb88dd164315e380604842063507f32cd70caa105366f132"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/preflight-jobs.json",
+      "git_blob": "40a657cc685e62b2e28ba5dfde605204f8ff88e3",
+      "bytes": 13839,
+      "sha256": "6115ef677ee67181bb31ad2eb84936f9c54e3d2864c495e4e6365527834a7035"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/preflight-quota.json",
+      "git_blob": "36b04a7fba9a3de079a96f9bc3091d741a4bb5b9",
+      "bytes": 1536,
+      "sha256": "6490ba6b529326ae7c9c030cf612b02e6a3e1d377debfedcf319bf1798cc6b80"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/preregistration-remote.json",
+      "git_blob": "9ccd4d852770c9f285e7ac57a7502842ff32bfcb",
+      "bytes": 826,
+      "sha256": "a9336220b05b1bfecf1fe3ac5ce96c7498d98e36b9763314e23484c56bb7c9d1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/target-build-observation.json",
+      "git_blob": "babe6dc1b037b05dbad4949840415885b5e21e62",
+      "bytes": 11490,
+      "sha256": "bae6714b6d93ce3b94610dd88af4b1c457887b6e4d4ce8303f7561dae7a4419d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/target-prequery-prefix.json",
+      "git_blob": "0a718b242fab28eb2f68cad181576d259f16e82e",
+      "bytes": 20285,
+      "sha256": "dd80b5443a936fa9cf64231f919c03272b03da25503c71b3c3082320b1751fa9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/target-query-contexts.json",
+      "git_blob": "29ac9bc058fb664179652271ca498c063af55539",
+      "bytes": 3017,
+      "sha256": "f7b695fa7f1ee5c865203338b3059d7d74a378c3e74a53ec7a3f68378cc67f0a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/terminal-quota.json",
+      "git_blob": "2a06f77dcf07c392c3bc7878adfe28d4d8ff322d",
+      "bytes": 1536,
+      "sha256": "763e83a8ea1deb90bb88dd164315e380604842063507f32cd70caa105366f132"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/terminal-summary.json",
+      "git_blob": "8c6ff58e76a8d6891dc3d24a88f87b0d1489e8ab",
+      "bytes": 5337,
+      "sha256": "43c4f1abb0be47a46963f4da06cb97ac85d2c39483ae1c1b04dfb9fd55aec6e7"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/wait-own.py",
+      "git_blob": "eabc692d729e1929e46733733b3ac8b55c2b227c",
+      "bytes": 842,
+      "sha256": "2a8a8aee59596e97b81188fe8ed922b1afac6c85dc0f7fb975c58b852bdbbb30"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/wait-registration.json",
+      "git_blob": "66e7789dc0593e44398d1d7017e257d2346fa46d",
+      "bytes": 384,
+      "sha256": "fda98ce062344f47fd457a525a4bc915d09f4954c07336acf66f8244c80c683b"
+    },
+    {
+      "path": "muse_decode_layer/profiles/g-outgoing-driver-pair.6f83ee875dd847c1.json",
+      "git_blob": "08fe05df6b6f8e52c6cf1ef6a3a1c6719b21163a",
+      "bytes": 20005,
+      "sha256": "497031d0adb9f9a02cda915e919604af921fde2ebfb27c7d1e255d9262c9c357"
+    },
+    {
+      "path": "muse_decode_layer/profiles/g-outgoing-driver-pair.6f83ee875dd847c1.log",
+      "git_blob": "9be7d67a42ed7ad07e365f2cb7c8a6389cea6f6c",
+      "bytes": 16000,
+      "sha256": "eec089be90681f564c51046e4b4d749f45b5e25e9fa7768343f63f8ea2866478"
+    },
+    {
+      "path": "muse_decode_layer/profiles/g-outgoing-driver-pair.6f83ee875dd847c1.txt",
+      "git_blob": "7f33efacb91b11cd0a403d481bb45ad6bd47eec4",
+      "bytes": 5389,
+      "sha256": "8fbde579aec710052799de3d46422e1824c65280efb96b547f87f223fa05a5c2"
+    },
+    {
+      "path": "tools/g_outgoing_driver_pair.py",
+      "git_blob": "8a072a0441cc537729c52d4d9503857948fd0472",
+      "bytes": 8977,
+      "sha256": "7fc7566e3458e89ef92692fd1d70143d6ff2e746b83a10feceb7f6157c12e4f6"
+    },
+    {
+      "path": "tools/g_outgoing_driver_pair_read.py",
+      "git_blob": "672da7ab7b57c7fc22f1f0a8408f5308a355fb1f",
+      "bytes": 2992,
+      "sha256": "a79a59c58d4035f7a247bdc247145827d9c5c000078602f2d5f7df699851f2b9"
+    },
+    {
+      "path": "tools/g_outgoing_driver_query.py",
+      "git_blob": "72212e61c68960b890c2dee62450c1acbabcd812",
+      "bytes": 6144,
+      "sha256": "50246c23c2951c721bb4108cb03ebfdb8b8f2903b461d4cb569e3d93331ca235"
+    },
+    {
+      "path": "tools/test_g_outgoing_driver_pair.py",
+      "git_blob": "7dde1348d308c080712086a2ca36a3dd2b31e981",
+      "bytes": 7072,
+      "sha256": "03735d5a64254d51ccffeb5791f3304bfe626f5e53e10fca4985169a0eb3bdeb"
+    },
+    {
+      "path": "tools/test_g_outgoing_driver_query.py",
+      "git_blob": "a69d3b8183d4547507e01dfe256be319550b8495",
+      "bytes": 5047,
+      "sha256": "b839613b51fc6eba86df924edb32ef1eb667324dd651a1d882fb6c641da4d2c0"
+    }
+  ]
+}

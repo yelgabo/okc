@@ -1,0 +1,15 @@
+{
+  "pr": "https://github.com/pingdotgg/t3code/pull/28997",
+  "status": 200,
+  "authentication": "none",
+  "head": "c9736009eccfb214ca50b7f4e468868923f7c7aa",
+  "state": "open",
+  "changed_files": 1,
+  "body_matches_prepared": true,
+  "sections": [
+    "Reproduction steps",
+    "Before the fix",
+    "After the fix"
+  ],
+  "evidence_url": "https://gist.github.com/yelgabo/a68b25521807bc96cbe285860da9b766"
+}

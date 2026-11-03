@@ -1,0 +1,72 @@
+{
+  "frozen_utc": "2026-11-02T14:25:42.361Z",
+  "candidate_sha256": "c7b31929b173c883d0f69c7168c5b89f6e044e6bd9872dd307967b6406d41fc9",
+  "tests": "----------------------------------------------------------------------\r\nRan 19 tests in 36.325s\r\n\r\nOK\r\n",
+  "gpu_calls": 0,
+  "decision": "SOURCE_REPAIR_CPU_PASS_TARGET_HOLD",
+  "files": [
+    {
+      "path": "tools/g_pr_graph_owner_events.py",
+      "bytes": 5639,
+      "sha256": "63ed2416f8d52e801ea8067b26b4def6cc6d12dd5a0cfe0dedef5de9e8849bd8"
+    },
+    {
+      "path": "tools/test_g_pr_graph_owner_events.py",
+      "bytes": 6098,
+      "sha256": "3731ba6655677ab5a76984d67cf09b0b56190c0a7edde07e1ff7ccbb03000c7b"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-pr-graph-owner-events.md",
+      "bytes": 6945,
+      "sha256": "aa028bdd4c76f2007fb70721b4196c48a87da02c7abaeefea5156c40b8f51e3a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/cpu-final-stderr.txt",
+      "bytes": 2873,
+      "sha256": "fd752df9b4fcf702d7fc36577ecc3649af1216bb2c8940661f215542e55a5571",
+      "physical_sha256": "7597e1ad79714fdf6b94b3f07da49bb2de0f5ec42f6972e218dc133fcd6bb65b",
+      "physical_bytes": 2897
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/cpu-final.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/cpu.txt",
+      "bytes": 6296,
+      "sha256": "cace17b885d609f85a20e848cba1502dd601d7c1539dd2268ee78a145f5c5348"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/event-primary.html",
+      "bytes": 94019,
+      "sha256": "2111973053bad763cb3cc9dcc2d0fde3cd20e2abd92e09758713738ac2365f14"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/primary__ctx-primary.html",
+      "bytes": 85692,
+      "sha256": "a64d6acd60b684508a54f4952f6055ecc29a14c5fd1d69774cc98be67a0a3f5e"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/vmm-primary.html",
+      "bytes": 150841,
+      "sha256": "68875e7d1799d14101ec39f35e9300a95fad327f4d705307ce1342b952bf8f2d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/generated/candidate.py",
+      "bytes": 881228,
+      "sha256": "c7b31929b173c883d0f69c7168c5b89f6e044e6bd9872dd307967b6406d41fc9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/generated/generation.json",
+      "bytes": 302,
+      "sha256": "1a7680cbb7b6b43b718f2a6900c38347b3816a29caf92a3e18c6e5dd4daa0d22"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/generated/host.cpp",
+      "bytes": 9309,
+      "sha256": "e5c134c14df309a381d5e5157bf89ff20238198ffe623866ad9cec8604b70e22"
+    }
+  ],
+  "transport_note": "Hashes below describe canonical published Git blobs; Windows CPU stderr physical CRLF is separately retained as physical_sha256 when different. No treatment change."
+}

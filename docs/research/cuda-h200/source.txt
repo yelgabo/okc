@@ -1,0 +1,866 @@
+# CUDA optimization playbook for PyTorch + native-CUDA MoE kernels on H200
+
+## Executive summary
+
+For an H200-targeted Mixture-of-Experts implementation, the highest-value optimization work is unlikely to come from generic CUDA advice such as “increase occupancy” or “use shared memory.” Hopper is architected around **asynchronous, specialized pipelines**: TMA moves tiles between HBM/L2 and shared memory; WGMMA consumes shared-memory tiles asynchronously on Tensor Cores; producer and consumer warps can execute different roles; persistent CTAs can retain scheduling state across many expert tiles; and thread-block clusters can share data through distributed shared memory. NVIDIA's own Hopper GEMM implementations combine precisely these ideas—TMA, WGMMA, warp specialization, multistage shared-memory pipelines, persistent scheduling, and, where useful, cluster multicast. citeturn947701search0turn315437search0turn315437search4
+
+H200 is still **Hopper / SM90**, not a new compute architecture relative to H100. Its major advantage for an MoE workload is memory: H200 SXM has 141 GB HBM3e and about 4.8 TB/s of memory bandwidth versus 80 GB and about 3.35 TB/s for H100 SXM. Consequently, kernels that were primarily DRAM-bandwidth-bound on H100 can move substantially faster on H200, while kernels limited by WGMMA issue throughput, register dependencies, synchronization, or poor tile scheduling may improve much less. citeturn115729search1turn947701search4
+
+The most consequential architectural point for your numeric formats is that **H200 has no native NVFP4 Tensor Core path**. Native NVFP4 acceleration is a Blackwell feature. On Hopper, a four-bit weight format such as NVFP4 must effectively become a W4A16-style computation: unpack/dequantize weights and feed BF16/FP16 operands to Hopper Tensor Cores. NVIDIA describes exactly this behavior in its own Hopper compatibility paths. That makes the dequantization pipeline, packing layout, scale reuse, and fusion of dequantization with GEMM critical optimization targets. citeturn114892search1turn114892search2turn114892search6
+
+The working assumption requested in the prompt is that the application uses PyTorch tensors as the front end and native CUDA compiled through `torch.utils.cpp_extension.load_inline`. PyTorch officially supports that mechanism and exposes CUDA compiler flags through `extra_cuda_cflags`. I have **not independently inspected the current repository in this research pass**, so exact kernel shapes, routing scheme, data types, expert count, top-k, and current instruction mix should be treated as unspecified until confirmed from source and profiles. citeturn591713search1turn591713search6
+
+The practical order of attack is:
+
+1. **Establish a trustworthy baseline and identify the actual limiter.** Profile the real MoE shapes with Nsight Systems and Nsight Compute before changing code.
+2. **Inspect SASS and resource usage.** Confirm that the hot path really emits TMA/WGMMA rather than unexpectedly falling back to scalar/vector loads or older MMA forms.
+3. **Optimize expert/tile scheduling and L2 reuse.** MoE irregularity often creates more opportunity here than instruction-level tuning.
+4. **Build a warp-specialized TMA → shared-memory → WGMMA pipeline** if one is not already present.
+5. **Sweep shared-memory stage count, tile dimensions, CTA rasterization, and registers** rather than maximizing occupancy.
+6. **Make the W4A16/NVFP4 emulation path a first-class kernel**, with packed loads and fused scale/unpack/dequantization.
+7. **Use persistent grouped scheduling or Stream-K/Split-K selectively**, especially for low-token experts and tail work.
+8. Only afterward pursue small SASS-level wins, compiler switches, and manual instruction substitutions.
+
+That order reflects Hopper's design and the techniques used by CUTLASS, cuBLAS-oriented examples, and FlashAttention-3 rather than folklore. citeturn315437search1turn315437search4turn647481academia24
+
+## Hopper architecture and the kernel design it rewards
+
+Hopper compute capability 9.0 provides up to 64 resident warps per SM, 65,536 32-bit registers per SM, up to 255 registers per thread, and up to 228 KB of shared memory per SM. A single block can opt into nearly the entire shared-memory capacity. These numbers matter, but an important practical lesson from high-performance Hopper GEMMs is that **maximum occupancy is not the objective**. Some highly optimized persistent WGMMA kernels deliberately run at one CTA per SM because they use a large fraction of the register file and shared memory while maintaining latency hiding internally through asynchronous pipelines. citeturn947701search0turn315437search6turn315437search7
+
+### The Hopper execution model to target
+
+A useful mental model for the hot MoE GEMM is:
+
+```mermaid
+flowchart LR
+    R[Router / token offsets] --> S[Persistent CTA scheduler]
+    S --> P[Producer warp]
+    P -->|TMA async| A[SMEM stage 0]
+    P -->|TMA async| B[SMEM stage 1]
+    P -->|TMA async| C[SMEM stage 2]
+    A --> M[Consumer warpgroup]
+    B --> M
+    C --> M
+    M -->|WGMMA async| ACC[Register accumulators]
+    ACC --> E[Epilogue / fused bias / activation]
+    E -->|TMA or vector store| O[Global output]
+    S -->|next expert tile| P
+```
+
+Hopper's TMA can transfer one- through five-dimensional tensors asynchronously between global and shared memory. Importantly, the transfers do not require the usual register-mediated load/store path, and one thread can initiate a large transfer while other warps compute. NVIDIA explicitly identifies this as enabling warp-specialized producer/consumer designs. citeturn947701search0turn947701search3
+
+WGMMA is Hopper's warpgroup-level matrix multiply instruction. A warpgroup consists of four contiguous warps, or 128 threads, cooperating on asynchronous matrix multiplication. This is materially different from older warp-level `mma`/WMMA designs and is the preferred basis for a hand-tuned Hopper GEMM when applicable. citeturn995767search46turn995767search1
+
+CUTLASS's Hopper kernels combine TMA and WGMMA in warp-specialized multistage pipelines. Its current design exposes ping-pong and cooperative scheduling variants, persistent schedulers, and Stream-K. The architecture is therefore an excellent reference implementation even if you ultimately keep custom CUDA rather than depend on CUTLASS. citeturn315437search0turn315437search1
+
+### H100 versus H200
+
+The H200 optimization model is essentially the H100 Hopper optimization model with substantially more HBM capacity and bandwidth. H200's additional bandwidth should disproportionately benefit workloads that repeatedly stream expert weights from HBM, which is common in sparse MoE inference when tokens per expert are small and weight reuse is weak. This makes **expert ordering, CTA rasterization, and L2 locality particularly important**: once DRAM pressure falls, poor cache behavior or underfed Tensor Cores often become the next bottleneck. The second sentence is an inference from the H200 bandwidth increase and Hopper cache/compute model, so it should be verified on the actual workload with hierarchical roofline and cache metrics. citeturn115729search1turn947701search2
+
+### Do not search for “TMA2” optimizations on H200
+
+For H200, the relevant mechanism is Hopper **TMA**. NVIDIA's current Hopper material describes TMA rather than a distinct H200 “TMA2” programming mechanism. Blackwell adds other architectural machinery, including fifth-generation Tensor Core operations and tensor memory, but those should not be projected backward onto H200. citeturn903194search0turn903194search6turn903194search8
+
+## Memory hierarchy, WGMMA pipelines, and MoE-specific scheduling
+
+For MoE, optimization should start from bytes moved per useful output rather than FLOPs alone. Sparse expert invocation means some experts may receive many tokens while others receive very few; a naïve “one GEMM per expert” scheme pays repeated scheduling, weight-fetch, and launch overhead while producing poor tile utilization on small experts. Grouped or persistent scheduling lets one long-lived kernel traverse heterogeneous expert tiles and keep the GPU populated. NVIDIA's current Hopper grouped-GEMM example uses a persistent group-aware scheduler together with TMA, WGMMA, and per-group tensor-map updates. citeturn115729search0
+
+### Global memory and L2
+
+The first audit should answer: **How many times is each expert weight cache line fetched from HBM per inference step?**
+
+If two or more CTAs process neighboring token tiles from the same expert, schedule them close together so that weight lines remain in L2. CUTLASS explicitly exposes CTA rasterization direction and swizzle because they affect cross-CTA locality. For MoE this can be extended to expert-aware ordering: cluster tiles belonging to the same expert before advancing to another expert unless doing so creates unacceptable load imbalance. citeturn315437search5
+
+Conceptually:
+
+```cpp
+// Less cache-friendly:
+tile = global_work_queue[atomicAdd(&head, 1)];
+expert = tile.expert;
+
+// Candidate cache-aware schedule:
+expert = choose_active_expert_with_locality();
+for (tile = expert_first_tile + sm_rank;
+     tile < expert_last_tile;
+     tile += persistent_cta_count) {
+    process_tile(expert, tile);
+}
+```
+
+Do **not** assume that expert grouping always wins. If expert sizes are highly skewed, strict expert locality can leave SMs idle. A useful hybrid is a persistent scheduler that gives the common path contiguous expert tiles but steals work from other experts as tails appear. Stream-K was developed around this broader idea: decompose work so that total work, rather than output-tile count, determines load balance. citeturn647481academia25turn315437search4
+
+### Shared memory and bank layout
+
+Shared memory is not automatically fast. When warp threads address multiple words in the same bank, requests are serialized into conflict-free transactions, reducing effective bandwidth. NVIDIA's CUDA documentation specifically recommends redesigning layouts to avoid such bank conflicts. citeturn995767search27turn995767search41
+
+For a matrix tile, avoid a naïve transposed layout such as:
+
+```cpp
+__shared__ half B[K][N];
+```
+
+when the WGMMA/loader access pattern maps strides badly across banks. Prefer a layout derived from the exact WGMMA operand descriptor, typically involving swizzling or padding. Rather than guessing, use CUTLASS/CuTe's SM90 layouts as the reference and measure:
+
+```text
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum
+```
+
+The precise metric names can vary by Nsight Compute version, so use `ncu --query-metrics` to confirm availability.
+
+A useful microbenchmark is to keep the exact same amount of work and vary only the shared-memory leading dimension:
+
+```cpp
+template<int PAD>
+__global__ void smem_probe(const half* x, half* y) {
+    __shared__ half tile[128][64 + PAD];
+
+    // identical cooperative load
+    // identical repeated read pattern
+    // identical store
+}
+```
+
+Sweep `PAD={0,1,2,4,8,16}` and compare runtime plus bank-conflict counters. If padding changes performance sharply, the production layout deserves inspection.
+
+### TMA stages and prefetch depth
+
+A correct Hopper pipeline should overlap global-memory movement with Tensor Core execution:
+
+```cpp
+// Pseudocode, not literal CUDA API.
+if (producer_warp) {
+    tma_load(stage[0], A0, B0);
+}
+
+for (int k = 0; k < k_tiles; ++k) {
+    wait_stage_ready(read_stage);
+
+    if (producer_warp && k + PREFETCH < k_tiles)
+        tma_load(stage[write_stage], A_next, B_next);
+
+    if (consumer_warpgroup)
+        wgmma_async(acc, stage[read_stage]);
+
+    release_stage(read_stage);
+    rotate();
+}
+wgmma_wait();
+```
+
+More stages are not automatically better. NVIDIA's Hopper pipeline guidance notes that large 16-bit GEMMs commonly hide load latency with roughly three or four stages, after which additional staging may yield little benefit while consuming more shared memory. That is a heuristic, not a universal constant, so stage count should be swept for your shapes. citeturn947701search5
+
+A minimal sweep should test:
+
+```text
+stages = 2, 3, 4, 5
+CTA M = 64, 128
+CTA N = 64, 128, 256
+K-stage depth appropriate to dtype/instruction
+```
+
+Record latency, achieved Tensor Core utilization, DRAM bytes, shared-memory occupancy, register count, and active CTAs per SM.
+
+### Warp specialization and register reallocation
+
+Hopper makes producer/consumer warp specialization unusually effective because TMA and WGMMA are independently asynchronous. FlashAttention-3 exploited exactly this structure, overlapping data movement and Tensor Core math by separating responsibilities across warps. citeturn647481academia24turn647481search0
+
+Producer warps need relatively few registers. Consumer warpgroups holding WGMMA accumulators need many. Current NVIDIA Hopper examples explicitly reallocate registers between those roles; CUTLASS's grouped GEMM example, for example, configures low register requirements for load warps and much larger allocations for MMA warps. citeturn115729search0
+
+That gives you a concrete audit:
+
+```text
+Producer warpgroup:
+    TMA descriptors
+    pointers / coordinates
+    barriers
+    minimal temporaries
+
+Consumer warpgroup:
+    accumulator fragments
+    dequant state
+    epilogue values
+```
+
+If all warps compile with the same high register demand, you may be wasting a meaningful fraction of the SM register file.
+
+### Thread-block clusters and multicast
+
+Hopper introduces thread-block clusters and distributed shared memory. CTAs in a cluster can access each other's shared-memory regions, and TMA can multicast data across a cluster. citeturn947701search0
+
+This is potentially attractive if multiple CTAs need the same expert weight tile. For example:
+
+```mermaid
+flowchart TD
+    W[Expert B tile in HBM/L2] -->|one TMA multicast| S0[CTA 0 SMEM]
+    W -->|multicast| S1[CTA 1 SMEM]
+    S0 --> C0[CTA 0 WGMMA<br/>token tile M0]
+    S1 --> C1[CTA 1 WGMMA<br/>token tile M1]
+```
+
+The candidate experiment is a `2×1` or `1×2` cluster in which CTAs processing different M tiles of the same expert share/multicast the B weight tile. Compare it against independent B loads. Cluster size should remain a tuning parameter; larger clusters reduce scheduling flexibility and may lower active-block count. NVIDIA recommends occupancy calculations specifically for cluster kernels. citeturn947701search0
+
+## Numeric formats, instruction selection, and compiler-level tuning
+
+### BF16 and FP16
+
+On Hopper, BF16/FP16 GEMMs are native Tensor Core workloads and are natural WGMMA inputs. The key question is not whether BF16 is supported, but whether your generated SASS is using the intended WGMMA path and whether operand preparation is keeping it fed. Hopper's PTX ISA defines asynchronous WGMMA operations; CUTLASS builds Hopper GEMMs around them. citeturn995767search46turn315437search0
+
+Verify with:
+
+```bash
+cuobjdump --dump-sass your_extension.so | less
+```
+
+and search for instruction families associated with Hopper WGMMA/TMA. Also inspect compiler-generated PTX when necessary:
+
+```bash
+nvcc -arch=sm_90a -keep -lineinfo ...
+```
+
+Architecture-specific Hopper instructions require correct code-generation targets. NVIDIA's `nvcc` documentation distinguishes architecture-specific `sm_90a` code generation from generic `sm_90`. citeturn591713search5
+
+For a PyTorch JIT extension:
+
+```python
+mod = load_inline(
+    name="moe_sm90",
+    cpp_sources=cpp_src,
+    cuda_sources=cuda_src,
+    extra_cuda_cflags=[
+        "-O3",
+        "-lineinfo",
+        "-Xptxas=-v",
+        "-arch=sm_90a",
+    ],
+)
+```
+
+`load_inline` and `extra_cuda_cflags` are supported directly by PyTorch. citeturn591713search6
+
+### NVFP4 on H200: optimize it as W4A16
+
+Native NVFP4 computation belongs to Blackwell. NVIDIA's own compatibility documentation states that Hopper NVFP4 execution is implemented by dequantizing four-bit weights to BF16 and running a W4A16-style kernel. citeturn114892search1turn114892search6
+
+That changes the optimization target. Do not unpack an entire expert tensor into a temporary BF16 buffer and then launch GEMM. Instead, fuse packed-weight loading, scale loading, conversion, and MMA preparation in the same kernel.
+
+A conceptual path is:
+
+```cpp
+uint32_t packed = *reinterpret_cast<const uint32_t*>(w_ptr);
+// unpack several 4-bit values
+// load scale once for a 16-value group
+// convert to half/bfloat16
+// place values into the WGMMA-consumable tile
+// immediately compute
+```
+
+The exact unpack path must match the actual encoding, and WGMMA operand requirements may make a register-to-shared or shared-layout transformation necessary. The objective is:
+
+```text
+HBM: packed 4-bit weight + scales
+                |
+                v
+         fused unpack/dequant
+                |
+             SMEM tile
+                |
+              WGMMA
+```
+
+rather than:
+
+```text
+packed weights -> global BF16 temporary -> second kernel -> GEMM
+```
+
+The microbenchmark should compare three paths using identical expert shapes:
+
+| Path | What it tests |
+|---|---|
+| Pre-dequantized BF16 weights | Upper-bound compute path |
+| Separate unpack kernel + GEMM | Cost of extra HBM traffic and launch |
+| Fused unpack + WGMMA | Desired production design |
+
+The gap between pre-dequantized BF16 and fused W4A16 tells you the remaining conversion overhead; the gap between separate and fused quantifies fusion value.
+
+### FP8
+
+Hopper supports FP8 in hardware, unlike NVFP4. NVIDIA's Hopper architecture and Transformer Engine both identify FP8 acceleration as a Hopper feature. citeturn114892search4turn903194search4
+
+If accuracy constraints allow it and production tensors can be represented appropriately, an FP8 path may therefore be more compute-efficient than emulated FP4 even though FP4 moves fewer weight bits. Whether that wins depends on the weight-bandwidth/compute tradeoff and dequantization cost and should be measured, not assumed.
+
+### `ldmatrix`, `mma`, `dp4a`, or WGMMA?
+
+For Hopper BF16/FP16 GEMM, WGMMA should generally be your comparison point rather than manually building around older warp-level `mma`/`ldmatrix`. Hopper's new WGMMA is specifically designed as the higher-throughput warpgroup operation. citeturn315437search5turn995767search1
+
+`ldmatrix` and older `mma` remain relevant in kernels where WGMMA's shapes or operand layouts do not fit the problem, and integer dot-product instructions may matter for quantization/metadata code, but they should not displace WGMMA merely because they offer more familiar programming patterns.
+
+### Compiler flags
+
+Start with instrumentation, not aggressive compiler restrictions:
+
+```text
+-O3
+-lineinfo
+-Xptxas=-v
+-arch=sm_90a
+```
+
+`-Xptxas=-v` reports per-kernel register and shared-memory usage, making it indispensable during tuning. citeturn591713search2
+
+Then **experiment**, rather than defaulting, with:
+
+```text
+-maxrregcount=N
+-use_fast_math
+```
+
+NVIDIA explicitly describes `-maxrregcount` as a tradeoff: lowering registers can increase potential thread parallelism but can also create spills or make kernels slower. `--use_fast_math` changes floating-point semantics and should be used only where numerical validation accepts it. citeturn591713search2turn591713search25
+
+If a manual register cap produces even a few local-memory loads/stores in an inner WGMMA loop, it is often a loss.
+
+## Launch strategy, profiling, and verification
+
+### Persistent versus ordinary grouped kernels
+
+A conventional grouped kernel assigns work once:
+
+```text
+CTA launch -> one tile -> exit
+```
+
+A persistent kernel instead launches approximately enough CTAs to occupy the machine and lets each CTA repeatedly fetch work:
+
+```cpp
+while (true) {
+    WorkTile tile = scheduler.next();
+    if (!tile.valid()) break;
+    run_expert_tile(tile);
+}
+```
+
+CUTLASS describes its Hopper persistent scheduler as launching persistent CTAs that may compute multiple tiles over their lifetime. citeturn315437search4
+
+For MoE this can reduce scheduling overhead and improve load balancing, but there is a major caveat: if work acquisition uses a contended global atomic for every tiny tile, the scheduler itself can become expensive. Measure scheduler cycles separately.
+
+Useful variants to benchmark:
+
+| Strategy | Likely good case |
+|---|---|
+| Static tile per CTA | large, regular experts |
+| Persistent expert-major | strong expert weight reuse |
+| Persistent global work queue | highly irregular routing |
+| Hybrid local range + stealing | irregular workload with locality |
+| Split-K | too little M×N parallelism |
+| Stream-K | tail imbalance / awkward grid size |
+
+Stream-K's core motivation is work-centric decomposition and improved load balance when standard tile decomposition poorly maps work to the GPU. citeturn647481academia25
+
+### Split-K carefully
+
+Split-K gives multiple CTAs portions of the K reduction, increasing parallelism when the normal M×N grid is too small. Its cost is reduction, synchronization, workspace, or atomics.
+
+For an MoE kernel, dynamically select it based on expert token count. A conceptual dispatcher:
+
+```cpp
+if (tokens_for_expert >= large_m_threshold)
+    run_regular(expert);
+else if (K >= large_k_threshold)
+    run_split_k(expert, choose_slices(tokens_for_expert, K));
+else
+    run_small_expert_kernel(expert);
+```
+
+Do not use one split count for all experts.
+
+### CUDA graphs
+
+CUDA Graphs are valuable when the same chain of operations executes repeatedly because graph instantiation moves substantial setup work out of each launch and subsequent graph launches have much lower host overhead. CUDA also supports updating certain node parameters without re-instantiating the graph. citeturn995767search0
+
+For PyTorch+custom CUDA, compare:
+
+```text
+eager launches:
+router -> offsets -> expert kernel -> reduce -> output
+
+graph:
+[router -> offsets -> expert kernel -> reduce -> output] x repeated
+```
+
+Use Nsight Systems to determine whether CPU launch gaps are actually present. NVIDIA suggests comparing profiles with and without graphs rather than assuming benefit. citeturn591713search18
+
+### Streams and events
+
+Streams matter when there is genuinely independent work. CUDA permits asynchronous copies and kernels to overlap where the hardware and dependency structure allow it; events can create cross-stream dependencies. citeturn995767search8turn995767search36
+
+For a single fused persistent MoE kernel, adding streams generally does not magically create performance. Streams are more useful around the kernel—for example overlapping routing preparation for request `i+1` with GPU execution for request `i`, provided buffers and dependencies are independent.
+
+### Nsight Systems: first pass
+
+Use Systems to establish the application-level picture:
+
+```bash
+nsys profile \
+  --trace=cuda,nvtx,osrt \
+  --gpu-metrics-devices=0 \
+  -o moe_system \
+  python benchmark.py
+```
+
+Nsight Systems officially supports CUDA/NVTX tracing and GPU metrics collection; it is the right tool to expose launch gaps, unexpected synchronization, CPU stalls, stream serialization, and graph behavior. citeturn591713search8turn591713search10
+
+Add NVTX ranges around meaningful stages:
+
+```cpp
+nvtxRangePushA("moe_grouped_gemm");
+launch_moe(...);
+nvtxRangePop();
+```
+
+The questions to answer are:
+
+```text
+Are there CPU gaps between kernels?
+Are we launching dozens of tiny expert kernels?
+Is routing synchronizing the device?
+Are memory copies serialized?
+Does CUDA Graph collapse launch gaps?
+Are multiple kernels competing for SMs unexpectedly?
+```
+
+### Nsight Compute: kernel pass
+
+Start broad:
+
+```bash
+ncu \
+  --set full \
+  --kernel-name regex:moe \
+  --launch-count 1 \
+  -o moe_full \
+  python benchmark.py
+```
+
+Then use a lighter repeatable template:
+
+```bash
+ncu \
+  --section SpeedOfLight \
+  --section MemoryWorkloadAnalysis \
+  --section Occupancy \
+  --section SchedulerStats \
+  --section WarpStateStats \
+  --section SourceCounters \
+  --kernel-name regex:moe \
+  python benchmark.py
+```
+
+Nsight Compute's Speed-of-Light and roofline analyses distinguish compute and memory limits; scheduler statistics expose skipped issue opportunities; sampled stall reasons become meaningful when issue slots are being missed. citeturn947701search2
+
+For Hopper Tensor Core kernels, investigate:
+
+```text
+Tensor-pipe utilization
+DRAM throughput
+L2 throughput / hit behavior
+shared-memory throughput
+shared-memory bank conflicts
+register count
+spill loads/stores
+active CTAs / warps
+eligible warps per scheduler
+issue-active rate
+barrier stalls
+long-scoreboard stalls
+MIO / memory throttle
+```
+
+Do not optimize a stall reason simply because its percentage looks large. NVIDIA explicitly cautions that warp-stall analysis matters most when schedulers are failing to issue instructions regularly. citeturn947701search2
+
+### A practical roofline interpretation
+
+If the kernel sits near the DRAM roof:
+
+```text
+Improve:
+  packed weights
+  expert reuse
+  L2 locality
+  TMA transfer efficiency
+  fusion
+```
+
+If it approaches an L2 ceiling but not DRAM:
+
+```text
+Improve:
+  tile reuse
+  shared-memory feed
+  CTA scheduling
+```
+
+If Tensor Core throughput is low while memory throughput is also low:
+
+```text
+Suspect:
+  pipeline bubbles
+  synchronization
+  insufficient WGMMA concurrency
+  bad work decomposition
+  register dependencies
+```
+
+If Tensor Cores are saturated:
+
+```text
+Do not spend weeks shaving loads.
+You are near the relevant compute roof.
+```
+
+Nsight Compute's hierarchical roofline is specifically intended to distinguish DRAM, L2, and higher-level bandwidth ceilings. citeturn947701search2
+
+### Microbenchmarks I would add immediately
+
+Create a small executable or Python harness that can run the CUDA extension independently of the full model.
+
+For every production shape, record:
+
+```text
+expert-token count
+M, N, K
+dtype
+weight format
+tile shape
+stages
+split-K
+register count
+shared memory / CTA
+latency median
+latency p95
+effective GB/s
+effective TFLOP/s
+correctness error
+```
+
+Then construct synthetic expert distributions:
+
+```python
+cases = {
+    "uniform":       [32] * 256,
+    "tiny":          [1] * 256,
+    "skewed":        [512] + [2] * 255,
+    "bimodal":       [128] * 16 + [4] * 240,
+    "production":    captured_router_counts,
+}
+```
+
+This catches a frequent MoE failure mode: optimizing the average GEMM shape while losing badly on routing skew.
+
+For each configuration:
+
+```python
+# warmup
+for _ in range(100):
+    kernel(...)
+
+torch.cuda.synchronize()
+
+start = torch.cuda.Event(enable_timing=True)
+end   = torch.cuda.Event(enable_timing=True)
+
+times = []
+for _ in range(1000):
+    start.record()
+    kernel(...)
+    end.record()
+    end.synchronize()
+    times.append(start.elapsed_time(end))
+```
+
+CUDA events are a supported mechanism for timing stream work. citeturn995767search8
+
+Avoid benchmarking only one invocation after compilation; clocks, cache state, JIT initialization, and graph creation will contaminate the result.
+
+### Correctness and race verification
+
+Every optimized kernel should pass four Compute Sanitizer modes before being trusted:
+
+```bash
+compute-sanitizer --tool memcheck   python test_kernel.py
+compute-sanitizer --tool racecheck  python test_kernel.py
+compute-sanitizer --tool initcheck  python test_kernel.py
+compute-sanitizer --tool synccheck  python test_kernel.py
+```
+
+NVIDIA documents `memcheck` for invalid/misaligned accesses, `racecheck` for shared-memory hazards, `initcheck` for uninitialized global-memory reads, and `synccheck` for synchronization misuse. citeturn591713search0turn591713search3
+
+For TMA/WGMMA kernels this is particularly important because correctness errors can arise from barrier phase handling, asynchronous proxy ordering, stage reuse before consumers finish, and conditional participation in warpgroup operations.
+
+Numerical validation should compare against a high-precision reference:
+
+```python
+ref = torch.matmul(a.float(), w.float()).float()
+got = custom_kernel(a, packed_w, scale)
+
+torch.testing.assert_close(
+    got.float(),
+    ref,
+    rtol=chosen_rtol,
+    atol=chosen_atol,
+)
+```
+
+For quantized kernels, also isolate quantization error from implementation error:
+
+```text
+FP32 reference
+      |
+quantize/dequantize on CPU
+      |
+BF16/FP16 reference using same quantized values
+      |
+custom W4A16 GPU kernel
+```
+
+Compare the custom kernel to the *same quantized reference*, rather than blaming expected quantization error on CUDA correctness.
+
+## Recommended checks, expected payoff, and experimental priority
+
+The table below is intentionally ordered by what I would test first on an H200 MoE kernel rather than by implementation sophistication.
+
+| Check or change | Expected impact | Difficulty | Risk | Verification metric |
+|---|---:|---:|---:|---|
+| Profile real routing distributions | Very high | Low | Low | per-shape latency distribution |
+| Nsight Systems launch/timeline audit | High | Low | Low | GPU idle gaps, launch count |
+| Nsight Compute roofline | Very high | Low | Low | DRAM/L2/Tensor utilization |
+| Inspect `ptxas` registers/spills | High | Low | Low | registers, local loads/stores |
+| Inspect SASS for WGMMA/TMA | Very high | Low | Low | intended instructions present |
+| Reorder tiles for expert locality | High | Medium | Medium | L2 hit rate, HBM bytes |
+| Persistent grouped scheduler | High | Medium-high | Medium | tail latency, SM utilization |
+| Warp-specialized TMA/WGMMA pipeline | Very high | High | High | Tensor throughput, stall cycles |
+| Sweep 2–5 SMEM stages | Medium-high | Medium | Low | latency vs SMEM footprint |
+| Sweep CTA M/N/K tiles | Very high | Medium | Low | latency/TFLOP/s by shape |
+| Shared-memory swizzle/padding | Medium-high | Medium | Medium | bank-conflict metrics |
+| Producer/consumer register reallocation | Medium-high | High | Medium | occupancy + issue rate |
+| Cluster TMA multicast of expert weights | Potentially high | High | High | HBM bytes, cluster occupancy |
+| Expert-aware Split-K | High for small M | Medium | Medium | latency small experts |
+| Stream-K/hybrid tail scheduling | High for imbalance | High | Medium | wave/tail efficiency |
+| Fuse W4 unpack/dequant with GEMM | Very high if FP4 weights | High | High | HBM traffic, latency |
+| Compare FP8 vs W4A16 | Potentially high | Medium | Accuracy | latency + model accuracy |
+| CUDA Graphs | High if launch-bound | Low-medium | Low | CPU gaps / total latency |
+| Multistream orchestration | Workload dependent | Medium | Medium | overlap in Systems |
+| Epilogue fusion | Medium-high | Medium | Medium | eliminated launches/bytes |
+| `-maxrregcount` tuning | Low-medium | Low | Medium | spills + runtime |
+| `--use_fast_math` | Low for GEMM core | Low | Numerical | runtime + error |
+| Hand SASS/PTX micro-tuning | Low-to-high | Very high | Very high | instruction cycles |
+| Replace CUDA with Triton wholesale | Uncertain | High | Medium | benchmark, maintainability |
+
+A particularly useful decision tree is:
+
+```mermaid
+flowchart TD
+    A[Profile kernel] --> B{DRAM-bound?}
+    B -->|Yes| C[Reduce bytes / improve reuse]
+    C --> C1[packed W4 weights]
+    C --> C2[expert-local CTA order]
+    C --> C3[TMA + multicast]
+    C --> C4[fuse epilogue/dequant]
+
+    B -->|No| D{Tensor cores busy?}
+    D -->|Low| E[Pipeline issue]
+    E --> E1[warp specialization]
+    E --> E2[more/less SMEM stages]
+    E --> E3[WGMMA in flight]
+    E --> E4[remove barriers]
+
+    D -->|High| F{Tail / load imbalance?}
+    F -->|Yes| G[persistent / Split-K / Stream-K]
+    F -->|No| H[Near hardware limit]
+
+    A --> I{CPU gaps?}
+    I -->|Yes| J[CUDA Graph / fusion]
+```
+
+### Triton versus handwritten CUDA
+
+Triton is now capable of increasingly sophisticated Hopper programming, including persistent kernels and warp-specialization-oriented abstractions. Its current tutorials demonstrate Hopper WGMMA and persistent matmul designs. citeturn315437search7turn315437search8turn315437search9
+
+For **rapid schedule exploration**, Triton is valuable. It can be much faster to sweep tile shapes and scheduling ideas than repeatedly rewriting inline PTX/CUDA templates.
+
+For a highly specialized H200 MoE kernel involving:
+
+```text
+custom W4 unpack
+expert routing
+persistent scheduler
+TMA tensor maps
+cluster multicast
+warpgroup register specialization
+precise asynchronous barriers
+```
+
+handwritten CUDA/CuTe/CUTLASS provides more control and currently has stronger examples of the exact Hopper mechanisms involved. NVIDIA's grouped Hopper GEMM implementation is particularly relevant because it already combines grouped scheduling, TMA tensor-map handling, WGMMA, persistent execution, and warp specialization. citeturn115729search0
+
+I would therefore use Triton as an **experimental oracle**, not necessarily as the final implementation:
+
+```text
+idea
+  -> prototype Triton kernel
+  -> benchmark shape regime
+  -> if meaningful win:
+         port mechanism into CUDA
+     else:
+         discard cheaply
+```
+
+That is often much more efficient than trying every scheduling hypothesis directly in inline PTX.
+
+### Suggested profiler templates
+
+A repeatable project layout could be:
+
+```text
+bench/
+  bench_moe.py
+  shapes.json
+  routing_samples/
+profiles/
+  systems/
+  ncu/
+scripts/
+  profile_systems.sh
+  profile_ncu.sh
+  sanitize.sh
+results/
+  baseline.csv
+  experiments.csv
+```
+
+`profile_systems.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -eux
+
+nsys profile \
+  --trace=cuda,nvtx,osrt \
+  --gpu-metrics-devices=0 \
+  --force-overwrite=true \
+  -o profiles/systems/moe \
+  python bench/bench_moe.py
+```
+
+`profile_ncu.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -eux
+
+ncu \
+  --section SpeedOfLight \
+  --section MemoryWorkloadAnalysis \
+  --section Occupancy \
+  --section SchedulerStats \
+  --section WarpStateStats \
+  --section SourceCounters \
+  --kernel-name regex:moe \
+  --launch-skip 20 \
+  --launch-count 1 \
+  --force-overwrite \
+  -o profiles/ncu/moe \
+  python bench/bench_moe.py
+```
+
+`sanitize.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -eux
+
+for tool in memcheck racecheck initcheck synccheck; do
+  compute-sanitizer \
+    --tool "$tool" \
+    python bench/correctness.py
+done
+```
+
+The individual tools and profiler concepts above are all documented by NVIDIA. citeturn947701search2turn591713search0turn591713search8
+
+### Experimental discipline
+
+One of the easiest ways to lose leaderboard performance is to accept a change after one favorable benchmark run. Every experiment should log the complete compilation and runtime configuration:
+
+```text
+git commit
+CUDA toolkit version
+driver version
+PyTorch version
+GPU model
+power limit
+application clocks if controlled
+compiler flags
+kernel configuration
+input shape
+expert histogram
+warmup iterations
+measurement iterations
+median
+p5 / p95
+correctness tolerance
+```
+
+Compare configurations with interleaved A/B runs when possible:
+
+```text
+A B A B A B ...
+```
+
+rather than:
+
+```text
+A A A A ... B B B B ...
+```
+
+because temperature, clock state, and system conditions can drift during long tuning sessions.
+
+A kernel change should pass three gates:
+
+```text
+correctness
+    ↓
+microbenchmark improvement
+    ↓
+end-to-end benchmark improvement
+```
+
+A 10% isolated GEMM improvement that touches only 10% of end-to-end execution has an Amdahl upper bound near 1% overall, so the Nsight Systems timeline should determine how much optimization budget each kernel deserves.
+
+## Prioritized action plan and reference set
+
+For your H200 MoE kernels, I would execute the work in four waves.
+
+**First, establish facts.** Capture production expert-token histograms; record all relevant matrix dimensions; identify actual H200 SKU; confirm compiled SM target; dump ptxas resource usage and SASS; collect a Systems trace; then collect a targeted Compute profile. Before this evidence exists, changing CTA sizes or adding Split-K is guesswork.
+
+**Second, attack scheduling and memory.** Measure how many bytes of expert weights reach DRAM, assess L2 hit behavior, try expert-major CTA rasterization, and compare static versus persistent grouped scheduling. On an H200, this is especially important because the 4.8 TB/s HBM3e subsystem raises the bar for keeping the rest of the pipeline fed. citeturn115729search1
+
+**Third, attack the Hopper pipeline.** Confirm WGMMA and TMA; add or refine producer/consumer warp specialization; sweep stage depth and tile sizes; rebalance producer versus consumer registers; inspect shared-memory bank behavior; and only then investigate cluster multicast. This is essentially the optimization progression reflected in NVIDIA Hopper GEMM designs and in successful Hopper kernels such as FlashAttention-3. citeturn315437search0turn315437search4turn647481academia24
+
+**Fourth, specialize the pathological MoE shapes.** Tiny experts, heavily skewed routing, and expert tails may need different kernels or policies. Test Split-K or Stream-K where the normal tile grid cannot expose enough parallelism, and retain separate policies for large experts rather than forcing one universal schedule. citeturn647481academia25turn315437search1
+
+The single technical issue I would put at the top of the source review, if your production weights truly use NVFP4, is the **W4A16 conversion path**. H200 cannot execute NVFP4 natively, so a poorly structured unpack/dequant stage can erase much of the bandwidth advantage of four-bit storage. NVIDIA itself handles Hopper NVFP4 checkpoints through W4A16-style execution rather than native FP4 Tensor Cores. citeturn114892search1turn114892search6
+
+For reference material, the most useful sources are, in descending order of practical relevance:
+
+1. NVIDIA's **Hopper Tuning Guide** for occupancy, TMA, clusters, and architecture limits. citeturn947701search0
+2. NVIDIA's **CUDA Programming Guide** for TMA, pipelines, synchronization, streams, events, and CUDA Graphs. citeturn947701search3turn995767search0turn995767search14
+3. NVIDIA's **PTX ISA** for the exact WGMMA semantics and instruction constraints. citeturn995767search46turn995767search12
+4. NVIDIA **CUTLASS Hopper GEMM examples and source**, particularly warp-specialized persistent GEMM and grouped GEMM. These are arguably the best public reference implementations for the kernel architecture discussed here. citeturn315437search1turn115729search0
+5. NVIDIA's **Nsight Compute Profiling Guide**, especially Speed-of-Light, roofline, SchedulerStats, and SourceCounters. citeturn947701search2
+6. NVIDIA's **Compute Sanitizer** documentation for memory, race, initialization, and synchronization verification. citeturn591713search0turn591713search3
+7. Shah et al., **FlashAttention-3**, because it provides an unusually clear real-world demonstration of overlapping TMA, WGMMA, and non-matmul work through Hopper asynchronous execution and warp specialization. citeturn647481academia24turn647481search26
+8. Osama et al., **Stream-K**, for work-centric GEMM decomposition and the reasoning behind avoiding inefficient fixed tile partitioning. citeturn647481academia25
+9. NVIDIA's **CUTLASS 3.x design discussion**, for persistent schedulers, Stream-K, warp-specialized mainloops, epilogue fusion, and composable Hopper GEMM structure. citeturn315437search4
+10. PyTorch's **C++/CUDA extension documentation**, for correctly compiling and controlling your native kernels through `load_inline`. citeturn591713search6
+
+The central conclusion is that the likely jump in performance is not hidden in a single exotic PTX instruction. The biggest Hopper wins usually come from turning the kernel into a **well-balanced asynchronous machine**: expert work arrives in an order that preserves locality; packed weights consume minimal HBM bandwidth; TMA remains ahead of computation; WGMMA remains continuously supplied; producer warps do not steal registers from consumers; consumers do not wait unnecessarily on barriers; persistent CTAs distribute irregular expert work without destroying locality; and CPU launch overhead disappears from the critical path. The profiler should tell you which part of that machine is currently empty. citeturn947701search0turn315437search4turn647481academia24

@@ -1,0 +1,128 @@
+{
+  "candidate_commit": "b61b722a4ca0f76c502f01b35945953b78b35de6",
+  "changed_remote_paths_verified": 22,
+  "canonical_manifest_entries_verified": 21,
+  "failures": [],
+  "independent_cpu": {
+    "passed": 4,
+    "seconds": 20.426,
+    "exit_code": 0
+  },
+  "baseline_evidence": "docs/steering/evidence/2026-11-01-gamma13-main-screen/summary.json",
+  "baseline_source_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "baseline_resources": {
+    "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+      "stack_bytes": 8,
+      "spill_store_bytes": 20,
+      "spill_load_bytes": 52,
+      "registers": 96,
+      "barriers": 16
+    },
+    "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+      "stack_bytes": 8,
+      "spill_store_bytes": 20,
+      "spill_load_bytes": 52,
+      "registers": 96,
+      "barriers": 16
+    }
+  },
+  "baseline_launch_bounds": [
+    ".maxntid 576, 1, 1",
+    ".minnctapersm 1",
+    ".maxntid 576, 1, 1",
+    ".minnctapersm 1"
+  ],
+  "treatment_source_sha256": "53d09576f86e93b9baaa0145dcbdf1b60d8736743677d0a4de60e89864d18492",
+  "treatment": {
+    "B4": {
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 24,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 24,
+          "registers": 96,
+          "barriers": 16
+        }
+      },
+      "launch_bounds": [
+        ".maxntid 320, 1, 1",
+        ".minnctapersm 2",
+        ".maxntid 320, 1, 1",
+        ".minnctapersm 2"
+      ],
+      "options": [
+        "--gpu-architecture=compute_90a",
+        "--std=c++17",
+        "--generate-line-info",
+        "--device-as-default-execution-space",
+        "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+        "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+        "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ]
+    },
+    "MAIN": {
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 8,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 8,
+          "registers": 96,
+          "barriers": 16
+        }
+      },
+      "launch_bounds": [
+        ".maxntid 320, 1, 1",
+        ".minnctapersm 2",
+        ".maxntid 320, 1, 1",
+        ".minnctapersm 2"
+      ],
+      "options": [
+        "--gpu-architecture=compute_90a",
+        "--std=c++17",
+        "--generate-line-info",
+        "--device-as-default-execution-space",
+        "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+        "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+        "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ]
+    }
+  },
+  "historical_zero_spill_gate": "FAILED_UNCHANGED",
+  "performance": null,
+  "gpu_actions": 0
+}

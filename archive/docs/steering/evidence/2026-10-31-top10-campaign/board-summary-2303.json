@@ -1,0 +1,42 @@
+[
+  {
+    "problem": "muse_attention_decode",
+    "rank": 206,
+    "score": 2.6042902049472674,
+    "job": "8914751e3b9f468b",
+    "top10": 2.9097939500308327,
+    "gap_percent": 11.730787317911506
+  },
+  {
+    "problem": "muse_bf16_proj",
+    "rank": 292,
+    "score": 1.5278064829557674,
+    "job": "9eba96894ee1402e",
+    "top10": 1.6045170224103136,
+    "gap_percent": 5.020959153553162
+  },
+  {
+    "problem": "muse_decode_layer",
+    "rank": 375,
+    "score": 2.022870479185006,
+    "job": "8f2780d7382047e6",
+    "top10": 2.379747075574642,
+    "gap_percent": 17.64208831271383
+  },
+  {
+    "problem": "muse_moe_w4a16",
+    "rank": 371,
+    "score": 2.2157115620135492,
+    "job": "abe7651dbaa44458",
+    "top10": 2.5930768053811843,
+    "gap_percent": 17.031334305296532
+  },
+  {
+    "problem": "muse_prefill_layer",
+    "rank": 629,
+    "score": 1.1464655782217077,
+    "job": "92408f1b65c643c4",
+    "top10": 2.0179605083225085,
+    "gap_percent": 76.01579555947802
+  }
+]

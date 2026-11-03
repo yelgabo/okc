@@ -1162,7 +1162,7 @@ Submit of submission.py at aedad22 (the ONE_FIN8 build judged in b0b146dfbb4841b
 
 ## Gap map E2, FP8 P.V on wgmma in mode 51: already in the board build (10-29, static, no check)
 
-Question from [gap-map-2026-10-29.md](gap-map-2026-10-29.md) E2: does the public flat q_len 8
+Question from [gap-map-2026-10-29.md](../archive/docs/gap-map-2026-10-29.md) E2: does the public flat q_len 8
 kernel win its 23.6 / 53.4 us at verify 16 / 32 full (d57d1fe064164611) by running P.V in e4m3
 on wgmma with ones rows in V^T, where ours rounds P to f16? Answer: no. Both kernels already
 run the same P.V path, so E2 has nothing to build.
@@ -1869,7 +1869,7 @@ wait, over whatever the producer gathered.
 
 ## Standalone round 10-30: A0 scorecard and A1 cross-tile overlap in mode 51
 
-Brief: docs/steering/2026-10-30-attention-projection-standalone-roadmap.md, sections 1, 2, 4, 6, 7.
+Brief: archive/docs/steering/2026-10-30-attention-projection-standalone-roadmap.md, sections 1, 2, 4, 6, 7.
 Start: main 7703f0a, board entry e9085c86d89449c2 (2.504x, a bench file), clean candidate-only best
 569b233dfe08414f (2.449x). Quota at the start (`okc problems`, 07:49 UTC): 19 of 20 checks.
 
@@ -3192,7 +3192,7 @@ full-barrier wait to the empty arrive); (3) the input dependence of v16 full.
 
 ## F-ATTN-0 (10-31): the complete donor attention file against our release
 
-Steering: docs/steering/2026-10-30-family-f-donor-baseline.md (F-ATTN, priority 0) and its parent
+Steering: archive/docs/steering/2026-10-30-family-f-donor-baseline.md (F-ATTN, priority 0) and its parent
 donor-first report. Donor `alygg77/okc-muse-spark-kernels` at 6cae49a, `kernels/muse_attention_decode.py`
 (sha256 e6d929d4..., 3182 lines; its RESULTS.md: judge job 1c8d81a0dbd94ee0, 2.6530x, an archived
 donor result, not ours). The donor's attention file is vjeux's public file submitted unchanged:
@@ -3550,3 +3550,697 @@ and v32 sliding, about 0.5% together); first test the per-tile descriptor / V^T 
 the PRQ loop against the public order, with a stamp copy of the public per-request loop to split the
 latency; (2) the d1 full prologue (0.54 us): sub-phase exits on both sides (page indices, query
 group, first tiles) before any change; (3) the flat full rows by the pair spread (round 4).
+
+## October 31 PDT, post-restart: PRQ address carry hypothesis
+
+Authenticated Ubuntu okc 0.7.2; account reports 20/20 checks per problem before dispatch
+(shared quota, not a reservation). Control remains pick-off entry `68d3b88fbc8b40da`, PRQ31.
+
+One mechanism: reduce per-tile address reconstruction in the per-request verify loop. New
+bench-only PRQ bits32/64 reuse the flat loop's address identities:32 carries the Q.K descriptor
+from stage0;64 toggles V^T addresses/descriptor words by precomputed XOR and hoists transpose
+offsets. Default31, submission.py and production candidates are unchanged. Precision, memory
+operations, waits, fences and synchronization retain their order. V^T toggles only after the
+existing `wg_wait<0>()` and register fence.
+
+Check `c77ce71c81af4fb1`, pending at dispatch, problem confirmed `muse_attention_decode`.
+Bench SHA256 `2fa39d4bae82fdfe1d1e1793fc0207d2a2a97e512d72409524797b809863f1be`,350281bytes,
+generated outside the repository at `/tmp/okc-top10/attn_prqcarry.py`:
+
+```
+python3 tools/attn_make_bench_ab.py /tmp/okc-top10/attn_prqcarry.py --null --shapes all --seed 311031 --inputs 2 --rounds 80 kcarry@own=-DONE_PRQ=63 vcarry@own=-DONE_PRQ=95 both@own=-DONE_PRQ=127
+python3 tools/attn_inline_one.py /tmp/okc-top10/attn_prqcarry.py
+```
+
+Independent compiled/prepared control duplicate, independent state per candidate, all12 shapes,
+two held-out timing inputs, randomized paired cold-L2 graph replays, judge-style/relative-output
+checks. Official tests run the unchanged control; a winning experimental arm still needs
+candidate-only official tests and queued replay stress. Acceptance: repeatable score gain
+beyond independent null variation, localized to changed verify shapes, then layer confirmation.
+Stop/revert if the mechanism fails its gate; headline control score is not candidate score.
+
+### Result: `c77ce71c81af4fb1`, no promotion
+
+H200, completed666.7s after start. Official control tests16/16 pass, control score2.524717x,
+95%CI2.486846–2.562588. Every arm's harness checks19/19 pass. All arms select the same launch
+plans; no new SM-utilization, register or spill counters were collected. Receipts/log/patch:
+`profiles/prqcarry.c77ce71c81af4fb1.{json,log,patch}`. The raw status JSON retains all benchmark
+and profile records. No candidate-only judge score or queued stress is claimed for the arms.
+
+Cold medians (microseconds; raw graph times include replay overhead), candidate minus control:
+
+| shape | control | QK carry | V carry | both | identical ctrl2 |
+|---|---:|---:|---:|---:|---:|
+| v1 sliding |11.17 |+0.06 |+0.00 |+0.13 |-0.03 |
+| v1 full |19.20 |-0.22 |-0.22 |-0.38 |+0.03 |
+| v16 sliding |15.58 |+0.03 |+0.06 |+0.00 |+0.10 |
+| v32 sliding |20.10 |+0.06 |+0.03 |-0.19 |+0.03 |
+
+Raw ABSCORE ratios versus control: QK1.0020, V1.0021, both1.0004, identical ctrl2 1.0008.
+The single-arm headline gains largely occur on unchanged decode instances (e.g. d1 full
+QK/V -0.26us, exactly ctrl2's -0.26us), so cannot be attributed to address carry. Both's aggregate
+is smaller than the identical-control variation. v16 sliding flips sign by held-out input
+(both -0.19/+0.19us); v1 full both -0.38us on each input, v32 sliding -0.16/-0.13us, a small
+localized signal that does not establish a beneficial general change.
+
+Scoring qualification: ABSCORE uses cold raw medians. Recomputing from rounded ABSUM rows with
+each official scored shape's replay overhead subtracted gives approximate QK1.002914,
+V1.003433, both1.000519, ctrl2 1.001257. These are sensitivity estimates, not candidate scores:
+the AB graphs did not separately measure their replay overhead. If unchanged instances are
+held fixed to control and only the four affected per-request verify rows vary, the analogous
+approximation is QK0.999968, V1.000749, both1.000438. No result supports a repeatable meaningful
+score gain; no selective dispatch is promoted on these two-input microsecond readings.
+
+Decision: revert experimental edits from attn_one.cu, retain exact patch and source commit
+`fdaaa11` for reproducibility, keep PRQ31/submission.py/board entry unchanged. Park this
+mechanism as a possible rider only after another per-request loop change makes its saved
+instructions material, or a bounded shape-specialized test is supported by a larger gap.
+Do not spend a second check repeating the same general toggle.
+
+## Matched batch-1 prologue attribution, 2026-10-31 PDT
+
+| date | job | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | 191e57a0f45a4717 (check) | 1f31181 | Matched owned/donor startup exits 1/2/3/5/7/9; generated by tools/attn_make_prologue_probe.py; judged path unchanged | pending | Batch-1 decode/verify, sliding/full; 3 held-out timing inputs, 100 cold rounds; independent control and donor null builds. Measurement only; never submit this donor-carrying bench. |
+
+Baseline profile reused: `baseline_profile/status.24daba2202e547d6.json`; latest hotspot map
+reconstructed from `profiles/prqcarry.c77ce71c81af4fb1.json` with `tools/hotspots.py --baseline`.
+Pinned external donor SHA256 `e6d929d40e6cff8aa82270a423fca24dfccad64b6a82428db9c3377b661bf124`
+(revision `6cae49a639ee6d14b929a5fd4a63c627f96d7dc0`), measurement-only copy outside git.
+Probe phase exits drain outstanding copies and return before normal merge/finalize; output is
+intentionally unguaranteed and excluded from correctness promotion. All phase arms of one side
+share a CUDA build; control duplicate and donor duplicate have independent builds/states.
+Donor runtime phase uses new Params field carried through unused launch-bitfield bits 20+;
+normal donor/control phase 0 executes the complete call. No production source is changed.
+
+Boundaries: 1 page-index copies committed; 2 query/new-row/constants copies committed;
+3 initial page-index wait and barrier; 5 first tiles issued and query group waited/barrier;
+7 query normalization/packing complete; 9 new-row handling/patching complete before tile loop.
+These are drained early-exit kernel timings, not additive live-path timings: early drains
+remove overlap and diagnostic branching can perturb compilation. Require a real A/B change
+before claiming an optimization. Main question is whether the residual d1-full difference is
+already present before query/new-row staging, or develops during it.
+
+## Authorized scored control repeat, 2026-10-31 PDT
+
+| date | job | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | cccc131c55874949 (submit by root coordinator) | d3eeeda + repeat comment | Owned best attention source; PRQ31, HMRG1, workspace pick off; authorized daily scored control repeat | 2.534850x (2.496827-2.572873) | Passed all 16/16 official tests. Twelve benchmark and twelve profile records saved in profiles/scored.cccc131c55874949.json. No performance promotion: overlaps prior 2.537x entry and its interval. |
+
+Exact root file `.build/today/attention_best.py` SHA256
+`4d36ddbc94ed81bfe95e3395555cbf0cf117bbe505d73528a18564ea76c454ca`;
+source body is submission.py at d3eeeda after experimental address changes were reverted,
+plus the trailing comment `# Authorized daily scored control 2026-10-31, repeat 1.`.
+Selected kernel instances from receipt profiles: decode sliding batch1/16/32 modes13/1/1;
+decode full11/49/49; verify sliding15/3/3; verify full11/51/51. Receipt identifies
+board muse_attention_decode and id cccc131c55874949; no new resource counters were collected.
+
+### Result of 191e57a0f45a4717
+
+Correct owning receipt: board `muse_attention_decode`, id `191e57a0f45a4717`; passed16/16
+official tests. Unchanged owned control scored2.514672x (95%CI2.476952-2.552392).
+All four complete real arms passed11/11 harness checks (four batch-1 shapes plus seven
+nearby tests); the twelve early-exit arms are explicitly probes, not correctness candidates.
+No resource-utilization or SASS counters were collected. Receipt and retained log are
+`profiles/prologue.191e57a0f45a4717.{json,log}`. All batch-1 full plans use252splits/nc8;
+owned mode11 and donor per-request cooperative plans agree (donor verify full coop derived).
+
+Cold drained-exit medians over three inputs, microseconds including graph replay overhead:
+
+| Boundary | d1 full owned | d1 full donor | v1 full owned | v1 full donor |
+|---|---:|---:|---:|---:|
+|1 pages committed/drained|7.04|6.02|5.98|6.18|
+|2 query/new-row/constants committed/drained|7.20|6.08|6.18|6.34|
+|3 page wait and barrier|7.23|6.14|6.18|6.34|
+|5 initial K/V tiles issued, query waited/barrier|9.79|9.41|9.57|9.50|
+|7 query packed|9.82|9.38|9.57|9.50|
+|9 new rows/patching before loop|9.79|9.41|9.57|9.54|
+|complete diagnostic build|17.18|16.22|19.17|18.59|
+|independent complete duplicate|16.96|16.48|19.14|18.78|
+
+Measured: d1-full has an approximately1us difference already at the first drained page group,
+shrinking to0.38us after initial tile issue. The corresponding v1-full startup has no comparable
+deficit. Complete-call null spreads are0.22/0.26us at d1 full,0.03/0.19us at v1 full.
+Do not subtract these drained phase medians as live pipeline costs: moving a drain destroys overlap.
+
+Hypothesis selected: d1 SPEC query-address preparation may be hoisted before page issue;
+the pinned donor explicitly re-reads tid after the page group to prevent such hoisting.
+Test an owned opaque late-tid scheduling toggle while preserving address formulas and ordering.
+New-KV-only staging is deferred: its omission cannot explain the deficit already present atphase1.
+No optimization is promoted by this diagnostic.
+
+## Late thread-index scheduling experiment, 2026-10-31 PDT
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|b4d75c3185744d0a (check)|fac5188|ONE_LATE_TID=1 for L1 SPEC staging, defaultoff|pending|Own control/candidate/independent duplicate over all12shapes,3heldoutinputs,100coldrounds; seed311102. No donor code in bench.|
+
+Generator command: `python3 tools/attn_make_bench_ab.py /tmp/okc-attn-campaign/latetid.py
+--null --shapes all --inputs 3 --rounds 100 --seed 311102 late@own=-DONE_LATE_TID=1`.
+Acceptance: d1-full cold improvement on all3inputs beyond independent control variation,
+weighted standalone gain beyond nulls; then candidate-only official correctness and explicit
+SPEC-miss/fresh-input replay stress before any promotion. Unaffected shapes must not supply the
+gain through placement noise. No precision change; no fence, copy, commit, wait or barrier moved.
+
+### Late-tid first result, b4d75c3185744d0a
+
+Correct receipt board/id confirmed. Passed16/16 official tests; unchanged default-off control
+scored2.561845x (95%CI2.523418-2.613075). Control, late, ctrl2 each passed19/19 harnesschecks.
+Receipt/log `profiles/latetid.b4d75c3185744d0a.{json,log}`. No new resource counters.
+
+|Cold raw graph median, us|control|late|independent control2|
+|---|---:|---:|---:|
+|decode1 sliding|9.28|9.28|9.31|
+|decode1 full|17.28|16.80|17.15|
+|decode16 sliding (unchanged code)|13.06|12.86|13.12|
+|verify32 sliding (unchanged code)|19.97|20.16|20.06|
+
+D1-full candidate deltas on three held-out inputs: -0.51/-0.42/-0.45us;
+control2 deltas -0.13/-0.06/-0.10us. This is a localized positive signal, not a promotion.
+Raw ABSCORE late1.0020 versus null0.9985. Using rounded ABSUM medians and each official
+shape's replay-overhead calibration gives approximate all-shape ratios1.003026/0.998234.
+If unchanged instances are held equal to control, changed decode1-only ratios are
+1.002760/1.000249. These are scoring sensitivity estimates, not official candidate scores:
+the A/B graphs do not independently calibrate each arm's replay overhead. Unchanged decode16
+and verify32 readings show why the complete raw ratio cannot be credited to this mechanism.
+
+Four-arm confirmation dispatched: `ab53721b09854717`, sourcefac5188, generated with
+`--null --shapes all --inputs 3 --rounds 150 --seed 311103
+late1@own=-DONE_LATE_TID=1 late2@own=-DONE_LATE_TID=1,-DOKC_LATE_NULL=1`.
+The unused second flag forces a separate extension build; both candidates have independent
+workspace/preparation state, as do controlsctrl/ctrl2. Gates: all4 d1-full cross comparisons
+must improve consistently on all3inputs beyond control/candidate null differences; corrected
+changed-only aggregate gain must exceed twice the largest corrected changed-only null in log
+space; no material regression on affected d1sliding. If confirmed, run candidate-only official
+correctness and 2000fresh queued replays, including speculative-length misses, before promotion.
+
+## Scored control repeat2: new board score without algorithm change
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|8914751e3b9f468b (root submit)|d3eeeda + repeatcomment2|Same owned PRQ31/HMRG1/pick-off control body|2.604290x (2.565226-2.643355)|Passed16/16 official tests; new best score caused by a repeat, not a new algorithm.|
+
+Receipt `profiles/scored.8914751e3b9f468b.json`; exact root file
+`.build/today/attention_repeat2.py` SHA256
+`b296c13ad2745336e97488e297fcde751a5fc10c818c92b6f2250656369efe75`.
+Default production flags remain ONE_LATE_TID0, PRQ31, HMRG1, workspacepick0.
+Do not attribute the score increase over2.534850 to late-tid: this file does not enable it.
+Latest best's full per-shape hotspot table appended to docs/hotspots.md with saved baseline
+receipt24daba2202e547d6. Kernel-profile plans remain decode sliding13/1/1, full11/49/49;
+verify sliding15/3/3, full11/51/51. Rank must be read live; no cutoff inferred here.
+
+### Four-arm late-tid confirmation: ab53721b09854717
+
+Receipt confirms correct board/id,16/16 official tests passed. Default-off control score
+2.582317x (95%CI2.543582-2.630284); all4arms19/19 harnesschecks.
+Files `profiles/lateconfirm.ab53721b09854717.{json,log}`.
+
+|Cold rawus|ctrl|ctrl2|late1|late2|
+|---|---:|---:|---:|---:|
+|decode1 full|17.25|17.22|16.83|16.83|
+|decode1 sliding|9.54|9.34|9.28|9.34|
+
+Full-context candidate deltas by held-out input: late1 -0.38/-0.42/-0.38us;
+late2 -0.38/-0.38/-0.42us; controlnull +0.03/-0.03/-0.03us. All four full-context
+cross comparisons improve. Sliding differences are largely reproduced by the controlnull:
+late1 -0.19/-0.26/-0.22, late2 -0.19/-0.26/-0.19, null -0.19/-0.22/-0.22us.
+
+Raw whole ABSCORE late1/late2=1.0036, controlnull1.0010. Rounded-median official-overhead
+sensitivity: all-shape ratios late1=1.005989, late2=1.005881, null=1.001871;
+changed decode1-only ratios1.007110/1.006037/null1.003640. The preregistered
+changed-only gain >2maxnulllog gate FAILS (2nulllog requires approximately1.007294).
+This gate includes the sliding instance because ONE_LATE_TID1 changes its compiled code too.
+No candidate promotion or stress dispatch follows this result. These corrected ratios remain
+sensitivity estimates, not official candidate scores.
+
+Measured conclusion: the full-context scheduling improvement repeats across builds, states
+and inputs; sliding has no independently established gain. A new proposal may restrict the
+mechanism to SPEC/non-one-tile L1 instances and preregister a full-only causal scoring gate.
+This restriction would be based on new evidence above, not a repeat of the general knob.
+
+## Fresh restricted late-tid registration, 2026-10-31 PDT
+
+This is a NEW variant, not retroactive promotion of ONE_LATE_TID1, which failed its original
+changed-instance gate in ab53721b09854717. New evidence is the repeated full-context gain and
+sliding null shift in that check. Value2 applies only to L1 SPEC non-one-tile instances;
+value1 retains the original broad toggle for reproducibility. Default0 remains unchanged.
+Restriction uses launch geometry (`SPEC && !ONE`), never tensor values or benchmark identity.
+
+Fresh four-arm generation: `--null --shapes all --inputs 3 --rounds 150 --seed 311106
+late1@own=-DONE_LATE_TID=2 late2@own=-DONE_LATE_TID=2,-DOKC_LATE_NULL=1`.
+Both candidates have separate builds/states, and controls ctrl/ctrl2 are independent.
+
+Gate preregistered before dispatch:
+1. All real-arm harness checks pass; all official unchanged-control tests pass.
+2. At d1full, all4 candidate/control cross comparisons improve on every held-out input.
+3. Full-only causal standalone score: hold all unchanged shapes, including d1sliding, exactly
+at ctrl's measured time. Subtract each official shape's saved replay overhead from matching
+raw medians, then compute the actual weighted load formula46sliding+16full and six-load
+geometric mean. Pooled cross loggain must exceed twice the larger absolute lognull from
+ctrl2/ctrl and late2/late1 under this SAME full-only calculation. These remain calibration
+sensitivity estimates until candidate-only official timing, not separately measured scores.
+4. No real regression at changed d1full. Unchanged rows' improvements receive zero credit;
+any anomalous unmodified row must be documented and not used as the winning mechanism.
+5. After confirmation, candidate-only official correctness plus2000fresh queued inputs per
+changed/sentinel batch1 shape, every output compared on device with independent owned control,
+three additional FP32-reference samples, explicit speculative-length misses, clean workspace,
+and prepare-time resource attributes. No public submission before these gates pass.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|a9b416a0c7324ecc (check)|554445d|ONE_LATE_TID2 full/non-one-tile restriction, fresh four-arm gate above|pending|Three inputs,150coldrounds,independent candidate builds+states; judged source defaultoff.|
+
+Live standalone attention snapshot during restricted experiment (2026-10-31 late PDT):
+`profiles/leaderboard.2026-10-31-late-campaign.json` reports ours rank206,2.6043x;
+rank10 is jt914,2.9098x, screened job5cb3655bf3c9499a. The ratio2.9098/2.6043
+requires approximately11.73% more score at this snapshot. This is a live official-row
+comparison, not an invented cutoff or forecast. The bounded late-tid mechanism alone does
+not establish that gap; the final review/rerun ranking remains provisional.
+
+### Restricted full-only result: a9b416a0c7324ecc
+
+Owning attention receipt verified,16/16 official control tests passed; control2.498407x
+(95%CI2.460931-2.535883), not a candidate-only score. Every arm19/19 harnesschecks.
+`profiles/latefull.a9b416a0c7324ecc.{json,log,gate.json}` retains receipt, log and evaluator
+output. Registered value2 source is554445d, generated exactly as its predispatch command.
+
+|Cold rawus|ctrl|ctrl2|late1|late2|
+|---|---:|---:|---:|---:|
+|decode1 full|17.28|17.25|16.90|16.80|
+|decode1 sliding (unchanged)|9.31|9.28|9.34|9.31|
+
+Full cross differences by input, candidate-minus-control microseconds:
+input0 late1/R1 -0.32,L1/R2 -0.29,L2/R1 -0.42,L2/R2 -0.39;
+input1 -0.42/-0.39/-0.48/-0.45; input2 -0.42/-0.39/-0.51/-0.48.
+All12 cross comparisons improve. Pooled full-only corrected sensitivity ratio1.0023928;
+controlnull1.0001715,candidatenull1.0005802. Loggain exceeds2largerlognull: gatePASS.
+Tool `tools/attn_causal_score.py` gives the reproducible calculation; all unchanged rows,
+including sliding, receive zero credit. Raw wholeABSCORE1.0014/1.0028 versusnull0.9998
+is also recorded but is not the causal gate. The preceding value1 failure remains unchanged.
+
+Candidate-only official/stress check dispatched3588375a529c4fe8, source194b92b+stress-tool
+b470ab1/5c546fc: generated owned file enables ONE_LATE_TID2 in actual judged path;
+repository productiondefault stays0 pending correctness/stress. Generator
+`tools/attn_make_candidate_stress.py` uses independent defaultoff owned control and two
+batch1 shapes, each with2000unique queued qkv inputs and a device error comparator for EVERY
+output; additionally3FP32-reference samples,50replays after shortening sequence64tokens,
+workspace scans and host prepare resource attributes. Comparator threshold is relativeL2
+1e-4, stricter than official math thresholds; classify any BF16/atomic-order null before
+attributing a failure to the scheduling change. No public submission yet.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|3588375a529c4fe8 (check)|554445d + owned stress generator5c546fc|Actual full-only late-tid2 candidate, fresh queued stress/resource gate|pending|Productiondefault0; official judgedpath2;2000uniqueinputs peraffected/sentinelshape,alloutputs device-compared.|
+
+### Candidate stress3588375a529c4fe8 FAILED, no promotion
+
+Owning receipt board/id verified; prepare/import failed before official tests or timing.
+No candidate score or CI exists. Owned selftest reports0failing shapes, but the strict queued
+sliding comparison reports17/2000 fresh outputs above relativeL2=1e-4;
+maxrelative_squared=2.0038797288179921e-7 (relativeL2 approximately4.48e-4).
+Full-context queued stress was NOT reached. These are all-output comparator results,
+not3reference samples. No source activation is promoted; productiondefault0 stays.
+Files `profiles/latestress.3588375a529c4fe8.{json,log}` preserve the failed check.
+Prepare host resource print records did not survive in the receipt tail, so no resource
+configuration change is claimed from this failed run.
+
+Sliding is compiled unchanged by value2, making an independent-control null diagnostic
+necessary before attributing the failure. This is a hypothesis, not dismissal as noise.
+The original strict failure remains a failure. No threshold or gate was weakened.
+
+Root-authorized diagnostic26c8a3ea28554454: four independent compiled modules/states
+0a/0b/2a/2b, identical2000freshqkv inputs on EACHsliding/full, sixcomparisons (bothnulls,
+all4crosses), original1e-4 global relativeL2 criterion, plus maximumrowerror androwcounts.
+Allshape statistics print before the final strict assertion. Three FP32reference samples
+perarm/pershape and owned selftests provide independent math coverage. Actual judged source
+remains0; failed diagnostic cannot promote performance. Generatorc2197bd+0d5901e.
+An initial >1MB payload was rejected422without a job; shared owned-source text reduced the
+accepted payload to624471bytes. No donor source, compression or extra package is used.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|26c8a3ea28554454 (check)|0d5901e|Strict fresh-output null/cross diagnostic,4independent modules/states|pending|Judgeddefault0; bothshapes beforefinalassert; unchanged1e-4 threshold.|
+
+### Strict matched null diagnostic26c8a3ea28554454
+
+Correct owning receipt verified. Prepare failed at final strict assertion AFTER bothshape
+statistics and all24FP32samples; no official test/timing score exists. Owned selftest0fails.
+Files `profiles/latenull.26c8a3ea28554454.{json,log}`.
+
+|Shape/pair|Strictbad/2000|maxglobalrel|maxrowrel|rowbad|
+|---|---:|---:|---:|---:|
+|sliding0b/0a|19|0.000457718|0.00179499|32|
+|sliding2b/2a|16|0.000458139|0.00187698|32|
+|slidingcandidate/controlcrosses|11-18|0.000442782-0.000458118|0.00180121-0.00187558|28-30|
+|full0b/0a|10|0.000231625|0.000989572|23|
+|full2b/2a|12|0.000444784|0.00173686|24|
+|fullcandidate/controlcrosses|10-14|0.000452304|0.00174637|19-32|
+
+Measured: strict1e-4 fails incumbent-null on BOTHshapes. Candidatefull maxerror is also larger
+than this singlecontrol-null maximum, so calling everydifference benign is unsupported.
+All24 independentFP32samples pass: sliding globalerr0.003708-0.004668 (bounds0.136-0.145),
+full0.001468-0.002188 (bounds0.048-0.050); cacheerrors0. These24samples doNOT establish
+FP32correctness for everyqueued input. Original strict failures remain failures; no threshold
+was changed, no candidate markedcorrect and no production/publicpromotion follows.
+
+Root's next authorized investigation is a NEWprospective official-TASK FP32-reference fresh
+gate for everyqueued input, with independentcontrol and stale/zero/order1 corruption controls.
+A different gate must be preregistered and measured independently, never used to relabel either
+failed strict check as passing. The causal~0.24% performancegain remains farbelow live11.73%
+top10score gap; afterfreshmathclassification, close thismicroknob and reassess larger measured
+opportunities rather than continuinglate-tid sweeps.
+
+## Prospective official-math fresh gate, registered before dispatch
+
+This NEWgate answers official TASK math compliance for everyqueued input. It doesNOT turn
+3588375a529c4fe8 or26c8a3ea28554454 strict1e-4 failures into passes, and doesnotchange the
+native value2 candidate. Tool `tools/attn_make_fp32_fresh_gate.py` generates actualcandidate2
+plus independentcontrol0; pure candidate SHA remainscbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356.
+
+Coverage: BOTHbatch1 sliding/full,2000uniqueqkv inputs each, everycandidate ANDcontrol output
+checked ondevice. For eachinput, ownFP32 attention references are computed twice (BF16queries
+and E4M3queries) from the fixedcachedpast and thatinput's actualstorednewKV. Control-graph
+prepass collectsactualnewKV for everyinput; candidatecache must exactlymatchthose rows, in
+addition to official8%cacheerror checks against own normalized/rotated/quantized raw rows.
+Thus the sharedFP32reference uses exactly the newKV that eachcheckedoutput attends; no stale
+new-row approximation. No reference.pyimport, cachedoutput reuse in kernel_fn or timed shortcut.
+
+Official criteria from reference.py/checks.py: globalrelativeL2 <=clamp(2.5*E4M3_reference_error
++0.015,0.03,0.15); worst64-element row <=5*thatbound with rownormfloor0.1*meanrownorm clamped
+1e-12; finiteoutputs; newK/VrelativeL2 <=0.08. Bound derivesonly from ownFP32/E4M3references,
+never fitted to candidate/null errors. Threeinputs per shape crosscheck BOTHbatched references
+against canonical `_ob_reference` beforequeue (relativeL2<1e-3, allowing reference summation
+rounding); eachshape's stalecompleteoutput, allzerooutput and +10oneheadcorruption must all
+be rejected. Independentcontrol must pass everyofficial-math check too. Workspace mustclean.
+Anyincompletecoverage orfailure aborts; prepare280s budget startsbeforeANYmodule compilation.
+No publicpromotion beforethisgate ANDactualcandidate officialtests/timing pass.
+
+CPUwork/shape model: atI2000,Hq16,T80001,D64, twoQK+PV references require
+8*I*Hq*T*D=1,310,736,384,000 multiply/add operations (not a measured runtime). Chunk32 limits
+simultaneouslylive score/concatenation/probability matrices to
+3*32*16*80001*4=491,526,144bytes; prior loop matrices are explicitlydeleted. TwoBF16reference
+banks require8,192,000bytes; qkvbank9,216,000bytes; decodedpastK/V~81.92MB; actualnewKVbanks
+~2.048MB. Additionalgraph/output/tensorallocator storage is not included in these analytic
+figures. Bothshape references and actualduration are printed duringrun; no projectedGPUtime.
+CPUalgebra tests compare flattenedbatched past+perinputnew attention with directcanonical
+nestedattention for empty/short/longerpast and native2KVheads/8groups/64dims, andcheckwork/byte
+arithmetic:2/2pass. Pythonandgeneratedsource compile. Runtimealso crosschecksRoPE/quantization
+math on canonicalreferences; CPUalgebra alone doesnotvalidateGPUexecution.
+
+Read-only CUDAresourceattributes are exposed through a new hostmethod in the generatedfile
+and printed byPython duringprepare; nativekernel bodies are unchanged. This avoids the
+bufferedC++prints missing from the failedstressreceipt. Everyindexedcheckerargument isruntime,
+not constexpr perinput, avoiding2000JITspecializations. Final280s guard failsclosed ifcoverage
+is not complete. Source/state controlseparate; ordinarysame-stream graph/copy dependencies.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|80415fe736bb4890 (check)|c8e709a|NEWprospective official-math FP32 gate, candidate2 judgedpath|pending|Bothshapes2000uniqueinputs each, everycandidate/controloutput+cachechecked; canonicalbothreferencecrosschecks, negativecontrols,280sprepareguard.|
+
+Postdispatch tool-only correction e0e0533 restores savedtorch.allow_tf32 in try/finally after
+referencevalidation. Inflight80415fe736bb4890 usedc8e709a and therefore leaves allow_tf32False
+into its officialphase (typically alreadydefaultFalse). Nativecandidate is unchanged and
+usesexplicitmma; nevertheless anyscore from thisvalidationfile will be qualified and a
+cleanpurefile officialcheck is preferred beforepromotion. This doesnot alter the runningjob
+or retroactively change its receipt/source. Fullcomparison/checkprotocol above is unchanged.
+
+## Post-microknob attention portfolio evidence
+
+Latest official board snapshot15ce65e needs11.73% more score for observedrank10. The only new
+bounded mechanism here has~0.24% full-only causal sensitivity and stillneedsprospectivefresh
+math/cleanofficialvalidation. Closing that mechanism must NOT become another late-tid sweep.
+
+Larger arithmetic gaps exist in currentbest8914751e3b9f468b profiles: verify16full101.6us
+versus63.4us analyticfloor, verify32full183.6versus126.8us. These use4.8TB/s floors, not measured
+recoverable time or expected gains. They justify fresh whole mode51 memory/producer/consumer
+attribution only, not an optimization claim. Baselineprofile24daba2202e547d6 is retained.
+
+The matched per-shape donor DELTA evidence belongs to bench_o0519d0b15e9c4583 (sourcea70192d,
+evidencecommit589fb00): d16full~0.9us,d32full~1.5us,v16full~2.1us donorlead,v32fullnull.
+Separate donor-only receipts45adaeddef9d464e/ab38543d2c8642fb are NOT the source of thosepaired
+deltas. Matching this donor doesnot establish11.73%. Userpolicy remains mechanismlearning,
+never donoradoption. Relevant closed experiments: c8e99e038d9f4575 QKchain/page-refill,
+42c4739cf6b247c4 deeper mode49 ring,4b60264a276c4805 producer/no-DRAM attribution;
+mode49pagebulk bb06f8e57bd84636/f3f1e4a5249a4228 belowpromotionbar. Do not repeat them without
+new structural evidence, different components or named ceiling change.
+
+Priority afterfreshmathclassification: establish current mode51 per-phase/copy-latency and
+per-SM partner-spread attribution against measured streaming bandwidth, or obtain actual
+rank10 per-shape evidence. A read-only `okc status5cb3655bf3c9499a --json` attempt returned
+'no such job' despite thatjob's presence in the publicboardrow; it establishes only API lookup
+failure, not absence of the run. No per-shape leaderboardcutoffs are inferred. Stop if proposed
+mechanism's bounded score value is below independentnull spread; pivot to measuredlarger
+MoE/layer opportunities instead of spending remaining attentionquota on repeated smalltoggles.
+
+### Prospective TASK-math gate80415fe736bb4890 PASSED
+
+Owning receipt confirmsboard muse_attention_decode/id80415fe736bb4890. Candidate2 official
+16/16 tests passed; score2.623065x (95%CI2.583719-2.677442). This score remainsqualified by
+validationfile's allow_tf32False setting discussedabove; root ischecking exactpurefile
+cbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356 separatelybeforepublic.
+Receipt/log `profiles/fp32fresh.80415fe736bb4890.{json,log}`. Ownedselftest0failures.
+
+All4000candidate outputs AND4000independentcontrol outputs passed the NEWofficial-math
+FP32/global/row/cache gate (2000uniqueinputs on EACHsliding/full). Bothreferenceflavors
+canonicalcrosschecked at3inputs/shape. All6negativecontrols rejected (stale/zero/+10head,
+bothshapes). Bothworkspace scans clean: rowaccumulators, sums, tickets and nextparitycounters
+allzero. CandidateactualnewKV equals collectedcontrolKV for everycheckedinput; cachebound
+against ownrawquantreference also passes. This establishesmathcompliance on coveredcases,
+not a proof of everyfutureinput or a replacement for memoryordering reasoning.
+
+|Shape|candidatebad/controlbad|maxglobalrel candidate/control|maxrowrel candidate/control|maxKrel|maxVrel|referencecomputeactualseconds|
+|---|---:|---:|---:|---:|---:|---:|
+|sliding|0/0|0.00652552/0.00652552|0.01905027/0.01905027|0.002761647|0|0.038|
+|full|0/0|0.004721837/0.004721837|0.01575174/0.01575174|0|0|0.443|
+
+Officialbounds acrossinputs: sliding0.10383-0.15, full0.037465-0.15. Canonicalbatchedreference
+differences are0to1.137e-4relative sliding,1.286e-4to5.288e-4full (within registered1e-3
+referencecrosscheck; oneFP8queryfullsample hasmax4ULP on a small element). This is reference
+summationvariation, explicitlyretained; no threshold was retroactivelychanged.
+Fullprepare includingcompilation/selftests/freshreference/queue took233.05s (<280s guard).
+Referencecompute elapsed was measured by CPUwalltime with devicesync. Temporarybyte counts
+remain analyticshape calculations, not measuredallocation/SMutilization counters.
+
+Read-only CUDAresourceattributes are IDENTICAL candidate/control for all13instances.
+AffectedL1mode11:114registers,localbytes0,staticsmem0,dynamicsmem58960bytes,128threads,
+3blocks/SM capacity. UnchangedL1mode13:72registers,local0,58960dynamicbytes,128threads,3blocks/SM.
+Currentlarge-fullL1mode49:128registers,local0,58960dynamicbytes,256threads,2blocks/SM;
+verifyfullL8mode51:80registers,local0,107104dynamicbytes,384threads,2blocks/SM.
+These are allocation/residencyattributes, NOT measuredSMutilization or a SASSspillanalysis.
+
+The strict1e-4 studies3588375a529c4fe8 and26c8a3ea28554454 remainFAILED, with theiroriginal
+records and descriptions preserved. This prospectivelyregistered official-math gate answers a
+differentquestion and doesnot erase those failures. No furthertuning of thelate-tid knob:
+finishpurefilevalidation/publicdecision underroot, then closeit and use freshinternal
+mode51 attribution before any newstructuralattention optimization.
+
+
+Root clean official gate d331aca81c554d70 dispatched for exactpure
+cand/late_full.py SHA256cbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356.
+No diagnostic suffix or torchTF32flag mutation. Sourceonly0->2full/non-one-tile restriction
+on the owned file; math/fences unchanged. Prospective804...all-inputmathgate passes and
+strictstudiesremainfailed. Waitexactjob before publicsubmission; no productiondefaultchange.
+
+## November1 clean attention promotion and scored result
+
+Clean exactpure checkd331aca81c554d70 completes16/16, checks.oktrue, flags[],
+2.569431026x,95%CI2.530889561–2.619575175. Sourcecbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356.
+Scored exactsamepure c9bc5fbd85b440e2 completes16/16 at2.515773722x,
+CI2.478037116–2.553510328. Public best stays8914751e3b9f468b/2.604290x.
+
+Working submission.py and attn_one.cu defaultONE_LATE_TID2 now promoted after paired gate
+and all official/reference gates. ExecutableAST exactlymatchescheckedpure after ignoring
+onlytwoCUDAcommentupdates. No native math/precision/fence/barrier/cachecoverage change.
+Olddefault0 preserved in1764d15/1241557; normalizedsourceSHA498161899c637f599d6987f22dcb1c2c2f922fb66f490ce0ef6e926b7ff6f7a4.
+Paired full-only score sensitivity~0.24% is measured; a higher public aggregate is not proven.
+Rootdeferslayerport:0.4usd1full alone has0.021980% six-loadlayer sensitivity under actual
+8f2780d7382047e6 medians/46:16weights, below pairedlayernoise. No tinyport check dispatched.
+## New Q8 full-context producer attribution, registered before dispatch
+
+Goal is measurement, not a performancecandidate: distinguish current mode51 cache-gather /
+producer pace from consumer-compute/synchronization costs at verify16/32full. No morelate-tid
+sweeps. Latestfull-mode51 resources in80415fe736bb4890:107104dynamicbytes/CTA,384threads,
+80registers/staticthread allocation,localbytes0,2blocks/SM capacity.
+
+New wrong-output ONE_PROBE4/5 branches retain acquire(it,st,common), its existingoptional
+patch/proxyfences/firsttilecsync, two warpgroupfence/commit/wait0 sequences, bothcompiler
+reg_fences, earlyEREL release (or its mutuallyexclusive latealternative), postQKproxyfence,
+named_sync(2+hk,128), and cst/cph advancement through existingrelease. All256consumerthreads
+arrive onemptybarriers exactlyonce/tile; producerfull init/count128 is unchanged. Probe4
+readsactualcachedrows;5usesexistingCPBzero-fill mechanism. QK/softmax/Vtranspose/PV arithmetic
+is absent, so outputs are intentionallywrong and everyarmname ends_probe. Never publicsubmit.
+
+PTX8.7 section9.7.15.7.2 explicitly permits emptywgmma-groups; section9.7.15.7.3 defines wait0
+completion. Allwarpgroup lanes execute samegroups uniformly. Primarysource:
+https://docs.nvidia.com/cuda/archive/12.8.2/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-instructions-wgmma-commit-group
+No fence/barrier/arrive is removed or weakened. Emptygroups preservecollectives but removal
+of math stillchanges instruction/SMresource pacing: interpretas producer-boundpace with
+retainedcollectives, NOT purememorybandwidth or additive recoverablelatency.
+
+Tool `tools/attn_make_q8_attrib.py`: unmodifiedcontrol +independentcontrol2, read_probe,
+zero_probe, existingnocopycomputeprobe1, stamp_probe, eachprivateworkspace. Onlytwoexacttarget
+shapes timed,2heldoutinputs,120coldrounds,seed311109. Allvariantsmust show L8mode51
+107104dynamicbytes AND2blocks/SM BEFOREANYtiming; failure abortsimport. Controlbuilds retainall
+normalinstances; probe-onlybuilds compileonly8/51 tofitpreparebudget, a compile-layout
+perturbation explicitlyaccepted forattributiononly. Resourcegate repeatedattail. Nearbymodes
+not supportedby these probe-onlymodules are notrun. No donorcode or sourceadoption.
+
+CPU/source audit: Python/generationcompile, exactkernelbranchcountacquire1; release2 source
+sitesbutmutuallyexclusiveERELconditionsgive1dynamicrelease; proxyfence1explicitplusunchanged
+acquirefences;2wgfence/commit/wait0/regfence;1namedbar128 perWG/tile. Independentread-only
+review bytoday_moe found no blocker andconfirmedallhandshakeparticipants andlifetimes;
+requiresactualoccupancy gatebeforerun. No measuredresource/performanceclaimuntilreceipt.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|8ac6563343f74bcd (check)|4f99802|CHECKONLYmode51producer/memoryattribution|pending|Occupancy/SMem gate beforetiming; wrong-outputprobes neverpublic.|
+|2026-10-31|d331aca81c554d70 (root check)|pureSHA cbee36a...b356|Exactclean standalonefull-onlylate-tid2 candidate, noTF32/harness/resourceexport|2.569431x (2.530890-2.619575)|Passed16/16 official tests,checks.oktrue,flags[]; exactreceiptsaved.|
+|2026-10-31|c9bc5fbd85b440e2 (root submit)|samepureSHA cbee36a...b356|User-authorizedtoday publicsubmission ofexactcleancheckedcandidate|pending|Root ownsdispatch/promotion; productionmainflag0 untilmanifestdecision.|
+
+FullpureSHA256 `cbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356`;
+root's preserved cand/late_full.py and owned .build/today-attn/attention_latefull.py agree.
+Cleanofficialscore2.569431 overlaps priorheadlinevariation; causalperformanceevidence remains
+~0.24% froma9b416a0c7324ecc, not the differencebetweenindependentscores. No wholelayerport:
+value2 affects onlyL1SPECnon-one-tile (d1full), and actual46/16layerloadweights/six-loadGM dilute
+0.4us to roughly0.02%wholelayerscore, belowcurrentfour-armnoise (exactlayerpairedmedians
+would be needed for a preciseestimate). Do not spendalayercheck assuming standalonegaintransfers.
+
+### Offline layout proposal corrected and closed before experiment
+
+An offline sketch assumed that reducing fourVTbuffers20480bytes to two10240bytes would
+reclaim10240bytes and permit a fourthrawstage at113248bytes/CTA. This was WRONG: rawquery
+stagingaliasesVT and requiresQST_BYTES16384. The actualmax(QST_BYTES,VT_BYTES) therefore
+shrinks20480->16384, savingONLY4096bytes. NS4 wouldrequire107104+16384-4096=119392bytes/CTA;
+twoCTAs238784bytes EXCEED233472bytes. No code/job/stagesweep was made from that sketch.
+VTcompactionalone doesnot reopenNS4at2CTA. A differentquery-staging/register/layoutmechanism
+would need explicitconsuming-layout/lifetime/resourceproof and newmeasuredbottleneck evidence;
+wait currentq8attribution before anysuchredesign. Initial113248claim is superseded by this
+explicitcorrected accounting, not a measuredconfiguration.
+
+### 2026-11-01: mode51 producer/cache-copy attribution, terminal result
+
+Evidence source commit `4f99802`; check `8ac6563343f74bcd`, receipts
+`muse_attention_decode/profiles/q8attrib.8ac6563343f74bcd.{json,log}`.
+Unmodified judged control passed 16/16 official tests, score 2.575636x
+(95% CI 2.537002-2.614271). This is not a new candidate score.
+All six independent arms passed the resource gate BEFORE timing: mode8/51,
+264 CTAs, 107104 dynamic bytes/CTA, two resident CTAs/SM. Control and control2
+passed both targeted correctness rows; all four deliberately wrong-output
+probes remained classified probes, never candidates.
+
+Cold graph medians include replay overhead, microseconds:
+
+|shape|control|control2|read-only producer, consumer math removed|zero producer, consumer math removed|no-cache-copy, consumer math retained|stamped control|
+|---|---:|---:|---:|---:|---:|---:|
+|v16 full|110.88|110.82|110.69|74.24|85.15|112.70|
+|v32 full|188.38|188.10|197.06|132.51|151.17|190.85|
+
+Both held-out inputs agree on the large zero/no-copy effects. Consumer-math
+removal is mixed at v16 (112.86->110.46 and109.89->110.85), and slower at v32
+(187.94->196.58 and188.86->197.63). Removing consumer arithmetic alone is
+therefore closed as the next optimization. Cache traffic and producer pacing
+are the next investigation, with no claim these perturbations subtract into
+recoverable gains: instruction pacing, compilation and occupancy-compatible
+register allocation can still change.
+
+Stamped control adds 1.82/2.46us versus control. Five-repetition medians:
+consumer full-barrier wait13.2/17.5us; producer empty-slot wait35.1/75.0us;
+SM pair completion spread12.1/22.7us (v16/v32). These are thread-local wait
+sums and completion spreads, NOT measured SM idle time or additive budgets.
+Map the split->virtual range->request/pages and natural tile/segment counts
+before attributing pair spread to scheduling. No stage sweep or fence change.
+Main's production late-tid2 promotion is owned by root and must survive merge;
+this worktree's default0 remains a pinned diagnostic control.
+
+### Offline source map after q8 attribution (2026-11-01)
+
+`lo_first` counts lower CUDA blockIdx.x finishing before its measured same-SM
+partner (`tools/attn_make_bench_ab.py:_ab_wave`); it does not identify KV head,
+SM id ordering, or a formal dispatch priority. Each mode51 CTA contains both
+KV heads (consumer hk=warp>>2, four warps/head). DefaultONE_WAVE0 assigns
+v0=floor(total_v*bid/264), v1=floor(total_v*(bid+1)/264), where total_v is
+sum(seq_lens+8+600)-600. Request prefix offsets include600 virtual keys per
+boundary, compensating segment setup. seg_bounds intersects each request,
+rounds interior boundaries DOWN to64 keys, and iterates requests then
+ascending64-key tiles. Thus adjacent block ids mean adjacent virtual ranges,
+but do not guarantee equal tile/segment counts or neighboring physical pages.
+
+Producer ptid=tid-256, ch=ptid&7, r0=ptid>>3. Each producer handles rows
+r0+16*i (i0..3), issuing16-byte K then V copies at channel16*ch; row bytes128
+contain BOTH64-byte KV heads. Physical row=(page_table[request*pt_stride+
+(position>>lp)]<<lp)+(position&(page_size-1)); byte offset=row*128+ch*16.
+Page1 benchmarks therefore follow the actual page-table permutation, not
+necessarily contiguous physical rows. Existing retained receipt prints only
+selected CTA examples and aggregated pair statistics; it cannot reconstruct
+all paired block ids, their exact seq_lens/page lists, or physical address
+locality. Do not infer a copy-order remedy from lo_first132/132 alone.
+
+Natural variation is visible: v16 stamped examples include c132 with67tiles/
+2segments ending93us and c22 with76tiles/1segment ending82us. This rules out
+simple "more tiles explains every late CTA", not all possible segment/page
+variation. Full paired records plus exact input metadata would be needed for
+causal correlation, without calling the spread SM idle time.
+
+Previously tested scope matters. 4b60264a276c4805 no-DRAM producer deficit,
+c8e99e038d9f4575 PE16, bb06/f3f page bulk, and42c4739cf6b247c4 deeper ring
+are mode49 L1 studies, not mode51 L8. However mode51 pair weighting ALREADY
+lost:7631033a0c93485d block-index heavy firsthalf +4.9/+9.8us atv16/v32
+(weight1.15), and4ff339332fef4aff runtime SM-counter weight1.4 +5.47/+8.99us.
+The counter arrival order did not identify the favored CTA, worstpair72-83us.
+A generic pair-spread/reweight sweep is therefore closed. New proposal needs
+an independently identified copy-issue/address mechanism with identical
+bytes, ranges, fences and resources; no new mechanism is yet justified by
+these aggregate stamps. No additional GPU job dispatched.
+
+Terminal4862f8e0dc8a4b5a: unchangedcontrol2.528391542x CI2.490465669–2.566317415,
+16/16official/checks.okflags[]. Fourarms21/21 math/row/cache checks. Native
+WST+VP2 matrix FAILS: corrected changed-native-only pooled .997059624;
+v16fullWST+12.10us, v1slidingVP2−.77us. VP2-only prospective signal~1.086%
+aggregate, needs new restricted gate/owned sourceproof; not retroactivepass.
+Resource minimum gates executed, numeric stdout truncated; no exactregister
+claim. Fullreceipt/log committed; details in alternate-engine steering report.
+
+|date|job|source|change|result|notes|
+|---|---|---|---|---|---|
+|2026-11-01|f74cbe27819147c1 (check)|36622ef|Owned restricted v1sliding mode3 hierarchical cluster merge|pending|GeneratedSHA1fe0b4b27a2f651c2c67228f01f9db1da4c2b20abec07adf930a53ffd24f8240; allCTAcount correction beforedispatch; 1%/2xnull gate preregistered.|
+
+f74cbe27819147c1 terminal: official control16/16/checks.ok,2.572180524x
+(CI2.533597816–2.610763232); all4arms19/19 correctness. Ownedclustermerge
+FAILS performance: v1sliding11.17us control vs32.22/32.03, every3input
++20.7–21.5us. Corrected affected-only score sensitivity pooled .846482815.
+Resource111regs/0local/90704dynamic/2blocksSM; maxcluster capacity14 (launch2).
+Fresh256math/cache/row+3negative gates passed by terminal fail-closed source
+logic; stdout/maxima truncated. Closed, no production promotion or newjob.
+2026-11-01 | cd6805e7ebce45ee | exact public rohanarun/Auto-research-agent attention artifact at 018b7a10, SHA256 394f2517ca8eaf69b7d422832edfd59451a9f73103981d13b1059070abb17b4b | Off-board exact-file comparator; source-matched published banks have uniform per-shape baseline/candidate times and are insufficient for stage attribution. Pending.
+cd6805e7ebce45ee PASS16, flags empty, 2.639606424× (95% CI 2.600012327–2.679200520), 12 shape medians and profiles. Best new evidence at decode 1 sliding/full. Private comparator only. See evidence/2026-11-01-component-frontier/attention-shapes.md in steering.
+Attribution correction for cd6805e7ebce45ee: the independent published evaluation repeats the same speedup ratio, not identical absolute times. Its baseline starts at 100 µs and increments by 15 µs per case. All shape medians used for our decision come from official receipts.
+
+### 2026-11-01 complete-head cluster screen (pending)
+
+- `eac485ea0d554e50`, source `eee3b5b`, generated fourarm complete-head q8sliding B1 experiment. Pending, no score/CI yet. Local NVRTC/PTXAS96regs/0spills only; runtime resources not yet known. SCREEN ONLY: inherited fresh loop shared data/cache across arms, corrected offline after dispatch. Report: archive/docs/steering/2026-11-01-attention-complete-output-clusters.md. No public submit. Final result and loser/gates to append.
+
+- Terminal `eac485ea0d554e50`: control16officialPASS2.49015534234613x CI[2.452803012210938,2.5275076724813217], policiesclean. HC4arm21/21eagereach, resources96regs/0local/90704dyn/128threads/2blocksSM/max14clusters. Clearloss v1sliding11.10→14.98/15.01us onall3inputs; sharedcache/BF16parityfreshscreen qualifiedonly. No secondcheck, no public. Decision/report/profiles preserveactualsourcehash. Closes this64key/genericDSMcomplete-head implementation, notVP2N128async implementation.
+
+## Owned per-request QK two-chain diagnostic (BF16 common controls)
+
+2026-11-01 | fe75e566c1ae4d51 | 77fd87c | OFF-by-default ONE_PR_QK2 only L1MODE11/13; common BF16 attention-output activation boundary in control/treatment, separate literal unrounded judge and BF16 baseline parity gates. Four independent builds/private data/cache/state/graphs; 3 heldouts, all12 eager gates, duplicate-noise/full-score acceptance. Pending. Source .build/attn_pr_qk2.py SHA2564dca6a77725c2c5115956375ce8122d7877ae4904c2ff4943dd0d80227ac8bfb. Judged path is repaired QK-off control, not historical891. Root authorized ONE off-board check; no public action. Local NVRTC/PTXAS/scope/host evidence and registration: archive/docs/steering/2026-11-01-attention-per-request-qk2.md.
+
+Terminal fe75e566c1ae4d51: DONE, passedfalse, official15/16 (test0 host Q2 incomplete before280s), no official score/CI/benchmark profiles. Retained later cached preparation completed the entire scoped diagnostic in21.108s:48 all12 eager and80 fresh/final dual-oracle checks pass, six paired timing rows, all resource vectors equal (L1M13R72,L1M11R114,0local,58960B dynamicshared,3CTA/SM). All three preregistered seeds fail score and context-regression gates. Sliding: control8.864–8.992us versusQK2 8.992–9.024; full control16.768–16.992 versusQK2 16.736–16.864. Six-load cross factors seed713301 .998703–.999766,713302 .998247–1.000335,713303 .998072–.999797, below1.002+2xnull requirements. Negative chain-only result retained separately from cold-prepare failure. No candidate promotion or retry. Receipt/log/parsed analysis: profiles/pr_qk2.fe75e566c1ae4d51.*.
+
+2026-11-01 | 3f44f891d0ef47db | Private full-context owned producer/consumer wait trace, source 9dc5788 plus final artifact manifest a882bd2ad7d9ebf36a5d4f739e6c0b60930a6e733e24fed06712090bc751d9c0 (361621 bytes). Six CPU tests and four local sm90a compiles pass, independent review41a1e10. Two controls, two independent detail builds, three identical held-outs per full16/32 decode/verify cell, common BF16 output boundary and unrounded judge oracle. Require identical runtime registers/local/shared/threads/residency, all math/cache checks, and perturbation<=max(.5us,1% control) including duplicate null before interpreting rows. Pending.
+
+Terminal 3f44f891d0ef47db: PASS16, 12 benchmarks/profiles, checks.ok and no flags;
+common diagnostic control2.490692705× CI[2.453332314,2.528053095]. All four arms
+4/0/0 scoped correctness, done167s. Actual resource parity PASS: mode49
+128regs/0local/58960shared/256threads/2CTA; mode51
+80regs/0local/107104shared/384threads/2CTA. Causal usability FAIL all12 rows:
+detail perturbation3.776–23.136µs versus permitted0.990–1.959µs. Retain24
+descriptive traces only; no bottleneck or speedup inference. Exact probe closed,
+no automatic retry or public promotion. Canonical receipt/log/profile/decoded
+JSON: profiles/wait-trace.3f44f891d0ef47db.*. Report:
+archive/docs/steering/2026-11-01-attention-full-wait-trace.md#november-1-0548-pst-terminal-result.
+## 2026-11-01 07:32 PST — private VP2 BF16-output signal requalification
+
+Root dispatched **c79ddddb840a4fb7**, exact artifact866845554b3d694c40165fabbdfde6739f6fa22b1efb5abb6b5831f32e368f24 (412952B), source e86b0d5/freeze23fb760. Pending; no score, timings or GPU qualification yet. Four independent modules/owners, all12cells x3 heldouts,640 private math/cache checks and20VP2/284native host warm/capture coverage. PRIVATE normal judged path actual VP2 only eligible V1sliding; native BF16 owned others, stock SGLang nonTP8. All16official/12benchmarks required. No public action or donor adoption. Root owns wait/status/archive; no duplicate dispatch or automatic retry. Frozen contemporary-offset/raw-sign score decision and proof: archive/docs/steering/2026-11-01-attention-vp2-bf16-requalification.md. Reader requires raw terminal status JSON, not normalized profile JSON.
+
+Terminal c79ddddb840a4fb7: PASS16/12/checks.ok/no flags; PRIVATE judged comparator2.5943196585x CI[2.555404864,2.633234453],102.040889s preparation. All640 private checks/36rows/20VP2+284owned coverage pass. Contemporary four-cross1.006309–1.009060,null.002370868; every seed1%/2xnull gate FAIL, regressionfalse; rawsigntrue/rawregressionfalse. Target pooled10.784→10.168us (~5.71% lower) is PRIVATE bundled-cell advantage, not full-score win/storage-only causality. ActualVP297regs/0local/81984shared/256threads/2CTA/14clusters; owned8/15 82/0/90704/256/2CTA. Close automatic rewrite/retry/sweep/public/adoption; preserve HC64 loss versus complete VP2 target gain discrepancy. Canonical root profiles vp2_bf16_private.c79ddddb840a4fb7.*; report archive/docs/steering/2026-11-01-attention-vp2-bf16-terminal.md.

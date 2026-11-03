@@ -1,0 +1,23 @@
+{
+  "tests": 11,
+  "passed": true,
+  "torch": "2.10.0+cpu",
+  "payload_sha256": "557c67fe4b7499416663a89fc4455a2ab3e3c250f8b8e9e62da1cfad3ff21d90",
+  "runtime_id": "0118b4f50c0427c8fa53ce6831b70362b15f722cf6db1a7724f46f82eb55e9cb",
+  "capsule_sha256": "f68e3768d43aaeaf47d065403d54c89c4891fd1d979f1c2e5ef4cd3d8e64eda6",
+  "dispatch_ready": false,
+  "gpu_qualified": false,
+  "real": "CPU Tensor storage, aliases, clones, input-generation math, host dispatch, guard/reset and checks",
+  "facaded": "Native MoE math/builds, CUDA device/graph/event operations, cache flush size, bank/packing/scratch leaves",
+  "receipt_fixture": "Historical receipt schema plus fabricated upload/log association ONLY; not candidate evidence",
+  "historical_schema": {
+    "job": "05e51ddeb7014dd9",
+    "sha256": "94ca150a4455dfaf7d7e63ecce87ec69e8def2d07c7f169c0dd024796a463fd0",
+    "events": {
+      "setup": 1,
+      "test": 5,
+      "benchmark": 6,
+      "profile": 6
+    }
+  }
+}

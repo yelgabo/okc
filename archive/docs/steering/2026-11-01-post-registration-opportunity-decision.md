@@ -1,0 +1,25 @@
+# After registration: compare the complete fresh alternative
+
+November1 Pacific / November2 05:03UTC2026. Evidence commits `6123c1db170e5fff9de513a4b12c8eb5fcebc3f2` (research), `ddbed42cfa765307081dcd16309e78780f77f46c` (accepted check), `11d0e3648b3fad693d83e0d80decfd7d062567f1` (captain reconciliation). Previous goal turn was progress: actual-reader differential tests and publication. This turn directly verified the accepted receipt, published its index, read the completed broader research, checked its primary source, and delivered the next allocation. Top100 remains unachieved; no new measured winner.
+
+## Measured state versus current work
+
+Outgoing-only fixed source is accepted as own private `9adfd4dbc98f4998`, not a performance-qualified candidate. The archived receipt is queued/resultnull, exact muse_decode_layer/check/yelgabo/serverpayload association verified. Physical upload f25d714e/934942B and reader5435108e remain frozen. Worker owns wait16147 and every terminal/reader/archive action. Captain verified existing worker ordinal5 running through the T3 wait; a120second observation timeout was not a terminal result or reason to restart. Postaccept6private/5scored is the archived quota, not a new live query. No duplicate job polling/dispatch or public action by captain.
+
+## Decision: do not fund G2/24 yet
+
+[Researcher report](2026-11-01-expert-pipeline-next-contender.md),6123c1d, develops an actual different three-ring/two-CTA RS design, not another counter mask. Its CPU layout115968B/CTA and231936B/pair is a fit calculation; actual registers/allocation/admission/progress remain unproved. The design duplicates activation traffic and increases expert weight-job replays by8.7-25% on archived standalone populations. Those populations are not retained layer routes. Current concrete implementation would also rewrite gather, job/unit maps, publication parents, scratch and cooperative grid bounds.
+
+The approximately3% roadmap scenario requires11.4026% net expert-duration subtraction across D32/V16/V32 under the archived mixed-profile model, with complete exposure and zero replacement cost. It is not a forecast, upper bound or mandatory correctness gate. There is no measured producer-stall exposure to offset G2/24's extra work yet. Funding a broad rewrite solely because it fits is weaker than comparing a changed complete implementation first. G2/24 is HOLD, not performance-rejected or ruled out; no build/check/sweep allocated. A materially stronger complete implementation, actual exposed producer delay, or substantially cheaper correct design could reopen that choice.
+
+## Independent primary-source correction
+
+Captain directly opened pinned Chord `6199d44a863a165139d2fd8387b307bbe21f1ca9` [heuristics.py](https://github.com/novitalabs/chord/blob/6199d44a863a165139d2fd8387b307bbe21f1ca9/chord_kernels/operator/grouped/heuristics.py#L239) and [design.md](https://github.com/novitalabs/chord/blob/6199d44a863a165139d2fd8387b307bbe21f1ca9/docs/design.md). The3-8% favorable/7-15% adverse measurements are an author-comment assertion in `_ctas_per_sm`, not a retained matched receipt of our implementation. Its heuristic also requires at least two waves of the doubled CTA grid as well as small masked tiles and >=3stages. At this pin performance.md has145lines and no CTA discussion; the researcher report's performance.md#L152 locator is not supporting evidence. This correction was sent for a dated research addendum. These facts narrow attribution; they do not prove G2/24 loses.
+
+## Delivered next allocation and stopping gate
+
+Existing researcher thread66651fd0 received one25minute SOURCE/CPU allocation, message `message:mcp:08fd93d1-0869-4181-8ee7-83296b57bd04:thread-send:dba54bcf-64fe-4a6b-8ff7-e503b59d436a`, actual ordinal8 started. Compare the complete fresh `ruwwww/open-kernel-challenge@c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d` layer against current common4cbb, including prep, selected dense routes/Lt, attention, routing, expert precision/progress and epilogues. Its unchanged WGS ancestry alone is not evidence of full-file performance parity or grounds for dismissal.
+
+Find its own exact-file measured receipt/source association and license; neither README claims nor a team's best leaderboard score qualifies its file. Without a receipt, retain unmeasured status but name at most two concrete selected multi-load deltas with legal/correctness obligations and smallest implementation/test. Finish with an implementation-ready target or a specific failed gate, not a new unbounded source census. This comparison competes with the high-cost G2/24 rewrite; it does not authorize adoption. No GPU, compiler/install, production/default edits, new threads/delegates, public/scored actions or README edits. Existing worker remains sole GPU owner and proceeds only on accepted9ad.
+
+**Next decision:** valid terminal outgoing result chooses its qualification/closure; complete-source comparison chooses the next actual implementation or explains the failed gate. Reports, arithmetic and geometry are supporting work, not substitutes for measured layer gain or rank movement.

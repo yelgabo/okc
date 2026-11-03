@@ -1,0 +1,42 @@
+exact_device.cu(999): warning #177-D: variable "DETM" was declared but never referenced
+      constexpr bool DETM = ONE_DETM && FLAT && !COOP && L == 1;
+                     ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+exact_device.cu(25): warning #177-D: variable "<unnamed>::GROUP" was declared but never referenced
+  constexpr int GROUP = HQ / HKV;
+                ^
+
+exact_device.cu(38): warning #177-D: variable "<unnamed>::COOP_POLL_LIMIT" was declared but never referenced
+  constexpr int COOP_POLL_LIMIT = 1 << 24;
+                ^
+
+exact_device.cu(313): warning #177-D: variable "<unnamed>::CNT_INTS" was declared but never referenced
+  constexpr int CNT_INTS = 32768;
+                ^
+
+exact_device.cu(380): warning #177-D: member "<unnamed>::Smem<L, NS, PB>::BYTES [with L=1, NS=3, PB=false]" was declared but never referenced
+      static constexpr int BYTES = PB ? PFREE + PB_SLOTS * 8 : BAR + 2 * NS * 8;
+                           ^
+
+exact_device.cu(460): warning #177-D: function "<unnamed>::bulk_g2s" was declared but never referenced
+  __device__ __forceinline__ void bulk_g2s(uint32_t dst, const void* src, int bytes, uint32_t bar) {
+                                  ^
+
+exact_device.cu(531): warning #177-D: function "<unnamed>::ld_acquire" was declared but never referenced
+  __device__ __forceinline__ int ld_acquire(const int* p) {
+                                 ^
+
+exact_device.cu(563): warning #177-D: function "<unnamed>::e4m3x2" was declared but never referenced
+  __device__ __forceinline__ uint16_t e4m3x2(float a, float b) {
+                                      ^
+
+exact_device.cu(580): warning #177-D: function "<unnamed>::warp_sum" was declared but never referenced
+  __device__ __forceinline__ float warp_sum(float v) {
+                                   ^
+
+exact_device.cu(653): warning #177-D: function "<unnamed>::desc_kmaj" was declared but never referenced
+  __device__ __forceinline__ uint64_t desc_kmaj(uint32_t addr, int lbo, int sbo) {
+                                      ^
+

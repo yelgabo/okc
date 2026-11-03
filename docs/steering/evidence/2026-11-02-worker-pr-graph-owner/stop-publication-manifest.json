@@ -1,0 +1,15 @@
+{
+  "decision": "STOP_EXACT_CONTEXT_SYNC_GRAPH_OWNER_PROTOCOL",
+  "files": [
+    {
+      "path": "docs/steering/2026-11-02-worker-pr-graph-owner-stop.md",
+      "bytes": 3438,
+      "sha256": "894ef525950d8fcbfd53d5fcc1228153fc5a51ed996bda760f4c52c739cd04a7"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/stop-context-sync.json",
+      "bytes": 622,
+      "sha256": "efbb6e213334c8ffecbb9f3e6aafe7a574562b491b6a2a3942b8d654f33a5245"
+    }
+  ]
+}

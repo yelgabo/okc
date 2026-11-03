@@ -1,0 +1,359 @@
+{
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "p1_final_commit": "c8aacece1b6447b577187a7d7fb5bd7d4ea7e90c",
+  "p1_report_sha256": "bbda792d24446d19a4c952acb45bebe5133ae91d2cad54b0ad09797530dd7a9f",
+  "storedWeightRule": {
+    "path": "muse_decode_layer/TASK.md",
+    "commit": "e81d555b0667fd3b9548d72207bfb7a6833acf82",
+    "line": 102,
+    "sha256": "e69be33e7066493da1647b6c9dec9f025dca8469717133fe7447ac166055a126",
+    "conclusion": "Design B stores NVFP4-derived weights as BF16 in prepare: not admissible under the explicit stored-precision rule, regardless of operand equivalence."
+  },
+  "receipt": {
+    "path": "docs/steering/evidence/2026-11-02-captain-fresh-incumbent-profile/control.cc474883117947c0.json",
+    "sha256": "99fc065c3c13389922e9914a5a2ea15b69dd6786f954ef74d65cfe67c46170fd",
+    "id": "cc474883117947c0"
+  },
+  "primary": [
+    {
+      "path": "humming/config/mma.py",
+      "sha256": "426a3a55008f16dff8890650e4961d5571f37941c0b56be511507c1f47b500b6",
+      "git_blob": "f5dd5ffb8da0b36f81adb84ca43446ccbb4c264b",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/config/mma.py"
+    },
+    {
+      "path": "humming/schema/humming.py",
+      "sha256": "d722939748250f4d02d177af5349e0604fa79e24213b6a5a6222ed36d68668e0",
+      "git_blob": "2090c9596bc35f95388eefd4a59d1dc1b3623629",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/schema/humming.py"
+    },
+    {
+      "path": "humming/forward.py",
+      "sha256": "0bacc502c43919cc573505f507af699f33db700f1029c4668fb1c26df9544b36",
+      "git_blob": "1b638352c73be030dd1c6c3fb11a9dca655aad00",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/forward.py"
+    },
+    {
+      "path": "humming/include/humming/arith/epilogue_arith.cuh",
+      "sha256": "0a0a1c8c48f43d3533144b7a8cdf9ed40aa13fd6c36f3a85eeaadf3d79129c98",
+      "git_blob": "7ad3a66fb8163a46d9cae5740d3765f1e16e1ec1",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/arith/epilogue_arith.cuh"
+    },
+    {
+      "path": "humming/include/humming/scheduler.cuh",
+      "sha256": "7dc0223cb2c2237166ace9d91665ce58c635137699a2c5b9605a101109a3204b",
+      "git_blob": "fc1b820cce4b7f139bdacfca5b06c717bcc1e4aa",
+      "url": "https://raw.githubusercontent.com/vllm-project/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/scheduler.cuh"
+    }
+  ],
+  "control_us": {
+    "decode 1": 78.76453088391268,
+    "decode 16": 152.01624972636304,
+    "decode 32": 191.89781229731955,
+    "verify 1": 112.68166177082166,
+    "verify 16": 261.71304474650816,
+    "verify 32": 351.0802216924128
+  },
+  "expert_activity_us": {
+    "decode 1": 27.422580645161293,
+    "decode 16": 69.56129032258065,
+    "decode 32": 75.39032258064516,
+    "verify 1": 59.65806451612903,
+    "verify 16": 146.14193548387095,
+    "verify 32": 197.33870967741933
+  },
+  "cells": [
+    {
+      "load": "decode 1",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 77.03641666087047
+    },
+    {
+      "load": "decode 1",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 83.73285927515904
+    },
+    {
+      "load": "decode 16",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 133.03673482595178
+    },
+    {
+      "load": "decode 16",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 206.58235506504545
+    },
+    {
+      "load": "decode 32",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 150.87494202275815
+    },
+    {
+      "load": "decode 32",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 309.8385643366835
+    },
+    {
+      "load": "verify 1",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 110.76092666596433
+    },
+    {
+      "load": "verify 1",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 118.20377519728649
+    },
+    {
+      "load": "verify 16",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 237.0402134025524
+    },
+    {
+      "load": "verify 16",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 332.6474348603809
+    },
+    {
+      "load": "verify 32",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 308.6215699566718
+    },
+    {
+      "load": "verify 32",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 473.14884543266817
+    }
+  ],
+  "requirements": [
+    {
+      "target": 0.03,
+      "scenarios": [
+        {
+          "unmeasured_net_added_cost_us": 0,
+          "conditional_gross_activity_fraction": 0.08797589086969398,
+          "gross_us": {
+            "decode 16": 6.119716486174455,
+            "decode 32": 6.6325307919858645,
+            "verify 16": 12.85696696761489,
+            "verify 32": 17.361048786946867
+          },
+          "net_endpoint_us": {
+            "decode 16": 6.119716486174455,
+            "decode 32": 6.6325307919858645,
+            "verify 16": 12.85696696761489,
+            "verify 32": 17.361048786946867
+          }
+        },
+        {
+          "unmeasured_net_added_cost_us": 5,
+          "conditional_gross_activity_fraction": 0.13458560446733858,
+          "gross_us": {
+            "decode 16": 9.361948305592547,
+            "decode 32": 10.146452135503774,
+            "verify 16": 19.668600725123568,
+            "verify 32": 26.55894952674012
+          },
+          "net_endpoint_us": {
+            "decode 16": 4.361948305592547,
+            "decode 32": 5.146452135503774,
+            "verify 16": 14.668600725123568,
+            "verify 32": 21.55894952674012
+          }
+        },
+        {
+          "unmeasured_net_added_cost_us": 10,
+          "conditional_gross_activity_fraction": 0.18099172114834133,
+          "gross_us": {
+            "decode 16": 12.590017660783332,
+            "decode 32": 13.64502424179963,
+            "verify 16": 26.45048043517566,
+            "verify 32": 35.71667271370897
+          },
+          "net_endpoint_us": {
+            "decode 16": 2.5900176607833316,
+            "decode 32": 3.6450242417996304,
+            "verify 16": 16.45048043517566,
+            "verify 32": 25.716672713708967
+          }
+        }
+      ],
+      "main_only_no_cost_fraction": 0.15146568959939727
+    },
+    {
+      "target": 0.06576288172015832,
+      "scenarios": [
+        {
+          "unmeasured_net_added_cost_us": 0,
+          "conditional_gross_activity_fraction": 0.1847217306475743,
+          "gross_us": {
+            "decode 16": 12.849481934465459,
+            "decode 32": 13.926230861175673,
+            "verify 16": 26.995591242766793,
+            "verify 32": 36.45274797537212
+          },
+          "net_endpoint_us": {
+            "decode 16": 12.849481934465459,
+            "decode 32": 13.926230861175673,
+            "verify 16": 26.995591242766793,
+            "verify 32": 36.45274797537212
+          }
+        },
+        {
+          "unmeasured_net_added_cost_us": 5,
+          "conditional_gross_activity_fraction": 0.23118738822703616,
+          "gross_us": {
+            "decode 16": 16.081693031380027,
+            "decode 32": 17.429291775013105,
+            "verify 16": 33.786172374960145,
+            "verify 32": 45.622220886415924
+          },
+          "net_endpoint_us": {
+            "decode 16": 11.081693031380027,
+            "decode 32": 12.429291775013105,
+            "verify 16": 28.786172374960145,
+            "verify 32": 40.622220886415924
+          }
+        },
+        {
+          "unmeasured_net_added_cost_us": 10,
+          "conditional_gross_activity_fraction": 0.2774391487315261,
+          "gross_us": {
+            "decode 16": 19.29902517176332,
+            "decode 32": 20.916226919369343,
+            "verify 16": 40.54549417462276,
+            "verify 32": 54.74948362468099
+          },
+          "net_endpoint_us": {
+            "decode 16": 9.299025171763319,
+            "decode 32": 10.916226919369343,
+            "verify 16": 30.54549417462276,
+            "verify 32": 44.74948362468099
+          }
+        }
+      ],
+      "main_only_no_cost_fraction": 0.3104469573324121
+    },
+    {
+      "target": 0.1,
+      "scenarios": [
+        {
+          "unmeasured_net_added_cost_us": 0,
+          "conditional_gross_activity_fraction": 0.26992646845546264,
+          "gross_us": {
+            "decode 16": 18.776433437979343,
+            "decode 32": 20.34984352991167,
+            "verify 16": 39.44757653840735,
+            "verify 32": 53.26694099278363
+          },
+          "net_endpoint_us": {
+            "decode 16": 18.776433437979343,
+            "decode 32": 20.34984352991167,
+            "verify 16": 39.44757653840735,
+            "verify 32": 53.26694099278363
+          }
+        },
+        {
+          "unmeasured_net_added_cost_us": 5,
+          "conditional_gross_activity_fraction": 0.31625247466876094,
+          "gross_us": {
+            "decode 16": 21.998930205668263,
+            "decode 32": 23.8423760822052,
+            "verify 16": 46.21774874965659,
+            "verify 32": 62.408855283424025
+          },
+          "net_endpoint_us": {
+            "decode 16": 16.998930205668263,
+            "decode 32": 18.8423760822052,
+            "verify 16": 41.21774874965659,
+            "verify 32": 57.408855283424025
+          }
+        },
+        {
+          "unmeasured_net_added_cost_us": 10,
+          "conditional_gross_activity_fraction": 0.36235463195894413,
+          "gross_us": {
+            "decode 16": 25.205855753427972,
+            "decode 32": 27.31803259197575,
+            "verify 16": 52.955207246025815,
+            "verify 32": 71.50659551641421
+          },
+          "net_endpoint_us": {
+            "decode 16": 15.205855753427972,
+            "decode 32": 17.31803259197575,
+            "verify 16": 42.955207246025815,
+            "verify 32": 61.50659551641421
+          }
+        }
+      ],
+      "main_only_no_cost_fraction": 0.44388361068494264
+    }
+  ],
+  "invariants": [
+    [
+      "MID split job size",
+      true
+    ],
+    [
+      "MID unpatched helper alias",
+      true
+    ],
+    [
+      "B4 norm partials",
+      true
+    ],
+    [
+      "MAIN two-pass finalizer",
+      true
+    ],
+    [
+      "BF16 gamma boundary",
+      true
+    ],
+    [
+      "FP32 gamma product",
+      true
+    ],
+    [
+      "positive finite PRMT admission",
+      true
+    ]
+  ],
+  "units": {
+    "elements": 50331648,
+    "ordinary_bytes": 28311552,
+    "sc6_bytes": 27525120,
+    "bf16_bytes": 100663296
+  },
+  "midExample": {
+    "description": "Allowed count=16 on one expert: MID has two <=8-token jobs, not one weight pass; no measured count implied",
+    "routes": 16,
+    "experts": 1,
+    "control_jobs": 2,
+    "expanded_single_pass_inflation": 1.7777777777777777
+  },
+  "wgsExample": {
+    "description": "Allowed count=128 on one expert: control FT_T64 means two jobs; Humming BM16/BM32 token tiles imply8/4 tiles before any physical-cache assumptions",
+    "count": 128,
+    "control_jobs": 2,
+    "grouped16_tiles": 8,
+    "grouped32_tiles": 4
+  },
+  "limits": [
+    "All activity-based budgets assume fully exposed activity; overhead0/5/10us is a sensitivity, not measured launch time.",
+    "Count examples are legal source distributions, not fresh target routing. Uniform one-pass P1 table is not actual selected route traffic.",
+    "No donor import, kernel/harness implementation, compiler or target execution."
+  ],
+  "decision": "REJECT: B violates stored-weight precision; A lacks substantial complete-path evidence. No universal bandwidth impossibility claim."
+}

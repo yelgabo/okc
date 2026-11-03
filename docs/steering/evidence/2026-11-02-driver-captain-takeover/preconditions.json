@@ -1,0 +1,139 @@
+{
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 2,
+            "left": 18
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 10,
+            "left": 10
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      }
+    ]
+  },
+  "jobs": [
+    {
+      "flags": [],
+      "job_id": "28248eb5e5854041",
+      "mode": "check",
+      "passed": true,
+      "problem": "muse_moe_w4a16",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 6209.316640184201,
+      "status": "done",
+      "submitted_at": 1793644634.0085967
+    },
+    {
+      "flags": [],
+      "job_id": "56e0c8b5634545e6",
+      "mode": "check",
+      "passed": true,
+      "problem": "muse_moe_w4a16",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 5765.743115976166,
+      "status": "done",
+      "submitted_at": 1793640410.9246743
+    },
+    {
+      "flags": [],
+      "job_id": "60b38a62a135442c",
+      "mode": "check",
+      "passed": false,
+      "problem": "muse_decode_layer",
+      "result_status": "ok",
+      "score": null,
+      "score_us": null,
+      "status": "done",
+      "submitted_at": 1793631288.7507305
+    },
+    {
+      "flags": [],
+      "job_id": "e4c8f00532b74d15",
+      "mode": "check",
+      "passed": true,
+      "problem": "muse_decode_layer",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 10807.220577499256,
+      "status": "done",
+      "submitted_at": 1793623044.36046
+    }
+  ],
+  "at": "2026-11-02T20:59:22.491528+00:00",
+  "head": "55b7df0d57b4ea4e4fe8414fb9c485c6fd240a52",
+  "live_jobs": []
+}

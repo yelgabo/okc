@@ -1,0 +1,7 @@
+{
+  "native_core_compile_input_sha256": "7c9151276e18bb8b33b251579a3984df620f0d774f6d2892037bc460f7cb9488",
+  "final_OFF_source_sha256": "68bf4c1f336611bd7f8e0356fda07b131afa35a10579ad5fd50f941e7a7be6a6",
+  "device_extraction_identical": true,
+  "device_sha256": "746d7f0e48b8985ef854e920a0e176f9cad73e6583f693b451598fcf848875de",
+  "scope": "CPU source extraction only; no compiler or GPU executed"
+}

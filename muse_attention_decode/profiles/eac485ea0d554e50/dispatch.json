@@ -1,0 +1,9 @@
+{
+  "job_id": "eac485ea0d554e50",
+  "problem": "muse_attention_decode",
+  "source_commit": "eee3b5b",
+  "physical_sha256": "fdd91207817299a1db9d72aaca36bedf154681e5133fd27113760f4ecc327e45",
+  "normalized_lf_sha256": "4559fc2ff4541d2db6f0aa7e9b7da75fcccad225d06c551c04c58e20ec5120f5",
+  "qualification": "screen only: fresh data/cache shared among arms; scratch/modules independent",
+  "legacy_control_pre_rms": "FP32 unrounded; candidate BF16 RNE per official baseline"
+}

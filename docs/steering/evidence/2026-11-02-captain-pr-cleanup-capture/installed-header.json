@@ -1,0 +1,32 @@
+{
+  "header": "/root/.cache/okc-cuda130/nvidia/cu13/include/cuda.h",
+  "bytes": 1280649,
+  "sha256": "7a79d67ca888061b1dfbe4739b51ad64f85a2f3ad874947ce09b2c635b4c7072",
+  "signatures": {
+    "cuStreamGetCaptureInfo": [
+      "CUresult CUDAAPI cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus *captureStatus_out,\n        cuuint64_t *id_out, CUgraph *graph_out, const CUgraphNode **dependencies_out,\n        const CUgraphEdgeData **edgeData_out, size_t *numDependencies_out);",
+      "CUresult CUDAAPI cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus *captureStatus_out, cuuint64_t *id_out);"
+    ],
+    "cuUserObjectCreate": [
+      "CUresult CUDAAPI cuUserObjectCreate(CUuserObject *object_out, void *ptr, CUhostFn destroy,\n                                    unsigned int initialRefcount, unsigned int flags);"
+    ],
+    "cuGraphRetainUserObject": [
+      "CUresult CUDAAPI cuGraphRetainUserObject(CUgraph graph, CUuserObject object, unsigned int count, unsigned int flags);"
+    ],
+    "cuMemGetAllocationPropertiesFromHandle": [
+      "CUresult CUDAAPI cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp *prop, CUmemGenericAllocationHandle handle);"
+    ],
+    "cuStreamIsCapturing": [
+      "CUresult CUDAAPI cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus *captureStatus);",
+      "CUresult CUDAAPI cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus *captureStatus);"
+    ]
+  },
+  "compilers": {
+    "g++": null,
+    "clang++": null,
+    "c++": null,
+    "cc": null
+  },
+  "default_capture_api_macro": "#define cuStreamGetCaptureInfo              __CUDA_API_PTSZ(cuStreamGetCaptureInfo_v3)",
+  "scope": "Installed secondary CUDA13 header only, not target header/link/build proof. Compiler lookup is PATH-only."
+}

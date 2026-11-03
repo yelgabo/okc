@@ -1,0 +1,443 @@
+{
+  "job": "28248eb5e5854041",
+  "board": "muse_moe_w4a16",
+  "team": "yelgabo",
+  "mode": "check",
+  "status": "done",
+  "source_sha256": "5f10e2d73571d0cafa6d2fd4ab3dcf068f99979cf3d8c77470b63bab31fa0f58",
+  "server_content_id": "c33c8cf593da5d716c78da21c446a474088943e34a3085e35d49d5d2155b6e42",
+  "runtime_id": "8d4c2ee6eb23aef4150eff34af387a65a6e5f85850432c9cb78139d93dd3118e",
+  "outcome": "VALID_NEGATIVE_PARK_EXACT_T1_THREE_LAUNCH",
+  "official_status": "ok",
+  "passed": true,
+  "returncode": 0,
+  "official_tests": 5,
+  "official_benchmarks": 6,
+  "official_profiles": 6,
+  "official_speedup_vs_SGLang": 2.1658583028230054,
+  "official_CI": [
+    2.1333704282806605,
+    2.1983461773653503
+  ],
+  "official_score_us": 6209.316640184201,
+  "official_equal_six_recomputed": 2.1658583028230054,
+  "official_prepare_s": 218.246490452,
+  "capsule_prepare_s": 218.24583771800098,
+  "queue_s": 84.06288862228394,
+  "worker_s": 283.85226464271545,
+  "gpu": "H200",
+  "cluster": "sfo3",
+  "node": "n-434neka4hbrvz7ee7sd46ord7g",
+  "counters": {
+    "observations": 378,
+    "restorations": 54,
+    "captures": 216,
+    "timed_replays": 1152,
+    "worst": [
+      0.0001461466890759766,
+      0.00022294327209237963
+    ]
+  },
+  "cleanup_restored": true,
+  "owners_bytes": [
+    3764194080,
+    3764194080,
+    3765185312,
+    3765185312
+  ],
+  "component_pass": false,
+  "target_qualified": false,
+  "release_eligible": false,
+  "groups_passed": 0,
+  "groups_total": 6,
+  "whole_six_crosses_total": 24,
+  "whole_six_crosses_ge_1_01": 0,
+  "affected_regression_cells": 6,
+  "affected_cells": 6,
+  "groups": [
+    {
+      "bank": 1102031,
+      "dist": "normal",
+      "gains": [
+        0.9501289895403106,
+        0.9465570275921494,
+        0.949033633393162,
+        0.9448201371531331
+      ],
+      "duplicate_log_nulls": [
+        0.008504432424234671,
+        0.006603967974360085
+      ],
+      "passed": false
+    },
+    {
+      "bank": 1102031,
+      "dist": "skewed",
+      "gains": [
+        0.9483695792000332,
+        0.9449284799502617,
+        0.9471234277907219,
+        0.9437668752602374
+      ],
+      "duplicate_log_nulls": [
+        0.012901461240532085,
+        0.013711785560629595
+      ],
+      "passed": false
+    },
+    {
+      "bank": 1102037,
+      "dist": "normal",
+      "gains": [
+        0.9411735348725664,
+        0.9436344730983374,
+        0.942035530670587,
+        0.9427975239820463
+      ],
+      "duplicate_log_nulls": [
+        0.006877637369585736,
+        0.007550229777483007
+      ],
+      "passed": false
+    },
+    {
+      "bank": 1102037,
+      "dist": "skewed",
+      "gains": [
+        0.9459961002766671,
+        0.9465554281388202,
+        0.9399458208543211,
+        0.9386607930995042
+      ],
+      "duplicate_log_nulls": [
+        0.011306340241870076,
+        0.018322048707702848
+      ],
+      "passed": false
+    },
+    {
+      "bank": 1102049,
+      "dist": "normal",
+      "gains": [
+        0.9417084082939431,
+        0.942505073834025,
+        0.938171916993102,
+        0.9394221991376085
+      ],
+      "duplicate_log_nulls": [
+        0.010325923689660467,
+        0.007985919413921341
+      ],
+      "passed": false
+    },
+    {
+      "bank": 1102049,
+      "dist": "skewed",
+      "gains": [
+        0.934977508615263,
+        0.9325923896805447,
+        0.9318937404980414,
+        0.9287025811051068
+      ],
+      "duplicate_log_nulls": [
+        0.012727058155567699,
+        0.014234351616843466
+      ],
+      "passed": false
+    }
+  ],
+  "descriptive_loads": [
+    {
+      "tokens": 1,
+      "geometric_factor_24": 0.7079982329022487,
+      "minimum": 0.6703977220784253,
+      "maximum": 0.738630652839599,
+      "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+    },
+    {
+      "tokens": 8,
+      "geometric_factor_24": 0.9930466444507425,
+      "minimum": 0.9562256274610776,
+      "maximum": 1.0296406525909154,
+      "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+    },
+    {
+      "tokens": 16,
+      "geometric_factor_24": 1.0007787129169246,
+      "minimum": 0.9848815027552408,
+      "maximum": 1.0225578309697432,
+      "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+    },
+    {
+      "tokens": 32,
+      "geometric_factor_24": 0.9962191914328238,
+      "minimum": 0.9852901240424646,
+      "maximum": 1.00551014620129,
+      "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+    },
+    {
+      "tokens": 128,
+      "geometric_factor_24": 0.9963792064515411,
+      "minimum": 0.9742525860485513,
+      "maximum": 1.010199816064657,
+      "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+    },
+    {
+      "tokens": 256,
+      "geometric_factor_24": 0.9996637564113131,
+      "minimum": 0.985778370224701,
+      "maximum": 1.0100314758020414,
+      "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+    }
+  ],
+  "t1_rows": [
+    [
+      1102031,
+      1,
+      "normal",
+      [
+        31.439999118447304,
+        31.408000737428665,
+        42.81599819660187,
+        42.99200139939785
+      ],
+      [
+        2,
+        2,
+        1
+      ],
+      [
+        0.7356435443231839,
+        0.7296684579886435,
+        0.738630652839599,
+        0.7298116933305241
+      ],
+      [
+        0.021037381411962184,
+        0.010163637938150678
+      ]
+    ],
+    [
+      1102031,
+      1,
+      "skewed",
+      [
+        31.568000093102455,
+        31.455999240279198,
+        43.487999588251114,
+        43.35999861359596
+      ],
+      [
+        2,
+        2,
+        1
+      ],
+      [
+        0.731260925217643,
+        0.7253220845330313,
+        0.7265472066737323,
+        0.7286070023078675
+      ],
+      [
+        0.014532918737245742,
+        0.012977086807584864
+      ]
+    ],
+    [
+      1102037,
+      1,
+      "normal",
+      [
+        39.904000237584114,
+        39.88800011575222,
+        56.35199882090092,
+        56.304000318050385
+      ],
+      [
+        3,
+        3,
+        1
+      ],
+      [
+        0.706911452309142,
+        0.7106084878442432,
+        0.7090404534234032,
+        0.7103393708261563
+      ],
+      [
+        0.007782325206688977,
+        0.006663666230905822
+      ]
+    ],
+    [
+      1102037,
+      1,
+      "skewed",
+      [
+        31.344001181423664,
+        30.86400032043457,
+        44.79999840259552,
+        46.28800041973591
+      ],
+      [
+        2,
+        2,
+        1
+      ],
+      [
+        0.7014584910772319,
+        0.6872714098881881,
+        0.687367938233826,
+        0.6703977220784253
+      ],
+      [
+        0.02802379773500833,
+        0.024674083201263523
+      ]
+    ],
+    [
+      1102049,
+      1,
+      "normal",
+      [
+        31.2480004504323,
+        31.04000072926283,
+        44.75199989974499,
+        44.08000037074089
+      ],
+      [
+        2,
+        2,
+        1
+      ],
+      [
+        0.7043489574340532,
+        0.7002428320553661,
+        0.6972126405227425,
+        0.6935682146309635
+      ],
+      [
+        0.014957559248807702,
+        0.0134071778840628
+      ]
+    ],
+    [
+      1102049,
+      1,
+      "skewed",
+      [
+        39.56799954175949,
+        39.983998984098434,
+        56.991999968886375,
+        58.01600031554699
+      ],
+      [
+        3,
+        3,
+        1
+      ],
+      [
+        0.6924689043861926,
+        0.6849487171194609,
+        0.7037413080248075,
+        0.6922036022296715
+      ],
+      [
+        0.022475116703704917,
+        0.01291258893195354
+      ]
+    ]
+  ],
+  "official_benchmarks_detail": [
+    {
+      "index": 0,
+      "case": {
+        "bs": 1,
+        "load": "decode 1",
+        "seed": 8676545617486067114,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 41556.882841297826,
+      "median_raw_ns": 47727.99834609032,
+      "baseline_ns": 79360.00218614936,
+      "baseline_raw_ns": 83424.00193214417
+    },
+    {
+      "index": 1,
+      "case": {
+        "bs": 16,
+        "load": "decode 16",
+        "seed": 8676683392025192893,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 93821.7217145172,
+      "median_raw_ns": 98128.00213694572,
+      "baseline_ns": 187167.9970063269,
+      "baseline_raw_ns": 191359.9967956543
+    },
+    {
+      "index": 2,
+      "case": {
+        "bs": 32,
+        "load": "decode 32",
+        "seed": 8676821166564318673,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 125889.84432621734,
+      "median_raw_ns": 131168.00040006638,
+      "baseline_ns": 209455.999545753,
+      "baseline_raw_ns": 213711.99935674667
+    },
+    {
+      "index": 3,
+      "case": {
+        "bs": 8,
+        "load": "verify 1",
+        "seed": 8676958941103444454,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 65493.8828367222,
+      "median_raw_ns": 69263.9984190464,
+      "baseline_ns": 143616.00019037724,
+      "baseline_raw_ns": 147743.99995803833
+    },
+    {
+      "index": 4,
+      "case": {
+        "bs": 128,
+        "load": "verify 16",
+        "seed": 8677096715642570236,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 178113.63571589263,
+      "median_raw_ns": 181311.99479103088,
+      "baseline_ns": 461200.00071823597,
+      "baseline_raw_ns": 465424.0012168884
+    },
+    {
+      "index": 5,
+      "case": {
+        "bs": 256,
+        "load": "verify 32",
+        "seed": 8677234490181696019,
+        "sharding": "ep8",
+        "weight": 60
+      },
+      "median_ns": 213207.40138792834,
+      "median_raw_ns": 219359.99393463135,
+      "baseline_ns": 611503.9829164743,
+      "baseline_raw_ns": 615695.983171463
+    }
+  ],
+  "limitations": [
+    "Official score is not same-job candidate/control gain or layer evidence",
+    "No target assembly/resource or causal bottleneck attribution",
+    "No repeat/repair/tuning/T8/layer/public/default authority"
+  ],
+  "permission_remaining": "NONE under this exact allocation"
+}

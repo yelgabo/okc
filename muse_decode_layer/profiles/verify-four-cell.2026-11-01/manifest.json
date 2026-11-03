@@ -1,0 +1,39 @@
+{
+  "bytes": 968389,
+  "sha256": "2bad52ceca9ef72d73baa539dc9db0c776a51b6009a4e4a4f8a8d9b725761c0f",
+  "scope": "verify16/32 sliding/full; other four loads unmeasured",
+  "seeds": [
+    781051,
+    781061
+  ],
+  "arm_pins": {
+    "G": "df863d85463bf0e82e6d235da54cdc148b2ef2733916afe955997fc404a2e6fa",
+    "owned": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3",
+    "baseline": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4"
+  },
+  "slice_manifest": {
+    "scope": "verify16/32 sliding/full, page1, kv_scale1, capacity86008",
+    "arms": {
+      "G": {
+        "bytes": 406564,
+        "sha256": "df863d85463bf0e82e6d235da54cdc148b2ef2733916afe955997fc404a2e6fa"
+      },
+      "owned": {
+        "bytes": 511911,
+        "sha256": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3"
+      }
+    },
+    "native_literals_unchanged": true,
+    "H200_qualified": false
+  },
+  "leverage_baseline_job": "607eb52bdaf24160",
+  "leverage_baseline_sha256": "9ba1d7d77c00ae9a1bdba61c64ed93975566879f2767d473aa050c19fd6c573c",
+  "one_microsecond_sensitivity": {
+    "16:sliding": 1.000459834307217,
+    "16:full": 1.0001597745782431,
+    "32:sliding": 1.0003445756942384,
+    "32:full": 1.0001197581853527
+  },
+  "whole_six_load_score_claim": false,
+  "H200_qualified": false
+}

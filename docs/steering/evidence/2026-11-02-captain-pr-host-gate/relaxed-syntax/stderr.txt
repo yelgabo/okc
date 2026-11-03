@@ -1,0 +1,28 @@
+In file included from /root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/torch/csrc/Exceptions.h:13,
+                 from /root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/torch/csrc/api/include/torch/python.h:12,
+                 from /root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/torch/extension.h:10,
+                 from /mnt/c/Users/gretc/Documents/GitHub/okc/docs/steering/evidence/2026-11-02-worker-pr-graph-owner-relaxed/generated/host.cpp:2:
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/pybind11/pybind11.h: In instantiation of ‘class pybind11::class_<Allocation, std::shared_ptr<Allocation> >’:
+/mnt/c/Users/gretc/Documents/GitHub/okc/docs/steering/evidence/2026-11-02-worker-pr-graph-owner-relaxed/generated/host.cpp:210:75:   required from here
+  210 |   py::class_<Allocation, std::shared_ptr<Allocation>>(module, "Allocation")
+      |                                                                           ^
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/pybind11/pybind11.h:2042:7: warning: ‘pybind11::class_<Allocation, std::shared_ptr<Allocation> >’ declared with greater visibility than its base ‘pybind11::detail::generic_type’ [-Wattributes]
+ 2042 | class class_ : public detail::generic_type {
+      |       ^~~~~~
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/pybind11/pybind11.h: In instantiation of ‘pybind11::class_< <template-parameter-1-1>, <template-parameter-1-2> >::class_(pybind11::handle, const char*, const Extra& ...) [with Extra = {}; type_ = Allocation; options = {std::shared_ptr<Allocation>}]’:
+/mnt/c/Users/gretc/Documents/GitHub/okc/docs/steering/evidence/2026-11-02-worker-pr-graph-owner-relaxed/generated/host.cpp:210:75:   required from here
+  210 |   py::class_<Allocation, std::shared_ptr<Allocation>>(module, "Allocation")
+      |                                                                           ^
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/pybind11/pybind11.h:2140:28: warning: ‘pybind11::class_<Allocation, std::shared_ptr<Allocation> >::class_<>(pybind11::handle, const char*)::<lambda(pybind11::detail::internals&)>’ declared with greater visibility than the type of its field ‘pybind11::class_<Allocation, std::shared_ptr<Allocation> >::class_<>(pybind11::handle, const char*)::<lambda(pybind11::detail::internals&)>::<record capture>’ [-Wattributes]
+ 2140 |             with_internals([&](internals &internals) {
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2141 |                 auto &instances = record.module_local ? get_local_internals().registered_types_cpp
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2142 |                                                       : internals.registered_types_cpp;
+      |                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2143 |                 instances[std::type_index(typeid(type_alias))]
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2144 |                     = instances[std::type_index(typeid(type))];
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2145 |             });
+      |             ~               

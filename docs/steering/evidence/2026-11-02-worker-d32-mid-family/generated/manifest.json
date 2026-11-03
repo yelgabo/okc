@@ -1,0 +1,43 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "candidate_sha256": "e607fb894b7ca9fb8c0245d986e1c1894024295efd5b1509ac5b8314329ca089",
+  "candidate_bytes": 870649,
+  "mid_native_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "main_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "mid_defines": [
+    "-DOKC_NW=8",
+    "-DOKC_TINY=1",
+    "-DOKC_SPLIT=1",
+    "-DOKC_CPF=0",
+    "-DOKC_EPI4=0",
+    "-DOKC_FAST1=2",
+    "-DOKC_NACC=4",
+    "-DOKC_UWARP=0",
+    "-DOKC_WS=1",
+    "-DOKC_WSB=1",
+    "-DOKC_WSBL=2",
+    "-DOKC_WSBLK=2",
+    "-DOKC_FINPF=1",
+    "@moe_helper0df",
+    "-DOKC_PRMTSC=1",
+    "-DOKC_DQ7=1"
+  ],
+  "build_representatives": [
+    1,
+    8,
+    32,
+    128
+  ],
+  "prepared_keys": [
+    "tiny",
+    "tiny2",
+    "mid",
+    "main"
+  ],
+  "exact_reversal": true,
+  "shader_edits": false,
+  "packing_edits": false,
+  "scratch_edits": false,
+  "gpu": false,
+  "dispatch": false
+}

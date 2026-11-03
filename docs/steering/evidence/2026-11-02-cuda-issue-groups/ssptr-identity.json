@@ -1,0 +1,14 @@
+[
+  {
+    "key": "b4",
+    "whole_sass_text_identical": true,
+    "scale_sha256": "a331996a240736133d35d29c02cc74389a68399833dd54e6d0c6285598eddbaf",
+    "ssptr_sha256": "a331996a240736133d35d29c02cc74389a68399833dd54e6d0c6285598eddbaf"
+  },
+  {
+    "key": "main",
+    "whole_sass_text_identical": true,
+    "scale_sha256": "3819f6983dfd19c409d49f4855af03030c7df6e4fe178821816acb4970d2d3bb",
+    "ssptr_sha256": "3819f6983dfd19c409d49f4855af03030c7df6e4fe178821816acb4970d2d3bb"
+  }
+]

@@ -1,0 +1,8 @@
+test_boundary_protocol_and_stale_or_corrupt_traces (test_moe_phase.Phase.test_boundary_protocol_and_stale_or_corrupt_traces) ... ok
+test_exact_selected_delta_and_producer_leaders (test_moe_phase.Phase.test_exact_selected_delta_and_producer_leaders) ... ok
+test_intrusion_is_not_treated_as_a_gain (test_moe_phase.Phase.test_intrusion_is_not_treated_as_a_gain) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.002s
+
+OK

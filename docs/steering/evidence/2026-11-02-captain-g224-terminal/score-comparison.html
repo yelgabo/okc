@@ -1,0 +1,20 @@
+<section id="g224-score-comparison" aria-label="Descriptive official score comparison">
+  <style>
+    #g224-score-comparison { color:var(--foreground); font-family:var(--font-sans); }
+    #g224-score-comparison h3 { font-weight:500; margin:0 0 12px; }
+    #g224-score-comparison .score-row { display:grid; grid-template-columns:138px minmax(0,1fr) 62px; align-items:center; gap:10px; margin:12px 0; }
+    #g224-score-comparison .score-bar { height:18px; background:var(--chart-1); }
+    #g224-score-comparison .candidate { background:var(--chart-2); }
+    #g224-score-comparison .score-value { text-align:right; font-variant-numeric:tabular-nums; }
+    #g224-score-comparison .axis { display:flex; justify-content:space-between; margin-left:148px; margin-right:72px; color:var(--muted-foreground); }
+    #g224-score-comparison .note { margin-top:14px; color:var(--muted-foreground); }
+    @media(max-width:420px) { #g224-score-comparison .score-row { grid-template-columns:108px minmax(0,1fr) 57px; gap:7px; } #g224-score-comparison .axis { margin-left:115px; margin-right:64px; } }
+  </style>
+  <h3>Official speedup over SGLang · higher is better</h3>
+  <div role="img" aria-label="Historical incumbent 607 scored 2.1261 times; candidate e127 scored 1.9747 times. Different jobs and inputs; not a matched comparison.">
+    <div class="score-row"><span>Incumbent 607</span><div class="score-bar" style="width:85.0433%"></div><span class="score-value">2.1261×</span></div>
+    <div class="score-row"><span>G224 e127</span><div class="score-bar candidate" style="width:78.9866%"></div><span class="score-value">1.9747×</span></div>
+    <div class="axis"><span>0</span><span>2.5×</span></div>
+  </div>
+  <div class="note">Historical, unmatched runs; no causal treatment effect established.</div>
+</section>

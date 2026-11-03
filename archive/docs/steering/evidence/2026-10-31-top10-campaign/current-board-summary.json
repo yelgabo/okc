@@ -1,0 +1,116 @@
+[
+  {
+    "board": "muse_bf16_proj",
+    "source": "https://openkernelchallenge.dev/api/leaderboard/muse_bf16_proj",
+    "captured_at": "2026-10-31T22:27:50.1441554-07:00",
+    "rank": 292,
+    "own": {
+      "job": "9eba96894ee1402e",
+      "team": "yelgabo",
+      "speedup": 1.5278064829557674,
+      "submitted_at": 1793509752.4725015,
+      "attempts": 29,
+      "value": 3161.918773020326
+    },
+    "top10": {
+      "job": "051c31382b724ae1",
+      "team": "RunFMe",
+      "speedup": 1.6045170224103136,
+      "submitted_at": 1793471735.9558287,
+      "screening": "pending",
+      "attempts": 6,
+      "value": 3010.7502335769227
+    },
+    "ranked": 1574
+  },
+  {
+    "board": "muse_attention_decode",
+    "source": "https://openkernelchallenge.dev/api/leaderboard/muse_attention_decode",
+    "captured_at": "2026-10-31T22:27:50.4978600-07:00",
+    "rank": 296,
+    "own": {
+      "job": "68d3b88fbc8b40da",
+      "team": "yelgabo",
+      "speedup": 2.5365662181849675,
+      "submitted_at": 1793418810.4972346,
+      "attempts": 23,
+      "value": 1484.802554334641
+    },
+    "top10": {
+      "job": "5cb3655bf3c9499a",
+      "team": "jt914",
+      "speedup": 2.9097939500308327,
+      "submitted_at": 1793487806.752925,
+      "screening": "screened",
+      "attempts": 6,
+      "value": 1294.3528183361889
+    },
+    "ranked": 1218
+  },
+  {
+    "board": "muse_moe_w4a16",
+    "source": "https://openkernelchallenge.dev/api/leaderboard/muse_moe_w4a16",
+    "captured_at": "2026-10-31T22:27:50.7867358-07:00",
+    "rank": 371,
+    "own": {
+      "job": "abe7651dbaa44458",
+      "team": "yelgabo",
+      "speedup": 2.2157115620135492,
+      "submitted_at": 1793321438.0973241,
+      "attempts": 24,
+      "value": 6069.607719056422
+    },
+    "top10": {
+      "job": "a3fb6ef467264367",
+      "team": "Fangzhou66",
+      "speedup": 2.5930768053811843,
+      "submitted_at": 1793402028.1706145,
+      "screening": "screened",
+      "attempts": 1,
+      "value": 5186.309935784205
+    },
+    "ranked": 1274
+  },
+  {
+    "board": "muse_decode_layer",
+    "source": "https://openkernelchallenge.dev/api/leaderboard/muse_decode_layer",
+    "captured_at": "2026-10-31T22:27:51.4203391-07:00",
+    "rank": 374,
+    "own": {
+      "job": "7b84ed4346d5497b",
+      "team": "yelgabo",
+      "speedup": 2.01870501675614,
+      "submitted_at": 1793428000.6848545,
+      "attempts": 35,
+      "value": 11205.351852916378
+    },
+    "top10": {
+      "job": "1befe6f88de340c8",
+      "team": "colinlikescode",
+      "speedup": 2.379747075574642,
+      "submitted_at": 1792995670.2803388,
+      "screening": "screened",
+      "attempts": 26,
+      "value": 9505.337870638135
+    },
+    "ranked": 1144
+  },
+  {
+    "board": "muse_prefill_layer",
+    "source": "https://openkernelchallenge.dev/api/leaderboard/muse_prefill_layer",
+    "captured_at": "2026-10-31T22:27:51.8319929-07:00",
+    "rank": null,
+    "own": null,
+    "top10": {
+      "job": "bd9944aa2aa34d18",
+      "team": "colinlikescode",
+      "speedup": 2.0179605083225085,
+      "submitted_at": 1793027301.3747957,
+      "screening": "pending",
+      "screened_speedup": 1.8226187698165714,
+      "attempts": 23,
+      "value": 191977.93931162776
+    },
+    "ranked": 770
+  }
+]

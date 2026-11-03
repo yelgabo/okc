@@ -1,0 +1,36 @@
+{
+  "evidence_base": "df237d362f67ae544473f8e30d6f5ba8b65755bf",
+  "checker_command": [
+    "python3",
+    "tools/check_cuda_research.py"
+  ],
+  "checker_exit_code": 0,
+  "checker_output": "PASS: 33 source sections, 8 notes, 33 evidence pins; local links resolve",
+  "original_attachment_exact_match": true,
+  "recommendations": 36,
+  "cpu_tests": {
+    "command": "python3 -m unittest -v tools/test_cuda_research.py tools/test_moe_compile_wrappers.py",
+    "methods": 12,
+    "wrapper_scenarios": 23,
+    "log": "after.log",
+    "result": "OK"
+  },
+  "shell_syntax": {
+    "files": [
+      "tools/moe_compile_check.sh",
+      "tools/moe_compile_fused.sh",
+      "tools/moe_compile_w4.sh",
+      "tools/moe_compile_legacy.sh",
+      "tools/dl_moe_compile_check.sh"
+    ],
+    "all_exit_zero": true
+  },
+  "python_parse": true,
+  "authored_markdown_no_em_dash": true,
+  "tracked_runtime_files_changed": [],
+  "local_device_compile_manifest": "device-compile.json",
+  "h200_validation": false,
+  "performance_measurement": false,
+  "independent_semantic_review": false,
+  "independent_review_limit": "Current project instruction prohibits new agents."
+}

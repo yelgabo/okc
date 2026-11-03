@@ -1,0 +1,10 @@
+{
+  "job_id": "607eb52bdaf24160",
+  "problem": "muse_decode_layer",
+  "mode": "public scored run",
+  "source_commit": "0ce0b23f53422a1883825ed0771a54992fa87d1c",
+  "bytes": 869076,
+  "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "source": "muse_decode_layer/cand/g1b4_stage_release.py",
+  "pure_compute_sha256": "295ca590a9d07a2491d600e1c96ec5583d29ae3220f619bc9e99adf62ef48491"
+}

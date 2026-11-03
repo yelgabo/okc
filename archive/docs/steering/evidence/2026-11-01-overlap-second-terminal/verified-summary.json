@@ -1,0 +1,125 @@
+{
+  "at_utc": "2026-11-02T06:20:02.471996+00:00",
+  "evidence_commit": "dc52f8fe0e822dc95ab8a941a7c004bc02e20cff",
+  "terminal": {
+    "job_id": "6f83ee875dd847c1",
+    "status": "done",
+    "passed": false,
+    "returncode": 112,
+    "speedup": null,
+    "setup": {
+      "baseline_copies": 2,
+      "baseline_prepare_pad": 8444416,
+      "copies": null,
+      "error": "AssertionError: SRM_ROUTING_ARM_MISMATCH",
+      "event": "setup",
+      "first": "baseline",
+      "prepare_pad": null,
+      "prepare_s": null,
+      "status": "fail"
+    },
+    "finished_utc": "2026-11-02T06:14:16.954545+00:00",
+    "gpu": "H200",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "595.91.07",
+        "name": "NVIDIA H200",
+        "power.draw": 127.39,
+        "power.limit": 700,
+        "temperature.gpu": 34
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 345,
+        "driver_version": "595.91.07",
+        "name": "NVIDIA H200",
+        "power.draw": 87.16,
+        "power.limit": 700,
+        "temperature.gpu": 32
+      },
+      "node": "n-434neka4hbrvz7ee7sd46ord7g"
+    },
+    "graph_context_records": 44,
+    "last_graph_context": [
+      "10",
+      "0",
+      "8",
+      "0",
+      "993817"
+    ],
+    "trace_location": "_wl_prepare: outputs routing equality at generated line18393"
+  },
+  "layer_quota": {
+    "scored": {
+      "per_day": 5,
+      "used": 0,
+      "left": 5
+    },
+    "checks": {
+      "per_day": 10,
+      "used": 5,
+      "left": 5
+    }
+  },
+  "live_jobs": [],
+  "layer": {
+    "board": "muse_decode_layer",
+    "you": {
+      "rank": 342,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 341,
+      "to_first": 1.1685
+    },
+    "cutoffs": [
+      {
+        "attempts": 71,
+        "job": "13b1fc69e3ba4f3a",
+        "rank": 50,
+        "speedup": 2.3027,
+        "submitted_at": 1793561170.8712606,
+        "team": "asfires",
+        "value": 9823.365272907336
+      },
+      {
+        "attempts": 56,
+        "job": "681ad7c8ad304c4d",
+        "rank": 100,
+        "speedup": 2.2601,
+        "submitted_at": 1793550743.5474572,
+        "team": "halvenhq",
+        "value": 10008.450361442152
+      }
+    ]
+  },
+  "overall": {
+    "board": "overall",
+    "you": {
+      "rank": 342,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 341
+    },
+    "cutoffs": [
+      {
+        "rank": 50,
+        "solved": 4,
+        "team": "asfires"
+      },
+      {
+        "rank": 100,
+        "solved": 4,
+        "team": "halvenhq"
+      }
+    ]
+  },
+  "frozen_physical_source_verified": {
+    "bytes": 943363,
+    "sha256": "ad314060c98ccdde81a1a38b9f7454d7e4fdbb185d178094e3f197f9c8baa75b"
+  }
+}

@@ -1,0 +1,61 @@
+[sc6] scales ok -> wgs sc6 False
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-nxeogcby/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/worker.py", line 322, in _setup_op
+    state["prep"] = prepare(weights)
+                    ^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13564, in prepare
+    state=_g1a_prepare(weights)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13380, in prepare
+    st = _pin_parent_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13375, in prepare
+    return _gle_b1x_prior_prepare(weights)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13270, in prepare
+    return _gle_prior_prepare(weights)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 12753, in prepare
+    state = _router_fp32_native_parent_prepare(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 12664, in prepare
+    st = _router_fp32_parent_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 12540, in prepare
+    return _DE_PREPARE(weights)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 12305, in prepare
+    st=_sl_previous_prepare(weights)
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 11913, in prepare
+    ids=_after_attention(data,st,o_in,None,T)[2]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13370, in _after_attention
+    return _gle_b1x_prior_after(data, state, o_in, gate, T)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13265, in _after_attention
+    return _gle_prior_after(data, state, o_in, gate, T)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 12500, in _after_attention
+    return _sl_tile_after_attention(data,state,o_in,gate,T)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 12450, in _sl_tile_after_attention
+    P, S = _pool_router_fp32(h, hr, T, state, ppick)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13185, in _pool_router_fp32
+    return _gle_frt(h, hr, state), -1
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13174, in _gle_frt
+    ext = _gle_ext()
+          ^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13056, in _gle_ext
+    source = _gle_source()
+             ^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-nxeogcby/run/submission.py", line 13008, in _gle_source
+    assert s.count(old) == 1, old[:60]
+           ^^^^^^^^^^^^^^^^^
+AssertionError:   if constexpr (FUSE) {
+    // router piece:

@@ -1,0 +1,228 @@
+{
+  "exact_equal": true,
+  "factories": [
+    {
+      "name": "glue_moe_899615447b094660_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_e8c02faa679f456e_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_6527dbf87f36ac48_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_da205deb6a1c25e5_sm90a",
+      "cuda_sha256": "85f7cf53e563ca283aa50b8e201c1166c9f1a32607dbe086043ebb0d6e5db0b6",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_17b01b3c5b6911af_sm90a",
+      "cuda_sha256": "85f7cf53e563ca283aa50b8e201c1166c9f1a32607dbe086043ebb0d6e5db0b6",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_7e8bb26727fdbec3_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_227343a3f2e52b76_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    }
+  ]
+}

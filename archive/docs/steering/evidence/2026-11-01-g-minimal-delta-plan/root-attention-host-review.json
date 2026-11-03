@@ -1,0 +1,102 @@
+{
+  "scope": "Root independent source/host/real-header compile review only; no CUDA device, link, resource, capture, or performance qualification",
+  "runs": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools",
+        "-p",
+        "test_attention_g_cooperative_host.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_mock_fixture_emission (test_attention_g_cooperative_host.HostRepair.test_mock_fixture_emission) ... ok\ntest_selected_semantics (test_attention_g_cooperative_host.HostRepair.test_selected_semantics) ... ok\ntest_source (test_attention_g_cooperative_host.HostRepair.test_source) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.547s\n\nOK\n",
+      "seconds": 0.9500785370000031
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/test_attention_g_cooperative_host.py",
+        "--emit-mock",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/attn/mock.cpp"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.10852497399999805
+    },
+    {
+      "argv": [
+        "/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig",
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/attn/mock.cpp",
+        "-o",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/attn/mock"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 1.0892607010000006
+    },
+    {
+      "argv": [
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/attn/mock"
+      ],
+      "returncode": 0,
+      "stdout": "HOST_MOCK_PASS 2cooperative 2ordinary 13rejects\n",
+      "stderr": "",
+      "seconds": 0.008349881999997422
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/test_attention_g_cooperative_host.py",
+        "--emit-api",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/attn/api.cpp"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.10350405999999879
+    },
+    {
+      "argv": [
+        "/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig",
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "-I/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+        "-I/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+        "-c",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/attn/api.cpp",
+        "-o",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/attn/api.o"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.2763654590000044
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/attention_g_cooperative_host.py",
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/attn/on.py",
+        "--enable"
+      ],
+      "returncode": 0,
+      "stdout": "{\"base_sha256\": \"ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab\", \"enabled\": true, \"source_sha256\": \"dfac8955e5c45789b0cec40082498d75a133533253c84a5284db4c3dade80bbe\", \"bytes\": 870861, \"repair_sha256\": \"a8c2600f76977ecb42dfff360f281de5bb5c893275cc09dedb0eb44d51de76ca\", \"scope\": \"OFF source-only; no runtime qualification or speedup\", \"gpu_execution\": false}\n",
+      "stderr": "",
+      "seconds": 0.4114747540000039
+    }
+  ],
+  "passed": true
+}

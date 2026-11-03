@@ -1,0 +1,4 @@
+Root independent run
+Command: wsl -d Ubuntu --cd /mnt/c/Users/gretc/Documents/GitHub/okc -- /root/.cache/okc-host-validate/bin/python -m unittest discover -s tools -p test_d32_mid_family.py -v
+All6tests passed. Ran6tests in8.897s. OK. exit0.
+Host CPU mocks only; not GPU qualification. Full worker transcript remains worker-d32-mid-family/cpu-tests.txt.

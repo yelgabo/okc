@@ -1,0 +1,42 @@
+{
+  "worker_commit": "1907c4d97d8c4978598c9935f4bb1ff5d17d20c0",
+  "remote_paths_verified": 22,
+  "archive_entries_verified": 21,
+  "remote_mismatches": [],
+  "archive_failures": [],
+  "cpu": {
+    "command": "wsl /root/.cache/okc-host-validate/bin/python -m unittest discover -s tools -p test_g224_reference_readiness.py -v",
+    "tests": 10,
+    "passed": 10,
+    "seconds": 27.01,
+    "session": 92909,
+    "exit_code": 0,
+    "qualification": "captain rerun; summary, not a full stdout archive"
+  },
+  "regenerated_payload": {
+    "bytes": 999601,
+    "sha256": "3615f0603a41184efec6f31a2ae88b080f6c4e049f77db16787896d0df6b009d",
+    "canonical_git_bytes_equal": true,
+    "accepted_for_dispatch": false,
+    "reason": "Existing top provenance and full Apache/NOTICE/MIT comments were removed by pack()"
+  },
+  "notice_preserving_probe": {
+    "bytes": 999492,
+    "sha256": "0d84d0e34303f2a154a914ace131cbae661cc61def18f7bfcbc20ed3f218cf76",
+    "preserved_comment_tokens": 253,
+    "full_ast_equal_after_same_redundant_binding": true,
+    "string_tokens_exact": true,
+    "all_seven_actual_factory_calls": "worker must rerun on corrected pack; not yet claimed"
+  },
+  "finite_poll": {
+    "guard": "OKC_MFIN && (OKC_MFP & 4)",
+    "selected_WGS": 1,
+    "source_forces_MFIN": 0,
+    "finite_finalizer_loop_sites": 2,
+    "selected": false,
+    "proof_scope": "direct pinned-source/ordered-flag inspection, not a new preprocess or target run"
+  },
+  "native_sha256": "53d09576f86e93b9baaa0145dcbdf1b60d8736743677d0a4de60e89864d18492",
+  "GPU": false,
+  "CLI": false
+}

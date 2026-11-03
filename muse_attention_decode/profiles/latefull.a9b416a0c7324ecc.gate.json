@@ -1,0 +1,40 @@
+{
+  "job": "a9b416a0c7324ecc",
+  "official_control_passed": true,
+  "full_only_sensitivity_ratios": {
+    "ctrl": 1.0,
+    "ctrl2": 1.0001715339575268,
+    "late1": 1.0021881198377345,
+    "late2": 1.0027695456323462
+  },
+  "pooled_cross_ratio": 1.0023928220651235,
+  "null_ratios": {
+    "control": 1.0001715339575268,
+    "candidate": 1.0005801563430086
+  },
+  "per_input_candidate_minus_control_us": {
+    "0": {
+      "late1/ctrl": -0.32,
+      "late1/ctrl2": -0.29000000000000004,
+      "late2/ctrl": -0.42,
+      "late2/ctrl2": -0.39
+    },
+    "1": {
+      "late1/ctrl": -0.42,
+      "late1/ctrl2": -0.39,
+      "late2/ctrl": -0.48,
+      "late2/ctrl2": -0.44999999999999996
+    },
+    "2": {
+      "late1/ctrl": -0.42,
+      "late1/ctrl2": -0.39,
+      "late2/ctrl": -0.51,
+      "late2/ctrl2": -0.48
+    }
+  },
+  "all_crosses_faster": true,
+  "twice_null_gate": true,
+  "harness_all_19_passed": true,
+  "registered_gate": true,
+  "qualification": "rounded medians/borrowed official calibration; not candidate scores; verify owning source is value2 separately"
+}

@@ -1,0 +1,368 @@
+{
+  "decision": "STOP_PARK_EXACT_TREATMENT_NO_REPEAT_NO_PROMOTION",
+  "job_id": "dc62cff972934f54",
+  "status": "done",
+  "passed": true,
+  "official_speedup": 2.0732886764638923,
+  "official_ci": [
+    2.042189346316934,
+    2.1043880066108502
+  ],
+  "score_us": 10910.347534710007,
+  "weighted_46_16_sixload_recompute": 2.0732886764638923,
+  "public607_official_speedup": 2.1260826764231093,
+  "historical_official_score_ratio": 0.9751684162875374,
+  "historical_latency_ratio_geomean": 0.9896124221487853,
+  "historical_groups_latency_ratio": {
+    "affected": 0.9813764643092004,
+    "unchanged": 0.997917498215679
+  },
+  "historical_is_not_matched_control": true,
+  "event_counts": {
+    "setup": 1,
+    "test": 13,
+    "benchmark": 12,
+    "profile": 12
+  },
+  "startup_message": "G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays",
+  "setup": {
+    "baseline_copies": 2,
+    "baseline_prepare_pad": 15163392,
+    "copies": 1,
+    "error": null,
+    "event": "setup",
+    "first": "baseline",
+    "prepare_pad": 5124096,
+    "prepare_s": 112.53586404,
+    "status": "pass"
+  },
+  "timing_seconds": {
+    "queue": 615.643851518631,
+    "worker": 238.83695197105408,
+    "prepare_reported": 112.53586404,
+    "worker_minus_reported_prepare_not_pure_benchmark": 126.30108793105407
+  },
+  "timestamps_utc": {
+    "created_at": "2026-11-02T11:13:08.814247+00:00",
+    "started_at": "2026-11-02T11:23:24.458098+00:00",
+    "finished_at": "2026-11-02T11:27:23.295050+00:00"
+  },
+  "gpu": "H200",
+  "node": "n-nzf2vzn536ewibf7w3dgpswb6g",
+  "loads": [
+    {
+      "load": "d1",
+      "affected": false,
+      "ours_62layer_us": 4882.933994199376,
+      "baseline_62layer_us": 10709.66406352818,
+      "public607_62layer_us": 4870.0407787173845,
+      "official_ratio": 2.1932846268760953,
+      "historical607_over_current": 0.9973595351693658
+    },
+    {
+      "load": "d16",
+      "affected": false,
+      "ours_62layer_us": 9946.648365828427,
+      "baseline_62layer_us": 19415.871440432966,
+      "public607_62layer_us": 9810.942593545775,
+      "official_ratio": 1.9520013904518756,
+      "historical607_over_current": 0.9863566331801908
+    },
+    {
+      "load": "d32",
+      "affected": true,
+      "ours_62layer_us": 12326.438273832933,
+      "baseline_62layer_us": 22290.880129672587,
+      "public607_62layer_us": 11887.86361936185,
+      "official_ratio": 1.8083796498614346,
+      "historical607_over_current": 0.9644200015667049
+    },
+    {
+      "load": "v1",
+      "affected": false,
+      "ours_62layer_us": 7118.969279855016,
+      "baseline_62layer_us": 16229.472517967224,
+      "public607_62layer_us": 7191.431019777264,
+      "official_ratio": 2.2797503233920056,
+      "historical607_over_current": 1.010178684170937
+    },
+    {
+      "load": "v16",
+      "affected": true,
+      "ours_62layer_us": 17077.847132032886,
+      "baseline_62layer_us": 35100.28873104602,
+      "public607_62layer_us": 16699.51580494078,
+      "official_ratio": 2.0553110974514155,
+      "historical607_over_current": 0.9778466615746624
+    },
+    {
+      "load": "v32",
+      "affected": true,
+      "ours_62layer_us": 22226.730966382554,
+      "baseline_62layer_us": 48663.64839952439,
+      "public607_62layer_us": 22276.427397544976,
+      "official_ratio": 2.1894199589281524,
+      "historical607_over_current": 1.002235885755651
+    }
+  ],
+  "all12_contexts": [
+    {
+      "load": "decode 1",
+      "layer": "sliding",
+      "affected": false,
+      "weight": 46,
+      "ours_us": 76.99733823197174,
+      "baseline_us": 169.9040001258254,
+      "raw_us": 80.12799918651581,
+      "public607_ours_us": 76.74810129226927,
+      "historical607_over_current": 0.9967630447308244,
+      "seed": 7850686937777230355
+    },
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "affected": false,
+      "weight": 16,
+      "ours_us": 83.81602722054221,
+      "baseline_us": 180.88000360876322,
+      "raw_us": 85.93599870800972,
+      "public607_ours_us": 83.72675745456237,
+      "historical607_over_current": 0.998934932029826,
+      "seed": 7850808885297209997
+    },
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "affected": false,
+      "weight": 46,
+      "ours_us": 140.83342341662362,
+      "baseline_us": 269.2799908109009,
+      "raw_us": 145.39200067520142,
+      "public607_ours_us": 138.66071382597238,
+      "historical607_over_current": 0.9845724861475265,
+      "seed": 7850930832817189640
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "affected": false,
+      "weight": 16,
+      "ours_us": 216.7694305414838,
+      "baseline_us": 439.3119914457202,
+      "raw_us": 221.82400524616241,
+      "public607_ours_us": 214.53435984694036,
+      "historical607_over_current": 0.9896891794707385,
+      "seed": 7851052780337169284
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "affected": true,
+      "weight": 46,
+      "ours_us": 159.5651021687146,
+      "baseline_us": 268.5760031454265,
+      "raw_us": 165.18400609493256,
+      "public607_ours_us": 154.82044500163073,
+      "historical607_over_current": 0.9702650698517578,
+      "seed": 7851174727857148929
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "affected": true,
+      "weight": 16,
+      "ours_us": 311.65272337950387,
+      "baseline_us": 621.0239990614355,
+      "raw_us": 313.82399797439575,
+      "public607_ours_us": 297.8826968304272,
+      "historical607_over_current": 0.9558161199435158,
+      "seed": 7851296675377128575
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "affected": false,
+      "weight": 46,
+      "ours_us": 112.81137373515598,
+      "baseline_us": 258.89600813388824,
+      "raw_us": 115.90399965643883,
+      "public607_ours_us": 115.43186043519749,
+      "historical607_over_current": 1.023228922876106,
+      "seed": 7851418622897108222
+    },
+    {
+      "load": "verify 1",
+      "layer": "full",
+      "affected": false,
+      "weight": 16,
+      "ours_us": 120.60288050236505,
+      "baseline_us": 270.0160089880228,
+      "raw_us": 123.3920007944107,
+      "public607_ours_us": 117.59783998488622,
+      "historical607_over_current": 0.9750831779061869,
+      "seed": 7851540570417087870
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "affected": true,
+      "weight": 46,
+      "ours_us": 253.54513532005416,
+      "baseline_us": 521.0240161977708,
+      "raw_us": 256.0800015926361,
+      "public607_ours_us": 247.13099535493978,
+      "historical607_over_current": 0.9747021769634124,
+      "seed": 7851662517937067519
+    },
+    {
+      "load": "verify 16",
+      "layer": "full",
+      "affected": true,
+      "weight": 16,
+      "ours_us": 338.4231817068996,
+      "baseline_us": 695.8239991217852,
+      "raw_us": 342.288002371788,
+      "public607_ours_us": 333.21812616334677,
+      "historical607_over_current": 0.9846196838015051,
+      "seed": 7851784465457047169
+    },
+    {
+      "load": "verify 32",
+      "layer": "sliding",
+      "affected": true,
+      "weight": 46,
+      "ours_us": 315.49502795342784,
+      "baseline_us": 690.5119963921607,
+      "raw_us": 320.016011595726,
+      "public607_ours_us": 316.3895368878032,
+      "historical607_over_current": 1.0028352552500683,
+      "seed": 7851906412977026820
+    },
+    {
+      "load": "verify 32",
+      "layer": "full",
+      "affected": true,
+      "weight": 16,
+      "ours_us": 482.12248003280473,
+      "baseline_us": 1056.2560353428125,
+      "raw_us": 485.77599227428436,
+      "public607_ours_us": 482.6567937941269,
+      "historical607_over_current": 1.001108253158587,
+      "seed": 7852028360497006472
+    }
+  ],
+  "producer_profile_rows": [
+    {
+      "load": "decode 1",
+      "layer": "sliding",
+      "producer_rows": [],
+      "expert_rows": [
+        "void okc::moe_fused<false>(okc::Params)                           22.6 \u00b5s  30.5%      1"
+      ]
+    },
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "producer_rows": [],
+      "expert_rows": [
+        "void okc::moe_fused<false>(okc::Params)                           22.1 \u00b5s  27.8%      1"
+      ]
+    },
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "producer_rows": [],
+      "expert_rows": [
+        "void okc::moe_fused<false>(okc::Params)                           81.6 \u00b5s  55.7%      1"
+      ]
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "producer_rows": [],
+      "expert_rows": [
+        "void okc::moe_fused<false>(okc::Params)                           66.2 \u00b5s  30.6%      1"
+      ]
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "producer_rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 \u00b5s   0.6%      1"
+      ],
+      "expert_rows": [
+        "void okc::moe_fused<false>(okc::Params)                           98.6 \u00b5s  57.3%      1"
+      ]
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "producer_rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 \u00b5s   0.3%      1"
+      ],
+      "expert_rows": [
+        "void okc::moe_fused<false>(okc::Params)                          105.9 \u00b5s  31.1%      1"
+      ]
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "producer_rows": [],
+      "expert_rows": [
+        "void okc::moe_fused<false>(okc::Params)                           65.3 \u00b5s  55.4%      1"
+      ]
+    },
+    {
+      "load": "verify 1",
+      "layer": "full",
+      "producer_rows": [],
+      "expert_rows": [
+        "void okc::moe_fused<false>(okc::Params)                           59.0 \u00b5s  49.3%      1"
+      ]
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "producer_rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 \u00b5s   0.4%      1"
+      ],
+      "expert_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           177.1 \u00b5s  64.8%      1"
+      ]
+    },
+    {
+      "load": "verify 16",
+      "layer": "full",
+      "producer_rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 \u00b5s   0.3%      1"
+      ],
+      "expert_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           140.4 \u00b5s  42.9%      1"
+      ]
+    },
+    {
+      "load": "verify 32",
+      "layer": "sliding",
+      "producer_rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 \u00b5s   0.3%      1"
+      ],
+      "expert_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           220.3 \u00b5s  64.4%      1"
+      ]
+    },
+    {
+      "load": "verify 32",
+      "layer": "full",
+      "producer_rows": [
+        "okc::timed_silu_table_build(float*)                                1.2 \u00b5s   0.2%      1"
+      ],
+      "expert_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           209.1 \u00b5s  41.6%      1"
+      ]
+    }
+  ],
+  "target_attributes": "NOT EMITTED",
+  "domain65536_cuda_numeric_equality": "NOT RUN",
+  "same_input_incumbent_AB": "NOT RUN",
+  "no_automatic_followon": true
+}

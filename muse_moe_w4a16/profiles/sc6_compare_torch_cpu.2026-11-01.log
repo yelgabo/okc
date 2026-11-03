@@ -1,0 +1,13 @@
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/_subclasses/functional_tensor.py:283: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_actual_encoder_instruction_decoder (test_moe_sc6_cpu.Sc6CpuTests.test_actual_encoder_instruction_decoder) ... ok
+test_actual_host_harness_all_cases_and_fresh_negative (test_moe_sc6_cpu.Sc6CpuTests.test_actual_host_harness_all_cases_and_fresh_negative) ... ok
+test_actual_wgs_copy_keeps_codes (test_moe_sc6_cpu.Sc6CpuTests.test_actual_wgs_copy_keeps_codes) ... ok
+test_guard_rejects_outside_lossless_domain (test_moe_sc6_cpu.Sc6CpuTests.test_guard_rejects_outside_lossless_domain) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.408s
+
+OK
+SC6CPU instruction-equivalent decode exact 4608 thread-tuples
+SC6CPU actual whole host harness12cases/4arms and fresh-stale negative PASS

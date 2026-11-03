@@ -1,0 +1,65 @@
+{
+  "first500_mismatches": 95,
+  "first_mismatches": [
+    {
+      "rank": 121,
+      "overall": "FreshlyCooked",
+      "layer": "vidhunv1"
+    },
+    {
+      "rank": 122,
+      "overall": "vidhunv1",
+      "layer": "ysawa0"
+    },
+    {
+      "rank": 123,
+      "overall": "ysawa0",
+      "layer": "atabak-eghbal"
+    },
+    {
+      "rank": 124,
+      "overall": "atabak-eghbal",
+      "layer": "puncsky"
+    },
+    {
+      "rank": 125,
+      "overall": "puncsky",
+      "layer": "CerebralCoding"
+    },
+    {
+      "rank": 126,
+      "overall": "CerebralCoding",
+      "layer": "newjordan"
+    },
+    {
+      "rank": 127,
+      "overall": "newjordan",
+      "layer": "SilentKnight87"
+    },
+    {
+      "rank": 128,
+      "overall": "SilentKnight87",
+      "layer": "harshvardhanchand"
+    },
+    {
+      "rank": 129,
+      "overall": "harshvardhanchand",
+      "layer": "andreilungeanu"
+    },
+    {
+      "rank": 130,
+      "overall": "andreilungeanu",
+      "layer": "inductor69"
+    },
+    {
+      "rank": 131,
+      "overall": "inductor69",
+      "layer": "michaelbzhu"
+    },
+    {
+      "rank": 132,
+      "overall": "michaelbzhu",
+      "layer": "dylantirandaz"
+    }
+  ]
+}

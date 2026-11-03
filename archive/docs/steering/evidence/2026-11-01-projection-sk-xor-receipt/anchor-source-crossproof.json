@@ -1,0 +1,186 @@
+{
+  "augmented_sha256": "d23aa17be4cf9e7c5869803b3b4603d8e72395953687adc0287fb1c75738d586",
+  "anchors": {
+    "qkv8F": {
+      "cid": 0,
+      "full": 1,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    },
+    "qkv16F": {
+      "cid": 3,
+      "full": 4,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    },
+    "qkv32": {
+      "cid": 6,
+      "full": null,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    },
+    "o16F": {
+      "cid": 11,
+      "full": 12,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    },
+    "o32F": {
+      "cid": 14,
+      "full": 15,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    },
+    "pool16F": {
+      "cid": 20,
+      "full": 21,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    },
+    "pool32F": {
+      "cid": 23,
+      "full": 24,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    },
+    "slice8F": {
+      "cid": 26,
+      "full": 27,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    },
+    "unp16F": {
+      "cid": 29,
+      "full": 30,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    },
+    "unp32F": {
+      "cid": 32,
+      "full": 33,
+      "vars": [
+        "base4",
+        "cid",
+        "diag",
+        "ext",
+        "full",
+        "k",
+        "n",
+        "out_dtype",
+        "pmax",
+        "stream",
+        "tab",
+        "tokr"
+      ]
+    }
+  },
+  "gpu_execution": false
+}

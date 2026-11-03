@@ -1,0 +1,51 @@
+{
+  "at": "2026-11-02T02:21:21.085Z",
+  "commit": "d5f29167b34f78db864d22550b23f4a0516f6a21",
+  "remote": "d5f29167b34f78db864d22550b23f4a0516f6a21\trefs/heads/main",
+  "files": [
+    {
+      "path": "tools/g_common_rmw_pair_body.py",
+      "blob": "b47261809adb4fe1e6bf0312269f220dc5fcf785"
+    },
+    {
+      "path": "tools/g_common_rmw_pair_manifest.json",
+      "blob": "3e24a7cc113985fbfa2b5047ce10cfa796e032c0"
+    },
+    {
+      "path": "tools/test_g_common_rmw_pair.py",
+      "blob": "55b27abe0ad1812899f7675683416df74dd72c7b"
+    },
+    {
+      "path": "docs/steering/2026-11-01-rmw-legal-fixture-registration.md",
+      "blob": "e04281b5741366e57aec4220907f20d4fa49d077"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/cpu-tests.json",
+      "blob": "fec054dbf52a18e1e7b939fc49fb44d2722c6b1a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/source-gates.json",
+      "blob": "b2a0982025e19951d35db3fbe965a9b5451a4134"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/source-delta.patch",
+      "blob": "6425bf1fbffdad98652f289c1a4657a26dc9d7a8"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/factory-invariance.json",
+      "blob": "0eb591f0279c867047f1deeb12fd4352e00c5e1a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/file-pins.json",
+      "blob": "0a3c758ed05a8ff8c5b2a549c60b3ab9de754f54"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/v3-frozen-reader/g_common_rmw_pair_read.py",
+      "blob": "761f636e1f66102944892d78f8b1cbad87651b0a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/v3-frozen-reader/g_common_rmw_pair_manifest.json",
+      "blob": "86b13d90d52f120fecada882c09e93852da0987f"
+    }
+  ]
+}

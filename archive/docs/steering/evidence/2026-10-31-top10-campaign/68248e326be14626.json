@@ -1,0 +1,12 @@
+{
+  "board": "muse_bf16_proj",
+  "content_hash": "ec718a422a7bedfa290dee31e3ae85c7a3a1210d07fc92b8aef527e851c1a7d1",
+  "created_at": 1793509723.8689563,
+  "duplicate_of": "e745eb8ca902471e",
+  "id": "68248e326be14626",
+  "mode": "run",
+  "payload_ref": "muse_bf16_proj/ec718a422a7bedfa290dee31e3ae85c7a3a1210d07fc92b8aef527e851c1a7d1.py",
+  "result": null,
+  "status": "duplicate",
+  "team": "yelgabo"
+}

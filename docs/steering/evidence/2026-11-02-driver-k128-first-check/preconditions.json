@@ -1,0 +1,23 @@
+{
+  "at": "2026-11-02T21:14:08.128484+00:00",
+  "team": "yelgabo",
+  "mode": "check",
+  "problem": "muse_decode_layer",
+  "owner": "OK Driver captain",
+  "allocation": "88fffb5f",
+  "implementation_commit": "15688256020e80c2c2f72f97e76cbd13b034ac0a",
+  "source_sha256": "440f41b118eeb3676867e15d109c2d5f7da0213873f84a17c9d68d1af868703f",
+  "source_bytes": 885489,
+  "native_sha256": "6366934e170d7abf386869b4c22874f373d8b1d812ccff3400f7753a665c6a4a",
+  "source_git_remote_verified": true,
+  "private_left_before": 10,
+  "live_layer_before": [],
+  "scope": "first ordinary private full-layer qualification/measurement; no public action",
+  "hypothesis": "two independent producer/dequant/compute fronts with K128 and64tokenreuse improve dominant B4/MAIN complete-layer endpoints; added traffic/barriers/spills included",
+  "official_expected_counts": {
+    "test": 13,
+    "benchmark": 12,
+    "profile": 12
+  },
+  "stop": "invalid admission/numerics/setup => exact blocker, no blind retry; valid gross regression parks; promising result can earn one matched confirmation"
+}

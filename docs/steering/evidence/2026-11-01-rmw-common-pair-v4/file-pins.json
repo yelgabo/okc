@@ -1,0 +1,26 @@
+{
+  ".build/rmw-pair-v4/check.py": {
+    "bytes": 924005,
+    "sha256": "785a90ca08ddde0c3b194fc219a0645cb8cd14bac02620d8714f0b66163a0b66"
+  },
+  "tools/g_common_rmw_pair_body.py": {
+    "bytes": 6236,
+    "sha256": "8cd5a63ea56fd9954f3554996ce054163a79bfe92a928bde2987a861ef4b0620"
+  },
+  "tools/g_common_rmw_pair.py": {
+    "bytes": 7051,
+    "sha256": "0c87802705726532cd4f56e703bac53e50161caa5092ccd6a048ba405731a7c7"
+  },
+  "tools/g_common_rmw_pair_manifest.json": {
+    "bytes": 4821,
+    "sha256": "c5f0e3975e30f4c012be8320615c7a19bbf9a7b7a63381906c10f3a3b3d4c574"
+  },
+  "tools/g_common_rmw_pair_read.py": {
+    "bytes": 10920,
+    "sha256": "745d7bb508d170dbc6bcd4b86e0f8a0b39c9a9ba08885aec54a45a33e68f004d"
+  },
+  "tools/test_g_common_rmw_pair.py": {
+    "bytes": 13652,
+    "sha256": "9e10e134462f443b81f490457d749d8eaaa0b204616e587799a12396d7be3b75"
+  }
+}

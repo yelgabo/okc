@@ -1,0 +1,18 @@
+{
+  "authorization_commit": "c66f5ce677bf22dd7aa132230eeb56c4821b5af0",
+  "captain_source": "docs/steering/evidence/2026-11-02-captain-t1-review/target-proposal.py",
+  "source_sha256": "5f10e2d73571d0cafa6d2fd4ab3dcf068f99979cf3d8c77470b63bab31fa0f58",
+  "source_bytes": 370480,
+  "reader_canonical_lf_sha256": "b1422b5cb05505b094c309c6fb4c11e5d9f7103de3a1e735bf9b632d3cca0ffa",
+  "runtime_id": "8d4c2ee6eb23aef4150eff34af387a65a6e5f85850432c9cb78139d93dd3118e",
+  "native_sha256": "dbdd3381cc9b823afb9e7d8678bba536cd5d6e3731896153aee9908652237447",
+  "exact_source": true,
+  "exact_manifest": true,
+  "deterministic_rebuild": true,
+  "mode": "check",
+  "board": "muse_moe_w4a16",
+  "dispatch_authorizations": 1,
+  "hold": false,
+  "dispatch_ready": false,
+  "gpu_qualified": false
+}

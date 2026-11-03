@@ -1,0 +1,8 @@
+test_actual_bind_private_owners_rebind_and_module_negative (test_wgs_k128_pair_package.Pair.test_actual_bind_private_owners_rebind_and_module_negative) ... ok
+test_actual_source_factory_arms_and_weight_negatives (test_wgs_k128_pair_package.Pair.test_actual_source_factory_arms_and_weight_negatives) ... ok
+test_lexically_closed_original_packers (test_wgs_k128_pair_package.Pair.test_lexically_closed_original_packers) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.805s
+
+OK

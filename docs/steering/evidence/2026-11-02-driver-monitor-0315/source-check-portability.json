@@ -1,0 +1,13 @@
+{
+  "initial_check": "Raw text SASS manifest hash failed under Windows CRLF checkout; Git archive also returned CRLF here",
+  "resolution": "Exact git show blob bytes exported to ignored .build; tracked artifacts and manifest unchanged",
+  "physical_SASS_bytes": 920814,
+  "physical_SASS_sha256": "5eac07ec0ba9d587282ccdf7317caf6df5d5f630815f102b269242d9da7b8eab",
+  "canonical_SASS_bytes": 913671,
+  "canonical_SASS_sha256": "8960896fb322869c036030d4a9a0f6a8dab6633f34a53d0654fd41cb6184999d",
+  "canonical_commit": "1e068258",
+  "exported_files": 15,
+  "method": "git show COMMIT:path, binary capture/write",
+  "no_kernel_change": true,
+  "no_gpu": true
+}

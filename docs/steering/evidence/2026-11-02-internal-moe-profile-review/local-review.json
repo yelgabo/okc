@@ -1,0 +1,155 @@
+{
+  "platform": "macOS-26.7.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "tool_paths": {
+    "nvidia-smi": null,
+    "nvcc": null,
+    "ncu": null,
+    "nsys": null,
+    "docker": "/opt/homebrew/bin/docker",
+    "okc": "/Users/gretchengabo/.okc/bin/okc"
+  },
+  "files": {
+    "tools/moe_phase.py": "38703c49a232e78e5541d0808a256bce406d62c1def67f6d8811a10636e9e6f5",
+    "tools/moe_phase_analysis.py": "5c2e881954ebba2ae1b15bc3b478b5fc80a0ed66a1781a25ef217a06ddb9b0bb",
+    "tools/moe_phase_harness.py": "9ab42de4027c10257fb96eb249ed34e570616df99c324ef8a2cb33ed4c0b851d",
+    "tools/moe_phase_read.py": "4d35e7c860e604fd8a29bea84f50308e5d071c8ca2b30351ea2fa4a8f34a2fae",
+    "tools/test_moe_phase.py": "dc609044309b8edf63ca4ec2d6cf879bb8345489829b49fd74938f918fe3d2cb",
+    "tools/test_moe_phase_host.py": "f6ac2af2e0f5095511c08545be5a42f2b4999927a12d04e8be5572dfd240adae"
+  },
+  "resources": {
+    "b4-candidate.log": {
+      "registers": [
+        "96",
+        "96"
+      ],
+      "barriers": [
+        "16",
+        "16"
+      ],
+      "spill_records": [
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "sha256": "13e140e476a82c86f548d727f2b665b4131a1c0f15655eb6a6ff8ac221259ea1"
+    },
+    "b4-control.log": {
+      "registers": [
+        "96",
+        "96"
+      ],
+      "barriers": [
+        "16",
+        "16"
+      ],
+      "spill_records": [
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "sha256": "37047c58a780f3486a63e6297c921bfd91f27a632dbba9f689b98cdb57f6b813"
+    },
+    "main-candidate.log": {
+      "registers": [
+        "96",
+        "96"
+      ],
+      "barriers": [
+        "16",
+        "16"
+      ],
+      "spill_records": [
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "sha256": "5af25e3140e57415c0199aabbce921d451e2876c81655a6519b284f1598dc58e"
+    },
+    "main-control.log": {
+      "registers": [
+        "96",
+        "96"
+      ],
+      "barriers": [
+        "16",
+        "16"
+      ],
+      "spill_records": [
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "sha256": "658157cdfb55748907feeb877f8cf59590d93e0898f5cadafeb1eb6c8c3b26d7"
+    }
+  },
+  "scope": "Read-only check of another owner uncommitted source. No GPU run dispatched by this chat."
+}

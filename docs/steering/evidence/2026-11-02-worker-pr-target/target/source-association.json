@@ -1,0 +1,14 @@
+{
+  "job_id": "60b38a62a135442c",
+  "physical_sha256": "0f90a2a806dd5cb3247f1843f936621dfef7de4f9f2e104bd7898caee72e93fb",
+  "physical_bytes": 882844,
+  "allocation": "218a048edded8e27272e74f5cf84d14c28a8e9e5",
+  "preregistration": "01b8e231ab92cd80bce3ed23eb73a3cf4183040f",
+  "server_content_hash": "805748b6cf1180f8e5ab784c42c26debc45137dd18db53b50c5562d8a312690d",
+  "payload_ref": "muse_decode_layer/805748b6cf1180f8e5ab784c42c26debc45137dd18db53b50c5562d8a312690d.py",
+  "board": "muse_decode_layer",
+  "mode": "check",
+  "team": "yelgabo",
+  "server_hash_is_not_physical_sha256": true,
+  "independent_server_payload_download": false
+}

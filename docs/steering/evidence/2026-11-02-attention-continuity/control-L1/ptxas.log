@@ -1,0 +1,8 @@
+ptxas info    : 146 bytes gmem
+ptxas info    : Compiling entry function '_ZN45_GLOBAL__N__00000000_12_attention_cu_a802839411attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN45_GLOBAL__N__00000000_12_attention_cu_a802839411attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 3 barriers
+ptxas info    : Compile time = 151.834 ms
+ptxas info    : Function properties for _ZN43_INTERNAL_00000000_12_attention_cu_a802839445_GLOBAL__N__00000000_12_attention_cu_a80283949spin_failEv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

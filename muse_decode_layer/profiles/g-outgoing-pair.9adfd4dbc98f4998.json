@@ -1,0 +1,88 @@
+{
+  "board": "muse_decode_layer",
+  "call_id": "kc-9adfd4dbc98f4998",
+  "cluster": "sfo3",
+  "content_hash": "0af65ed333351fae1b386cac469aee043b3ac24b040cf6713c65fa9b76147ea2",
+  "created_at": 1793595071.6565077,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793596318.7032597,
+  "id": "9adfd4dbc98f4998",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/outgoing-pair/profiles/check.9adfd4dbc98f4998.log"
+  },
+  "payload_ref": "muse_decode_layer/0af65ed333351fae1b386cac469aee043b3ac24b040cf6713c65fa9b76147ea2.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "1ba270d841be831b06a5862f4094cd0d5072edfbd0f6e84b95f79248296367dd",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "60e242544d5f5a5fc143870461f7373b85accb677a536cb337581ded938c4a48",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:8c102d00529abd8b80898116ac64a9c8f66bbd256d56142be4b96fb626e89452"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True\nFORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off\nG1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]\nG_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays\nWL_PREP all mutable_bytes 334995616 arm_owned [334995616, 334995616, 334995616, 334995616] free 134490292224 outgoing_only_four_placements resources {'tiny': [[145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288]], 'tiny2': [[145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288]], 'mid': [[152, 0, 0, 214784, 1, 288, 152, 0, 0, 214784, 1, 288], [152, 0, 0, 214784, 1, 288, 152, 0, 0, 214784, 1, 288], [152, 0, 0, 214784, 1, 288, 152, 0, 0, 214784, 1, 288], [152, 0, 0, 214784, 1, 288, 152, 0, 0, 214784, 1, 288]], 'b4': [[96, 8, 0, 231168, 1, 576, 96, 8, 0, 231168, 1, 576], [96, 8, 0, 231168, 1, 576, 96, 8, 0, 231168, 1, 576], [96, 8, 0, 231168, 1, 576, 96, 8, 0, 231168, 1, 576], [96, 8, 0, 231168, 1, 576, 96, 8, 0, 231168, 1, 576]], 'main': [[96, 0, 0, 231168, 1, 576, 96, 0, 0, 231168, 1, 576], [96, 0, 0, 231168, 1, 576, 96, 0, 0, 231168, 1, 576], [96, 0, 0, 231168, 1, 576, 96, 0, 0, 231168, 1, 576], [96, 0, 0, 231168, 1, 576, 96, 0, 0, 231168, 1, 576]]}\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-giga1ays/run/worker.py\", line 423, in child_main\n    send(_setup_op(msg, module, state, sync, perf))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-giga1ays/run/worker.py\", line 322, in _setup_op\n    state[\"prep\"] = prepare(weights)\n                    ^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-giga1ays/run/submission.py\", line 18307, in prepare\n    return _srp_prepare(weights)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-giga1ays/run/submission.py\", line 17952, in _srp_prepare\n    result,report=_wl_prepare(weights,production)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-giga1ays/run/submission.py\", line 18257, in _wl_prepare\n    arms[i]['_os_bank']=seed;captures[i]=_wl_capture(data[i],arms[i])\n                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-giga1ays/run/submission.py\", line 18148, in _wl_capture\n    _os_graph(graph,data,state)\n  File \"/tmp/muse_decode_layer-giga1ays/run/submission.py\", line 18403, in _os_graph\n    raw=list(query.seam_graph_edges(graph.raw_cuda_graph()))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntorch.AcceleratorError: CUDA error: invalid device function\nSearch for `cudaErrorInvalidDeviceFunction' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "595.91.07",
+        "name": "NVIDIA H200",
+        "power.draw": 128.71,
+        "power.limit": 700,
+        "temperature.gpu": 37
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 345,
+        "driver_version": "595.91.07",
+        "name": "NVIDIA H200",
+        "power.draw": 88.36,
+        "power.limit": 700,
+        "temperature.gpu": 36
+      },
+      "node": "n-2bbs7xxbcpmk3emdvrn5jsqeic"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 2,
+        "baseline_prepare_pad": 27450368,
+        "copies": null,
+        "error": "AcceleratorError: CUDA error: invalid device function\nSearch for `cudaErrorInvalidDeviceFunction' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n",
+        "event": "setup",
+        "first": "submission",
+        "prepare_pad": null,
+        "prepare_s": null,
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793596121.8500748,
+  "status": "done",
+  "team": "yelgabo"
+}

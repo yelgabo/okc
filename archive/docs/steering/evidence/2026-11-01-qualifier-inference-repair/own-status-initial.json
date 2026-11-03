@@ -1,0 +1,16 @@
+{
+  "observed_at": "2026-11-02T00:11:05.626Z",
+  "argv": [
+    "wsl.exe",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/usr/local/bin/okc",
+    "status",
+    "c1931f0c9e834485",
+    "--json"
+  ],
+  "exit_code": 0,
+  "stdout": "{\n  \"board\": \"muse_decode_layer\",\n  \"content_hash\": \"ce36aa2c06c6003cea3613d1e40d94f986d29cd38fc6352ccb7363b82aab30bd\",\n  \"created_at\": 1793578229.1554496,\n  \"duplicate_of\": null,\n  \"id\": \"c1931f0c9e834485\",\n  \"mode\": \"check\",\n  \"payload_ref\": \"muse_decode_layer/ce36aa2c06c6003cea3613d1e40d94f986d29cd38fc6352ccb7363b82aab30bd.py\",\n  \"result\": null,\n  \"status\": \"queued\",\n  \"team\": \"yelgabo\"\n}\n",
+  "stderr": ""
+}

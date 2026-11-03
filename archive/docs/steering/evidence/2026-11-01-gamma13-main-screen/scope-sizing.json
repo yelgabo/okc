@@ -1,0 +1,91 @@
+﻿{
+  "source": "muse_decode_layer\\profiles\\g-common-rmw-v2.c1931f0c9e834485.json",
+  "source_sha256": "9e666b62abb6b4ff88a138b5a8bd6c5f9905101d3233ebf4b70d0279a3ca70e3",
+  "groups": {
+    "decode 1": [
+      {
+        "weight": 46,
+        "adjusted_us": 75.5603779852202,
+        "profiled_expert_us": 22.8
+      },
+      {
+        "weight": 16,
+        "adjusted_us": 83.92891846089897,
+        "profiled_expert_us": 22.3
+      }
+    ],
+    "decode 16": [
+      {
+        "weight": 46,
+        "adjusted_us": 137.61330562620373,
+        "profiled_expert_us": 67.7
+      },
+      {
+        "weight": 16,
+        "adjusted_us": 216.5685060905211,
+        "profiled_expert_us": 67.3
+      }
+    ],
+    "decode 32": [
+      {
+        "weight": 46,
+        "adjusted_us": 156.44001753464005,
+        "profiled_expert_us": 82.6
+      },
+      {
+        "weight": 16,
+        "adjusted_us": 315.227819791084,
+        "profiled_expert_us": 75.1
+      }
+    ],
+    "verify 1": [
+      {
+        "weight": 46,
+        "adjusted_us": 109.16638434749177,
+        "profiled_expert_us": 50.0
+      },
+      {
+        "weight": 16,
+        "adjusted_us": 123.30576961566564,
+        "profiled_expert_us": 65.1
+      }
+    ],
+    "verify 16": [
+      {
+        "weight": 46,
+        "adjusted_us": 250.4160529816338,
+        "profiled_expert_us": 136.7
+      },
+      {
+        "weight": 16,
+        "adjusted_us": 339.25029584836943,
+        "profiled_expert_us": 183.5
+      }
+    ],
+    "verify 32": [
+      {
+        "weight": 46,
+        "adjusted_us": 314.08399965452907,
+        "profiled_expert_us": 198.3
+      },
+      {
+        "weight": 16,
+        "adjusted_us": 488.3688381806475,
+        "profiled_expert_us": 204.3
+      }
+    ]
+  },
+  "selected_loads": [
+    "decode 32",
+    "verify 16",
+    "verify 32"
+  ],
+  "scenarios": {
+    "0.1": 1.0261617335642823,
+    "0.15": 1.040047543943865,
+    "0.2": 1.0545209756965077,
+    "0.25": 1.069625242064202
+  },
+  "modeled_expert_reduction_for_cutoff": 0.22234992522274216,
+  "disclaimer": "Profile duration subtraction from official adjusted medians, full exposure/no replacement assumption; NOT a bound, forecast, exposed epilogue saving or candidate score."
+}

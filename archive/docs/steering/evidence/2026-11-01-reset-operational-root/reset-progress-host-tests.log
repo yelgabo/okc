@@ -1,0 +1,21 @@
+test_lazy_module_and_lt_aliases_are_rejected (test_dl_verify_pair.VerifyPair.test_lazy_module_and_lt_aliases_are_rejected) ... ok
+test_package_and_preserved_selected_payload (test_dl_verify_pair.VerifyPair.test_package_and_preserved_selected_payload) ... FAIL
+test_weighted_restricted_report_and_lossless_transport (test_dl_verify_pair.VerifyPair.test_weighted_restricted_report_and_lossless_transport) ... ok
+test_graft_actual_four_cell_entry (test_dl_verify_pair_slices.VerifySlices.test_graft_actual_four_cell_entry) ... ok
+test_native_literals_and_global_bindings (test_dl_verify_pair_slices.VerifySlices.test_native_literals_and_global_bindings) ... ok
+test_owned_recorded_128_policy (test_dl_verify_pair_slices.VerifySlices.test_owned_recorded_128_policy) ... ok
+test_owned_three_lt_plans_and_closure_ownership (test_dl_verify_pair_slices.VerifySlices.test_owned_three_lt_plans_and_closure_ownership) ... ok
+
+======================================================================
+FAIL: test_package_and_preserved_selected_payload (test_dl_verify_pair.VerifyPair.test_package_and_preserved_selected_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/test_dl_verify_pair.py", line 34, in test_package_and_preserved_selected_payload
+    self.assertEqual(old["bytes"],850769)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 851652 != 850769
+
+----------------------------------------------------------------------
+Ran 7 tests in 8.008s
+
+FAILED (failures=1)

@@ -1,0 +1,14 @@
+{
+  "job": "c5e4f89672f743bb",
+  "exec_session": 11629,
+  "command": [
+    "wsl",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    ".build/rmw-pair-v4/wait-own.py"
+  ],
+  "script_sha256": "8d3fd2df71c98c149fb428787586182a020ff1c3af4787d1b325ab1c675565d0",
+  "raw_stdout_saved_before_parsing": true
+}

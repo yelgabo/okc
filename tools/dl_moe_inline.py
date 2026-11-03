@@ -1,24 +1,4 @@
-"""Copy the fused MoE kernel from muse_moe_w4a16/submission.py into muse_decode_layer/submission.py.
-
-The source keeps its device code as templates (_CUDA_SRC with //@WGMMA@, //@SKINNY@ and
-//@DISPATCH@ markers, one _SKINNY_BLOCK per skinny variant, the wgmma wrappers from
-_wgmma_code()) and assembles them in _cuda_source(). This tool runs the same assembly for the
-computing variants only (skinny mode 0, the fat modes in MAIN_CANDIDATES; the loads-only
-diagnostics stay out), drops the torch host functions after the anonymous namespace, wraps the
-device code in a nested `moe1` namespace as _MOE1_SRC, writes the variant table the layer's
-host wrapper dispatches on (_MOE1_VARIANTS, _MOE1_MAIN_MIN_M), and copies the repack functions
-(unit_rows, repack_expert, repack_expert_fat and their byte helpers) under a moe1_ prefix
-between the @MOE1_REPACK@ markers.
-
-One device patch: the layer's local_start is an input tensor it never reads on the host (its
-route_align takes it from the device too), so Params gains `const int* lo_p` and both kernels
-take the local range's start from it. Each anchor must match exactly once per template; a
-changed kernel fails here instead of compiling with a stale patch.
-
-    python3 tools/dl_moe_inline.py [path/to/muse_moe_w4a16/submission.py [TARGET_LAYER.py]]
-
-TARGET_LAYER.py defaults to muse_decode_layer/submission.py and is rewritten in place.
-"""
+"""Keep the layer synchronized with admitted standalone MoE variants."""
 
 import ast
 import re
@@ -39,37 +19,18 @@ MAIN_NAMES = {0: "main-d2", 5: "main-d3", 16: "main-m2-ar2-ub", 20: "main-own",
               23: "main-own-dynb", 26: "main-dynb-fs", 28: "main-lean", 37: "main-lean-silu-bar",
               47: "main-lean-grp-nohoist", 51: "main-lean-grp-finss64",
               78: "main-lean-grp-fin4ps"}
-# Each fat mode is another kernel instance in the layer's build, so the layer builds only the
-# fat modes that won a standalone bench: 0 (its fallback) and 16, which took 128 and 256
-# tokens from legacy128 and mode 12 in checks 9a9fb08c134c4a16 and c65e91500215418d, and 20,
-# 2-4 us under 16 at 128 and 256 tokens in three same-process A/Bs, and 23, 16-23 us under 20
-# at 128 and 256 tokens on 24 of 24 paired seeds in checks a9dbec1d98334943 and
-# 36812632dae242ba (docs/runs-moe.md), and 26, 4-10 us under 23 at 128 and 256 tokens on 66
-# of 66 paired seeds and the standalone policy at both sizes in 817eab6401d54a84, and 28, 6-12
-# us under 26 at 32, 128 and 256 tokens on 72 of 72 paired seeds and the standalone policy at
-# 128 and 256 in f928f8a802014e4f and 13fe68e7ca2e423f. 20 and 23 left with the standalone's
-# MAIN_MODES (0, 16, 26, 28): 26 and 28 were under them on every paired seed.
-# 37 (28 with SiLU's reciprocal as one MUFU.RCP and no per-thread fence_gpu before the phase A
-# publish's bar.sync): 3-5 us under 28 at 128 and 256 tokens standalone, scored 6307d0c91c8d4ada.
-# 51 (47 with the per-route sums of squares formed in the final pass from 64 tokens up): 3.8-7.7
-# us under 47 at 128 and 256 tokens on held-out layer, standalone and skewed seeds, check
-# c6b0e500c3a84c9a; 32 tokens unchanged.
+
+
 LAYER_MODES = (0, 16, 26, 28, 37, 47, 51)
-# Fat modes the layer may build although the standalone's MAIN_MODES leaves them out, each with
-# the token count it is offered below (_MOE1_MAIN_MAX_M). 78 (51 + paired-row scale decode +
-# the fin4 final pass below 64 tokens) was 1.5-3.5 us under 51 at 32 tokens on 35 of 36 paired
-# seeds but failed its gate at 128 std (docs/runs-moe.md, c8fc5f669fa34d06), so 32 only.
+
+
 LAYER_MAIN_EXTRA = ((78, 64),)
-# Skinny variants the layer builds beside the standalone's computing ones, by (warps, slots,
-# kMode): kMode 3 (sk8w4s-er, each compute warp releases its ring slot itself) lost on the
-# standalone routing but won on layer routing at 8 and 16 tokens (docs/runs-moe.md, 2c28a7256b004aa1),
-# so the layer's judge-like bench may pick it.
+
+
 LAYER_SKINNY_EXTRA = ((8, 4, 3),)
 SKINNY_SUFFIX = {0: "", 3: "-er"}
 
-# The load is a per-use ld.global.nc in inline asm, consumed where the host value was: a value
-# loaded once and kept in a register doubled the fat d2 kernel's spills (1268 B against 604),
-# whichever block held it, while this form leaves every kernel's allocation as in the source.
+
 LO_HELPER = (
     "__device__ __forceinline__ int ld_lo(const int* p) {\n"
     "    int v;\n"
@@ -77,14 +38,8 @@ LO_HELPER = (
     "    return v;\n"
     "}\n\n"
 )
-# Layer patch 2 (gap map 2026-10-30, E2): the fused MoE as the PDL secondary of the layer's
-# route kernel. Params::pdl (set by the layer's host wrapper, never by the kernel) launches it
-# with programmatic stream serialization and runs a preamble before griddepcontrol.wait that
-# reads nothing the primary writes: the ring's mbarrier initialisation (moved there from the
-# routing section, which then skips it) and cp.async.bulk.prefetch.L2 hints of weights, chosen
-# from the local expert index alone. The kernels never trigger their own dependents, and the
-# grid barrier runs after the wait, when the primary has exited, so co-residency with the
-# primary is never needed (docs/moe-port-guide.md, "PDL secondary in the layer").
+
+
 PDL_HELPER = (
     "template <typename Kern>\n"
     "void moe1_launch(Kern kern, int grid, int block, int smem, cudaStream_t stream,\n"
@@ -110,8 +65,8 @@ PDL_HELPER = (
     "                 : \"memory\");\n"
     "}\n\n"
 )
-# Fat path: unit 0 (16 stages) of every local expert, 18.9 MB at 32 experts, spread over the
-# CTAs; skinny path: the first 4 units of every local expert, 4.7 MB.
+
+
 MAIN_PREAMBLE = (
     "    const int E = p.M * kTopK;\n"
     "    if (p.pdl) {\n"
@@ -139,10 +94,8 @@ MAIN_PREAMBLE = (
     "    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n"
     "    constexpr bool kDiag = is_diag(MODE);\n"
 )
-# Skinny: the preamble runs a copy of the routing warp's own mbarrier init block (taken from
-# the source by skinny_init_block, so every barrier the block initialises, now and after upstream
-# changes, is initialised under pdl too), then the prefetch hint: the first 4 units of every
-# local expert, 4.7 MB.
+
+
 SKINNY_PREFETCH = (
     "        if (tid == 0) {\n"
     "            for (int i = cta; i < p.nloc * 4; i += G) {\n"
@@ -155,7 +108,7 @@ SKINNY_INIT_RE = (r"        if \(lane == 0\) \{\n#pragma unroll\n            for
                   r"                mbar_init\(&S\.full\[s\], 1\);\n.*?"
                   r"            asm volatile\(\"fence\.mbarrier_init\.release\.cluster;\" ::: \"memory\"\);\n"
                   r"        \}\n")
-# Lines the init block may hold; anything else upstream adds there fails the inliner.
+
 SKINNY_INIT_LINE = re.compile(r"^\s*(#pragma unroll|for \(int \w+ = 0; \w+ < \w+; \+\+\w+\) \{|"
                               r"mbar_init\(&S\.\w+\[[\w +]+\], \w+\);|if constexpr \(\w+\) \{|\}|"
                               r"if \(lane == 0\) \{|asm volatile\(\"fence\.mbarrier_init\.release\.cluster;\" "
@@ -163,8 +116,7 @@ SKINNY_INIT_LINE = re.compile(r"^\s*(#pragma unroll|for \(int \w+ = 0; \w+ < \w+
 
 
 def skinny_init_block(block):
-    """The skinny template with the routing warp's mbarrier init block skipped under pdl and
-    run, copied, in the preamble before griddepcontrol.wait."""
+    """Private barriers do not depend on producer writes, so initialize them before the PDL wait."""
     found = re.findall(SKINNY_INIT_RE, block, flags=re.S)
     if len(found) != 1:
         raise SystemExit(f"skinny mbarrier init block found {len(found)} times, need 1")
@@ -317,7 +269,7 @@ def main():
                        "_MOE1_VARIANTS table")
     sub = replace_once(sub, r"^_MOE1_MAIN_MIN_M = \d+$", f"_MOE1_MAIN_MIN_M = {main_min}",
                        "_MOE1_MAIN_MIN_M line")
-    # A fat variant listed here is offered to the tuner only below its token count.
+
     max_line = f"_MOE1_MAIN_MAX_M = {max_m!r}"
     if re.search(r"^_MOE1_MAIN_MAX_M = .*$", sub, re.M):
         sub = replace_once(sub, r"^_MOE1_MAIN_MAX_M = .*?$", lambda _: max_line,

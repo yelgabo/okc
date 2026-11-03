@@ -1,0 +1,16 @@
+{
+  "source_pins": {
+    "tools\\g_common_release.py": "da75449ac7d6de9a00261802927f867b138eda724175e20b0fab0c28a39c1fbe",
+    "tools\\g_common_release_attn.py": "d31bfeea1fd591c5798e1056a50819b3cf9de72bd27fdce2ce6ec194597738ed",
+    "tools\\g_common_release_body.py": "80218b4c2886c86bfd14f566655cec8722113cb57d1ff5630cc506c317ed179c",
+    "tools\\test_g_common_release_host.py": "fdb9cf572aff27597d7930da6d89a1bcc2656a6be9724515825f0ab0a5f5b24c",
+    "tools\\test_g_common_release_attn.py": "be4a1a4b94b3521feb2a117c880a99187a0f957b665e6ecf3a86049c24cdb3a4"
+  },
+  "independent_whole_CPU_facades": 7,
+  "whole_CPU_seconds": 10.219,
+  "focused_real_Marlin_adapter_fixture_seconds": 4.222,
+  "source_attention_test": true,
+  "hardware_execution": false,
+  "peer_header_mock_commit": "1142844",
+  "scope": "Torch CPU actual orchestration/validator negatives; native arithmetic and CUDA graph behavior explicit stand-ins"
+}

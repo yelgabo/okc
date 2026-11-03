@@ -1,0 +1,276 @@
+"""Fixed corrected-storage G2/24 scratch generator; no GPU or judge actions."""
+import argparse
+import ast
+import difflib
+import hashlib
+import json
+from pathlib import Path
+import re
+
+BASE = "muse_decode_layer/cand/g1b4_stage_release.py"
+BASE_SHA = "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+NATIVE_SHA = "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71"
+
+
+def sha(text):
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def once(text, old, new):
+    assert text.count(old) == 1, ("anchor", old, text.count(old))
+    return text.replace(old, new)
+
+
+def function_source(text, name):
+    nodes = [node for node in ast.parse(text).body if isinstance(node, ast.FunctionDef) and node.name == name]
+    return ast.get_source_segment(text, nodes[-1])
+
+
+def literal(text, name):
+    nodes = [node for node in ast.parse(text).body if isinstance(node, ast.Assign)
+             and isinstance(node.targets[0], ast.Name) and node.targets[0].id == name]
+    return ast.literal_eval(nodes[0].value)
+
+
+HELPERS = r'''
+constexpr int G224_WGS = 2, G224_MAX_GRID = 264;
+__device__ __forceinline__ int g224_row(int ub, int wg, int wp) { return ub * 8 + wg * 4 + wp; }
+__device__ __forceinline__ int g224_parent(int ub) { return ub >> 2; }
+__device__ __forceinline__ int g224_stage_base(int job, int pb) { return job << (10 - pb); }
+__device__ __forceinline__ int g224_stage_job(int stage, int pb) { return stage >> (10 - pb); }
+__device__ __forceinline__ uint32_t g224_boundary(uint32_t total, int cta, int grid) {
+  return (uint32_t)((unsigned long long)total * (unsigned)cta / (unsigned)grid);
+}
+__device__ __forceinline__ size_t g224_weight_byte(int pb, int expert, int ub, int stage, int wg) {
+  return (((size_t)expert * (pb ? 16 : 32) + (ub >> 1)) * 16 + stage) * (4 * WGS_PIECE) + ((ub & 1) * 2 + wg) * WGS_PIECE;
+}
+'''
+
+GATHER = r'''__device__ void wgs_gather(const Params& p, Smem& S) {
+  const int tid = threadIdx.x, nj = S.njF + S.njS;
+  const int R = S.jrow[nj];
+  const float rG = __fdividef(1.f, (float)gridDim.x);
+  const int q0 = muldiv_g(R, blockIdx.x, gridDim.x, rG), q1 = muldiv_g(R, blockIdx.x + 1, gridDim.x, rG);
+  int j = 0;
+  static_assert(NT * 8 * 2 == HD, "G224 two chunks per compute thread");
+  constexpr int GB = OKC_GATHB;
+  for (int qb = q0; qb < q1; qb += GB) {
+    uint4 v[GB][2];
+    uint4* d[GB][2];
+#pragma unroll
+    for (int k = 0; k < GB; ++k) {
+      const int q = qb + k;
+      if (q < q1) { while (S.jrow[j + 1] <= q) ++j; }
+#pragma unroll
+      for (int chunk = 0; chunk < 2; ++chunk) {
+        d[k][chunk] = nullptr;
+        if (q < q1) {
+          const int r = q - S.jrow[j], cnt = S.jC[j];
+          if (r < cnt) {
+            const int ntt = (cnt + 7) >> 3, column = tid + chunk * NT;
+            d[k][chunk] = reinterpret_cast<uint4*>(p.xA + (size_t)S.jrow[j] * HD)
+                + ((((column >> 5) * ntt + (r >> 3)) * 32 + (column & 31)) * 8 + (r & 7));
+            const int group = column & 31;
+            const unsigned* xs32 = reinterpret_cast<const unsigned*>(p.x + (size_t)(S.ent[S.jS[j] + r] >> 3) * HD + (column >> 5) * 256)
+                + (8 * ((group >> 1) & 3) + 2 * (group >> 3) + (group & 1));
+            v[k][chunk] = make_uint4(__ldg(xs32), __ldg(xs32 + 32), __ldg(xs32 + 64), __ldg(xs32 + 96));
+          }
+        }
+      }
+    }
+#pragma unroll
+    for (int k = 0; k < GB; ++k) {
+#pragma unroll
+      for (int chunk = 0; chunk < 2; ++chunk)
+        if (d[k][chunk]) *d[k][chunk] = v[k][chunk];
+    }
+  }
+  asm volatile("fence.proxy.async.global;\n" ::: "memory");
+  CTA_SYNC();
+  if (tid == 0) {
+    int jj = 0;
+    for (int q = q0; q < q1;) {
+      while (S.jrow[jj + 1] <= q) ++jj;
+      const int end = min(q1, S.jrow[jj + 1]);
+      asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(mf_xr(p, S) + jj), "r"(end - q) : "memory");
+      q = end;
+    }
+  }
+}
+'''
+
+
+def transform_native(original):
+    assert sha(original) == NATIVE_SHA
+    text = once(original, "#define OKC_FT_T 64", "#define OKC_FT_T 24")
+    start = text.index("#define OKC_WGSNX 3")
+    end = text.index("\n#endif\n\ntemplate <bool PB, bool BIG>", start)
+    region = text[start:end]
+    region = once(region, "constexpr int WGS_STG = OKC_SC6W ? 35840 : 36864;", "constexpr int WGS_STG = 2 * WGS_PIECE;\nconstexpr int WGS_RING_BYTES = 18432;")
+    region = once(region, "constexpr int WGS_SLOTS = 160;", "constexpr int WGS_SLOTS = 265;")
+    region = region.replace("WGS_SLOTS * 4", "WGS_SLOTS * G224_WGS")
+    region = once(region, "+ 136 * 16;", "+ JMAX * 16;")
+    region = once(region, "MF_XRS = 96, MF_DA = 384, MF_INTS = 4096", "MF_XRS = JMAX, MF_DA = 512, MF_INTS = 6144")
+    anchor = "constexpr int WGS_XS = WGS_NT * 4096;"
+    region = once(region, anchor, HELPERS + "\n" + anchor)
+    region = once(region, "static_assert(BX_E + WGS_NX <= 24, \"WGS barriers\");", "static_assert(BX_E + WGS_NX <= 24, \"WGS barriers\");\nstatic_assert(NW == 8 && NT == 256 && NTL == 320 && WGS_NT == 3, \"G224 fixed geometry\");")
+    wide_start = region.index("template <> struct WGSMMA<4>")
+    wide_end = region.index("// two producer warps:", wide_start)
+    region = region[:wide_start] + region[wide_end:]
+    region = region.replace("pb ? 4 : 5", "pb ? 5 : 6").replace("PB ? 4 : 5", "PB ? 5 : 6")
+    old_weight = "base + ((size_t)(((S.jE[j] << ubl) + ub) * 16 + st)) * (size_t)WGS_STG"
+    region = once(region, old_weight, "base + g224_weight_byte(pb, S.jE[j], ub, st, 0)")
+    region = region.replace("UNIT_BYTES", "WGS_RING_BYTES")
+    gather_start = region.index("__device__ void wgs_gather(")
+    gather_end = region.index("// Work left from the previous segment", gather_start)
+    region = region[:gather_start] + GATHER + region[gather_end:]
+    assert region.count("+ (ub >> 1)),") == 2
+    region = region.replace("+ (ub >> 1)),", "+ g224_parent(ub)),")
+    region = region.replace("pd.slot * 4 + wg", "pd.slot * G224_WGS + wg").replace("slot * 4 + wg", "slot * G224_WGS + wg")
+    region = once(region, "r16 = ub * 16 + wg * 4 + wp", "r16 = g224_row(ub, wg, wp)")
+    region = once(region, "r16 = (u & ((1 << UBL) - 1)) * 16 + wg * 4 + wp", "r16 = g224_row(u & ((1 << UBL) - 1), wg, wp)")
+    switch_start = region.index("      case 4: wgs_seg")
+    switch_end = region.index("    }\n    gs +=", switch_start)
+    region = region[:switch_start] + "      default: __trap(); break;\n" + region[switch_end:]
+    region = region.replace("<< 5;  // cepi: 32 units", "<< 6;  // cepi: 64 units")
+    region = once(region, "OKC_WGSU) << 5;", "OKC_WGSU) << 6;")
+    assert region.count("OKC_WGSUB) << 4;") == 2
+    region = region.replace("OKC_WGSUB) << 4;", "OKC_WGSUB) << 5;")
+    region = region.replace("(lo << (9 - pb))", "g224_stage_base(lo, pb)")
+    region = region.replace("(nj << (9 - pb))", "g224_stage_base(nj, pb)")
+    region = region.replace("nj << (9 - pbl)", "g224_stage_base(nj, pbl)")
+    region = region.replace("s >> (9 - pb)", "g224_stage_job(s, pb)")
+    region = region.replace("(1 << (9 - pb))", "(1 << (10 - pb))")
+    for old, new in (("tot * (uint32_t)c / (uint32_t)G", "g224_boundary(tot, c, G)"),
+                     ("tot * (uint32_t)(c + 1) / (uint32_t)G", "g224_boundary(tot, c + 1, G)"),
+                     ("tot * (uint32_t)(c + kk) / (uint32_t)G", "g224_boundary(tot, c + kk, G)")):
+        region = region.replace(old, new)
+    text = text[:start] + region + text[end:]
+    text = once(text, "__launch_bounds__(NTL, 1) moe_fused", "__launch_bounds__(NTL, 2) moe_fused")
+    text = once(text, "okc::WGS_NS * okc::UNIT_BYTES", "okc::WGS_NS * okc::WGS_RING_BYTES")
+    text = text.replace("okc::WGS_SLOTS * 4", "okc::WGS_SLOTS * okc::G224_WGS")
+    text = once(text, "grid>0 && grid<=prop.multiProcessorCount && grid<=136 && grid<160", "(grid *= 2)>0 && grid==2*prop.multiProcessorCount && grid<=okc::G224_MAX_GRID && grid<okc::WGS_SLOTS")
+    text = once(text, "resident>=1 && grid<=resident*prop.multiProcessorCount", "resident>=2 && grid<=resident*prop.multiProcessorCount")
+    text = transform_final(alias_storage(text))
+    return text
+
+
+ALIAS_ASSERTIONS = r'''
+#if OKC_WGS
+#if defined(__CUDACC_RTC__)
+#define G224_OFFSETOF(type, member) (::size_t)((char*)&(((type*)0)->member) - (char*)0)
+#else
+#define G224_OFFSETOF(type, member) offsetof(type, member)
+#endif
+static_assert(sizeof(Smem) == 23096, "G224 native header");
+static_assert(G224_OFFSETOF(Smem, wc) == G224_OFFSETOF(Smem, wcp), "G224 alias offset");
+static_assert(G224_OFFSETOF(Smem, wcpB) >= G224_OFFSETOF(Smem, wc) + sizeof(((Smem*)0)->wc), "G224 separate prefix B");
+static_assert(((sizeof(Smem) + 127) / 128) * 128 == 23168, "G224 ring alignment");
+#endif
+'''
+
+
+def alias_storage(text):
+    text = once(text, "#include <cuda_bf16.h>", "#include <cuda_bf16.h>\n#if !defined(__CUDACC_RTC__)\n#include <stddef.h>\n#endif")
+    text = once(text, "  int wcp[JMAX + 1];  // WGS: phase-A cost prefix per job", "  union { int wc[NW][32]; int wcp[JMAX + 1]; };")
+    text = once(text, "  int wc[NW][32];\n", "#if !OKC_WGS\n  int wc[NW][32];\n#endif\n")
+    text = once(text, "  short pos[EMAX];   // entry -> pair position, -1 if not local\n};", "  short pos[EMAX];   // entry -> pair position, -1 if not local\n};\n" + ALIAS_ASSERTIONS)
+    text = once(text, "  if (tid < NW * 32) S.wc[tid >> 5][tid & 31] = 0;", "  if (tid == 0) S.wc[0][0] = 0;\n  CTA_SYNC();\n  if (tid < NW * 32) S.wc[tid >> 5][tid & 31] = 0;")
+    text = once(text, "  wgs_ranges(p, S);  // all 32 lanes (warp-parallel)", "  if ((threadIdx.x & 31) == 0) S.wcp[0] = 0;\n  __syncwarp();\n  wgs_ranges(p, S);  // all 32 lanes (warp-parallel)")
+    text = once(text, 'constexpr int WGS_RING_BYTES = 18432;', 'constexpr int WGS_RING_BYTES = 18432;\nstatic_assert(((sizeof(Smem) + 127) / 128) * 128 + 3 * WGS_RING_BYTES + 3 * (24 / 8) * 4096 == 115328, "G224 dynamic layout");')
+    return text
+
+
+
+
+def transform_final(text):
+    begin = text.index("#if OKC_WGS && OKC_B4FIN\n  // bet4_claude: item")
+    finish = text.index("#elif OKC_FINCOL", begin)
+    region = text[begin:finish]
+    b4, main = region.split("#elif OKC_WGS && OKC_WGSFINSS", 1)
+    b4 = once(b4, 'static_assert(NT == 512 && NW == 16, "B4FIN: 16 warps = 8 routes x 2 halves, 512 threads x 2 columns");', 'static_assert(NT == 256 && NW == 8, "G224 B4 logical 16 warps");')
+    b4 = once(b4, "constexpr int SEG = 1024", "constexpr int SEG = 512")
+    b4 = once(b4, "        const int sl = warp >> 1, hh = warp & 1;", "        for (int slice = 0; slice < 2; ++slice) {\n        const int virtual_warp = warp + slice * NW;\n        const int sl = virtual_warp >> 1, hh = virtual_warp & 1;")
+    b4 = once(b4, "if (lane == 0) red[warp] = v;", "if (lane == 0) red[virtual_warp] = v;\n        }")
+    main = once(main, 'static_assert(HD == NT * 8, "8 columns per thread");', 'static_assert(HD == NT * 8 * 2, "G224 two logical row slices");')
+    main = once(main, "      float ps[8];", "      for (int slice = 0; slice < 2; ++slice) {\n      const int virtual_tid = tid + slice * NT, virtual_warp = warp + slice * NW;\n      float ps[8];")
+    main = once(main, "red[warp * 8 + sl] = ps[sl];\n      }", "red[virtual_warp * 8 + sl] = ps[sl];\n      }\n      }")
+    main = main.replace("red[NW * 8 +", "red[2 * NW * 8 +")
+    main = once(main, "w < NW; ++w", "w < 2 * NW; ++w")
+    main = once(main, "      float acc[8];", "      for (int slice = 0; slice < 2; ++slice) {\n      const int virtual_tid = tid + slice * NT;\n      float acc[8];")
+    main = main.replace(" + tid)", " + virtual_tid)").replace("+ tid * 2", "+ virtual_tid * 2").replace("+ tid * 8", "+ virtual_tid * 8")
+    main = once(main, "= o;\n      CTA_SYNC();", "= o;\n      }\n      CTA_SYNC();")
+    return text[:begin] + b4 + "#elif OKC_WGS && OKC_WGSFINSS" + main + text[finish:]
+
+
+APPENDIX = r'''
+_G224_PARENT_MA_EXT = _ma_ext
+_G224_EXTS = {}
+
+def _ma_ext(defines=None):
+    defines = tuple(MOE_DEFINES if defines is None else defines)
+    if "-DOKC_WGS=1" not in defines:
+        return _G224_PARENT_MA_EXT(defines)
+    if any(value.startswith("@") for value in defines):
+        raise RuntimeError("G224_STOP alternate WGS literal not allocated")
+    if DQ7 and "-DOKC_DQ7=1" not in defines:
+        defines += ("-DOKC_DQ7=1",)
+    if defines not in _G224_EXTS:
+        major, minor = torch.cuda.get_device_capability()
+        arch = f"{major}{minor}" + ("a" if major == 9 else "")
+        defs = ["-DOKC_NW=8" if value == "-DOKC_NW=16" else value for value in defines]
+        if "-DOKC_NW=8" not in defs or (major, minor) != (9, 0):
+            raise RuntimeError("G224_STOP fixed H200 geometry required")
+        import hashlib as _g224_hash
+        tag = _g224_hash.sha256((_G224_CUDA + repr(defines)).encode()).hexdigest()[:16]
+        _G224_EXTS[defines] = load_inline(
+            name=f"g224_{tag}_sm{arch}", cpp_sources=MOE_CPP_SRC, cuda_sources=_G224_CUDA,
+            functions=["okc_run", "okc_set_pdl", "okc_attrs"],
+            extra_cuda_cflags=["-O3", f"-gencode=arch=compute_{arch},code=sm_{arch}", "-lineinfo",
+                *([] if any(value.startswith("-DOKC_NS=") for value in defs) else [f"-DOKC_NS={_MA_MAIN_NS}"]),
+                "-DOKC_FNST=4", *([] if any(value.startswith("-DOKC_NSF=") for value in defs) else ["-DOKC_NSF=3"]), *defs],
+            verbose=False)
+        _G224_EXTS[defines].okc_set_pdl(0)
+    return _G224_EXTS[defines]
+
+
+def _ma_make_scratch(dev):
+    job_max = 32 + _MA_EMAX // 24 + 8
+    xrows = _MA_EMAX + 8 * job_max
+    fixup = 2 * 265 * 2 * 1536 + 2 * 265 * 2 + job_max * 16
+    return [torch.zeros(8 + 1024 + _MA_EMAX + 6144, dtype=torch.int32, device=dev),
+            torch.zeros(_MA_EMAX + _MA_EMAX * 4096 + fixup, dtype=torch.float32, device=dev),
+            _df_inter(torch.zeros((_MA_EMAX + 2 * xrows) * 4096, dtype=torch.bfloat16, device=dev))]
+
+
+def _fork_install_fallback(weights, state, reason):
+    raise RuntimeError("G224_STOP no fallback: " + reason)
+'''
+
+
+def generate(root, out):
+    base = (root / BASE).read_text(encoding="utf8")
+    assert sha(base) == BASE_SHA
+    original = literal(base, "MOE_CUDA_SRC")
+    changed = transform_native(original)
+    appendix = "\n_G224_CUDA = " + repr(changed) + "\n" + APPENDIX
+    result = base + appendix
+    ast.parse(result)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "variant.py").write_text(result, encoding="utf8", newline="\n")
+    (out / "selected.cu").write_text(changed, encoding="utf8", newline="\n")
+    (out / "native.diff").write_text("".join(difflib.unified_diff(original.splitlines(True), changed.splitlines(True), fromfile="public607-selected", tofile="fixed-g224-prefix-selected")), encoding="utf8", newline="\n")
+    manifest = dict(base=BASE, base_sha256=BASE_SHA, original_native_sha256=NATIVE_SHA,
+                    variant_sha256=sha(result), native_sha256=sha(changed),
+                    original_prefix_bytes=len(base.encode()), original_prefix_unchanged=result.startswith(base),
+                    append_only=True, gpu_execution=False, judge_dispatch=False)
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8", newline="\n")
+    return result, changed, manifest
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--out", type=Path, required=True)
+    options = parser.parse_args()
+    print(json.dumps(generate(options.root, options.out)[2], indent=2))

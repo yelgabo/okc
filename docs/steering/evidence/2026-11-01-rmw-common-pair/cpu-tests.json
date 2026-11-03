@@ -1,0 +1,18 @@
+{
+  "command": [
+    "wsl",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc/tools",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    "-m",
+    "unittest",
+    "test_g_common_rmw_pair",
+    "test_g_short_rmw_check",
+    "test_g_short_rmw_read",
+    "-v"
+  ],
+  "exitcode": 0,
+  "stdout": "",
+  "stderr": "test_actual_attention_failure_is_not_a_hit (test_g_common_rmw_pair.Pair.test_actual_attention_failure_is_not_a_hit) ... ok\ntest_actual_capsule_and_reader_negatives (test_g_common_rmw_pair.Pair.test_actual_capsule_and_reader_negatives) ... ok\ntest_budget_cleanup_is_unconditional (test_g_common_rmw_pair.Pair.test_budget_cleanup_is_unconditional) ... ok\ntest_exact_common_functions_and_device_deltas (test_g_common_rmw_pair.Pair.test_exact_common_functions_and_device_deltas) ... ok\ntest_failure_restores_and_cannot_print_success (test_g_common_rmw_pair.Pair.test_failure_restores_and_cannot_print_success) ... ok\ntest_full_prepare_off_return_and_cleanup (test_g_common_rmw_pair.Pair.test_full_prepare_off_return_and_cleanup) ... ok\ntest_memo_owners_versions_and_inference_scope (test_g_common_rmw_pair.Pair.test_memo_owners_versions_and_inference_scope) ... ok\ntest_owner_and_stale_output_negatives (test_g_common_rmw_pair.Pair.test_owner_and_stale_output_negatives) ... ok\ntest_source_delta_and_frozen_measurement (test_g_common_rmw_pair.Pair.test_source_delta_and_frozen_measurement) ... ok\ntest_actual_fullscore_gate (test_g_short_rmw_check.ShortHarness.test_actual_fullscore_gate) ... ok\ntest_native_bodies_and_fixed_policy (test_g_short_rmw_check.ShortHarness.test_native_bodies_and_fixed_policy) ... ok\ntest_capsule_negatives (test_g_short_rmw_read.Reader.test_capsule_negatives) ... ok\ntest_log_binding (test_g_short_rmw_read.Reader.test_log_binding) ... ok\ntest_loss_is_complete_not_promoted (test_g_short_rmw_read.Reader.test_loss_is_complete_not_promoted) ... ok\ntest_receipt_rejects (test_g_short_rmw_read.Reader.test_receipt_rejects) ... ok\ntest_valid (test_g_short_rmw_read.Reader.test_valid) ... ok\n\n----------------------------------------------------------------------\nRan 16 tests in 10.115s\n\nOK\n"
+}

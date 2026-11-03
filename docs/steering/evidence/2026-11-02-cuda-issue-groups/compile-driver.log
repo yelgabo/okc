@@ -1,0 +1,24 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "candidate_native_sha256": "2b2dd7e0fd9276d21bb9799fb7ae6d00a86b516348ba16bde6d21b8add4097e4",
+  "edits": [
+    [
+      "constexpr int GS = OKC_WGSGS;",
+      "constexpr int GS = NTT <= 4 ? 4 : OKC_WGSGS;",
+      1
+    ],
+    [
+      "if (FIRST && ci == OKC_WGSFCI && pd.kind)",
+      "if (FIRST && (ci + 1) * GS == (OKC_WGSFCI + 1) * OKC_WGSGS && pd.kind)",
+      1
+    ]
+  ],
+  "exact_reverse": true,
+  "adapter": "Remove host tail, add declaration-only wgs_cta_of adapter and two compile-only launch references",
+  "gpu": false
+}
+b4 control 0
+b4 candidate 0
+main control 0
+main candidate 0

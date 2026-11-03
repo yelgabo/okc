@@ -1,0 +1,279 @@
+{
+  "final": {
+    "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "source_sha256": "d70a1bcc6202e37562b675fbab3251cdbe1b6fd81569442b3a179270aebae401",
+    "bytes": 870087,
+    "exact_reverse": true,
+    "edits": 4,
+    "selected_native_sha256": "f5344c9d8d82cae177050a8d4bfa80b3f5f88b9fcfb35f726f777d55ad22f355",
+    "scope": "WGS B4/MAIN only; full 65536 entries on each timed native call; short paths unchanged",
+    "CUDA_numeric_equivalence": "NOT RUN",
+    "GPU": false,
+    "performance_qualified": false
+  },
+  "records": [
+    {
+      "family": "B4",
+      "compiled_full_native_sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57",
+      "final_full_native_sha256": "f5344c9d8d82cae177050a8d4bfa80b3f5f88b9fcfb35f726f777d55ad22f355",
+      "exact_device_prefix_equal": true,
+      "device_prefix_sha256": "78250a8695b00063c15a466c03033abdb95a86f397774b12cc5660e60a545427",
+      "files": {
+        "device.ptx": {
+          "bytes": 5597172,
+          "sha256": "b8444aa2000fcdd08698cae3dac964df228468a98be41e44e40d319920ba94ae",
+          "local_path": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-timed-silu-table/B4/device.ptx"
+        },
+        "device.cubin": {
+          "bytes": 4188024,
+          "sha256": "689e4e43590b80ded3c477a5ef0006294e8e3662284ec8c3f086972ce8937b53",
+          "local_path": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-timed-silu-table/B4/device.cubin"
+        },
+        "device.sass": {
+          "bytes": 28800495,
+          "sha256": "67d60eb80e84cab8b56daabf4aaed23133567efd465ea9e4771b590ff3e7f08f",
+          "local_path": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-timed-silu-table/B4/device.sass"
+        },
+        "selected.cu": {
+          "bytes": 156571,
+          "sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57",
+          "local_path": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-timed-silu-table/B4/selected.cu"
+        }
+      },
+      "ptx": {
+        "_ZN3okc22timed_silu_table_buildEPf": {
+          "scalar_producer_sequence": true
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "selected_site_windows": 108,
+          "rounding_lookup_multiply_store": true
+        },
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "selected_site_windows": 108,
+          "rounding_lookup_multiply_store": true
+        }
+      },
+      "sass": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "source_line_ops": {
+            "1977": 925,
+            "1975": 216,
+            "1976": 530,
+            "444": 1415,
+            "1978": 108
+          }
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "source_line_ops": {
+            "1977": 925,
+            "1975": 216,
+            "1976": 530,
+            "444": 1415,
+            "1978": 108
+          }
+        },
+        "_ZN3okc22timed_silu_table_buildEPf": {
+          "source_line_ops": {
+            "2876": 1,
+            "2877": 5,
+            "2879": 11,
+            "2878": 1,
+            "2880": 69
+          }
+        }
+      }
+    },
+    {
+      "family": "MAIN",
+      "compiled_full_native_sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57",
+      "final_full_native_sha256": "f5344c9d8d82cae177050a8d4bfa80b3f5f88b9fcfb35f726f777d55ad22f355",
+      "exact_device_prefix_equal": true,
+      "device_prefix_sha256": "78250a8695b00063c15a466c03033abdb95a86f397774b12cc5660e60a545427",
+      "files": {
+        "device.ptx": {
+          "bytes": 5160542,
+          "sha256": "60fd4567d24b84ee2387ab06cea8d70f45970fa314709599ccddb5a88817b7a1",
+          "local_path": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-timed-silu-table/MAIN/device.ptx"
+        },
+        "device.cubin": {
+          "bytes": 3801848,
+          "sha256": "9de4042c4267fa3f1db8e00afd2bc8c4f8a7c620cbd6e1b5a23396c3b9fb0110",
+          "local_path": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-timed-silu-table/MAIN/device.cubin"
+        },
+        "device.sass": {
+          "bytes": 26188532,
+          "sha256": "329f84a932fbca828f336aa1d5536837ce2c2dca62142f458b3641d518b22b4b",
+          "local_path": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-timed-silu-table/MAIN/device.sass"
+        },
+        "selected.cu": {
+          "bytes": 156571,
+          "sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57",
+          "local_path": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-timed-silu-table/MAIN/selected.cu"
+        }
+      },
+      "ptx": {
+        "_ZN3okc22timed_silu_table_buildEPf": {
+          "scalar_producer_sequence": true
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "selected_site_windows": 108,
+          "rounding_lookup_multiply_store": true
+        },
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "selected_site_windows": 108,
+          "rounding_lookup_multiply_store": true
+        }
+      },
+      "sass": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "source_line_ops": {
+            "1976": 528,
+            "1977": 925,
+            "1975": 216,
+            "444": 1000,
+            "1978": 108
+          }
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "source_line_ops": {
+            "1976": 528,
+            "1977": 925,
+            "1975": 216,
+            "444": 1000,
+            "1978": 108
+          }
+        },
+        "_ZN3okc22timed_silu_table_buildEPf": {
+          "source_line_ops": {
+            "2876": 1,
+            "2877": 5,
+            "2879": 11,
+            "2878": 1,
+            "2880": 69
+          }
+        }
+      }
+    }
+  ],
+  "numeric_equivalence": "NOT RUN",
+  "GPU": false,
+  "short_paths": "unchanged",
+  "startup_correction": "allocator and guards only; compiled device prefix unchanged",
+  "routes": [
+    {
+      "tokens": 1,
+      "selected_key": "tiny"
+    },
+    {
+      "tokens": 8,
+      "selected_key": "tiny2"
+    },
+    {
+      "tokens": 16,
+      "selected_key": "mid"
+    },
+    {
+      "tokens": 32,
+      "selected_key": "b4"
+    },
+    {
+      "tokens": 33,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 128,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 256,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 384,
+      "selected_key": "main"
+    }
+  ],
+  "coverage": {
+    "main": [
+      {
+        "line": 454,
+        "declaration": "__device__ __forceinline__ void epi_A(const Params& p, int pstart, int ntok, int tok0, int col, float gsc, const float* r) {",
+        "text": "float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+      },
+      {
+        "line": 778,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 946,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1603,
+        "declaration": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1976,
+        "declaration": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {",
+        "text": "const float v = __ldg(p.silu_table + (__float_as_uint(gt) >> 16)) * up;"
+      }
+    ],
+    "helper": [
+      {
+        "line": 425,
+        "declaration": "__device__ __forceinline__ void epi_A(const Params& p, int pstart, int ntok, int tok0, int col, float gsc, const float* r) {",
+        "text": "float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+      },
+      {
+        "line": 723,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 891,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1548,
+        "declaration": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1891,
+        "declaration": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {",
+        "text": "const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+      }
+    ]
+  },
+  "conditional_ROI": {
+    "affected_loads": [
+      "decode 32",
+      "verify 16",
+      "verify 32"
+    ],
+    "required_uniform_affected_expert_fraction_for_1percent_score": 0.03791840043682989,
+    "scenarios": [
+      {
+        "expert_fraction": 0.01,
+        "whole_layer_factor": 1.0026077705872383
+      },
+      {
+        "expert_fraction": 0.03,
+        "whole_layer_factor": 1.0078864203319666
+      },
+      {
+        "expert_fraction": 0.05,
+        "whole_layer_factor": 1.0132511554990087
+      },
+      {
+        "expert_fraction": 0.1,
+        "whole_layer_factor": 1.0270556719161281
+      }
+    ],
+    "limitation": "Arithmetic only, assumes zero replacement cost and full critical-path exposure; NOT a forecast"
+  }
+}

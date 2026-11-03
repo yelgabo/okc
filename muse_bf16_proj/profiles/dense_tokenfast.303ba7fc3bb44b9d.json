@@ -1,0 +1,88 @@
+{
+  "board": "muse_bf16_proj",
+  "call_id": "kc-303ba7fc3bb44b9d",
+  "cluster": "sfo3",
+  "content_hash": "629a95948871b95436b7b59fd91f853847e1ddc2ec94e4b7c7d46d44749b4626",
+  "created_at": 1793511780.646343,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793511932.6417444,
+  "id": "303ba7fc3bb44b9d",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today/profiles/dense_tokenfast.303ba7fc3bb44b9d.log"
+  },
+  "payload_ref": "muse_bf16_proj/629a95948871b95436b7b59fd91f853847e1ddc2ec94e4b7c7d46d44749b4626.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "986ed3ebb096eab83d16797609f4c0e7895248d6bce33252d25dd306cbe5d018",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_bf16_proj/baseline.py": "39f52ea5b65505958aa9dee9c8129dd394cbba4e670046f862b5a88ce91a0574",
+        "problems/muse_bf16_proj/reference.py": "e62491abc9ddcad33f5faba8b0ee74cf6370b7be5dd2dc05031742f3ebf7147d",
+        "problems/muse_bf16_proj/task.yml": "18e9da6357144b0a1348434a18bd2d1938b1948d9f2130876f6b6706588470c9"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "sk build 24.2 s\npack qkv_gate: base 54, 2623 escapes, 0 inexact deltas, 24.4 s\npack o: base 54, 938 escapes, 0 inexact deltas, 24.5 s\npack pooler: base 54, 4706 escapes, 0 inexact deltas, 24.6 s\npack unpooler: base 54, 3186 escapes, 0 inexact deltas, 24.6 s\nfused pooler+router pool8f: ok\nfused pooler+router pool16f: ok\ncut build 50.9 s\nselftests done 75.9 s\ntune o         m= 1: o8 10.2, o8raw 10.9, rdo8 9.7, cgemv 9.6, cublas 11.1 -\u003e cgemv\ntune o         m= 8: o8 10.1, o8raw 10.8, rdo8 9.8, cublas 10.8 -\u003e rdo8\ntune o         m=16: o16 9.8, o16raw 10.8, cublas 10.9 -\u003e o16\ntune o         m=32: o32 10.4, o32raw 11.3, cublas 11.0 -\u003e o32\ntune o         m=64: cublas 11.6, b1n64c2 13.0, m64k2r4 17.9, m64k1r8 13.8 -\u003e cublas\ntune o         m=128: cublas 11.8, b1n64c2 19.2, b1n128c2 14.3, m64k2r4 23.2, m64k1r8 21.7, m128k2r4 20.3, m128k1r4 15.8, m128k1r8 15.9, m128k2r8 20.1, m128k4r2 23.2, b1n128c2s8h 17.6, b1n128c3s8h 25.0 -\u003e cublas\ntune o         m=256: cublas 13.9, b1n128c2 21.8, b2n256c2 17.8, m128k2r4 27.3, m128k1r4 23.8, m128k1r8 24.8, m128k2r8 28.0, m128k4r2 35.3, m256k2r4 29.5, m256k1r4 25.3, m256k1r8 25.7, m256k2r8 30.3, m256k2r2 29.0, b1n128c2s8h 29.2, b1n128c3s8h 40.0 -\u003e cublas\ntune pooler    m= 1: pool8 18.6, pool8raw 22.1, rdp8 17.9, cgemv 18.0, cublas 25.7 -\u003e rdp8\ntune pooler    m= 8: pool8 18.5, pool8raw 22.2, rdp8 17.9, cublas 25.6 -\u003e rdp8\ntune pooler    m=16: pool16 19.0, pool16raw 22.2, cublas 25.7 -\u003e pool16\ntune pooler    m=32: pool32 19.7, pool32raw 22.6, cublas 26.1 -\u003e pool32\ntune pooler    m=64: cublas 27.0, b1n64c2 25.7, m64k2r4 30.3, m64k1r8 39.4 -\u003e b1n64c2\ntune pooler    m=128: cublas 31.5, b1n64c2 33.3, b1n128c2 31.9, m64k2r4 49.1, m64k1r8 50.2, m128k2r4 36.0, m128k1r4 49.5, m128k1r8 50.6, m128k2r8 36.9, m128k4r2 41.0, b1n128c2s8h 26.7, b1n128c3s8h 32.2 -\u003e b1n128c2s8h\ntune pooler    m=256: cublas 34.7, b1n128c2 39.4, b2n256c2 50.0, m128k2r4 59.0, m128k1r4 53.4, m128k1r8 54.8, m128k2r8 64.5, m128k4r2 60.3, m256k2r4 59.5, m256k1r4 52.7, m256k1r8 54.9, m256k2r8 61.6, m256k2r2 59.3, b1n128c2s8h 47.8, b1n128c3s8h 58.5, cut128x64 31.6 -\u003e cut128x64\ntune qkv_gate  m= 1: qkv8 14.0, qkv8raw 15.9, cgemv 13.1, cublas 19.5 -\u003e cgemv\ntune qkv_gate  m= 8: qkv8 13.6, qkv8raw 15.7, cublas 18.0 -\u003e qkv8\ntune qkv_gate  m=16: qkv16 14.1, qkv16raw 16.0, cublas 18.6 -\u003e qkv16\ntune qkv_gate  m=32: qkv32 15.2, qkv32raw 16.1, cublas 19.2 -\u003e qkv32\ntune qkv_gate  m=64: cublas 19.9, b1n64c2 23.2, m64k2r4 24.0 -\u003e cublas\ntune qkv_gate  m=128: cublas 21.3, b1n64c2 27.4, b1n128c2 27.5, m64k2r4 29.7, m128k2r4 28.9, m128k1r4 47.0, m128k4r2 22.8, b1n128c2s8h 21.8, b1n128c3s8h 19.7 -\u003e b1n128c3s8h\ntune qkv_gate  m=256: cublas 23.6, b1n128c2 31.8, b2n256c2 48.8, m128k2r4 33.1, m128k1r4 47.0, m128k4r2 39.3, m256k2r4 32.7, m256k1r4 51.6, m256k2r2 31.9, b1n128c2s8h 39.2, b1n128c3s8h 33.8 -\u003e cublas\ntune router    m= 1: rgemv 8.0, router8 9.5, rt8w8 8.4, rt16w8 8.7, rt16w8p8 8.7, baseline 15.3 -\u003e rgemv\ntune router    m= 8: router8 9.5, rt8w8 8.5, rt16w8 8.7, rt16w8p8 8.9, baseline 31.4 -\u003e rt8w8\ntune router    m=16: router16 9.6, rt8w8 9.2, rt16w8 9.1, rt16w8p8 9.1, baseline 21.3 -\u003e rt16w8\ntune router    m=32: router32 10.0, rt8w8 12.0, rt16w8 9.6, rt16w8p8 9.6, baseline 21.0 -\u003e rt16w8\ntune router    m=64: baseline 21.5, r64c8 13.4, r64c16 11.6, r64c8s8 12.0, r64c4s8 16.0, rm64k4r4 18.9, r64c8s8k 11.3, r64c4s8a 14.8, r64c8s8fv 10.7, r64c8s8ordfv 12.2 -\u003e r64c8s8fv\ntune router    m=128: baseline 22.0, r64c8 13.6, r64c16 14.4, r128c8 14.9, r128c16 13.3, r64c8s8 12.3, r64c4s8 16.0, r128c8s6 14.6, rm64k4r4 19.0, rm128k4r4 21.8, r64c8s8k 11.4, r128c8s6k 13.9, r64c4s8a 14.8, r64c8s8fv 10.9, r64c8s8ordfv 12.4 -\u003e r64c8s8fv\ntune router    m=256: baseline 23.1, r64c8 14.9, r64c16 20.1, r128c8 15.3, r128c16 21.1, r64c8s8 19.2, r64c4s8 16.2, r128c8s6 14.5, rm64k4r4 19.2, rm128k4r4 22.0, r64c8s8k 17.5, r128c8s6k 14.0, r64c4s8a 15.1, r64c8s8fv 16.9, r64c8s8ordfv 13.0 -\u003e r64c8s8ordfv\ntune unpooler  m= 1: slice8 9.0, slice8raw 9.2, cgemv 7.9, sgemv 8.2, cublas 11.6 -\u003e cgemv\ntune unpooler  m= 8: slice8 8.9, slice8raw 9.2, cublas 11.6 -\u003e slice8\ntune unpooler  m=16: unp16 18.2, unp16raw 22.1, cublas 22.8 -\u003e unp16\ntune unpooler  m=32: unp32 18.9, unp32raw 22.9, cublas 23.0 -\u003e unp32\ntune unpooler  m=64: cublas 23.9, b1n64c2 24.8, m64k2r4 35.6, m64k1r8 30.3 -\u003e cublas\ntune unpooler  m=128: cublas 23.9, b1n64c2 43.0, b1n128c2 26.5, m64k2r4 53.0, m64k1r8 49.1, m128k2r4 40.2, m128k1r4 34.9, m128k1r8 36.2, m128k2r8 41.4, m128k4r2 39.5, b1n128c2s8h 29.7, b1n128c3s8h 38.9 -\u003e cublas\ntune unpooler  m=256: cublas 29.3, b1n128c2 46.8, b2n256c2 33.0, m128k2r4 60.5, m128k1r4 56.6, m128k1r8 63.5, m128k2r8 62.4, m128k4r2 66.1, m256k2r4 54.9, m256k1r4 58.0, m256k1r8 60.0, m256k2r8 57.0, m256k2r2 54.5, b1n128c2s8h 53.7, b1n128c3s8h 66.3 -\u003e cublas\nlt build 18.7 s, cublasLt 130101, torch cuda 13.0\nlt qkv_gate m=128: 64 heuristic, 792 swept, 210 other, screen best L2:a66t92s35k1r0z0c2i0g5w0v0.73 19.2, L0:a66t92s35k1r0z0c0i0g5w0v0.73 19.2, L0:a66t104s35k1r0z0c2i0g5w0v0.64 19.3, L0:a66t104s35k1r0z0c0i0g5w0v0.64 19.3, L0:a66t15s35k1r0z0c0i0g6w0v0.55 19.3\nltune qkv_gate  m=128: base 19.3, f0=L2:a66t92s35k1r0z0c2i0g5w0v0.73 19.5, f1=L0:a66t92s35k1r0z0c0i0g5w0v0.73 19.5, f2=L0:a66t104s35k1r0z0c2i0g5w0v0.64 19.5, f3=L0:a66t104s35k1r0z0c0i0g5w0v0.64 19.5, f4=L0:a66t15s35k1r0z0c0i0g6w0v0.55 19.9; pref base margin 0.30 f0 -0.19/2 f1 -0.06/3 f2 -0.16/1 f3 -0.22/1 f4 -0.58/1 -\u003e base\nlt o m=128: 32 heuristic, 788 swept, 224 other, screen best L1:a66t18s35k1r0z0c4i0g2w0v0.97 10.8, L0:a66t18s35k1r0z0c4i0g2w0v0.97 10.9, L3:a66t18s35k1r0z0c4i0g2w0v0.97 10.9, L2:a66t18s35k1r0z0c4i0g2w0v0.97 11.0, L2:a66t18s35k1r0z0c5i0g2w0v0.97 11.1\nltune o         m=128: base 11.6, f0=L1:a66t18s35k1r0z0c4i0g2w0v0.97 11.3, f1=L0:a66t18s35k1r0z0c4i0g2w0v0.97 11.3, f2=L3:a66t18s35k1r0z0c4i0g2w0v0.97 11.4, f3=L2:a66t18s35k1r0z0c4i0g2w0v0.97 11.4, f4=L2:a66t18s35k1r0z0c5i0g2w0v0.97 11.7; pref base margin 0.30 f0 +0.26/8 f1 +0.29/9 f2 +0.16/7 f3 +0.22/7 f4 -0.16/2 -\u003e base\nlt pooler m=128: 60 heuristic, 792 swept, 206 other, screen best L0:a66t134s35k1r0z0c0i0g5w0v0.79 24.8, L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.9, L2:a66t134s35k1r0z0c2i0g5w0v0.79 24.9, L2:a66t134s35k1r0z0c4i0g5w0v0.79 25.1, L2:a66t134s35k1r0z0c6i0g5w0v0.79 25.1\nltune pooler    m=128: base 26.6, pref=L1:a66t15s35k1r0z0c4i0g2w0v0.97 24.7, f0=L0:a66t134s35k1r0z0c0i0g5w0v0.79 25.5, f1=L0:a66t134s35k1r0z0c0i0g7w0v0.79 25.2, f2=L2:a66t134s35k1r0z0c2i0g5w0v0.79 25.6, f3=L2:a66t134s35k1r0z0c4i0g5w0v0.79 25.3, f4=L2:a66t134s35k1r0z0c6i0g5w0v0.79 25.4; pref pref margin 0.83 base -2.02/0 f0 -0.61/2 f1 -0.58/3 f2 -0.93/0 f3 -0.54/3 f4 -0.74/4 -\u003e pref\nlt unpooler m=128: 44 heuristic, 782 swept, 228 other, screen best L1:a66t18s35k1r0z0c7i0g5w0v0.97 22.7, L1:a66t18s35k1r0z0c0i0g5w0v0.97 22.7, L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.7, L3:a66t18s35k1r0z0c5i0g5w0v0.97 22.7, L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.7\nltune unpooler  m=128: base 24.2, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 23.2, f0=L1:a66t18s35k1r0z0c7i0g5w0v0.97 23.1, f1=L1:a66t18s35k1r0z0c0i0g5w0v0.97 23.0, f2=L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.9, f3=L3:a66t18s35k1r0z0c5i0g5w0v0.97 22.9, f4=L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.9; pref pref margin 0.51 base -1.28/1 f0 +0.03/5 f1 +0.00/4 f2 -0.06/4 f3 +0.26/5 f4 -0.03/4 -\u003e pref\nlt qkv_gate m=256: 60 heuristic, 792 swept, 192 other, screen best L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.1, L0:a66t124s35k1r0z0c0i0g2w0v0.97 22.1, L0:a66t134s35k1r0z0c0i0g9w0v0.88 22.1, L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.3, L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.4\nltune qkv_gate  m=256: base 23.5, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.9, f0=L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.2, f1=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.9, f2=L0:a66t134s35k1r0z0c0i0g9w0v0.88 22.3, f3=L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.3, f4=L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.6; pref pref margin 0.32 base -1.54/0 f0 -0.38/2 f1 -0.22/3 f2 -0.32/2 f3 -0.51/1 f4 -0.64/2 -\u003e pref\nlt o m=256: 32 heuristic, 787 swept, 224 other, screen best L3:a66t17s35k1r0z0c0i0g2w0v1.94 13.1, L1:a66t17s35k1r0z0c0i0g2w0v1.94 13.1, L2:a66t17s35k1r0z0c0i0g2w0v1.94 13.1, L3:a66t20s35k1r0z0c5i0g3w0v0.97 13.2, L1:a66t18s35k1r0z0c0i0g2w0v1.94 13.2\nltune o         m=256: base 13.5, pref=L3:a66t20s35k1r0z0c4i0g3w0v0.97 13.1, f0=L3:a66t17s35k1r0z0c0i0g2w0v1.94 13.2, f1=L1:a66t17s35k1r0z0c0i0g2w0v1.94 13.1, f2=L2:a66t17s35k1r0z0c0i0g2w0v1.94 13.2, f3=L3:a66t20s35k1r0z0c5i0g3w0v0.97 13.2, f4=L1:a66t18s35k1r0z0c0i0g2w0v1.94 13.2; pref pref margin 0.30 base -0.38/0 f0 -0.10/2 f1 +0.00/4 f2 -0.16/3 f3 -0.10/1 f4 -0.16/1 -\u003e pref\nlt pooler m=256: 50 heuristic, 790 swept, 222 other, screen best L1:a66t18s35k1r0z0c0i0g3w0v0.97 27.5, L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, L3:a66t18s35k1r0z0c0i0g3w0v0.97 27.8, L3:a66t18s35k1r0z0c1i0g3w0v0.97 28.3\nltune pooler    m=256: base 32.0, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.8, f0=L1:a66t18s35k1r0z0c0i0g3w0v0.97 28.4, f1=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.8, f2=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.8, f3=L3:a66t18s35k1r0z0c0i0g3w0v0.97 28.2, f4=L3:a66t18s35k1r0z0c1i0g3w0v0.97 28.7; pref pref margin 0.30 base -4.13/0 f0 -0.61/2 f1 +0.10/5 f2 +0.03/5 f3 -0.29/2 f4 -0.93/0 -\u003e pref\nlt unpooler m=256: 32 heuristic, 788 swept, 210 other, screen best L3:a66t20s35k1r0z0c0i0g2w0v0.97 27.6, L1:a66t20s35k1r0z0c6i0g5w0v0.97 27.8, L3:a66t20s35k1r0z0c6i0g5w0v0.97 27.8, L1:a66t20s35k1r0z0c0i0g3w0v0.97 27.9, L3:a66t20s35k1r0z0c0i0g3w0v0.97 27.9\nltune unpooler  m=256: base 28.9, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.8, f0=L3:a66t20s35k1r0z0c0i0g2w0v0.97 28.0, f1=L1:a66t20s35k1r0z0c6i0g5w0v0.97 27.8, f2=L3:a66t20s35k1r0z0c6i0g5w0v0.97 27.8, f3=L1:a66t20s35k1r0z0c0i0g3w0v0.97 27.9, f4=L3:a66t20s35k1r0z0c0i0g3w0v0.97 27.8; pref pref margin 0.58 base -1.09/1 f0 -0.26/4 f1 +0.22/7 f2 +0.00/4 f3 +0.19/5 f4 -0.03/4 -\u003e pref\nablate pooler m=128: m128k2r4 35.1, m128k2r4_a1 30.7, m128k2r4_a3 28.7\nablate o m=256: m256k1r4 25.6, m256k1r4_a1 23.4, m256k1r4_a3 18.6\nprepare done 109.4 s\nTraceback (most recent call last):\n  File \"/tmp/muse_bf16_proj-pv73t1et/run/worker.py\", line 423, in child_main\n    send(_setup_op(msg, module, state, sync, perf))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_bf16_proj-pv73t1et/run/worker.py\", line 322, in _setup_op\n    state[\"prep\"] = prepare(weights)\n                    ^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_bf16_proj-pv73t1et/run/submission.py\", line 4924, in prepare\n    _dsbench(weights,state)\n  File \"/tmp/muse_bf16_proj-pv73t1et/run/submission.py\", line 4876, in _dsbench\n    mod=_dsbuild('okc_dense_dsm_'+label)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_bf16_proj-pv73t1et/run/submission.py\", line 4870, in _dsbuild\n    finally:g.update(old)\n            ^^^^^^^^^^^^^\nValueError: dictionary update sequence element #0 has length 1; 2 is required\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 121.4,
+        "power.limit": 700,
+        "temperature.gpu": 35
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 128.15,
+        "power.limit": 700,
+        "temperature.gpu": 28
+      },
+      "node": "n-oiwen3u25vubdhxwxoeoxrqza5"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 16,
+        "baseline_prepare_pad": 2480640,
+        "copies": null,
+        "error": "ValueError: dictionary update sequence element #0 has length 1; 2 is required",
+        "event": "setup",
+        "first": "baseline",
+        "prepare_pad": null,
+        "prepare_s": null,
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793511788.5720618,
+  "status": "done",
+  "team": "yelgabo"
+}

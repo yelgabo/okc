@@ -1,0 +1,11 @@
+test_old_helper_fails_both_whole_prepares (reset_host_facade_test.Tests.test_old_helper_fails_both_whole_prepares) ... ok
+test_sets_alias_and_members (reset_host_facade_test.Tests.test_sets_alias_and_members) ... ok
+test_short_whole_prepare (reset_host_facade_test.Tests.test_short_whole_prepare) ... ok
+test_source_owner_inventory (reset_host_facade_test.Tests.test_source_owner_inventory) ... ok
+test_stage_whole_prepare (reset_host_facade_test.Tests.test_stage_whole_prepare) ... ok
+test_stale_replay_and_budget_fail_closed (reset_host_facade_test.Tests.test_stale_replay_and_budget_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.624s
+
+OK

@@ -1,0 +1,12 @@
+{
+  "start_UTC": "2026-11-01T22:45:26.010972+00:00",
+  "argv": [
+    "okc",
+    "status",
+    "3fd1317143304bd5",
+    "--json"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"board\": \"muse_decode_layer\",\n  \"content_hash\": \"8c737fa4b32be7cb9bc01b38eb56d62a3eedb796bd3b3ff1fe53270bf4d4c58d\",\n  \"created_at\": 1793572424.095212,\n  \"duplicate_of\": null,\n  \"id\": \"3fd1317143304bd5\",\n  \"mode\": \"run\",\n  \"payload_ref\": \"muse_decode_layer/8c737fa4b32be7cb9bc01b38eb56d62a3eedb796bd3b3ff1fe53270bf4d4c58d.py\",\n  \"result\": null,\n  \"status\": \"queued\",\n  \"team\": \"yelgabo\"\n}\n",
+  "stderr": ""
+}

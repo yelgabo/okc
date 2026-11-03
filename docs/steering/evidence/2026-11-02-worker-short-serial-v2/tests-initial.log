@@ -1,0 +1,9 @@
+test_actual_prepare_selector_router_and_all_factories (test_g_short_serial_producer.Contracts.test_actual_prepare_selector_router_and_all_factories) ... ok
+test_exact_prefix_notices_and_determinism (test_g_short_serial_producer.Contracts.test_exact_prefix_notices_and_determinism) ... ok
+test_runtime_negative_alias_or_startup_bypass (test_g_short_serial_producer.Contracts.test_runtime_negative_alias_or_startup_bypass) ... ok
+test_source_negative_contracts (test_g_short_serial_producer.Contracts.test_source_negative_contracts) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.094s
+
+OK

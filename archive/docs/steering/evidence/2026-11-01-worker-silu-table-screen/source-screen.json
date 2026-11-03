@@ -1,0 +1,354 @@
+{
+  "scope": "Source/CPU inspection only, no submission import, compilation, CUDA, GPU, judge or numerical SiLU evaluation",
+  "decision": "HOLD_RULE_ELIGIBILITY_BEFORE_IMPLEMENTATION",
+  "source": {
+    "path": ".build\\rmw-pair-v4\\check.py",
+    "bytes": 924005,
+    "sha256": "785a90ca08ddde0c3b194fc219a0645cb8cd14bac02620d8714f0b66163a0b66"
+  },
+  "binding_evaluator_sha256": "efcb799be407be0d19e8f60e40465afb54ec80474d0a17df832fe8fb81a9fe51",
+  "factory_receipt_sha256": "d27411779c9fb12be8c530ae42657c804a47752ad57603b90c02ba1ebb00f5a6",
+  "selected_sources": {
+    "main_b4": {
+      "bytes": 157626,
+      "sha256": "85f7cf53e563ca283aa50b8e201c1166c9f1a32607dbe086043ebb0d6e5db0b6",
+      "gate_site_superset": [
+        {
+          "literal_line": 453,
+          "nearest_device_declaration": "__device__ __forceinline__ void epi_A(const Params& p, int pstart, int ntok, int tok0, int col, float gsc, const float* r) {",
+          "text": "float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+        },
+        {
+          "literal_line": 777,
+          "nearest_device_declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+          "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+        },
+        {
+          "literal_line": 945,
+          "nearest_device_declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+          "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+        },
+        {
+          "literal_line": 1602,
+          "nearest_device_declaration": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {",
+          "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+        },
+        {
+          "literal_line": 1975,
+          "nearest_device_declaration": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {",
+          "text": "const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+        }
+      ]
+    },
+    "moe_helper0": {
+      "bytes": 141899,
+      "sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "gate_site_superset": [
+        {
+          "literal_line": 425,
+          "nearest_device_declaration": "__device__ __forceinline__ void epi_A(const Params& p, int pstart, int ntok, int tok0, int col, float gsc, const float* r) {",
+          "text": "float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+        },
+        {
+          "literal_line": 723,
+          "nearest_device_declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+          "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+        },
+        {
+          "literal_line": 891,
+          "nearest_device_declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+          "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+        },
+        {
+          "literal_line": 1548,
+          "nearest_device_declaration": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {",
+          "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+        },
+        {
+          "literal_line": 1891,
+          "nearest_device_declaration": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {",
+          "text": "const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+        }
+      ]
+    },
+    "moe_helper0df": {
+      "bytes": 141899,
+      "sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "gate_site_superset": [
+        {
+          "literal_line": 425,
+          "nearest_device_declaration": "__device__ __forceinline__ void epi_A(const Params& p, int pstart, int ntok, int tok0, int col, float gsc, const float* r) {",
+          "text": "float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+        },
+        {
+          "literal_line": 723,
+          "nearest_device_declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+          "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+        },
+        {
+          "literal_line": 891,
+          "nearest_device_declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+          "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+        },
+        {
+          "literal_line": 1548,
+          "nearest_device_declaration": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {",
+          "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+        },
+        {
+          "literal_line": 1891,
+          "nearest_device_declaration": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {",
+          "text": "const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+        }
+      ]
+    }
+  },
+  "factories": [
+    {
+      "name": "glue_moe_899615447b094660_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_e8c02faa679f456e_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_6527dbf87f36ac48_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_da205deb6a1c25e5_sm90a",
+      "cuda_sha256": "85f7cf53e563ca283aa50b8e201c1166c9f1a32607dbe086043ebb0d6e5db0b6",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_17b01b3c5b6911af_sm90a",
+      "cuda_sha256": "85f7cf53e563ca283aa50b8e201c1166c9f1a32607dbe086043ebb0d6e5db0b6",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_7e8bb26727fdbec3_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    },
+    {
+      "name": "glue_moe_227343a3f2e52b76_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "cpp_sha256": "9d7d85c52a2c431061e67d15f025a5feca0c65e8a7554194df4b6dbd32cea774",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "wl_resources",
+        "qual_native_resources"
+      ]
+    }
+  ],
+  "domain_counts": {
+    "raw_words": 65536,
+    "finite": 65280,
+    "infinity": 2,
+    "nan": 254,
+    "subnormal": 254
+  },
+  "table_bytes": 262144,
+  "source_binding_limit": "Existing pure-assignment evaluator does not execute augmented assignments/comprehensions; actual final build flags come from the separately pinned seven-factory receipt, not evaluator define tuples.",
+  "source_assignments": [
+    {
+      "line": 3959,
+      "target": "MOE_CUDA_SRC",
+      "bytes": 157626,
+      "sha256": "85f7cf53e563ca283aa50b8e201c1166c9f1a32607dbe086043ebb0d6e5db0b6"
+    },
+    {
+      "line": 12636,
+      "target": "_MA_ALT_SRCS['moe_helper0']",
+      "bytes": 141899,
+      "sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4"
+    }
+  ]
+}

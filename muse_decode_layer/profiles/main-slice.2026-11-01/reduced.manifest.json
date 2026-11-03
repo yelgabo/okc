@@ -1,0 +1,59 @@
+{
+  "source": ".build/today/owned-main-slice/reduced.cu",
+  "source_sha256": "8b1c48fcfb17413739eb8ba06a72f6f04c27b1e65a5a780756ca235c81c00a41",
+  "original_device_prefix_sha256": "8b1c48fcfb17413739eb8ba06a72f6f04c27b1e65a5a780756ca235c81c00a41",
+  "compiled_device_prefix_sha256": "df1f61d55bc11c5010520c23802bfd0bdb68286b89c50b9a64aa3b4943806de4",
+  "host_boundary": "unreferenced host launch wrappers",
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\n#include <cuda/std/cstdint>\n"
+  },
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "declaration_adapter": {
+    "removed_host_functions": [
+      "1601bdc8c718facb0672f942b3f7e259ab90399fc85c9a797a4e503cfbcba97f",
+      "df08eef3f7c045d393e4b3b452dc9bdbeebda3f3f03568252a93730820279f79"
+    ]
+  },
+  "header_adapter": "Torch/ATen/algorithm/vector removed; cuda_runtime, CUDA cstdint, overflow float literal INFINITY (positive infinity); owned layer one plus anonymous namespaces closed after extract",
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_f1fc74ec_4384moe115moe_main_kernelILi51EEEvNS0_6ParamsE"
+  ],
+  "ptx_sha256": "99b5a76d675d65d3b2a8105cda2a0cb6fa93eeead09b5224eef9f18a79363108",
+  "cubin_sha256": "b2253654dd214a077b63c0b39e6684e2413f0086948f9b057c9663350ef2ff49",
+  "ptxas": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/root/.cache/okc-owned-main-reduced/device.ptx",
+    "-o",
+    "/root/.cache/okc-owned-main-reduced/device.cubin"
+  ],
+  "exitcode": 0,
+  "resources": {
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_f1fc74ec_4384moe115moe_main_kernelILi51EEEvNS0_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 96,
+      "barriers": 16
+    }
+  },
+  "ptx_launch_bounds": [
+    ".maxntid 576, 1, 1",
+    ".minnctapersm 1"
+  ],
+  "ptxas_wgmma_serialization_warnings": 0
+}

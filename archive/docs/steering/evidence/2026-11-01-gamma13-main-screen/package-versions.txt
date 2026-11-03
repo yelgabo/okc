@@ -1,0 +1,35 @@
+﻿/root/.cache/okc-cuda130-88/nvidia_cuda_crt-13.0.88.dist-info/METADATA
+98a20c1f5603c570021e57bba511125476a428672bab5c21b6b2fe85d1f8832b  /root/.cache/okc-cuda130-88/nvidia_cuda_crt-13.0.88.dist-info/METADATA
+Metadata-Version: 2.4
+Name: nvidia-cuda-crt
+Version: 13.0.88
+Summary: CUDA C Runtime
+Home-page: https://developer.nvidia.com/cuda-zone
+/root/.cache/okc-cuda130-88/nvidia_cuda_nvcc-13.0.88.dist-info/METADATA
+007ee4920a0e94ecee0abe1be022f39ad3568c6b3e81d8ac41b3bcc871e75f4a  /root/.cache/okc-cuda130-88/nvidia_cuda_nvcc-13.0.88.dist-info/METADATA
+Metadata-Version: 2.4
+Name: nvidia-cuda-nvcc
+Version: 13.0.88
+Summary: CUDA nvcc
+Home-page: https://developer.nvidia.com/cuda-zone
+/root/.cache/okc-cuda130-88/nvidia_cuda_nvrtc-13.0.88.dist-info/METADATA
+27505676fa8577b448021d935306228d06c6236b2bf5247c148425e5130ad4c8  /root/.cache/okc-cuda130-88/nvidia_cuda_nvrtc-13.0.88.dist-info/METADATA
+Metadata-Version: 2.4
+Name: nvidia-cuda-nvrtc
+Version: 13.0.88
+Summary: NVRTC native runtime libraries
+Home-page: https://developer.nvidia.com/cuda-zone
+/root/.cache/okc-cuda130-88/nvidia_cuda_runtime-13.0.88.dist-info/METADATA
+002f74a2b600f77c8bb8cc7457be25e98d6c2291099f5d4db65baa61f5f69d8a  /root/.cache/okc-cuda130-88/nvidia_cuda_runtime-13.0.88.dist-info/METADATA
+Metadata-Version: 2.4
+Name: nvidia-cuda-runtime
+Version: 13.0.88
+Summary: CUDA Runtime native Libraries
+Home-page: https://developer.nvidia.com/cuda-zone
+/root/.cache/okc-cuda130-88/nvidia_nvvm-13.0.88.dist-info/METADATA
+126b90f982840a4c9bca1587d2adfaceb18e881b898d2057187c49901b228186  /root/.cache/okc-cuda130-88/nvidia_nvvm-13.0.88.dist-info/METADATA
+Metadata-Version: 2.4
+Name: nvidia-nvvm
+Version: 13.0.88
+Summary: NVVM Libraries
+Home-page: https://developer.nvidia.com/cuda-zone

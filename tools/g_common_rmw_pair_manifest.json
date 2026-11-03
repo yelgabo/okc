@@ -1,0 +1,117 @@
+{
+  "source_sha256": "785a90ca08ddde0c3b194fc219a0645cb8cd14bac02620d8714f0b66163a0b66",
+  "bytes": 924005,
+  "capsule_pins": {
+    "_WL_PIN": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+    "_WL_CONFORMANCE": {
+      "candidate_pin": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+      "job_id": "c1931f0c9e834485",
+      "scope": "common + ON single-arm qualification; OFF official tests required in owning paired receipt",
+      "qualified_on_source_sha256": "978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a"
+    },
+    "_WL_DEVICE_SHA": "aea9735e7d91a7d51a7afe63c8cf0774b5bbd15de6ab416bbc5acbd2469ddbd2",
+    "_WL_CORE_SHA": "e5229e040d90ddb2f27ef1072f49d346aac87c6c123ef66f2ea4124e9f2f732f"
+  },
+  "historical_harness_sha256": "f0426f7160768de01997b271744542ae3442d0851a1c27e586ced322a8fc6864",
+  "control_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+  "fixed_on_raw_sha256": "2884adb6d0d6947391c81cd67a0c727a04e7d41694d7c780cf8cee80dfa9dbcd",
+  "common_deltas": [
+    {
+      "kind": "Assign",
+      "line": 108,
+      "before_sha256": "f29adbf90ad33f9a98c31f68701fafd607a869164ddc00c1f5c503442a47f6cd",
+      "after_sha256": "479f3ce04c8f7df93b542e4db887caf7589ef73bb4aa922cb754fa3178974aa8"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 10643,
+      "before_sha256": "88e6c364cc4c3f5fb667d03a08b4de64a8e3bbf39041106ede34ba39a4fd051c",
+      "after_sha256": "b898f73af7b1f5cea0d6c30a110aeebc087a741c461ab3bcb6b22eb76ea72561"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 10730,
+      "before_sha256": "2a5f67a481afa8596b554cef0ed69ccfd5362739e53d2fcce046b0e0f49fd31b",
+      "after_sha256": "c76edd4a1e2d8637a5075220e018af18c5df360255c461913a29a80c6a5575cf"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 10776,
+      "before_sha256": "1bafb386ee794bf9f1def1b553941608f196966f29a7bda1f9a984597a259290",
+      "after_sha256": "8f132483f7010da17fdddb1e008f897be104c5972ccb3a5aed693a1e06add28d"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 11132,
+      "before_sha256": "32097f446c1213ad13a2a9cd5a2c64d1dd69238c4fc55df369491418610e418b",
+      "after_sha256": "fce7cdf663913e6b5f217e63fff067dc777247d7552094b5f448326a3908f072"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 11462,
+      "before_sha256": "705a091dba93bf19d05d97384bcdb6166d147d8ec6f8a3e709a380d82ed5adb4",
+      "after_sha256": "f4faf1a12e4cca3d605eb13815032fd4a0096b05fa1c1d2feb004964eb915cb4"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 12069,
+      "before_sha256": "7a606e0638df668e6240836aaa28c578058e27ac2f55e0e01c35896eb9dcb763",
+      "after_sha256": "ce492c103a41dee27ef245a77057d369421c6540c08319aac1072991c994e117"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 12342,
+      "before_sha256": "813bdbf35b92011aee41d2507401bb51e281153ca05b1c07edfdea5cff39bee1",
+      "after_sha256": "062cbb4fe2db11d280fa6ff72c2a103f632fc66ab8856f562cc7f42f3a2de147"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 15660,
+      "before_sha256": "3734adf7ba9a4775ec8370298ac35b4fae6d39778e1b6fea6b145d53bae0fb07",
+      "after_sha256": "10e2fd38df3aba2c58fb0295e3247a93979f04d3aef5d02a330d3abc5c0637fc"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 15740,
+      "before_sha256": "9b7c99e2abf5a41a70980b91fa4b12bf17dc20eadd3c95a460d937698bdfdd5a",
+      "after_sha256": "7fee7515a3b8e11286ac77ca91a1ea6d06ec6c0b7bba3bd53c52755328884a8a"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 15794,
+      "before_sha256": "4705ac1d3c8670b62ea167ff607330bebc5dd99ecbe2644743ffed12b98ceb58",
+      "after_sha256": "bcc1cf75cc34fbb907ad2d7e27e1fc5c01c561f994a7590905f2c0a849f54410"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 15862,
+      "before_sha256": "3cc73e652df9640e3c33965f165ef419ae6f7cbaf3d4c0e4a996d12355ac063f",
+      "after_sha256": "c67e1b4550b5a7c1d61138ab773be662f892d27cf246de922f7955733ebd4d0e"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 16548,
+      "before_sha256": "ba059ab071d9c88f4ae6e970ae58f19394d8cdaeb9788495a93bdcd870efb1d3",
+      "after_sha256": "18a74085a826a23a10761c8bf6f83d46609580b2684418442588642aadc4fcd3"
+    },
+    {
+      "kind": "FunctionDef",
+      "line": 16657,
+      "before_sha256": "c43c966d59e978b4ba15aea9f2b4064f9981a75fb0c6db9ae2159adfac9714a4",
+      "after_sha256": "f2abbca474d80a0eb7297fb3642af50fbd9948638f38f8d929b00429b38db3e8"
+    }
+  ],
+  "seeds": [
+    993811,
+    993817,
+    993821
+  ],
+  "rows": 36,
+  "arms": 4,
+  "rounds": 24,
+  "flush_bytes": 268435456,
+  "normal_judged": "repaired-common OFF; all common progress/cooperative fixes retained",
+  "support_sha256": "812a85dd12da833a70bc734fc04be89fceed2b90bf97ff5c91986afd11dba42a",
+  "private_check_only": true,
+  "total_guard_s": 295
+}

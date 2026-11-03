@@ -1,0 +1,88 @@
+{
+  "board": "muse_decode_layer",
+  "call_id": "nyc3b:kc-62a4f6b27ed74b50",
+  "cluster": "nyc3b",
+  "content_hash": "1401e1da9cdce671025992b6e202e5db34533623dbd6fb421d606504a732390d",
+  "created_at": 1793668465.6196442,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793669270.5440156,
+  "id": "62a4f6b27ed74b50",
+  "mode": "check",
+  "output": {
+    "log": "/Users/gretchengabo/Documents/ChatGPT/okc/docs/steering/decode32/evidence/D32-ATTN-03/profiles/paired.62a4f6b27ed74b50.log"
+  },
+  "payload_ref": "muse_decode_layer/1401e1da9cdce671025992b6e202e5db34533623dbd6fb421d606504a732390d.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "1ba270d841be831b06a5862f4094cd0d5072edfbd0f6e84b95f79248296367dd",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "60e242544d5f5a5fc143870461f7373b85accb677a536cb337581ded938c4a48",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:8c102d00529abd8b80898116ac64a9c8f66bbd256d56142be4b96fb626e89452"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True\nD32_ATTN_PREPARED eligible=True source_sha256= 3de8f5caac947c54af133fd83b157e3d1f1ab16ebcee8d61bcd0573f8ad0b26d capability= 9 0 sms= 132\nFORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off\nG1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]\nG_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-l9md3ark/run/worker.py\", line 423, in child_main\n    send(_setup_op(msg, module, state, sync, perf))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-l9md3ark/run/worker.py\", line 322, in _setup_op\n    state[\"prep\"] = prepare(weights)\n                    ^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-l9md3ark/run/submission.py\", line 18114, in prepare\n    with torch.inference_mode(False),torch.no_grad():report=_eh_private(weights,state)\n                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-l9md3ark/run/submission.py\", line 18069, in _eh_private\n    assert all(torch.equal(outputs[0][2],out[2]) for out in outputs[1:]),'EXPERT_FRESH_ROUTING_MISMATCH'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: EXPERT_FRESH_ROUTING_MISMATCH\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 123.03,
+        "power.limit": 700,
+        "temperature.gpu": 34
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 390,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 78.9,
+        "power.limit": 700,
+        "temperature.gpu": 31
+      },
+      "node": "n-jm6ivorpl4s77pryw35ktai2hy"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 2,
+        "baseline_prepare_pad": 5020672,
+        "copies": null,
+        "error": "AssertionError: EXPERT_FRESH_ROUTING_MISMATCH",
+        "event": "setup",
+        "first": "submission",
+        "prepare_pad": null,
+        "prepare_s": null,
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793669041.646747,
+  "status": "done",
+  "team": "yelgabo"
+}

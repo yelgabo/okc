@@ -1,0 +1,33 @@
+{
+  "owned_lf": "0627edb55a4f28e8943c9e605246757287cde74f54ddc4306e0c8cca81457ea4",
+  "public_raw": "496d460e0bb1e7489684de2742f1ff22f3959d9d5fe30674199e74b3d002d651",
+  "public_commit": "8e30e1be994db4310794b8d04e90d18d895deb84",
+  "owned_cuda": "363bce8430189fd118d371cfbb6fc22346d7006e31da90362693819222684557",
+  "vp2_cuda": "77b497fd1f53baa0bb5e4470d3eac270f7e7de95ccab4bbd8fdb861435cd86db",
+  "notice_sha256": "43ac9707b8c367e0c92c2d2e9b0506170df89690e5af3d68df82af544fe37e08",
+  "license_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+  "seeds": [
+    824731,
+    824737,
+    824743
+  ],
+  "policy": "PRIVATE judged comparator VP2 only B1/q8/sliding/page1/unitKV; all other scored cells actual BF16 owned ONE; nonTP8 existing SGLang fallback",
+  "measurement_only": true,
+  "sch": 0,
+  "decision_rule": "THIS official job raw-minus-adjusted offsets applied commonly to private raw arms; contemporaneous >=1% and >2x null pooled and every seed, no regression/no nonpositive times; raw all4 crosses positive every seed and no regression. Old-offset/raw keep flags descriptive only.",
+  "build_ids": [
+    "vp2bf_owned824731_0",
+    "vp2bf_owned824731_1",
+    "vp2bf_foreign824731_2",
+    "vp2bf_foreign824731_3"
+  ],
+  "error_order": [
+    "FP32judge_global",
+    "FP32judge_row",
+    "BF16output_global",
+    "BF16output_row",
+    "newK",
+    "newV"
+  ],
+  "calibration_receipt_sha256": "2b85aaddf9b2bac47706be8462558bb314f91a2e9d9f307d517678211603d833"
+}

@@ -1,0 +1,28 @@
+{
+  "captured_utc": "2026-11-01T23:47:26.569110+00:00",
+  "codex": "0.156.1",
+  "model": "gpt-6-astra",
+  "provider": "openai_token_sharing",
+  "isolated_home": "fresh temporary CODEX_HOME; original rollout copied in; no live state written",
+  "source_native_thread": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+  "before": {
+    "status": "failed",
+    "error_code": "subscription_sharing_unsupported_capability",
+    "assistant_markers": []
+  },
+  "replacement_native_thread": "01a19982-cb0d-7780-b864-5761711ab648",
+  "after": {
+    "status": "completed",
+    "error_code": null,
+    "assistant_markers": [
+      "BASELINE_OK"
+    ]
+  },
+  "followup": {
+    "status": "completed",
+    "error_code": null,
+    "assistant_markers": [
+      "FOLLOWUP_OK"
+    ]
+  }
+}

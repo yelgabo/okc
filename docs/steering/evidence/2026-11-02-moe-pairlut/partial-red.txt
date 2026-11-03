@@ -1,0 +1,15 @@
+test_failed_partial_binds_source_and_never_qualifies (test_moe_pairlut_partial.Partial.test_failed_partial_binds_source_and_never_qualifies) ... FAIL
+
+======================================================================
+FAIL: test_failed_partial_binds_source_and_never_qualifies (test_moe_pairlut_partial.Partial.test_failed_partial_binds_source_and_never_qualifies)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/gretchengabo/Documents/ChatGPT/okc/tools/test_moe_pairlut_partial.py", line 19, in test_failed_partial_binds_source_and_never_qualifies
+    self.assertTrue(callable(method),'failed owning capsule needs a partial reader')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : failed owning capsule needs a partial reader
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)

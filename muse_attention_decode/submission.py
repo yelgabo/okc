@@ -2884,6 +2884,12 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // log2), with straight-line query copies and query pass, branch-free predicated row copies in
 // the prologue issue, and no page-index copies for tiles past the CTA's range. Off and on are
 // timed side by side in bench d57d1fe064164611 (docs/runs-attention.md, 10-29).
+// Late query-address scheduling after page copies: 1 = L1 SPEC;
+// 2 = L1 SPEC non-one-tile only; checked d331aca81c554d70, fresh gate 80415fe736bb4890.
+#ifndef ONE_LATE_TID
+#define ONE_LATE_TID 2
+#endif
+
 #ifndef ONE_DIET
 #define ONE_DIET 1
 #endif
@@ -4552,6 +4558,10 @@ attn_one_kernel(const Params p) {
         }
         stamp(1);
         PHASE_EXIT(1)
+        int qtid = tid;
+        if constexpr (ONE_LATE_TID && SPEC && L == 1 && ((ONE_LATE_TID & 1) || !ONE)) {
+            asm volatile("mov.u32 %0, %%tid.x;" : "=r"(qtid));
+        }
         // Query rows, the block's new key/value rows (if this range may hold them),
         // constants; the range holding the request's first key prefetches the gate rows.
         {
@@ -4560,14 +4570,14 @@ attn_one_kernel(const Params p) {
                 static_assert(ROWS * 8 % NC == 0, "whole passes of the consumer threads");
 #pragma unroll
                 for (int k = 0; k < ROWS * 8 / NC; ++k) {
-                    const int i = tid + k * NC;
+                    const int i = qtid + k * NC;
                     const int row = i >> 3;
                     const int cc = i & 7;
                     cp_async16(smem_base + S::QST + row * 128 + cc * 16,
                                qbase + (row >> 4) * QKV_STRIDE + (row & 15) * D + cc * 8, 16);
                 }
             } else {
-                for (int i = tid; i < ROWS * 8; i += NC) {
+                for (int i = qtid; i < ROWS * 8; i += NC) {
                     const int row = i >> 3;
                     const int cc = i & 7;
                     cp_async16(smem_base + S::QST + row * 128 + cc * 16,
@@ -4575,27 +4585,27 @@ attn_one_kernel(const Params p) {
                 }
             }
             const bool has_new = hi > seq || SPEC;
-            if (has_new && tid < L * 32) {
-                const int rr = tid >> 3;
-                const int cc = tid & 7;
+            if (has_new && qtid < L * 32) {
+                const int rr = qtid >> 3;
+                const int cc = qtid & 7;
                 cp_async16(smem_base + S::KVST + rr * 128 + cc * 16,
                            qbase + (rr >> 2) * QKV_STRIDE + (HQ + (rr & 3)) * D + cc * 8, 16);
             }
-            if (tid < 8) {
-                cp_async16(smem_base + S::CONST + C_INVF + tid * 16, p.inv_freq + tid * 4, 16);
-            } else if (tid == 8) {
+            if (qtid < 8) {
+                cp_async16(smem_base + S::CONST + C_INVF + qtid * 16, p.inv_freq + qtid * 4, 16);
+            } else if (qtid == 8) {
                 cp_async4(smem_base + S::CONST + C_KS, p.k_scale, 4);
-            } else if (tid == 9) {
+            } else if (qtid == 9) {
                 cp_async4(smem_base + S::CONST + C_VS, p.v_scale, 4);
-            } else if (tid == 10) {
+            } else if (qtid == 10) {
                 cp_async4(smem_base + S::CONST + C_EPOCH, p.ws_cnt + CNT_EPOCH + b,
                           COOP && !FLAT ? 4 : 0);
-            } else if (tid >= 16 && tid < 16 + L) {
-                cp_async8(smem_base + S::CONST + C_LOC + (tid - 16) * 8,
-                          p.cache_loc + static_cast<size_t>(b) * L + (tid - 16), 8);
+            } else if (qtid >= 16 && qtid < 16 + L) {
+                cp_async8(smem_base + S::CONST + C_LOC + (qtid - 16) * 8,
+                          p.cache_loc + static_cast<size_t>(b) * L + (qtid - 16), 8);
             }
-            if ((FLAT ? lo == 0 : split == 0) && tid < ROWS) {
-                prefetch_l2(qbase + (tid >> 4) * QKV_STRIDE + GATE_OFF + (tid & 15) * D);
+            if ((FLAT ? lo == 0 : split == 0) && qtid < ROWS) {
+                prefetch_l2(qbase + (qtid >> 4) * QKV_STRIDE + GATE_OFF + (qtid & 15) * D);
             }
         }
         cp_commit();
@@ -6265,6 +6275,8 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
                 ", coop ", coop, "): ", cudaGetErrorString(err));
     return out;
 }
+
+
 """
 
 _ONE_CPP = """

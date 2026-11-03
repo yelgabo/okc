@@ -1,0 +1,11 @@
+{
+  "baseline_copies": 2,
+  "baseline_prepare_pad": 11269632,
+  "copies": null,
+  "error": "RuntimeError: Error building extension 'pr_graph_owner_relaxed_v1': [1/2] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=pr_graph_owner_relaxed_v1 -DTORCH_API_INCLUDE_EXTENSION_H -I/usr/local/cuda/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -O2 -std=c++17 -pthread -c /tmp/muse_decode_layer-gpa0_hod/sandbox/cache/torch_extensions/pr_graph_owner_relaxed_v1/main.cpp -o main.o \nFAILED: [code=1] main.o \nccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=pr_graph_owner_relaxed_v1 -DTORCH_API_INCLUDE_EXTENSION_H -I/usr/local/cuda/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -O2 -std=c++17 -pthread -c /tmp/muse_decode_layer-gpa0_hod/sandbox/cache/torch_extensions/pr_graph_owner_relaxed_v1/main.cpp -o main.o \nIn file included from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/extension.h:6,\n                 from /tmp/muse_decode_layer-gpa0_hod/sandbox/cache/torch_extensions/pr_graph_owner_relaxed_v1/main.cpp:1:\n/opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/all.h:5:2: error: #error C++20 or later compatible compiler is required to use PyTorch.\n    5 | #error C++20 or later compatible compiler is required to use PyTorch.\n      |  ^~~~~\nIn file included from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/types.h:4,\n                 from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/data/dataloader_options.h:5,\n                 from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/data/dataloader/base.h:4,\n                 from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/cs",
+  "event": "setup",
+  "first": "submission",
+  "prepare_pad": null,
+  "prepare_s": null,
+  "status": "fail"
+}

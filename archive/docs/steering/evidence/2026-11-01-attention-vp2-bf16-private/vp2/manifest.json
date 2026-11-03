@@ -1,0 +1,41 @@
+{
+  "source_sha256": "77b497fd1f53baa0bb5e4470d3eac270f7e7de95ccab4bbd8fdb861435cd86db",
+  "device_sha256": "db27365fcd788f6cd968ffba757a149ae65b50888f5a0fd2e95915144d578912",
+  "adapters": [
+    "drop VFG/VP2 host launch wrappers and stdexcept; retain device prefix",
+    "fixed-width virtual stdint",
+    "select actual vfgns::b1vp2::vp2_kernel; SCH0"
+  ],
+  "options": [
+    "-DZH_SCH=0",
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "expressions": [
+    "&vfgns::b1vp2::vp2_kernel"
+  ],
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN5vfgns5b1vp210vp2_kernelEPK13__nv_bfloat16PKiS5_PKxPhS8_PKfiffffPyPS1_fi"
+  ],
+  "cubin_sha256": "48fe50610c211f6b403fc0b15c5ee18ce3e071ffcec03ed641414cb269d05321",
+  "ptx_sha256": "b6924cb2d1748aaefc6a756feedf92d183087b28bb2af00ffc19146b92207bd2",
+  "sass_sha256": "08accd32537811c460f8ecbcf5b06cc9b3faa255ec312b0886f152e043a09261",
+  "ptxas_command": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/root/.cache/okc-vp2-bf16-private/device.ptx",
+    "-o",
+    "/root/.cache/okc-vp2-bf16-private/device.cubin"
+  ],
+  "ptxas_status": 0
+}

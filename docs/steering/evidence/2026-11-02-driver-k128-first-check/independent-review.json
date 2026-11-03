@@ -1,0 +1,16 @@
+{
+  "reviewer": "root/k128_terminal_audit",
+  "edits": false,
+  "judge_calls": false,
+  "decision": "PARK_EXACT_FIXED_K128_NO_CONFIRMATION",
+  "verified": [
+    "own job/problem/check/team and complete terminal",
+    "physical source identity at15688256",
+    "13passing correctness,12passing benchmarks,12complete profiles",
+    "score/CI and108.018s preparation",
+    "all three actual resident2 admission lines and56startupreplays",
+    "six46:16 endpoints independently recomputed",
+    "evaluator hashes match; cluster/node/driver and12seeds differ"
+  ],
+  "scope": "Descriptive unfavorable continuation screen, not matched causal loss or instruction-level diagnosis. Does not reject two-CTA designs generally."
+}

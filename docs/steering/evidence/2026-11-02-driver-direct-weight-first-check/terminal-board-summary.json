@@ -1,0 +1,134 @@
+{
+  "observed_at_utc": "2026-11-02T23:33:49.737292+00:00",
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 2,
+            "left": 18
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 13,
+            "left": 7
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      }
+    ]
+  },
+  "active_jobs": [],
+  "overall": {
+    "you": {
+      "rank": 376,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 375
+    },
+    "top100": {
+      "rank": 100,
+      "solved": 4,
+      "team": "Krish-Parmar22"
+    },
+    "our_row": {
+      "rank": 376,
+      "solved": 4,
+      "team": "yelgabo"
+    }
+  },
+  "layer": {
+    "you": {
+      "rank": 376,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 375,
+      "to_first": 1.1704
+    },
+    "top100": {
+      "attempts": 28,
+      "job": "e05e1df360a64a77",
+      "rank": 100,
+      "speedup": 2.269,
+      "submitted_at": 1793580826.7729056,
+      "team": "Krish-Parmar22",
+      "value": 9969.451079662338
+    },
+    "our_row": {
+      "attempts": 42,
+      "job": "607eb52bdaf24160",
+      "rank": 376,
+      "speedup": 2.1261,
+      "submitted_at": 1793534312.3883686,
+      "team": "yelgabo",
+      "value": 10639.426326569794
+    }
+  }
+}

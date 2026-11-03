@@ -1,0 +1,22 @@
+# Worker: frozen private MoE component preregistration
+
+November 2, 2026. Sole dispatch owner under captain allocation **2f25832e0a3385d2c6cc3ed347ac5cb5deae15c5**, `2026-11-02-captain-moe-one-check-allocation.md`, and parent `2026-11-02-top100-moe-harness.md`. Exactly ONE ordinary private `muse_moe_w4a16` check is allocated. No layer, scored/public/default action, source repair, automatic retry, tuning, subagent or new readiness implementation is authorized. Previous T1 and PR artifacts remain frozen.
+
+## Registered artifact and verification
+
+Owned evidence: `evidence/2026-11-02-worker-moe-component/`. Regenerated with the existing WSL CPU interpreter and `tools/expert_top100_moe_harness.py --target-proposal --out docs/steering/evidence/2026-11-02-worker-moe-component/generated/target-proposal.py`. No compiler, GPU or driver was invoked locally. Complete regenerated physical LF source matches the captain archive byte-for-byte; adjacent manifests match structurally, without mutations.
+
+- Source SHA256 **8f12932a4d0fc8a2ca42a165610fd7659d4db960d8c65c8ea97281b75ec46d5d**, **344689 bytes**, no CR bytes.
+- Frozen reader canonical LF SHA256 **dc0fd553b8b4b701c7f6eaa99aff52abd9a2ab9191712c0d178bd5b3ae704b35**. Owning reader remains unchanged; a canonical LF evidence copy is retained. Windows checkout CRLF hash is separately recorded, never substituted for the canonical pin.
+- Runtime **0118b4f50c0427c8fa53ce6831b70362b15f722cf6db1a7724f46f82eb55e9cb**. Candidate dff221ae/native3cc12ae0; control ba9e327c/native c7c201ae. Seven exact compiler descriptors preserved.
+- Official state is candidate2; four independent preparations are control0/control1/candidate2/candidate3. `H_HOLD=False`; historical manifest `dispatch_ready=false` remains untouched. Captain allocation supplies authorization, not a changed manifest or qualification claim.
+
+Actual runtime/contract/reader reviewed: private storage and extension maps; full compiler descriptor checks; seven observed contents for each of54 cases; raw/fresh/empty/occupied/restored graph input observation;216 captures;378 observations;54 restorations;1152 timings; original scratch reset and loader restoration before returning candidate2. Four preparations and the complete capsule share295 seconds. Build, admission, memory, deadline fit and official FP32/CUDA correctness are target questions, not established by host facades.
+
+## Hypothesis, controls and stopping gates
+
+Question: does the unchanged pre-gamma transport candidate survive target setup, official candidate numerics and actual graph replay, and improve the standalone matched component? Fixed banks1102031/1102037/1102049, normal/skewed distributions, all nine correctness sizes and four crossed control/candidate comparisons remain frozen. Official expectation is5 tests,6 benchmarks and6 profiles. Per-bank/distribution equal-six geometric gain must be at least1%, exceed twice the duplicate log null, and have no at-least1% affected-load regression. Report unchanged-load drift. The frozen reader recomputes the gate; raw64-bit seeds remain in unmodified JSON and are parsed with Python integers, not JavaScript numbers.
+
+Publish and remotely verify this registration before dispatch; then freshly authenticate team yelgabo, establish private capacity and no conflicting live MoE job, and deterministically recheck physical source identity immediately before the one `okc check --no-wait --json`. Source/capacity/ownership blocker means STOP. Ambiguous acceptance requires server-job reconciliation, never a blind POST retry. Accepted own ID consumes the allocation; wait transport failure only permits own-ID read/status recovery. Bind board/check/team/server content identifier and payload reference separately from physical SHA; archive raw receipt/log, upload/log attestations, all available six profiles and frozen reader result. Queue time and worker/setup/prepare time remain distinct.
+
+Any invalid/identity/build/numerical/replay/guard/progress/budget failure stops the lane, without weakening the instrument or repairing the candidate. Valid subthreshold/regression parks this exact treatment. Even a favorable component result is not whole-layer evidence, causal promotion, a public/default change or permission for another check. Captain owns README/index; this worker owns component evidence and MoE run breadcrumbs. This preregistration reports no accepted job or target result yet.

@@ -1,0 +1,20 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "candidate_native_sha256": "8c2cfc7cd87dd863bf32cd6389b9f056e954329201fee1d7011a39efe5ce31c8",
+  "edits": [
+    [
+      "          uint32_t r0, r1, r2, r3;\n          dq4(q, r0, r1, r2, r3);\n          // scales stored [j][h] (rows g, g+8 of step j side by side): one PRMT + one IMAD build both rows' scales in\n          // one bf16x2, and the multiplies broadcast its halves (HMUL2 .H0_H0 / .H1_H1): 2 instructions per k16 fewer\n#if OKC_SC6W\n          const uint32_t sgp = sgs[js];\n#else\n          const uint32_t sw = js < 2 ? scg.x : scg.y, sb = (uint32_t)(js & 1) * 2u;\n          const uint32_t sgp = __byte_perm(sw, 0u, 0x4040u | sb | ((sb + 1u) << 8)) * k16c + 0x5C005C00u;\n#endif\n          af[ci & 1][jj][0] = bmul2l(r0, sgp); af[ci & 1][jj][1] = bmul2h(r1, sgp);\n          af[ci & 1][jj][2] = bmul2l(r2, sgp); af[ci & 1][jj][3] = bmul2h(r3, sgp);",
+      "#if OKC_SC6W\n          const uint32_t sgp = sgs[js];\n          const uint32_t lo = (sgp & 0x03f0u) << 4;\n          const uint32_t hi = ((sgp >> 16) & 0x03f0u) << 4;\n          af[ci & 1][jj][0] = pair_lookup(p.lut,lo | (q & 255u));\n          af[ci & 1][jj][1] = pair_lookup(p.lut,hi | ((q >> 8) & 255u));\n          af[ci & 1][jj][2] = pair_lookup(p.lut,lo | ((q >> 16) & 255u));\n          af[ci & 1][jj][3] = pair_lookup(p.lut,hi | (q >> 24));\n#else\n          uint32_t r0, r1, r2, r3;\n          dq4(q, r0, r1, r2, r3);\n          const uint32_t sw = js < 2 ? scg.x : scg.y, sb = (uint32_t)(js & 1) * 2u;\n          const uint32_t sgp = __byte_perm(sw, 0u, 0x4040u | sb | ((sb + 1u) << 8)) * k16c + 0x5C005C00u;\n          af[ci & 1][jj][0] = bmul2l(r0, sgp); af[ci & 1][jj][1] = bmul2h(r1, sgp);\n          af[ci & 1][jj][2] = bmul2l(r2, sgp); af[ci & 1][jj][3] = bmul2h(r3, sgp);\n#endif",
+      1
+    ],
+    [
+      "template <bool PB, int NTT>\n__device__ __forceinline__ void wgs_seg(",
+      "__device__ __forceinline__ uint32_t pair_lookup(const uint32_t* table,uint32_t index) {\n  uint32_t value;\n  asm volatile(\"{ .reg .u64 a; mad.wide.u32 a, %1, 4, %2; ld.global.nc.b32 %0, [a+1024]; }\"\n               :\"=r\"(value):\"r\"(index),\"l\"(table));\n  return value;\n}\ntemplate <bool PB, int NTT>\n__device__ __forceinline__ void wgs_seg(",
+      1
+    ]
+  ],
+  "exact_reverse": true,
+  "adapter": "Remove host tail, add declaration-only wgs_cta_of adapter and two compile-only launch references",
+  "gpu": false
+}

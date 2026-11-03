@@ -1,0 +1,49 @@
+{
+  "allocation": "48111acef2ddccb42e166d06fa5cb32d33b43c76",
+  "base_lf_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "scope": "one source/CPU/fixed-secondary proposal; no performance qualification or dispatch authority",
+  "edits": [
+    [
+      "#define OKC_CONT 0",
+      "#define OKC_CONT 1"
+    ],
+    [
+      "template <int L, bool F>\nstruct Smem {",
+      "template <bool Enabled>\nstruct ContinuityMergeStorage {};\ntemplate <>\nstruct ContinuityMergeStorage<true> {\n  alignas(16) float continuity_merge[64 * 18];\n};\n\ntemplate <int L, bool F>\nstruct Smem : ContinuityMergeStorage<(L == 1 && F && OKC_CONT)> {"
+    ],
+    [
+      "if (L == 1 && !CONT && !(OKC_NOXCH1 && !M_CL)) {",
+      "if (L == 1 && !(OKC_NOXCH1 && !M_CL)) {"
+    ],
+    [
+      "    float* xs = reinterpret_cast<float*>(S.k) + ((warp & 1) * 32 + lane) * 18;",
+      "    float* xs;\n    if constexpr (L == 1 && CONT) xs = S.continuity_merge + ((warp & 1) * 32 + lane) * 18;\n    else xs = reinterpret_cast<float*>(S.k) + ((warp & 1) * 32 + lane) * 18;"
+    ],
+    [
+      "      mbar_fence_init();\n    }\n  }\n  // segment list in shared memory",
+      "      mbar_fence_init();\n    }\n    __syncthreads();\n  }\n  // segment list in shared memory"
+    ]
+  ],
+  "files": {
+    "proposal.py": {
+      "sha256": "7d6635245017f88269189a25efe43f650f6b740c703ab109e0536f3bd930cc90",
+      "bytes": 872403
+    },
+    "control-attention.cu": {
+      "sha256": "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5",
+      "bytes": 191991
+    },
+    "treatment-attention.cu": {
+      "sha256": "3fa5ac28206c75a94e0f05112dbad7b55dcd0f4cc7a82574e6956bbae001b9c2",
+      "bytes": 192318
+    },
+    "native.diff": {
+      "sha256": "8f3154cac5baf14ba61ad0175afa1ca8bc73101eaffd4382949b49c99cc3523b",
+      "bytes": 2588
+    },
+    "proposal.diff": {
+      "sha256": "dda94fe89fc4013dc8602d9478cb18117af036c86a65b43d94a8b3eedad3472c",
+      "bytes": 4907
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "candidate_native_sha256": "7db5ec77dd1a093476c16dc2604eb81fdcbaa400ef953ecac90ae88bdb1107c5",
+  "edits": [
+    [
+      "const uint32_t k16c = (OKC_SC6W ? 4u : 16u) + p.zero;  // opaque 16 (4 with SC6W): the scale decode's multiply stays an IMAD (FMA pipe)",
+      "const uint32_t k16c = (OKC_SC6W ? 4u : 16u);",
+      1
+    ],
+    [
+      "constexpr int GS = OKC_WGSGS;",
+      "constexpr int GS = NTT <= 4 ? 4 : OKC_WGSGS;\n  constexpr int FLUSH_CI = ((OKC_WGSFCI + 1) * OKC_WGSGS + GS - 1) / GS - 1;",
+      1
+    ],
+    [
+      "if (FIRST && ci == OKC_WGSFCI && pd.kind)",
+      "if (FIRST && ci == FLUSH_CI && pd.kind)",
+      1
+    ]
+  ],
+  "exact_reverse": true,
+  "adapter": "Remove host tail, add declaration-only wgs_cta_of adapter and two compile-only launch references",
+  "gpu": false
+}

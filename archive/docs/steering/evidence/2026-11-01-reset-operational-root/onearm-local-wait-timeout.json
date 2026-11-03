@@ -1,0 +1,9 @@
+{
+  "job_id": "1fad70bbe3854cbc",
+  "operation": "okc status 1fad70bbe3854cbc --wait --json",
+  "local_subprocess_timeout_seconds": 1100,
+  "exception": "subprocess.TimeoutExpired",
+  "terminal_receipt_obtained": false,
+  "GPU_result": "unknown",
+  "interpretation": "Local status retrieval ended during API530 maintenance. This is not evidence of a GPU preparation/runtime timeout, correctness failure, scored loss, or refunded quota. Reconcile the same accepted job before any retry."
+}

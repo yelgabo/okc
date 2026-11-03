@@ -1,0 +1,34 @@
+{
+  "scope": "Root archive/hash and per-entry resource/blocker reconciliation; no recompilation or GPU",
+  "archive_files_verified": 60,
+  "uncompressed_bytes_verified": 270675858,
+  "fixed_keys": [
+    {
+      "build": "tiny",
+      "off_equivalent": true,
+      "on_resource_pass": true
+    },
+    {
+      "build": "tiny2",
+      "off_equivalent": true,
+      "on_resource_pass": true
+    },
+    {
+      "build": "mid",
+      "off_equivalent": true,
+      "on_resource_pass": true
+    },
+    {
+      "build": "b4",
+      "off_equivalent": true,
+      "on_resource_pass": true
+    },
+    {
+      "build": "main",
+      "off_equivalent": true,
+      "on_resource_pass": false
+    }
+  ],
+  "exact_source_status": "CLOSED_RESOURCE",
+  "passed": true
+}

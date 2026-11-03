@@ -1,0 +1,17 @@
+{
+  "source_sha256": "1e857ad48100bb898512d28baccd25e6938067607754506d83fbbfb6e6484b21",
+  "runtime_id": "280b2c44ecfd16838e2e20d722ba9e319021dbf0202d628225084034362b93fd",
+  "cpu_tests": 5,
+  "ftz_model_cases": 2048,
+  "ftz_model_contributions": 524288,
+  "ftz_model_worst_relative_difference": 9.433774058463243e-07,
+  "partition_cases": 88,
+  "selected_builds": 4,
+  "zero_spills": true,
+  "unchanged_resources": true,
+  "control_sass_matches_archive": true,
+  "disabled_preprocessed_body_matches_original": true,
+  "device_execution": false,
+  "ordering": "Helper accumulators flush before unchanged __threadfence and WS_JOIN; compute path joins helper before unchanged CTA_SYNC and acq_rel grid barrier; ss generation changes only at that barrier; finalizer reads ss afterwards.",
+  "scope": "Local qualification, not numerical target acceptance or endpoint speed."
+}

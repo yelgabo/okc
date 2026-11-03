@@ -1,0 +1,476 @@
+{
+  "initial_code_terms": [
+    "muse_bf16_proj",
+    "muse_attention_decode",
+    "muse_moe_w4a16",
+    "muse_decode_layer",
+    "muse_prefill_layer"
+  ],
+  "initial_code_returned_per_term": 100,
+  "expanded_pages": [
+    {
+      "term": "muse_bf16_proj",
+      "page": 1,
+      "url": "https://api.github.com/search/code?q=muse_bf16_proj%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=1",
+      "observed_at": "2026-11-03T01:15:53.658Z",
+      "total_count": 387,
+      "incomplete_results": false,
+      "returned": 100
+    },
+    {
+      "term": "muse_bf16_proj",
+      "page": 2,
+      "url": "https://api.github.com/search/code?q=muse_bf16_proj%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=2",
+      "observed_at": "2026-11-03T01:16:04.125Z",
+      "total_count": 387,
+      "incomplete_results": false,
+      "returned": 100
+    },
+    {
+      "term": "muse_bf16_proj",
+      "page": 3,
+      "url": "https://api.github.com/search/code?q=muse_bf16_proj%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=3",
+      "observed_at": "2026-11-03T01:16:22.915Z",
+      "total_count": 399,
+      "incomplete_results": false,
+      "returned": 100
+    },
+    {
+      "term": "muse_bf16_proj",
+      "page": 4,
+      "url": "https://api.github.com/search/code?q=muse_bf16_proj%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=4",
+      "observed_at": "2026-11-03T01:16:04.407Z",
+      "total_count": 399,
+      "incomplete_results": false,
+      "returned": 99
+    },
+    {
+      "term": "muse_attention_decode",
+      "page": 1,
+      "url": "https://api.github.com/search/code?q=muse_attention_decode%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=1",
+      "observed_at": "2026-11-03T01:15:53.625Z",
+      "total_count": 225,
+      "incomplete_results": false,
+      "returned": 100
+    },
+    {
+      "term": "muse_attention_decode",
+      "page": 2,
+      "url": "https://api.github.com/search/code?q=muse_attention_decode%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=2",
+      "observed_at": "2026-11-03T01:16:22.762Z",
+      "total_count": 234,
+      "incomplete_results": false,
+      "returned": 100
+    },
+    {
+      "term": "muse_attention_decode",
+      "page": 3,
+      "url": "https://api.github.com/search/code?q=muse_attention_decode%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=3",
+      "observed_at": "2026-11-03T01:16:04.429Z",
+      "total_count": 234,
+      "incomplete_results": false,
+      "returned": 34
+    },
+    {
+      "term": "muse_moe_w4a16",
+      "page": 1,
+      "url": "https://api.github.com/search/code?q=muse_moe_w4a16%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=1",
+      "observed_at": "2026-11-03T01:15:53.378Z",
+      "total_count": 294,
+      "incomplete_results": false,
+      "returned": 100
+    },
+    {
+      "term": "muse_moe_w4a16",
+      "page": 2,
+      "url": "https://api.github.com/search/code?q=muse_moe_w4a16%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=2",
+      "observed_at": "2026-11-03T01:16:04.174Z",
+      "total_count": 294,
+      "incomplete_results": false,
+      "returned": 100
+    },
+    {
+      "term": "muse_moe_w4a16",
+      "page": 3,
+      "url": "https://api.github.com/search/code?q=muse_moe_w4a16%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=3",
+      "observed_at": "2026-11-03T01:16:04.089Z",
+      "total_count": 248,
+      "incomplete_results": false,
+      "returned": 48
+    },
+    {
+      "term": "muse_decode_layer",
+      "page": 1,
+      "url": "https://api.github.com/search/code?q=muse_decode_layer%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=1",
+      "observed_at": "2026-11-03T01:15:53.292Z",
+      "total_count": 238,
+      "incomplete_results": false,
+      "returned": 100
+    },
+    {
+      "term": "muse_decode_layer",
+      "page": 2,
+      "url": "https://api.github.com/search/code?q=muse_decode_layer%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=2",
+      "observed_at": "2026-11-03T01:16:23.112Z",
+      "total_count": 247,
+      "incomplete_results": false,
+      "returned": 100
+    },
+    {
+      "term": "muse_decode_layer",
+      "page": 3,
+      "url": "https://api.github.com/search/code?q=muse_decode_layer%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=3",
+      "observed_at": "2026-11-03T01:16:23.237Z",
+      "total_count": 268,
+      "incomplete_results": false,
+      "returned": 68
+    },
+    {
+      "term": "muse_prefill_layer",
+      "page": 1,
+      "url": "https://api.github.com/search/code?q=muse_prefill_layer%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=1",
+      "observed_at": "2026-11-03T01:15:53.805Z",
+      "total_count": 98,
+      "incomplete_results": false,
+      "returned": 98
+    }
+  ],
+  "retries": [
+    {
+      "term": "muse_bf16_proj",
+      "page": 3,
+      "url": "https://api.github.com/search/code?q=muse_bf16_proj%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=3",
+      "observed_at": "2026-11-03T01:16:03.733Z",
+      "error": {
+        "error": "GitHub API error 429: {\"message\":\"try again in 8.005573172s\",\"documentation_url\":\"https://docs.github.com/rest/search/search#search-code\",\"status\":\"429\"}",
+        "error_code": "RATE_LIMITED",
+        "error_data": {
+          "message": "try again in 8.005573172s",
+          "documentation_url": "https://docs.github.com/rest/search/search#search-code",
+          "status": "429"
+        },
+        "retry_after": "8",
+        "retry_after_seconds": 8
+      },
+      "retried_successfully": true
+    },
+    {
+      "term": "muse_attention_decode",
+      "page": 2,
+      "url": "https://api.github.com/search/code?q=muse_attention_decode%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=2",
+      "observed_at": "2026-11-03T01:16:04.021Z",
+      "error": {
+        "error": "GitHub API error 429: {\"message\":\"try again in 7.655525345s\",\"documentation_url\":\"https://docs.github.com/rest/search/search#search-code\",\"status\":\"429\"}",
+        "error_code": "RATE_LIMITED",
+        "error_data": {
+          "message": "try again in 7.655525345s",
+          "documentation_url": "https://docs.github.com/rest/search/search#search-code",
+          "status": "429"
+        },
+        "retry_after": "7",
+        "retry_after_seconds": 7
+      },
+      "retried_successfully": true
+    },
+    {
+      "term": "muse_decode_layer",
+      "page": 2,
+      "url": "https://api.github.com/search/code?q=muse_decode_layer%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=2",
+      "observed_at": "2026-11-03T01:16:03.736Z",
+      "error": {
+        "error": "GitHub API error 429: {\"message\":\"try again in 7.987217325s\",\"documentation_url\":\"https://docs.github.com/rest/search/search#search-code\",\"status\":\"429\"}",
+        "error_code": "RATE_LIMITED",
+        "error_data": {
+          "message": "try again in 7.987217325s",
+          "documentation_url": "https://docs.github.com/rest/search/search#search-code",
+          "status": "429"
+        },
+        "retry_after": "7",
+        "retry_after_seconds": 7
+      },
+      "retried_successfully": true
+    },
+    {
+      "term": "muse_decode_layer",
+      "page": 3,
+      "url": "https://api.github.com/search/code?q=muse_decode_layer%20NOT%20repo%3Arohanarun%2FAuto-research-agent%20NOT%20repo%3Alee101%2Fopenkernels%20NOT%20repo%3Ayelgabo%2Fokc&per_page=100&page=3",
+      "observed_at": "2026-11-03T01:16:03.736Z",
+      "error": {
+        "error": "GitHub API error 429: {\"message\":\"try again in 7.983924288s\",\"documentation_url\":\"https://docs.github.com/rest/search/search#search-code\",\"status\":\"429\"}",
+        "error_code": "RATE_LIMITED",
+        "error_data": {
+          "message": "try again in 7.983924288s",
+          "documentation_url": "https://docs.github.com/rest/search/search#search-code",
+          "status": "429"
+        },
+        "retry_after": "7",
+        "retry_after_seconds": 7
+      },
+      "retried_successfully": true
+    }
+  ],
+  "repository_queries": [
+    {
+      "query": "\"muse\" \"kernel\" \"challenge\"",
+      "results": [
+        {
+          "repository": "alygg77/okc-muse-spark-kernels",
+          "default_branch": "main"
+        },
+        {
+          "repository": "NathenFernandes/muse-bf16-proj",
+          "default_branch": "solution"
+        },
+        {
+          "repository": "GiulianoIntelligence/Muse-FlashSpeed-Kernel",
+          "default_branch": "main"
+        },
+        {
+          "repository": "Tetraslam/muse-kernel-challenge",
+          "default_branch": "master"
+        },
+        {
+          "repository": "lilaclilac09/open-kernel-challenge",
+          "default_branch": "main"
+        },
+        {
+          "repository": "keell0renz/muse-open-kernel-challenge",
+          "default_branch": "main"
+        },
+        {
+          "repository": "Saikat-too/muse_spark_kernel_challenge",
+          "default_branch": "main"
+        },
+        {
+          "repository": "iyerramji/open-kernel-challenge",
+          "default_branch": "main"
+        },
+        {
+          "repository": "vjeux/okc-2026",
+          "default_branch": "main"
+        },
+        {
+          "repository": "Aravind-11/muse-moe-w4a16",
+          "default_branch": "main"
+        },
+        {
+          "repository": "KingCobra52/muse_bf16_optimization",
+          "default_branch": "main"
+        },
+        {
+          "repository": "ruwwww/open-kernel-challenge",
+          "default_branch": "main"
+        },
+        {
+          "repository": "theluckystrike/muse-spark-open-kernels",
+          "default_branch": "main"
+        },
+        {
+          "repository": "infraax/okc-kernel-challenge",
+          "default_branch": "main"
+        },
+        {
+          "repository": "trxphxle/okc-2026-muse-kernels",
+          "default_branch": "main"
+        },
+        {
+          "repository": "Kushagrabainsla/muse-spark-open",
+          "default_branch": "main"
+        },
+        {
+          "repository": "anencore94/okc-2026",
+          "default_branch": "main"
+        },
+        {
+          "repository": "Reedo3/Muse_Attention_Decode",
+          "default_branch": "main"
+        }
+      ]
+    },
+    {
+      "query": "\"muse spark\"",
+      "returned": 100,
+      "capped": true
+    },
+    {
+      "query": "\"openkernelchallenge\" in:readme pushed:>=2026-11-01",
+      "results": [
+        "nibague/open-kernel-challenge",
+        "nvbkdw/muse-spark-open-challenge",
+        "ruwwww/open-kernel-challenge",
+        "manymoats/cleankpf"
+      ]
+    }
+  ],
+  "issue_query": "\"Open Kernel Challenge\"",
+  "issues": [
+    {
+      "url": "https://github.com/ryangrvr/TestingGRUT/issues/13",
+      "title": "GRUT joint track: Claude–Codex cross-review and one empirical target"
+    },
+    {
+      "url": "https://github.com/Madhavan113/ParadigmKernelChallenge/issues/1",
+      "title": "Thanks: your kernels were a base for an open-source OKC submission (decode #38, numbers + lessons inside)"
+    },
+    {
+      "url": "https://github.com/NathenFernandes/muse-bf16-proj/issues/1",
+      "title": "Thanks: your kernels were a base for an open-source OKC submission (decode #38, numbers + lessons inside)"
+    },
+    {
+      "url": "https://github.com/chenwainuo/okc/issues/1",
+      "title": "Thanks: your kernels were a base for an open-source OKC submission (decode #38, numbers + lessons inside)"
+    },
+    {
+      "url": "https://github.com/alygg77/okc-muse-spark-kernels/issues/1",
+      "title": "Thanks: your kernels were a base for an open-source OKC submission (decode #38, numbers + lessons inside)"
+    },
+    {
+      "url": "https://github.com/vjeux/okc-2026/issues/1",
+      "title": "Thanks: your kernels were a base for an open-source OKC submission (decode #38, numbers + lessons inside)"
+    },
+    {
+      "url": "https://github.com/vx-lang/glm-vx/issues/1",
+      "title": "GPU bring-up for GLM inference, then generalize into a Vx LLM kernel library"
+    },
+    {
+      "url": "https://github.com/Qunsultant/cfagent/issues/1730",
+      "title": "[#1717] (j) discovery / ranking / weights / promotion remainders (coordinate with #1257)"
+    },
+    {
+      "url": "https://github.com/swperb/keel/issues/1",
+      "title": "Bitwise operators (& | ^ << >> ~), and a clearer error when they are used"
+    },
+    {
+      "url": "https://github.com/swperb/keel/issues/4",
+      "title": "An unused quantified spec fn breaks an unrelated proof; plus verification data and three gaps against Bend"
+    },
+    {
+      "url": "https://github.com/psaab/xpf/issues/16779",
+      "title": "Deleting `system no-redirects` writes ipv4 `all.accept_redirects=1`, above the router default of 0 while ip_forward=1, so the firewall then installs spoofed on-link ICMPv4 Redirects for its own traffic"
+    },
+    {
+      "url": "https://github.com/PostTrainLLM/posttrainllm/issues/206",
+      "title": "Two-day Open Kernel Challenge experiment: October 23–24"
+    },
+    {
+      "url": "https://github.com/Lurrobert/guild/issues/1",
+      "title": "Title: GitHub sign-in fails: incorrect_client_credentials on OAuth callback"
+    },
+    {
+      "url": "https://github.com/rizinorg/rizin-testbins/issues/317",
+      "title": "DWARF global variables of relocatable ELF objects are placed at `0x0`"
+    },
+    {
+      "url": "https://github.com/CloudSpaceLab/clearsight-grc/issues/270",
+      "title": "ERM and operational risk kernel: risks, controls, appetite, KRI/KCI, RCSA and losses"
+    },
+    {
+      "url": "https://github.com/atomchung/fomo-kernel/issues/475",
+      "title": "[research·roadmap] Staged direction: pre-trade challenge → decision memory → rule learning"
+    },
+    {
+      "url": "https://github.com/MagnaCapax/PMSS/issues/797",
+      "title": "Add measured-server-max + oversell-% calculation layer to derive per-user IO caps (populate existing IOReadIOPS/BW fields)"
+    },
+    {
+      "url": "https://github.com/fsantibanezleal/CAOS_RESEARCH/issues/277",
+      "title": "navier-stokes round 2: reconstruct the published threshold, steering cycle, Comparator re-check"
+    },
+    {
+      "url": "https://github.com/ivopogace/riviera-sunbed-booking/issues/913",
+      "title": "Move the proof-of-work challenge mechanism from the root package into the closed non-context module `challenge` (ADR-0017)"
+    },
+    {
+      "url": "https://github.com/partylikeits1983/veiled-flock/issues/37",
+      "title": "(c) Prove the AB/C claim-kernel rank for all supported shapes (PCS hiding consumes it as a hypothesis)"
+    },
+    {
+      "url": "https://github.com/NixOS/nixpkgs/issues/514132",
+      "title": "Tracking: fix incorrect changelogs"
+    },
+    {
+      "url": "https://github.com/vtz/puzzlepod/issues/6",
+      "title": "Add maturity and qualification status to PRD certification mapping"
+    },
+    {
+      "url": "https://github.com/sarchlab/ml-perf-survey/issues/161",
+      "title": "[Athena] -> [Sage] Taxonomy redesign for corrected scope (CRITICAL — M11b)"
+    },
+    {
+      "url": "https://github.com/TecharoHQ/anubis/issues/1290",
+      "title": "\"Calculation error!\" on Firefox"
+    },
+    {
+      "url": "https://github.com/google/autofdo/issues/256",
+      "title": "create_llvm_prof: \"Bogus LBR data\" errors with AMD Zen4 LBRv2 kernel profiling"
+    },
+    {
+      "url": "https://github.com/ublue-os/bazzite-dx/issues/113",
+      "title": "Readme suggestion and lock screen issue"
+    },
+    {
+      "url": "https://github.com/vscodenpa/testissues/issues/11570",
+      "title": "UI: Notebook controller/kernel detection progress"
+    },
+    {
+      "url": "https://github.com/gitcoinco/web/issues/6828",
+      "title": "Organize Townsquare By Top Posts"
+    },
+    {
+      "url": "https://github.com/LABHR/labhr.github.io/issues/1",
+      "title": "Potential Groker: Bugzilla"
+    }
+  ],
+  "commit_query": "\"muse_decode_layer\"",
+  "commits": [
+    {
+      "sha": "eb617264ed2144768b5e0676b57eaa721f49ed32",
+      "url": "https://github.com/alygg77/okc-muse-spark-kernels/commit/eb617264ed2144768b5e0676b57eaa721f49ed32",
+      "repository": "alygg77/okc-muse-spark-kernels",
+      "subject": "OKC kernels, judge results, H200 facts and negative results (team alygg77)",
+      "created_at": "2026-10-29T21:02:46.000Z"
+    },
+    {
+      "sha": "facafe92b8de8658065cc320f655a1c043afd361",
+      "url": "https://github.com/ruwwww/open-kernel-challenge/commit/facafe92b8de8658065cc320f655a1c043afd361",
+      "repository": "ruwwww/open-kernel-challenge",
+      "subject": "docs: update muse_decode_layer to 2.0751x",
+      "created_at": "2026-10-29T14:06:33.000Z"
+    },
+    {
+      "sha": "e0c0d6b28e6beb000c8771df4ec584ef554c0af5",
+      "url": "https://github.com/ruwwww/open-kernel-challenge/commit/e0c0d6b28e6beb000c8771df4ec584ef554c0af5",
+      "repository": "ruwwww/open-kernel-challenge",
+      "subject": "docs(decode): add problem files for muse_decode_layer",
+      "created_at": "2026-10-29T09:40:23.000Z"
+    },
+    {
+      "sha": "e2fa819e973ae82d02aad61b926dbe7d3723e1b1",
+      "url": "https://github.com/NVIDIA/spark-local-inference/commit/e2fa819e973ae82d02aad61b926dbe7d3723e1b1",
+      "repository": "NVIDIA/spark-local-inference",
+      "subject": "Record canonical Muse decoder layer outputs for numerical diagnosis",
+      "created_at": "2026-10-28T12:38:04.000-07:00"
+    },
+    {
+      "sha": "0fe68466c4717b1e972024a3a6cd730b87b31644",
+      "url": "https://github.com/tommyyliu/okc/commit/0fe68466c4717b1e972024a3a6cd730b87b31644",
+      "repository": "tommyyliu/okc",
+      "subject": "Restructure as multi-problem repo",
+      "created_at": "2026-10-27T08:52:42.000-07:00"
+    },
+    {
+      "sha": "cc2163ca2c94a5bf44e7c4c2f9608560ee84a3c0",
+      "url": "https://github.com/raspy135/tideLM/commit/cc2163ca2c94a5bf44e7c4c2f9608560ee84a3c0",
+      "repository": "raspy135/tideLM",
+      "subject": "Muse: DSpark speculative decoding (Inferact/Muse-Spark-Open-DSpark), TP2",
+      "created_at": "2026-10-15T19:52:13.000-07:00"
+    }
+  ],
+  "exact_issue_query": "\"muse_bf16_proj\" OR \"muse_attention_decode\" OR \"muse_moe_w4a16\" OR \"muse_decode_layer\" OR \"muse_prefill_layer\"",
+  "exact_issues": [
+    {
+      "url": "https://github.com/chenwainuo/okc/issues/1",
+      "title": "Thanks: your kernels were a base for an open-source OKC submission (decode #38, numbers + lessons inside)"
+    }
+  ]
+}

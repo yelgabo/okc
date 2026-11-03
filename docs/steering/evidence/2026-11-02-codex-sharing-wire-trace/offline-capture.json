@@ -1,0 +1,138 @@
+{
+  "started_utc": "2026-11-02T10:33:15.496236+00:00",
+  "source_rollout": "rollout-2026-11-02T01-54-44-01a19bae-c402-79c3-a27f-baff9e5fd2ac.jsonl",
+  "source_sha256": "0481df4a715ac7935066ff31b48a15e7c80c646615dfee0c0a57866b51a41af3",
+  "cli_version": "codex-cli 0.166.0",
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/v1/models?client_version=0.166.0"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/responses",
+      "body_bytes": 477636,
+      "body_sha256": "1b1ef254c4ac40b9718e6651cd4aabd4a81eebdfe520322b8850eb458fe37f54",
+      "keys": [
+        "model",
+        "stream",
+        "service_tier",
+        "input",
+        "tool_choice",
+        "parallel_tool_calls",
+        "reasoning",
+        "store",
+        "include",
+        "prompt_cache_key",
+        "text",
+        "client_metadata"
+      ],
+      "model": "gpt-6.1-sol",
+      "store": false,
+      "stream": true,
+      "service_tier": "priority",
+      "input_types": [
+        "additional_tools",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "reasoning",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "reasoning",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "reasoning",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "reasoning",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "reasoning",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "reasoning",
+        "message",
+        "function_call",
+        "function_call_output",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "agent_message",
+        "message",
+        "additional_tools",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message",
+        "message"
+      ],
+      "agent_messages": [
+        {
+          "type": "agent_message",
+          "keys": [
+            "type",
+            "id",
+            "author",
+            "recipient",
+            "content"
+          ],
+          "author": "/root/diagnostic_crosscheck",
+          "recipient": "/root",
+          "content": [
+            {
+              "type": "input_text",
+              "characters": 668
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "raw_request_saved": false,
+  "live_state_modified": false,
+  "exit_code": 1,
+  "stdout_events": [
+    {
+      "type": "thread.started",
+      "thread_id": "01a19bae-c402-79c3-a27f-baff9e5fd2ac"
+    },
+    {
+      "type": "turn.started"
+    },
+    {
+      "type": "error",
+      "message": "{\"error\": {\"message\": \"Local serialization diagnostic stops before inference.\", \"type\": \"invalid_request_error\", \"param\": \"input\", \"code\": \"local_diagnostic_stop\"}}"
+    },
+    {
+      "type": "turn.failed",
+      "error": {
+        "message": "{\"error\": {\"message\": \"Local serialization diagnostic stops before inference.\", \"type\": \"invalid_request_error\", \"param\": \"input\", \"code\": \"local_diagnostic_stop\"}}"
+      }
+    }
+  ],
+  "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"C:\\\\Users\\\\gretc\\\\AppData\\\\Local\\\\Temp\\\\\" (codex_home: AbsolutePathBuf(\"C:\\\\Users\\\\gretc\\\\AppData\\\\Local\\\\Temp\\\\codex-sharing-wire-luakq0g0\"))\n",
+  "completed_utc": "2026-11-02T10:33:16.259964+00:00",
+  "temp_home_retained": "C:\\Users\\gretc\\AppData\\Local\\Temp\\codex-sharing-wire-luakq0g0",
+  "safety": [
+    "Only copied ROOT history resumed; no agent-spawn request.",
+    "Localhost mock returns HTTP 400 before any inference or tool output.",
+    "Dummy token only; no auth files or live configuration copied.",
+    "agents.enabled=false added for diagnostic safety, not a claimed history repair."
+  ]
+}

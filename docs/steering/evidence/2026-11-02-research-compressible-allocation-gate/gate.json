@@ -1,0 +1,321 @@
+{
+  "scope": {
+    "start_utc": "2026-11-02T12:43:11Z",
+    "frozen_utc": "2026-11-02T12:50:40.339Z",
+    "current_source": "muse_decode_layer/cand/g1b4_stage_release.py",
+    "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "owning_job": "607eb52bdaf24160",
+    "prior_B1": "docs/paper-backlog-2026-10-27.md:265",
+    "decision": "READY for a narrowly scoped capability proposal, not implementation/measurement/public-release ready; no authorization"
+  },
+  "primary_sources": [
+    {
+      "url": "https://docs.pytorch.org/docs/2.14/notes/cuda.html",
+      "status": 200,
+      "sha256": "9aeb7c895dd7b1cf6127d4251360bbf30f038c7326fa9878e8fa99d71dc707e0",
+      "bytes": 464889,
+      "fetched_utc": "2026-11-02T12:45:28.327Z"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/2.14/generated/torch.cuda.use_mem_pool.html",
+      "status": 404,
+      "sha256": "9653588674adb8d4f0e3165a0c6da879aafa7062b17cd672b8161336f136e0b8",
+      "bytes": 10493,
+      "fetched_utc": "2026-11-02T12:45:28.474Z"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/2.14/generated/torch.cuda.MemPool.html",
+      "status": 404,
+      "sha256": "8f1bd3c6b99965bcbb95f4a2f3373902d961e5af6b7bc9c634e1435f28b95c7b",
+      "bytes": 10493,
+      "fetched_utc": "2026-11-02T12:45:28.635Z"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/hopper-tuning-guide/index.html",
+      "status": 200,
+      "sha256": "4df9e73644665a894ba15578346cb017e3df8761bcb83847d780e0335a3c7db1",
+      "bytes": 35066,
+      "fetched_utc": "2026-11-02T12:45:29.053Z"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/virtual-memory-management.html",
+      "status": 200,
+      "sha256": "0d717ecad6d2c1f6fefa9b07edcdb378c5e36e4693937b501075173ae1812084",
+      "bytes": 151778,
+      "fetched_utc": "2026-11-02T12:45:29.159Z"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__VA.html",
+      "status": 200,
+      "sha256": "e81ddc831a27bbbf58bec5d174567391d90c19a2805a517d52f370793aac5b5b",
+      "bytes": 124948,
+      "fetched_utc": "2026-11-02T12:45:29.558Z"
+    },
+    {
+      "url": "https://openkernelchallenge.dev/rules",
+      "status": 200,
+      "sha256": "e828b0d7a725d4921c57bc420eaa7327e66b762d99e8daf5777350ce18dc48ea",
+      "bytes": 2839,
+      "fetched_utc": "2026-11-02T12:45:29.624Z"
+    },
+    {
+      "url": "https://openkernelchallenge.dev/assets/index-D8JLIOgd.js",
+      "status": 200,
+      "sha256": "553d57f8ba8ceac63ee40072541980584d2014d1851a2227fe095cdebb60266b",
+      "bytes": 451330,
+      "fetched_utc": "2026-11-02T12:48:11.736Z"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/2.14/generated/torch.cuda.memory.use_mem_pool.html",
+      "status": 404,
+      "sha256": "3777b7525af8cce406d26a940c781b8942b75e6f378c3eeba53941ab496043a8",
+      "bytes": 10493,
+      "fetched_utc": "2026-11-02T12:48:33.143Z"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/2.14/generated/torch.cuda.memory.MemPool.html",
+      "status": 200,
+      "sha256": "ea50a012ebe1a412650992a00b80525b9fc7f1f1960402d598191dc842b7846a",
+      "bytes": 169755,
+      "fetched_utc": "2026-11-02T12:48:33.245Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/v2.14.0/torch/cuda/memory.py",
+      "status": 200,
+      "sha256": "ed3e6068d73ef9d2165f7276476041ee5bfe8f19db863e3e11172d840812173b",
+      "bytes": 65572,
+      "fetched_utc": "2026-11-02T12:48:33.405Z"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/2.14/cpp_extension.html",
+      "status": 200,
+      "sha256": "993bc2cd9e04a79c714d9ae1ce13a6e8b52d71445faf5b78c012196db0871a1d",
+      "bytes": 715739,
+      "fetched_utc": "2026-11-02T12:48:33.601Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/v2.14.0/torch/csrc/cuda/CUDAPluggableAllocator.h",
+      "status": 200,
+      "sha256": "345df356baa4ab285dc2fcce0c0341c9a69004675afebdfd95cf8bce81ab7346",
+      "bytes": 6659,
+      "fetched_utc": "2026-11-02T12:49:02.721Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/v2.14.0/torch/csrc/cuda/CUDAPluggableAllocator.cpp",
+      "status": 200,
+      "sha256": "0bdf89d1d3593ecfd023e33507cb22579a0062a4b6af0dd9127ed8c14b3e3120",
+      "bytes": 12990,
+      "fetched_utc": "2026-11-02T12:49:02.847Z"
+    }
+  ],
+  "pytorch_tag": {
+    "sha": "2b3ec34829036a65cd9d1398ea72a0167dc37470",
+    "type": "commit",
+    "url": "https://api.github.com/repos/pytorch/pytorch/git/commits/2b3ec34829036a65cd9d1398ea72a0167dc37470"
+  },
+  "contracts": {
+    "free_callback_abi": "void free(void*, size_t, int device, cudaStream_t); header lines20-21,152; cpp139. Python memory.py docstring incorrectly omits device.",
+    "scope": "use_mem_pool affects only current thread, outside capture for proposed weight clones; use_on_oom=False; retain pool+allocator+DSO+weight owners",
+    "eligibility": "Official website JS supports prepare repacking and inline native compilation, forbids harness/timing tamper/output caching. API-specific loader acceptance not explicitly stated; no categorical legalization."
+  },
+  "selected_raw": [
+    {
+      "key": "qkv",
+      "shape": [
+        2304,
+        8192
+      ],
+      "dtype": "BF16",
+      "bytes": 37748736,
+      "loads": [
+        128,
+        256
+      ],
+      "layout": "tn",
+      "owner": "st.qkv -> graft_lt[(qkv,T)].weight"
+    },
+    {
+      "key": "o",
+      "shape": [
+        1024,
+        8192
+      ],
+      "dtype": "BF16",
+      "bytes": 16777216,
+      "loads": [
+        128,
+        256
+      ],
+      "layout": "nn contiguous transpose",
+      "owner": "st.graft_t_o -> plan.weight"
+    },
+    {
+      "key": "pr",
+      "shape": [
+        4608,
+        8192
+      ],
+      "dtype": "BF16",
+      "bytes": 75497472,
+      "loads": [
+        128,
+        256
+      ],
+      "layout": "tn contiguous",
+      "owner": "st.pr -> both PR plans; POOL4096 + router_hi256 + router_lo256"
+    },
+    {
+      "key": "un",
+      "shape": [
+        4096,
+        8192
+      ],
+      "dtype": "BF16",
+      "bytes": 67108864,
+      "loads": [
+        128,
+        256
+      ],
+      "layout": "nn contiguous transpose",
+      "owner": "st.graft_t_un -> plan.weight"
+    },
+    {
+      "key": "router_fp32",
+      "shape": [
+        256,
+        8192
+      ],
+      "dtype": "FP32",
+      "bytes": 8388608,
+      "loads": [
+        1,
+        8
+      ],
+      "layout": "contiguous",
+      "owner": "st.router_fp32 -> gle_pr x32/w32; not chosen for initial scope"
+    }
+  ],
+  "excluded": "Do not treat short SK2 12bit weight streams/LUT/exceptions, FP4 expert banks/scales, activations/KV/output/scratch as raw BF16 opportunities. Static weight backing could legally differ but this proposal does not touch them.",
+  "source_ranges": {
+    "raw_state": [
+      11132,
+      11160
+    ],
+    "lt_planner": [
+      12222,
+      12269
+    ],
+    "lt_consumer": [
+      12272,
+      12298
+    ],
+    "forced_policy": [
+      15278,
+      15295
+    ],
+    "short_fused": [
+      16622,
+      16645
+    ],
+    "rq_disabled": [
+      16742,
+      16743
+    ],
+    "final_prepare": [
+      17233,
+      17240
+    ]
+  },
+  "accepted_log": [
+    "FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True",
+    "FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off",
+    "G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]",
+    "G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays"
+  ],
+  "profiles": [
+    {
+      "case": {
+        "batch": 16,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "sliding",
+        "load": "verify 16",
+        "page": 1,
+        "q_len": 8,
+        "seed": 2594810845770264600,
+        "spread": "agentic",
+        "weight": 46
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           155.3 µs  62.0%      1\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           28.5 µs  11.4%      2\nnvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     25.4 µs  10.1%      1\nnvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           16.9 µs   6.8%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      11.8 µs   4.7%      1\n_graft_row_boundary                                                9.7 µs   3.9%      2\n_graft_route                                                       2.8 µs   1.1%      1\ntotal                                                            250.5 µs"
+    },
+    {
+      "case": {
+        "batch": 16,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "full",
+        "load": "verify 16",
+        "page": 1,
+        "q_len": 8,
+        "seed": 2594897690527621600,
+        "spread": "agentic",
+        "weight": 16
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           178.1 µs  48.8%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     104.1 µs  28.5%      1\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           28.6 µs   7.9%      2\nnvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     24.9 µs   6.8%      1\nnvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           16.8 µs   4.6%      1\n_graft_row_boundary                                                9.4 µs   2.6%      2\n_graft_route                                                       2.8 µs   0.8%      1\ntotal                                                            364.8 µs"
+    },
+    {
+      "case": {
+        "batch": 32,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "sliding",
+        "load": "verify 32",
+        "page": 1,
+        "q_len": 8,
+        "seed": 2594984535284978000,
+        "spread": "agentic",
+        "weight": 46
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           204.8 µs  63.2%      1\nnvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           31.5 µs   9.7%      1\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    25.6 µs   7.9%      1\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           20.7 µs   6.4%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      15.4 µs   4.7%      1\n_graft_row_boundary                                               13.6 µs   4.2%      2\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     9.1 µs   2.8%      1\n_graft_route                                                       3.6 µs   1.1%      1\ntotal                                                            324.3 µs"
+    },
+    {
+      "case": {
+        "batch": 32,
+        "ctx": 80000,
+        "dist": "soft",
+        "layer": "full",
+        "load": "verify 32",
+        "page": 1,
+        "q_len": 8,
+        "seed": 2595071380042335000,
+        "spread": "agentic",
+        "weight": 16
+      },
+      "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           203.3 µs  41.2%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     186.2 µs  37.8%      1\nnvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           31.8 µs   6.5%      1\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    25.4 µs   5.1%      1\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           20.5 µs   4.2%      1\n_graft_row_boundary                                               13.4 µs   2.7%      2\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     9.0 µs   1.8%      1\n_graft_route                                                       3.6 µs   0.7%      1\ntotal                                                            493.3 µs"
+    }
+  ],
+  "sensitivity": {
+    "affected_load_fraction": 0.3333333333333333,
+    "whole_load_reduction_for_1pct": 0.02940985207235558,
+    "whole_load_reduction_for_3pct": 0.0848583406468405,
+    "interpretation": "Conditional complete endpoint reduction on both long loads in both contexts, not profile-attributed exposure or compression forecast"
+  },
+  "not_done": [
+    "No compiler/GPU/driver query/challenge CLI or implementation",
+    "No live capability/actual allocation property/compression ratio/timing established",
+    "No new quota/candidate/default/public permission"
+  ],
+  "completed_source_analysis_utc": "2026-11-02T12:53:19.283Z",
+  "abi_evidence": {
+    "header_url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/torch/csrc/cuda/CUDAPluggableAllocator.h",
+    "header_lines": [
+      20,
+      21,
+      152
+    ],
+    "cpp_lines": [
+      139
+    ],
+    "python_docstring_discrepancy": "free docstring omits int device; use C++ runtime ABI, not three-argument prose"
+  }
+}

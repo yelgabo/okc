@@ -1,0 +1,9 @@
+{
+  "sizeof_smem": 22240,
+  "aligned_header": 22272,
+  "ring_bytes": 208896,
+  "jmax": 88,
+  "fixup_floats": 5246336,
+  "dynamic_bytes": 231168,
+  "witness": "224, 86, 0, 0, 0, 87, 0, 0, 0, 48, 3, 0, 88, 0, 0, 0, 128, 13, 80"
+}

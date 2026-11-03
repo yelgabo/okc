@@ -1,0 +1,10 @@
+{
+  "job_id": "27b2ed49fc6344ec",
+  "problem": "muse_decode_layer",
+  "mode": "public scored run",
+  "source_commit": "3191783d2cd5375b0646f7b2cc9db7a43c4f40ae",
+  "sha256": "22fc41e1a3213a198bf6984e9010c47d22fd2febef53f57414d2ef41d1a05645",
+  "bytes": 868880,
+  "pure_sha256": "8195660dec57d9ceb6d6ab71d048fd5c144e657d8ec44022c75b0f34ca88bca1",
+  "control_job": "607eb52bdaf24160"
+}

@@ -1,0 +1,532 @@
+{
+  "board": "muse_prefill_layer",
+  "call_id": "kc-c1f6023f03d34c72",
+  "cluster": "sfo3",
+  "content_hash": "730d08616996dd7868c4a1b7f0d0c3e8727e3da10ecbd99d694a37a666026ed2",
+  "created_at": 1793513230.2811341,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793513331.602582,
+  "id": "c1f6023f03d34c72",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/.build/today-moe/profiles/prefill_humming_masked.c1f6023f03d34c72.log"
+  },
+  "payload_ref": "muse_prefill_layer/730d08616996dd7868c4a1b7f0d0c3e8727e3da10ecbd99d694a37a666026ed2.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "b023c806840d9a0be71e887768b3bd414ad29978b94071d7d965af9f8cd976f0",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_prefill_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_prefill_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_prefill_layer/task.yml": "901aec1ab2767d7d76d851e526aab6b285a59cf425b9bae9e1da7047d33f9feb"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "HUMMASK plan M=300 cap=312 bytes=428624768 free=128133824512 total=150109880320 cfg=[{'block_shape': (24, 256, 128), 'warp_shape': (24, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (24, 128, 256), 'warp_shape': (24, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=753 cap=768 bytes=1056029888 free=127955566592 total=150109880320 cfg=[{'block_shape': (48, 256, 64), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (48, 128, 128), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=1506 cap=1512 bytes=2080602368 free=126724538368 total=150109880320 cfg=[{'block_shape': (72, 256, 64), 'warp_shape': (72, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (72, 256, 64), 'warp_shape': (72, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=600 cap=600 bytes=825792128 free=124765798400 total=150109880320 cfg=[{'block_shape': (40, 256, 64), 'warp_shape': (40, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (40, 128, 128), 'warp_shape': (40, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=4096 cap=4200 bytes=5773721728 free=123438301184 total=150109880320 cfg=[{'block_shape': (168, 256, 64), 'warp_shape': (168, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (168, 256, 64), 'warp_shape': (168, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=753 cap=768 bytes=1056029888 free=117404794880 total=150109880320 cfg=[{'block_shape': (48, 256, 64), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (48, 128, 128), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=753 cap=768 bytes=1056029888 free=116372996096 total=150109880320 cfg=[{'block_shape': (48, 256, 64), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (48, 128, 128), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=3012 cap=3072 bytes=4224119168 free=113856413696 total=150109880320 cfg=[{'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=3012 cap=3072 bytes=4224119168 free=108384944128 total=150109880320 cfg=[{'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=3012 cap=3072 bytes=4224119168 free=104731705344 total=150109880320 cfg=[{'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\nHUMMASK plan M=16384 cap=16544 bytes=22759342208 free=93950246912 total=150109880320 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4, 'use_warp_spec': True, 'use_tma': True, 'use_mbarrier': True}]\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 127.02,
+        "power.limit": 700,
+        "temperature.gpu": 33
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 144.52,
+        "power.limit": 700,
+        "temperature.gpu": 32
+      },
+      "node": "n-jilerexm7jzqtha3u5ugsjopko"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 2,
+        "baseline_prepare_pad": 25585664,
+        "copies": 5,
+        "error": null,
+        "event": "setup",
+        "first": "baseline",
+        "prepare_pad": 25543168,
+        "prepare_s": 1.210164205,
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 0,
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 300,
+          "seed": 5268731304113398857
+        },
+        "event": "test",
+        "index": 0,
+        "message": "update relative L2 error 3.498e-02 (worst row 7.139e-02) [bound 0.067]; attention input relative L2 error 2.275e-02 (worst row 5.267e-02) [bound 0.044]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 3000,
+          "layer": "full",
+          "page": 1,
+          "q_len": 753,
+          "seed": 5268900960624790671
+        },
+        "event": "test",
+        "index": 1,
+        "message": "update relative L2 error 6.940e-02 (worst row 1.197e-01) [bound 0.150]; attention input relative L2 error 4.549e-02 (worst row 8.793e-02) [bound 0.112]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 2,
+          "ctx": 2500,
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 753,
+          "seed": 5269070617136182486
+        },
+        "event": "test",
+        "index": 2,
+        "message": "update relative L2 error 6.805e-02 (worst row 1.199e-01) [bound 0.150]; attention input relative L2 error 4.486e-02 (worst row 8.857e-02) [bound 0.108]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 3,
+          "ctx": 5000,
+          "dist": "outliers",
+          "layer": "full",
+          "q_len": 200,
+          "seed": 5269240273647574302
+        },
+        "event": "test",
+        "index": 3,
+        "message": "update relative L2 error 6.595e-02 (worst row 1.318e-01) [bound 0.150]; attention input relative L2 error 3.501e-02 (worst row 7.205e-02) [bound 0.086]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 4096,
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 4096,
+          "seed": 5269409930158966119
+        },
+        "event": "test",
+        "index": 4,
+        "message": "update relative L2 error 4.906e-02 (worst row 1.216e-01) [bound 0.111]; attention input relative L2 error 3.209e-02 (worst row 8.991e-02) [bound 0.073]",
+        "status": "pass"
+      },
+      {
+        "baseline_ns": 1043264.024425298,
+        "baseline_parent_ns": 1050943.9965244383,
+        "baseline_raw_ns": 1047200.0241279602,
+        "baseline_runs_ns": [
+          1059456,
+          1032960,
+          1063456,
+          1012928,
+          1058048,
+          1036352
+        ],
+        "baseline_stats": {
+          "best_ns": 1012928.0090332031,
+          "err_ns": 8083.947256631335,
+          "mean_ns": 1043866.6939735413,
+          "runs": 6,
+          "std_ns": 19801.545886318665,
+          "worst_ns": 1063456.0585021973
+        },
+        "best_ns": 936703.9799690247,
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "turn 1",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5285696955252585207,
+          "weight": 46
+        },
+        "err_ns": 7297.5054287850435,
+        "event": "benchmark",
+        "event_median_ns": 959984.0044975281,
+        "flags": [],
+        "index": 0,
+        "mean_ns": 961525.3309408823,
+        "median_ns": 959147.2979818959,
+        "median_raw_ns": 959984.0044975281,
+        "outside_bursts_ns": [
+          955088.9,
+          953716.9,
+          953025.25
+        ],
+        "outside_ns": 953025.25,
+        "paired_ratio": 1.0876994874722463,
+        "parent_ns": 965263.988589868,
+        "parent_runs_ns": [
+          968416,
+          962112,
+          976768,
+          940608,
+          992288,
+          954752
+        ],
+        "ratios": [
+          1.10218,
+          1.07815,
+          1.09371,
+          1.08172,
+          1.07042,
+          1.09
+        ],
+        "replay_overhead": {
+          "gate_ns": 299840.00721015036,
+          "one_ns": 5247.999913990498,
+          "overhead_ns": 3935.9997026622295,
+          "parent_one_ns": 305312.00766563416,
+          "parent_two_ns": 306272.0000743866,
+          "two_ns": 6560.000125318766
+        },
+        "runs": 6,
+        "runs_ns": [
+          961600,
+          958368,
+          972672,
+          936704,
+          988704,
+          951104
+        ],
+        "speed_of_light_ns": 256950.95121536904,
+        "speedup": 1.0876994874722463,
+        "speedup_of_medians": 1.0912255652362828,
+        "status": "pass",
+        "std_ns": 17875.16469571352,
+        "worst_ns": 988704.0257453918
+      },
+      {
+        "baseline_ns": 1450911.9698777795,
+        "baseline_parent_ns": 1459071.9856787473,
+        "baseline_raw_ns": 1455007.9703330994,
+        "baseline_runs_ns": [
+          1423360,
+          1378368,
+          1501440,
+          1398304,
+          1489056,
+          1486656
+        ],
+        "baseline_stats": {
+          "best_ns": 1378368.0200576782,
+          "err_ns": 21557.40750368405,
+          "mean_ns": 1446197.3309516907,
+          "runs": 6,
+          "std_ns": 52804.64856127119,
+          "worst_ns": 1501440.0482177734
+        },
+        "best_ns": 1270431.9953918457,
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "turn 1",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5285866611763977121,
+          "weight": 16
+        },
+        "err_ns": 24123.945586142778,
+        "event": "benchmark",
+        "event_median_ns": 1364767.9686546326,
+        "flags": [],
+        "index": 1,
+        "mean_ns": 1355930.6661287944,
+        "median_ns": 1361570.8527387234,
+        "median_raw_ns": 1364767.9686546326,
+        "outside_bursts_ns": [
+          1411137.1,
+          1411563.8,
+          1407006.9
+        ],
+        "outside_ns": 1407006.9,
+        "paired_ratio": 1.0656162086308998,
+        "parent_ns": 1369056.0378599912,
+        "parent_runs_ns": [
+          1338912,
+          1273664,
+          1414080,
+          1315904,
+          1399200,
+          1418208
+        ],
+        "ratios": [
+          1.06664,
+          1.08523,
+          1.06525,
+          1.06599,
+          1.06774,
+          1.05162
+        ],
+        "replay_overhead": {
+          "gate_ns": 299871.98929302394,
+          "one_ns": 5280.000157654285,
+          "overhead_ns": 4096.000455319881,
+          "parent_one_ns": 305023.99802207947,
+          "parent_two_ns": 306400.00104904175,
+          "two_ns": 6463.999859988689
+        },
+        "runs": 6,
+        "runs_ns": [
+          1334688,
+          1270432,
+          1409728,
+          1312000,
+          1394848,
+          1413888
+        ],
+        "speed_of_light_ns": 496692.6391911021,
+        "speedup": 1.0656162086308998,
+        "speedup_of_medians": 1.0663201739930666,
+        "status": "pass",
+        "std_ns": 59091.35726871625,
+        "worst_ns": 1413887.9776000977
+      },
+      {
+        "baseline_ns": 3298080.0443328917,
+        "baseline_parent_ns": 3309072.092641145,
+        "baseline_raw_ns": 3302368.0448532104,
+        "baseline_runs_ns": [
+          3303136,
+          3398688,
+          3319872,
+          3301600,
+          3253600,
+          3261696
+        ],
+        "baseline_stats": {
+          "best_ns": 3253599.8821258545,
+          "err_ns": 21227.780235262435,
+          "mean_ns": 3306432.008743286,
+          "runs": 6,
+          "std_ns": 51997.22994833081,
+          "worst_ns": 3398688.0779266357
+        },
+        "best_ns": 2341567.9931640625,
+        "case": {
+          "batch": 4,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "turn 4",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5286036268275369036,
+          "weight": 46
+        },
+        "err_ns": 12396.256027313737,
+        "event": "benchmark",
+        "event_median_ns": 2382719.9935913086,
+        "flags": [],
+        "index": 2,
+        "mean_ns": 2377546.6680526733,
+        "median_ns": 2370252.8712676647,
+        "median_raw_ns": 2382719.9935913086,
+        "outside_bursts_ns": [
+          2354665.5625,
+          2485037.75,
+          2499025.5625
+        ],
+        "outside_ns": 2354665.5625,
+        "paired_ratio": 1.391446492613678,
+        "parent_ns": 2387888.0296833813,
+        "parent_runs_ns": [
+          2385136,
+          2423888,
+          2400144,
+          2390640,
+          2347280,
+          2349456
+        ],
+        "ratios": [
+          1.38934,
+          1.40582,
+          1.38615,
+          1.38399,
+          1.39021,
+          1.39268
+        ],
+        "replay_overhead": {
+          "gate_ns": 300144.0013758838,
+          "one_ns": 5344.000179320574,
+          "overhead_ns": 4288.000520318747,
+          "parent_one_ns": 305503.9942264557,
+          "parent_two_ns": 306432.00874328613,
+          "two_ns": 6399.999838322401
+        },
+        "runs": 6,
+        "runs_ns": [
+          2378688,
+          2418816,
+          2396224,
+          2386752,
+          2341568,
+          2343232
+        ],
+        "speed_of_light_ns": 1036277.2319514662,
+        "speedup": 1.391446492613678,
+        "speedup_of_medians": 1.3866614870389748,
+        "status": "pass",
+        "std_ns": 30364.501987819145,
+        "worst_ns": 2418816.089630127
+      },
+      {
+        "baseline_ns": 4982704.080175608,
+        "baseline_parent_ns": 4988735.942402855,
+        "baseline_raw_ns": 4986576.080322266,
+        "baseline_runs_ns": [
+          5073984,
+          5007680,
+          4944672,
+          5099904,
+          4965472,
+          4856096
+        ],
+        "baseline_stats": {
+          "best_ns": 4856095.790863037,
+          "err_ns": 36524.5237265924,
+          "mean_ns": 4991301.377614339,
+          "runs": 6,
+          "std_ns": 89466.4462283289,
+          "worst_ns": 5099904.0603637695
+        },
+        "best_ns": 3922879.934310913,
+        "case": {
+          "batch": 4,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "turn 4",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5286205924786760952,
+          "weight": 16
+        },
+        "err_ns": 17812.496188466077,
+        "event": "benchmark",
+        "event_median_ns": 4005120.038986206,
+        "flags": [],
+        "index": 3,
+        "mean_ns": 3989839.951197306,
+        "median_ns": 3978491.6825532974,
+        "median_raw_ns": 4005120.038986206,
+        "outside_bursts_ns": [
+          3924901.6666666665,
+          3934805.4444444445,
+          4003370
+        ],
+        "outside_ns": 3924901.6666666665,
+        "paired_ratio": 1.2524103297805143,
+        "parent_ns": 4008000.163594261,
+        "parent_runs_ns": [
+          4034240,
+          4024352,
+          3991648,
+          4025120,
+          3955808,
+          3924960
+        ],
+        "ratios": [
+          1.25938,
+          1.24548,
+          1.23987,
+          1.26795,
+          1.25632,
+          1.23813
+        ],
+        "replay_overhead": {
+          "gate_ns": 301568.0031385273,
+          "one_ns": 5088.00009265542,
+          "overhead_ns": 3872.0001466572285,
+          "parent_one_ns": 306719.98858451843,
+          "parent_two_ns": 307904.0050506592,
+          "two_ns": 6304.000038653612
+        },
+        "runs": 6,
+        "runs_ns": [
+          4029760,
+          4021440,
+          3988800,
+          4022976,
+          3953184,
+          3922880
+        ],
+        "speed_of_light_ns": 1992419.5081577352,
+        "speedup": 1.2524103297805143,
+        "speedup_of_medians": 1.2452874782590844,
+        "status": "pass",
+        "std_ns": 43631.52670701211,
+        "worst_ns": 4029759.8838806152
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 0,
+          "dist": "soft",
+          "layer": "full",
+          "load": "first turn",
+          "page": 1,
+          "q_len": 16384,
+          "repeats": 6,
+          "seed": 5286545237809544787,
+          "weight": 16
+        },
+        "error": "recheck failed on repetition 0: residual update: relative L2 error 6.951e-01 \u003e 0.0422345 [bound 0.042]",
+        "event": "benchmark",
+        "index": 4,
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793513236.5682645,
+  "status": "done",
+  "team": "yelgabo"
+}

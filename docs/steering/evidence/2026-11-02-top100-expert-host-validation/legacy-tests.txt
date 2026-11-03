@@ -1,0 +1,37 @@
+test_all_crosses_all_banks_and_weighting (__main__.Contract.test_all_crosses_all_banks_and_weighting) ... ok
+test_frozen_one_percent_and_twice_null (__main__.Contract.test_frozen_one_percent_and_twice_null) ... ok
+test_missing_duplicate_invalid_timing_and_actual_routes (__main__.Contract.test_missing_duplicate_invalid_timing_and_actual_routes) ... ok
+test_regression_equality_stops_and_unchanged_drift_is_disclosed (__main__.Contract.test_regression_equality_stops_and_unchanged_drift_is_disclosed) ... ok
+test_actual_call_is_recorded_after_success_only (__main__.Generated.test_actual_call_is_recorded_after_success_only) ... ok
+test_actual_entry_restores_on_success_failure_and_budget (__main__.Generated.test_actual_entry_restores_on_success_failure_and_budget) ... ok
+test_capture_restores_inputs_and_replay_writes_actual_output (__main__.Generated.test_capture_restores_inputs_and_replay_writes_actual_output) ... ok
+test_delivered_prepare_is_stopped_before_any_build_or_gpu_call (__main__.Generated.test_delivered_prepare_is_stopped_before_any_build_or_gpu_call) ... ok
+test_deterministic_exact_package_prefix_and_no_native_repair (__main__.Generated.test_deterministic_exact_package_prefix_and_no_native_repair) ... ok
+test_missing_official_records_invalid_times_and_report (__main__.Generated.test_missing_official_records_invalid_times_and_report) ... ok
+test_overlap_rejection_uses_storage_intervals (__main__.Generated.test_overlap_rejection_uses_storage_intervals) ... ok
+test_owning_archived_job_and_recipe_are_reference_only (__main__.Generated.test_owning_archived_job_and_recipe_are_reference_only) ... ok
+test_reference_cache_stale_versions_and_front_change (__main__.Generated.test_reference_cache_stale_versions_and_front_change) ... ok
+test_strict_reader_positive_fixture_has_no_release_entitlement (__main__.Generated.test_strict_reader_positive_fixture_has_no_release_entitlement) ... ok
+test_wrong_job_team_mode_payload_source_and_log (__main__.Generated.test_wrong_job_team_mode_payload_source_and_log) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 2.737s
+
+OK
+test_real_compiler_inputs_and_source_identity (__main__.Packaging.test_real_compiler_inputs_and_source_identity) ... ok
+test_source_drift_rejects_before_build (__main__.Packaging.test_source_drift_rejects_before_build) ... ok
+test_state_binding_guards_and_duplicate_build_reuse (__main__.Packaging.test_state_binding_guards_and_duplicate_build_reuse) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.979s
+
+OK
+test_all_finite_bf16_transport_and_fp32_gamma_product (__main__.Contracts.test_all_finite_bf16_transport_and_fp32_gamma_product) ... ok
+test_protocol_math_and_negative_source_drift (__main__.Contracts.test_protocol_math_and_negative_source_drift) ... ok
+test_real_factory_and_exact_source_reverse (__main__.Contracts.test_real_factory_and_exact_source_reverse) ... ok
+test_store_ownership_and_finalizer_address_coverage (__main__.Contracts.test_store_ownership_and_finalizer_address_coverage) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.630s
+
+OK

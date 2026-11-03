@@ -1,0 +1,12 @@
+{
+  "source_revision": "21db3bc31971ec9d7dd19da21e047adc069ad08c",
+  "source_sha256": "cf1dbda332e6a53fa581293d1ddf224c91447436e877c2ed005270c7dd1d04fe",
+  "source_bytes": 343611,
+  "time_utc": "2026-11-03T01:27:24.887124+00:00",
+  "problem": "muse_moe_w4a16",
+  "mode": "check",
+  "other_live_jobs": {
+    "3c45788127e945c4": "CUDA Optimizer issue-group experiment",
+    "62a4f6b27ed74b50": "Decode32 Worker attention confirmation"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "tools/g_common_rmw_pair.py": {
+    "bytes": 7051,
+    "sha256": "0c87802705726532cd4f56e703bac53e50161caa5092ccd6a048ba405731a7c7"
+  },
+  "tools/g_common_rmw_pair_body.py": {
+    "bytes": 6146,
+    "sha256": "2e4d9208662ee782477807d1a19abe47890b1755dc8c5cae91303bce689c932d"
+  },
+  "tools/g_common_rmw_pair_compile.py": {
+    "bytes": 3948,
+    "sha256": "9ef3d720c2971309457c32f0e14f4ad88f8112ff9d61cec00bd451600fffe5e0"
+  },
+  "tools/g_common_rmw_pair_read.py": {
+    "bytes": 10920,
+    "sha256": "745d7bb508d170dbc6bcd4b86e0f8a0b39c9a9ba08885aec54a45a33e68f004d"
+  },
+  "tools/g_common_rmw_pair_manifest.json": {
+    "bytes": 4821,
+    "sha256": "09f2132b25cb1ec8456efcf2ab0f9197780d4612f31bac710eaee27c5db14cf4"
+  },
+  "tools/test_g_common_rmw_pair.py": {
+    "bytes": 11774,
+    "sha256": "e97a1cf8008fbf5e83a32e4f693bc222ed7fbcc8ebfd50208fc2ab9f2da04495"
+  },
+  ".build/rmw-pair-v3/check.py": {
+    "bytes": 923915,
+    "sha256": "c4a5ee29bcfeca248c0fee638ed103e9f211f7a8cc32b86bd3bb642676bf45e3"
+  },
+  ".build/rmw-v2/common.py": {
+    "bytes": 918490,
+    "sha256": "32196b8bc1c954e9b7f2c6667e6b3e0aeed14da0fed6fe53bc153c9d563e5047"
+  },
+  ".build/rmw-v2/short-rmw.py": {
+    "bytes": 918978,
+    "sha256": "978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a"
+  }
+}

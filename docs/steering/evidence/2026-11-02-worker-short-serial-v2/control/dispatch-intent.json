@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-02T12:22:47.217088+00:00",
+  "role": "exact unchanged incumbent fresh control",
+  "allocation": "1df00005d3eceb467c38b17ac0d4cad632efbc78",
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "bytes": 869076,
+  "private_checks_left": 3,
+  "live_layer_jobs": 0,
+  "command": [
+    "okc",
+    "check",
+    "muse_decode_layer",
+    "muse_decode_layer/cand/g1b4_stage_release.py",
+    "--no-wait",
+    "--json"
+  ],
+  "one_POST": true,
+  "automatic_retry": false
+}

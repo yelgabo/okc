@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "log",
+    "path": "docs/steering/evidence/2026-11-02-worker-wgs-k128-full-reuse/generated/profiles/candidate.bf8671b4bfa845a2.log",
+    "bytes": 698,
+    "sha256": "4a8b16b5c02b268513e13a64c4bc5eed6ae79ee7e2d7bc71a3986557720b4ef8"
+  },
+  {
+    "kind": "json",
+    "path": "docs/steering/evidence/2026-11-02-worker-wgs-k128-full-reuse/generated/profiles/candidate.bf8671b4bfa845a2.json",
+    "bytes": 57772,
+    "sha256": "ec2a6af1bf81672be593b5e94c81f827211561c43759f198b189f398c9418f54"
+  },
+  {
+    "kind": "text",
+    "path": "docs/steering/evidence/2026-11-02-worker-wgs-k128-full-reuse/generated/profiles/candidate.bf8671b4bfa845a2.txt",
+    "bytes": 13889,
+    "sha256": "4602af163ba6497d8bbd68d6557cdf05f95a123762aec28d5a7cc21b7b9a2cce"
+  }
+]

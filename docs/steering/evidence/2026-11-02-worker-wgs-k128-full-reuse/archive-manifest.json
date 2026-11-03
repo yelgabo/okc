@@ -1,0 +1,155 @@
+{
+  "at": "2026-11-02T21:11:48.250665+00:00",
+  "cpu_command": [
+    "/root/.cache/okc-host-validate/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools",
+    "-p",
+    "test_wgs_k128_full_reuse.py",
+    "-v"
+  ],
+  "cpu_exitcode": 0,
+  "files": {
+    "cpu-tests.txt": {
+      "bytes": 925,
+      "sha256": "4022bce075545191d436fb05c8a7d7756c42fc0d381cfd503239188cfe2db056"
+    },
+    "generated/candidate.py": {
+      "bytes": 885489,
+      "sha256": "440f41b118eeb3676867e15d109c2d5f7da0213873f84a17c9d68d1af868703f"
+    },
+    "generated/manifest.json": {
+      "bytes": 331,
+      "sha256": "04276dff5d025989b1f198231e9058e1062305fcc16953b2a26caabd1e108bbc"
+    },
+    "generated/native.diff": {
+      "bytes": 40887,
+      "sha256": "2ce590a1c5c1ff159b4a012a8bfe8ea490e7c1d5c0f1a0e0fa37a62880bdedfe"
+    },
+    "generated/selected.cu": {
+      "bytes": 155456,
+      "sha256": "6366934e170d7abf386869b4c22874f373d8b1d812ccff3400f7753a665c6a4a"
+    },
+    "reference/B4/device.cubin.gz": {
+      "bytes": 782618,
+      "sha256": "105bdac96db4e8726a857ee03f8849e4fdd3925bdd3e7186b4d4e509287e0743"
+    },
+    "reference/B4/device.ptx.gz": {
+      "bytes": 553632,
+      "sha256": "e36f8b5594be145aef884672e0c06433c464f8f2d305e87f81f133bc78de2579"
+    },
+    "reference/B4/layout.json": {
+      "bytes": 228,
+      "sha256": "9289909c36918e4e5f411ca7aef75513045eb2c5c383e90b80792bfe543d9f17"
+    },
+    "reference/B4/manifest.json": {
+      "bytes": 2952,
+      "sha256": "107203baa457db4ad84e8daf2f99b5cf902c05cf12c1f24f4cb474632dcbd0f5"
+    },
+    "reference/B4/nvrtc.log": {
+      "bytes": 3038,
+      "sha256": "ea46927183469bfc8bca2e9b359873c9702d8c81e98e54634427d5de90a0139c"
+    },
+    "reference/B4/ptxas.log": {
+      "bytes": 1375,
+      "sha256": "771ba79a8e85481572a4d06ca275f83f056a5b2a78276e4743dc34f7d5f8b9ec"
+    },
+    "reference/MAIN/device.cubin.gz": {
+      "bytes": 701414,
+      "sha256": "d069aabe2614c6514f9b8363cfb2ac4d4792978ff6d515d5ec0e8ad6b4666e29"
+    },
+    "reference/MAIN/device.ptx.gz": {
+      "bytes": 498903,
+      "sha256": "32be933c2117ccaba99607e15ad7a6a01ae2701fc56ce5773a9e21724ae39677"
+    },
+    "reference/MAIN/layout.json": {
+      "bytes": 228,
+      "sha256": "9289909c36918e4e5f411ca7aef75513045eb2c5c383e90b80792bfe543d9f17"
+    },
+    "reference/MAIN/manifest.json": {
+      "bytes": 2931,
+      "sha256": "76f87e70831e4861412729e9ea00db3bc9059d965a83c766bae11c1332c3139d"
+    },
+    "reference/MAIN/nvrtc.log": {
+      "bytes": 3038,
+      "sha256": "ea46927183469bfc8bca2e9b359873c9702d8c81e98e54634427d5de90a0139c"
+    },
+    "reference/MAIN/ptxas.log": {
+      "bytes": 1363,
+      "sha256": "b2fc7ba104723ddec5a4d5ece05f6b07f03840c287c6ad7f8894d246399543d4"
+    },
+    "reference/adapted-driver.py": {
+      "bytes": 7431,
+      "sha256": "539c2c502cb949f4cf3ed66a60fde4b5df1cfe9837012a60bd7cd8653a214439"
+    },
+    "reference/compile-result.json": {
+      "bytes": 8533,
+      "sha256": "2035e8c41a48218c07850298590a1bca5e541db846470e6789c4c233ebe63c7c"
+    },
+    "selected-factory-calls.json": {
+      "bytes": 3878,
+      "sha256": "28146f853f3104bacb305395b517e9d5bf45ab9721e9d7f38d5d063b2d44d245"
+    },
+    "treatment/B4/device.cubin.gz": {
+      "bytes": 655564,
+      "sha256": "a8ca6750d68bf41ae04b0d125543de098eff92196db0bb17c804b92639d1949b"
+    },
+    "treatment/B4/device.ptx.gz": {
+      "bytes": 441749,
+      "sha256": "bf12545237bf1d33b8515306325a46ff4bffd8c80522a6308f5eb0fbdccb7ea3"
+    },
+    "treatment/B4/layout.json": {
+      "bytes": 225,
+      "sha256": "d022aabaabe8374f261134b3a1e4cb5b026addc6be8a5410f6bf927befb47ce6"
+    },
+    "treatment/B4/manifest.json": {
+      "bytes": 2963,
+      "sha256": "9b10baf45777accef2d6410f554be0ac5ba741c78165bfb275a04bb6d345870c"
+    },
+    "treatment/B4/nvrtc.log": {
+      "bytes": 3225,
+      "sha256": "32a0e501dd29480202e66f0b01117c5a7d8cd8d183a88690f57b48639f3176e8"
+    },
+    "treatment/B4/ptxas.log": {
+      "bytes": 1375,
+      "sha256": "a50cf9bbbc7841dceb709c6918e9127e2d87cc321bea4c10dd797f9df4341c30"
+    },
+    "treatment/MAIN/device.cubin.gz": {
+      "bytes": 570399,
+      "sha256": "0f197c1b9b6e4d976bb8be6f3acbec2cfc6d75ec6bf495b7f752f82b3cea4f98"
+    },
+    "treatment/MAIN/device.ptx.gz": {
+      "bytes": 386080,
+      "sha256": "1adbd338cdfd7acfc8692a9d963f873755d81b54a660941e7577d2e03f27cfc8"
+    },
+    "treatment/MAIN/layout.json": {
+      "bytes": 225,
+      "sha256": "d022aabaabe8374f261134b3a1e4cb5b026addc6be8a5410f6bf927befb47ce6"
+    },
+    "treatment/MAIN/manifest.json": {
+      "bytes": 2946,
+      "sha256": "9dfc8038b4bfabad4d14a453be8e8cc48ef6e485f2e34a598295bb798f3c521d"
+    },
+    "treatment/MAIN/nvrtc.log": {
+      "bytes": 3225,
+      "sha256": "32a0e501dd29480202e66f0b01117c5a7d8cd8d183a88690f57b48639f3176e8"
+    },
+    "treatment/MAIN/ptxas.log": {
+      "bytes": 1371,
+      "sha256": "6144ffcc6a9de6a8c506f9a20a2a9d954758e9662f4d662914519e7526f66aa9"
+    },
+    "treatment/adapted-driver.py": {
+      "bytes": 7436,
+      "sha256": "a30bc0e87af2508e811584e70c6855c1f9f489f3acd828f23f47de567c52b594"
+    },
+    "treatment/compile-result.json": {
+      "bytes": 8559,
+      "sha256": "76d8673c3eda36c76e3cbb4a27c04a714d1ecb001c10f52f85bb553e398ac4f1"
+    }
+  },
+  "gpu_execution": false,
+  "judge_dispatch": false
+}

@@ -1,0 +1,655 @@
+[
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "license": null,
+    "date": "2026-10-25T17:00:18Z",
+    "fork": false,
+    "forks": 0,
+    "truncated": false,
+    "files": [
+      {
+        "path": "results.tsv",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "e2c3aa4d1d0a863a9fbf0c6cc7ee9e464db9bfb6",
+        "size": 10265,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/e2c3aa4d1d0a863a9fbf0c6cc7ee9e464db9bfb6"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-033704_calib_baseline.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b5430d91d3eb1f85586e0b829570a48e830a1976",
+        "size": 570,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/b5430d91d3eb1f85586e0b829570a48e830a1976"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-034341_calib_baseline.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "53c5c1a074162e56378de4297b2f0993fe6dcd6f",
+        "size": 9002,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/53c5c1a074162e56378de4297b2f0993fe6dcd6f"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-035309_v1_splitkv.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9a0b75f330a497cc57fe4b97c6b3e312f095d257",
+        "size": 6189,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/9a0b75f330a497cc57fe4b97c6b3e312f095d257"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-040056_v1_splitkv.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "6c45e507c8b1c40d9aeb3afd822abedfd4d0a323",
+        "size": 9004,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/6c45e507c8b1c40d9aeb3afd822abedfd4d0a323"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-041018_v2_fp8qk.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "0b21b47a23f1d4a7696abc566c3748bd600e9444",
+        "size": 9004,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/0b21b47a23f1d4a7696abc566c3748bd600e9444"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-041413_v3c_rowsplit.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d158d589d1cb9befbd9d5342fbc58b7e696df03c",
+        "size": 9024,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/d158d589d1cb9befbd9d5342fbc58b7e696df03c"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-041449_v3a_warps8.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "df9d16192ca9d79627be8c6b8808d5ad1d835935",
+        "size": 2748,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/df9d16192ca9d79627be8c6b8808d5ad1d835935"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-043225_v6_hybrid.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "5c11c402d3ad008294f8977656921156623a3493",
+        "size": 9014,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/5c11c402d3ad008294f8977656921156623a3493"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-052350_v7_onelaunch.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4ed8a324d6f37d17177d01314da3eb2b04eea3ad",
+        "size": 6375,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/4ed8a324d6f37d17177d01314da3eb2b04eea3ad"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-052639_v7_onelaunch.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "29981359d6c4f0c2d2460f9d1fe94401a2d2429b",
+        "size": 9062,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/29981359d6c4f0c2d2460f9d1fe94401a2d2429b"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-053031_v8_window.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "73180e87e2b9f06a547427d85fa1772e5548964b",
+        "size": 5940,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/73180e87e2b9f06a547427d85fa1772e5548964b"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-053439_v8_window.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "bd1c3c79e0ec2e761dce30737dd544cab4c54275",
+        "size": 9048,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/bd1c3c79e0ec2e761dce30737dd544cab4c54275"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-061035_v9_prefetch.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ebbcfe09bb7d7c956d071ea802e58b96dc2a422e",
+        "size": 9049,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/ebbcfe09bb7d7c956d071ea802e58b96dc2a422e"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-062504_v10_tok_sliding.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b08a56b83718d1b17949bbba7cdb3035272a624a",
+        "size": 9059,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/b08a56b83718d1b17949bbba7cdb3035272a624a"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-063102_v11_tok_small.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "31b9eb44d2e3f471380e930b7bdf7c32af378809",
+        "size": 9059,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/31b9eb44d2e3f471380e930b7bdf7c32af378809"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-075638_v12_splits.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "f31dca98da50957ef031294594cbd54b8dda2113",
+        "size": 9056,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/f31dca98da50957ef031294594cbd54b8dda2113"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-082254_v13_p2400.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "c7922810a4f6043c7f086e0beb424d7ad5dbc94c",
+        "size": 9033,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/c7922810a4f6043c7f086e0beb424d7ad5dbc94c"
+      },
+      {
+        "path": "results/muse_attention_decode/20261025-091632_v14_sliding600.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d5b2df43a2ebcae27a31118b6981300fe7c1c7ac",
+        "size": 9060,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/d5b2df43a2ebcae27a31118b6981300fe7c1c7ac"
+      },
+      {
+        "path": "results/muse_attention_decode/judge_3a85f99f7d384f0f.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "192d42edfcce48841998a41d1cfd6d3829cc5a0b",
+        "size": 78213,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/192d42edfcce48841998a41d1cfd6d3829cc5a0b"
+      },
+      {
+        "path": "results/muse_attention_decode/judge_4a319b95232941f2.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4ca9a42032b1f5006ca9683b18e9a705eb5ed7f6",
+        "size": 78323,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/4ca9a42032b1f5006ca9683b18e9a705eb5ed7f6"
+      },
+      {
+        "path": "results/muse_attention_decode/judge_dbe56f1082214984.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "1f1e231691106f33d5ee9ed6c4c1dbf66fb3f1d1",
+        "size": 78203,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/1f1e231691106f33d5ee9ed6c4c1dbf66fb3f1d1"
+      },
+      {
+        "path": "results/muse_attention_decode/micro_20261025-042519.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "feaa002273e5610cee480c32ef37fa6065d1e00f",
+        "size": 6090,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/feaa002273e5610cee480c32ef37fa6065d1e00f"
+      },
+      {
+        "path": "results/muse_attention_decode/micro_20261025-042806.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "01f50be079e55bde0ea1bf89098e644d2d20a9bb",
+        "size": 5468,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/01f50be079e55bde0ea1bf89098e644d2d20a9bb"
+      },
+      {
+        "path": "results/muse_attention_decode/micro_20261025-080954.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "72e86adb30b6c2e153c86b6e599e0ad13e296b43",
+        "size": 4984,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/72e86adb30b6c2e153c86b6e599e0ad13e296b43"
+      },
+      {
+        "path": "results/muse_attention_decode/micro_20261025-081913.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "5d787ff94f3ae280f5deca0fa6ad95a0fb951c82",
+        "size": 7280,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/5d787ff94f3ae280f5deca0fa6ad95a0fb951c82"
+      },
+      {
+        "path": "results/muse_attention_decode/micro_20261025-082749.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "620136a006d5456aab84a6a94d2bbad09b2c32f3",
+        "size": 5638,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/620136a006d5456aab84a6a94d2bbad09b2c32f3"
+      },
+      {
+        "path": "results/muse_attention_decode/micro_20261025-091232.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "2844314dd88b5b742ec6207b8c65cb2d3ec33a20",
+        "size": 7507,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/2844314dd88b5b742ec6207b8c65cb2d3ec33a20"
+      },
+      {
+        "path": "results/muse_bf16_proj/20261025-033640_calib_baseline.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "26da4fb3418660c3968cb524b4474f366a34e0ec",
+        "size": 10836,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/26da4fb3418660c3968cb524b4474f366a34e0ec"
+      },
+      {
+        "path": "results/muse_bf16_proj/20261025-033656_calib_template.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "16c5e4a1f9ddaff8ce0263eb5f56672e4a66ee09",
+        "size": 10825,
+        "url": "https://api.github.com/repos/Ranoobaba/okc-campaign/git/blobs/16c5e4a1f9ddaff8ce0263eb5f56672e4a66ee09"
+      }
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "license": null,
+    "date": "2026-10-27T15:56:53Z",
+    "fork": false,
+    "forks": 0,
+    "truncated": false,
+    "files": [
+      {
+        "path": "muse_attention_decode/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "8ad72a719bbb2a08e22f9262380f274b391388d4",
+        "size": 4642,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/8ad72a719bbb2a08e22f9262380f274b391388d4"
+      },
+      {
+        "path": "muse_attention_decode/results/runs/bench12.7965de6964c64d58.txt",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "19bbfe07b9e54632e662f534114db0ea5565b9d6",
+        "size": 6301,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/19bbfe07b9e54632e662f534114db0ea5565b9d6"
+      },
+      {
+        "path": "muse_attention_decode/results/runs/check_bench12_1.72x.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cba58b67613dcb9ca48a6712dffa3ad3b1e94403",
+        "size": 100349,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/cba58b67613dcb9ca48a6712dffa3ad3b1e94403"
+      },
+      {
+        "path": "muse_attention_decode/results/runs/check_c1e07a26_1.57x.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "6be7f298714a6b14edf95c244e0bc22139dc3cc6",
+        "size": 94719,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/6be7f298714a6b14edf95c244e0bc22139dc3cc6"
+      },
+      {
+        "path": "muse_attention_decode/results/runs/submission.c1e07a264d3e459a.txt",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b20a7cf5e0a4abad5d1a7071bbc83417ed798322",
+        "size": 6297,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/b20a7cf5e0a4abad5d1a7071bbc83417ed798322"
+      },
+      {
+        "path": "muse_attention_decode/results/submitted_v1.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "e40575f5bc9488103cad6ce26e4e174c03325c7e",
+        "size": 19729,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/e40575f5bc9488103cad6ce26e4e174c03325c7e"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/ablate1.1c69c6bd9a054a4c.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4a839f51a55d84512fa5be1ad22aead3a83f8857",
+        "size": 2390,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/4a839f51a55d84512fa5be1ad22aead3a83f8857"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench1.8072d7073a02452f.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "621b0860952a7ea65f9b3cf8d4d247f0fd2308ca",
+        "size": 505,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/621b0860952a7ea65f9b3cf8d4d247f0fd2308ca"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench10.3e0342fc3fcd4871.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b2ecf4005de0acc400caff010a87275af8b17cb1",
+        "size": 4531,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/b2ecf4005de0acc400caff010a87275af8b17cb1"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench11.2cd89bf2080e4957.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "78f00bc7e931295b31e2e9a79891b441b646ed24",
+        "size": 5614,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/78f00bc7e931295b31e2e9a79891b441b646ed24"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench12.7965de6964c64d58.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9472911393c2f1adc4ea56336e27e4567167e332",
+        "size": 5742,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/9472911393c2f1adc4ea56336e27e4567167e332"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench2.55db62aa7f0140f2.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "fb2457968d2e3c7a1eb230bdd8aebdc7f949dac1",
+        "size": 5193,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/fb2457968d2e3c7a1eb230bdd8aebdc7f949dac1"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench3.4751d19f88e24028.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b29b32fc906e4c0f83e219ff106e359a185c9a88",
+        "size": 6024,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/b29b32fc906e4c0f83e219ff106e359a185c9a88"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench4.fedfea59f7634d14.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "54355e2885182bdccc01e1c065c0352b90bb64f3",
+        "size": 9156,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/54355e2885182bdccc01e1c065c0352b90bb64f3"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench5.6493f99da89b46b6.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "2aa1a3be72b3e4be7e16ed9348beec5043f5e4c7",
+        "size": 10422,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/2aa1a3be72b3e4be7e16ed9348beec5043f5e4c7"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench6.3cd8b4ca778045a9.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "0d003cf077f812a48c7de5324ef00931c54eb9a9",
+        "size": 11595,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/0d003cf077f812a48c7de5324ef00931c54eb9a9"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench7.4fd35489586f4dc9.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a8859c647027489c49469414ffee886a9a8dee88",
+        "size": 9627,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/a8859c647027489c49469414ffee886a9a8dee88"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench8.bed8ccc4a14f469f.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "855d852d1acf876b7495fabf275443b6e1602a52",
+        "size": 4983,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/855d852d1acf876b7495fabf275443b6e1602a52"
+      },
+      {
+        "path": "muse_attention_decode/results/sweeps/bench9.6385a92aa50a468b.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "54a33c54571f87380379914f4075f0026c77b5d1",
+        "size": 9039,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/54a33c54571f87380379914f4075f0026c77b5d1"
+      },
+      {
+        "path": "muse_bf16_proj/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "57987c688f7b9842820112dd0585d981a4715b23",
+        "size": 11263,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/57987c688f7b9842820112dd0585d981a4715b23"
+      },
+      {
+        "path": "muse_bf16_proj/results/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "495fea44f1c8f341b1d2a95260ad727effa319a8",
+        "size": 10907,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/495fea44f1c8f341b1d2a95260ad727effa319a8"
+      },
+      {
+        "path": "muse_bf16_proj/results/architectural_redesigns.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "fae98f3e7bdf0d488085db4a0a0024d81d0fac68",
+        "size": 7827,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/fae98f3e7bdf0d488085db4a0a0024d81d0fac68"
+      },
+      {
+        "path": "muse_bf16_proj/results/banked_control_20261026.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "febfb2b07329cd2ac11c8cb51ab570b001ef0790",
+        "size": 208781,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/febfb2b07329cd2ac11c8cb51ab570b001ef0790"
+      },
+      {
+        "path": "muse_bf16_proj/results/banked_control_20261026.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "874a5afe307288d89e4d427680930d4de8c71926",
+        "size": 4890,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/874a5afe307288d89e4d427680930d4de8c71926"
+      },
+      {
+        "path": "muse_bf16_proj/results/banked_control_20261026.txt",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "47d8d4f08ba902b63dd974e34e3cd4e439c8266e",
+        "size": 14362,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/47d8d4f08ba902b63dd974e34e3cd4e439c8266e"
+      },
+      {
+        "path": "muse_bf16_proj/results/first_principles_analysis.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3fa4d5e208014cd2a84fe17d93962b013d72893f",
+        "size": 23796,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/3fa4d5e208014cd2a84fe17d93962b013d72893f"
+      },
+      {
+        "path": "muse_bf16_proj/results/first_principles_analysis.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "77fb4aef8999da2602386d5d9d80ca81e52c0ca3",
+        "size": 11513,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/77fb4aef8999da2602386d5d9d80ca81e52c0ca3"
+      },
+      {
+        "path": "muse_bf16_proj/results/handoff_2026-10-25.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9bd1bfa81573b97db68862e2338f85b5d4f922b5",
+        "size": 4976,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/9bd1bfa81573b97db68862e2338f85b5d4f922b5"
+      },
+      {
+        "path": "muse_bf16_proj/results/hopper_overlap.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "5f04c3e27b915e3828be013af74a38598871fd98",
+        "size": 211681,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/5f04c3e27b915e3828be013af74a38598871fd98"
+      },
+      {
+        "path": "muse_bf16_proj/results/hopper_overlap.log",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4c6b51ef59b7c8a1d913456b6e57f987d0f0e9bf",
+        "size": 7883,
+        "url": "https://api.github.com/repos/tommyyliu/okc/git/blobs/4c6b51ef59b7c8a1d913456b6e57f987d0f0e9bf"
+      }
+    ]
+  },
+  {
+    "repo": "ozgureyilmaz/okc-muse-kernels",
+    "pin": "74daa3a6990168b52359c80955014a945fc7aa4e",
+    "license": "Apache-2.0",
+    "date": "2026-10-27T17:28:03Z",
+    "fork": false,
+    "forks": 0,
+    "truncated": false,
+    "files": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "c45f58e9e68e3f4d79d273e8a79ecb1a0575b6c1",
+        "size": 4005,
+        "url": "https://api.github.com/repos/ozgureyilmaz/okc-muse-kernels/git/blobs/c45f58e9e68e3f4d79d273e8a79ecb1a0575b6c1"
+      },
+      {
+        "path": "state/best/muse_bf16_proj/.gitkeep",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "size": 0,
+        "url": "https://api.github.com/repos/ozgureyilmaz/okc-muse-kernels/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+      },
+      {
+        "path": "state/best/muse_bf16_proj/meta.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "482470b4e4015670b490ce951366e56c592ab1d3",
+        "size": 312,
+        "url": "https://api.github.com/repos/ozgureyilmaz/okc-muse-kernels/git/blobs/482470b4e4015670b490ce951366e56c592ab1d3"
+      },
+      {
+        "path": "state/best/muse_bf16_proj/submission.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "f498cab7d59312d449fcee385220fa8f864532d3",
+        "size": 12121,
+        "url": "https://api.github.com/repos/ozgureyilmaz/okc-muse-kernels/git/blobs/f498cab7d59312d449fcee385220fa8f864532d3"
+      },
+      {
+        "path": "state/results.jsonl",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a4f158e62c7bc872ca7faf100c79d68ef9984d03",
+        "size": 38348,
+        "url": "https://api.github.com/repos/ozgureyilmaz/okc-muse-kernels/git/blobs/a4f158e62c7bc872ca7faf100c79d68ef9984d03"
+      },
+      {
+        "path": "tools/parse_result.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "793502b614b1f03b8b9e13c4ac55c19673d85052",
+        "size": 10606,
+        "url": "https://api.github.com/repos/ozgureyilmaz/okc-muse-kernels/git/blobs/793502b614b1f03b8b9e13c4ac55c19673d85052"
+      }
+    ]
+  },
+  {
+    "repo": "Kushagrabainsla/muse-spark-open",
+    "pin": "ca71144194e993c9769f20654fade8008c6868c7",
+    "license": null,
+    "date": "2026-11-01T04:25:37Z",
+    "fork": false,
+    "forks": 0,
+    "truncated": false,
+    "files": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "bf2617367ab8bb3e523ff023afa434dd15cb6eaf",
+        "size": 7655,
+        "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/bf2617367ab8bb3e523ff023afa434dd15cb6eaf"
+      },
+      {
+        "path": "muse_bf16_proj/sweep_results.txt",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "e15b0035e9e6a670b705bf8882fed28f2385e61e",
+        "size": 5895,
+        "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e15b0035e9e6a670b705bf8882fed28f2385e61e"
+      }
+    ]
+  },
+  {
+    "repo": "theluckystrike/muse-spark-open-kernels",
+    "pin": "778e47d7fe5836f6e19bb6d962caf02e40469035",
+    "license": null,
+    "date": "2026-10-23T10:04:11Z",
+    "fork": false,
+    "forks": 0,
+    "truncated": false,
+    "files": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "868376d6e5332f3a5727618e2218a83821e8212d",
+        "size": 1649,
+        "url": "https://api.github.com/repos/theluckystrike/muse-spark-open-kernels/git/blobs/868376d6e5332f3a5727618e2218a83821e8212d"
+      }
+    ]
+  },
+  {
+    "repo": "xharshvardhan/open-kernel-challenge",
+    "pin": "4958d3141aa977c4b6b26df7a8d06c90dd094ee9",
+    "license": null,
+    "date": "2026-10-27T03:26:53Z",
+    "fork": false,
+    "forks": 0,
+    "truncated": false,
+    "files": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b296a8a238bf3f8af9cfa41ce549a017d30c6305",
+        "size": 3556,
+        "url": "https://api.github.com/repos/xharshvardhan/open-kernel-challenge/git/blobs/b296a8a238bf3f8af9cfa41ce549a017d30c6305"
+      }
+    ]
+  },
+  {
+    "repo": "Okohedeki/autoinference",
+    "pin": "0454fb5059e95928c4236620142f51c287f572fb",
+    "license": null,
+    "date": "2026-10-30T02:13:39Z",
+    "fork": false,
+    "forks": 0,
+    "truncated": false,
+    "files": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b7e3b02c5d2fa07c8957fb36a99251205ed46c1a",
+        "size": 8406,
+        "url": "https://api.github.com/repos/Okohedeki/autoinference/git/blobs/b7e3b02c5d2fa07c8957fb36a99251205ed46c1a"
+      },
+      {
+        "path": "market_map/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "116ea5fef42c345960c05541ea320499d7bdeae8",
+        "size": 4380,
+        "url": "https://api.github.com/repos/Okohedeki/autoinference/git/blobs/116ea5fef42c345960c05541ea320499d7bdeae8"
+      }
+    ]
+  }
+]

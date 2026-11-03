@@ -1,0 +1,50 @@
+{
+  "desktopWidth": 1280,
+  "mobileWidth": 390,
+  "desktopOverflow": false,
+  "mobileOverflow": false,
+  "duplicateIds": [],
+  "allWorkloads": [
+    {
+      "current": "8 compute warps",
+      "label": "T1 selected · source comparison",
+      "old": "8 compute warps",
+      "route": "Tiny · T1"
+    },
+    {
+      "current": "8 compute warps",
+      "label": "T8 selected · source comparison",
+      "old": "8 compute warps",
+      "route": "Tiny2 · T8"
+    },
+    {
+      "current": "8 compute warps",
+      "label": "T16 selected · source comparison",
+      "old": "8 compute warps",
+      "route": "MID · T16"
+    },
+    {
+      "current": "4 compute warpgroups",
+      "label": "T32 selected · source comparison",
+      "old": "8 compute warps",
+      "route": "B4 · T32"
+    },
+    {
+      "current": "4 compute warpgroups",
+      "label": "T128 selected · source comparison",
+      "old": "4 compute warpgroups",
+      "route": "MAIN · T128"
+    },
+    {
+      "current": "4 compute warpgroups",
+      "label": "T256 selected · source comparison",
+      "old": "4 compute warpgroups",
+      "route": "MAIN · T256"
+    }
+  ],
+  "enlargementOpened": true,
+  "escapeClosed": true,
+  "focusReturned": true,
+  "mobileTouchPanTested": false,
+  "consoleErrors": []
+}

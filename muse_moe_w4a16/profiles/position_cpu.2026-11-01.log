@@ -1,0 +1,8 @@
+test_actual_formatter_score_and_cold_round_loop (__main__.PositionGate.test_actual_formatter_score_and_cold_round_loop) ... ok
+test_duplicate_partial_nonlocal_bijection (__main__.PositionGate.test_duplicate_partial_nonlocal_bijection) ... ok
+test_source_scope (__main__.PositionGate.test_source_scope) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.189s
+
+OK

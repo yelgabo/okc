@@ -1,0 +1,16 @@
+﻿{
+    "observed_utc":  "2026-11-02T04:11:57.3806052Z",
+    "checkout":  "5418771dead164c053a9cda5ab18192ea76cb878",
+    "command":  "python -m unittest discover -s tools -p test_g_short_outgoing_seam.py -v",
+    "exit_code":  0,
+    "before":  {
+                   "tools/g_short_outgoing_seam.py":  "ba44f3b4f00c8f068e351d4df310e2397a2001aa1d2c7d7cd69204237f90089e",
+                   "tools/test_g_short_outgoing_seam.py":  "69b3b753bab065980ca33e35e037eff57d10141a861d7ae008d3fea11d305ab2"
+               },
+    "after":  {
+                  "tools/g_short_outgoing_seam.py":  "ba44f3b4f00c8f068e351d4df310e2397a2001aa1d2c7d7cd69204237f90089e",
+                  "tools/test_g_short_outgoing_seam.py":  "69b3b753bab065980ca33e35e037eff57d10141a861d7ae008d3fea11d305ab2"
+              },
+    "stable":  true,
+    "scope":  "CPU source/metadata/dispatch mock only; not CUDA compilation, numerical validation, graph runtime or performance"
+}

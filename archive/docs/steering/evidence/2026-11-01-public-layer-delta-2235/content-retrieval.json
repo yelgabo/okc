@@ -1,0 +1,110 @@
+{
+  "retrieved_at_utc": "2026-11-01T22:51:54.638391+00:00",
+  "inventories": [
+    {
+      "repo": "PostTrainLLM/posttrainllm",
+      "pin": "2dd36b9a76d7db3a008979375ab1a6b2fc2f13eb",
+      "files": 2319,
+      "truncated": false
+    },
+    {
+      "repo": "hieptran1812/my-website",
+      "pin": "6b977e82c100de83ef1b5bca57b307ff775e606a",
+      "files": 28016,
+      "truncated": false
+    },
+    {
+      "repo": "msaroufim/openkernelchallenge-audit",
+      "pin": "0a68efe41f9372478e3986283c954f39df7484a7",
+      "files": 17,
+      "truncated": false
+    }
+  ],
+  "files": [
+    {
+      "path": "hieptran1812/files/README.md",
+      "bytes": 9017,
+      "sha256": "7765f63414fbdea6d31183414bf7fabb613f30a0bba4834ee525fe0964fb205d"
+    },
+    {
+      "path": "hieptran1812/files/content/blog/machine-learning/gpu-kernel-engineering/one-layer-on-one-h200-where-the-microseconds-go.md",
+      "bytes": 19849,
+      "sha256": "78bca05584ace5f39d14816703f5649ab9c5e5180c3c8e53f12ef79cf3d5902d"
+    },
+    {
+      "path": "hieptran1812/files/content/blog/machine-learning/gpu-kernel-engineering/the-open-kernel-challenge-decoded.md",
+      "bytes": 21025,
+      "sha256": "57a96b69abc03436d3e3df69463d6f2587b8b8d78388c23b30b60e3720910450"
+    },
+    {
+      "path": "msaroufim/files/README.md",
+      "bytes": 4184,
+      "sha256": "254c9ee41424d1e66185212a5d4e2448bd7987e24fd36453e8b042daad032542"
+    },
+    {
+      "path": "msaroufim/files/probes/code-output-comparison.json",
+      "bytes": 12963,
+      "sha256": "910f487e1d9114ec4ee267cfe5a4f1f89a7f8658e92243374e41b2b29854bd16"
+    },
+    {
+      "path": "msaroufim/files/probes/results.json",
+      "bytes": 10736,
+      "sha256": "3c0a89177761383c2612dc55668e49ced12d0e297967a1c811b7ab7d3637a1ba"
+    },
+    {
+      "path": "msaroufim/files/probes/runtime-metadata/result.json",
+      "bytes": 647,
+      "sha256": "c492f75914fac29bc848757640ef2b4aa6097c041bd0cb7c11ff0a75833b2916"
+    },
+    {
+      "path": "PostTrainLLM/files/LICENSE",
+      "bytes": 1072,
+      "sha256": "74935d859b0cc699e1fe53bb467600b2c342ee1cc285a52046e4d1b6fa6441fb"
+    },
+    {
+      "path": "PostTrainLLM/files/README.md",
+      "bytes": 17466,
+      "sha256": "ebadc6be9d626529f8c8cac127f6b910a7db071cc5fd822e3ef2c367d1829403"
+    },
+    {
+      "path": "PostTrainLLM/files/experiments/openkernel/closure.json",
+      "bytes": 2156,
+      "sha256": "04710c12df902aa4c3c8c4addfad695f99ffe30f53dcdd245cfbe81e30642464"
+    },
+    {
+      "path": "PostTrainLLM/files/experiments/openkernel/immutable-sources.json",
+      "bytes": 965,
+      "sha256": "9634f1f6e2a0465996299701a9d30b40a1fd49efb4a9ff7bc65502a047595743"
+    },
+    {
+      "path": "PostTrainLLM/files/experiments/openkernel/LICENSE",
+      "bytes": 11346,
+      "sha256": "1495e1e757ef4d0925a2350563cf5754bb23c51701a8ec4fb3c5cdcbedae6747"
+    },
+    {
+      "path": "PostTrainLLM/files/experiments/openkernel/NOTICE",
+      "bytes": 663,
+      "sha256": "2e62f094823c4a55d5b38cf7010cb6c3909c79373559da6d6350fc43442499b5"
+    },
+    {
+      "path": "PostTrainLLM/files/experiments/openkernel/results.json",
+      "bytes": 693698,
+      "sha256": "c080972c31b577cb5a362e3142f44827c5ac7b0835f5005379ef11ab093c6efa"
+    },
+    {
+      "path": "PostTrainLLM/files/experiments/openkernel/muse_decode_layer/provenance.json",
+      "bytes": 1952,
+      "sha256": "c01bfa7a2498779a21b84e57ea3182b90879f71040e879d34ce7e6d41791c48f"
+    },
+    {
+      "path": "PostTrainLLM/files/experiments/openkernel/muse_decode_layer/submission.py",
+      "bytes": 38175,
+      "sha256": "48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894"
+    },
+    {
+      "path": "PostTrainLLM/files/docs/learn/openkernel.md",
+      "bytes": 14259,
+      "sha256": "8b4708ea31cf29b48a87f6fd58b43883c3c8cdfb5854d7959759ab3222fc8a9b"
+    }
+  ]
+}

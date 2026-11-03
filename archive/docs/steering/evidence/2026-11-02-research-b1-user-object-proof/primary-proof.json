@@ -1,0 +1,77 @@
+{
+  "scope": {
+    "start_utc": "2026-11-02T13:41:42.526Z",
+    "frozen_utc": "2026-11-02T13:45:34.461Z",
+    "allocation": "41b3d803c687da6c950e47347d95e015223c473e",
+    "decision": "Conditional source-level survivor; graph references can replace missing Python caller retention",
+    "worker_files_read": false,
+    "target_calls": 0
+  },
+  "primary_sources": [
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-c-programming-guide/index.html",
+      "status": 200,
+      "sha256": "88d30ad0d013f1d08c9f957826b4ff4b42df23c46e56982bfd8ba4a72084924b",
+      "bytes": 3921829,
+      "fetched_utc": "2026-11-02T13:41:43.394Z",
+      "matches_captain_pin": true
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__STREAM.html",
+      "status": 200,
+      "sha256": "ecafde02a830630a38324a924d1c45b080b9a6fda17613aa1e9c14ccfed8f63f",
+      "bytes": 237386,
+      "fetched_utc": "2026-11-02T13:41:43.689Z",
+      "matches_captain_pin": true
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__GRAPH.html",
+      "status": 200,
+      "sha256": "da8dbb93d14374cfd71ff9df7f96fb2e4b74f1a21fb2b1cb9f6fc1821b84e614",
+      "bytes": 692815,
+      "fetched_utc": "2026-11-02T13:41:44.207Z",
+      "matches_captain_pin": true
+    }
+  ],
+  "proofs": [
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__STREAM.html",
+      "literal": "All operations other than destroy and node removal are permitted on the graph while the capture sequence is in progress.",
+      "claim": "Active-capture resource graph operation legality"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__STREAM.html",
+      "literal": "which is transferred or destroyed at cuStreamEndCapture",
+      "claim": "Abort/destruction combined with graph reference ownership; inference, not callback runtime test"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__GRAPH.html",
+      "literal": "Pass 0 to create new references.",
+      "claim": "MOVE and added-reference accounting differ"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-c-programming-guide/index.html",
+      "literal": "the references are retained until the execution is completed.",
+      "claim": "Inflight executable destruction defers release"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-c-programming-guide/index.html",
+      "literal": "the references in the new source graph are cloned and replace the references in the target graph.",
+      "claim": "Whole and child update reference replacement"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__GRAPH.html",
+      "literal": "Destructor callbacks cannot make CUDA API calls and should avoid blocking behavior",
+      "claim": "Callback cannot perform direct or indirect GPU cleanup"
+    }
+  ],
+  "remaining": [
+    "Actual hook coverage before every compressed reader",
+    "Capture errors/abort/graph ID dedup/clone and update paths",
+    "Cycle-free manual user-reference vs graph-reference accounting",
+    "No CUDA, blocking or indirect mapping destructor in callback",
+    "Queue/helper/context/module lifetime and eager/copy completion",
+    "Installed target support, numerical correctness, eligibility and speed"
+  ],
+  "prior_plain_owner_stop": "72063f363bf8abdf9067acaac8b86c7ea52ff867"
+}

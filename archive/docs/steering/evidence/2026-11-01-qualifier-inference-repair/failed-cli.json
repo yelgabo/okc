@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "wsl.exe",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    "tools/g_common_rmw_receipt.py",
+    "docs/steering/evidence/2026-11-01-rmw-wait-2258/persistent-wait-result.json",
+    "--job",
+    "3fd1317143304bd5",
+    "--source",
+    "muse_decode_layer/cand/g1b4_common_short_rmw_release.py",
+    "--log",
+    "muse_decode_layer/cand/profiles/g1b4_common_short_rmw_release.3fd1317143304bd5.log",
+    "--output",
+    ".build/rmw-v2/failed-observation.json"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"job\": \"3fd1317143304bd5\", \"score\": null, \"qualification\": \"setup_failed\", \"paired\": false}\n",
+  "stderr": ""
+}

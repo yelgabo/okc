@@ -1,0 +1,23 @@
+{
+  "control_file": "muse_decode_layer/cand/g1b4_stage_release.py",
+  "control_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "files": {
+    "candidate.py": {
+      "bytes": 886106,
+      "sha256": "5a580c7a0fad1246503ebc66cfbeca698c2b011638070f340480e4560a18d3b5"
+    },
+    "control.cu": {
+      "bytes": 191991,
+      "sha256": "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5"
+    },
+    "treatment.cu": {
+      "bytes": 195652,
+      "sha256": "3de8f5caac947c54af133fd83b157e3d1f1ab16ebcee8d61bcd0573f8ad0b26d"
+    },
+    "native.patch": {
+      "bytes": 4277,
+      "sha256": "cf27f24b486348a4b4924cbe50b9ea16f5b26523e3e754104111938603d080a6"
+    }
+  },
+  "status": "SOURCE_ONLY_TARGET_QUALIFICATION_NOT_RUN"
+}

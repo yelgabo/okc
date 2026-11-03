@@ -1,0 +1,17 @@
+ptxas warning : Registers are spilled to local memory in function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_ad349a00_42115moe_main_kernelILi47EEEvNS_6ParamsE', 12 bytes spill stores, 112 bytes spill loads
+ptxas info    : 203 bytes gmem
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_ad349a00_42115moe_main_kernelILi51EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_ad349a00_42115moe_main_kernelILi51EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 2034.020 ms
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_ad349a00_42115moe_main_kernelILi47EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_ad349a00_42115moe_main_kernelILi47EEEvNS_6ParamsE
+    16 bytes stack frame, 12 bytes spill stores, 112 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers, 16 bytes cumulative stack size
+ptxas info    : Compile time = 1597.869 ms
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_ad349a00_4218sk_8_3_016moe_fused_kernelILi1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_ad349a00_4218sk_8_3_016moe_fused_kernelILi1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 16 barriers
+ptxas info    : Compile time = 112.834 ms

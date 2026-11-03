@@ -1,0 +1,29 @@
+{
+  "reviewer": "root/ss_expert_geometry_review",
+  "decision": "GO_ONE_FIXED_IMPLEMENTATION_NO_PERFORMANCE_CLAIM",
+  "kernel_edits": false,
+  "judge_calls": false,
+  "control_native": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "aligned_header": 22272,
+  "threads": 672,
+  "SC6_dynamic_bytes": 221952,
+  "raw8_dynamic_bytes": 222976,
+  "reserved_bytes": 1024,
+  "SM_capacity_bytes": 233472,
+  "nominal_regs_per_thread": 96,
+  "nominal_registers": 64512,
+  "critical_publication_correction": "Keep256-row units; phaseA128intercolumns/unit; K128 phaseB doneAs indexub/count4,32stages and32slots/job",
+  "proxy_chain": "rawTMAcomplete -> decodewait/read -> everygenericAstorer proxyfence -> Afull -> consumerwait -> SSWGMMA -> wait0allfourWG -> A/Xempty",
+  "costs": [
+    "same total dequant arithmetic",
+    "4x decodework/producerthread",
+    "extra BF16sharedstoresandreads",
+    "2xKstagecount andhandshakes",
+    "producerthroughputmaybottleneck"
+  ],
+  "sources": [
+    "https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-shared-memory-layout",
+    "https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-async-proxy",
+    "https://docs.nvidia.com/cuda/archive/12.2.2/hopper-tuning-guide/index.html"
+  ]
+}

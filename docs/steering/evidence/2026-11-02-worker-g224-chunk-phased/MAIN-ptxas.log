@@ -1,0 +1,32 @@
+ptxas warning : Registers are spilled to local memory in function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE', 8 bytes spill stores, 8 bytes spill loads
+ptxas warning : Registers are spilled to local memory in function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE', 8 bytes spill stores, 8 bytes spill loads
+ptxas info    : 298 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    8 bytes stack frame, 8 bytes spill stores, 8 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers, 8 bytes cumulative stack size
+ptxas info    : Compile time = 606.385 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+    8 bytes stack frame, 8 bytes spill stores, 8 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers, 8 bytes cumulative stack size
+ptxas info    : Compile time = 480.553 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function 'g224_layout_anchor' for 'sm_90a'
+ptxas info    : Function properties for g224_layout_anchor
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 8 registers, used 0 barriers
+ptxas info    : Compile time = 1.388 ms
+ptxas info    : Function properties for g224_probe_sizeofsmem
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Function properties for g224_probe_sizeofwc
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Function properties for g224_probe_wc
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Function properties for g224_probe_wcp
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Function properties for g224_probe_wcpB
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

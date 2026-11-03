@@ -1,0 +1,14 @@
+test_gather_and_output_bijections (test_g_expert_g224_prefix.GeneratedContracts.test_gather_and_output_bijections) ... ok
+test_generation_and_factory_selection (test_g_expert_g224_prefix.GeneratedContracts.test_generation_and_factory_selection) ... ok
+test_jobs_bounds_and_publications (test_g_expert_g224_prefix.GeneratedContracts.test_jobs_bounds_and_publications) ... ok
+test_lifetime_and_geometry_negatives (test_g_expert_g224_prefix.GeneratedContracts.test_lifetime_and_geometry_negatives) ... ok
+test_packed_piece_bijection (test_g_expert_g224_prefix.GeneratedContracts.test_packed_piece_bijection) ... ok
+test_actual_emitted_layout_and_mutations (test_g_expert_g224_prefix_offline.OfflineGates.test_actual_emitted_layout_and_mutations) ... ok
+test_actual_rounded_header_equation_and_old_ceiling_negative (test_g_expert_g224_prefix_offline.OfflineGates.test_actual_rounded_header_equation_and_old_ceiling_negative) ... ok
+test_adapter_preserves_actual_source_and_rejects_missing_guard (test_g_expert_g224_prefix_offline.OfflineGates.test_adapter_preserves_actual_source_and_rejects_missing_guard) ... ok
+test_fixed_four_entry_receipts_and_layout (test_g_expert_g224_prefix_offline.OfflineGates.test_fixed_four_entry_receipts_and_layout) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 8.744s
+
+OK

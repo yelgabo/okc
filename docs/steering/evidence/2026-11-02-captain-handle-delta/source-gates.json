@@ -1,0 +1,74 @@
+{
+  "records": [
+    {
+      "repository": "thomgardiner/sglang-sm120-nvfp4",
+      "pin": "e5509d20929f863110be4d5718df886800eaa138",
+      "path": "b12x.patch",
+      "endpoint": "repos/thomgardiner/sglang-sm120-nvfp4/contents/b12x.patch?ref=e5509d20929f863110be4d5718df886800eaa138",
+      "returncode": 0,
+      "response_sha256": "74d87a01160db42170ee6ef2b114e3aa96935c0547c73e27f16e13fa136b4800",
+      "stderr": "",
+      "git_blob": "d8854d8398efbe660633fcfdddaaf2d6f5c67780",
+      "sha256": "40f7a42d2886cf22b253b2a89bb01faea645fa0d9d093501f0fb478da152f17d",
+      "bytes": 1000,
+      "scratch_path": ".build\\captain-handle-delta\\thomgardiner__sglang-sm120-nvfp4-b12x.patch"
+    },
+    {
+      "repository": "abhishekgahlot2/mixture-of-kittens",
+      "pin": "3e1cf43ab93ad040afed52a45ab03cb490ffe4be",
+      "path": "setup.py",
+      "endpoint": "repos/abhishekgahlot2/mixture-of-kittens/contents/setup.py?ref=3e1cf43ab93ad040afed52a45ab03cb490ffe4be",
+      "returncode": 0,
+      "response_sha256": "7e4e965fb12739581a8947846ed6b4896b691b297cb2d476a94886ed9e843c51",
+      "stderr": "",
+      "git_blob": "82cca15168433355bc2c9bb84b38a8712a74e78e",
+      "sha256": "755b10930a31cde4dc7ceb699f08e7c2d1ade29bf6129677d2be95eb64a021f3",
+      "bytes": 5457,
+      "scratch_path": ".build\\captain-handle-delta\\abhishekgahlot2__mixture-of-kittens-setup.py"
+    },
+    {
+      "repository": "HanGuo97/flute",
+      "pin": "9eb83a12d56949bbe7fe9c836ba97a67bd1e3761",
+      "path": "csrc/qgemm.cpp",
+      "endpoint": "repos/HanGuo97/flute/contents/csrc/qgemm.cpp?ref=9eb83a12d56949bbe7fe9c836ba97a67bd1e3761",
+      "returncode": 1,
+      "response_sha256": "e45906ce02e79f16fb87a838d86bb4e497e37a9591f97608fa013bbcd8b9cbc2",
+      "stderr": "gh: Not Found (HTTP 404)\n"
+    },
+    {
+      "repository": "HanGuo97/flute",
+      "pin": "9eb83a12d56949bbe7fe9c836ba97a67bd1e3761",
+      "path": "csrc/packbits_utils.hpp",
+      "endpoint": "repos/HanGuo97/flute/contents/csrc/packbits_utils.hpp?ref=9eb83a12d56949bbe7fe9c836ba97a67bd1e3761",
+      "returncode": 1,
+      "response_sha256": "e45906ce02e79f16fb87a838d86bb4e497e37a9591f97608fa013bbcd8b9cbc2",
+      "stderr": "gh: Not Found (HTTP 404)\n"
+    },
+    {
+      "repository": "HanGuo97/flute",
+      "pin": "9eb83a12d56949bbe7fe9c836ba97a67bd1e3761",
+      "path": "flute/csrc/packbits_utils.hpp",
+      "endpoint": "repos/HanGuo97/flute/git/blobs/48a0ddb81c283d5b8b4cfa82729abcf40d53ea66",
+      "returncode": 0,
+      "response_sha256": "597c4c9942dade4d7a7f10009bb66c2a1b2970aee47c1932fb83554777441023",
+      "stderr": "",
+      "git_blob": "48a0ddb81c283d5b8b4cfa82729abcf40d53ea66",
+      "sha256": "abefabff7d2b4d4e2416c17c4d64bafca96c22cdda3af17d3a11cfe58e80efb8",
+      "bytes": 21241,
+      "scratch_path": ".build\\captain-handle-delta\\HanGuo97__flute-flute__csrc__packbits_utils.hpp"
+    },
+    {
+      "repository": "HanGuo97/flute",
+      "pin": "9eb83a12d56949bbe7fe9c836ba97a67bd1e3761",
+      "path": "flute/csrc/qgemm.cpp",
+      "endpoint": "repos/HanGuo97/flute/git/blobs/184f39496ca849e7996c979c23bc4184b8a73d74",
+      "returncode": 0,
+      "response_sha256": "85abc4bd99ebdafdc6bbb3942d729c72c208e931687f5414243a74325904b33c",
+      "stderr": "",
+      "git_blob": "184f39496ca849e7996c979c23bc4184b8a73d74",
+      "sha256": "123a492a7b998214dae5d9c14d7d058170d261780ed329d6fa2015d990e821ec",
+      "bytes": 8834,
+      "scratch_path": ".build\\captain-handle-delta\\HanGuo97__flute-flute__csrc__qgemm.cpp"
+    }
+  ]
+}

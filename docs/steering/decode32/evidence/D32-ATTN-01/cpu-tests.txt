@@ -1,0 +1,15 @@
+test_actual_derived_cuda_and_unchanged_python (d32_attn_worker_test.LookaheadTests) ... ok
+test_actual_final_bindings_preserve_other_cells (d32_attn_worker_test.LookaheadTests) ... ok
+test_actual_preparation_and_state_isolation (d32_attn_worker_test.LookaheadTests) ... D32_ATTN_PREPARED eligible=True source_sha256= 3de8f5caac947c54af133fd83b157e3d1f1ab16ebcee8d61bcd0573f8ad0b26d capability= 9 0 sms= 132
+D32_ATTN_PREPARED eligible=True source_sha256= 3de8f5caac947c54af133fd83b157e3d1f1ab16ebcee8d61bcd0573f8ad0b26d capability= 9 0 sms= 132
+D32_ATTN_PREPARED eligible=False capability= 9 0 sms= 80
+D32_ATTN_PREPARED eligible=False capability= 8 0 sms= 132
+ok
+test_sampled_lookahead_lifetime_and_progress (d32_attn_worker_test.LookaheadTests) ... ok
+test_scope_fallbacks_missing_module_and_direct_entry (d32_attn_worker_test.LookaheadTests) ... ok
+test_wrong_control_and_native_boundary (d32_attn_worker_test.LookaheadTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.612s
+
+OK

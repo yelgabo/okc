@@ -1,0 +1,47 @@
+{
+  "at_utc": "2026-11-03T00:00:47.587303+00:00",
+  "head": "a5e1aa1ace8c586a1b529b4b5968b23d4cc2a01b",
+  "scope": "SOURCE_ONLY; no generation/tests/compiler/GPU/judge actions",
+  "files": {
+    "tools/expert_top100_harness_runtime.py": {
+      "bytes": 16516,
+      "sha256": "847babdde26d5792cc4fa52c029e90e5fd4b3bab3e8d729c5a19c5ddd92d4d8a"
+    },
+    "tools/expert_top100_harness_contract.py": {
+      "bytes": 2994,
+      "sha256": "4ebfaff2a47d47e685bb6db2ab30ae69ecf4fe6cb70079312f47633d2b0822ab"
+    },
+    "tools/dw_native_pair_package.py": {
+      "bytes": 2770,
+      "sha256": "5158c04da6bec84581758f1f4b3ff0f0d6293053c3fe26ba53ee2c7b7d2e04fe"
+    },
+    "tools/dw_native_pair_harness.py": {
+      "bytes": 2645,
+      "sha256": "47cfefb33b91411f48d0cf346c622dd3279bd6cf38b721a3df4ae13c19265536"
+    },
+    "tools/dw_native_pair_read.py": {
+      "bytes": 6321,
+      "sha256": "fa5055c961a8e695a275d61c9c18ca2ada9ca28cd3485e524f4f30852f6db4d6"
+    },
+    "tools/test_dw_native_pair.py": {
+      "bytes": 6604,
+      "sha256": "c9c1e424758b0bfff309e73ca035a7dd5470aefff134b51988f9471cdcb8779e"
+    },
+    "tools/dl_g1_layer_owners.py": {
+      "bytes": 5441,
+      "sha256": "052781c3aea5bafd4f20f1b04da4b52757d98f15f315b1ff7a33169963db7309"
+    },
+    "tools/dl_g1_layer_body.py": {
+      "bytes": 14205,
+      "sha256": "0a290a64e5d9b2188452d73ee3a2b55ecdf29be5709609df49a502402234e18d"
+    },
+    "tools/test_expert_top100_harness_torch.py": {
+      "bytes": 28731,
+      "sha256": "e85eeddf2ac9b3ab1e2579e61b1add47c564aca7537eb081646a693a5014f5c1"
+    },
+    "tools/d32_mid_family.py": {
+      "bytes": 3954,
+      "sha256": "0c8bd975359dec2b5a8eae1aa4b9fda22faa0d2f664ade1af600d7e10b8843c0"
+    }
+  }
+}

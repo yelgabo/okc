@@ -1,0 +1,18 @@
+test_abort_and_eager_retirement_exactly_once (test_g_pr_graph_owner.Contracts.test_abort_and_eager_retirement_exactly_once) ... ok
+test_actual_final_prepare_and_both_plans (test_g_pr_graph_owner.Contracts.test_actual_final_prepare_and_both_plans) ... ok
+test_actual_prepare_composition_capture_hook (test_g_pr_graph_owner.Contracts.test_actual_prepare_composition_capture_hook) ... ok
+test_both_pr_plan_checks_reject_no_compressed_reader (test_g_pr_graph_owner.Contracts.test_both_pr_plan_checks_reject_no_compressed_reader) ... ok
+test_callback_signal_only_and_before_read_coverage (test_g_pr_graph_owner.Contracts.test_callback_signal_only_and_before_read_coverage) ... ok
+test_capture_clone_abort_inflight_destroy (test_g_pr_graph_owner.Contracts.test_capture_clone_abort_inflight_destroy) ... ok
+test_capture_hook_failures_prevent_lt_read (test_g_pr_graph_owner.Contracts.test_capture_hook_failures_prevent_lt_read) ... ok
+test_failed_worker_completion_never_unmaps (test_g_pr_graph_owner.Contracts.test_failed_worker_completion_never_unmaps) ... ok
+test_independent_interleaved_states_and_nonpr (test_g_pr_graph_owner.Contracts.test_independent_interleaved_states_and_nonpr) ... ok
+test_reused_handle_not_capture_cache (test_g_pr_graph_owner.Contracts.test_reused_handle_not_capture_cache) ... ok
+test_source_reversal_and_seven_factories (test_g_pr_graph_owner.Contracts.test_source_reversal_and_seven_factories) ... ok
+test_staged_fallback_keeps_actual_original_pr (test_g_pr_graph_owner.Contracts.test_staged_fallback_keeps_actual_original_pr) ... ok
+test_tagged_plan_deepcopy_alias_and_wrong_weight_negative (test_g_pr_graph_owner.Contracts.test_tagged_plan_deepcopy_alias_and_wrong_weight_negative) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 14.085s
+
+OK

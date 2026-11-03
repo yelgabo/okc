@@ -1,0 +1,18 @@
+[
+  {
+    "path": "tools\\proj_g_native_gamma_compile.py",
+    "sha256": "e25aaa985eafcb5f6999eb07c468cf919292dad049a8689f6d773d946a3cc2e3"
+  },
+  {
+    "path": "tools\\proj_g_native_gamma_analyze.py",
+    "sha256": "4afbe474ca27dafbef56ba0ad6346383d0d7e24ec2d541798ffc3b2f32229982"
+  },
+  {
+    "path": "..\\okc-today-moe\\tools\\g_native_gamma_precompute.py",
+    "sha256": "2bc3a3b1ab6efcb422042655a7d0b26b806f09d934600d7f8dd1413cdf10f970"
+  },
+  {
+    "path": "..\\okc\\tools\\local_cuda128_compile.py",
+    "sha256": "4cfaaaec7ba2f90302fe32e7cca0d3517879912bf1b35984b0e37c53cc6bf078"
+  }
+]

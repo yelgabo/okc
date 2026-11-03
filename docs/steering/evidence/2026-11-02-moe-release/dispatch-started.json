@@ -1,0 +1,10 @@
+{
+  "experiment": "MOE-RELEASE-01",
+  "state": "DISPATCH_STARTED",
+  "utc": "2026-11-03T05:29:25.178456+00:00",
+  "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+  "published_commit": "9edf1ef6",
+  "official_arm": "current_control",
+  "checks_left": 14,
+  "no_live_jobs": true
+}

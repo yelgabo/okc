@@ -1,0 +1,16 @@
+{
+  "board": "muse_decode_layer",
+  "call_id": "kc-1fad70bbe3854cbc",
+  "cluster": "sfo3",
+  "content_hash": "3075948e44ebc18430066103ff179ef3f1a6c2a09974ceeb522c0d01f86b8320",
+  "created_at": 1793562974.3583002,
+  "dedicated": false,
+  "duplicate_of": null,
+  "id": "1fad70bbe3854cbc",
+  "mode": "run",
+  "payload_ref": "muse_decode_layer/3075948e44ebc18430066103ff179ef3f1a6c2a09974ceeb522c0d01f86b8320.py",
+  "result": null,
+  "started_at": 1793562986.5658185,
+  "status": "running",
+  "team": "yelgabo"
+}

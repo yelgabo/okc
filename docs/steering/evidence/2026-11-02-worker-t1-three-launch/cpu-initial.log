@@ -1,0 +1,46 @@
+test_actual_final_prepare_dispatch_and_independent_states (test_g_t1_three_launch.Contracts.test_actual_final_prepare_dispatch_and_independent_states) ... ok
+test_actual_pack_bit_layout_and_selected_scale_embedding (test_g_t1_three_launch.Contracts.test_actual_pack_bit_layout_and_selected_scale_embedding) ... ok
+test_actual_t8_all_other_sizes_and_unsupported_fallback (test_g_t1_three_launch.Contracts.test_actual_t8_all_other_sizes_and_unsupported_fallback) ... ok
+test_bf16_boundaries_and_no_global_norm (test_g_t1_three_launch.Contracts.test_bf16_boundaries_and_no_global_norm) ... ok
+test_deepcopy_and_prepare_failure_no_activation (test_g_t1_three_launch.Contracts.test_deepcopy_and_prepare_failure_no_activation) ... ERROR
+test_empty_varied_routes_stale_scratch_and_slot_order (test_g_t1_three_launch.Contracts.test_empty_varied_routes_stale_scratch_and_slot_order) ... ok
+test_exact_prefix_helpers_and_all_seven_factories (test_g_t1_three_launch.Contracts.test_exact_prefix_helpers_and_all_seven_factories) ... ok
+test_mutation_negatives_and_three_ordered_launches (test_g_t1_three_launch.Contracts.test_mutation_negatives_and_three_ordered_launches) ... ok
+test_ranges_slot_mapping_and_padding (test_g_t1_three_launch.Contracts.test_ranges_slot_mapping_and_padding) ... ok
+
+======================================================================
+ERROR: test_deepcopy_and_prepare_failure_no_activation (test_g_t1_three_launch.Contracts.test_deepcopy_and_prepare_failure_no_activation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\gretc\Documents\GitHub\okc\tools\test_g_t1_three_launch.py", line 223, in test_deepcopy_and_prepare_failure_no_activation
+    cloned=copy.deepcopy(state)
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 202, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 202, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 138, in deepcopy
+    y = copier(memo)
+  File "<string>", line 7, in __deepcopy__
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 157, in deepcopy
+    y = _reconstruct(x, memo, *rv)
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 240, in _reconstruct
+    state = deepcopy(state, memo)
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 202, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\gretc\AppData\Local\Python\pythoncore-3.14-64\Lib\copy.py", line 146, in deepcopy
+    rv = reductor(4)
+ValueError: ctypes objects containing pointers cannot be pickled
+
+----------------------------------------------------------------------
+Ran 9 tests in 12.362s
+
+FAILED (errors=1)

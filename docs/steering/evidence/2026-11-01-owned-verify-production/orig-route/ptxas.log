@@ -1,0 +1,21 @@
+ptxas info    : 5517 bytes gmem
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_11978125_44312route_kernelIfLb1EEEvPKfxiS2_PKT_xPK13__nv_bfloat16PS6_PiPffff' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_11978125_44312route_kernelIfLb1EEEvPKfxiS2_PKT_xPK13__nv_bfloat16PS6_PiPffff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 20 bytes smem
+ptxas info    : Compile time = 59.159 ms
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_11978125_44315prefetch_kernelEPKcxS1_xS1_xPj' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_11978125_44315prefetch_kernelEPKcxS1_xS1_xPj
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 46 registers, used 0 barriers
+ptxas info    : Compile time = 9.538 ms
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_11978125_44319finalize_row_kernelEPK13__nv_bfloat16PKfS2_PKiPS0_f' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_11978125_44319finalize_row_kernelEPK13__nv_bfloat16PKfS2_PKiPS0_f
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 112 registers, used 1 barriers, 544 bytes smem
+ptxas info    : Compile time = 21.100 ms
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_11978125_44318route_align_kernelEPKiS1_iiPiS2_S2_S2_iiiP4int2S2_' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_11978125_44318route_align_kernelEPKiS1_iiPiS2_S2_S2_iiiP4int2S2_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, used 1 barriers, 8452 bytes smem
+ptxas info    : Compile time = 16.397 ms

@@ -1,0 +1,59 @@
+{
+  "url": "https://gist.github.com/yelgabo/a68b25521807bc96cbe285860da9b766",
+  "page_status": 200,
+  "public": true,
+  "revision": "4e6fd444937c9671a4a9e2301afe987c26dddd3a",
+  "authentication": "none",
+  "files": [
+    {
+      "file": "README.md",
+      "status": 200,
+      "sha256": "fec8f6e120c20574f303619429b6ce4d4a5ebee78c61ccddcf136a421828fb97"
+    },
+    {
+      "file": "after-current-full.txt",
+      "status": 200,
+      "sha256": "5fa19dbd7f953c3e527fbdb7dad4cf5b48a4a3901a37ce43bfe11d79ab110d0d"
+    },
+    {
+      "file": "after-current-generate.txt",
+      "status": 200,
+      "sha256": "4410397596b7fced732e052fff4f0aaecea90d2acda3431b14b5cbc447e0b76c"
+    },
+    {
+      "file": "after-current-typecheck.txt",
+      "status": 200,
+      "sha256": "dd745e5f3cf4c3f0bc6f97c742faf49effe794525b8390ba025eceab74c3df81"
+    },
+    {
+      "file": "after-focused.txt",
+      "status": 200,
+      "sha256": "906d9608dd07a490e93e3263c3236c126f5e229ca68077dcae4dfb08a3248cd3"
+    },
+    {
+      "file": "after-full.txt",
+      "status": 200,
+      "sha256": "c74454378095565ae4bc33a7a862248500e656bffd2252bd8f9c027cf21624e6"
+    },
+    {
+      "file": "before-focused.txt",
+      "status": 200,
+      "sha256": "623c79dc5842b93a775d84779ddc4ace42997decffbadf86753c477cf22b467a"
+    },
+    {
+      "file": "path-probe.json",
+      "status": 200,
+      "sha256": "4e64d689b2374a6005523da310fab3e98240bb4ceb3f5ad305568182b90a24ef"
+    },
+    {
+      "file": "path-probe.mjs",
+      "status": 200,
+      "sha256": "ad43640c59f692f2f14286e4ef07bcc5608f7cc607cec3a2e44b5c607dfe1576"
+    },
+    {
+      "file": "test-harness.patch",
+      "status": 200,
+      "sha256": "aa630544eaacbea599a7f1756e205927e10b27e3c86f69294a633107c4ad4fd8"
+    }
+  ]
+}

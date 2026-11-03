@@ -1,0 +1,234 @@
+{
+  "job": "e044121f822d47b1",
+  "source_sha256": "4c8c470f408815616472746b99bcda4ae3bdcedb201bd0833284e15f29e685c5",
+  "decision": "STOP_EXACT_TREATMENT_NO_CONFIRMATION_NO_INTEGRATION",
+  "official_score_us": 5856.634194815913,
+  "official_speedup": 2.296284786218019,
+  "official_ci": [
+    2.261840514424749,
+    2.3307290580112894
+  ],
+  "official_six": [
+    {
+      "tokens": 1,
+      "load": "decode 1",
+      "adjusted_us": 25.412335983065493,
+      "raw_us": 27.216000482439995,
+      "baseline_us": 77.00799778103828
+    },
+    {
+      "tokens": 16,
+      "load": "decode 16",
+      "adjusted_us": 94.47760415352063,
+      "raw_us": 97.98400104045868,
+      "baseline_us": 186.62400636821985
+    },
+    {
+      "tokens": 32,
+      "load": "decode 32",
+      "adjusted_us": 128.539935727108,
+      "raw_us": 127.920001745224,
+      "baseline_us": 206.6239952109754
+    },
+    {
+      "tokens": 8,
+      "load": "verify 1",
+      "adjusted_us": 67.44039943565463,
+      "raw_us": 71.26399874687195,
+      "baseline_us": 147.08800008520484
+    },
+    {
+      "tokens": 128,
+      "load": "verify 16",
+      "adjusted_us": 183.45338502693846,
+      "raw_us": 186.60800158977509,
+      "baseline_us": 458.1599901430309
+    },
+    {
+      "tokens": 256,
+      "load": "verify 32",
+      "adjusted_us": 221.3763502414069,
+      "raw_us": 227.00800001621246,
+      "baseline_us": 619.2480064928532
+    }
+  ],
+  "matched_groups_passed": 0,
+  "matched_group_factor_range": [
+    0.9541093151546134,
+    0.9955267950605302
+  ],
+  "descriptive_geomean_factor": 0.978879559311887,
+  "affected_regression_rows": 15,
+  "prepare_s": 270.7291270429996,
+  "counters": {
+    "observations": 378,
+    "restorations": 54,
+    "captures": 216,
+    "timed_replays": 1152,
+    "worst": [
+      0.00022407903452403843,
+      0.0004847497621085495
+    ]
+  },
+  "queue_s": 348.70546865463257,
+  "worker_s": 347.2635977268219,
+  "matched_descriptive_cells": [
+    {
+      "tokens": 1,
+      "dist": "normal",
+      "control_mean_us": 34.10400000090401,
+      "candidate_mean_us": 34.1200001227359,
+      "four_placement_means_us": [
+        34.15466689815124,
+        34.05333310365677,
+        34.54399978121122,
+        33.69600046426058
+      ],
+      "descriptive_geomean_factor": 0.9963627729097819
+    },
+    {
+      "tokens": 8,
+      "dist": "normal",
+      "control_mean_us": 79.33599936465421,
+      "candidate_mean_us": 79.26933405299981,
+      "four_placement_means_us": [
+        79.39733316500981,
+        79.27466556429863,
+        79.51466863354047,
+        79.02399947245915
+      ],
+      "descriptive_geomean_factor": 1.0000474262752819
+    },
+    {
+      "tokens": 16,
+      "dist": "normal",
+      "control_mean_us": 117.12533173461755,
+      "candidate_mean_us": 116.87466564277808,
+      "four_placement_means_us": [
+        117.05599849422772,
+        117.19466497500737,
+        116.7146662871043,
+        117.03466499845187
+      ],
+      "descriptive_geomean_factor": 1.0035366673529131
+    },
+    {
+      "tokens": 32,
+      "dist": "normal",
+      "control_mean_us": 127.06133412818113,
+      "candidate_mean_us": 135.97066762546697,
+      "four_placement_means_us": [
+        126.8480010330677,
+        127.27466722329457,
+        136.17066914836565,
+        135.7706661025683
+      ],
+      "descriptive_geomean_factor": 0.9328073607311457
+    },
+    {
+      "tokens": 128,
+      "dist": "normal",
+      "control_mean_us": 187.34933560093245,
+      "candidate_mean_us": 190.94133377075195,
+      "four_placement_means_us": [
+        187.61066844065985,
+        187.08800276120505,
+        190.79999874035516,
+        191.08266880114874
+      ],
+      "descriptive_geomean_factor": 0.9815130994498744
+    },
+    {
+      "tokens": 256,
+      "dist": "normal",
+      "control_mean_us": 234.25600056846935,
+      "candidate_mean_us": 239.21333253383636,
+      "four_placement_means_us": [
+        234.19733345508575,
+        234.31466768185297,
+        239.33866371711096,
+        239.08800135056177
+      ],
+      "descriptive_geomean_factor": 0.9794106964777117
+    },
+    {
+      "tokens": 1,
+      "dist": "skewed",
+      "control_mean_us": 33.97866664454341,
+      "candidate_mean_us": 34.053333569318056,
+      "four_placement_means_us": [
+        34.138666155437626,
+        33.81866713364919,
+        33.89333343754212,
+        34.213333701093994
+      ],
+      "descriptive_geomean_factor": 1.0009285102797205
+    },
+    {
+      "tokens": 8,
+      "dist": "skewed",
+      "control_mean_us": 40.52799940109253,
+      "candidate_mean_us": 40.775999737282596,
+      "four_placement_means_us": [
+        40.309332932035126,
+        40.74666587014993,
+        40.36266667147478,
+        41.189332803090416
+      ],
+      "descriptive_geomean_factor": 0.9988981764853776
+    },
+    {
+      "tokens": 16,
+      "dist": "skewed",
+      "control_mean_us": 62.869333041210965,
+      "candidate_mean_us": 63.64800066997607,
+      "four_placement_means_us": [
+        63.00266645848751,
+        62.735999623934426,
+        63.450666765371956,
+        63.84533457458019
+      ],
+      "descriptive_geomean_factor": 0.9881764429004504
+    },
+    {
+      "tokens": 32,
+      "dist": "skewed",
+      "control_mean_us": 60.30933341632287,
+      "candidate_mean_us": 66.78933215638003,
+      "four_placement_means_us": [
+        60.09066663682461,
+        60.52800019582113,
+        66.3679987192154,
+        67.21066559354465
+      ],
+      "descriptive_geomean_factor": 0.8922672784601694
+    },
+    {
+      "tokens": 128,
+      "dist": "skewed",
+      "control_mean_us": 103.127999852101,
+      "candidate_mean_us": 102.7520007143418,
+      "four_placement_means_us": [
+        102.61333361268044,
+        103.64266609152158,
+        102.54400099317233,
+        102.96000043551128
+      ],
+      "descriptive_geomean_factor": 1.0007767501736897
+    },
+    {
+      "tokens": 256,
+      "dist": "skewed",
+      "control_mean_us": 159.72799807786942,
+      "candidate_mean_us": 162.82133261362713,
+      "four_placement_means_us": [
+        159.7333326935768,
+        159.72266346216202,
+        163.07733207941055,
+        162.5653331478437
+      ],
+      "descriptive_geomean_factor": 0.9784438883412713
+    }
+  ],
+  "scope": "Valid complete comparison, frozen performance gate failed; no phase-level causal attribution"
+}

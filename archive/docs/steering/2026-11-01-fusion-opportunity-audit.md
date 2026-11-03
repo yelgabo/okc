@@ -1,0 +1,267 @@
+# Exact-paste reconciliation and current fusion opportunity
+
+November 1, 2026. Evidence pin `74f3091`, production snapshot `6da000f`, layer
+candidate `muse_decode_layer/cand/layer_attn31s.py` raw SHA256
+`585d46e2cd059ea7ea76c25110fd199bb228d2ee7f96239b44ae0bfb8025893b`.
+Prefill remains deferred by the user. The active top-10 objective remains unmet.
+
+The preceding goal turn confirmed the source identity but did not advance a kernel or
+measurement. This continuation reconciles completed receipts, closes the losing wait-policy
+hypothesis and implements a new measurement collector before choosing another layer change.
+
+## What the pasted report establishes
+
+This concerns [the exact preserved paste](evidence/2026-11-01-pasted-top10/reaching-top10.txt),
+not the earlier community audit. Its central low-token whole-layer recommendation is a
+reasonable hypothesis. Its 8–18% layer opportunity is an engineering estimate without our
+latest code or measurements; it is not a measured portfolio, statistical interval or forecast.
+
+[Primary-source provenance](2026-11-01-pasted-source-provenance.md) resolves its important
+external examples: the 139 MB/58% profile is an author's H100 result; 1.5186x projection
+belongs to Nathen Fernandes, and scored 1.331x belongs to team zzj. None is our current H200
+implementation. The H100 table cannot independently reconstruct the claimed whole-graph
+utilization without its graph duration and raw artifacts. Low utilization alone does not
+prove removable activation traffic or exposed launch costs in our implementation.
+
+## Current interfaces and already implemented work
+
+Line anchors below refer to the pinned layer candidate, rather than a different standalone
+implementation or a future generated diagnostic.
+
+| Boundary | Existing path | Remaining hypothesis and required proof |
+|---|---|---|
+| QKV to attention | `kernel_fn:20997` materializes BF16 QKV; `_attn_path:21004` consumes it. Attention already performs QK norm, RoPE, direct FP8 cache writes, attention, output RMS and gate internally. | Projection-epilogue fusion is unmeasured. Preserve BF16 rounding before head RMS, cross-CTA head completeness, cache publication and existing barriers. M-C was an O/boundary experiment, not this fusion. |
+| O to post-attention boundary | Separate O projection at21005 followed by `_abnd`/SGLang at21008–21014. M1 is selected conditionally. | Prior M-C `5ae9ce318e014edf` lost1.16us in9/9 before illegal access; not evidence of a safe winning implementation. No blanket claim that every fusion is closed. |
+| Pooler/router/top-k | `_moe_front:19976` supports one-launch skinny pooler/router, concatenated GEMM, and separate router overlap. `_moe_front_route:20036` calls fused routing/pre-expert normalization. | Fusion can remove overlap or add a join. T1 whole-front variant already lost2.08us across9rounds; fresh T1 route-fusion gate failed. Do not repeat generic T1 fusion absent a new measured mechanism. |
+| Routing to expert metadata | `_route_meta:17139` returns IDs/weights/local_start directly for fused MoE; no separate Marlin alignment there. Persistent CTAs build their own routing work. | Producer-emitted queues could reduce duplicated work, but require measured prologue cost plus publication/init/PDL proof. Standalone MoE inputs contain IDs/weights, not upstream logits/weights. |
+| Experts to aggregate | `_experts_run:17193`, `_moe1_run:17390`, fused final pass near8799. Existing persistent pipeline fuses dequant, G1, SwiGLU, G2, expert norm and routed sum. | Whole-expert persistence is already implemented. A literal CTA per expert can leave most of132SMs unused at T1. Preserve per-expert RMS before weighting and the aggregate BF16 rounding at8831–8835. |
+| Expert aggregate to unpooler | Unpooler is a separate projection. T<=8 already computes only1024 live output columns at21026–21032. | Intermediates are small; mandatory weights and full-row reduction dominate feasibility. Distributing unpool across experts changes rounding/nonlinear order unless equivalence is proved. |
+| Unpooler to final boundary | `_bnd:19930` consumes live BF16[T,1024] and FP32 residual directly; it fuses final norm/residual/next pre-norm and avoids explicit zero padding. Above8 tokens the full8192 output remains. | Further fusion needs global row-reduction/ownership analysis. The norm still uses8192-channel semantics including zero columns. A larger CTA tile can sacrifice occupancy and bandwidth. |
+
+At T1 the QKV tensor is4608B, expert aggregate8192B and short-unpool output2048B.
+These are shape-derived byte counts, not measured HBM traffic. They do not justify an
+8–18% forecast by themselves; weight traffic, launch latency and exposed dependencies matter.
+
+Attention already has distinct decode/verify and sliding/full plans, grouped-query reuse,
+eight-position verify reuse, direct cache conversion, producer/consumer specialization and
+fused output normalization/gating. The layer chooses owned or fallback paths through gates;
+do not claim every shape necessarily uses the owned plan after every preparation.
+
+## Measured evidence that changes the next action
+
+The latest layer public best is `8f2780d7382047e6`,13tests passed,2.022870479x,
+95%CI1.992527–2.053214. Re-running `tools/hotspots.py` against its receipt and SGLang
+baseline-profile `7d42771c3384449d` confirms MoE as a large hotspot, including33–35us
+at decode1 and73–81us at verify1. Decode1 pooler is14.2–14.5us, QKV about9us, and full
+attention12.3us. These are profiled kernel durations, including any device waits, not
+additive exposed costs. The second paired layer-port study `9414182118414889` remains
+unresolved under a different prepared M1 policy. The earlier sparse0.14 relative event has
+not been explained; the separate matched diagnostic did not reproduce it.
+
+The final skinny full-slot wait-policy check `9be599cf333a47c4` has complete16case data,
+64 eager and64 graph checks, zero spin failures and exact four-arm resources:130registers,
+0local bytes,155520B dynamic shared memory,1CTA/SM. Its two candidate contribution ratios
+are1.000956258 and0.998638858 against null1.000295776. Both the>=1% improvement gate and
+regression gate fail. Official2.207723314x (CI2.174607465–2.240839164) is the unchanged
+owned control, not a new candidate score. Close this exact replacement; production unchanged.
+
+Attention attribution `8ac6563343f74bcd` shows removing consumer math alone does not improve
+verify/full; the producer/cache-copy schedule deserves source investigation. Perturbation
+times are nonadditive. Prior mode51 pair weighting already lost (`7631033a0c93485d`,
+`4ff339332fef4aff`); do not repeat weighting as a new idea. The corrected VT alias bound
+requires119392B per CTA for four stages, too much for2CTA/SM. No invalid occupancy estimate
+was used in a GPU experiment.
+
+## Ranked next work and gates
+
+1. **Measure current layer dependencies across all12 shapes.** New collector
+   `tools/dl_make_layer_timeline.py` preserves the candidate source as an exact prefix and
+   embeds the repository SGLang baseline uncompressed, with independent weights/state/input
+   clones. It uses published soft-cache/agentic inputs and the FP32-front busiest EP group;
+   saves/restores TF32; records candidate policies and actual local routing. Each arm has
+   five cold event timings and three isolated, cold graph traces. The cache flush and input
+   reset occur outside the profiler. Retain all24rows, full names and stream IDs through
+   bounded lossless log encoding. A missing case, deadline, invalid shape/dtype/nonfinite
+   output or over-budget report fails closed. This is diagnostic, never a scored submission.
+2. **Choose a single exposed boundary from that evidence.** Prioritize the six-load
+   `46*sliding+16*full` objective. Activity union is not SM utilization; overlapping kernel
+   durations cannot be summed into removable time. Stop a proposed fusion if its plausible
+   exposed budget is below paired noise, its interface changes rounding or its resource
+   cost removes useful concurrency. PDL wait durations require causal interpretation.
+3. **Attention producer source audit.** Reopen only a specific mode51 copy/address-latency
+   mechanism with evidence distinct from prior L1 tests and mode51 weighting losses. Retain
+   every fence, acquire/release, stage participant count and actual2CTA/SM allocation.
+4. **Projection and MoE architecture pivots.** Codec/dense/ring/default-masked/wait sweeps
+   remain closed as built. Weight reuse fails its screen in6/8 cases; all four standalone
+   cases have no duplicate jobs. Reopen only with new scored-scope traffic or scheduling
+   evidence, not a generic TMA/multicast recommendation.
+
+Any future kernel candidate needs one hypothesis, independent duplicate controls, exact
+official correctness and replay checks, measured resource vectors and whole-score improvement
+beyond registered null/regression gates. Revert losers; retain receipts and closure logs.
+Scored submissions use pure owned files only. Available quota is not evidence of a benefit.
+
+## Feasibility and best candidates
+
+The latest archived official snapshot remains November1 00:05PDT: projection gap5.02%,
+attention11.73%, MoE17.15%, layer17.82% to the observed rank10 values. These are dated
+aggregate gaps, not per-shape cutoffs. No current measured portfolio establishes those gains;
+top10 by November4 remains unproven. Competitor per-shape receipts and physical HBM/L2/SM
+counters are still gaps. The new timing collector does not claim to collect those counters.
+
+Keep current validated production paths: projection C3, attention late-full2, owned MoE,
+and pinned layer candidate585d46e2. Public bests remain C2 `9eba96894ee1402e`, attention
+`8914751e3b9f468b`, MoE `abe7651dbaa44458`, layer `8f2780d7382047e6`. A lower fresh score
+does not replace a public best. There is no new pure fusion candidate to submit yet.
+
+Collector review, dispatch and measurement results are to be appended below with exact
+job/source identifiers. No new layer performance result is claimed by this initial audit.
+
+## Dispatch addendum
+
+Collector source commit `097c38f`; generated payload984090B, SHA256
+`5affd5cc9dd480af2a49f89db678cc989dfcd593fdb011a459330e618151abe9`.
+Independent review cleared the reference argmax tie correction, baseline/input isolation,
+capture/reset path and profiler API. Four tests pass under the existing WSL CPU-Torch venv;
+the independently varied24row fixture encodes7952B, the35events/row stress fixture9752B,
+both losslessly below the11KB log guard. Encoding is binary delta/duration plus interned
+full names and streams; per-token local counts are recorded as an exact nine-bin histogram.
+The generated source retains candidate prefix and kernel AST unchanged and is below1MB.
+
+`okc check` returned exact layer job `41788b39fb824179`; direct status confirms running.
+This is a new dependency measurement, not another fusion implementation or a public submit.
+The preparation deadline is280s and incomplete reports fail closed. Diagnostic shape/dtype/
+finite checks are not new mathematical certification; original gates and subsequent official
+correctness remain relevant. No physical HBM/SM counters are claimed.
+
+Source-only attention pivot disposition: mode51 page IDs are already prefetched three tiles
+ahead (`attn_one.cu:1011`,1423–1430,1484–1504), before the empty-slot wait at1441. Moving
+current-tile page-ID loads before that wait is not a new mechanism. The source audit is
+motivated by `8ac6563343f74bcd` but adds no GPU experiment. Actual compiler issue scheduling
+would need SASS evidence; address-offset arithmetic is a distinct unmeasured hypothesis.
+
+## November1 00:53PDT evidence refresh
+
+Fresh official board responses are archived in `evidence/2026-11-01-fusion-audit/`, with
+observation timestamp and exact owning jobs in `summary.json`. Ranks are now294 projection,
+208 attention,372 MoE and379 layer. Our scores and the four rank10 values are unchanged
+from00:05; score gaps remain5.02096%,11.73079%,17.14577%,17.82229%. No problem is top10.
+
+Attribution correction: the M-C row's initial15character identifier was missing its leading
+`5`. Correct full job is `5ae9ce318e014edf`, verified against its owning decode-layer run row.
+The measurement and closure are unchanged. The independent attention audit had the full ID.
+
+## Collector observation failure and bounded correction
+
+`41788b39fb824179` is terminal: preparation reached all24rows but the final encoded result
+was12192B, above the11000Bguard. No trace rows were printed, so no latency, overlap or
+fusion-opportunity inference is retained. No official score or correctness pass is claimed.
+Raw status/log are preserved in `muse_decode_layer/profiles/timeline.41788b39fb824179.*`.
+
+The corrected transport explicitly records trace coordinates at0.1us, while preserving
+raw-resolution aggregate spans/union,0.001us cold event measurements, all event names/order
+and streams. Binary encoding remains lossless for those declared recorded coordinates.
+This changes measurement formatting only; kernels, weights, workload and prepared policies
+are unchanged. Four CPU tests pass. Independent larger-fixture review precedes one retry;
+another observation failure requires reassessing collection scope before more quota.
+
+Final transport review also found a56event/row synthetic case above budget with fixed-width
+records. Before dispatch, those records were replaced with unsigned varints for delta,
+duration and combined name/stream index. The independent56event×24row fixture now fits
+10264B and round-trips exactly; four WSL tests pass. Corrected source `d327abd`, payload
+984798B SHA256`dae91104f666fbfc323145dda56dfad39593e1631c12624f39b056b9bc26c66d`.
+Exact corrected layer job `01183c2992eb4153` is confirmed running. No kernel change or
+additional failed GPU check occurred during the offline transport corrections.
+
+Production-source hygiene: merging the attribution receipts also carried disabled probe
+branches into attention source. Root restored both attention production files byte-for-byte
+to validated `6da000f` (late-full2 retained). Tool commit `97b9070` now injects those exact
+probe branches only into the generated diagnostic, with source-pattern assertions. The full
+CPU generation test compares its CUDA AST literal against the recorded instrumented source
+and checks that the pure source is unchanged. No new production tuning or performance claim.
+
+## Completed measurement:01183c2992eb4153
+
+The corrected check passed13official tests, static checks OK and no flags. Unchanged owned
+control score2.017452507x,95%CI1.987190720–2.047714295; this is not a new optimization or
+candidate improvement. Preparation166.968s. Full raw receipt/log and normalized official
+profile JSON/text are committed under `muse_decode_layer/profiles/timeline*01183c2992eb4153*`.
+All24 owned/SGLang traces were retained and decoded into
+[full timeline evidence](evidence/2026-11-01-fusion-audit/layer-timeline.json) and its
+[per-shape table](evidence/2026-11-01-fusion-audit/layer-timeline.md).
+
+The [official per-shape comparison](evidence/2026-11-01-fusion-audit/official-shape-comparison.md)
+matches all12exact shape keys against best-entry receipt8f2780d7382047e6. It uses the judge's
+calibrated medians, not the diagnostic cold times. Current control ranges76.955us decode1
+sliding to501.347us verify32 full; some shapes improve and others regress versus the older
+receipt. Kernels are unchanged and M1policy differs at32tokens (`o+front` now versus `o` in
+the scored receipt); neither fresh-run differences nor policy changes are an isolated win.
+
+### Metadata defect and limits
+
+Root found that capture output buffers were inspected before their first replay. Therefore
+**all recorded actual-routing histograms/unique counts and pre-replay finite-value checks
+are invalid**. The decoded artifact explicitly marks `routing_metadata_valid:false`; do not
+use those fields. Reference group counts and local_start selection were computed before
+capture and remain valid. Independent review confirms the bad metadata feeds only report
+fields, never graph inputs/state/policy. Actual timed/profiled replays still reset inputs,
+flush L2, synchronize and execute normally; trace timing remains usable. Official13tests
+are separate actual-execution checks, not that faulty diagnostic inspection.
+
+The helper now performs an explicit replay+sync before inspecting outputs. Five CPU tests
+pass in WSL, including execution of the extracted capture helper and a negative control
+that reproduces uninitialized outputs when the replay is removed. No third GPU run was
+spent solely to recover routing metadata. The next diagnostic must use this fixed helper.
+
+Single-replay CUDA-event intervals include event-to-host-graph-launch delay; profiler spans
+start with the first activity and end with the last, and instrumentation can change the
+schedule. Their difference is not removable kernel latency. Use official calibrated medians
+for scoring, trace coordinates for dependencies, and neither as physical SM/HBM counters.
+
+### What changes the backlog
+
+For the two traced decode1 inputs:
+
+| Event completion/start | Sliding us | Full us |
+|---|---:|---:|
+| Router completion |31.3|39.1|
+| Top-k completion |34.8|42.4|
+| Pooler completion |44.3|52.0|
+| Pre-expert norm completion |46.6|53.6|
+| MoE start |47.2|54.0|
+
+Top-k already finishes11.8/11.2us before pooler normalization. **There is no exposed router
+tail in these samples.** Removing its profiled duration cannot be credited as equal layer
+savings. T1 router/top-k fusion alone is therefore deprioritized; preserve overlap in any
+future front design. This does not rule out a faster pooler or a structurally different front.
+At verify1, route and MoE already overlap through PDL; their durations are also nonadditive.
+
+Across the12owned median traces, uncovered activity intervals total1.056–3.263us per shape.
+This is absence of recorded CUDA activity, not idle SM time or an upper bound on all fusion
+benefit. It does not support explaining the17.82% score gap by launch gaps alone. Kernel
+execution and waits remain the larger target. **Next priority is physical traffic/stall
+attribution, not another generic fusion or PDL sweep.**
+
+## Counter-attribution feasibility and next gate
+
+NVIDIA documents an in-memory
+[CUPTI Range Profiler API](https://docs.nvidia.com/cupti/12.8.1/main/main.html#cupti-range-profiling-api)
+and [Profiler Host API](https://docs.nvidia.com/cupti/12.8.1/api/group__CUPTI__PROFILER__HOST__API.html).
+These can use host buffers without an external ncu process or report file. This is API
+feasibility, not evidence that the judge image exposes the headers/libraries, permissions
+or profiler coexistence needed. Trace-capable CUPTI does not by itself establish NVPerf
+availability or hardware-counter access.
+
+Before any counter-dependent rewrite, establish exact runtime dependency/support status,
+then one small successfully completed counter range. A device-support query alone does not
+prove permission. Report exact failures; stop on missing dependencies,
+[insufficient privileges](https://developer.nvidia.com/nvidia-development-tools-solutions-err-nvgpuctrperm-cupti)
+or an existing-profiler conflict. Do not change driver privileges or use subprocess/file
+workarounds. Review challenge rules and exact API signatures before implementation. Avoid
+checkpoint APIs that can write files. Per-kernel AutoRange serializes execution, so it
+cannot measure the original concurrent layer's utilization; a concurrent UserRange answers
+a different aggregate question. No physical metric values or metric names are asserted here.
+
+Current best candidates and top10 assessment above are unchanged. No new public submission
+is justified by the control score or diagnostic traces. Preserve quota for a new measured
+mechanism; prefill remains deferred.

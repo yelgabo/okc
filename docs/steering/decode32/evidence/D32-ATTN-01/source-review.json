@@ -1,0 +1,29 @@
+{
+  "scope": "Independent read-only source and evidence review",
+  "source_findings": [],
+  "evidence_findings": [],
+  "checked": [
+    "QK/softmax/PV expression and tile order",
+    "patch join uniformity",
+    "raw-slot last-reader retirement",
+    "three-stage lookahead progress",
+    "prepared-state and explicit override guards",
+    "actual CPU test source",
+    "both resource logs and layout witnesses",
+    "cited SASS offsets",
+    "receipt endpoint units and relative links"
+  ],
+  "limits": [
+    "Reviewer did not rerun CPU tests or compiler",
+    "Reviewer did not rehash every archived blob; parent verified hashes",
+    "GPU numerical, replay, host preparation/admission and performance remain untested"
+  ],
+  "after_review": "D32-02 changed ownership/report wording. Added preparation-only source/capability attestation; six focused tests rerun successfully. CUDA treatment bytes unchanged.",
+  "files": {
+    "tools/d32_attn_worker_candidate.py": "d23525019a274777f4f71a9d0fdff4973d3f9f6c049a801880d9547ed5c18342",
+    "tools/d32_attn_worker_test.py": "78baa33646037190ae9a188436acfae5d3073ecfb6fcc7e6c0d3c6e1a2bae607",
+    "docs/steering/decode32/evidence/D32-ATTN-01/treatment.cu": "3de8f5caac947c54af133fd83b157e3d1f1ab16ebcee8d61bcd0573f8ad0b26d",
+    "docs/steering/decode32/evidence/D32-ATTN-01/native.patch": "cf27f24b486348a4b4924cbe50b9ea16f5b26523e3e754104111938603d080a6",
+    "docs/steering/decode32/evidence/D32-ATTN-01/implementation-notes.md": "83e34aa4721f7b1cd45e03de4ad4d1f87f3d3ed63f49ef76f43ecbdb59c22f6d"
+  }
+}

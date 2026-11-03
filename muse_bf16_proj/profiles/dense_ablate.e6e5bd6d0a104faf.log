@@ -1,0 +1,103 @@
+npooler  m=16: unp16 18.1, unp16raw 22.2, cublas 22.5 -> unp16
+tune unpooler  m=32: unp32 19.0, unp32raw 22.7, cublas 22.7 -> unp32
+tune unpooler  m=64: cublas 24.1, b1n64c2 24.6, m64k2r4 35.6, m64k1r8 30.5 -> cublas
+tune unpooler  m=128: cublas 24.6, b1n64c2 43.3, b1n128c2 25.6, m64k2r4 53.0, m64k1r8 48.1, m128k2r4 40.0, m128k1r4 35.3, m128k1r8 36.2, m128k2r8 41.3, m128k4r2 39.9, b1n128c2s8h 29.8, b1n128c3s8h 38.8 -> cublas
+tune unpooler  m=256: cublas 28.5, b1n128c2 46.9, b2n256c2 32.7, m128k2r4 60.0, m128k1r4 56.3, m128k1r8 63.2, m128k2r8 62.8, m128k4r2 65.8, m256k2r4 54.3, m256k1r4 58.0, m256k1r8 60.0, m256k2r8 56.7, m256k2r2 54.3, b1n128c2s8h 52.9, b1n128c3s8h 65.4 -> cublas
+lt build 17.9 s, cublasLt 130101, torch cuda 13.0
+lt qkv_gate m=128: 64 heuristic, 792 swept, 206 other, screen best L0:a66t104s35k1r0z0c0i0g2w0v0.64 19.4, L2:a66t80s35k1r0z0c2i0g5w0v0.88 19.5, L2:a66t104s35k1r0z0c0i0g6w0v0.64 19.5, L0:a66t80s35k1r0z0c0i0g5w0v0.88 19.7, L2:a66t104s35k1r0z0c0i0g2w0v0.64 19.7
+ltune qkv_gate  m=128: base 19.2, f0=L0:a66t104s35k1r0z0c0i0g2w0v0.64 20.3, f1=L2:a66t80s35k1r0z0c2i0g5w0v0.88 19.7, f2=L2:a66t104s35k1r0z0c0i0g6w0v0.64 19.6, f3=L0:a66t80s35k1r0z0c0i0g5w0v0.88 19.8, f4=L2:a66t104s35k1r0z0c0i0g2w0v0.64 19.8; pref base margin 0.30 f0 -1.25/0 f1 -0.48/0 f2 -0.35/0 f3 -0.61/0 f4 -0.67/0 -> base
+lt o m=128: 32 heuristic, 788 swept, 227 other, screen best L0:a66t18s35k1r0z0c4i0g5w0v0.97 10.8, L0:a66t18s35k1r0z0c0i0g2w0v0.97 10.9, L2:a66t18s35k1r0z0c7i0g5w0v0.97 10.9, L0:a66t18s35k1r0z0c7i0g5w0v0.97 10.9, L0:a66t18s35k1r0z0c6i0g5w0v0.97 11.0
+ltune o         m=128: base 11.3, f0=L0:a66t18s35k1r0z0c4i0g5w0v0.97 11.2, f1=L0:a66t18s35k1r0z0c0i0g2w0v0.97 11.2, f2=L2:a66t18s35k1r0z0c7i0g5w0v0.97 11.4, f3=L0:a66t18s35k1r0z0c7i0g5w0v0.97 11.4, f4=L0:a66t18s35k1r0z0c6i0g5w0v0.97 11.3; pref base margin 0.30 f0 +0.26/8 f1 +0.06/8 f2 -0.03/3 f3 -0.10/3 f4 +0.03/5 -> base
+lt pooler m=128: 60 heuristic, 792 swept, 196 other, screen best L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.9, L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.9, L2:a66t134s35k1r0z0c0i0g5w0v0.79 25.1, L0:a66t134s35k1r0z0c2i0g5w0v0.79 25.3, L2:a66t143s35k1r0z0c2i0g7w0v0.71 25.3
+ltune pooler    m=128: base 26.3, pref=L1:a66t15s35k1r0z0c4i0g2w0v0.97 25.1, f0=L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.8, f1=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.9, f2=L2:a66t134s35k1r0z0c0i0g5w0v0.79 25.4, f3=L0:a66t134s35k1r0z0c2i0g5w0v0.79 25.3, f4=L2:a66t143s35k1r0z0c2i0g7w0v0.71 25.2; pref pref margin 0.30 base -0.99/1 f0 +0.42/7 f1 +0.19/6 f2 -0.48/2 f3 -0.45/1 f4 -0.26/3 -> pref
+lt unpooler m=128: 44 heuristic, 785 swept, 197 other, screen best L3:a66t18s35k1r0z0c5i0g2w0v0.97 22.6, L1:a66t18s35k1r0z0c5i0g5w0v0.97 22.7, L1:a66t18s35k1r0z0c6i0g5w0v0.97 22.7, L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.7, L1:a66t18s35k1r0z0c5i0g2w0v0.97 22.7
+ltune unpooler  m=128: base 24.5, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 23.6, f0=L3:a66t18s35k1r0z0c5i0g2w0v0.97 23.0, f1=L1:a66t18s35k1r0z0c5i0g5w0v0.97 23.1, f2=L1:a66t18s35k1r0z0c6i0g5w0v0.97 23.1, f3=L3:a66t18s35k1r0z0c7i0g5w0v0.97 24.1, f4=L1:a66t18s35k1r0z0c5i0g2w0v0.97 22.9; pref pref margin 1.09 base -0.99/0 f0 +0.54/6 f1 +0.38/6 f2 +0.16/8 f3 -0.06/3 f4 +0.64/6 -> pref
+lt qkv_gate m=256: 60 heuristic, 792 swept, 202 other, screen best L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.3, L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.4, L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.0, L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.1, L0:a66t134s35k1r0z0c0i0g9w0v0.88 22.3
+ltune qkv_gate  m=256: base 23.5, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.7, f0=L0:a66t124s35k1r0z0c0i0g2w0v0.97 22.0, f1=L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.4, f2=L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.3, f3=L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.4, f4=L0:a66t134s35k1r0z0c0i0g9w0v0.88 22.5; pref pref margin 0.30 base -1.86/0 f0 -0.10/3 f1 +0.29/6 f2 -0.80/1 f3 -0.83/1 f4 -0.80/1 -> pref
+lt o m=256: 32 heuristic, 788 swept, 220 other, screen best L1:a66t20s35k1r0z0c4i0g3w0v0.97 13.0, L3:a66t19s35k1r0z0c0i0g2w0v0.97 13.1, L1:a66t21s35k1r0z0c0i0g2w0v0.97 13.1, L3:a66t21s35k1r0z0c4i0g2w0v0.97 13.1, L3:a66t20s35k1r0z0c4i0g3w0v0.97 13.1
+ltune o         m=256: base 13.2, pref=L3:a66t20s35k1r0z0c4i0g3w0v0.97 13.1, f0=L1:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, f1=L3:a66t19s35k1r0z0c0i0g2w0v0.97 13.2, f2=L1:a66t21s35k1r0z0c0i0g2w0v0.97 13.1, f3=L3:a66t21s35k1r0z0c4i0g2w0v0.97 13.2, f4=L3:a66t20s35k1r0z0c4i0g3w0v0.97 13.1; pref pref margin 0.30 base -0.10/1 f0 +0.03/6 f1 -0.13/1 f2 -0.03/4 f3 -0.10/2 f4 +0.00/3 -> pref
+lt pooler m=256: 50 heuristic, 790 swept, 220 other, screen best L3:a66t17s35k1r0z0c0i0g2w0v0.97 27.2, L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, L1:a66t17s35k1r0z0c0i0g2w0v0.97 27.8, L1:a66t18s35k1r0z0c1i0g2w0v0.97 28.1
+ltune pooler    m=256: base 30.8, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.7, f0=L3:a66t17s35k1r0z0c0i0g2w0v0.97 27.8, f1=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.7, f2=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.7, f3=L1:a66t17s35k1r0z0c0i0g2w0v0.97 28.2, f4=L1:a66t18s35k1r0z0c1i0g2w0v0.97 28.6; pref pref margin 0.38 base -3.17/0 f0 -0.19/3 f1 -0.03/4 f2 +0.00/4 f3 -0.22/2 f4 -0.93/1 -> pref
+lt unpooler m=256: 32 heuristic, 788 swept, 220 other, screen best L2:a66t20s35k1r0z0c4i0g2w0v0.97 27.6, L3:a66t21s35k1r0z0c4i0g2w0v0.97 27.7, L3:a66t20s35k1r0z0c4i0g5w0v0.97 27.7, L3:a66t20s35k1r0z0c0i0g2w0v0.97 27.8, L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.8
+ltune unpooler  m=256: base 28.2, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.7, f0=L2:a66t20s35k1r0z0c4i0g2w0v0.97 27.8, f1=L3:a66t21s35k1r0z0c4i0g2w0v0.97 27.7, f2=L3:a66t20s35k1r0z0c4i0g5w0v0.97 28.0, f3=L3:a66t20s35k1r0z0c0i0g2w0v0.97 27.7, f4=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.8; pref pref margin 0.32 base -0.45/1 f0 +0.03/5 f1 -0.13/3 f2 -0.10/3 f3 -0.13/4 f4 -0.06/3 -> pref
+ablate pooler m=128: m128k2r4 35.2, m128k2r4_a1 30.8, m128k2r4_a3 28.7
+ablate o m=256: m256k1r4 25.5, m256k1r4_a1 23.4, m256k1r4_a3 18.6
+prepare done 105.8 s
+DRES as3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK as3 m=129 True err=0.00157/0
+DCHECK as3 m=200 True err=0.0016/0
+DCHECK as3 m=256 True err=0.00162/0
+DRES as4 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[30, 1, 90, 0, 0, 132160]
+DSKIP as4 active clusters below36 for144CTA grid
+DRES as3_a1_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE as3_a1_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES as3_a2_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DPROBE as3_a2_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES as3_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE as3_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK bs3 m=129 True err=0.00158/0
+DCHECK bs3 m=200 True err=0.0016/0
+DCHECK bs3 m=256 True err=0.00162/0
+DRES bs4 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[30, 1, 90, 0, 0, 132160]
+DSKIP bs4 active clusters below36 for144CTA grid
+DRES bs3_a1_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE bs3_a1_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3_a2_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DPROBE bs3_a2_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE bs3_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DREPLAY prod rep=0 True err=0.0016/0
+DREPLAY as3 rep=0 True err=0.0016/0
+DREPLAY bs3 rep=0 True err=0.0016/0
+DREPLAY prod rep=1 True err=0.0016/0
+DREPLAY as3 rep=1 True err=0.0016/0
+DREPLAY bs3 rep=1 True err=0.0016/0
+DTIME prod median_raw_us=26.9120 delta=+0.0000 faster=0/100
+DTIME as3 median_raw_us=39.5360 delta=+12.5920 faster=0/100
+DTIME as3_a1_probe median_raw_us=35.6160 delta=+8.7680 faster=0/100
+DTIME as3_a2_probe median_raw_us=36.3840 delta=+9.4400 faster=0/100
+DTIME as3_a3_probe median_raw_us=32.2240 delta=+5.2640 faster=0/100
+DTIME bs3 median_raw_us=39.6480 delta=+12.6560 faster=0/100
+DTIME bs3_a1_probe median_raw_us=35.7760 delta=+8.8800 faster=0/100
+DTIME bs3_a2_probe median_raw_us=36.3360 delta=+9.4400 faster=0/100
+DTIME bs3_a3_probe median_raw_us=32.2400 delta=+5.3440 faster=0/100
+DRES as3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK as3 m=129 True err=0.00157/0
+DCHECK as3 m=200 True err=0.0016/0
+DCHECK as3 m=256 True err=0.00162/0
+DRES as4 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[30, 1, 90, 0, 0, 132160]
+DSKIP as4 active clusters below36 for144CTA grid
+DRES as3_a1_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE as3_a1_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES as3_a2_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DPROBE as3_a2_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES as3_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE as3_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK bs3 m=129 True err=0.00158/0
+DCHECK bs3 m=200 True err=0.0016/0
+DCHECK bs3 m=256 True err=0.00162/0
+DRES bs4 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[30, 1, 90, 0, 0, 132160]
+DSKIP bs4 active clusters below36 for144CTA grid
+DRES bs3_a1_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE bs3_a1_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3_a2_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DPROBE bs3_a2_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE bs3_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DREPLAY prod rep=0 True err=0.0016/0
+DREPLAY as3 rep=0 True err=0.0016/0
+DREPLAY bs3 rep=0 True err=0.0016/0
+DREPLAY prod rep=1 True err=0.0016/0
+DREPLAY as3 rep=1 True err=0.0016/0
+DREPLAY bs3 rep=1 True err=0.0016/0
+DTIME prod median_raw_us=26.9120 delta=+0.0000 faster=0/100
+DTIME as3 median_raw_us=39.5360 delta=+12.5920 faster=0/100
+DTIME as3_a1_probe median_raw_us=35.6160 delta=+8.7680 faster=0/100
+DTIME as3_a2_probe median_raw_us=36.3840 delta=+9.4400 faster=0/100
+DTIME as3_a3_probe median_raw_us=32.2240 delta=+5.2640 faster=0/100
+DTIME bs3 median_raw_us=39.6480 delta=+12.6560 faster=0/100
+DTIME bs3_a1_probe median_raw_us=35.7760 delta=+8.8800 faster=0/100
+DTIME bs3_a2_probe median_raw_us=36.3360 delta=+9.4400 faster=0/100
+DTIME bs3_a3_probe median_raw_us=32.2400 delta=+5.3440 faster=0/100

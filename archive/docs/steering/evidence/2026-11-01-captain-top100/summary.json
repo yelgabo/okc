@@ -1,0 +1,110 @@
+{
+  "retrieved_utc": "2026-11-01T23:47:04Z",
+  "checkout": "C:/Users/gretc/Documents/GitHub/okc",
+  "evidence_commit": "aff51ef",
+  "overall_you": {
+    "rank": 324,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 323
+  },
+  "layer_you": {
+    "rank": 324,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 323,
+    "to_first": 1.1685
+  },
+  "layer_rank100": {
+    "attempts": 22,
+    "job": "dee06202e470432b",
+    "rank": 100,
+    "speedup": 2.2549,
+    "submitted_at": 1793539508.9296522,
+    "team": "Eric-Mao06",
+    "value": 10031.776481528783
+  },
+  "layer_rank80": {
+    "attempts": 6,
+    "job": "6d6b1e96a9f94b00",
+    "rank": 80,
+    "speedup": 2.2633,
+    "submitted_at": 1793397608.5890002,
+    "team": "zro-inference",
+    "value": 9994.305658786563
+  },
+  "layer_rank50": {
+    "attempts": 63,
+    "job": "99cd2f069b304392",
+    "rank": 50,
+    "speedup": 2.2935,
+    "submitted_at": 1793558086.5464854,
+    "team": "steelep",
+    "value": 9862.572730592477
+  },
+  "relative_score_increase_to100": 0.06058040543718546,
+  "relative_latency_reduction_to100": 0.057120049669608375,
+  "planning_target": 2.3,
+  "relative_score_increase_to_target": 0.08179295423545452,
+  "g0_remaining_score_increase_to100": 0.0027167793882574287,
+  "first500_divergence_count": 6,
+  "first_divergence": {
+    "rank": 495,
+    "solved": 3,
+    "team": "CFC87"
+  },
+  "official_receipts": [
+    {
+      "file": "incumbent-607.json",
+      "id": "607eb52bdaf24160",
+      "board": "muse_decode_layer",
+      "mode": "run",
+      "status": "done",
+      "team": "yelgabo",
+      "speedup": 2.1260826764231093,
+      "ci": [
+        2.0941914362767626,
+        2.1579739165694556
+      ],
+      "passed": true,
+      "returncode": 0,
+      "records": 38,
+      "error": null,
+      "prepare_budget_marker": false
+    },
+    {
+      "file": "comparator-g0.json",
+      "id": "3a5f879df0d44825",
+      "board": "muse_decode_layer",
+      "mode": "check",
+      "status": "done",
+      "team": "yelgabo",
+      "speedup": 2.2487905322335195,
+      "ci": [
+        2.2150586742500167,
+        2.282522390217022
+      ],
+      "passed": true,
+      "returncode": 0,
+      "records": 38,
+      "error": null,
+      "prepare_budget_marker": false
+    },
+    {
+      "file": "failed-qualification-3fd.json",
+      "id": "3fd1317143304bd5",
+      "board": "muse_decode_layer",
+      "mode": "run",
+      "status": "done",
+      "team": "yelgabo",
+      "speedup": null,
+      "ci": null,
+      "passed": false,
+      "returncode": 112,
+      "records": 1,
+      "error": null,
+      "prepare_budget_marker": true
+    }
+  ]
+}

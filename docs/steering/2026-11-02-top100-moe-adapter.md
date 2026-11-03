@@ -1,0 +1,90 @@
+# Exact standalone expert adapter: source/CPU delivery, qualification incomplete
+
+November 2, 2026. Implementation sub-agent; no children. Started from `a58f058548249a3c5c1a5b5885b516fb15869603`, then fast-forwarded concurrent parent work through `e067e22` before publication. Implementation/evidence commit: **`ece009b8a51b9a10c8ce7a2ef6e3ca26b7831988`**. Allocation: [standalone qualification](../../archive/docs/steering/2026-11-02-top100-moe-qualification.md). Parent/captain retains dispatch. No GPU execution, CLI POST/job, compiler invocation, installation, default change or candidate edit occurred.
+
+## Decision and concrete deliverable
+
+**SOURCE/CPU ADAPTER DELIVERED; STOP BEFORE TARGET QUALIFICATION.** This is a complete deterministic standalone component payload with normal control and separate candidate callables, not a complete matched measurement harness. `dispatch_ready=false` and `gpu_qualified=false`. The implementation is bounded to the actual official ep8 shapes and the exact native component ABI. It neither substitutes an older standalone donor as control nor invents a new kernel treatment.
+
+- Generator: `tools/expert_top100_moe_adapter.py`; readable adapter body: `tools/expert_top100_moe_body.py`; CPU suite: `tools/expert_top100_moe_test.py`.
+- Delivered [payload](evidence/2026-11-02-top100-moe-adapter/payload.py): **323514 LF bytes**, SHA256 **`19aeaf356be6329dea1031966a4b7efbab4f039748f122acc78300e670cb5b57`**, below 1 MB. Native strings are readable multiline source, not compressed or encoded. The evidence directory pins LF checkout behavior.
+- [Manifest](evidence/2026-11-02-top100-moe-adapter/payload.manifest.json) lists the actual selected dependency closure, original/emitted function hashes, packaged line locations, helper hashes, input contract and missing gates. No runtime reference import, file access, harness inspection, network or subprocess exists in the generated payload.
+- [CPU receipt](evidence/2026-11-02-top100-moe-adapter/cpu-receipt.json): **10 new adapter tests + 3 pair-package + 4 prototype + 4 independent-review tests PASS**. These are CPU tests, not 21 independent candidates or GPU correctness cases.
+
+## Exact identities and extraction boundary
+
+| Identity | SHA256 |
+|---|---|
+| Complete current layer control, `muse_decode_layer/cand/g1b4_stage_release.py` | `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab` |
+| Complete retained candidate, `tools/expert_top100_candidate.py` | `dff221ae6ccc2de35d7a4c123aea3e3eb1345d3685f6eb97e52cbbfef6a0c8c4` |
+| Native control | `c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71` |
+| Native candidate | `3cc12ae09f1954013f5cc9be858120d29b12bf14fff267391b94c5000d2256ea` |
+| Unchanged repaired helper0/helper0df source | `b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716` |
+
+The generator reuses `expert_top100_pair_package.build()` unchanged and checks both complete delivered source pins, not merely a regenerated candidate. It extracts the actual final flags and functions by AST. Selected closure: code/scale packing, stored bit positions, fat/unit order, natural/K-permuted WGS packing, SC6 lossless packing, scale eligibility, scratch factory and DF initialization, native preparation, `_main_defines`, `_ma_ext`, `_fork_native_moe`, `_RouterExt`, and pair-source/state binding. Constants and the helper source alias are emitted explicitly. A symbol-table closure check rejects unresolved globals; `_wgs_on`, called through the original dynamic `globals()` check, is explicitly included. The unused global-state native factory branch fails closed.
+
+Actual CPU-recorded loader calls match the pinned layer control's five builds **including names, complete host/CUDA source, exports and flags**. Candidate adds exactly the two distinct B4/MAIN builds with native `3cc12ae0`; skinny/helper builds remain unchanged. This preserves target compiler inputs but does not establish target compiler success. The native host wrapper, cooperative admission, grid bounds, publication fences, numerical boundaries, finalizers and resource behavior are unedited. No old resource-export wrapper was added.
+
+The one extraction edit outside the existing pair-package dispatch insertion is at the Python scratch-owner boundary: `_fork_native_ma_prepare` calls `_expert_moe_guarded(t, st)` rather than process-global `_guarded(t)`. Allocation dimensions, dtype, copying, alignment and sentinel tail construction stay the same; guard owners are stored in the prepared state rather than global lists. Original and emitted preparation function hashes make this difference explicit. The entire layer `prepare`, fallback and startup/self-test apparatus is **not** part of this component payload; their absence is a remaining qualification gate, not an assertion of equivalence.
+
+## Standalone contract handling
+
+Inspected `muse_moe_w4a16/reference.py` and `TASK.md` at the allocation base (hashes in manifest). The official bank has 256 experts: w13 `[256,8192,2048]` uint8, w13_sf `[256,8192,256]` FP8 E4M3FN, w2 `[256,4096,2048]` uint8, w2_sf `[256,4096,256]` FP8 E4M3FN, both global scale arrays `[256]` FP32, raw post_norm_w `[4096]` BF16. Every tensor is validated for dtype, dimensions, contiguity, device and 16-byte alignment.
+
+The adapter clones only experts **0:32**, including corresponding global scales, into each preparation. It maps the raw `post_norm_w` to `post_expert_norm` without adding one or applying gamma early. Native packing uses those exact first32 experts; gate/up interleave, natural K permutation, packed scale layouts, scale predicates and SC6 policy remain the pinned functions. The native kernel still forms its existing BF16 effective gamma and retains all original intermediate rounding. Whether that complete component meets the standalone FP32 reference tolerance remains unmeasured.
+
+Native host admission explicitly requires `lo=0, nloc=32`. Since weights arrive before per-call config, this bounded adapter **rejects nonzero local_start, local_count other than32, full256 sharding, incompatible dimensions and unsupported token counts**. It does not relabel a nonzero shard as zero or use the wrong bank. Only config0/32 is supported; this is not a general shard adapter. Failure to cover a future required config stops this exact adapter rather than silently changing kernels.
+
+Inputs remain fresh: raw global `topk_ids` int32 and FP32 route weights are passed directly with native lo0/count32. Native routing filters IDs outside `[0,32)` to inactive slots; no modulo remapping, ID cache or input-derived preparation state is added. The adapter validates metadata, not device ID values with a host synchronization; valid global IDs0..255 are the caller contract, and the native inactive sentinel behavior is unchanged. It does not claim to detect arbitrary invalid device ID contents. Hidden states are BF16 `[M,4096]`, IDs and route weights `[M,8]`; `config.bs` must match.
+
+Dispatch is tiny at M1/4, tiny2 at8, mid at16, B4 at32, main at33/128/256/257. Thus all six official loads1/8/16/32/128/256 and correctness boundaries4/33/257 are covered by the host route tests. Maximum native capacity remains384 tokens/3072 route slots; the adapter deliberately accepts only those nine specified sizes. The native device contract is SM90, grid at most136; actual cooperative residency is checked by the unchanged native wrapper on execution. Invalid PRMT scale eligibility fails closed rather than selecting another backend. SC6 eligibility is derived only from the prepared local weight scales, not inputs.
+
+`prepare` + `kernel_fn` are strictly **control**. `expert_moe_prepare_candidate` + `expert_moe_candidate_fn` are a separately bound candidate interface; crossing arms or mutating the arm rejects. `expert_moe_prepare_four` creates independent control/control/candidate/candidate preparations under one shared295s deadline. It does not run correctness or timing and is not called automatically by official prepare. Compiled modules and their input-independent native metadata are shared; PDL stays zero. Packed arrays, raw gamma/global-scale clones, scratch, tail owners, extension dictionaries and per-call outputs are otherwise independent. Calls sharing one prepared scratch must stay serial on the same device/ordered stream; concurrent graph use of a state is not supported or qualified.
+
+Preparation checks a monotonic295s guard before/after the expensive stages and each build. It cannot interrupt a blocking compiler or packing operation; exceeding the boundary is detected on return. No evidence establishes fit within295/300s, total target memory or four-copy fit. Early allocation/build feasibility still needs target qualification.
+
+## What the tests actually execute
+
+Parent supplied the already installed WSL `/root/.cache/okc-host-validate/bin/python`, Torch2.10.0+cpu. No environment was installed or changed. The [adapter log](evidence/2026-11-02-top100-moe-adapter/adapter-cpu.txt) is distinct from the separately owned complete layer host-facade work.
+
+1. Import and execute the **complete generated payload**, then run actual `prepare`, candidate/four preparation and official/candidate callables with a CPU device facade. Native loader/launches are recording stubs. To avoid materializing the full multi-GB bank, the full preparation test substitutes the bank adapter and packing leaves with small real CPU tensors; it still executes the original32-expert preparation loop, real row orders, LUT construction, scale decisions, arm binding, compile dispatch, sentinel owners and call arguments. This is host wiring/ownership evidence, not native math.
+2. Independently execute actual code/scale, fat/unit and WGS packers on real256-row-by4096-width CPU data. Compare byte/sc6 WGS code areas and independently reconstruct all compressed block-scale bytes. Actual PRMT/SC6 out-of-range negatives reject.
+3. Execute the **full-size original scratch factory** with real CPU storage; verify sizes, zero regions, exact DF BF16 bit-pattern initialization, guarded byte copies and alignment. Four independent reduced preparations have disjoint packed/guard storage; deliberate tail corruption fails while the other three remain valid.
+4. Exercise all nine token sizes, fresh input banks1102031/1102037, exact tensor forwarding, output ownership, no new input-state keys, correct native launch arguments and no late builds. Native stubs deliberately copy x to output: output assertions test host wiring only and must not be mistaken for an MoE oracle.
+5. Reject invalid shard/count/dimension/bs, dtype, shape, CPU device, noncontiguous or misaligned inputs, wrong active device, mutated/crossed arms, rebind, expired deadline, capture-time preparation, wrong architecture and ineligible scales. Weight-bank dimensions/slices/global-scale alignment are separately exercised through the actual validation/adapter with metadata stand-ins, not a full256-bank numerical materialization. Full source drift and native edit-anchor drift fail before loader calls.
+
+The three existing pair tests and eight prototype/review tests were reproduced separately; their logs and commands are in the receipt. The review script's incidental writes to its own shared evidence were restored, so this worker leaves no changes outside its assigned files and index. No runtime replay, CUDA memory-order proof, target compilation, numerical equivalence or speed follows from these CPU results.
+
+## Missing gates, priorities and next owner
+
+**Immediate next gate: parent reviews this exact source/CPU delivery and decides whether to allocate the missing standalone measurement harness.** Do not dispatch the payload as if qualification were complete. This task deliberately stops with the tested adapter rather than shipping an untested pseudo-harness. The separate layer harness worker remains the owner of full-layer gates.
+
+For any subsequent component allocation, preserve these requirements before requesting captain dispatch:
+
+- Add a self-contained private oracle/check path without runtime reference/harness imports. Observe the separately bound candidate on fresh normal/skewed routes, local/empty/occupied transitions, M4/33/257, and actual post-replay outputs at changed captured pointers. Validate sentinels and graph/state lifetime. Official control passing cannot qualify the separate candidate.
+- Qualify all four physical placements and memory/preparation fit; stop on any source/contract/build/numerical/progress/guard failure. Fixed heldouts1102031/1102037/1102049 are reserved, not measured. Preserve exact flags/host sources and no fallback/source rescue.
+- Implement uninstrumented cold graph endpoints, paired swapped orders, all four control-candidate crosses and duplicate-control/candidate nulls, with all six standalone loads. Add a strict owning job/source/record reader and negative tests. Preregister component thresholds before measurement; do not manufacture layer speedup from a component ratio. Existing layer >=1% whole-six, >2x duplicate-null every heldout and stop-at->=1% affected-load regression gates remain unchanged.
+- Parent/captain rechecks live jobs/quota and owns any authorized dispatch. No check was sent here, so there is **no new run ID or score**. Historical fresh-control `cc474883117947c0` and public `607eb52bdaf24160` remain inherited source context, not adapter/candidate results. No new loser/run-log row is warranted for this source-only implementation; shared logs were not edited.
+
+The older SC6 comparison files were inspected only as patterns. Their old donor/source/resource edits were not inherited. The ruled-out SC605e51, band32 and historical standalone-progress closures are not reopened. The new evidence changes the next decision from adapter feasibility speculation to a reviewable323KB component source plus tested host/storage contracts. **Top100, component speed, whole-layer gain and target eligibility remain unproven.**
+
+## Reproduction
+
+```powershell
+python tools/expert_top100_moe_adapter.py --out docs/steering/evidence/2026-11-02-top100-moe-adapter/payload.py
+wsl -d Ubuntu --exec /root/.cache/okc-host-validate/bin/python /mnt/c/Users/gretc/.t3/worktrees/okc/t3-dd8ff9e4/tools/expert_top100_moe_test.py
+```
+
+Use the equivalent checkout path elsewhere. Generator uses repository files only offline; emitted runtime is self-contained. Regeneration must agree with the checked-in manifest and payload SHA before further qualification. Report/index publication follows the normal branch commit/push workflow, preserving the parent entries incorporated through e067e22; verify the remote branch blobs before announcing handoff.
+
+## Parent review and component measurement allocation, November 2
+
+Parent integrated6a97135b and independently reproduced all10 adapter tests with the existing WSL Torch2.10 environment. Reviewed the149-line adapter body, AST extraction/source identity boundary, packing/scratch guard integration, exact loader/route checks and official reference generate_input. Current reference rotates the busiest group into IDs0:32; fixed local_start0/count32 therefore matches the current official ep8 contract. Unsupported ranges fail explicitly. Full standalone FP32 numerical eligibility remains unmeasured; source acceptance does not settle it.
+
+Allocate one bounded component harness implementation under tools/expert_top100_moe_harness* and a new report/evidence,45active minutes, no children or GPU dispatch. Preserve the adapter/native source pins. Use the candidate as the harness's normal official arm, with explicit wrapper binding and manifest identity, so the ordinary judge validates the candidate itself on all official tests and benchmark replays. This is a deliberate change from the adapter's default control entry and must never be hidden in the receipt. Original adapter file/control remain untouched. Standalone score is descriptive only and cannot qualify whole-layer adoption.
+
+Prepare four independent mutable placements (two controls/two candidates), exact compiled source/flags checks, guard checks and a295s total budget. Generate fixed normal/skewed standalone routing banks1102031/1102037/1102049, all six loads, plus M4/33/257 and empty/occupied transitions with distinct local IDs. Reuse the official input-generation semantics by offline extraction with source pin, not a runtime reference import; preserve normalization/precision. Inspect actual outputs after fresh replay and retained captured-pointer input changes. Compare both candidate placements with independent controls; ordinary judge verification remains the independent FP32 correctness gate for the official candidate. Local paired checks must reject nonfinite outputs, use preregistered global/row tolerances, and fail on corrupted outputs/guards.
+
+Collect uninstrumented cold complete component timings with swapped/randomized paired orders, four crosses and duplicate-control/candidate nulls. Freeze component go/no-go before dispatch: >=1% equal-six geometric gain on every heldout bank and every cross, >2x duplicate log null, stop for >=1% affected-load regression. No layer46:16 weighting here; unchanged-load drift must be reported. No per-load rescue or retuning. Component pass is only evidence to justify a later full-layer test, whose frozen gates remain unchanged.
+
+Deliver a strict owning receipt reader (correct problem/team/private job/payload/source, official5tests/6benchmarks/6profiles, exactly one bounded capsule), meaningful real-Torch host/facade tests for complete orchestration and failure cleanup, and deterministic <1MB payload. Check actual known receipt schemas before encoding assumptions. If incomplete, leave a fail-closed hold and exact missing gate; do not claim runtime qualification. No compiler sweep, installs, defaults or public submission. Parent reviews the completed artifact and then coordinates one concrete private-check proposal with captain, who retains dispatch ownership. No target job has been allocated or launched by this report.

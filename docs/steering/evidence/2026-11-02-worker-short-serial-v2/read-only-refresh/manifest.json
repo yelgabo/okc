@@ -1,0 +1,72 @@
+{
+  "allocation": "1df00005d3eceb467c38b17ac0d4cad632efbc78",
+  "terminal_commit": "87cfa4afb1328d51de4924570adc37ff1f3cca5a",
+  "new_checks": 0,
+  "files": [
+    {
+      "path": "docs/steering/2026-11-02-worker-short-serial-v2-read-only-refresh.md",
+      "bytes": 4060,
+      "sha256": "0397b0a03a0ab3146b580e57bad3e6ef7341ec442bbbf72a974cec6066b6ac52"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/auth.txt",
+      "bytes": 8,
+      "sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/auth.txt.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/jobs.json",
+      "bytes": 13836,
+      "sha256": "4082d1632e00206d7b1e5e3acb213c8afaedc8fcaf6ddce9eecb71056f5baa6d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/jobs.json.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/layer.json",
+      "bytes": 256116,
+      "sha256": "9d13403a96dd6c92cd4c5d9effa462e83e970c2c3d776bcc7d549f8c69ab17bf"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/layer.json.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/observations.json",
+      "bytes": 1068,
+      "sha256": "78a744e10a3d39b944a2f5346b41284c2f60dbc87ed3adb80469fe4f0c5aaf4b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/overall.json",
+      "bytes": 145963,
+      "sha256": "4084ee6f55eeab9a8be3ef5a61dc948869d235286db2521da88683296f67d4b5"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/overall.json.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/quota.json",
+      "bytes": 1536,
+      "sha256": "d29759f797fc508e5dd3abf18246ea84c3280ce651e1c0e78ab990d055323d4d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/quota.json.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/read-only-refresh/summary.json",
+      "bytes": 2876,
+      "sha256": "ed47e0e7079b5c2a210c48c7eefada7bc851d2ac0de930bb0ae7527b0b12be0e"
+    }
+  ]
+}

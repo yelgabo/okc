@@ -1,0 +1,20 @@
+{
+  "problem": "muse_bf16_proj",
+  "mode": "run",
+  "sha256": "de1111b98072f5251ff9b2edd5d453cc22eb8fe1710a943c60922909cc796229",
+  "bytes": 450781,
+  "source_generator_commit": "95df68e",
+  "independent_review_commit": "945661d",
+  "prototype_commit": "10c0c36",
+  "preparation_limit_seconds": 300,
+  "target_count": 10,
+  "math_checks": 160,
+  "captures": 10,
+  "fresh_replays": 30,
+  "installed_keys": 110,
+  "control_job": "9eba96894ee1402e",
+  "control_score": 1.5278064829557674,
+  "public_single_arm_only": true,
+  "private_diagnostic": false,
+  "queried_at_utc": "2026-11-01T18:17:53.558080+00:00"
+}

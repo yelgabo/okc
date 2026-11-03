@@ -1,0 +1,206 @@
+{
+  "pins": {
+    "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "native_sha256": "c2958fc997e11cb4670e108a0509976cd9ce1763a8af89d2012cfc0ff6cea2c9",
+    "candidate_sha256": "fbca3b75125dd45b3e2801358e95aa14a16750860482989a5fef444a576cd578",
+    "candidate_bytes": 894471,
+    "gpu": false,
+    "dispatch": false
+  },
+  "scope": "NVRTC13/PTXAS13 device-only C++20/header/declaration adapter; actual selected factory flags recorded; no host compilation/GPU",
+  "records": [
+    {
+      "family": "B4",
+      "flags": [
+        "-O3",
+        "-std=c++20",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "host_flags": [
+        "-std=c++20"
+      ],
+      "manifest": {
+        "source": ".build/shared-a-pipeline/compile/B4/selected.cu",
+        "source_sha256": "c2958fc997e11cb4670e108a0509976cd9ce1763a8af89d2012cfc0ff6cea2c9",
+        "original_device_prefix_sha256": "4e4e9c03835c54b411f1e5884e9d14293594cc1606913a871a2f38bef5da9b0d",
+        "compiled_device_prefix_sha256": "f5ca89874bf51f8a4ec1ca6d802b5fd56c714773c63c53ee8c47c5312b30a81a",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++20",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "b1260c8c5330dd1753136f77ab26c391f29496638ef9d5b82d69564565cf3f3c",
+        "cubin_sha256": "b973c453736d99bb3eb9b181ae8193d1cc4b3d466e7ab3053fcda3a6075d45cb",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/shared-a-pipeline/compile/B4/device.ptx",
+          "-o",
+          ".build/shared-a-pipeline/compile/B4/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 40,
+            "spill_store_bytes": 184,
+            "spill_load_bytes": 392,
+            "registers": 80,
+            "barriers": 16
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 40,
+            "spill_store_bytes": 184,
+            "spill_load_bytes": 392,
+            "registers": 80,
+            "barriers": 16
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 672, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 672, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      }
+    },
+    {
+      "family": "MAIN",
+      "flags": [
+        "-O3",
+        "-std=c++20",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "host_flags": [
+        "-std=c++20"
+      ],
+      "manifest": {
+        "source": ".build/shared-a-pipeline/compile/MAIN/selected.cu",
+        "source_sha256": "c2958fc997e11cb4670e108a0509976cd9ce1763a8af89d2012cfc0ff6cea2c9",
+        "original_device_prefix_sha256": "4e4e9c03835c54b411f1e5884e9d14293594cc1606913a871a2f38bef5da9b0d",
+        "compiled_device_prefix_sha256": "f5ca89874bf51f8a4ec1ca6d802b5fd56c714773c63c53ee8c47c5312b30a81a",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++20",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "3e1d0b7c75fbd300f9e0eca961f82e4b0a2d0269326ab09635e6aaf505eb3b8a",
+        "cubin_sha256": "ffc86d2bfc429f08566117c888866bd9b5a9bb1d96b22701bb7bb8b1fc4cdb81",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/shared-a-pipeline/compile/MAIN/device.ptx",
+          "-o",
+          ".build/shared-a-pipeline/compile/MAIN/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 24,
+            "spill_store_bytes": 108,
+            "spill_load_bytes": 192,
+            "registers": 80,
+            "barriers": 16
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 24,
+            "spill_store_bytes": 108,
+            "spill_load_bytes": 192,
+            "registers": 80,
+            "barriers": 16
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 672, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 672, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      }
+    }
+  ]
+}

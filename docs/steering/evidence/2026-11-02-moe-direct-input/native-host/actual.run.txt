@@ -1,0 +1,1 @@
+1040 count/stage cases, 4718592 uint32 values, exact and guarded

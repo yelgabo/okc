@@ -1,0 +1,8 @@
+{
+  "native_equal_to_prior_layer": true,
+  "all_five_compiler_calls_equal": true,
+  "all_six_factory_routes_equal": true,
+  "old_owning_policy": "POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-nohoist, 256: main-lean-grp-nohoist}",
+  "old_receipt_sha256": "a6c9f6ac5f8f1e2f1937962b43722f7c06da200023499afb3e67c02123bcf76b",
+  "stage_payload_reduction_percent": 2.7777777777777777
+}

@@ -1,0 +1,25 @@
+{
+  "artifact_sha256": "4ad326c3451d1b9a7ba22e6c89a2b06ebd8f565c20300abd9fc0d3b0a35001bc",
+  "bytes": 980787,
+  "mask": 15,
+  "G_sha256": "0fadbabece84c447b5c197ee23372c19db8544055494d3dc3f0eb430d059cce2",
+  "owned_with_resource_api_sha256": "5c4fcd800a95822f9818935e1721f8fdcafd710b45942e9ba7b6a4486dff27fa",
+  "owned_MOE1_SRC_sha256": "fa97606fcedcb1dc40ca5918da5be1454f93a6b77b5ef751fb799c936cc77be3",
+  "owned_ONE_SRC_sha256": "d74515180260701c2459a59f22e7015366d6cb60465286e8ef9569666559f1e9",
+  "tests": 7,
+  "passed": 7,
+  "actual_whole_artifact_executed": true,
+  "counts": {
+    "checks": 48,
+    "captures": 8,
+    "fresh": 24,
+    "empty_checks": 40,
+    "empty_captures": 8,
+    "restored": 32
+  },
+  "resource_cpp_mock": {
+    "vectors": 3,
+    "fatal_API_branches": 12
+  },
+  "scope": "TorchCPU arithmetic/native-prepare/CUDA/import/service stand-ins; actual artifact module namespaces, dispatcher, qualification orchestration, oracle checker+finite guards execute. NoGPU/runtime/performance proof."
+}

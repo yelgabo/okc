@@ -1,0 +1,32 @@
+[
+  {
+    "name": "muse_att_v298w1pf_90a",
+    "functions": [
+      "run"
+    ],
+    "extra_cuda_cflags": [
+      "-DOKC_QDIRECT=0",
+      "-DOKC_PK2=0",
+      "-DOKC_W0ENABLE=1",
+      "-O3",
+      "-DOKC_SM90=1",
+      "--expt-relaxed-constexpr"
+    ],
+    "verbose": false
+  },
+  {
+    "name": "muse_att_cont_merge_3fa5ac28206c_90a",
+    "functions": [
+      "run"
+    ],
+    "extra_cuda_cflags": [
+      "-DOKC_QDIRECT=0",
+      "-DOKC_PK2=0",
+      "-DOKC_W0ENABLE=1",
+      "-O3",
+      "-DOKC_SM90=1",
+      "--expt-relaxed-constexpr"
+    ],
+    "verbose": false
+  }
+]

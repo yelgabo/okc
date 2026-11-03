@@ -1,0 +1,8 @@
+{
+  "canonical_partition_cases": 48,
+  "skinny_credit512_every_job": true,
+  "main_host_bound_cases": 16384,
+  "H200132_queue_capacity": true,
+  "max_conservative_Bunits": 1536,
+  "GPU": false
+}

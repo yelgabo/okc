@@ -1,0 +1,43 @@
+{
+  "queries": [
+    "\"muse_bf16_proj\"",
+    "\"muse_attention_decode\"",
+    "\"muse_moe_w4a16\"",
+    "\"muse_decode_layer\" \"muse_prefill_layer\"",
+    "\"Muse Spark\" \"Open Kernel Challenge\"",
+    "\"muse_prefill_layer\"",
+    "site:x.com \"openkernelchallenge\"",
+    "site:reddit.com \"Muse\" \"kernel\" challenge",
+    "\"Muse Spark\" challenge site:x.com",
+    "\"Open Kernel Challenge\" site:news.ycombinator.com",
+    "\"muse_decode_layer\" -site:openkernelchallenge.dev -site:github.com",
+    "\"Muse Spark\" \"challenge\" site:linkedin.com/posts",
+    "\"openkernelchallenge.dev\" site:x.com",
+    "\"openkernelchallenge.dev\" site:twitter.com",
+    "\"Open Kernel Challenge\" site:reddit.com",
+    "\"Open Kernel Challenge\" -site:github.com -site:openkernelchallenge.dev -site:guild.1nterface.ai",
+    "\"muse_bf16_proj\" -site:github.com -site:openkernelchallenge.dev",
+    "\"Muse\" \"kernel challenge\" \"reddit\"",
+    "\"Muse\" \"kernel challenge\" \"Hacker News\"",
+    "\"openkernelchallenge\" \"kernarc\"",
+    "\"Open Kernel Challenge\" \"substack\"",
+    "\"muse_attention_decode\" \"twitter\""
+  ],
+  "seen_urls": [
+    "https://guild.1nterface.ai/t/125",
+    "https://guild.1nterface.ai/t/123",
+    "https://guild.1nterface.ai/t/120",
+    "https://teapawt.org/lxe/status/2115210384424759591",
+    "https://teapawt.org/Karmedge/status/2115688885670043704",
+    "https://teapawt.org/danielgross/status/2113351902402613558",
+    "https://teapawt.org/justinwangx/status/2115835950161178677",
+    "https://teapawt.org/justinwangx/status/2116042218616062208"
+  ],
+  "gaps": [
+    "GitHub code-search totals changed while paging, so this is a paginated observation rather than a complete stable snapshot.",
+    "Excluded rohanarun/Auto-research-agent and lee101/openkernels from expanded pagination to reduce copied starter material. They were covered in the initial broad first-100 searches.",
+    "Public X posts were read through third-party mirrors. Two original X status fetches returned 403.",
+    "No authenticated Slack, Discord, registered-only Guild or encrypted-guild content was read.",
+    "agents.kernarc.com could not be read with the web tool."
+  ]
+}

@@ -1,0 +1,22 @@
+--- expert_top100_moe_harness_contract.py
++++ t1_moe_contract.py
+@@ -2,6 +2,7 @@
+ import math
+ import statistics
+ 
++AFFECTED = (1,)
+ BANKS = (1102031, 1102037, 1102049)
+ LOADS = (1, 8, 16, 32, 128, 256)
+ TOKENS = (1, 4, 8, 16, 32, 33, 128, 256, 257)
+@@ -55,9 +56,9 @@
+         require(all(type(value) is int for value in row[4]) and 1 <= occupied <= 32
+                 and 1 <= maximum <= row[1] and maximum <= total <= row[1] * 8, 'route census capacity')
+         ratios = row[5]
+-        if row[1] >= 32 and any(ratio <= 1 / 1.01 for ratio in ratios):
++        if row[1] in AFFECTED and any(ratio <= 1 / 1.01 for ratio in ratios):
+             regressions.append(row[:3])
+-        if row[1] < 32:
++        if row[1] not in AFFECTED:
+             drift.append([*row[:3], ratios])
+     for seed in BANKS:
+         for dist in DISTRIBUTIONS:

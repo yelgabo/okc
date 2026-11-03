@@ -1,0 +1,8 @@
+{
+  "job_id": "f0b875484960438b",
+  "source_sha256": "cf1dbda332e6a53fa581293d1ddf224c91447436e877c2ed005270c7dd1d04fe",
+  "source_revision": "21db3bc31971ec9d7dd19da21e047adc069ad08c",
+  "source_bytes": 343611,
+  "problem": "muse_moe_w4a16",
+  "mode": "check"
+}

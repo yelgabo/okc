@@ -1,0 +1,19 @@
+{
+  "command": [
+    "wsl",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc/tools",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    "-m",
+    "unittest",
+    "test_g_common_rmw_pair",
+    "test_g_short_rmw_check",
+    "test_g_short_rmw_read",
+    "test_g_common_rmw_pair_occupied_contract",
+    "-v"
+  ],
+  "exitcode": 0,
+  "stdout": "",
+  "stderr": "test_actual_attention_failure_is_not_a_hit (test_g_common_rmw_pair.Pair.test_actual_attention_failure_is_not_a_hit) ... ok\ntest_actual_capsule_and_reader_negatives (test_g_common_rmw_pair.Pair.test_actual_capsule_and_reader_negatives) ... ok\ntest_actual_entry_rejects_duplicate_below_capacity (test_g_common_rmw_pair.Pair.test_actual_entry_rejects_duplicate_below_capacity) ... ok\ntest_actual_entry_rejects_frozen_duplicate_fixture (test_g_common_rmw_pair.Pair.test_actual_entry_rejects_frozen_duplicate_fixture) ... ok\ntest_budget_cleanup_is_unconditional (test_g_common_rmw_pair.Pair.test_budget_cleanup_is_unconditional) ... ok\ntest_exact_common_functions_and_device_deltas (test_g_common_rmw_pair.Pair.test_exact_common_functions_and_device_deltas) ... ok\ntest_failure_restores_and_cannot_print_success (test_g_common_rmw_pair.Pair.test_failure_restores_and_cannot_print_success) ... ok\ntest_full_prepare_off_return_and_cleanup (test_g_common_rmw_pair.Pair.test_full_prepare_off_return_and_cleanup) ... ok\ntest_memo_owners_versions_and_inference_scope (test_g_common_rmw_pair.Pair.test_memo_owners_versions_and_inference_scope) ... ok\ntest_owner_and_stale_output_negatives (test_g_common_rmw_pair.Pair.test_owner_and_stale_output_negatives) ... ok\ntest_source_delta_and_frozen_measurement (test_g_common_rmw_pair.Pair.test_source_delta_and_frozen_measurement) ... ok\ntest_actual_fullscore_gate (test_g_short_rmw_check.ShortHarness.test_actual_fullscore_gate) ... ok\ntest_native_bodies_and_fixed_policy (test_g_short_rmw_check.ShortHarness.test_native_bodies_and_fixed_policy) ... ok\ntest_capsule_negatives (test_g_short_rmw_read.Reader.test_capsule_negatives) ... ok\ntest_log_binding (test_g_short_rmw_read.Reader.test_log_binding) ... ok\ntest_loss_is_complete_not_promoted (test_g_short_rmw_read.Reader.test_loss_is_complete_not_promoted) ... ok\ntest_receipt_rejects (test_g_short_rmw_read.Reader.test_receipt_rejects) ... ok\ntest_valid (test_g_short_rmw_read.Reader.test_valid) ... ok\ntest_exact_selected_native_predicate (test_g_common_rmw_pair_occupied_contract.FixtureDiagnosis.test_exact_selected_native_predicate) ... ok\ntest_frozen_fixture_rejected_by_distinct_contract (test_g_common_rmw_pair_occupied_contract.FixtureDiagnosis.test_frozen_fixture_rejected_by_distinct_contract) ... ok\ntest_frozen_native_count_model_reaches_t8_off0_fat_predicate (test_g_common_rmw_pair_occupied_contract.FixtureDiagnosis.test_frozen_native_count_model_reaches_t8_off0_fat_predicate) ... ok\ntest_old_permissive_mock_misses_defect (test_g_common_rmw_pair_occupied_contract.FixtureDiagnosis.test_old_permissive_mock_misses_defect) ... ok\ntest_proposed_legal_fixture_all_arms_transitions (test_g_common_rmw_pair_occupied_contract.FixtureDiagnosis.test_proposed_legal_fixture_all_arms_transitions) ... ok\n\n----------------------------------------------------------------------\nRan 23 tests in 11.158s\n\nOK\n"
+}

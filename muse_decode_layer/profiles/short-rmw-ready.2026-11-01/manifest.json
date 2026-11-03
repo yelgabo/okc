@@ -1,0 +1,41 @@
+{
+  "scope": "Private check only; no GPU run or scored-submission authorization from this manifest",
+  "queue_position": "HOLD: common control must qualify, then explicitly regenerate/review a new artifact and reader; old first-two reset order superseded",
+  "source_bytes": 906841,
+  "source_sha256": "f0426f7160768de01997b271744542ae3442d0851a1c27e586ced322a8fc6864",
+  "generator": "tools/g_short_rmw_check.py",
+  "regeneration": "python tools/g_short_rmw_check.py ROOT SCRATCH/check.py",
+  "dependency_normalized_sha256": {
+    "g_short_final_rmw.py": "cf613c75b81951bafef77798fc39ae5ad6daa53af0c205ba3a2da1a75a36d2e6",
+    "g_short_rmw_check.py": "df565b5461aba8bf00b33dcc44b4d8e5af851213056edc68fe5ef1ca60a6ae25",
+    "g_short_rmw_check_body.py": "7e3b929732430f83d4cf0ba207376e2d42117b5c842041da83a9d918e0e15ffd",
+    "dl_g1_layer_gate.py": "a3871836f4ca6b140fc7343038bd026947c38278654b7216db4f3c71840f1bc3",
+    "dl_g1_layer_body.py": "aaff2115be7bdf9944b3be96ec47d2fb8b100f8bff5491210b5b8bab5044c8b7",
+    "dl_g1_layer_owners.py": "41c13eabb542e4e182e4ea1b4109ee72ea4a95e43c5fe777aa362ee422b1df5f",
+    "dl_make_bench_pub.py": "36fc43453b74e55d968f390ca2c7b5c70b1b7711d7be1f2047a9926e627d0504",
+    "moe_make_sc6_compare.py": "a2fa9ac9335e793c1eed3822186787093b7b20b572003c5893f65d735a377ee4",
+    "g_short_rmw_read.py": "733b1ad77ffa5f67ea3e40afe1d996e99811093095ce31083eafa1aa30053eaa",
+    "g_short_rmw_reader_manifest.json": "7b5c0b175b57164ff202693c5b4bb9c6c30a77d5e9236c9300ce41f88fccc07d"
+  },
+  "conformance_receipt": "muse_decode_layer/profiles/scored.607eb52bdaf24160.json",
+  "conformance_receipt_raw_sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+  "proof": "2026-11-01-g-ordering-restoration-proof.md",
+  "compiler": "2026-11-01-g-short-final-rmw-compile.md",
+  "source_review": "2026-11-01-short-rmw-private-review.md",
+  "host_review": "2026-11-01-g-short-rmw-host-review.md",
+  "reader": "tools/g_short_rmw_read.py",
+  "H200_qualified": false,
+  "dispatch_preconditions": [
+    "Resolve existing accepted1fad70bbe3854cbc without duplicate",
+    "Fresh live service/quota/jobs and no live own job",
+    "Regenerate exact906841B/f042 artifact; compare all normalized dependencies",
+    "Require terminal own private check13tests/12bench/12profiles/flags/guards+complete SRM_REPORT",
+    "Private full-six cold-event gate >1% and2xnull all four crosses/all three banks plus context regression"
+  ],
+  "no_new_GPU_job": true,
+  "historical_queue_position": "After existing full-G stage and serial front checks; old owned-four-cell remains HOLD",
+  "dispatch_addendum_2026_11_01": {
+    "report": "docs/steering/2026-11-01-g-minimal-delta-plan.md",
+    "status": "HOLD: app goal paused and inherited common control unqualified; keep f042/readers frozen as historical source evidence"
+  }
+}

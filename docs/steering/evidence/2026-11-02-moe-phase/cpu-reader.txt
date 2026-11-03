@@ -1,0 +1,7 @@
+test_complete_and_injected_failures (test_moe_phase_reader.Reader.test_complete_and_injected_failures) ... ok
+test_variable_evidence_fits_log_tail (test_moe_phase_reader.Reader.test_variable_evidence_fits_log_tail) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.026s
+
+OK

@@ -1,0 +1,23 @@
+RGBUILD prod 23.8 s, bench 13.2 s, 14 wd arms, donor off, round rk-c
+RGOVH 4.10 us
+RG m=128 med t_zero=1.09 r64c8s8:vKLUEDYZFV=6.62 r64c8s8:vKLUEYZFV=6.66 r64c8s8:vKLUEYZV=6.78 r64c8s8k:prod=7.04 r64c8s8:vKLUEDYZ=7.07 r64c8s8:vKLUEYZ=7.10 r64c8s8:vKLUEYZF=7.22 r64c8s8:vKLERMOFV=8.22 r64c8s8:vKLERMO=8.45
+RG m=128 d r64c8s8:vKLUEYZ t_zero=-6.03/100 r64c8s8:vKLUEDYZFV=-0.46/87 r64c8s8:vKLUEYZFV=-0.45/88 r64c8s8:vKLUEYZV=-0.32/80 r64c8s8k:prod=-0.06/58 r64c8s8:vKLUEDYZ=-0.06/56 r64c8s8:vKLUEYZF=+0.10/29 r64c8s8:vKLERMOFV=+1.09/3 r64c8s8:vKLERMO=+1.33/0
+RG m=256 med t_zero=1.04 r64c8s8:vKLERMOFV=8.64 r64c8s8:vKLERMO=8.83 r128c8s6:vKLUEYZF=9.18 r128c8s6:vKLUEYZFV=9.18 r128c8s6:vKLUEYZV=9.25 r128c8s6:vKLUEDYZFV=9.28 r128c8s6:vKLUEYZ=9.31 r128c8s6k:prod=9.34 r128c8s6:vKLUEDYZ=9.34 r64c8s8:vKLUEYZFV=12.22 r64c8s8:vKLUEDYZFV=12.37 r64c8s8:vKLUEYZV=12.45 r64c8s8:vKLUEYZ=12.96 r64c8s8:vKLUEDYZ=12.96 r64c8s8k:prod=13.01 r64c8s8:vKLUEYZF=13.04
+RG m=256 d r128c8s6:vKLUEYZ t_zero=-8.22/100 r64c8s8:vKLERMOFV=-0.69/85 r64c8s8:vKLERMO=-0.45/90 r128c8s6:vKLUEYZF=-0.13/55 r128c8s6:vKLUEYZFV=-0.13/62 r128c8s6:vKLUEYZV=-0.02/50 r128c8s6:vKLUEDYZFV=-0.03/51 r128c8s6k:prod=+0.03/45 r128c8s6:vKLUEDYZ=-0.06/53 r64c8s8:vKLUEYZFV=+2.96/0 r64c8s8:vKLUEDYZFV=+3.04/0 r64c8s8:vKLUEYZV=+3.12/0 r64c8s8:vKLUEYZ=+3.68/0 r64c8s8:vKLUEDYZ=+3.68/0 r64c8s8k:prod=+3.66/0 r64c8s8:vKLUEYZF=+3.73/0
+RGDONE 37.7 s
+judged| sk build 0.0 s
+judged| tune router    m= 1: rgemv 7.9, router8 9.5, rt8w8 8.3, rt16w8 8.6, rt16w8p8 8.5, baseline 15.1 -> rgemv
+judged| tune router    m= 8: router8 9.5, rt8w8 8.6, rt16w8 8.7, rt16w8p8 8.7, baseline 31.1 -> rt8w8
+judged| tune router    m=16: router16 9.5, rt8w8 9.0, rt16w8 8.8, rt16w8p8 8.9, baseline 20.6 -> rt16w8
+judged| tune router    m=32: router32 9.9, rt8w8 11.9, rt16w8 9.6, rt16w8p8 9.6, baseline 21.0 -> rt16w8p8
+judged| tune router    m=64: baseline 21.2, r64c8 13.1, r64c16 11.4, r64c8s8 11.9, r64c4s8 15.7, rm64k4r4 18.6, r64c8s8k 10.9, r64c4s8a 14.5, r64c8s8fv 10.5, r64c8s8ordfv 12.2 -> r64c8s8fv
+judged| tune router    m=128: baseline 22.0, r64c8 13.5, r64c16 14.4, r128c8 14.9, r128c16 13.4, r64c8s8 12.0, r64c4s8 15.9, r128c8s6 14.6, rm64k4r4 18.9, rm128k4r4 21.7, r64c8s8k 11.2, r128c8s6k 13.6, r64c4s8a 14.7, r64c8s8fv 10.8, r64c8s8ordfv 12.5 -> r64c8s8fv
+judged| tune router    m=256: baseline 22.8, r64c8 14.8, r64c16 19.6, r128c8 14.9, r128c16 21.1, r64c8s8 19.1, r64c4s8 16.1, r128c8s6 14.5, rm64k4r4 19.1, rm128k4r4 21.8, r64c8s8k 17.4, r128c8s6k 13.8, r64c4s8a 15.0, r64c8s8fv 16.5, r64c8s8ordfv 13.0 -> r64c8s8ordfv
+judged| prepare done 83.5 s
+RGBUILD prod 23.8 s, bench 13.2 s, 14 wd arms, donor off, round rk-c
+RGOVH 4.10 us
+RG m=128 med t_zero=1.09 r64c8s8:vKLUEDYZFV=6.62 r64c8s8:vKLUEYZFV=6.66 r64c8s8:vKLUEYZV=6.78 r64c8s8k:prod=7.04 r64c8s8:vKLUEDYZ=7.07 r64c8s8:vKLUEYZ=7.10 r64c8s8:vKLUEYZF=7.22 r64c8s8:vKLERMOFV=8.22 r64c8s8:vKLERMO=8.45
+RG m=128 d r64c8s8:vKLUEYZ t_zero=-6.03/100 r64c8s8:vKLUEDYZFV=-0.46/87 r64c8s8:vKLUEYZFV=-0.45/88 r64c8s8:vKLUEYZV=-0.32/80 r64c8s8k:prod=-0.06/58 r64c8s8:vKLUEDYZ=-0.06/56 r64c8s8:vKLUEYZF=+0.10/29 r64c8s8:vKLERMOFV=+1.09/3 r64c8s8:vKLERMO=+1.33/0
+RG m=256 med t_zero=1.04 r64c8s8:vKLERMOFV=8.64 r64c8s8:vKLERMO=8.83 r128c8s6:vKLUEYZF=9.18 r128c8s6:vKLUEYZFV=9.18 r128c8s6:vKLUEYZV=9.25 r128c8s6:vKLUEDYZFV=9.28 r128c8s6:vKLUEYZ=9.31 r128c8s6k:prod=9.34 r128c8s6:vKLUEDYZ=9.34 r64c8s8:vKLUEYZFV=12.22 r64c8s8:vKLUEDYZFV=12.37 r64c8s8:vKLUEYZV=12.45 r64c8s8:vKLUEYZ=12.96 r64c8s8:vKLUEDYZ=12.96 r64c8s8k:prod=13.01 r64c8s8:vKLUEYZF=13.04
+RG m=256 d r128c8s6:vKLUEYZ t_zero=-8.22/100 r64c8s8:vKLERMOFV=-0.69/85 r64c8s8:vKLERMO=-0.45/90 r128c8s6:vKLUEYZF=-0.13/55 r128c8s6:vKLUEYZFV=-0.13/62 r128c8s6:vKLUEYZV=-0.02/50 r128c8s6:vKLUEDYZFV=-0.03/51 r128c8s6k:prod=+0.03/45 r128c8s6:vKLUEDYZ=-0.06/53 r64c8s8:vKLUEYZFV=+2.96/0 r64c8s8:vKLUEDYZFV=+3.04/0 r64c8s8:vKLUEYZV=+3.12/0 r64c8s8:vKLUEYZ=+3.68/0 r64c8s8:vKLUEDYZ=+3.68/0 r64c8s8k:prod=+3.66/0 r64c8s8:vKLUEYZF=+3.73/0
+RGDONE 37.7 s

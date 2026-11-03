@@ -1,0 +1,39 @@
+# Short scalar interleaving: distinct emission, unchanged resources
+
+Date: 2026-11-01 Pacific / 2026-11-02 UTC. Source-only/offline compiler allocation; worker alone owns GPU job `6f83ee875dd847c1`. Evidence base: `337cfe7` compiled-short audit, common OFF `4cbb13a9`, matching public607 capture. Publication commit is supplied with this report's handoff (not a self-referential source pin).
+
+## Decision
+
+**One deliberate guarded cross-token scalar scheduling change survives the secondary compiler with distinct SASS and no resource regression, in all four requested entries. It is NOT a measured winner or runtime-qualified candidate.** Stop this allocation after publication: no production edit, GPU request, further treatment, or compiler sweep. The result distinguishes a real scheduling opportunity from compiler normalization, not beneficial latency from harmful latency.
+
+This does not reopen packed-RNE19cf (gate-on-up dependency/PRMT), gamma12.8/13 resource losses, RMW, LUT, or deeper-ring designs. Those scoped negatives remain intact. No external search was necessary: this task consumes exact local source/artifact evidence, not a new literature or toolchain claim.
+
+## Exact treatment and numerical/progress argument
+
+The sole edit is the `ws_helper` phase-A two-token epilogue: first prepare `gates[0]` and `gates[1]`, each under its original `tk < cnt` guard; then retain the original guarded loop computing independent up, SiLU, multiply, final BF16 and store. Both families use the same source patch: [Tiny diff](evidence/2026-11-01-short-scalar-interleave/tiny/source.patch), [Tiny2 diff](evidence/2026-11-01-short-scalar-interleave/tiny2/source.patch).
+
+For each valid token the unchanged gate chain is FP32 scale -> scalar BF16 RNE -> widen -> negation/exp -> FP32 denominator/division. Up remains independent FP32 scale -> scalar BF16 RNE -> widen, followed by the same FP32 multiply, `probe_q`, final BF16 conversion and `st_keep_bf16`. No packed math, fastmath, lookup, altered operator, reduction reorder or dependency on up is introduced. The second loop reads exactly those array elements initialized by the identical first-loop guard. Invalid tokens acquire no arithmetic/store. Arrays scalarize to registers; no stack/spill appears. Token store order and addresses remain unchanged. No shared/global access, barrier, fence, producer role, launch geometry, admission or reader-release protocol is changed by the patch. Thus this is not a new progress protocol and needs no co-residency assumption.
+
+## Actual emitted result
+
+All entries (`moe_fused<false>` and `<true>` in Tiny and Tiny2): **147 registers, 3 barriers, 0 stack bytes, 0 spill-store bytes, 0 spill-load bytes**, equal matching controls. Bounds remain maxntid288/minnctapersm1. Entire per-entry opcode histograms are identical, including scalar BF16, EX2/RCP, fences, stores and barriers. Normalized opcode/operand sequences differ in every entry; this is not merely debug-text variation. Tiny has5272 total instructions and Tiny2 has5320, unchanged.
+
+Shared remains the same extern dynamic shared declaration/alignment and unchanged layout/host launch source. The prior selected audit records214784B; this screen does not newly measure launch allocation or assembler fixed shared bytes. No host code or CUBIN is executed.
+
+The independent instruction exposed is **next-token gate scale/round/widen**, not up preparation feeding the gate. Representative Tiny treatment dataflow is predicated `FMUL R12,...; FMUL R13,...; F2F.BF16.F32 R12,R12; F2F.BF16.F32 R13,R13; IMAD.U32 R52,R12,0x10000,RZ; IMAD.U32 R53,R13,0x10000,RZ`. First-token EXP derives from R52; second-token EXP later derives from R53. Neither depends on up. In control, second gate preparation occurs only after first-token output. Tiny2 likewise prepares gates in R52/R53; its separately scheduled up in R14 does not feed EXP. Predicates preserve the original two validity conditions.
+
+Static EX2 positions (zero-based instruction indices, **not cycles**), identical in both bools: Tiny first4484->4487, second4504->4504; Tiny2 first4512->4515, second4539->4539. Moving gate1 ahead can hide its preparation under surrounding work, but also puts work before EXP0; there is no proof of a shorter critical path, SFU exposure reduction, or net saving. Exact control/treatment SASS windows and opcode counts for all four entries are in [summary.json](evidence/2026-11-01-short-scalar-interleave/summary.json); compressed complete PTX/SASS/CUBIN, source and logs are adjacent. PTX retains scalar `cvt.rn.bf16.f32`, widening, `ex2.approx.f32`, FP32 add/divide and final multiplication/conversion. PTX patch files include debug-data differences and are not by themselves a numerical proof; source reversal assertion plus dataflow inspection supports the narrow semantic argument.
+
+## Reproduction, identity and limits
+
+Control CUDA SHA256 `b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716`; treatment `e19b327883d93253089bea03e5910752b75ecf5a13586ed6b434bfc2a6117fc3`. Original device prefix `80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe`. Controls reused from the prior public607 archive only because the owning compiled audit establishes commonOFF/public607 complete short source/flags equality; manifests assert exact compiler-option equality again. Tiny WSBLK2; Tiny2 WSBLK1/CPF0. Both bool entries emitted per family, four successful treatment entries total.
+
+Reused unchanged fixed adapter SHA256 `e695ef03bda22d86167b829618429c7d139c23ad9cf96294edd1211388d5620c`, existing NVRTC13.0.88/PTXAS13.0.88 and nvdisasm13.0.85. Emitted PTX identifies compiler13.0.88/buildCL-36424714. Executable/library absolute paths, SHA256, version output, all selected defines and full command options are preserved in summary/manifests. NVRTC compute90a/C++17/lineinfo/device-default and PTXAS sm90a/O3/warn-spills match archived controls. Existing virtual type_traits/stdint and declaration-only `wgs_cta_of` adaptation remain unchanged. Device capture ends before Torch extension wrappers; **not exact target NVCC/host-preprocessor equivalence**.
+
+One initial NVRTC library-loader failure emitted no entries; retained under initial-loader-failure. Supplying LD_LIBRARY_PATH for the already-installed cu13 library allowed the same fixed treatment, without installation. [screen.py](evidence/2026-11-01-short-scalar-interleave/screen.py) preserves the exact source replacement and successful recipe; do not interpret its existence as authorization to rerun. Compiler work ended before report preparation; no GPU/driver/hostlink/judge/CLI execution occurred.
+
+## Whole-score dilution and next discriminator
+
+Affected selected routes are short T1/T8 (D1/V1), both contexts, only their phase-A helper epilogue. Four of twelve cells/two of six equally weighted loads are in scope; long routes remain untouched. If the *entire affected loads* improved uniformly by fraction d, the six-load geometric factor would be `(1-d)^(-1/3)`; 3% whole-six would require8.4858% reduction of those whole affected loads. This edits only a subregion, so actual exposure and dilution are unknown and substantially narrower than whole-load scope. This is arithmetic scope sizing, not a bound or forecast; no microseconds or saving inferred from instruction position/count.
+
+If captain separately budgets a paired experiment, its question must be whether this precise schedule reduces complete affected-load time with unchanged target emission/resources and outputs, under identical selected routing and matched independent controls. No gain on the affected cells, any math/operator/resource regression, or insufficient whole-six contribution ends this treatment; static difference alone does not earn promotion. This report requests no runtime allocation and creates no readiness loop. Captain owns indexing; README and shared logs remain untouched.

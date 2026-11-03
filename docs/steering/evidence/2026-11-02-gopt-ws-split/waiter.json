@@ -1,0 +1,9 @@
+{
+  "job_id": "3e6852d30c5c4535",
+  "exec_session": 75595,
+  "output": ".build/gopt-ws-split/status-wait.raw.json",
+  "mode": "sole foreground own-ID status --wait",
+  "terminal": true,
+  "exit_code": 0,
+  "archived_after_exit": true
+}

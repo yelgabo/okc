@@ -1,0 +1,114 @@
+test_budget_failure_after_preparation_cleans_guards (__main__.GeneratedTorch.test_budget_failure_after_preparation_cleans_guards) ... FAIL
+test_generated_entry_all_rows_and_inference_contexts (__main__.GeneratedTorch.test_generated_entry_all_rows_and_inference_contexts) ... ok
+test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) ... 
+  test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='native') ... FAIL
+  test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='replay') ... FAIL
+  test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='guard') ... FAIL
+  test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='local_ids') ... FAIL
+  test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='replay_output') ... FAIL
+  test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='unknown_owner') ... FAIL
+test_natural_routing_and_local_id_negatives (__main__.GeneratedTorch.test_natural_routing_and_local_id_negatives) ... ok
+test_original_hold_prevents_all_device_facades (__main__.GeneratedTorch.test_original_hold_prevents_all_device_facades) ... ok
+test_prepare_failure_cleans_new_guards (__main__.GeneratedTorch.test_prepare_failure_cleans_new_guards) ... FAIL
+test_reference_cache_real_versions_and_inference_front (__main__.GeneratedTorch.test_reference_cache_real_versions_and_inference_front) ... ok
+
+======================================================================
+FAIL: test_budget_failure_after_preparation_cleans_guards (__main__.GeneratedTorch.test_budget_failure_after_preparation_cleans_guards)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 377, in test_budget_failure_after_preparation_cleans_guards
+    self.assert_cleanup(host)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 303, in assert_cleanup
+    self.assertEqual(len(ns['_GUARDS']), 2 if success else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 363, in test_midrun_negative_cases_cleanup
+    self.assert_cleanup(host)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 303, in assert_cleanup
+    self.assertEqual(len(ns['_GUARDS']), 2 if success else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='replay')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 363, in test_midrun_negative_cases_cleanup
+    self.assert_cleanup(host)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 303, in assert_cleanup
+    self.assertEqual(len(ns['_GUARDS']), 2 if success else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='guard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 363, in test_midrun_negative_cases_cleanup
+    self.assert_cleanup(host)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 303, in assert_cleanup
+    self.assertEqual(len(ns['_GUARDS']), 2 if success else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='local_ids')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 363, in test_midrun_negative_cases_cleanup
+    self.assert_cleanup(host)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 303, in assert_cleanup
+    self.assertEqual(len(ns['_GUARDS']), 2 if success else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='replay_output')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 363, in test_midrun_negative_cases_cleanup
+    self.assert_cleanup(host)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 303, in assert_cleanup
+    self.assertEqual(len(ns['_GUARDS']), 2 if success else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_midrun_negative_cases_cleanup (__main__.GeneratedTorch.test_midrun_negative_cases_cleanup) (failure='unknown_owner')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 363, in test_midrun_negative_cases_cleanup
+    self.assert_cleanup(host)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 303, in assert_cleanup
+    self.assertEqual(len(ns['_GUARDS']), 2 if success else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_prepare_failure_cleans_new_guards (__main__.GeneratedTorch.test_prepare_failure_cleans_new_guards)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 369, in test_prepare_failure_cleans_new_guards
+    self.assert_cleanup(host)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-60aeffd8/tools/test_expert_top100_harness_torch.py", line 303, in assert_cleanup
+    self.assertEqual(len(ns['_GUARDS']), 2 if success else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1
+
+----------------------------------------------------------------------
+Ran 7 tests in 11.657s
+
+FAILED (failures=8)

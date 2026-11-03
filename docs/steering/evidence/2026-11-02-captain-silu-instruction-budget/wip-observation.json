@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-11-02T10:23:17.995Z",
+  "working_tree_generator_sha256": "56cab37ecfacdce536c3177110bbeec7b1bf0c3ffdb0d294dd0bad126afc93b5",
+  "status": "In-progress WIP snapshot, not final treatment or committed worker result",
+  "allocation": [
+    "BINDING = '''  TORCH_CHECK(scratch.size() == 4 && scratch[3].is_cuda()",
+    "  p.silu_table = (const float*)scratch[3].data_ptr();",
+    "ALLOCATION = '    st[\"ma_scratch\"].append(torch.empty(65536, dtype=torch.float32, device=dev))\\n'"
+  ],
+  "finding": "Production-only append does not change private startup scratch_factory=_ma_make_scratch. Existing scratch[3] also has optional debug meaning.",
+  "steer_message": "message:mcp:553603c2-bc9d-4850-9231-1656796ad0f4:thread-send:8b4e0964-52a2-4c1c-81c0-9e6d9091cd9d"
+}

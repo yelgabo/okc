@@ -1,0 +1,137 @@
+--- helper-b8ed8543
++++ WS-split
+@@ -1,3 +1,6 @@
++#ifndef OKC_WS_SPLIT
++#define OKC_WS_SPLIT 0
++#endif
+ 
+ // muse_moe_w4a16 v2: one persistent kernel: routing prologue, GEMM1+SwiGLU, GEMM2+norm stats, final norm/sum.
+ #include <cuda_bf16.h>
+@@ -149,6 +152,9 @@
+ constexpr float TWO62 = 4.611686018427388e18f;
+ 
+ struct Params {
++#if OKC_WS_SPLIT
++  int* ws_meta;
++#endif
+   const uint4* wA; const uint4* sA; const float* gsA;
+   const uint4* wB; const uint4* sB; const float* gsB;
+   const uint32_t* lut; const __nv_bfloat16* normw;  // post_norm_w as given (bf16); 1 + w is formed in FP32 here
+@@ -2404,6 +2410,15 @@
+ #if OKC_WS
+   WS_JOIN();  // the helper's last epilogue stores are visible
+ #endif
++#if OKC_WS_SPLIT
++  static_assert(OKC_WS && !OKC_WGS && NT == 256, "WS split selection");
++  if (blockIdx.x == 0) {
++    for (int i = tid; i < p.M * 8; i += NT)
++      reinterpret_cast<short*>(p.ws_meta)[i] = S.pos[i];
++    if (tid == 0) p.ws_meta[64] = S.gen;
++  }
++  return;
++#endif
+   // programmatic dependent launch: the next kernel may start its own prologue now (its griddepcontrol.wait still
+   // waits for this whole grid to finish and its writes to be visible)
+   asm volatile("griddepcontrol.launch_dependents;\n" ::: "memory");
+@@ -2585,6 +2600,48 @@
+ #endif
+   DBG(5);  // nothing to reset at exit: the flags were zeroed after the barrier, ss is double buffered
+ }
++
++
++#if OKC_WS_SPLIT
++__global__ void __launch_bounds__(256) ws_finalize(Params p) {
++  const int tid = threadIdx.x, it = blockIdx.x;
++  constexpr int FSEG = HD / (256 * 4);
++  const int tk = it / FSEG, col = (it % FSEG) * (256 * 4) + tid * 4;
++  const int gen = p.ws_meta[64];
++  const float* ss = (gen & 1) ? p.ss1 : p.ss;
++  int qvp[8];
++  float wvp[8];
++#pragma unroll
++  for (int s = 0; s < 8; ++s) {
++    qvp[s] = (int)reinterpret_cast<const short*>(p.ws_meta)[tk * 8 + s];
++    wvp[s] = qvp[s] >= 0 ? __ldg(p.topk_w + tk * 8 + s) : 0.f;
++  }
++  float ssv[8];
++  float4 yv[8];
++#pragma unroll
++  for (int s = 0; s < 8; ++s) {
++    ssv[s] = qvp[s] >= 0 ? __ldcg(ss + qvp[s]) : 0.f;
++    yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);
++  }
++  float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);
++#pragma unroll
++  for (int s = 0; s < 8; ++s) {
++    if (qvp[s] >= 0) {
++      const float r = wvp[s] * rsqrtf(ssv[s] * (1.f / HD) + 1e-8f);
++      acc.x += r * yv[s].x; acc.y += r * yv[s].y; acc.z += r * yv[s].z; acc.w += r * yv[s].w;
++    }
++  }
++  __nv_bfloat162 o0 = __floats2bfloat162_rn(acc.x, acc.y), o1 = __floats2bfloat162_rn(acc.z, acc.w);
++  uint2 o;
++  o.x = *reinterpret_cast<uint32_t*>(&o0);
++  o.y = *reinterpret_cast<uint32_t*>(&o1);
++  *reinterpret_cast<uint2*>(p.out + (size_t)tk * HD + col) = o;
++  const int i = it * 256 + tid;
++  if (i < JMAX) p.doneA[i] = 0;
++  if (i < 2) p.ctr[i] = 0;
++  if (i == 0) p.ctr[3] = (int)((unsigned)gen + 1u);
++}
++#endif
+ 
+ }  // namespace okc
+ 
+@@ -2649,7 +2706,15 @@
+   p.doneAs = nullptr;
+ #endif
+   p.out = (__nv_bfloat16*)out.data_ptr();
++#if OKC_WS_SPLIT
++  TORCH_CHECK(scratch.size() == 4 && scratch[3].scalar_type() == torch::kInt32
++              && scratch[3].numel() == 128, "WS_SPLIT metadata ABI");
++  TORCH_CHECK(p.M <= 16, "WS_SPLIT token bound");
++  p.ws_meta = (int*)scratch[3].data_ptr();
++  p.dbg = nullptr;
++#else
+   p.dbg = scratch.size() > 3 ? (unsigned long long*)scratch[3].data_ptr() : nullptr;
++#endif
+   static bool attr = false;
+   size_t sm = okc_smem_bytes();
+   if (!attr) {
+@@ -2684,7 +2749,32 @@
+   const cudaError_t launch=cudaLaunchCooperativeKernel((const void*)kernel,dim3((unsigned)grid),
+       dim3(okc::NTL),args,sm,st);
+   TORCH_CHECK(launch==cudaSuccess,"FORK_MOE_LAUNCH ",cudaGetErrorString(launch));
+-
+-}
+-
+-
++#if OKC_WS_SPLIT
++  okc::ws_finalize<<<p.M * 4, 256, 0, st>>>(p);
++  const cudaError_t finish = cudaGetLastError();
++  TORCH_CHECK(finish == cudaSuccess, "WS_SPLIT_FINALIZER ", cudaGetErrorString(finish));
++#endif
++
++}
++
++
++
++void okc_ws_finalize_probe(std::vector<torch::Tensor> a) {
++#if OKC_WS_SPLIT
++  TORCH_CHECK(a.size() == 7 && a[4].size(0) > 0 && a[4].size(0) <= 16,
++              "WS_SPLIT probe ABI");
++  okc::Params p{};
++  p.M = (int)a[4].size(0);
++  p.ws_meta = (int*)a[0].data_ptr();
++  p.ss = (float*)a[1].data_ptr(); p.ss1 = p.ss + okc::EMAX;
++  p.ybuf = (float*)a[2].data_ptr(); p.topk_w = (const float*)a[3].data_ptr();
++  p.out = (__nv_bfloat16*)a[4].data_ptr();
++  p.ctr = (int*)a[5].data_ptr(); p.doneA = (int*)a[6].data_ptr();
++  cudaStream_t st = at::cuda::getCurrentCUDAStream();
++  okc::ws_finalize<<<p.M * 4, 256, 0, st>>>(p);
++  const cudaError_t result = cudaGetLastError();
++  TORCH_CHECK(result == cudaSuccess, "WS_SPLIT probe launch ", cudaGetErrorString(result));
++#else
++  TORCH_CHECK(false, "WS_SPLIT probe requires split build");
++#endif
++}

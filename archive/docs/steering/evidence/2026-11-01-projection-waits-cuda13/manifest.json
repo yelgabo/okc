@@ -1,0 +1,45 @@
+{
+  "source_sha256": "f86b8064b33c1f516144392e4633bf54a2bdffc6985662f022cf86cd23292b66",
+  "device_sha256": "f86b8064b33c1f516144392e4633bf54a2bdffc6985662f022cf86cd23292b66",
+  "adapters": [
+    "Generated device-only input, no device body removed",
+    "stdint.h virtual fixed-width declarations"
+  ],
+  "virtual_stdint": "#pragma once\ntypedef unsigned char uint8_t; typedef signed char int8_t;\ntypedef unsigned short uint16_t; typedef short int16_t;\ntypedef unsigned int uint32_t; typedef int int32_t;\ntypedef unsigned long uint64_t; typedef long int64_t;\ntypedef unsigned long uintptr_t; typedef long intptr_t;\n",
+  "virtual_stdlib": "#pragma once\ntypedef unsigned long size_t; typedef long ptrdiff_t;\n",
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+    "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include"
+  ],
+  "expressions": [],
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "toolchain": {
+    "nvrtc_library": "/root/.cache/okc-cuda130-88/nvidia/cu13/lib/libnvrtc.so.13",
+    "nvrtc_version": [
+      13,
+      0
+    ],
+    "ptxas_version": "ptxas: NVIDIA (R) Ptx optimizing assembler\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:55:12_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "nvdisasm_version": "nvdisasm: NVIDIA (R) CUDA disassembler\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Thu_Aug_14_07:20:41_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.85\nBuild cuda_13.0.r13.0/compiler.36400806_0\n"
+  },
+  "lowered": [],
+  "cubin_sha256": "33edd065530e7182cae930a508496b0b0bbfae3566d0dd913804f30861e1dc81",
+  "ptx_sha256": "cddb1fd51eccde6c0eeff2bf47ce18fc660b75418347295237abb3ac9acdd8ae",
+  "sass_sha256": "6eed441254c8febe80fd9aaa190d10a6d78aa6e6e40001848b9f7b69dd085815",
+  "ptxas_command": [
+    "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    ".build/today/projection-cuda13/device.ptx",
+    "-o",
+    ".build/today/projection-cuda13/device.cubin"
+  ],
+  "ptxas_status": 0
+}

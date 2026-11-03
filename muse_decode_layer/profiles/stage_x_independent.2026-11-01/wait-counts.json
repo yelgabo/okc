@@ -1,0 +1,38 @@
+{
+  "ctrl": {
+    "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+      "hgmma": 512,
+      "wait1": 0,
+      "wait0": 512
+    },
+    "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+      "hgmma": 512,
+      "wait1": 0,
+      "wait0": 512
+    }
+  },
+  "stage-x": {
+    "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+      "hgmma": 512,
+      "wait1": 256,
+      "wait0": 48
+    },
+    "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+      "hgmma": 512,
+      "wait1": 256,
+      "wait0": 48
+    }
+  },
+  "g0-grid": {
+    "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+      "hgmma": 512,
+      "wait1": 256,
+      "wait0": 16
+    },
+    "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+      "hgmma": 512,
+      "wait1": 256,
+      "wait0": 16
+    }
+  }
+}

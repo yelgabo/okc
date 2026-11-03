@@ -1,0 +1,5 @@
+{
+  "bulk_copy_instructions": 2,
+  "global_v4_u32": 256,
+  "static_order_scope": "attributed PTX excerpt only; dynamic overlap/cache behavior unmeasured"
+}

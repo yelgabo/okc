@@ -1,0 +1,9 @@
+{
+  "state": "DISPATCH_STARTED",
+  "mode": "submit",
+  "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+  "source": "muse_moe_w4a16/cand/current_control_release.py",
+  "private_job": "64f9998ef238476f",
+  "utc": "2026-11-03T05:46:54.158302+00:00",
+  "authorization": "User directly approved submitting the tested MoE file5df257af and continuing toward5559.8us."
+}

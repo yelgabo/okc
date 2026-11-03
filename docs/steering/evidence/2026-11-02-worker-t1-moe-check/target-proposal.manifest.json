@@ -1,0 +1,336 @@
+{
+  "allocation_commit": "aa4e5cfec1f1b081ac50e3c62c53fdea511d282c",
+  "source_sha256": "5f10e2d73571d0cafa6d2fd4ab3dcf068f99979cf3d8c77470b63bab31fa0f58",
+  "bytes": 370480,
+  "runtime_id": "8d4c2ee6eb23aef4150eff34af387a65a6e5f85850432c9cb78139d93dd3118e",
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "native_control_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "native_candidate_sha256": "dbdd3381cc9b823afb9e7d8678bba536cd5d6e3731896153aee9908652237447",
+  "t1_cuda_flags": [
+    "-O3",
+    "-gencode=arch=compute_90a,code=sm_90a",
+    "-lineinfo",
+    "-DOKC_NS=3",
+    "-DOKC_FNST=4",
+    "-DOKC_NSF=3",
+    "-DOKC_NW=8",
+    "-DOKC_TINY=1",
+    "-DOKC_EPI4=0",
+    "-DOKC_FAST1=2",
+    "-DOKC_L2H=0",
+    "-DOKC_NACC=4",
+    "-DOKC_UWARP=0",
+    "-DOKC_WS=1",
+    "-DOKC_WSB=1",
+    "-DOKC_WSBL=2",
+    "-DOKC_WSBLK=2",
+    "-DOKC_FINPF=1",
+    "-DOKC_PRMTSC=1",
+    "-DOKC_DQ7=1"
+  ],
+  "t1_host_flags": [
+    "-O3",
+    "-std=c++20"
+  ],
+  "compiler_calls": [
+    {
+      "name": "glue_moe_415a2bdc6eb73960_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_b2495a009a910301_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_1b555edc8284ed23_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_7e37cd900cb88979_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_45a005177ff52c30_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "t1_three_launch_v1",
+      "cpp_sources": "64986286b26616a9fe70c885b53aee9c409af0ed694cd16f1ece47df62193b75",
+      "cuda_sources": "dbdd3381cc9b823afb9e7d8678bba536cd5d6e3731896153aee9908652237447",
+      "functions": [
+        "t1_three_run"
+      ],
+      "extra_cflags": [
+        "-O3",
+        "-std=c++20"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    }
+  ],
+  "closure": {
+    "_stored_pos": {
+      "original_sha256": "8bc36467551224e002637fa2ed0aaf1d37431b85cbd3d9a8422cd6cb6a8d7836",
+      "emitted_sha256": "8bc36467551224e002637fa2ed0aaf1d37431b85cbd3d9a8422cd6cb6a8d7836"
+    },
+    "_pack_codes": {
+      "original_sha256": "a03c96e2a25f6f292c4e2f87be3df650b519ba5bce1a6d4eba11ac50ab7444e1",
+      "emitted_sha256": "a03c96e2a25f6f292c4e2f87be3df650b519ba5bce1a6d4eba11ac50ab7444e1"
+    },
+    "_pack_scales": {
+      "original_sha256": "e1597839a290d3d1c179e4f24402852fb0983181458b34d8bc37f1a1ad7a9e80",
+      "emitted_sha256": "e1597839a290d3d1c179e4f24402852fb0983181458b34d8bc37f1a1ad7a9e80"
+    },
+    "_sc6_ok": {
+      "original_sha256": "3e82c3bda16c9d470d4f96d62f22530a4ef341929e05f0e3a4bcb1c4e7bddac0",
+      "emitted_sha256": "3e82c3bda16c9d470d4f96d62f22530a4ef341929e05f0e3a4bcb1c4e7bddac0"
+    },
+    "_sc6_wgs": {
+      "original_sha256": "845d7208ee62e059b683d774d9e59ebddb5be1c383f378e4f217c0cd92aeb793",
+      "emitted_sha256": "845d7208ee62e059b683d774d9e59ebddb5be1c383f378e4f217c0cd92aeb793"
+    },
+    "_fat_order": {
+      "original_sha256": "e7b5a72ac71e8a95544010d512e39ba2f45706af3b1afc5164ddfc00913912d5",
+      "emitted_sha256": "e7b5a72ac71e8a95544010d512e39ba2f45706af3b1afc5164ddfc00913912d5"
+    },
+    "_unit_order": {
+      "original_sha256": "0128938a4653f1b8a5a1d8f16f68d35714dc0ac017d53b8bc7112e7aa5850d73",
+      "emitted_sha256": "0128938a4653f1b8a5a1d8f16f68d35714dc0ac017d53b8bc7112e7aa5850d73"
+    },
+    "_pack_codes_nat": {
+      "original_sha256": "1a05474aa4c7a15312b79b5c51bdf8d2110dcc108ee6598eb78b01f2b1eecca8",
+      "emitted_sha256": "1a05474aa4c7a15312b79b5c51bdf8d2110dcc108ee6598eb78b01f2b1eecca8"
+    },
+    "_kperm_src": {
+      "original_sha256": "eb51a28459768c9903bf3861e533516f62e161482e568b8d47d15aac5239528b",
+      "emitted_sha256": "eb51a28459768c9903bf3861e533516f62e161482e568b8d47d15aac5239528b"
+    },
+    "_kperm_codes": {
+      "original_sha256": "2cec244328dc98e0688dee109549e0dc47eda3b5485b245c5050d9ed2e593f31",
+      "emitted_sha256": "2cec244328dc98e0688dee109549e0dc47eda3b5485b245c5050d9ed2e593f31"
+    },
+    "_kperm_rows": {
+      "original_sha256": "324d5bfe0d8e713313b70f167c427fab5d0166b2bbc6422c0a48b1ea106d47fc",
+      "emitted_sha256": "324d5bfe0d8e713313b70f167c427fab5d0166b2bbc6422c0a48b1ea106d47fc"
+    },
+    "_wgs_copy": {
+      "original_sha256": "8ef140c12b49198f76479fa8213d22e791c0b1ee32bde0c0d7fe50bbaffce7fd",
+      "emitted_sha256": "8ef140c12b49198f76479fa8213d22e791c0b1ee32bde0c0d7fe50bbaffce7fd"
+    },
+    "_wgs_on": {
+      "original_sha256": "bad3929ba346e569cf5c259499db1f9aa3330e0fa535bb97693bfabc29afb295",
+      "emitted_sha256": "bad3929ba346e569cf5c259499db1f9aa3330e0fa535bb97693bfabc29afb295"
+    },
+    "_ma_scales_prmt_exact": {
+      "original_sha256": "bb78f911b1b801cf1e048d34d40b573ddf69c016c5a6f99729b324231eaa185a",
+      "emitted_sha256": "bb78f911b1b801cf1e048d34d40b573ddf69c016c5a6f99729b324231eaa185a"
+    },
+    "_main_defines": {
+      "original_sha256": "397205c6c2ae1e557fcc575e0ba91bcb821ac787e2ea5ad7f98acfca2d7c6a51",
+      "emitted_sha256": "397205c6c2ae1e557fcc575e0ba91bcb821ac787e2ea5ad7f98acfca2d7c6a51"
+    },
+    "_ma_ext": {
+      "original_sha256": "7d6432159d118a61f4f2ff29af5b841779ca45e7d4d9e563dba1e82588fcf167",
+      "emitted_sha256": "7d6432159d118a61f4f2ff29af5b841779ca45e7d4d9e563dba1e82588fcf167"
+    },
+    "_df_inter": {
+      "original_sha256": "7e3f70716a093c58071be8cdef343ac9fc9a2e9f325b6b6aaeb643c5018d062b",
+      "emitted_sha256": "7e3f70716a093c58071be8cdef343ac9fc9a2e9f325b6b6aaeb643c5018d062b"
+    },
+    "_ma_make_scratch": {
+      "original_sha256": "195d3956c8c8ddb84992e44039ad787570e8a7da256a5b353dc59604fbbf489d",
+      "emitted_sha256": "195d3956c8c8ddb84992e44039ad787570e8a7da256a5b353dc59604fbbf489d"
+    },
+    "_fork_native_ma_prepare": {
+      "original_sha256": "1bdae7436f8f176d150880547bb7ce96121f0ffaff469145d6b2a528c192ff00",
+      "emitted_sha256": "bebba905a30305338f16668b390c2b63367970f9b89c6e2446d3435827e17f4b"
+    },
+    "_fork_native_moe": {
+      "original_sha256": "beb6f1e488e0babd69ed1dcff3bbc75a36ad75f16b96bfefceaac7e673c93228",
+      "emitted_sha256": "beb6f1e488e0babd69ed1dcff3bbc75a36ad75f16b96bfefceaac7e673c93228"
+    },
+    "_RouterExt": {
+      "original_sha256": "761dfa46a7c863f148a387934856fd440ded396f1e56b79becc06a5ed99357e7",
+      "emitted_sha256": "761dfa46a7c863f148a387934856fd440ded396f1e56b79becc06a5ed99357e7"
+    }
+  },
+  "official_arm": "candidate2",
+  "affected_tokens": [
+    1
+  ],
+  "original_control_tokens": [
+    4,
+    8,
+    16,
+    32,
+    33,
+    128,
+    256,
+    257
+  ],
+  "hold": false,
+  "dispatch_ready": false,
+  "gpu_qualified": false,
+  "reference_sha256": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+  "nvfp4_sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+  "contract_sha256": "a735959474dadcc10c4228df458a0cf385dc3a0f4a3516d65564a8dae9192565",
+  "reader_canonical_lf_sha256": "b1422b5cb05505b094c309c6fb4c11e5d9f7103de3a1e735bf9b632d3cca0ffa",
+  "pending": [
+    "captain review and separate target allocation",
+    "target C++20 host build/load and four-state295s fit",
+    "official FP32 and actual CUDA replay qualification",
+    "frozen equal-six/null/T1-regression gate",
+    "separate layer qualification; no public/default promotion"
+  ]
+}

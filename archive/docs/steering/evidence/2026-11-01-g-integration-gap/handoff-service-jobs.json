@@ -1,0 +1,10 @@
+{
+  "recorded_utc": "2026-11-01T21:09:51.406606+00:00",
+  "args": [
+    "jobs",
+    "--json"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "\u2717 the API answered 530 ; try again in a minute\n"
+}

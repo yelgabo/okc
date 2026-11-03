@@ -1,0 +1,118 @@
+{
+  "scope": {
+    "started_utc": "2026-11-02T13:03:53Z",
+    "frozen_utc": "2026-11-02T13:10:12.273Z",
+    "mode": "source-only; no target/compiler/driver/kernel work",
+    "base_report_commit": "e3b815fc002fef850fb47f2850c748953bcea7df",
+    "pytorch_commit": "2b3ec34829036a65cd9d1398ea72a0167dc37470",
+    "decision": "Public owning from_blob is simpler API route; runtime lifetime/eligibility/compression/speed unproved"
+  },
+  "primary_sources": [
+    {
+      "url": "https://docs.pytorch.org/cppdocs/api/aten/creation.html",
+      "status": 200,
+      "sha256": "2eff110da46c711736bf75a8af3cb24142e9c54dca31b8adefe25d3d973a14ff",
+      "bytes": 98623,
+      "fetched_utc": "2026-11-02T13:04:51.229Z"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/2.14/torch_cuda_memory.html",
+      "status": 200,
+      "sha256": "1f1b84dd72d0f07c906257f75b6e662e72431f92aca416a0141f9e1ff485083f",
+      "bytes": 681624,
+      "fetched_utc": "2026-11-02T13:04:51.542Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/aten/src/ATen/ops/from_blob.h",
+      "status": 200,
+      "sha256": "1e35b02630eeaac62af6e018eef6d957121c1d386fa905f865f1542de0b1580b",
+      "bytes": 4145,
+      "fetched_utc": "2026-11-02T13:04:51.670Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/aten/src/ATen/templates/Functions.cpp",
+      "status": 200,
+      "sha256": "129eda0f39dbcbc8a1014ed40e294078ed1d2758632a044455b891eaa949d383",
+      "bytes": 3098,
+      "fetched_utc": "2026-11-02T13:04:51.866Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/aten/src/ATen/native/cuda/RecordStream.cu",
+      "status": 200,
+      "sha256": "a161dbe684c9fd0a5719c216453f34c4b6e3b4d7755a83bf10059b5c3333a01e",
+      "bytes": 561,
+      "fetched_utc": "2026-11-02T13:04:51.992Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/c10/core/Allocator.h",
+      "status": 200,
+      "sha256": "e496cd947b5fd46067c9bd0ccf75633c9099035b159ad01d2aa97d35f05c2431",
+      "bytes": 14328,
+      "fetched_utc": "2026-11-02T13:06:55.227Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/c10/core/Allocator.cpp",
+      "status": 200,
+      "sha256": "b2d35a52de9d905b7701b5ca4a35eb29198a521364420da7efd33252865c43b5",
+      "bytes": 2811,
+      "fetched_utc": "2026-11-02T13:06:55.358Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/c10/cuda/CUDACachingAllocator.cpp",
+      "status": 200,
+      "sha256": "c0f0b0d3540a021b213b1683eb03773e05b98656153cd59a374003456378d9aa",
+      "bytes": 198823,
+      "fetched_utc": "2026-11-02T13:06:55.553Z"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__CTX.html",
+      "status": 200,
+      "sha256": "b8a2e1b0692a185ccae9b95d9a1b8850f5b21302d5aad734f3c4700d93ba137e",
+      "bytes": 156774,
+      "fetched_utc": "2026-11-02T13:08:21.879Z"
+    }
+  ],
+  "proofs": [
+    {
+      "source": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/aten/src/ATen/ops/from_blob.h",
+      "literal": "std::function<void(void*)> deleter",
+      "claim": "Public deleter overload accepts TensorOptions and optional target_device"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/aten/src/ATen/templates/Functions.cpp",
+      "literal": "Storage storage{Storage::use_byte_size_t{}, size_bytes, std::move(data_ptr)",
+      "claim": "Storage owns supplied DataPtr; no-resize default; contiguous sizes without strides"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/c10/core/Allocator.h",
+      "literal": "deleter_(ptr_);",
+      "claim": "Retained callable invoked on context destruction; no stream parameter"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/c10/cuda/CUDACachingAllocator.cpp",
+      "literal": "if (ptr.get_deleter() != &local_raw_delete)\n      return;",
+      "claim": "Native caching allocator skips this foreign DataPtr for recordStream"
+    },
+    {
+      "source": "https://docs.pytorch.org/docs/2.14/torch_cuda_memory.html",
+      "literal": "cuMemCreate",
+      "claim": "Official documentation explicitly includes direct cuMemCreate in allocations not visible to memory profiler"
+    }
+  ],
+  "remaining": [
+    "Actual installed ABI/library/capability/GENERIC property untested",
+    "Explicit state/plan/graph owner and safe no-future-use retirement integration untested",
+    "Rules do not specifically adjudicate binding",
+    "No compressibility or end-to-end timing evidence"
+  ],
+  "unchanged": {
+    "job": "607eb52bdaf24160",
+    "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "shape": [
+      4608,
+      8192
+    ],
+    "dtype": "BF16",
+    "logical_bytes": 75497472
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "job": "16b4db27421d4714",
+  "command": [
+    "wsl",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    ".build/rmw-pair-v3/wait-own.py"
+  ],
+  "terminal_stdout": "own-terminal-receipt.json",
+  "no_retry": true,
+  "exec_session_id": 92724,
+  "script_sha256": "154cba059dca00c2f64b47b0c280f1a46cede562cb226a8cf811c01fbad97930"
+}

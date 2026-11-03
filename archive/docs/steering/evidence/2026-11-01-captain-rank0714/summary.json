@@ -1,0 +1,161 @@
+{
+  "observed_utc": [
+    {
+      "name": "overall",
+      "url": "https://openkernelchallenge.dev/api/leaderboard",
+      "status": 200,
+      "observed_utc": "2026-11-02T07:14:10.696Z",
+      "bytes": 82075
+    },
+    {
+      "name": "muse_decode_layer",
+      "url": "https://openkernelchallenge.dev/api/leaderboard/muse_decode_layer",
+      "status": 200,
+      "observed_utc": "2026-11-02T07:14:10.752Z",
+      "bytes": 177577
+    },
+    {
+      "name": "muse_bf16_proj",
+      "url": "https://openkernelchallenge.dev/api/leaderboard/muse_bf16_proj",
+      "status": 200,
+      "observed_utc": "2026-11-02T07:14:10.812Z",
+      "bytes": 243826
+    },
+    {
+      "name": "muse_moe_w4a16",
+      "url": "https://openkernelchallenge.dev/api/leaderboard/muse_moe_w4a16",
+      "status": 200,
+      "observed_utc": "2026-11-02T07:14:10.872Z",
+      "bytes": 195522
+    },
+    {
+      "name": "muse_attention_decode",
+      "url": "https://openkernelchallenge.dev/api/leaderboard/muse_attention_decode",
+      "status": 200,
+      "observed_utc": "2026-11-02T07:14:10.969Z",
+      "bytes": 188372
+    }
+  ],
+  "asset": {
+    "url": "https://openkernelchallenge.dev/assets/index-VBg5pvCv.js",
+    "bytes": 448958,
+    "sha256": "25be306883059fe907ffba40f3f303427b9f88f861ae9ff62afec57762b72358"
+  },
+  "archives": [
+    {
+      "board": "overall",
+      "path": "docs/steering/evidence/2026-11-01-captain-rank0714/overall.json.gz",
+      "format": "gzip of parsed response reserialized as compact JSON + LF; not original transport bytes",
+      "uncompressed_bytes": 82076,
+      "sha256": "4fbbe61e60980ca316ae82056a50b1afa9ef3ab632a68bc4e3685ddacf8e1906",
+      "gzip_sha256": "3c0a89acd5e43f4c12ce6a134b2e24435630f1e3d1ee4148738660bed91447d4"
+    },
+    {
+      "board": "muse_decode_layer",
+      "path": "docs/steering/evidence/2026-11-01-captain-rank0714/muse_decode_layer.json.gz",
+      "format": "gzip of parsed response reserialized as compact JSON + LF; not original transport bytes",
+      "uncompressed_bytes": 177578,
+      "sha256": "14a258acf73a6a6de369b953956ce3300b5863abebe2a58205442065d16c2a07",
+      "gzip_sha256": "bfc42cddb50c1639f68040c569123082579570572e361356640a6906ee28f953"
+    },
+    {
+      "board": "muse_bf16_proj",
+      "path": "docs/steering/evidence/2026-11-01-captain-rank0714/muse_bf16_proj.json.gz",
+      "format": "gzip of parsed response reserialized as compact JSON + LF; not original transport bytes",
+      "uncompressed_bytes": 243827,
+      "sha256": "1ff984f4555d554ccbc5d10ec2160d938fd3146a5648faa51dd7d3dabf67d8d5",
+      "gzip_sha256": "3463305cb27d290d18f5e040c76d066695a28982868b5ed335ae911ab8affd38"
+    },
+    {
+      "board": "muse_moe_w4a16",
+      "path": "docs/steering/evidence/2026-11-01-captain-rank0714/muse_moe_w4a16.json.gz",
+      "format": "gzip of parsed response reserialized as compact JSON + LF; not original transport bytes",
+      "uncompressed_bytes": 195523,
+      "sha256": "31efea03c7ae327de8a500b2ca8a375387a0deff61490ebe4934db0f152cbba9",
+      "gzip_sha256": "bf862c4bbe0b848b4bdd289aa523e7db6d3cc6245e093909a39ec0d8001c15f6"
+    },
+    {
+      "board": "muse_attention_decode",
+      "path": "docs/steering/evidence/2026-11-01-captain-rank0714/muse_attention_decode.json.gz",
+      "format": "gzip of parsed response reserialized as compact JSON + LF; not original transport bytes",
+      "uncompressed_bytes": 188373,
+      "sha256": "7f85d11a36621dbbb9fbf3b81f9eec16dfda994fe6ff6c31c938cbe4ab6dd38d",
+      "gzip_sha256": "36ec8ca1e07f366938e4d8287734bfe447c426ca31dd7eec8828660fbe2210e8"
+    }
+  ],
+  "own": {
+    "overall": {
+      "rank": 344,
+      "team": "yelgabo",
+      "solved": 4
+    },
+    "problems": {
+      "muse_decode_layer": {
+        "job": "607eb52bdaf24160",
+        "team": "yelgabo",
+        "speedup": 2.1260826764231093,
+        "submitted_at": 1793534312.3883686,
+        "attempts": 42,
+        "value": 10639.426326569794,
+        "position": 344
+      },
+      "muse_bf16_proj": {
+        "job": "9eba96894ee1402e",
+        "team": "yelgabo",
+        "speedup": 1.5278064829557674,
+        "submitted_at": 1793509752.4725015,
+        "attempts": 33,
+        "value": 3161.918773020326,
+        "position": 339
+      },
+      "muse_moe_w4a16": {
+        "job": "abe7651dbaa44458",
+        "team": "yelgabo",
+        "speedup": 2.2157115620135492,
+        "submitted_at": 1793321438.0973241,
+        "attempts": 25,
+        "value": 6069.607719056422,
+        "position": 411
+      },
+      "muse_attention_decode": {
+        "job": "8914751e3b9f468b",
+        "team": "yelgabo",
+        "speedup": 2.6042902049472674,
+        "submitted_at": 1793510570.8706555,
+        "attempts": 25,
+        "value": 1446.1905945986007,
+        "position": 237
+      }
+    }
+  },
+  "layer_target": {
+    "position": 100,
+    "job": "a52bb8684f1f4f50",
+    "team": "LDD19",
+    "speedup": 2.2614101250620653,
+    "submitted_at": 1793581573.8533838,
+    "attempts": 26,
+    "value": 10002.741099153422,
+    "required_score_gain": 0.06365107535076153,
+    "required_whole_six_latency_reduction": 0.05984206364833622
+  },
+  "ordering": {
+    "first500_overall_layer_mismatches": 0,
+    "first_overall_layer_difference": {
+      "rank": 528,
+      "overall": "taroigarashi2001",
+      "layer": "osirishorus"
+    },
+    "rejected_models": [
+      {
+        "model": "min(layer equivalent time, sum of three complete-component equivalent times), missing complete components infinity",
+        "mismatches": 1832
+      },
+      {
+        "model": "layer time when present; otherwise sum of component equivalent times with fixed baseline defaults",
+        "mismatches": 1756
+      }
+    ],
+    "universal_formula": "NOT ESTABLISHED; component values are equivalent geometric-score times, not necessarily additive per-load times"
+  }
+}

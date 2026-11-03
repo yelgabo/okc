@@ -857,7 +857,7 @@ of the geometry change: about +0.06% of layer score at 0.079% per us.
 
 ## 2026-10-30 standalone round: direct cuBLASLt and router geometry (P1)
 
-Brief: `docs/steering/2026-10-30-attention-projection-standalone-roadmap.md`, sections 5-7.
+Brief: `archive/docs/steering/2026-10-30-attention-projection-standalone-roadmap.md`, sections 5-7.
 Reference: NathenFernandes/muse-bf16-proj, branch `solution`, commit 86aff75 (MIT), v18
 submission (judged 1.5186x, 66d8b007f6c641ee), per-shape CSV blob f3ab30a0. Its source was
 expanded offline with an AST transform of our own (no execution) and read; its router kernels
@@ -1298,7 +1298,7 @@ Scored 2026-10-30: d85d0081fa8a4a43 1.4976x, submission.py at 2265fa2 (split exi
 ## 2026-10-30 round 5: frontier map and the qkv_gate one-wave cluster split (branch worktree-agent-a397d671218195a46)
 
 Brief (coordinator): top 100 on this board (rank 100 at 1.5560, we are 1.4976). Frontier map and
-portfolio in docs/steering/2026-10-30-projection-top100.md (`tools/proj_frontier.py`). Built the
+portfolio in archive/docs/steering/2026-10-30-projection-top100.md (`tools/proj_frontier.py`). Built the
 top structural option that fit the one check left today: qkv_gate at 8 / 16 / 32 tokens in one
 wave. The P2 decline row names the reopen condition (a geometry with <= 132 CTAs); its cited
 losers ran 144-192 CTAs, and the coordinator agreed this meets it.
@@ -1351,7 +1351,7 @@ handed to the coordinator.
 
 ## 2026-10-30: F-PROJ-0 (Family F donor comparison)
 
-Family F track F-PROJ (docs/steering/2026-10-30-family-f-donor-baseline.md). Question: is the
+Family F track F-PROJ (archive/docs/steering/2026-10-30-family-f-donor-baseline.md). Question: is the
 complete alygg77 projection file faster than our frozen release under matched controls, and if
 so, which mechanisms carry the gain? Per the user's 2026-10-31 decision (relayed by the
 coordinator), Family F is measurement only: donor code is never submitted, and a donor win
@@ -1537,7 +1537,7 @@ archived 1.5502x is not reproduced or claimed here.
 Brief (coordinator): no-quota work model for a denser lossless code, a verdict on the dense
 whole-output-tile sketch, and two prepared benches (batched GEMM at m = 256, router reference
 differences); after the reset, up to 4 checks. Full write-up: addendum 2026-10-31 in
-docs/steering/2026-10-30-projection-top100.md. Code: `tools/proj_codec_model.py`,
+archive/docs/steering/2026-10-30-projection-top100.md. Code: `tools/proj_codec_model.py`,
 `tools/proj_make_bench_bg.py`, `tools/proj_make_bench_rg.py`, `tools/proj_make_bench_lts.py`;
 bench-only wd VAR bits WV_PGROUP / WV_ACQCL / WV_SCALAR in submission.py (production SASS 81 of 81
 kernels instruction-identical against bc10cb1, nvcc 12.8 sm_90a).
@@ -1758,3 +1758,512 @@ and on rd at pooler 8 / o 8: bytes 736 / 704 equivalents, decode ALU, ALU + LUT 
 and q12 models; cgemv CPT 2 variants checked spill-free after making the LUT reads dependent).
 Production SASS 92 / 92 instruction-identical to C2 (names normalized for the new defaulted
 template parameters).
+
+## October31 PDT, top10 campaign: prepared round9 checks dispatched
+
+Owner branch `codex/today-proj`, evidence/source `d3eeeda`; separate worktree
+`C:/Users/gretc/Documents/GitHub/okc-today-proj`. User goal now expressly authorizes using
+today's checks and submits toward top10 on each board; only root dispatches scored runs.
+Existing C2 exact file from `3044ee7`, SHA256
+`b2c4c096410e2d282d5e1eb3f2afa083f61e68d26d085deede43915bfc7efbdc`, frozen for root at
+`.build/today/cand_c2.py`. Its existing single-file receipt `5c4e4e99b6ec450f` and paired
+`696179090d264f38` remain the validation evidence; no redundant check dispatched.
+
+| date | job | kind | source | change | score (95%CI) | notes |
+|---|---|---|---|---|---|---|
+|10-31 PDT|075dc89d74d144d6|check|d3eeeda|tools/proj_make_bench_cx.py: remaining codec factorial, cgemv m1 and rd m8|pending|Timing-only arms are models, not submission candidates; control judged path unchanged|
+|10-31 PDT|3170985420f74869|check|d3eeeda|tools/proj_make_bench_rg.py round rk-c: tensor-map prefetch F, uniform descriptor V, F+V, order-only memset join|pending|14 owned wd arms, no donor code; independent nulls; no ordering protocol change in tested candidate additions|
+
+Both jobs confirmed problem muse_bf16_proj at dispatch. Bench sources are in persistent
+ignored `.build/today/codec_cx.py` and `.build/today/router_rkc.py`; generated directly by
+the committed builders, then checked with `okc check FILE --no-wait --json`. Wait on these
+exact job IDs; save receipts and log every outcome before adopting or closing a mechanism.
+
+### Round9 results and owned router candidate C3
+
+`075dc89d74d144d6`: passed9/9, unchanged control1.520695x (95%CI1.497885–1.543506).
+The cgemv/rd codec model did not justify a real codec build. Pair7 model minus prod: qkv1
++2.50us, o1 +2.02, pooler1 +6.34, slice1 +1.34, rdpool8 +1.23, rdo8 +0.42. Even bytes-only
+model unexpectedly loses qkv1 +0.96us and pooler1 +4us, so branch/load-shape/codegen
+perturbation prevents treating it as an ideal memory-traffic ceiling. This closes this
+knock-in model as positive evidence for immediate implementation, not all denser codecs.
+
+`3170985420f74869`: passed9/9, unchanged control1.519524x (95%CI1.496731–1.542317).
+Router paired100-round differences against the owned base, after replay overhead:
+
+|tokens|variant|delta us / rounds faster|duplicate/null|
+|---|---|---|---|
+|128|F tensor-map prefetch|-0.03/53|base duplicate+0.03/46|
+|128|V uniform descriptors|-0.34/76|same|
+|128|F+V|-0.42/88|independent F+V duplicate-0.46/92|
+|256|F+V production r128c8s6|-0.06/53|base duplicate-0.03/51|
+|256|r64c8s8 KLE+GRED+GZERO+RKORD|-0.46/85|production copy-0.03/58|
+|256|same +F+V|-0.62/91|same|
+
+Owned candidate C3 adds two configurations to prepare's existing correctness-gated tuner:
+`r64c8s8fv` at KLUEYZ+F+V, `r64c8s8ordfv` at KLE+GRED+GZERO+RKORD+F+V. Incumbents retained.
+No GTICKET, unbounded spin, fence removal or new ordering protocol. Existing `launch_wd`
+GZERO code calls cudaMemsetAsync on the full output before its atomic-red kernel, so no
+host wrapper change is needed. Router128 signal is strong;256 remains a component signal
+pending clean-candidate and independent confirmation. Not yet a shippable gain.
+
+|date|job|kind|source|change|score (95%CI)|notes|
+|---|---|---|---|---|---|---|
+|10-31 PDT|61330d87d32c4190|check|today-proj C3|clean source with the two measured router configurations|pending|.build/today/cand_c3.py; judged candidate rather than appended bench|
+|10-31 PDT|7d2fe593fdfa4720|check|today-proj C3 + committed rk-c builder|paired confirmation of F/V and order-only join|pending|generator5353/order4000 replacing4343/3000; fresh weights and same independent nulls|
+
+### Scored by root: C2 repeat, October31 PDT
+
+Root scored `9eba96894ee1402e`, same C2 source `3044ee7` (comment-only repeat after
+duplicate `68248e326be14626`): passed9/9, **1.527806x**,95%CI1.504889–1.550724.
+This becomes a higher headline than C1's1.516978x, with overlapping uncertainty. Do not
+attribute the full headline movement to a new kernel; C2's owned paired improvement remains
+the earlier `696179090d264f38` evidence. Receipt saved as profiles/scored.9eba96894ee1402e.json.
+
+### C3 validation and confirmation completed
+
+`61330d87d32c4190`: clean C3 passed9/9,1.52325653x (95%CI1.500408–1.546105),prepare107.8s.
+Tuner selects r64c8s8fv at128 (10.8us vs incumbent11.3 in prepare) and r64c8s8ordfv at256
+(12.8 vs13.9). Frozen candidate SHA256
+`9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4`, pure file
+`.build/today/cand_c3.py`, copied before dispatch; do not substitute a benchmark wrapper.
+
+Independent paired confirmation `7d2fe593fdfa4720`: passed9/9 on C3 judged path,
+1.53493683x (95%CI1.511913–1.557961). Repeated FV128 -0.45/-0.46us in both independent
+arms (88/87 of100), duplicate null-0.06; order-only256 -0.45us90/100, +FV -0.69us85/100,
+duplicate null-0.06. The prepare again selects both added configurations. All component
+FP64/probe/adjacent-size and fresh-input replay checks pass; no dropped RGCHECK arms.
+This repeats the~0.4us128 and~0.6us256 component benefit. Aggregate score effect is small,
+around0.1%; headline1.535x is not an isolated causal measurement. Root notified that pure
+C3 is ready for scored comparison under the user's current authorization.
+
+No GTICKET or ordering/fence changes were needed. No donor code is in C3. The codec loss
+remains closed at the knock-in-model scope; a real packed-code design needs new evidence.
+
+Root dispatched scored C3 `7a15f46e673b43d5` from the exact frozen file SHA256
+`9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4`, under today's explicit
+user authorization. Pending at this entry; do not infer a new board score before its receipt.
+
+Result addendum: `7a15f46e673b43d5` passed9/9,1.513805x (95%CI1.491098–1.536512), below
+C2's best headline1.527806x with overlapping intervals. No causal standalone-score regression
+is established by this single run; repeated paired router gains remain the adoption evidence.
+Receipt `profiles/scored.7a15f46e673b43d5.json`. Board incumbent remains C2 at this observation.
+
+### Actual pair7 packed-stream experiment
+
+`0ab8f0510515473b` (check, muse_bf16_proj), source this branch after `ed506b0`, pending.
+Builder `tools/proj_make_bench_pair7.py`; `.build/today/pair7_actual.py` is C3's unchanged
+judged path plus an untimed prepare benchmark. New CPU gate checks all65536 BF16 bitpatterns
+through the raw sign/mantissa/exponent reconstruction and a complete56-bit packing roundtrip.
+Prepare packs actual weights, then reconstructs the stored bytes plus escape table and
+requires a bit-exact match with every original weight before any kernel timing.
+
+Physical code: sign+mantissa byte per weight,7-bit LUT index for each adjacent exponent pair,
+128-entry exponent-pair LUT, sparse exact escapes. Seven byte planes per32-thread warp
+preserve coalescing; no fake skipped loads or conditional byte-saving probe. New synchronous
+FP32 GEMV computes every output and applies original-minus-decoded escape corrections before
+the BF16 output boundary. This is owned experimental code, not donor code.
+
+Single check: all four m1 projection shapes, FP64 random and power-of-two probes, independent
+control/null graphs,100 seeded randomized cold rounds. No promotion before correctness and
+repeatable end-to-end latency improvement; stop actual codec if decode/escape overhead exceeds
+its physical savings. This directly addresses why `075dc89d74d144d6`'s knock-in was ambiguous.
+
+Build result: `0ab8f0510515473b` failed before GPU execution because the judge's current
+PyTorch requires C++20, while the new small extension explicitly selected C++17. No codec
+correctness or performance inference follows. Changed only its compiler-standard flag to20;
+CPU gate passes again. Retry `962d2f9c1d9644f7` dispatched with the same codec design, pending.
+
+Actual stream result `962d2f9c1d9644f7`: passed9/9 on unchanged C3 judged path,
+1.529743x (95%CI1.506797–1.552689); every GPU stored-byte/escape weight roundtrip and
+FP64 random/power-of-two output check passed for qkv/o/pooler/slice. The CPU gate was also
+strengthened to execute real7-byte packed groups, LUT selection and sparse escape restoration
+over all65536 BF16 patterns in both pair positions (131072weights), passing.
+
+|m1 shape|actual pair7 minus cgemv us|duplicate null us|pair7 bytes / old packed bytes|
+|---|---:|---:|---:|
+|qkv_gate|+9.952|-0.064|27593216 /28403712|
+|o|+5.344|-0.032|12583424 /12713984|
+|pooler|+24.944|-0.048|49054208 /50495488|
+|unpooler slice|+4.384|0.000|6152704 /6316032|
+
+Measured conclusion: this scalar seven-byte-plane/LUT/FP32-GEMV implementation loses far
+more than its1–2.9% physical byte reduction can recover. It is not adopted and remains
+benchmark-only. Not established: denser codecs with vectorized loads, shared/register LUT
+placement or tensor-core consumers; the generic GEMV scaffold also differs from cgemv, so
+these numbers cannot isolate lookup cost or reject compression generally. No resource/SASS
+counters were captured for the new trial. No code in any production candidate changed for it.
+Reopening needs a vectorized decoder inside an already competitive kernel and a renewed work
+model, rather than another scalar packed-GEMV repeat. Logs/status are in profiles with this ID.
+
+### Dense qkv256 changed-residency test (root workmodel gate approved)
+
+Check `4ca25ee4eccc495c`, pending; generated by `tools/proj_make_bench_dense_dsm.py`.
+NEW trigger versus prior compressed qkv72/c4 and P3 raw twin: owned raw wd tile128channels
+x128tokens,4-way K split,3-stage ring rather than6. Stagebytes32768,ring98304,dynamic
+shared99376bytes,partial67584bytes aliases the drained ring. Grid144CTAs/36clusters at qkv256.
+This may permit2CTAs/SM, unlike the~200KB configurations; it is not assumed to do so.
+Hard prerequisite: actual cudaOccupancyMaxActiveClusters>=36 before timing any arm.
+The4-stage comparator is queried too and skipped if it cannot sustain36clusters.
+
+Independent extension builds A/B expose actual clusters,blocks/SM,numRegs,localbytes and
+shared requirements. All existing owned generic/async proxy fences, full/empty barriers,
+WGMMA retirement and DSMEM reduction/exit pattern are unchanged; no new ordering protocol.
+FP64/probe tests at129/200/256, fresh-input graph replay checks,100 randomized cold rounds
+against the actual prepare-selected qkv256 incumbent. New configs remain benchmark-only.
+Stop this geometry if occupancy fails or its reduction/mainloop cost erases the large-tile
+gain; a failure does not reopen the previous200KB one-wave assumption.
+
+Result `4ca25ee4eccc495c`: passed9/9 on C3 control,1.529206x (95%CI1.506268–1.552144).
+The NEW3-stage residency trigger is **met**, not assumed: both independent builds report
+62activeclusters,2blocks/SM,90registers,0localbytes,0staticshared,99376dynamicshared bytes.
+4-stage reports30clusters,1block/SM,90regs,132160dynamic bytes and is skipped before timing.
+All3-stage FP64/probe tests129/200/256 and both fresh-input replay checks pass, error~1.6e-3.
+
+Nonetheless the raw3-stage kernel loses: production median26.624us raw, A39.472/B39.408us,
+paired +12.656/+12.816us,0/100 faster in both copies. Actual cold resource/residency success
+therefore does not make this large-tile wd geometry competitive. No promotion. Unlike the old
+200KB c4 result, insufficient cluster residency and spills cannot explain this measured loss.
+Not yet attributed: mainloop versus DSMEM epilogue cost. A skip-reduction/memory-only diagnostic
+could test whether a cheaper reduction is even a credible repair; no claim that one is.
+
+Root approved one diagnostic follow-up, `e6e5bd6d0a104faf` (pending), builder
+`proj_make_bench_dense_dsm.py --ablate`. Same62-cluster geometry plus ABL1 (no WGMMA),
+ABL2 (skip partial stores/reduction), ABL3 (both), independent extension duplicates and
+actual resource query for every variant. Wrong/unguaranteed-output arms are explicitly
+`_probe`, not correctness-tested/promoted/scored. The full arms retain FP64 and fresh-replay
+gates. Purpose: if the no-reduction mainloop still loses to Lt, a cheaper DSMEM epilogue
+cannot rescue this geometry, so park it until a new compute/schedule mechanism exists.
+
+Timing bridge: `4ca25ee4eccc495c`'s Lt26.624us is raw graph time on fresh hardware and
+fresh prepare choices. Old `cab546f978974515`'s17.47us was overhead-adjusted on its hardware
+and its pinned algorithm. They are not a paired regression comparison. New attribution
+must use the same-run baseline and common graph overhead, not subtract these cross-run values.
+
+Ablation result `e6e5bd6d0a104faf`: control passed9/9,1.538579x (95%CI1.515500–1.561658).
+Same-run raw times: Lt26.912us; full A39.536/B39.648; no-reduction A36.384/B36.336;
+memory-only with reduction A35.616/B35.776; memory-only without reduction A32.224/B32.240.
+All measured variants have62activeclusters and2blocks/SM,0localbytes; full/no-reduction90regs,
+memory-only40regs. Full arms retain FP64/probe/replay correctness; ablations are unscored probes.
+
+Conclusion: removing the entire reduction still leaves~9.44us to Lt; removing both math and
+reduction leaves~5.3us. Thus a cheaper DSMEM epilogue alone cannot rescue this unchanged
+geometry. Memory pipeline or work scheduling must change first. These non-additive ablations
+do not measure separate additive component costs; removing math changes register pressure.
+No barrier removal or new production kernel is justified by them.
+
+Root approved one changed scheduling test: `303ba7fc3bb44b9d`, pending, builder
+`proj_make_bench_dense_dsm.py --tokenfast`. It interleaves the two128-token tiles for each
+128-channel row block, instead of processing all18 row blocks for token tile0 before tile1.
+Same144CTAs,4-CTA clusters,low shared ring,math and every fence/barrier; only independent
+clusters' work order changes. Potential L2 temporal weight reuse is a hypothesis, not measured
+bandwidth. Full and memory/no-reduction probes are paired against old order in two extension
+builds. CPU checks establish bijection of cluster(row,tok,Ksplit), agreement within each
+cluster and unique output writers at129/200/256 before dispatch. No new production config.
+Stop if memory reuse gains cannot bridge full-kernel Lt deficit; no identical sweep.
+
+Harness result `303ba7fc3bb44b9d`: failed before CUDA build, because the builder's string-patch
+loop reused `old`, shadowing the saved-globals dictionary and making `finally: g.update(old)`
+raise ValueError. Renamed the anchor variable; retry `d271218896df4a85` dispatched, pending.
+Added a no-GPU builder generation/global-restoration gate using the actual `_WD_SRC`, a stub
+compiler and the real build function; both tokenfast and ablation modes pass. No schedule or
+performance inference follows from the failed harness. Submitted retry also queries tokenfast's
+actual144x1 launch shape; first failed source's query used equivalent144CTA72x2 dimensions.
+
+### Pair7 in the original cgemv vector/prefetch scaffold
+
+Check `4aef50bcd265448b`, pending; `proj_make_bench_pair7.py --vector`. Same actual11.5-bit
+stored stream and sparse exact escapes; change is the compute schedule. Both output rows and
+all CPT chunks are prefetched as in original cgemv, then a128-entry shared LUT emits exponent
+LSB masks/high bytes for the original vector `fma4` math order. No scalar per-value decode/FMA
+loop. The actual LUT transform has its own bit-exact inverse gate, in addition to full stored
+weight roundtrip and CPU all-BF16 gate. FP64 random/probes, independent control/null graphs,
+100 cold randomized rounds. Pooler includes NTH256/CPT2 beside512/CPT1, with runtime resource
+queries (registers/localbytes/staticshared/blocks perSM) rather than assuming no spills.
+This is a codec-in-competitive-scaffold test, not a claim of hidden decoding; no production
+adoption unless end-to-end time improves repeatably. Parent notified of both live job IDs.
+
+Tokenfast retry `d271218896df4a85` completed: control passed9/9,1.521036x (95%CI
+1.498220–1.543851), full new/old arms pass all FP64/probe/replay gates. All resource fields
+agree: full62clusters/2blocks/90regs/0localbytes, memory probes40regs. Raw times:
+Lt26.592us, old full39.328/39.440, tokenfast full39.504/39.376; old memory-no-reduction
+31.856/32.000, tokenfast memory31.728/31.728. Memory probe saves only~0.1–0.3us and full
+kernel does not improve materially; it cannot bridge the~12.7us deficit. Park this work-order
+repair. No bandwidth counters were collected; this does not prove or disprove a specific
+L2 miss rate. Retain current incumbent; no production schedule change.
+
+Vector pair7 `4aef50bcd265448b` completed: control passed9/9,1.531006x (95%CI
+1.508041–1.553971). Stored-byte roundtrip/LUT inverse and FP64 random/power-of-two checks
+all pass, including pooler NTH256. Vector/scaffold change reduces scalar trial's overhead
+but still loses: qkv+4.960us, o+3.392, pooler NTH512+13.024/NTH256+7.568, slice+1.312.
+Duplicate null0 to-0.064us. Runtime resources (regs/localbytes/sharedbytes/blocks perSM):
+qkv256threads[48,0,584,4],o64[40,0,536,16],pool512[40,0,648,2],pool256[48,0,584,4],
+slice128[48,0,552,8]. No spills/local-memory allocation explains the loss. Lookup/bit-unpack
+and lower occupancy consume more than1–3% physical byte saving, on this implementation.
+No codec adoption; broader codecs require a genuinely cheaper decode placement/mechanism.
+
+### One128-row weight TMA instead of two64-row copies
+
+Root-approved new memory-pipeline mechanism, check `7803be789c624f8e` pending, builder
+`proj_make_bench_dense_dsm.py --widew`. Same raw WG2/BN128/CLK4/3-stage geometry and
+independent full/memory-no-reduction A/B arms. A single128-row weight tensor-map box fills
+the same16KB weights region that two64-row boxes did; producer issue count per stage is
+2 total (weight+activation) instead of3 (two weight+activation). Physical bytes unchanged.
+No speedup is predicted from the instruction count alone.
+
+CPU gates passed before dispatch: real builder/source-global restoration; exact SW128
+byte-address identity across all3stages,128weight rows and128bytes/row; last output row2303
+bounds; expected transaction byte equality. Full-barrier expect_tx stays32768bytes per
+stage (old8192+8192+16384, new16384+16384), with the same one producer expect/arrive and
+unchanged consumer/empty-barrier counts, phases, waits and proxy fences. One transfer's
+completion covers16KB rather than8KB; the barrier still releases only after all expected
+bytes complete. Flag is restricted to raw BF16,WG2,unpacked weights; all consumers retain
+the old two64-row WGMMA descriptors. No donated code and no production feature enabled.
+
+Actual resource query and FP64/probe/adjacent-M/replay gates precede timing. Stop further
+local dense TMA knobs if this copy-schedule mechanism does not materially reduce the deficit;
+new counters or a different established mechanism would be needed.
+
+Combined-TMA result `7803be789c624f8e`: control passed9/9,1.518411x (95%CI
+1.495635–1.541187). Full CPU swizzle/source gates and GPU FP64/probe/replay pass. Resource
+fields remain62clusters,2CTA/SM,90regs full/40regs memory,0localbytes,99376dynamicshared.
+Same-run raw Lt26.160us, oldfull38.832/38.816,newfull38.320/38.336; memory-no-reduction
+old31.312/31.328,new31.344/31.184. Saving~0.5us in full kernel leaves~12us gap; memory
+probe benefit negligible. Stop this local dense TMA/geometry series. Fewer TMA instructions
+alone are not enough; no production adoption. New counters or a genuinely new schedule are
+needed before reopening this family.
+
+### TOP7 exponent-pair LUT32 codec: rawlow unchanged
+
+Root approved CPU workmodel then one bounded check. Pure-CPU
+`tools/proj_pair_e7_model.py`, three Gaussian-distribution proxy seeds71031–71033,262144weights
+each: actual escape fraction0.001129–0.001163,11.572–11.574bits/weight including8-byte entries
+but excluding per-CTA table padding. This is not the judge's Philox draw or a GPU speedup.
+Every proxy roundtrip is exact. Actual CPU exhaustive gate covers all65536 BF16 patterns
+in both pair positions,7byte packing/sign bits,compact escape fields and the actual
+fma4 `__byte_perm(lo,hi,0x5140)` low/high-byte ABI.
+
+Check `ee39ec933a8542d8`, pending; `proj_make_bench_pair7.py --top7`. Rawlow is exactly
+original BF16 bits0–7 (mantissa plus exponentLSB);7-bit pair code is5-bit index into a32-entry
+LUT of TOP7 exponent pairs plus2sign bits. LUT returns final high bytes and sign bits are
+ORed in. The original vector fma4 sees rawlow unchanged; no exponentLSB mask or reconstructed
+lowword, unlike prior vector pair7. Compact int2 escapes store original bits plus the chosen
+decoded exponent in unused index-word bits; correction retains separately rounded multiply/add.
+GPU stored-byte/escape and LUT ABI gates must pass before FP64 random/probe and cold timing.
+Same paired control/null and runtime register/localmemory/shared/occupancy queries as before;
+no production feature enabled and no math-bound relaxation.
+
+TOP7 result `ee39ec933a8542d8`: control passed9/9,1.527047x (95%CI1.504141–1.549953).
+All stored-bit/LUT/FP64 random/probe gates pass. Nonetheless deltas versus original12-bit
+cgemv: qkv+4.480us,o+2.160,pool512+11.344,pool256+8.528,slice+1.632; null0–0.032us.
+Actual bytes: qkv27,454,592 vs28,403,712; o12,320,896 vs12,713,984;
+pool48,824,448 vs50,495,488; slice6,123,648 vs6,316,032. Saving~3–3.4% does not offset
+decode cost. Resources(regs/local/shared/blocks):qkv[40,0,200,5],o[32,0,152,21],pool512
+[39,0,264,2],pool256[40,0,200,5],slice[40,0,168,9]. Reduced register footprint alone does
+not rescue the codec. Close this codec series as built; no production adoption.
+
+Hard portfolio assessment at23:02PDT: live projection rank292/1574, incumbent C2 score1.527806;
+public rank10 RunFMe job051c31382b724ae1 pending at1.604517, requiring+5.021%score. Owned C3's
+two router savings are~0.1% aggregate, not a solution to that gap. Dense3-stage/residency,
+tokenfast,combinedTMA and all actual pair7 forms tested today fail promotion. Remaining
+known mechanisms do not establish a top10 trajectory. Goal remains active; neither repeated
+scored noise nor these failed experiments proves the requested ranking achieved.
+
+Hardware correction: older M-C plan's3.35TB/s is H100SXM, not H200SXM. NVIDIA's official
+[component table](https://docs.nvidia.com/enterprise-reference-architectures/hgx-ai-factory-h100-h200-b200/latest/components.html)
+gives H2004.8TB/s, consistent with TASK floors. Do not infer near-floor status from3.35.
+A datasheet ceiling is not a measured recoverable gain. Prior benchmark receipts report
+H200,SM1980MHz/memory3201MHz at capture; no counters measure actual bandwidth here.
+
+### Original 12-bit GEMV: integrated escape consumer (resource threshold)
+
+Check `bac995b3b94541c4`, pending; generator `tools/proj_make_bench_cgemv_ie.py`.
+This changes ownership rather than compression: consumer warp0 applies the unchanged
+escape helper after its ordinary FMAs, eliminating the extra32-thread warp at launch.
+The original main reduction slots and escape slot, final sum order, full-mask shuffle,
+and final CTA barrier remain identical. CPU gate checks every escape entry has one
+owner and verifies unchanged helper/final-sum source tails; generated Python compiles.
+CPT1 retains32-register cap, CPT2 retains40. Four independently built arms (A/B old/inline)
+plus production are paired across two held-out inputs,100 cold randomized rounds each.
+Actual cudaFuncAttributes and occupancy are queried before candidate timing: skip if
+blocks/SM fail to increase or local memory appears. FP64 random and power-of-two probe
+correctness gates precede timing. Expected occupancy is a hypothesis until the receipt;
+no production change, register-cap sweep, or predicted speedup is authorized by this check.
+
+Result `bac995b3b94541c4` (source experiment committed `0680370`): control passed9/9,
+1.550070x (95%CI1.526819–1.573322). This is the unchanged production path's aggregate,
+not the measured candidate's projected score. FP64 random/probe pass for every arm.
+Actual resources(regs/local/shared/blocks), old→inline: qkv[40,0,72,5]→[40,0,72,6],
+o[32,0,24,21]→[32,0,24,32],pool512[32,0,136,3]→[32,0,136,4],
+slice[40,0,40,9]→[40,0,40,12]. Occupancy trigger genuinely met without spills.
+Despite this, paired two-input medians in independent builds A/B lose qkv+0.960/+0.960us,
+o+1.504/+1.504,pool+2.272/+2.240,slice+0.448/+0.480. Rebuilt-old nulls range -0.128
+to+0.032us. All200 pool/o rounds lose; qkv/slice win only1–7of100 per input.
+Measured higher CTA residency fails to improve this schedule; serializing corrections
+on an active compute warp is a plausible explanation, not an isolated timing attribution.
+Stop this ownership variant and local register-cap sweeps. Original dedicated escape warp
+and C3 production remain unchanged. Raw receipt plus CLI profile JSON/text committed.
+
+Scored exact frozen C3 fresh repeat2383f5173a934c63 dispatched by root. Source
+.build/today/proj_c3_repeat.py is previously checked61330d87d32c4190 pureC3
+SHA9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4 plus trailingcomment;
+no new algorithm change. Earlier scoredC3 was7a15f46e673b43d5; component paired gains remain
+separate from fresh-run headline variation. Pending at dispatch.
+
+2383f5173a934c63 completed9tests:1.519919441x,CI1.497120649–1.542718233. CurrentbestC2
+1.527806x stays. Authorized fresh repeat, no newalgorithm gain. Receipt retained.
+
+## Bounded rd16 async ring — terminal result
+
+Sources exact from worker commitsc291a9d/dbfb451; receipt owner08d8150 preserved on remote
+codex/today-proj and copied here. Checkb103af15ba564ef6 passes9official control tests,
+C3control1.536215x,CI1.513172–1.559258; candidate ring loses and is NOT production.
+AllM1/7/15/16 random/probe/freshgraph checks pass. Resourcequeryold64regs/24Blocal/
+32768Bstatic/0dynamic/1CTA versus ring64regs/0local/32768Bstatic/98304Bdynamic/1CTA.
+The registered resourcegate passes; removing spills without residencygain is insufficient.
+Ring-minus-production+0.480/+0.528us input0,+0.528/+0.608us input1,only12–17/100faster.
+Rebuiltold controls-.544 to-.784us but null-.192us,MAD.272–.304 and85–92/100faster,
+so no retrospective promotion. Memoryprobes have2oldCTA versus1ringCTA; nonadditive costs.
+Close this rd16 ring schedule. No PF/registercap sweep or public candidate submission.
+
+### QKV128 isolated WGMMA outstanding-group depth
+
+New hypothesis from exact donor inspection, not importing donor code: Nathen v18 pinned
+86aff75e6aca72511bf9b41b6dc190bf1e763373 qbig route(64,36,128,3,8,539,5) uses PIPE539bit512
+for wait_group2 and releases stagei-2; owned dense b1n128c3s8h uses wait_group1 andi-1.
+The donor also has a different push/stmatrix epilogue and256threads, so its historical
+wholepathgain434c01d39a1b4fa6/1ea00e9b5bbd49b0 (-.80–1.04us) cannot be attributed todepth.
+No qkv128 depth2 experiment found in runs/ruled-out; today's qkv256 DSMEM variants keptdepth1.
+
+Generator tools/proj_make_bench_qkv_depth.py builds owned depth1/depth2 twins, no donor
+source in uploadedbenchmark and no productionedit. Geometry64×128,3split,8stages unchanged,
+same cachehints/fences/watchdogs/epilogue. Only new outstandingdepth changes and matching
+emptyrelease movesi-1→i-2, preserving lifetime: wait_groupD aftercommit i completes all
+throughi-D before consumeremptyarrive; producerrefills only after allfourconsumerwarpsarrive.
+Finalwait_group0 andallreduction/exitbarriers unchanged. CPU gates cover42/43Ksteps,8slots,
+unchangedepiloguesource andactualhostbuilder restore viafakecompiler; generatedPythonparses.
+
+Preregisteredresourcegate:0localmemory,nondegradedblocks/SM,>=36activeclusters for108CTAgrid.
+Two independentbuilds/fourfullarms pluscurrentC3pick; M100/127/128/129 fullFP64 andonehot
+probes,3freshcapturedinputs eacharm; twoheldouts×100randomcoldrounds. Resourcequery before
+timing. Interpretgain only ifbothdepth2arms beatprod andowncontrol bymax(.2us,2nullMAD)
+and>=90/100 rounds inbothheldouts, allcomputinggatespass. No projectedstandalonescoregain;
+wholepublished13.987us isn't a pairedcurrentmeasurement. Rootauthorizedoneoffboardcheck;
+quota beforedispatch17used/3left. No scoredsubmission orprefillwork.
+
+Check `4542b2b04cb344ec` (sourcee67b7ec, benchSHA919a2a38e62f303486ec9650d9e11652c5144f321a95ee29653196492d103a2d)
+completed: unchangedC3control9/9pass,1.517510x (95%CI1.494747–1.540272),prepare135.0s.
+All4fullarms pass fullFP64 atM100/127/128/129 (randomL2.001659–.001666),onehotprobesexact;
+all5arms includingprodpass3freshcapturedinputs; watchdogs0. Bothbuilds/depths have identical
+resources90regs,0local,0static,197760Bdynamic,1CTA/SM,39activeclusters vs36required.
+Actualresourcegate passes, so one-wave/residency/spills do not explain this comparison.
+
+| heldout | prod rawus | Adepth1-prod | Bdepth1-prod | Adepth2-prod | Bdepth2-prod | Adepth2-depth1 | Bdepth2-depth1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+|0|20.192|+.064|.000|+.576|+.640|+.512|+.640|
+|1|20.224|-.048|.000|+.640|+.512|+.608|+.544|
+
+Depth2 is faster thanowncontrol only9–19of100 rounds andloses toprod inbothbuilds/inputs;
+no promotion. Duplicate depth1 B-A medians-.112/-.064us, MAD.304/.256, registeredthresholds
+.608/.512us. No causalgain survives; don'tcredit thecontrolaggregate to depth2.
+The historicaldonor wholepath difference cannot be attributedto depth2 alone. Its distinct
+push/stmatrix epilogue and256-threadCTA remainunattributed by this check; no broadclosure
+of allqbig mechanisms. Stop depth2local tuning, preserveC3; no publicsubmission orprefill.
+Receipt plusnormalizedprofile JSON/text retained. Two officialprojectionchecks remain.
+
+### QKV128 cyclic push epilogue (owned, mainloop unchanged)
+
+Root authorizes one structurally distinct reduction/epilogue experiment, no retry/public
+submission/prefill. `tools/proj_make_bench_qkv_push.py` retains original owned mainloop,
+wait_group1,160-threadCTA,all original synchronization. The new epilogue assigns eight-token
+fragments cyclically j%3; sends only peerfloat4partials with existing st.async and retains
+ownpartial in registers. Per-rank receiveexpect_tx equals2×ownedfragments×128×16B;
+owner counts6/5/5 and fixed6slotstride use24576Breceivestorage. Summationrank0→1→2 matches
+oldpullreduction. BF16rounded results are paired acrossadjacentchannels via fullwarpshuffle,
+written into padded72-column sharedrows in the deadring, then read for16Bglobalstores.
+No donorcode copied; source inspection identified this reduction/epilogue difference.
+
+Ordering: rbar initialized/fenced/expect_tx before existing firstclusterrelease/acquire
+barrier. Pushes occur onlyafter thatbarrier andall WGwait0; receiveracquirewait observesall
+exactincomingst.async txbytes. Ownpartial needs no sharedhandoff. Sharedtransposegeneric
+writes are published to otherconsumerwarps by a namedbarrier; no asyncproxyconsumerreads
+that scratch. Ringreuse follows completionofallTMA andWGMMAreads plus existingclusterbarrier.
+Finalfullclusterrelease/acquirebarrier retained onallthreads beforeexit, ensuring every
+sender outlivesallremoteaccesses (samechain as docs/proj-port-guide.md Splitexitbarrier).
+Existing namedbarrierbeforeoldpartialmaterialization also retained; no fence removed.
+
+CPU gates pass uniqueincomingpeer slots/exactcounts, full64×128transposeownership,
+aligned16B reads/globalvectoroutputunique boundsM100/127/128/129, unchangedmainloopsource,
+actualhostbuilderrestore and generatedPythonparse. Sharedsize222352B<227KiB; actualCUDA
+resourcequery must show0local,nondiminishedblocks and>=36clusters beforetiming. Same2build,
+4arms+production,fullFP64/probe/freshgraph/twoheldout100round harness as prior depthcheck.
+Accept onlybothnewarms beatingprod andowncontrol bymax(.2us,2nullMAD),>=90/100faster,
+allcomputinggates pass. No claim of HBMweightsaving or predicted .8us gain: primary change
+avoidsdependent remoteLD/localpartialtraffic; newcopy/shuffle/barriercost could eraseit.
+
+Terminal 2026-11-01: **4edaa20c98904404**, source `aded9cf`, DONE/pass, judged unchanged
+C3 control **1.5049090625**, 95% CI **[1.4823354266,1.5274826985]**. This aggregate is
+control measurement, not a push-epilogue speedup. Prepare computing gates complete113.4s.
+Both independent builds have pull/push90regs,0local,0static,1CTA/SM,39activeclusters;
+dynamicshared197760/222352B. All FP64 M100/127/128/129, exact onehot and three fresh
+captured-input replays per arm pass; observed normalized errors~.001660, watchdog zero.
+
+| Heldout | Arm | Raw us | Paired vs production us | Push minus own pull us |
+|---|---|---:|---:|---:|
+|0|production|20.432|0|—|
+|0|a pull / push|20.416 /20.832|-.032 /+.320|+.384|
+|0|b pull / push|20.384 /20.768|-.064 /+.288|+.384|
+|1|production|20.448|0|—|
+|1|a pull / push|20.416 /20.864|-.016 /+.416|+.480|
+|1|b pull / push|20.320 /20.704|-.096 /+.272|+.352|
+
+Push beats production only18–26/100 rounds and ownpull17–28/100. Null B-A medians
+-.032/-.096us, MAD.320/.272, preregistered thresholds.640/.544us. No improvement:
+retain C3 and close this cyclic-push/register-own/shared-transpose schedule. No barrier
+or cap sweep, retry, public submission, or prefill work. Absolute timings differ from
+earlier receipts; only same-run paired deltas support this causal loss. Dedicated
+receive storage holds occupancy constant but does not remove copy/transpose/barrier cost;
+their individual contributions remain unmeasured. Receipt and normalized profiles retained.
+Nineteen projection checks used; one remains subject to root coordination.
+2026-11-01 | 3c6a2baf7b4b4bf3 | exact keell0renz projection source at 8e30e1be SHA256 922da8e54073b2836610d2832e06cf694dba691362dfc9969fc2e50c108c591b | off-board 30-shape comparator. Pending.
+3c6a2baf7b4b4bf3 PASS9, external comparator 1.573015516x CI 1.549420283–1.596610748. Archived all 30 medians and profiles; no public submission. No standalone projection checks remain this UTC day.
+
+2026-11-01 | 40b9f54be6fe4d4e | PUBLIC scored C3 measurement by coordinator, user renewed go-ahead. Verified exact checked candidate 61330d87d32c4190 and current tracked production SHA256 9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4, plus one trailing repeat label. Submitted SHA256 8e45ef098ed58c56754fb8040666ab1d1021c8bf7cb190b393080dac5bf40c12, byte prefix and Python AST verified. No algorithm change. Prior two scored C3 jobs 7a15f46e673b43d5 and 2383f5173a934c63; prior C2 public best 9eba96894ee1402e at 1.527806483x. Paired router evidence 7d2fe593fdfa4720. Pending.
+
+40b9f54be6fe4d4e terminal PUBLIC run PASS 9/9, 30 timed cells and 30 profiles, no flags. Scored 1.516021653x (95% CI 1.493281329-1.538761978). Post-run board retains C2 at 1.527806483x, rank 307. This is the third scored C3 observation below C2; no further C3 repetitions are planned without a new candidate or decision.
+
+
+### Offline C2 WGMMA/lifetime audit, 2026-11-01 (no GPU job)
+
+Pinned public C2 owner9eba96894ee1402e/source3044ee7-commentrepeat, persistent
+projection_best.py rawSHA5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4.
+Actual localCUDA12.8NVRTC/PTXASsm90a22existingdeviceentries compile; three activeWD
+entries have4/8/8HGMMA, oneloopwait1 andoneterminalwait0 each, noC751x,0spill.
+AllshortSK/RT/RD compiledHMMA/noHGMMA. Sourcealreadyreleasespreviousstageafter
+wait1; terminaldrainrequiredbeforepartials/ringreuse. NoMoE-styleinnerdrain found.
+Full30C2/SGLang/floor/scoremap andsource/SASSresources in
+archive/docs/steering/2026-11-01-projection-wgmma-lifetime-audit.md. Hypothetical10percent
+cuttoall3wholeWDoperators gives1.007287507factor, notmeasuredwaitbudget. Existing
+depth24542b2b04cb344ec/pushepilogue4edaa20c98904404 closuresremain. No source
+optimization/check/C3repeat; opaqueLtactualSASS remainsunobserved.
+
+### 2026-11-01 offline async-mailbox scope closure
+
+No GPU job. Evidence e778443, C2 9eba96894ee1402e and old push4edaa20c98904404. Selected SK/RD reducers are CTA-local, RT already async complete_tx, old QKV push already dedicated async mailbox and lost. Full30-cell sensitivity: hypothetical1us from all16 SK/RT/RD operators gives1.066379526 factor, NOT measured reducer budget/forecast. No direct-port proposal; retain C2. Report archive/docs/steering/2026-11-01-projection-mailbox-scope.md; reopen only distinct legal mechanism with exposed component evidence.
+
+2026-11-01 | 2b537518091248f1 | PUBLIC single-arm owned SK sparse E7-XOR measurement, sourcec138969/prereg1bd55da. muse_bf16_proj/experiments/sk_sparse_xor_release.py321640B SHA685ffab5d1614343d3c46d505967ae6817e3784736297018c78984354333f765. One originalC2prepare/one extraSKmodule, fixed10scored/100nearby bucket overrides onlyafter160math/10capture/30fresh and allresource/watchdog gates; other20scored/M1/128/256 unchangedC2. No private comparator timing/report machinery. Independent sourceaff1f9e, combined42CPUtestsPASS/localexacthelper23checks; actualH200math/resources/time/performance pending. Quota0private/6publicbefore, ownjobidconfirmed. Incumbent9eba96894ee1402e1.527806483x CI1.504889386–1.550723580. Root owns wait/archive; no duplicate or layer dispatch.
+
+Terminal2b537518091248f1 PUBLIC PASS9/30benchmarks/30profiles,checks.ok/no flags. Preparation123.332824s; all10SX/110keys/160math/10captures/30fresh,0fallbacks and all40FULL/NFresourcevectors satisfy0local/expectedlayout/nonregressedCTAadmission. Score1.3941200708702308x CI[1.3732082698071773,1.4150318719332842], belowC29eba1.527806483. Every10targetcell regresses in adjusted(+5.157..52.411%) and raw(+7.372..35.141%) cross-receipt timing; other20split10faster/10slower. Six-load score reconstructs exactly; no paired causal attribution. Close this global-record/before-A schedule, no publicretry/layerport; candidateexperiment remains archived and known-goodC2 retained. [Terminal archive and all30rows](../archive/docs/steering/2026-11-01-sk-xor-release-terminal.md).
+
+2026-11-01 | dfcfdd01d6f04525 | PUBLIC single-arm owned STAGE-LOCAL E7-XOR measurement, source/prereg a08f501. Exact muse_bf16_proj/experiments/sk_stage_xor_release.py450781B SHAde1111b98072f5251ff9b2edd5d453cc22eb8fe1710a943c60922909cc796229. Root12CPU tests PASS, independent945661d/source-clear/local23bitchecks. Fixed10targets/100nearby; actualstagecapacity derived fromsuppliedweights, originalC2control admission, unchangedstrict160math/10capture/30fresh gates before atomicpublication. One originalC2prepare/oneextra module, no newcomparativetiming/privatecodec. Quota0private/5publicbefore, ownproblem/jobconfirmed. ActualH200prepare/math/resources/coverage/score pending; compareoriginal9eba1.527806483x, notclosedglobal2b. No layer/reset/prefill action.
+
+
+### 2026-11-01 stage-local sparse XOR terminal LOSS (dfcfdd01d6f04525)
+
+- PUBLIC owning job `dfcfdd01d6f04525`, muse_bf16_proj DONE/PASS9, all30 benchmarks/profiles, checks.ok/no flags. Root dispatched; no worker official call.
+- Exact stage-local single-arm source `de1111b98072f5251ff9b2edd5d453cc22eb8fe1710a943c60922909cc796229`,450781B; source commits e27c86d/fd21fdf, root prereg a08f501260ea7e9625c01aa4eeecda0934afa7f9; analyzer correction ee972f1.
+- Score **1.4191468393881441**,95%CI[1.397859636797322,1.440434041978966], prepare129.385967127s; original C2 `9eba96894ee1402e`1.5278064829557674 remains primary comparator. Prior failed global `2b537518091248f1`1.3941200708702308 is secondary only.
+- All10 target cells regress versus archived C2: adjusted+6.274..40.738%,raw+5.860..30.694%; all10 overrides/0fallback/110keys/160math/10captures/30fresh. All40 runtime resource vectors have0local/0staticshared and stage FULL/NF admission equals C2; actual16/32B record arenas fit existing SX SST slack. No utilization/stall/traffic counters collected.
+- Exact30-cell/6-load score reconstruction passes; replacing only10 cells into archived C2 gives factor0.9263484356405296, explicitly an unpaired sensitivity scenario. Seeds/baselines/overhead/tuner differ; weight identity was not shared or established.
+- Canonical rawreceipt/profile/log/txt are root-owned under `muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.*`; decoded all30/6loads/40vectors/capacities/hashmanifest and report `archive/docs/steering/2026-11-01-projection-stage-xor-terminal.md`. Six synthetic reader tests and3 independent terminal-data tests pass.
+- CLOSE exact stage-local BEFORE-A variant alongside global-record BEFORE-A loss; no automatic retry, cap/tile/stage/placement sweep, target dropping or layer port. No candidate promotion. Reopen only distinct dataflow/instruction evidence with credible full30>=1% paired opportunity and unchanged correctness/order/resource gates.

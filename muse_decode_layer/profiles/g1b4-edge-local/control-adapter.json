@@ -1,0 +1,8 @@
+{
+  "original_source": ".build/today-attn/g1b4-edge-control.cu",
+  "removed": "TVM/host-only includes and TensorView alias; source truncated at host glue_launch",
+  "added": "anonymous namespace and unused infinity declaration for shared driver interface",
+  "device_math_changed": false,
+  "host_api_validated": false,
+  "gpu_execution": false
+}

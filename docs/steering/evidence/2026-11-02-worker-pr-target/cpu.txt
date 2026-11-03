@@ -1,0 +1,60 @@
+test_abort_and_eager_retirement_exactly_once (test_g_pr_graph_owner_receipt.ReceiptContracts.test_abort_and_eager_retirement_exactly_once) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_actual_final_prepare_and_both_plans (test_g_pr_graph_owner_receipt.ReceiptContracts.test_actual_final_prepare_and_both_plans) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_actual_helper_scope_and_failure_restore_source (test_g_pr_graph_owner_receipt.ReceiptContracts.test_actual_helper_scope_and_failure_restore_source) ... ok
+test_actual_prepare_composition_capture_hook (test_g_pr_graph_owner_receipt.ReceiptContracts.test_actual_prepare_composition_capture_hook) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_actual_prepare_end_and_schema_no_values (test_g_pr_graph_owner_receipt.ReceiptContracts.test_actual_prepare_end_and_schema_no_values) ... ok
+test_after_hook_covers_lt_exception_and_both_plans (test_g_pr_graph_owner_receipt.ReceiptContracts.test_after_hook_covers_lt_exception_and_both_plans) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_both_pr_plan_checks_reject_no_compressed_reader (test_g_pr_graph_owner_receipt.ReceiptContracts.test_both_pr_plan_checks_reject_no_compressed_reader) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:no-accepted-pr-plan"}
+ok
+test_callback_signal_only_and_before_read_coverage (test_g_pr_graph_owner_receipt.ReceiptContracts.test_callback_signal_only_and_before_read_coverage) ... ok
+test_capture_clone_abort_inflight_destroy (test_g_pr_graph_owner_receipt.ReceiptContracts.test_capture_clone_abort_inflight_destroy) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_capture_hook_failures_prevent_lt_read (test_g_pr_graph_owner_receipt.ReceiptContracts.test_capture_hook_failures_prevent_lt_read) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_delayed_a_retirement_does_not_encompass_b_capture (test_g_pr_graph_owner_receipt.ReceiptContracts.test_delayed_a_retirement_does_not_encompass_b_capture) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_failed_worker_completion_never_unmaps (test_g_pr_graph_owner_receipt.ReceiptContracts.test_failed_worker_completion_never_unmaps) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_fresh_events_and_capture_exclusion (test_g_pr_graph_owner_receipt.ReceiptContracts.test_fresh_events_and_capture_exclusion) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_frozen_prefix_and_timed_receipt_absence (test_g_pr_graph_owner_receipt.ReceiptContracts.test_frozen_prefix_and_timed_receipt_absence) ... ok
+test_independent_interleaved_states_and_nonpr (test_g_pr_graph_owner_receipt.ReceiptContracts.test_independent_interleaved_states_and_nonpr) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_independent_stream_event_ownership (test_g_pr_graph_owner_receipt.ReceiptContracts.test_independent_stream_event_ownership) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_no_treatment_and_prepare_exception_negatives (test_g_pr_graph_owner_receipt.ReceiptContracts.test_no_treatment_and_prepare_exception_negatives) ... ok
+test_record_failure_is_fatal_not_unmap_or_fallback (test_g_pr_graph_owner_receipt.ReceiptContracts.test_record_failure_is_fatal_not_unmap_or_fallback) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_reused_handle_not_capture_cache (test_g_pr_graph_owner_receipt.ReceiptContracts.test_reused_handle_not_capture_cache) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+test_scope_exact_previous_modes_and_error_exits (test_g_pr_graph_owner_receipt.ReceiptContracts.test_scope_exact_previous_modes_and_error_exits) ... ok
+test_source_copy_completion_and_finally_failure_policy (test_g_pr_graph_owner_receipt.ReceiptContracts.test_source_copy_completion_and_finally_failure_policy) ... ok
+test_source_reversal_and_seven_factories (test_g_pr_graph_owner_receipt.ReceiptContracts.test_source_reversal_and_seven_factories) ... ok
+test_staged_fallback_keeps_actual_original_pr (test_g_pr_graph_owner_receipt.ReceiptContracts.test_staged_fallback_keeps_actual_original_pr) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:capability"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:granularity"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:reserve"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:create"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:property"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:map"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:access"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:copy"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:copy_completion"}
+PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[],"outcome":"NO_TREATMENT","schema_version":1,"status":"no-treatment:user_create"}
+ok
+test_tagged_plan_deepcopy_alias_and_wrong_weight_negative (test_g_pr_graph_owner_receipt.ReceiptContracts.test_tagged_plan_deepcopy_alias_and_wrong_weight_negative) ... PR_GRAPH_PREPARE_RECEIPT {"accepted_pr_plans":[{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":128},{"dtype":"bf16","owner_tagged":true,"shape":[4608,8192],"tokens":256}],"outcome":"ACTIVE_TREATMENT","schema_version":1,"status":"generic-owned"}
+ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 45.848s
+
+OK

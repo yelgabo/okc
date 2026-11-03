@@ -1,0 +1,180 @@
+{
+  "recorded_utc": "2026-11-01T20:12:13.237374+00:00",
+  "boards": {
+    "overall": {
+      "sha256": "08159f999efbc78c804b90735397e64c37e3476ef74a9060d823d49434be4cb9",
+      "rows": 1824,
+      "ranked": 1824
+    },
+    "layer": {
+      "sha256": "a27323af83a834b84390d028681edeb0a7ef284f9a9ecc82978a98368d8eb959",
+      "rows": 1170,
+      "ranked": 1169
+    },
+    "proj": {
+      "sha256": "60ff56896d67037cc4a340438718d55c9e7052e9d11bbc909219e8c24d2ae1b7",
+      "rows": 1609,
+      "ranked": 1608
+    },
+    "attn": {
+      "sha256": "bdef6b0edf13565aaf68f00c2a4b65997a897d93f8da09c7eb2a216f081bba0d",
+      "rows": 1243,
+      "ranked": 1242
+    },
+    "moe": {
+      "sha256": "e4196674c57633ea3c7ad5c1f26858d96e65cd1e0f9ac9f56a00367f3e866bcf",
+      "rows": 1298,
+      "ranked": 1297
+    }
+  },
+  "summary": {
+    "overall": {
+      "you": {
+        "rank": 322,
+        "team": "yelgabo",
+        "first": false,
+        "ahead": 321
+      },
+      "rank10": {
+        "rank": 10,
+        "solved": 4,
+        "team": "Raphael-Hao"
+      },
+      "rank50": {
+        "rank": 50,
+        "solved": 4,
+        "team": "steelep"
+      }
+    },
+    "layer": {
+      "you": {
+        "rank": 322,
+        "team": "yelgabo",
+        "speedup": 2.1261,
+        "first": false,
+        "ahead": 321,
+        "to_first": 1.1685
+      },
+      "rank10": {
+        "attempts": 14,
+        "job": "db1531949e854895",
+        "rank": 10,
+        "speedup": 2.4074,
+        "submitted_at": 1793535963.7681758,
+        "team": "Raphael-Hao",
+        "value": 9396.049061614698
+      },
+      "rank50": {
+        "attempts": 63,
+        "job": "99cd2f069b304392",
+        "rank": 50,
+        "speedup": 2.2935,
+        "submitted_at": 1793558086.5464854,
+        "team": "steelep",
+        "value": 9862.572730592477
+      },
+      "required_score_increase_percent_from_rounded_CLI": {
+        "10": 13.230798175062318,
+        "50": 7.8735713277832575
+      }
+    },
+    "proj": {
+      "you": {
+        "rank": 322,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 321,
+        "to_first": 1.0815
+      },
+      "rank10": {
+        "attempts": 20,
+        "job": "17a6a942a5204269",
+        "rank": 10,
+        "speedup": 1.617,
+        "submitted_at": 1793562467.0953822,
+        "team": "dolanzhao",
+        "value": 2987.5664684010194
+      },
+      "rank50": {
+        "attempts": 31,
+        "job": "376f48e144804ac0",
+        "rank": 50,
+        "speedup": 1.5873,
+        "submitted_at": 1793535391.8705852,
+        "team": "soiax",
+        "value": 3043.46752358654
+      },
+      "required_score_increase_percent_from_rounded_CLI": {
+        "10": 5.838460531483181,
+        "50": 3.8944888074355255
+      }
+    },
+    "attn": {
+      "you": {
+        "rank": 229,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 228,
+        "to_first": 1.2821
+      },
+      "rank10": {
+        "attempts": 39,
+        "job": "ae320e4fb37d421f",
+        "rank": 10,
+        "speedup": 2.9331,
+        "submitted_at": 1793531690.8537703,
+        "team": "miketung",
+        "value": 1284.0704465741649
+      },
+      "rank50": {
+        "attempts": 23,
+        "job": "7ca2993992984ed6",
+        "rank": 50,
+        "speedup": 2.7208,
+        "submitted_at": 1793456750.2458766,
+        "team": "adityakm24",
+        "value": 1384.2677466949674
+      },
+      "required_score_increase_percent_from_rounded_CLI": {
+        "10": 12.625273585992414,
+        "50": 4.473370963406675
+      }
+    },
+    "moe": {
+      "you": {
+        "rank": 398,
+        "team": "yelgabo",
+        "speedup": 2.2157,
+        "first": false,
+        "ahead": 397,
+        "to_first": 1.2476
+      },
+      "rank10": {
+        "attempts": 31,
+        "job": "bcbbd833f18245ea",
+        "rank": 10,
+        "screening": "screened",
+        "speedup": 2.6242,
+        "submitted_at": 1793463840.5517886,
+        "team": "DTennant",
+        "value": 5124.832859985222
+      },
+      "rank50": {
+        "attempts": 40,
+        "job": "1efb0caf82764f57",
+        "rank": 50,
+        "speedup": 2.4584,
+        "submitted_at": 1793397652.7347488,
+        "team": "pierrelouisdelx",
+        "value": 5470.417587366838
+      },
+      "required_score_increase_percent_from_rounded_CLI": {
+        "10": 18.4366114546193,
+        "50": 10.953648959696727
+      }
+    }
+  },
+  "scope": "Problem-board cutoffs use rounded CLI scores; not forecasts or a numerical overall formula."
+}

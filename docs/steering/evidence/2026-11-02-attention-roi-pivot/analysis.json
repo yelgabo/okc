@@ -1,0 +1,123 @@
+{
+  "evidence_commit": "8a05389d1052ac5a01090965e1e5e17b03775299",
+  "fresh_job": "cc474883117947c0",
+  "public_job": "607eb52bdaf24160",
+  "weighted_layer_endpoints_us": {
+    "decode 1": 78.76453088391268,
+    "decode 16": 152.01624972636304,
+    "decode 32": 191.89781229731952,
+    "verify 1": 112.68166177082168,
+    "verify 16": 261.71304474650816,
+    "verify 32": 351.0802216924128
+  },
+  "long_full_attention_activity_us": {
+    "decode 16": 88.6,
+    "decode 32": 171.4,
+    "verify 16": 104.9,
+    "verify 32": 185.2
+  },
+  "long_weighted_expert_activity_us": {
+    "decode 16": 69.56129032258065,
+    "decode 32": 75.39032258064516,
+    "verify 16": 146.14193548387095,
+    "verify 32": 197.33870967741933
+  },
+  "current_layer_score_ratio_needed": 1.0657628817201583,
+  "net_equal_full_cell_scenarios": [
+    {
+      "saving_us": 1,
+      "layer_score_gain": 0.0007947548395699222
+    },
+    {
+      "saving_us": 3,
+      "layer_score_gain": 0.0023892804751037833
+    },
+    {
+      "saving_us": 5,
+      "layer_score_gain": 0.003990533540377594
+    },
+    {
+      "saving_us": 7,
+      "layer_score_gain": 0.005598561842966365
+    },
+    {
+      "saving_us": 10,
+      "layer_score_gain": 0.008023413649080213
+    }
+  ],
+  "net_equal_full_cell_required": [
+    {
+      "score_gain": 0.01,
+      "saving_us_each": 12.43133552819025
+    },
+    {
+      "score_gain": 0.03,
+      "saving_us_each": 36.34111460718526
+    },
+    {
+      "score_gain": 0.06576288172015832,
+      "saving_us_each": 76.153908499115
+    }
+  ],
+  "conditional_whole_attention_activity_scenarios": [
+    {
+      "activity_reduction": 0.1,
+      "layer_score_gain_if_fully_exposed": 0.010484451547979612
+    },
+    {
+      "activity_reduction": 0.2,
+      "layer_score_gain_if_fully_exposed": 0.02126430103626964
+    },
+    {
+      "activity_reduction": 0.3,
+      "layer_score_gain_if_fully_exposed": 0.03235390160559404
+    },
+    {
+      "activity_reduction": 0.5,
+      "layer_score_gain_if_fully_exposed": 0.055525035027922165
+    },
+    {
+      "activity_reduction": 0.9,
+      "layer_score_gain_if_fully_exposed": 0.10634416917356226
+    }
+  ],
+  "conditional_long_expert_activity_scenarios": [
+    {
+      "activity_reduction": 0.1,
+      "layer_score_gain_if_fully_exposed": 0.03427929864437074
+    },
+    {
+      "activity_reduction": 0.2,
+      "layer_score_gain_if_fully_exposed": 0.07170257020476334
+    },
+    {
+      "activity_reduction": 0.9,
+      "layer_score_gain_if_fully_exposed": 0.48446284129022477
+    }
+  ],
+  "conditional_attention_fraction_needed_for_cutoff": 0.5846982100196569,
+  "conditional_expert_fraction_needed_for_cutoff": 0.1847217306475743,
+  "conditional_expert_3pct_fraction": 0.08797589086969398,
+  "boundary_coverage": [
+    {
+      "batch": 16,
+      "grid": 264,
+      "cross_request_ctas_at_most": 15,
+      "fraction_at_most": 0.056818181818181816
+    },
+    {
+      "batch": 32,
+      "grid": 264,
+      "cross_request_ctas_at_most": 31,
+      "fraction_at_most": 0.11742424242424243
+    }
+  ],
+  "coverage_warning": "This is not a timing bound. Boundary CTAs can be critical; CONT init/tail/resource effects can apply elsewhere. Actual scored CUDA sequence lengths/nseg were not archived.",
+  "source_candidate": {
+    "bytes": 872908,
+    "sha256": "e912a5f4378301d62cd978b5012bc5d334dd0894f135784cf0c6cb50c87d6631"
+  },
+  "decision": "DEPRIORITIZE_CONTINUITY; HOLD_TARGET; freeze delivered source; fund architecture-first multi-load dominant-computation decision",
+  "measured_attention_gain": null,
+  "model_warning": "Activity reductions are conditional sizing, not exposed savings, predictions or recoverable ceilings. Fixed baselines and unchanged other work are assumed."
+}

@@ -1,0 +1,375 @@
+{
+  "schema": "worker-moe-component-archive-v1",
+  "observed_at": "2026-11-02T17:42:09.318085+00:00",
+  "allocation_commit": "2f25832e0a3385d2c6cc3ed347ac5cb5deae15c5",
+  "registration_commit": "adcfa8e548bb3af2780fa1ccd24d53c5e9f59e81",
+  "job": "56e0c8b5634545e6",
+  "terminal_decision": "VALID_SUBTHRESHOLD_REGRESSION_PARK_NO_FOLLOWON",
+  "reader_exit": 0,
+  "entries": [
+    {
+      "path": "docs/ruled-out.md",
+      "physical_bytes": 156042,
+      "physical_sha256": "6bf6ca3af6727b1181fdc35e4c25c138ac8b1d01741b4328ba7f3c3116ca3903",
+      "git_blob_bytes": 155588,
+      "git_blob_sha256": "f033c05e3cf577426b28fb6584aba5ddd4d37a659dbdc002a2a8a2c57acb4abb"
+    },
+    {
+      "path": "docs/runs-moe.md",
+      "physical_bytes": 461821,
+      "physical_sha256": "5acd3aae1e5e3ce20a330a35a35482d87ca7139a9b271262eb01d82f8cd1b865",
+      "git_blob_bytes": 461821,
+      "git_blob_sha256": "5acd3aae1e5e3ce20a330a35a35482d87ca7139a9b271262eb01d82f8cd1b865"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-moe-component-registration.md",
+      "physical_bytes": 4435,
+      "physical_sha256": "995709bb280219fd75154ee6ed6b3b85e2f0d77a8d8aa3b588281bda99cff761",
+      "git_blob_bytes": 4435,
+      "git_blob_sha256": "995709bb280219fd75154ee6ed6b3b85e2f0d77a8d8aa3b588281bda99cff761"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-moe-component-terminal.md",
+      "physical_bytes": 9095,
+      "physical_sha256": "f73d0723bf8f967b28151e4caa4cff4800d789744b9409a2bd4d17d577fc6d1f",
+      "git_blob_bytes": 9095,
+      "git_blob_sha256": "f73d0723bf8f967b28151e4caa4cff4800d789744b9409a2bd4d17d577fc6d1f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/accepted-status.json",
+      "physical_bytes": 59,
+      "physical_sha256": "1b6fb62607cff8f9529f56495908731f76e61b06f6f5dff3cc0ecfe49ae11557",
+      "git_blob_bytes": 59,
+      "git_blob_sha256": "1b6fb62607cff8f9529f56495908731f76e61b06f6f5dff3cc0ecfe49ae11557"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/accepted-status.stderr.txt",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/auth.txt",
+      "physical_bytes": 8,
+      "physical_sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2",
+      "git_blob_bytes": 8,
+      "git_blob_sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/auth.txt.stderr",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/descriptive-load-summary.json",
+      "physical_bytes": 1719,
+      "physical_sha256": "2e3b51ec71455edf7fc78cbfb8d6d508714a7732e4334af4a61e54758bad13f8",
+      "git_blob_bytes": 1719,
+      "git_blob_sha256": "2e3b51ec71455edf7fc78cbfb8d6d508714a7732e4334af4a61e54758bad13f8"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/dispatch-preconditions.json",
+      "physical_bytes": 551,
+      "physical_sha256": "3135acb006b090e263db84be6937a7381a49fc3dc3f0b08f1592bb6b0438d517",
+      "git_blob_bytes": 551,
+      "git_blob_sha256": "3135acb006b090e263db84be6937a7381a49fc3dc3f0b08f1592bb6b0438d517"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/dispatch.exit.txt",
+      "physical_bytes": 2,
+      "physical_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "git_blob_bytes": 2,
+      "git_blob_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/dispatch.stderr.txt",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/dispatch.stdout.json",
+      "physical_bytes": 66,
+      "physical_sha256": "db1efdd4a36a27a1746bac4c81a284501a4bfd183a0edd60200612a6f4aea5aa",
+      "git_blob_bytes": 66,
+      "git_blob_sha256": "db1efdd4a36a27a1746bac4c81a284501a4bfd183a0edd60200612a6f4aea5aa"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/final-jobs.json",
+      "physical_bytes": 13823,
+      "physical_sha256": "35b19a625bbee86f3e46bb2c04f8725216bfa648e0f1acd4109089bbbf2a65b1",
+      "git_blob_bytes": 13823,
+      "git_blob_sha256": "35b19a625bbee86f3e46bb2c04f8725216bfa648e0f1acd4109089bbbf2a65b1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/final-jobs.json.stderr",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/final-quota.json",
+      "physical_bytes": 1536,
+      "physical_sha256": "df340ce0ce77ac91ff632862478eba34fed4ebd10f3b30a8b32f06bd15b881b1",
+      "git_blob_bytes": 1536,
+      "git_blob_sha256": "df340ce0ce77ac91ff632862478eba34fed4ebd10f3b30a8b32f06bd15b881b1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/final-quota.json.stderr",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/frozen-reader-result.json",
+      "physical_bytes": 25337,
+      "physical_sha256": "cc441ea4abe8b644ce0f128e0c3f452bc8be4f4c77cfc00c2fefa385fc5eeee0",
+      "git_blob_bytes": 25337,
+      "git_blob_sha256": "cc441ea4abe8b644ce0f128e0c3f452bc8be4f4c77cfc00c2fefa385fc5eeee0"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/frozen-reader.exit.txt",
+      "physical_bytes": 2,
+      "physical_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "git_blob_bytes": 2,
+      "git_blob_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/frozen-reader.py",
+      "physical_bytes": 7960,
+      "physical_sha256": "dc0fd553b8b4b701c7f6eaa99aff52abd9a2ab9191712c0d178bd5b3ae704b35",
+      "git_blob_bytes": 7960,
+      "git_blob_sha256": "dc0fd553b8b4b701c7f6eaa99aff52abd9a2ab9191712c0d178bd5b3ae704b35"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/frozen-reader.stderr.txt",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/frozen-reader.stdout.txt",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/generated/profiles/target-proposal.56e0c8b5634545e6.json",
+      "physical_bytes": 51976,
+      "physical_sha256": "462f5ea37f23b0eea8c8f18e56e90e96177bfa7ea2ae754a1547340ee17ff795",
+      "git_blob_bytes": 51976,
+      "git_blob_sha256": "462f5ea37f23b0eea8c8f18e56e90e96177bfa7ea2ae754a1547340ee17ff795"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/generated/profiles/target-proposal.56e0c8b5634545e6.log",
+      "physical_bytes": 8730,
+      "physical_sha256": "f0a28a52fe9b7ee56c47b7ffe611ad3d30c1f11f8b8b0b26f7948092558d51f0",
+      "git_blob_bytes": 8730,
+      "git_blob_sha256": "f0a28a52fe9b7ee56c47b7ffe611ad3d30c1f11f8b8b0b26f7948092558d51f0"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/generated/profiles/target-proposal.56e0c8b5634545e6.txt",
+      "physical_bytes": 2902,
+      "physical_sha256": "1743ed05f96abd1a1960935bb20331c59ae189b6add105f710bb075b40a1f762",
+      "git_blob_bytes": 2902,
+      "git_blob_sha256": "1743ed05f96abd1a1960935bb20331c59ae189b6add105f710bb075b40a1f762"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/generated/target-proposal.manifest.json",
+      "physical_bytes": 6880,
+      "physical_sha256": "fbc6c72e40e832b159ce28efc7f190cec6438b5564f38a57a8271c0769072f38",
+      "git_blob_bytes": 6880,
+      "git_blob_sha256": "fbc6c72e40e832b159ce28efc7f190cec6438b5564f38a57a8271c0769072f38"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/generated/target-proposal.py",
+      "physical_bytes": 344689,
+      "physical_sha256": "8f12932a4d0fc8a2ca42a165610fd7659d4db960d8c65c8ea97281b75ec46d5d",
+      "git_blob_bytes": 344689,
+      "git_blob_sha256": "8f12932a4d0fc8a2ca42a165610fd7659d4db960d8c65c8ea97281b75ec46d5d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/jobs.json",
+      "physical_bytes": 13823,
+      "physical_sha256": "7fd96ca7466afd0ddacf6823e9af7053e5998e1492af3202f667a38736e12ff1",
+      "git_blob_bytes": 13823,
+      "git_blob_sha256": "7fd96ca7466afd0ddacf6823e9af7053e5998e1492af3202f667a38736e12ff1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/jobs.json.stderr",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/log-attestation.json",
+      "physical_bytes": 369,
+      "physical_sha256": "bc5f96e915fbfeaa1a3f8fe09f52d2f57d37792c5b553bf4a55d6e0b59023ed5",
+      "git_blob_bytes": 369,
+      "git_blob_sha256": "bc5f96e915fbfeaa1a3f8fe09f52d2f57d37792c5b553bf4a55d6e0b59023ed5"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/preflight-at.txt",
+      "physical_bytes": 33,
+      "physical_sha256": "7d392b37fec15823e323ee0f17d7225f3cec95f85e6e596e0e196308012ae11b",
+      "git_blob_bytes": 33,
+      "git_blob_sha256": "7d392b37fec15823e323ee0f17d7225f3cec95f85e6e596e0e196308012ae11b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/profile-0-1.txt",
+      "physical_bytes": 251,
+      "physical_sha256": "52de2dc0b6d4cd791cf4cfe40bc3137e409b5537fc0590e1df5cba91dd2f5e6a",
+      "git_blob_bytes": 251,
+      "git_blob_sha256": "52de2dc0b6d4cd791cf4cfe40bc3137e409b5537fc0590e1df5cba91dd2f5e6a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/profile-1-16.txt",
+      "physical_bytes": 251,
+      "physical_sha256": "df48a5ba8e235c777c047e027dba2e0afedd787b90b7ce6d47ee4a26929dc748",
+      "git_blob_bytes": 251,
+      "git_blob_sha256": "df48a5ba8e235c777c047e027dba2e0afedd787b90b7ce6d47ee4a26929dc748"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/profile-2-32.txt",
+      "physical_bytes": 251,
+      "physical_sha256": "11a80342bb3dc5fbdfa3cba01deae660fed40972b2f4fa339f076ab0be5f0a4c",
+      "git_blob_bytes": 251,
+      "git_blob_sha256": "11a80342bb3dc5fbdfa3cba01deae660fed40972b2f4fa339f076ab0be5f0a4c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/profile-3-8.txt",
+      "physical_bytes": 251,
+      "physical_sha256": "e1664b7667b9b70348dda843f2ff6f1a94eda276ae465000ad50ce76f7ac3fb8",
+      "git_blob_bytes": 251,
+      "git_blob_sha256": "e1664b7667b9b70348dda843f2ff6f1a94eda276ae465000ad50ce76f7ac3fb8"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/profile-4-128.txt",
+      "physical_bytes": 251,
+      "physical_sha256": "7b889c53919119c9c880a915e3c97b5be707bcf7d67a9f7c03ccb14716d72808",
+      "git_blob_bytes": 251,
+      "git_blob_sha256": "7b889c53919119c9c880a915e3c97b5be707bcf7d67a9f7c03ccb14716d72808"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/profile-5-256.txt",
+      "physical_bytes": 251,
+      "physical_sha256": "0faba02d7844d666ec3bca43005a1a8c3508802a213f168e92eccf7382d4c42c",
+      "git_blob_bytes": 251,
+      "git_blob_sha256": "0faba02d7844d666ec3bca43005a1a8c3508802a213f168e92eccf7382d4c42c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/quota.json",
+      "physical_bytes": 1537,
+      "physical_sha256": "308c457086221faecb6b4a1809453668d33b5b26c83a1a164abbc562aca60f6f",
+      "git_blob_bytes": 1537,
+      "git_blob_sha256": "308c457086221faecb6b4a1809453668d33b5b26c83a1a164abbc562aca60f6f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/quota.json.stderr",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/reader-result.json",
+      "physical_bytes": 25337,
+      "physical_sha256": "cc441ea4abe8b644ce0f128e0c3f452bc8be4f4c77cfc00c2fefa385fc5eeee0",
+      "git_blob_bytes": 25337,
+      "git_blob_sha256": "cc441ea4abe8b644ce0f128e0c3f452bc8be4f4c77cfc00c2fefa385fc5eeee0"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/source-verification.json",
+      "physical_bytes": 667,
+      "physical_sha256": "cbff6e90e1fcc13218b9d61a35926091dc925b5c157c73ad898786bb3f5bb871",
+      "git_blob_bytes": 667,
+      "git_blob_sha256": "cbff6e90e1fcc13218b9d61a35926091dc925b5c157c73ad898786bb3f5bb871"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/status-wait.exit.txt",
+      "physical_bytes": 1,
+      "physical_sha256": "1b16b1df538ba12dc3f97edbb85caa7050d46c148134290feba80f8236c83db9",
+      "git_blob_bytes": 1,
+      "git_blob_sha256": "1b16b1df538ba12dc3f97edbb85caa7050d46c148134290feba80f8236c83db9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/status-wait.raw.json",
+      "physical_bytes": 72154,
+      "physical_sha256": "f7cebd7c380acb1b03ba83052db9c6d4eec6d25b8f8e1a3022e8622f1768ce36",
+      "git_blob_bytes": 72154,
+      "git_blob_sha256": "f7cebd7c380acb1b03ba83052db9c6d4eec6d25b8f8e1a3022e8622f1768ce36"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/status-wait.stderr.txt",
+      "physical_bytes": 0,
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob_bytes": 0,
+      "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/terminal-decision.json",
+      "physical_bytes": 9403,
+      "physical_sha256": "7a0a02f497543c659e7b4d19079e28afff0b3f6a7567827e74ad8fa1719f8bc5",
+      "git_blob_bytes": 9403,
+      "git_blob_sha256": "7a0a02f497543c659e7b4d19079e28afff0b3f6a7567827e74ad8fa1719f8bc5"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/terminal-observed-at.txt",
+      "physical_bytes": 33,
+      "physical_sha256": "1ba2dd48af5523e1b74f25c7faa99ff700cbb6cdeb8758dfcbfd1667b4806f6d",
+      "git_blob_bytes": 33,
+      "git_blob_sha256": "1ba2dd48af5523e1b74f25c7faa99ff700cbb6cdeb8758dfcbfd1667b4806f6d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/transport-notes.txt",
+      "physical_bytes": 707,
+      "physical_sha256": "02f1a249bd0a7528c9e47863529c7c7401875285381ad24e8b3b94d973459a5d",
+      "git_blob_bytes": 707,
+      "git_blob_sha256": "02f1a249bd0a7528c9e47863529c7c7401875285381ad24e8b3b94d973459a5d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-moe-component/upload-association.json",
+      "physical_bytes": 403,
+      "physical_sha256": "93f60ead168bfc4c7b5ba0611b9a67ab369d6bf726a0623f9cfde8630fddbb7c",
+      "git_blob_bytes": 403,
+      "git_blob_sha256": "93f60ead168bfc4c7b5ba0611b9a67ab369d6bf726a0623f9cfde8630fddbb7c"
+    },
+    {
+      "path": "muse_moe_w4a16/profiles/expert_top100_pregamma.56e0c8b5634545e6.json",
+      "physical_bytes": 51976,
+      "physical_sha256": "462f5ea37f23b0eea8c8f18e56e90e96177bfa7ea2ae754a1547340ee17ff795",
+      "git_blob_bytes": 51976,
+      "git_blob_sha256": "462f5ea37f23b0eea8c8f18e56e90e96177bfa7ea2ae754a1547340ee17ff795"
+    },
+    {
+      "path": "muse_moe_w4a16/profiles/expert_top100_pregamma.56e0c8b5634545e6.log",
+      "physical_bytes": 8730,
+      "physical_sha256": "f0a28a52fe9b7ee56c47b7ffe611ad3d30c1f11f8b8b0b26f7948092558d51f0",
+      "git_blob_bytes": 8730,
+      "git_blob_sha256": "f0a28a52fe9b7ee56c47b7ffe611ad3d30c1f11f8b8b0b26f7948092558d51f0"
+    },
+    {
+      "path": "muse_moe_w4a16/profiles/expert_top100_pregamma.56e0c8b5634545e6.receipt.json",
+      "physical_bytes": 72154,
+      "physical_sha256": "f7cebd7c380acb1b03ba83052db9c6d4eec6d25b8f8e1a3022e8622f1768ce36",
+      "git_blob_bytes": 72154,
+      "git_blob_sha256": "f7cebd7c380acb1b03ba83052db9c6d4eec6d25b8f8e1a3022e8622f1768ce36"
+    },
+    {
+      "path": "muse_moe_w4a16/profiles/expert_top100_pregamma.56e0c8b5634545e6.txt",
+      "physical_bytes": 2902,
+      "physical_sha256": "1743ed05f96abd1a1960935bb20331c59ae189b6add105f710bb075b40a1f762",
+      "git_blob_bytes": 2902,
+      "git_blob_sha256": "1743ed05f96abd1a1960935bb20331c59ae189b6add105f710bb075b40a1f762"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+test_all_ten_actual_streams (proj_test_stage_xor.StageXOR.test_all_ten_actual_streams) ... ok
+test_bad_header_count_fails_before_copy (proj_test_stage_xor.StageXOR.test_bad_header_count_fails_before_copy) ... ok
+test_dense_transport_and_empty (proj_test_stage_xor.StageXOR.test_dense_transport_and_empty) ... ok
+test_lifetime_and_bulk_bytes (proj_test_stage_xor.StageXOR.test_lifetime_and_bulk_bytes) ... ok
+setUpClass (test_sk_stage_repair_independent.StageRecords) ... skipped 'Set SK_SPARSE_ARTIFACT to the exact emitted prototype under review'
+test_builder_preserves_timed_entry_and_no_new_benchmark (proj_test_stage_xor_release.Release.test_builder_preserves_timed_entry_and_no_new_benchmark) ... ok
+test_finite_and_deadline_negative (proj_test_stage_xor_release.Release.test_finite_and_deadline_negative) ... ok
+test_math_stale_resource_diag_fail_before_publication (proj_test_stage_xor_release.Release.test_math_stale_resource_diag_fail_before_publication) ... ok
+test_unsupported_pack_explicit_incumbent_fallback (proj_test_stage_xor_release.Release.test_unsupported_pack_explicit_incumbent_fallback) ... ok
+test_whole_prepare_and_all_M1_33_policy (proj_test_stage_xor_release.Release.test_whole_prepare_and_all_M1_33_policy) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.114s
+
+OK (skipped=1)

@@ -1,0 +1,16 @@
+{
+  "at": "2026-11-02T05:54:25.373Z",
+  "commit": "c40930c5e49efb05ff7ac476e34c8b50fdc1541a",
+  "verified": [
+    "tools/g_outgoing_driver_pair.py",
+    "tools/g_outgoing_driver_pair_read.py",
+    "tools/test_g_outgoing_driver_pair.py",
+    "docs/steering/2026-11-01-worker-outgoing-driver-pair-registration.md",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/check.py.gz",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/cpu-tests.txt",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/freeze-offline.py",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/host-only.diff.gz",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/manifest.json",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-driver-pair/offline-pins.json"
+  ]
+}

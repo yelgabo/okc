@@ -1,0 +1,71 @@
+{
+  "job": "94c57451574c4cd3",
+  "qualified": false,
+  "source_sha256": "1191e44cf87cacc36e89729a9e2f33d3c80f04361afe30062e022cd07009d537",
+  "correctness": "PASS5/6/6 and54private cases",
+  "counters": {
+    "observations": 378,
+    "restorations": 54,
+    "captures": 216,
+    "timed_replays": 1152,
+    "worst": [
+      0.0001350360835203901,
+      0.00020654559193644673
+    ]
+  },
+  "prepare_s": 272.829259664999,
+  "groups_passed": 0,
+  "affected_regressions": 18,
+  "unchanged_drift": [
+    [
+      1102031,
+      16,
+      "skewed"
+    ]
+  ],
+  "complete_six_factor_range": [
+    0.7551958130919759,
+    0.8037109537855711
+  ],
+  "official_score_us": 7194.998533596532,
+  "official_speedup": 1.869145620697932,
+  "official_speedup_ci": [
+    1.841108436387463,
+    1.8971828050084008
+  ],
+  "loads": [
+    {
+      "tokens": 1,
+      "us": 25.431311782721572,
+      "baseline_us": 77.61600334197283
+    },
+    {
+      "tokens": 16,
+      "us": 96.45317999901047,
+      "baseline_us": 190.01599960029125
+    },
+    {
+      "tokens": 32,
+      "us": 146.6447746689834,
+      "baseline_us": 205.56800113990903
+    },
+    {
+      "tokens": 8,
+      "us": 64.95987838202883,
+      "baseline_us": 143.40800140053034
+    },
+    {
+      "tokens": 128,
+      "us": 310.7211199518512,
+      "baseline_us": 469.55200377851725
+    },
+    {
+      "tokens": 256,
+      "us": 407.7526513869929,
+      "baseline_us": 618.3999702334404
+    }
+  ],
+  "waiter_session": 38355,
+  "waiter_exit": 0,
+  "stop": "Stop exact direct-input treatment. No mapping/cache/ring sweep, retry, mask, integration or public action."
+}

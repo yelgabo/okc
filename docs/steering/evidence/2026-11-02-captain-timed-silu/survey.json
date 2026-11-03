@@ -1,0 +1,1146 @@
+{
+  "at": "2026-11-02T10:08:40.720Z",
+  "board_fetched_approx_utc": "2026-11-02T09:55:00Z",
+  "base_commit": "8689680cbc0ab0cc478d9ffa1e6c4e7bf7886425",
+  "queries": [
+    {
+      "query": "\"open kernel challenge\"",
+      "url": "https://api.github.com/search/repositories?q=%22open%20kernel%20challenge%22&sort=updated&per_page=100",
+      "status": 200,
+      "total": 27,
+      "returned": 27,
+      "items": [
+        {
+          "repo": "jacobpmiller/open-kernel-challenge-2026",
+          "pushed": "2026-11-02T04:11:28Z",
+          "description": "A fun historical record of an Open Kernel Challenge 2026 entry (H200 kernels vs SGLang)"
+        },
+        {
+          "repo": "ruwwww/open-kernel-challenge",
+          "pushed": "2026-11-02T04:04:14Z",
+          "description": "High-performance GPU kernels on NVIDIA H200 (SM90a) for Meta's Muse Spark Open 816B NVFP4 MoE model (Open Kernel Challenge)"
+        },
+        {
+          "repo": "KingCobra52/muse_bf16_optimization",
+          "pushed": "2026-11-01T23:38:07Z",
+          "description": "Optimizing the the muse_bf16 kernel in Meta's Muse Spark Open AI model for the Muse Spark Open Kernel Challenge"
+        },
+        {
+          "repo": "keell0renz/muse-open-kernel-challenge",
+          "pushed": "2026-11-01T07:11:10Z",
+          "description": "Team keell0renz's fair H200 kernels for the OKC Muse Spark Open Kernel Challenge: decode layer 2.2659 (#38/1085, overall), attention #35, bf16 #26, prefill #29, MoE #58. Highest-ranked public OKC code we know of on all 5 boards (Nov 1). Apache-2.0, with lessons from ~460 experiments."
+        },
+        {
+          "repo": "Kushagrabainsla/muse-spark-open",
+          "pushed": "2026-11-01T04:47:54Z",
+          "description": "CUDA/Triton kernels for the Muse Spark Open Kernel Challenge on H200: gated attention decode, NVFP4 MoE, BF16 projections, decoder layer"
+        },
+        {
+          "repo": "trxphxle/okc-2026-muse-kernels",
+          "pushed": "2026-10-31T10:57:07Z",
+          "description": "Muse Spark Open Kernel Challenge 2026 (team trxphxle): H200 kernels, results, and every experiment we ran. Peaked top 200 (#185)."
+        },
+        {
+          "repo": "alygg77/okc-muse-spark-kernels",
+          "pushed": "2026-10-29T21:11:40Z",
+          "description": "Open-source H200 CUDA kernels for the Muse Spark Open Kernel Challenge (OKC): decode layer 2.21x, NVFP4 MoE 2.40x, BF16 proj 1.55x, prefill 1.82x, attention 2.65x vs SGLang; judge results, measured H200 facts, negative results"
+        },
+        {
+          "repo": "iyerramji/open-kernel-challenge",
+          "pushed": "2026-10-29T15:20:39Z",
+          "description": "H200 Muse dense-projection kernel experiments with separate official and Modal measurements"
+        },
+        {
+          "repo": "sid19991/open-kernel-challenge",
+          "pushed": "2026-10-29T14:59:40Z",
+          "description": null
+        },
+        {
+          "repo": "Aravind-11/muse-moe-w4a16",
+          "pushed": "2026-10-28T05:02:11Z",
+          "description": "Early NVFP4 MoE kernels for the Open Kernel Challenge."
+        },
+        {
+          "repo": "vjeux/okc-2026",
+          "pushed": "2026-10-28T02:03:36Z",
+          "description": "Open Kernel Challenge 2026 - Muse Spark kernel entries (team vjeux)"
+        },
+        {
+          "repo": "Reedo3/Muse_Attention_Decode",
+          "pushed": "2026-10-27T23:42:40Z",
+          "description": "The Muse Spark Open Kernel Challenge had a competition for muse's attention decode. The link for this is located here: https://openkernelchallenge.dev/problems/muse_attention_decode"
+        },
+        {
+          "repo": "GiulianoIntelligence/Muse-FlashSpeed-Kernel",
+          "pushed": "2026-10-27T22:33:28Z",
+          "description": "Muse Spark Open Kernel Challenge entries"
+        },
+        {
+          "repo": "Xuefeng-Zhu/open-kernel-challenge",
+          "pushed": "2026-10-28T07:24:58Z",
+          "description": "Correctness-first Open Kernel Challenge baseline, reproducible checks, and experiment records"
+        },
+        {
+          "repo": "nibague/open-kernel-challenge",
+          "pushed": "2026-10-27T15:05:10Z",
+          "description": null
+        },
+        {
+          "repo": "infraax/okc-kernel-challenge",
+          "pushed": "2026-10-27T11:46:00Z",
+          "description": "Open Kernel Challenge 2026 (Muse Spark Open, H200): an AI-agent-driven GPU kernel campaign — results, hypotheses, method, kernels and judge data, archived"
+        },
+        {
+          "repo": "xharshvardhan/open-kernel-challenge",
+          "pushed": "2026-10-27T03:26:55Z",
+          "description": "Optimized GPU kernels for Open Kernel Challenge with verified standings and concise implementation notes"
+        },
+        {
+          "repo": "operatorstack/open-kernel-challenge-solutions",
+          "pushed": "2026-10-26T02:35:32Z",
+          "description": "Final scored solutions from the Open Kernel Challenge (H200), team bigboateng"
+        },
+        {
+          "repo": "arudomanenko/open_kernel_challenge",
+          "pushed": "2026-10-29T21:29:40Z",
+          "description": null
+        },
+        {
+          "repo": "Ranoobaba/okc-campaign",
+          "pushed": "2026-10-25T17:00:19Z",
+          "description": "Autonomous kernel-optimization campaign for the Open Kernel Challenge: Modal H200 judge replica, overnight experiment loop, Triton kernels vs SGLang"
+        },
+        {
+          "repo": "NathenFernandes/muse-bf16-proj",
+          "pushed": "2026-10-24T20:30:29Z",
+          "description": "H200 projection kernels for the Muse Spark Open Kernel Challenge. Best judged speedup: 1.5186x over SGLang."
+        },
+        {
+          "repo": "lilaclilac09/open-kernel-challenge",
+          "pushed": "2026-10-24T15:38:36Z",
+          "description": "Muse Spark Open Kernel Challenge (openkernelchallenge.dev) — kernel starters + notes"
+        },
+        {
+          "repo": "Lurrobert/guild",
+          "pushed": "2026-10-24T02:18:09Z",
+          "description": "Open board for Open Kernel Challenge agents: end-to-end-encrypted cartels, read-only forum for humans"
+        },
+        {
+          "repo": "MadanChaollaPark/open-kernel-experiments",
+          "pushed": "2026-10-24T01:57:57Z",
+          "description": "Codex-assisted H200 kernel experiments: verified Open Kernel Challenge scores, local benchmarks, failed variants, and source snapshots."
+        },
+        {
+          "repo": "danyloooah-web/okc-claims",
+          "pushed": "2026-10-23T15:14:45Z",
+          "description": "Encrypted Cacheon claim archives for Open Kernel Challenge runs"
+        },
+        {
+          "repo": "theluckystrike/muse-spark-open-kernels",
+          "pushed": "2026-10-23T10:04:14Z",
+          "description": "Open source must win · Muse Spark Open Kernel Challenge kernels (Apache-2.0), published after the boards close"
+        },
+        {
+          "repo": "msaroufim/openkernelchallenge-audit",
+          "pushed": "2026-10-23T02:43:57Z",
+          "description": "Evidence, limitations, and reproducible static analysis of Open Kernel Challenge and KernelBot similarities"
+        }
+      ]
+    },
+    {
+      "query": "\"muse_decode_layer\"",
+      "url": "https://api.github.com/search/repositories?q=%22muse_decode_layer%22&sort=updated&per_page=100",
+      "status": 200,
+      "total": 0,
+      "returned": 0,
+      "items": []
+    },
+    {
+      "query": "\"muse spark\" kernel",
+      "url": "https://api.github.com/search/repositories?q=%22muse%20spark%22%20kernel&sort=updated&per_page=100",
+      "status": 200,
+      "total": 19,
+      "returned": 19,
+      "items": [
+        {
+          "repo": "ruwwww/open-kernel-challenge",
+          "pushed": "2026-11-02T04:04:14Z",
+          "description": "High-performance GPU kernels on NVIDIA H200 (SM90a) for Meta's Muse Spark Open 816B NVFP4 MoE model (Open Kernel Challenge)"
+        },
+        {
+          "repo": "KingCobra52/muse_bf16_optimization",
+          "pushed": "2026-11-01T23:38:07Z",
+          "description": "Optimizing the the muse_bf16 kernel in Meta's Muse Spark Open AI model for the Muse Spark Open Kernel Challenge"
+        },
+        {
+          "repo": "mary-jeon/realcad",
+          "pushed": "2026-11-01T21:05:50Z",
+          "description": "Prompt → CAD that actually assembles: Meta Muse Spark writes the part, the OpenCascade kernel measures bolt holes, interference, thread engagement and printability, and sends failures back for repair. STEP/STL/3MF/DXF/BOM. Meta Global AI Developer Hackathon 2026."
+        },
+        {
+          "repo": "sysretq0/android-kernel-builder",
+          "pushed": "2026-11-01T12:05:52Z",
+          "description": "Build GKI kernels (5.10-6.18) with KernelSU-Next, NoMount, Partition Guard + portable Kconfig fragments. Flashable AnyKernel3 zips on Releases. Assisted by muse-spark-1.3."
+        },
+        {
+          "repo": "keell0renz/muse-open-kernel-challenge",
+          "pushed": "2026-11-01T07:11:10Z",
+          "description": "Team keell0renz's fair H200 kernels for the OKC Muse Spark Open Kernel Challenge: decode layer 2.2659 (#38/1085, overall), attention #35, bf16 #26, prefill #29, MoE #58. Highest-ranked public OKC code we know of on all 5 boards (Nov 1). Apache-2.0, with lessons from ~460 experiments."
+        },
+        {
+          "repo": "Kushagrabainsla/muse-spark-open",
+          "pushed": "2026-11-01T04:47:54Z",
+          "description": "CUDA/Triton kernels for the Muse Spark Open Kernel Challenge on H200: gated attention decode, NVFP4 MoE, BF16 projections, decoder layer"
+        },
+        {
+          "repo": "arunjyotisarmarsece24-jpg/neuro-spark-accel",
+          "pushed": "2026-10-31T11:43:43Z",
+          "description": " Full-Stack AI Acceleration Engine: From Bio-Inspired Spiking Neural Networks (LIF) & BitNet b1.58 on Spartan-7       FPGA to Hopper H200 Triton Kernels for Meta Muse Spark Open."
+        },
+        {
+          "repo": "trxphxle/okc-2026-muse-kernels",
+          "pushed": "2026-10-31T10:57:07Z",
+          "description": "Muse Spark Open Kernel Challenge 2026 (team trxphxle): H200 kernels, results, and every experiment we ran. Peaked top 200 (#185)."
+        },
+        {
+          "repo": "Mahesh-Paul/AutoPatch-Kernel-Autonomous-Self-Healing-Codebase-Agent-Built-on-MCP",
+          "pushed": "2026-10-31T03:38:45Z",
+          "description": "AutoPatch-Kernel is an autonomous MCP codebase healer powered by Meta Muse Spark 1.3 and Modal sandboxes. It localizes faults via Tree-sitter AST call graphs and syscall tracing, tests parallel Git worktree patches inside read-only containers, and opens verified GitHub Pull Requests."
+        },
+        {
+          "repo": "alygg77/okc-muse-spark-kernels",
+          "pushed": "2026-10-29T21:11:40Z",
+          "description": "Open-source H200 CUDA kernels for the Muse Spark Open Kernel Challenge (OKC): decode layer 2.21x, NVFP4 MoE 2.40x, BF16 proj 1.55x, prefill 1.82x, attention 2.65x vs SGLang; judge results, measured H200 facts, negative results"
+        },
+        {
+          "repo": "zhebrak/muse-spark-kernels",
+          "pushed": "2026-10-28T19:39:37Z",
+          "description": null
+        },
+        {
+          "repo": "vjeux/okc-2026",
+          "pushed": "2026-10-28T02:03:36Z",
+          "description": "Open Kernel Challenge 2026 - Muse Spark kernel entries (team vjeux)"
+        },
+        {
+          "repo": "Reedo3/Muse_Attention_Decode",
+          "pushed": "2026-10-27T23:42:40Z",
+          "description": "The Muse Spark Open Kernel Challenge had a competition for muse's attention decode. The link for this is located here: https://openkernelchallenge.dev/problems/muse_attention_decode"
+        },
+        {
+          "repo": "GiulianoIntelligence/Muse-FlashSpeed-Kernel",
+          "pushed": "2026-10-27T22:33:28Z",
+          "description": "Muse Spark Open Kernel Challenge entries"
+        },
+        {
+          "repo": "Saikat-too/muse_spark_kernel_challenge",
+          "pushed": "2026-10-27T18:01:08Z",
+          "description": null
+        },
+        {
+          "repo": "infraax/okc-kernel-challenge",
+          "pushed": "2026-10-27T11:46:00Z",
+          "description": "Open Kernel Challenge 2026 (Muse Spark Open, H200): an AI-agent-driven GPU kernel campaign — results, hypotheses, method, kernels and judge data, archived"
+        },
+        {
+          "repo": "NathenFernandes/muse-bf16-proj",
+          "pushed": "2026-10-24T20:30:29Z",
+          "description": "H200 projection kernels for the Muse Spark Open Kernel Challenge. Best judged speedup: 1.5186x over SGLang."
+        },
+        {
+          "repo": "lilaclilac09/open-kernel-challenge",
+          "pushed": "2026-10-24T15:38:36Z",
+          "description": "Muse Spark Open Kernel Challenge (openkernelchallenge.dev) — kernel starters + notes"
+        },
+        {
+          "repo": "theluckystrike/muse-spark-open-kernels",
+          "pushed": "2026-10-23T10:04:14Z",
+          "description": "Open source must win · Muse Spark Open Kernel Challenge kernels (Apache-2.0), published after the boards close"
+        }
+      ]
+    }
+  ],
+  "scope": "Entrant-independent GitHub repository queries complete first pages (all totals under100), current boards; primary web search query results; bounded actual Jacob full dispatcher and37profile intake. Not exhaustive unindexed/private/nondefault sources.",
+  "public_rank": {
+    "overall": {
+      "rank": 342,
+      "team": "yelgabo",
+      "solved": 4
+    },
+    "overall_rows": 1850,
+    "layer_rank": 342,
+    "layer_rows": 1180,
+    "incumbent": {
+      "job": "607eb52bdaf24160",
+      "team": "yelgabo",
+      "speedup": 2.1260826764231093,
+      "submitted_at": 1793534312.3883686,
+      "attempts": 42,
+      "value": 10639.426326569794
+    },
+    "layer100": {
+      "job": "0f541cc5308a42c8",
+      "team": "josemiguel",
+      "speedup": 2.262677253681102,
+      "submitted_at": 1793540447.8098798,
+      "attempts": 29,
+      "value": 9997.139434357909
+    },
+    "layer100_ratio": 1.064247067516583
+  },
+  "jacob": {
+    "repo": "jacobpmiller/open-kernel-challenge-2026",
+    "head": "3035b292a2b0c894a1b67407f51812430045850c",
+    "tree_entries": 632,
+    "tree_truncated": false,
+    "readme_sha": "42d7e42dc5946739bdedd615a8624342cf328227",
+    "source": {
+      "path": "muse_decode_layer/submission.py",
+      "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/submission.py",
+      "bytes": 121226,
+      "sha256": "2c156d21df8c04d88e92b64ce74a44f960e2c308ecddc2a41dcee141fa017184"
+    },
+    "no_license_or_notice_named_paths": [],
+    "layer_profile_count": 37,
+    "profile_manifest": [
+      {
+        "path": "muse_decode_layer/profiles/submission.0d1af6c6bbf946b4.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/profiles/submission.0d1af6c6bbf946b4.json",
+        "sha256": "4b956a64ea0f2ce668ecf03cc2cb88164e914b8673c2cb88eb51e4e700931c65",
+        "job": "0d1af6c6bbf946b4",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 20536.982201637198,
+          "speedup": 1.1014422556297838,
+          "speedup_ci": [
+            1.084920621795337,
+            1.1179638894642305
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/profiles/submission.91824e36898b466f.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/profiles/submission.91824e36898b466f.json",
+        "sha256": "c7ff8c87869118ed4599c500ce3d7fa3f2d291030bdf7b59de77992d2a73444c",
+        "job": "91824e36898b466f",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18261.483965544907,
+          "speedup": 1.238689037686047,
+          "speedup_ci": [
+            1.2201087021207564,
+            1.2572693732513376
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/profiles/submission.7dd96d159aee4373.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/profiles/submission.7dd96d159aee4373.json",
+        "sha256": "fc7a320561a6c91bb11843e97cd21ad13888467851ee3776739739b0ee33df1f",
+        "job": "7dd96d159aee4373",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18212.525610050958,
+          "speedup": 1.242018843752045,
+          "speedup_ci": [
+            1.2233885610957642,
+            1.2606491264083255
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/profiles/submission.d99e71f509c34df4.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/profiles/submission.d99e71f509c34df4.json",
+        "sha256": "b3086593a163cddc96ee277f9fea3c32147101d83debae09dcb1b5834d0940ea",
+        "job": "d99e71f509c34df4",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 21800.022295773335,
+          "speedup": 1.0376273791419792,
+          "speedup_ci": [
+            1.0220629684548495,
+            1.0531917898291088
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v11b.ea9e7a5a9f854e0c.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v11b.ea9e7a5a9f854e0c.json",
+        "sha256": "d14e9da535c93daae2ed88bac26431204a3df12ce2fae5bde758c258d88e0fd4",
+        "job": "ea9e7a5a9f854e0c",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18502.293738962086,
+          "speedup": 1.2225673378196469,
+          "speedup_ci": [
+            1.204228827752352,
+            1.2409058478869415
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v12.d8436a351a1942e4.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v12.d8436a351a1942e4.json",
+        "sha256": "c22a0039f5067732d21d187bbddb4ca368a1942e66e162587c4c95d9b58a7a7b",
+        "job": "d8436a351a1942e4",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18295.118618020424,
+          "speedup": 1.236411770389908,
+          "speedup_ci": [
+            1.2178655938340595,
+            1.2549579469457566
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v10.fa1db10891da4685.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v10.fa1db10891da4685.json",
+        "sha256": "6218958a19226a73349bbbaac3f75d25100b0fa024ab16e3f17cee4ccde24be8",
+        "job": "fa1db10891da4685",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18275.13020157438,
+          "speedup": 1.237764095275846,
+          "speedup_ci": [
+            1.2191976338467083,
+            1.2563305567049836
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/profiles/submission.b385792eca984359.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/profiles/submission.b385792eca984359.json",
+        "sha256": "56b13d056596228a4d11e42bd4cf86e88dfbce0e78a40177dbac6636f0a8a089",
+        "job": "b385792eca984359",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18902.00138808407,
+          "speedup": 1.1967145454904031,
+          "speedup_ci": [
+            1.178763827308047,
+            1.214665263672759
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v16.245cab79fbe54442.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v16.245cab79fbe54442.json",
+        "sha256": "00a1f04d179a5b0632086ac95ed21762340c9ac3585068a5afb99b120ce64610",
+        "job": "245cab79fbe54442",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 17914.887310299742,
+          "speedup": 1.262653769917659,
+          "speedup_ci": [
+            1.243713963368894,
+            1.2815935764664237
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v15.70938605241d4d87.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v15.70938605241d4d87.json",
+        "sha256": "a17f6c3d7f01354d4b367589fdf7b3759ac026bfe28e9fc82842da6157ab3a44",
+        "job": "70938605241d4d87",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18160.58306193883,
+          "speedup": 1.2455712420053242,
+          "speedup_ci": [
+            1.2268876733752443,
+            1.264254810635404
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v16b.7ee50fdc4385419c.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v16b.7ee50fdc4385419c.json",
+        "sha256": "e2a1213a3138a6daec30e1bdc584328fbe4c7ba8fba49699980ae63b8e6742df",
+        "job": "7ee50fdc4385419c",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 17761.10594199025,
+          "speedup": 1.273586232404695,
+          "speedup_ci": [
+            1.2544824389186244,
+            1.2926900258907652
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v13.de63424b46af4984.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v13.de63424b46af4984.json",
+        "sha256": "9256fd0602a3bdadeec9f6adaf739efefd6b358e0e9306be2e8a724f18d47918",
+        "job": "de63424b46af4984",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18027.498370440186,
+          "speedup": 1.2547664426413518,
+          "speedup_ci": [
+            1.2359449460017315,
+            1.273587939280972
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v13b.c8fb01dafd7c45c3.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v13b.c8fb01dafd7c45c3.json",
+        "sha256": "91fec22a042e951ef837920d100ee47ad036388fbfe0f21415843037c91d047a",
+        "job": "c8fb01dafd7c45c3",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 17915.955248816626,
+          "speedup": 1.2625785053517646,
+          "speedup_ci": [
+            1.2436398277714882,
+            1.281517182932041
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v13b.a3a6c1c5187b4c3c.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v13b.a3a6c1c5187b4c3c.json",
+        "sha256": "579983ec14abd0cd75486cb16541f87fe6e561b5bc19c0dc9ec07ef822b84119",
+        "job": "a3a6c1c5187b4c3c",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18039.275259403457,
+          "speedup": 1.2539472719785991,
+          "speedup_ci": [
+            1.2351380628989201,
+            1.2727564810582779
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v14.5cc15bc78ef84d68.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v14.5cc15bc78ef84d68.json",
+        "sha256": "749da30a6e494dd5bc3e0d049ebb3accc79e85287764b766cf1269ecda7c350e",
+        "job": "5cc15bc78ef84d68",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18121.53915372806,
+          "speedup": 1.248254897561857,
+          "speedup_ci": [
+            1.229531074098429,
+            1.2669787210252847
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v13.7fa82ad5437f4cd7.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v13.7fa82ad5437f4cd7.json",
+        "sha256": "176601488572414be40f586f1d05da73c5f5301a90cb7af0e3e2d44129084a36",
+        "job": "7fa82ad5437f4cd7",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18103.116591138438,
+          "speedup": 1.249525179055232,
+          "speedup_ci": [
+            1.2307823013694035,
+            1.2682680567410602
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18d.799810e65b6344dc.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18d.799810e65b6344dc.json",
+        "sha256": "3be7abdf3bdc1faae5b3e25bea3c0c55565c84d5012efb59e0305df8d0eff4e1",
+        "job": "799810e65b6344dc",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 17949.847539956958,
+          "speedup": 1.2601945475941485,
+          "speedup_ci": [
+            1.2412916293802363,
+            1.2790974658080607
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v16b.ea4ee240baa843e5.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v16b.ea4ee240baa843e5.json",
+        "sha256": "de2aa0e43488754bd65a97cfc27c811459458acaac425ba9a286acbf81cd31a1",
+        "job": "ea4ee240baa843e5",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 17847.000315350226,
+          "speedup": 1.2674566930188405,
+          "speedup_ci": [
+            1.248444842623558,
+            1.286468543414123
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18e.3e3133ec56334bd5.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18e.3e3133ec56334bd5.json",
+        "sha256": "f7c049e00b43c4bb62117183c424081885bedab30428da5dddba0bee2a7a803c",
+        "job": "3e3133ec56334bd5",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 17724.916535131117,
+          "speedup": 1.276186545373353,
+          "speedup_ci": [
+            1.2570437471927527,
+            1.2953293435539532
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18g14.c08f79544e9c4a2c.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18g14.c08f79544e9c4a2c.json",
+        "sha256": "ec9d16f0aaf3253666e3d0ce300cda95302f10da638a720b7b2e23c2cd465f7c",
+        "job": "c08f79544e9c4a2c",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 17358.785380212605,
+          "speedup": 1.3031038465274782,
+          "speedup_ci": [
+            1.283557288829566,
+            1.3226504042253904
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v17.c5e7bafad26e4c71.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v17.c5e7bafad26e4c71.json",
+        "sha256": "90e660fa2476854b8551afce80cfd8062f68736df604f6054d6389620d00a1d9",
+        "job": "c5e7bafad26e4c71",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 18105.832589862766,
+          "speedup": 1.249337741732177,
+          "speedup_ci": [
+            1.2305976756061943,
+            1.2680778078581594
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18g14.ec7f7cd5b96449d0.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18g14.ec7f7cd5b96449d0.json",
+        "sha256": "649e1c5887fd9731117918bba6db78a6662d04488bd36c416dd4bfc6a099bfde",
+        "job": "ec7f7cd5b96449d0",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 17441.801726451045,
+          "speedup": 1.2969015675539757,
+          "speedup_ci": [
+            1.277448044040666,
+            1.3163550910672852
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18j.fbf95eeca7d14ade.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18j.fbf95eeca7d14ade.json",
+        "sha256": "bde8c8fa175c016f5fa1a6fbf15e5f0abe33a4f013ad4588d9dedbb3e41ebd91",
+        "job": "fbf95eeca7d14ade",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 16086.823364578777,
+          "speedup": 1.4061383958381206,
+          "speedup_ci": [
+            1.3850463199005487,
+            1.4272304717756923
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18i.e8a7b1e9986841ea.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18i.e8a7b1e9986841ea.json",
+        "sha256": "43a952590c26dc844c3c7e6d7b4900443a339722973e0654738b2cbab23d7e76",
+        "job": "e8a7b1e9986841ea",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 16766.712765615237,
+          "speedup": 1.3491195511137495,
+          "speedup_ci": [
+            1.3288827578470432,
+            1.3693563443804555
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18q.0897d2a82acb444c.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18q.0897d2a82acb444c.json",
+        "sha256": "1c6d8d10b79776510024ad33fcaa1ea991ba1a1721c5b1ec4d60b14100c95289",
+        "job": "0897d2a82acb444c",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 15738.18428650159,
+          "speedup": 1.4372877828988888,
+          "speedup_ci": [
+            1.4157284661554055,
+            1.458847099642372
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18p.28e1285f7cbd4031.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18p.28e1285f7cbd4031.json",
+        "sha256": "f92e79b96643e3b77cb6005121d5d41f0c54ccdf95bec02c34b796b04ad97160",
+        "job": "28e1285f7cbd4031",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 16061.499119042393,
+          "speedup": 1.408355461239701,
+          "speedup_ci": [
+            1.3872301293211053,
+            1.4294807931582962
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18k.36081c285e9349ee.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18k.36081c285e9349ee.json",
+        "sha256": "229eabe4c3d4943c457e7b9ab585d477e5bd20354e5aeba3f7b48bd3c81b7a8a",
+        "job": "36081c285e9349ee",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 16308.46201617298,
+          "speedup": 1.387028401425445,
+          "speedup_ci": [
+            1.3662229754040633,
+            1.4078338274468265
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18r.0e7a7aecbf9e4ce1.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18r.0e7a7aecbf9e4ce1.json",
+        "sha256": "7112910eece21aea599478708b04338eeb5ff2e89119c63b678d512076c1b0f8",
+        "job": "0e7a7aecbf9e4ce1",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 15709.305488651326,
+          "speedup": 1.4399299839411295,
+          "speedup_ci": [
+            1.4183310341820126,
+            1.4615289337002462
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18r.540bf48933b1492c.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18r.540bf48933b1492c.json",
+        "sha256": "89161f4c511598da13057664e8b1ec3aa87fd0fd43c121270085249f0c4ddcf1",
+        "job": "540bf48933b1492c",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 15553.771177746741,
+          "speedup": 1.4543289689360712,
+          "speedup_ci": [
+            1.4325140344020302,
+            1.476143903470112
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v3.e770f871959f4163.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v3.e770f871959f4163.json",
+        "sha256": "f7e13268f83c281b06a894b05e18905caa4b76831bff9d4ad548079e57d84d0a",
+        "job": "e770f871959f4163",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 20605.33971144734,
+          "speedup": 1.0977882586149863,
+          "speedup_ci": [
+            1.0813214347357616,
+            1.114255082494211
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v18o.3524dc3598e34ed9.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v18o.3524dc3598e34ed9.json",
+        "sha256": "cad3651f068b48d4c7c1fbebf44b7c8daa1aa6009d64f47b77cf44335d02485f",
+        "job": "3524dc3598e34ed9",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 15877.1004334626,
+          "speedup": 1.424712282623433,
+          "speedup_ci": [
+            1.4033415983840816,
+            1.4460829668627844
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v2.f98a2a291cc942f5.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v2.f98a2a291cc942f5.json",
+        "sha256": "3633067641e1b64c28e38b7c1b1221634ccd251252471aa46fb08b7a41735e49",
+        "job": "f98a2a291cc942f5",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 21311.702639389125,
+          "speedup": 1.061402759918031,
+          "speedup_ci": [
+            1.0454817185192604,
+            1.0773238013168012
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v4.b955f505f3fb4ab6.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v4.b955f505f3fb4ab6.json",
+        "sha256": "32e5043c5cc7504505977d513d518db573071c201849b3c8f2542e581eb04185",
+        "job": "b955f505f3fb4ab6",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 19066.119760354715,
+          "speedup": 1.1864134015897507,
+          "speedup_ci": [
+            1.1686172005659043,
+            1.2042096026135969
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v9a.5058fe21abfa4547.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v9a.5058fe21abfa4547.json",
+        "sha256": "553bf848133f4ca167bab310a69bcb649900fe83358a1a90b17a2f8d69eb0597",
+        "job": "5058fe21abfa4547",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 22203.204629779855,
+          "speedup": 1.0187853680211874,
+          "speedup_ci": [
+            1.0035035875008695,
+            1.0340671485415052
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v9b.dd6e68b3eae44964.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v9b.dd6e68b3eae44964.json",
+        "sha256": "56ee0bebdc47410e7b633c2572660859de30a9af133437aa7086fd3f560a6f3d",
+        "job": "dd6e68b3eae44964",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 27530.736277435837,
+          "speedup": 0.8216380329261145,
+          "speedup_ci": [
+            0.8093134624322228,
+            0.8371007757419442
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v8.b3a18c7c73be43dd.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v8.b3a18c7c73be43dd.json",
+        "sha256": "693b8f7c417ca10de2cea18601302790e9f6af439989d98b09a21723a9ada2f4",
+        "job": "b3a18c7c73be43dd",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 23071.453645147976,
+          "speedup": 0.9804453740935887,
+          "speedup_ci": [
+            0.9657386934821849,
+            0.9951520547049925
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      },
+      {
+        "path": "muse_decode_layer/v/profiles/v7.1a6f83a5a35f4477.json",
+        "url": "https://raw.githubusercontent.com/jacobpmiller/open-kernel-challenge-2026/3035b292a2b0c894a1b67407f51812430045850c/muse_decode_layer/v/profiles/v7.1a6f83a5a35f4477.json",
+        "sha256": "d3faa394f98fd5a3c8951af3a041289011b72d0d9f8eddbb745ffad2f8aa9c95",
+        "job": "1a6f83a5a35f4477",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 19245.13698600101,
+          "speedup": 1.1753774481550376,
+          "speedup_ci": [
+            1.157746786432712,
+            1.193008109877363
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        }
+      }
+    ],
+    "minimum_cells": [
+      {
+        "load": "decode 1",
+        "context": "sliding",
+        "ours_us": 76.74810129226927,
+        "min_jacob_us": 107.13670593654152,
+        "job": "540bf48933b1492c",
+        "relative": 0.3959525269367574
+      },
+      {
+        "load": "decode 1",
+        "context": "full",
+        "ours_us": 83.72675745456237,
+        "min_jacob_us": 120.99596648581422,
+        "job": "0e7a7aecbf9e4ce1",
+        "relative": 0.44512901447876385
+      },
+      {
+        "load": "decode 16",
+        "context": "sliding",
+        "ours_us": 138.66071382597238,
+        "min_jacob_us": 168.77941343663937,
+        "job": "3524dc3598e34ed9",
+        "relative": 0.21721148535603096
+      },
+      {
+        "load": "decode 16",
+        "context": "full",
+        "ours_us": 214.53435984694036,
+        "min_jacob_us": 296.57338105784936,
+        "job": "540bf48933b1492c",
+        "relative": 0.3824050435065032
+      },
+      {
+        "load": "decode 32",
+        "context": "sliding",
+        "ours_us": 154.82044500163073,
+        "min_jacob_us": 201.95511282219647,
+        "job": "fbf95eeca7d14ade",
+        "relative": 0.3044473087522084
+      },
+      {
+        "load": "decode 32",
+        "context": "full",
+        "ours_us": 297.8826968304272,
+        "min_jacob_us": 447.985121813352,
+        "job": "540bf48933b1492c",
+        "relative": 0.5038977643886853
+      },
+      {
+        "load": "verify 1",
+        "context": "sliding",
+        "ours_us": 115.43186043519749,
+        "min_jacob_us": 157.6847211490999,
+        "job": "28e1285f7cbd4031",
+        "relative": 0.3660415811943254
+      },
+      {
+        "load": "verify 1",
+        "context": "full",
+        "ours_us": 117.59783998488622,
+        "min_jacob_us": 175.8832082803742,
+        "job": "0897d2a82acb444c",
+        "relative": 0.49563298359033503
+      },
+      {
+        "load": "verify 16",
+        "context": "sliding",
+        "ours_us": 247.13099535493978,
+        "min_jacob_us": 361.6417954238222,
+        "job": "540bf48933b1492c",
+        "relative": 0.46336073669924427
+      },
+      {
+        "load": "verify 16",
+        "context": "full",
+        "ours_us": 333.21812616334677,
+        "min_jacob_us": 507.8986008015197,
+        "job": "540bf48933b1492c",
+        "relative": 0.5242226065233404
+      },
+      {
+        "load": "verify 32",
+        "context": "sliding",
+        "ours_us": 316.3895368878032,
+        "min_jacob_us": 507.53223542351134,
+        "job": "540bf48933b1492c",
+        "relative": 0.6041372303771548
+      },
+      {
+        "load": "verify 32",
+        "context": "full",
+        "ours_us": 482.6567937941269,
+        "min_jacob_us": 825.8681150277567,
+        "job": "540bf48933b1492c",
+        "relative": 0.7110877245416414
+      }
+    ],
+    "source_association_limit": "Profile submission path identifies author variant but no authoritative physical-source hash is bound to current121226B source; no fresh own execution or blanket inferiority claim.",
+    "prior_same_pin": "docs/steering/2026-11-01-discovery-0610.md",
+    "new_depth": "37archived layer profiles and per-cell minima; all12 minima exceed incumbent historical latencies."
+  },
+  "metadata_correction": "Initial claim ruww push04:04 created a fresh head was wrong: c035bf9 already read in long-dense join. Researcher instructed to stop immutable audit immediately.",
+  "runtime_rule_bundle": {
+    "url": "https://openkernelchallenge.dev/assets/index-D8JLIOgd.js",
+    "http_status": 200,
+    "bytes": 451330,
+    "sha256": "553d57f8ba8ceac63ee40072541980584d2014d1851a2227fe095cdebb60266b",
+    "rule_template_character_offset": 431442,
+    "old_asset_status200_is_spa_shell": true
+  },
+  "errors": [
+    {
+      "repo": "chenwainuo/open-kernel-challenge",
+      "status": 404,
+      "scope": "Guessed locator wrong; not evidence source is absent."
+    },
+    {
+      "repo": "alygg77/muse-kernels",
+      "status": 404,
+      "scope": "Guessed locator wrong; actual alygg repo recovered from existing pin ledger."
+    },
+    {
+      "url": "https://openkernelchallenge.dev/assets/index-VBg5pvCv.js",
+      "status": 200,
+      "bytes": 2839,
+      "scope": "Retired asset returns SPA fallback; actual current script resolved from HTML."
+    }
+  ],
+  "allocation": {
+    "worker_thread": "1c3bc6ca-ab58-48bf-bcfe-f7c2de184b25",
+    "run_ordinal": 16,
+    "message": "message:mcp:553603c2-bc9d-4850-9231-1656796ad0f4:thread-send:a0392e4c-9b82-4452-b684-17261e6428ac",
+    "scope_correction": "message:mcp:553603c2-bc9d-4850-9231-1656796ad0f4:thread-send:4fd52a4d-c9b7-4b81-9928-1945f583c0c4",
+    "no_gpu": true
+  }
+}

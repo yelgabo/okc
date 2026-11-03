@@ -1,0 +1,15 @@
+{
+  "job": "94ef698e91964dfa",
+  "status": "queued",
+  "mode": "check",
+  "team": "yelgabo",
+  "board": "muse_decode_layer",
+  "physical_source_sha256": "04314b16743988c5b172a945e0f10437d78a70bb847ddd865f4a5c1101d6b305",
+  "source_bytes": 869198,
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "server_content_identifier": "3022413027df1b1eb626e07c684fd96c6470124e13d4de01134348ff1d272137",
+  "payload_ref": "muse_decode_layer/3022413027df1b1eb626e07c684fd96c6470124e13d4de01134348ff1d272137.py",
+  "duplicate_of": null,
+  "observed_at_utc": "2026-11-02T23:47:39.957633+00:00",
+  "limit": "OwnPOST/IDassociation,notindependentserverpayloaddownload;calibrationnotoptimization"
+}

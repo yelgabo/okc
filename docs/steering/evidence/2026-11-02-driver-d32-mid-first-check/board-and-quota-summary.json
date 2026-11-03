@@ -1,0 +1,45 @@
+{
+  "observed_utc": "2026-11-02T23:58:10.950025+00:00",
+  "quota": {
+    "name": "muse_decode_layer",
+    "title": "Whole decoder layer",
+    "limits": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 14,
+        "left": 6
+      }
+    }
+  },
+  "boards": {
+    "overall": {
+      "rank": 379,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 378
+    },
+    "layer": {
+      "rank": 379,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 378,
+      "to_first": 1.1713
+    }
+  },
+  "layer100": {
+    "attempts": 34,
+    "job": "79caaa5dc09e4221",
+    "rank": 100,
+    "screened_speedup": 2.2691944851420462,
+    "speedup": 2.2698,
+    "submitted_at": 1793253583.7956462,
+    "team": "picsoulabs",
+    "value": 9965.786787403238
+  }
+}

@@ -1,0 +1,10 @@
+test_capsule_negatives (test_g_short_rmw_read.Reader.test_capsule_negatives) ... ok
+test_log_binding (test_g_short_rmw_read.Reader.test_log_binding) ... ok
+test_loss_is_complete_not_promoted (test_g_short_rmw_read.Reader.test_loss_is_complete_not_promoted) ... ok
+test_receipt_rejects (test_g_short_rmw_read.Reader.test_receipt_rejects) ... ok
+test_valid (test_g_short_rmw_read.Reader.test_valid) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.011s
+
+OK

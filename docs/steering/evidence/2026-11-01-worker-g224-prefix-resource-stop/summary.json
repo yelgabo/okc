@@ -1,0 +1,88 @@
+{
+  "schema": "g224-prefix-offline-four-entry-stop-v1",
+  "decision": "STOP_FIXED_RESOURCE_STACK_SPILLS",
+  "time_utc": "2026-11-02T07:58:32.133Z",
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "actual_native_sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+  "variant": {
+    "sha256": "bd22962e25f94abc3c96aa31ebd594f08c63ec7881252dba12ca37590ab21b93",
+    "bytes": 1023788,
+    "upload_budget_pass": false
+  },
+  "rows": [
+    {
+      "family": "B4",
+      "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+      "stack_bytes": 208,
+      "spill_store_bytes": 384,
+      "spill_load_bytes": 280,
+      "registers": 96,
+      "barriers": 16
+    },
+    {
+      "family": "B4",
+      "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+      "stack_bytes": 208,
+      "spill_store_bytes": 384,
+      "spill_load_bytes": 280,
+      "registers": 96,
+      "barriers": 16
+    },
+    {
+      "family": "MAIN",
+      "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+      "stack_bytes": 224,
+      "spill_store_bytes": 364,
+      "spill_load_bytes": 260,
+      "registers": 96,
+      "barriers": 16
+    },
+    {
+      "family": "MAIN",
+      "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+      "stack_bytes": 224,
+      "spill_store_bytes": 364,
+      "spill_load_bytes": 260,
+      "registers": 96,
+      "barriers": 16
+    }
+  ],
+  "layout_values": {
+    "wc": 1248,
+    "wcp": 1248,
+    "wcpB": 2272,
+    "sizeofwc": 1024,
+    "sizeofsmem": 23096
+  },
+  "cpu_tests": {
+    "passed": 9,
+    "seconds": 8.744,
+    "full_progress_contracts_complete": false
+  },
+  "occupancy": {
+    "scope": "conditional necessary CPU header equations only, no CUDA API",
+    "header_sha256": "163b8f296ef2a33c799e2dc8c525b37166da9217bcc6a3c1d26b1c10aca5e22b",
+    "rounded_register_blocks": {
+      "96": 2,
+      "97": 1,
+      "98": 1,
+      "99": 1,
+      "100": 1,
+      "101": 1,
+      "102": 1
+    },
+    "dynamic_shared_request": 115328,
+    "elf_nv_shared_section_bytes": 1024,
+    "elf_section_interpretation": "system reservation versus additional user static allocation not established",
+    "target_reserve_not_queried": true
+  },
+  "not_run": [
+    "host NVCC compile/link",
+    "target occupancy",
+    "GPU numerical/runtime qualification",
+    "timing",
+    "challenge CLI/check",
+    "payload packaging"
+  ],
+  "no_further_authorization": true
+}

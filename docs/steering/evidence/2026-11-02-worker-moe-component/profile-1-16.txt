@@ -1,0 +1,3 @@
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           84.6 µs 100.0%      1
+total                                                             84.6 µs

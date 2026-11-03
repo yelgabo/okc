@@ -1,0 +1,15 @@
+{
+  "reviewer": "root/k128_terminal_audit",
+  "decision": "PARK_EXACT_DIRECT_WEIGHT_NO_CONFIRMATION_OR_TUNING",
+  "verified": [
+    "ownjob/check/team/board/source",
+    "875672LF/a27a1baf",
+    "13passingtests/12passingbenchmarks/12completeprofiles",
+    "109.370262382prepare/56startup/3actualDWadmissions544120576resident1grid132",
+    "officialscore/CIindependentlyreconstructed",
+    "six46:16 endpointsverified",
+    "evaluatorhashesmatch;all12seeds/cluster/node/driverdiffer"
+  ],
+  "actual_vs_secondary": "Targetlocal24B4/16MAIN versussecondarystack16/32notcausaldiagnosis",
+  "scope": "Exactfixedsource,notwholefamily. Newcontrolseparatecalibration,notconfirmation."
+}

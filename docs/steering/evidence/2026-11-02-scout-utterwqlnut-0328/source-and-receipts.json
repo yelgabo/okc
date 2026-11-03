@@ -1,0 +1,1481 @@
+{
+  "repository": "utterwqlnut/muse_bf16_proj",
+  "pin": "e5c79030dc251222c4e98cf79af8679c1b0f29c7",
+  "commit_date": "2026-11-03T01:08:08Z",
+  "observed_at": "2026-11-03T03:39:42.151706+00:00",
+  "evidence_base": "0585bd216cb980e8b47a66eef0ba4c3b0c5768a3",
+  "files": [
+    {
+      "path": "submission.py",
+      "blob": "dd4d390cf6819ef3ae31702dac9e730c9bb58a3d",
+      "bytes": 57776,
+      "sha256": "28efd0826317814da738e0783072732d716126ce60c115fc30dc70504c0190ca",
+      "url": "https://github.com/utterwqlnut/muse_bf16_proj/blob/e5c79030dc251222c4e98cf79af8679c1b0f29c7/submission.py"
+    },
+    {
+      "path": "qkv_tma.py",
+      "blob": "f24b0e311feda806f0af98f9bf81b6ca8555c3a5",
+      "bytes": 37975,
+      "sha256": "330654e249f973e9baa4097412e3af038ff80063dbff823015249c8597ba149e",
+      "url": "https://github.com/utterwqlnut/muse_bf16_proj/blob/e5c79030dc251222c4e98cf79af8679c1b0f29c7/qkv_tma.py"
+    },
+    {
+      "path": "profiles/submission.74b36974863c4d1e.json",
+      "blob": "b2a79f969d673c7765f00f9bc74ae46597218349",
+      "bytes": 177258,
+      "sha256": "17915bd23d3cd4f0ce42f73474e3e2c71129026a9fb2c71c0828c89f0dbde12c",
+      "url": "https://github.com/utterwqlnut/muse_bf16_proj/blob/e5c79030dc251222c4e98cf79af8679c1b0f29c7/profiles/submission.74b36974863c4d1e.json"
+    },
+    {
+      "path": "profiles/submission.9bd833b165bc488c.json",
+      "blob": "aca5dbd2cf27ea0ba91216186059cfd23b069b9b",
+      "bytes": 177673,
+      "sha256": "60aff1c038c5fe2ca974eb74c8c69856a6713ca3cff2bdeb64d7bd4da0f81eb4",
+      "url": "https://github.com/utterwqlnut/muse_bf16_proj/blob/e5c79030dc251222c4e98cf79af8679c1b0f29c7/profiles/submission.9bd833b165bc488c.json"
+    },
+    {
+      "path": "profiles/submission.74b36974863c4d1e.log",
+      "blob": "6415f48056b5668235512d5ecc4be12f2a06b1e0",
+      "bytes": 795,
+      "sha256": "1d551897f35bc3b88672566c3414f8e00f3388994ee63036029fcad45808ee9a",
+      "url": "https://github.com/utterwqlnut/muse_bf16_proj/blob/e5c79030dc251222c4e98cf79af8679c1b0f29c7/profiles/submission.74b36974863c4d1e.log"
+    },
+    {
+      "path": "profiles/submission.9bd833b165bc488c.log",
+      "blob": "410dbf3ea91eb22261cf3bd7e4c620f1bbd585de",
+      "bytes": 323,
+      "sha256": "5e35e1fa0cb8354fcd0c22383d17b9a31899ab39306e958664291a8b07656652",
+      "url": "https://github.com/utterwqlnut/muse_bf16_proj/blob/e5c79030dc251222c4e98cf79af8679c1b0f29c7/profiles/submission.9bd833b165bc488c.log"
+    }
+  ],
+  "receipts": [
+    {
+      "job_id": "74b36974863c4d1e",
+      "problem": "muse_bf16_proj",
+      "summary": {
+        "error": null,
+        "passed": true,
+        "score_us": 3561.3360420075137,
+        "speedup": 1.3564572236426455,
+        "speedup_ci": [
+          1.3361103652880058,
+          1.376804081997285
+        ],
+        "status": "ok",
+        "tests": 9,
+        "tests_passed": 9
+      },
+      "submission_label": "/Users/dhruvachayapathy/Projects/muse_bf16_proj/submission.py",
+      "benchmarks": [
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2342685872037293571,
+            "weight": 62
+          },
+          "median_ns": 8965.050329341213,
+          "baseline_ns": 13759.99953597784
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2342879715090291103,
+            "weight": 62
+          },
+          "median_ns": 5436.781990003203,
+          "baseline_ns": 6847.99998998642
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2343073558143288636,
+            "weight": 62
+          },
+          "median_ns": 13686.977866800386,
+          "baseline_ns": 21231.999155133963
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2343267401196286170,
+            "weight": 62
+          },
+          "median_ns": 4039.391942880032,
+          "baseline_ns": 6895.999424159527
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2343461244249283705,
+            "weight": 62
+          },
+          "median_ns": 3786.935572004311,
+          "baseline_ns": 10048.000141978264
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2343655087302281241,
+            "weight": 62
+          },
+          "median_ns": 12121.915701607855,
+          "baseline_ns": 14175.999909639359
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2343848930355278778,
+            "weight": 62
+          },
+          "median_ns": 5672.515758598043,
+          "baseline_ns": 6624.000146985054
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2344042773408276316,
+            "weight": 62
+          },
+          "median_ns": 17880.630965654487,
+          "baseline_ns": 21791.999228298664
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2344236616461273855,
+            "weight": 62
+          },
+          "median_ns": 17089.204038381118,
+          "baseline_ns": 18352.000042796135
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2344430459514271395,
+            "weight": 62
+          },
+          "median_ns": 5340.059382168632,
+          "baseline_ns": 14655.99937364459
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2344624302567268936,
+            "weight": 62
+          },
+          "median_ns": 12816.958400452215,
+          "baseline_ns": 14544.000383466482
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2344818145620266478,
+            "weight": 62
+          },
+          "median_ns": 5568.482781924777,
+          "baseline_ns": 6431.999616324902
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2345011988673264021,
+            "weight": 62
+          },
+          "median_ns": 18109.305638636266,
+          "baseline_ns": 22127.999924123287
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2345205831726261565,
+            "weight": 62
+          },
+          "median_ns": 18082.685919685246,
+          "baseline_ns": 18895.999528467655
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2345399674779259110,
+            "weight": 62
+          },
+          "median_ns": 5818.6325799563865,
+          "baseline_ns": 15120.001044124365
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2345593517832256656,
+            "weight": 62
+          },
+          "median_ns": 12256.516318304313,
+          "baseline_ns": 14192.00049713254
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2345787360885254203,
+            "weight": 62
+          },
+          "median_ns": 5949.421644647874,
+          "baseline_ns": 6784.000433981419
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2345981203938251751,
+            "weight": 62
+          },
+          "median_ns": 17523.843650667863,
+          "baseline_ns": 21280.00045195222
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2346175046991249300,
+            "weight": 62
+          },
+          "median_ns": 5608.961417724381,
+          "baseline_ns": 7104.000076651573
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2346368890044246850,
+            "weight": 62
+          },
+          "median_ns": 5358.503472764125,
+          "baseline_ns": 26272.000279277563
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2346562733097244401,
+            "weight": 62
+          },
+          "median_ns": 14873.718971153716,
+          "baseline_ns": 17391.99971780181
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2346756576150241953,
+            "weight": 62
+          },
+          "median_ns": 7077.745921739567,
+          "baseline_ns": 7519.999518990517
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2346950419203239506,
+            "weight": 62
+          },
+          "median_ns": 20033.484346396366,
+          "baseline_ns": 24895.998649299145
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2347144262256237060,
+            "weight": 62
+          },
+          "median_ns": 19646.852345764964,
+          "baseline_ns": 19679.999444633722
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2347338105309234615,
+            "weight": 62
+          },
+          "median_ns": 6719.691885893501,
+          "baseline_ns": 16336.000058799982
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2347531948362232171,
+            "weight": 62
+          },
+          "median_ns": 19480.206772825633,
+          "baseline_ns": 19631.999544799328
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2347725791415229728,
+            "weight": 62
+          },
+          "median_ns": 9293.507862005486,
+          "baseline_ns": 9263.99976015091
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2347919634468227286,
+            "weight": 62
+          },
+          "median_ns": 28561.75025979311,
+          "baseline_ns": 31423.999462276697
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2348113477521224845,
+            "weight": 62
+          },
+          "median_ns": 25039.306202398726,
+          "baseline_ns": 25056.00033327937
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2348307320574222405,
+            "weight": 62
+          },
+          "median_ns": 9298.06377791507,
+          "baseline_ns": 17888.00023496151
+        }
+      ],
+      "profiles": [
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2342685872037293571,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 0,
+          "report": "kernel                                                           GPU time  share  calls\nnf12_gemv                                                          7.7 \u00b5s 100.0%      1\ntotal                                                              7.7 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2342879715090291103,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 1,
+          "report": "kernel                                                           GPU time  share  calls\nnf12_gemv                                                          4.0 \u00b5s 100.0%      1\ntotal                                                              4.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2343073558143288636,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 2,
+          "report": "kernel                                                           GPU time  share  calls\nnf12_gemv                                                         14.0 \u00b5s 100.0%      1\ntotal                                                             14.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2343267401196286170,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 3,
+          "report": "kernel                                                           GPU time  share  calls\nnf12_gemv                                                          3.1 \u00b5s 100.0%      1\ntotal                                                              3.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 2343461244249283705,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 4,
+          "report": "kernel                                                           GPU time  share  calls\n_router_fp32_kernel                                                2.9 \u00b5s 100.0%      1\ntotal                                                              2.9 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2343655087302281241,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 5,
+          "report": "kernel                                                           GPU time  share  calls\nwa_gemm                                                           11.7 \u00b5s 100.0%      1\ntotal                                                             11.7 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2343848930355278778,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 6,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  3.7 \u00b5s 100.0%      1\ntotal                                                              3.7 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2344042773408276316,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 7,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 17.6 \u00b5s 100.0%      1\ntotal                                                             17.6 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2344236616461273855,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 8,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 18.3 \u00b5s 100.0%      1\ntotal                                                             18.3 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 2344430459514271395,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 9,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            3.0 \u00b5s  81.2%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.7 \u00b5s  18.8%      1\ntotal                                                              3.7 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2344624302567268936,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 10,
+          "report": "kernel                                                           GPU time  share  calls\nwa_gemm                                                           12.1 \u00b5s 100.0%      1\ntotal                                                             12.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2344818145620266478,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 11,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  4.1 \u00b5s 100.0%      1\ntotal                                                              4.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2345011988673264021,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 12,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 18.1 \u00b5s 100.0%      1\ntotal                                                             18.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2345205831726261565,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 13,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 18.1 \u00b5s 100.0%      1\ntotal                                                             18.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 2345399674779259110,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 14,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            3.3 \u00b5s  81.6%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.7 \u00b5s  18.4%      1\ntotal                                                              4.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2345593517832256656,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 15,
+          "report": "kernel                                                           GPU time  share  calls\nwa_gemm                                                           12.8 \u00b5s 100.0%      1\ntotal                                                             12.8 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2345787360885254203,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 16,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  4.1 \u00b5s 100.0%      1\ntotal                                                              4.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2345981203938251751,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 17,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 17.6 \u00b5s 100.0%      1\ntotal                                                             17.6 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2346175046991249300,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 18,
+          "report": "kernel                                                           GPU time  share  calls\nwa_gemm                                                            5.3 \u00b5s 100.0%      1\ntotal                                                              5.3 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 2346368890044246850,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 19,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            3.1 \u00b5s  81.7%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.7 \u00b5s  18.3%      1\ntotal                                                              3.8 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2346562733097244401,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 20,
+          "report": "kernel                                                           GPU time  share  calls\nwa_gemm                                                           14.0 \u00b5s 100.0%      1\ntotal                                                             14.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2346756576150241953,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 21,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  5.4 \u00b5s 100.0%      1\ntotal                                                              5.4 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2346950419203239506,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 22,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 21.3 \u00b5s 100.0%      1\ntotal                                                             21.3 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2347144262256237060,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 23,
+          "report": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT                           19.9 \u00b5s 100.0%      1\ntotal                                                             19.9 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 2347338105309234615,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 24,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            4.7 \u00b5s  85.5%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.8 \u00b5s  14.5%      1\ntotal                                                              5.5 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2347531948362232171,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 25,
+          "report": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN                           20.3 \u00b5s 100.0%      1\ntotal                                                             20.3 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2347725791415229728,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 26,
+          "report": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT                           8.3 \u00b5s 100.0%      1\ntotal                                                              8.3 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2347919634468227286,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 27,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 28.4 \u00b5s 100.0%      1\ntotal                                                             28.4 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2348113477521224845,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 28,
+          "report": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT                          24.7 \u00b5s 100.0%      1\ntotal                                                             24.7 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 2348307320574222405,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 29,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            6.4 \u00b5s  88.5%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.8 \u00b5s  11.5%      1\ntotal                                                              7.3 \u00b5s"
+        }
+      ]
+    },
+    {
+      "job_id": "9bd833b165bc488c",
+      "problem": "muse_bf16_proj",
+      "summary": {
+        "error": null,
+        "passed": true,
+        "score_us": 3686.683360790674,
+        "speedup": 1.310337646942359,
+        "speedup_ci": [
+          1.2906825822382237,
+          1.3299927116464945
+        ],
+        "status": "ok",
+        "tests": 9,
+        "tests_passed": 9
+      },
+      "submission_label": "/Users/dhruvachayapathy/Projects/muse_bf16_proj/submission.py",
+      "benchmarks": [
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 150762232739534988,
+            "weight": 62
+          },
+          "median_ns": 9259.780459691381,
+          "baseline_ns": 13920.000288635492
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 150947956370787183,
+            "weight": 62
+          },
+          "median_ns": 5480.946408978874,
+          "baseline_ns": 6783.999968320131
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 151133680002039379,
+            "weight": 62
+          },
+          "median_ns": 13899.573032032398,
+          "baseline_ns": 21615.999285131693
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 151319403633291576,
+            "weight": 62
+          },
+          "median_ns": 3997.630911260181,
+          "baseline_ns": 6815.999746322632
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 151505127264543774,
+            "weight": 62
+          },
+          "median_ns": 4259.769147581962,
+          "baseline_ns": 10479.999706149101
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 151690850895795973,
+            "weight": 62
+          },
+          "median_ns": 13449.25772190033,
+          "baseline_ns": 13967.999257147312
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 151876574527048173,
+            "weight": 62
+          },
+          "median_ns": 6180.916052618841,
+          "baseline_ns": 6848.000455647707
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 152062298158300374,
+            "weight": 62
+          },
+          "median_ns": 18048.49713666602,
+          "baseline_ns": 21567.999850958586
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 152248021789552576,
+            "weight": 62
+          },
+          "median_ns": 17794.33198554927,
+          "baseline_ns": 18672.000151127577
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 152433745420804779,
+            "weight": 62
+          },
+          "median_ns": 5523.073360696505,
+          "baseline_ns": 14736.000914126635
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 152619469052056983,
+            "weight": 62
+          },
+          "median_ns": 13588.055087214432,
+          "baseline_ns": 14335.999265313148
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 152805192683309188,
+            "weight": 62
+          },
+          "median_ns": 6584.2905259690115,
+          "baseline_ns": 7199.999876320362
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 152990916314561394,
+            "weight": 62
+          },
+          "median_ns": 18380.876046171194,
+          "baseline_ns": 21904.00008112192
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 153176639945813601,
+            "weight": 62
+          },
+          "median_ns": 18172.366200882596,
+          "baseline_ns": 18864.00068178773
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 153362363577065809,
+            "weight": 62
+          },
+          "median_ns": 6020.645982591573,
+          "baseline_ns": 15424.000099301338
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 153548087208318018,
+            "weight": 62
+          },
+          "median_ns": 13153.864858151213,
+          "baseline_ns": 14015.999622642994
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 153733810839570228,
+            "weight": 62
+          },
+          "median_ns": 6257.235865962545,
+          "baseline_ns": 6879.99976798892
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 153919534470822439,
+            "weight": 62
+          },
+          "median_ns": 17971.81099112894,
+          "baseline_ns": 21279.999520629644
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 154105258102074651,
+            "weight": 62
+          },
+          "median_ns": 7015.978886546064,
+          "baseline_ns": 7040.000520646572
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 154290981733326864,
+            "weight": 62
+          },
+          "median_ns": 5359.725575483186,
+          "baseline_ns": 26143.998838961124
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 154476705364579078,
+            "weight": 62
+          },
+          "median_ns": 17423.398675995948,
+          "baseline_ns": 17312.000039964914
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 154662428995831293,
+            "weight": 62
+          },
+          "median_ns": 7140.582943797667,
+          "baseline_ns": 7536.000106483698
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 154848152627083509,
+            "weight": 62
+          },
+          "median_ns": 20573.382010638572,
+          "baseline_ns": 24992.00077727437
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 155033876258335726,
+            "weight": 62
+          },
+          "median_ns": 19614.557565353552,
+          "baseline_ns": 19711.99968829751
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 155219599889587944,
+            "weight": 62
+          },
+          "median_ns": 7137.227266553324,
+          "baseline_ns": 16447.999980300665
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 155405323520840163,
+            "weight": 62
+          },
+          "median_ns": 20024.40092577024,
+          "baseline_ns": 19968.00024062395
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 155591047152092383,
+            "weight": 62
+          },
+          "median_ns": 9622.615060239597,
+          "baseline_ns": 9535.999968647957
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 155776770783344604,
+            "weight": 62
+          },
+          "median_ns": 28476.422192618495,
+          "baseline_ns": 31279.99883145094
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 155962494414596826,
+            "weight": 62
+          },
+          "median_ns": 24504.23005431061,
+          "baseline_ns": 24607.999715954065
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 156148218045849049,
+            "weight": 62
+          },
+          "median_ns": 8684.567627752098,
+          "baseline_ns": 17184.000462293625
+        }
+      ],
+      "profiles": [
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 150762232739534988,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 0,
+          "report": "kernel                                                           GPU time  share  calls\nnf12_gemv                                                          7.5 \u00b5s 100.0%      1\ntotal                                                              7.5 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 150947956370787183,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 1,
+          "report": "kernel                                                           GPU time  share  calls\nnf12_gemv                                                          3.8 \u00b5s 100.0%      1\ntotal                                                              3.8 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 151133680002039379,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 2,
+          "report": "kernel                                                           GPU time  share  calls\nnf12_gemv                                                         13.6 \u00b5s 100.0%      1\ntotal                                                             13.6 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 151319403633291576,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 3,
+          "report": "kernel                                                           GPU time  share  calls\nnf12_gemv                                                          3.2 \u00b5s 100.0%      1\ntotal                                                              3.2 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 151505127264543774,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 4,
+          "report": "kernel                                                           GPU time  share  calls\n_router_fp32_kernel                                                3.0 \u00b5s 100.0%      1\ntotal                                                              3.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 151690850895795973,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 5,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  9.7 \u00b5s 100.0%      1\ntotal                                                              9.7 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 151876574527048173,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 6,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  3.8 \u00b5s 100.0%      1\ntotal                                                              3.8 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 152062298158300374,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 7,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 18.1 \u00b5s 100.0%      1\ntotal                                                             18.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 152248021789552576,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 8,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 17.9 \u00b5s 100.0%      1\ntotal                                                             17.9 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 152433745420804779,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 9,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            3.1 \u00b5s  81.0%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.7 \u00b5s  19.0%      1\ntotal                                                              3.9 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 152619469052056983,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 10,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 10.9 \u00b5s 100.0%      1\ntotal                                                             10.9 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 152805192683309188,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 11,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  4.2 \u00b5s 100.0%      1\ntotal                                                              4.2 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 152990916314561394,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 12,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 19.1 \u00b5s 100.0%      1\ntotal                                                             19.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 153176639945813601,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 13,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 18.0 \u00b5s 100.0%      1\ntotal                                                             18.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 153362363577065809,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 14,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            3.3 \u00b5s  82.5%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.7 \u00b5s  17.5%      1\ntotal                                                              4.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 153548087208318018,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 15,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 10.1 \u00b5s 100.0%      1\ntotal                                                             10.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 153733810839570228,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 16,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  4.0 \u00b5s 100.0%      1\ntotal                                                              4.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 153919534470822439,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 17,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 17.6 \u00b5s 100.0%      1\ntotal                                                             17.6 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 154105258102074651,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 18,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  6.0 \u00b5s 100.0%      1\ntotal                                                              6.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 154290981733326864,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 19,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            3.1 \u00b5s  82.1%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.7 \u00b5s  17.9%      1\ntotal                                                              3.7 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 154476705364579078,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 20,
+          "report": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_TNN                    12.4 \u00b5s  80.1%      1\nvoid cublasLt::splitKreduce_kernel<32, 16, int, float, __...       3.1 \u00b5s  19.9%      1\ntotal                                                             15.5 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 154662428995831293,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 21,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                  6.0 \u00b5s 100.0%      1\ntotal                                                              6.0 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 154848152627083509,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 22,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 20.5 \u00b5s 100.0%      1\ntotal                                                             20.5 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 155033876258335726,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 23,
+          "report": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT                           20.2 \u00b5s 100.0%      1\ntotal                                                             20.2 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 155219599889587944,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 24,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            4.9 \u00b5s  85.9%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.8 \u00b5s  14.1%      1\ntotal                                                              5.7 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 155405323520840163,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 25,
+          "report": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN                           19.3 \u00b5s 100.0%      1\ntotal                                                             19.3 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "o",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 155591047152092383,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 26,
+          "report": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT                           8.1 \u00b5s 100.0%      1\ntotal                                                              8.1 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "pooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 155776770783344604,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 27,
+          "report": "kernel                                                           GPU time  share  calls\n_bf16_gemm_kernel                                                 30.2 \u00b5s 100.0%      1\ntotal                                                             30.2 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 155962494414596826,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 28,
+          "report": "kernel                                                           GPU time  share  calls\nnvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT                          24.9 \u00b5s 100.0%      1\ntotal                                                             24.9 \u00b5s"
+        },
+        {
+          "case": {
+            "layer": "router",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 156148218045849049,
+            "weight": 62
+          },
+          "event": "profile",
+          "index": 29,
+          "report": "kernel                                                           GPU time  share  calls\n_router_hilo_tma_kernel                                            6.5 \u00b5s  88.6%      1\nvoid at::native::vectorized_elementwise_kernel<4, at::nat...       0.8 \u00b5s  11.4%      1\ntotal                                                              7.3 \u00b5s"
+        }
+      ]
+    }
+  ],
+  "source_receipt_limit": "Published JSON has a submission pathname but no source SHA256 binding. Logs and profiler names support the route association only. No foreign code was executed.",
+  "tree_entries": 36,
+  "tree_truncated": false,
+  "license_files": []
+}

@@ -1,0 +1,494 @@
+{
+  "repo": "ntovas/vllm",
+  "requests": [
+    {
+      "url": "https://api.github.com/repos/ntovas/vllm",
+      "status": 200,
+      "sha256": "f3757a95acb5a08a5ffde4ff1c0e517bb99127aed52c9d760b28025a03936db4",
+      "rate_remaining": "20"
+    },
+    {
+      "url": "https://api.github.com/repos/ntovas/vllm/commits/main",
+      "status": 200,
+      "sha256": "54ad231772cd2dc823ef0221a29cd1e9657f3662ae4cb06a2e61f3f3c12b4314",
+      "rate_remaining": "19"
+    },
+    {
+      "url": "https://api.github.com/repos/ntovas/vllm/git/trees/187a0eb98aa42341d703f83421d693fa7585581b?recursive=1",
+      "status": 200,
+      "sha256": "484ae18553bcfe71a767c97a9b20e93aaedeb72b5b7ff6fbc4b509056393c1a6",
+      "rate_remaining": "18"
+    }
+  ],
+  "pin": "187a0eb98aa42341d703f83421d693fa7585581b",
+  "commit_date": "2026-10-10T16:36:03Z",
+  "license": {
+    "key": "apache-2.0",
+    "name": "Apache License 2.0",
+    "spdx_id": "Apache-2.0",
+    "url": "https://api.github.com/licenses/apache-2.0",
+    "node_id": "MDc6TGljZW5zZTI="
+  },
+  "parent": "vllm-project/vllm",
+  "tree_count": 8703,
+  "truncated": false,
+  "relevant_paths": [
+    {
+      "path": ".agents/skills/kernel-microbenchmark",
+      "sha": "8cf7c27ee15dbcd633d09eb45738bf45ebbdb6f4",
+      "size": null
+    },
+    {
+      "path": ".agents/skills/kernel-microbenchmark/SKILL.md",
+      "sha": "98542023ff9787f8c612ceccb46232936c970fcd",
+      "size": 7543
+    },
+    {
+      "path": ".agents/skills/kernel-microbenchmark/agents",
+      "sha": "318f00d8d059390db13bd540b8cebcff8a6a3fef",
+      "size": null
+    },
+    {
+      "path": ".agents/skills/kernel-microbenchmark/agents/openai.yaml",
+      "sha": "cbd52cc600b526ca5dc1d3b8de34bd8ad6672936",
+      "size": 233
+    },
+    {
+      "path": ".agents/skills/kernel-microbenchmark/benchmarks",
+      "sha": "5b16a5305897c614a75a2b82b3edfcab84be7e95",
+      "size": null
+    },
+    {
+      "path": ".agents/skills/kernel-microbenchmark/benchmarks/cupti_microbenchmark.py",
+      "sha": "74eb6119b440e0a1be672958ec8d1106a04e165e",
+      "size": 1694
+    },
+    {
+      "path": ".agents/skills/kernel-microbenchmark/benchmarks/graph_replay_benchmark.py",
+      "sha": "ec051ba789919c607140a6e4343ee3bed3175cb7",
+      "size": 4131
+    },
+    {
+      "path": ".agents/skills/kernel-microbenchmark/benchmarks/multi_gpu_gemm_rs.py",
+      "sha": "56b503a297b61d0e7efa7976092c63215d3eb480",
+      "size": 10109
+    },
+    {
+      "path": ".agents/skills/triton-kernel-writing",
+      "sha": "4168a69c2f0c79b244b8954b6128c41c397413b6",
+      "size": null
+    },
+    {
+      "path": ".agents/skills/triton-kernel-writing/SKILL.md",
+      "sha": "a41de016b78d8b6b894e468d8b4f7d562e3523d8",
+      "size": 3877
+    },
+    {
+      "path": ".agents/skills/triton-kernel-writing/agents",
+      "sha": "47f0322fc7d633f5a8f9ecdbdc63bf90e6e9af2d",
+      "size": null
+    },
+    {
+      "path": ".agents/skills/triton-kernel-writing/agents/openai.yaml",
+      "sha": "259f16a135d5c34ce99a0049c929a7000135bedb",
+      "size": 213
+    },
+    {
+      "path": ".buildkite/intel_jobs/kernels_intel.yaml",
+      "sha": "3650a729d7d7362806ad3aa7f3e671304afb341f",
+      "size": 1111
+    },
+    {
+      "path": ".buildkite/performance-benchmarks/README.md",
+      "sha": "3a321c0fefdf135b0234b3522cec5d975f577b4f",
+      "size": 7907
+    },
+    {
+      "path": ".buildkite/performance-benchmarks/scripts/compare-json-results.py",
+      "sha": "823c7488ec59903ea845ef551db77b55dded18b5",
+      "size": 42633
+    },
+    {
+      "path": ".buildkite/performance-benchmarks/scripts/convert-results-json-to-markdown.py",
+      "sha": "deb14a65e4a8126a278a4c717abaf47ff836163e",
+      "size": 13613
+    },
+    {
+      "path": ".buildkite/scripts/ci-otel/README.md",
+      "sha": "318cec5f2169cd4d134f1cc9bfcd13bcc761d6ea",
+      "size": 3097
+    },
+    {
+      "path": ".buildkite/test_areas/kernels.yaml",
+      "sha": "aa0971b4c55ed08435cf21689eb332865d9fa075",
+      "size": 37515
+    },
+    {
+      "path": ".claude/skills/kernel-microbenchmark",
+      "sha": "c0233605e8470694bad52698b2f62ca7712bdd4f",
+      "size": 42
+    },
+    {
+      "path": ".claude/skills/triton-kernel-writing",
+      "sha": "39e7b6be58f76f26e325562fc4866440642ae0a8",
+      "size": 42
+    },
+    {
+      "path": "LICENSE",
+      "sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "size": 11357
+    },
+    {
+      "path": "README.md",
+      "sha": "ff92fface4421933f1056f53d736c0840eac4728",
+      "size": 5772
+    },
+    {
+      "path": "benchmarks/README.md",
+      "sha": "26896a77bf3c75b4f2396e9f37540dc5367c2908",
+      "size": 1028
+    },
+    {
+      "path": "benchmarks/attention_benchmarks/README.md",
+      "sha": "944ceb91af91ab24a3cc64211e9e47ec8a0cb3b5",
+      "size": 7814
+    },
+    {
+      "path": "benchmarks/auto_tune/README.md",
+      "sha": "9b2a1ed45b1fbcae69358e207d79dcdd2464d170",
+      "size": 10596
+    },
+    {
+      "path": "benchmarks/fused_kernels",
+      "sha": "47840d432eec5539723fea0ca56714de228a526a",
+      "size": null
+    },
+    {
+      "path": "benchmarks/fused_kernels/layernorm_rms_benchmarks.py",
+      "sha": "4978a8777ab5c765ca855b06e872a37ca52ba6fb",
+      "size": 7433
+    },
+    {
+      "path": "benchmarks/fused_kernels/merge_attn_states_benchmarks.py",
+      "sha": "61dfd7ea127cc2b7b27408c0156ad31e200e68f3",
+      "size": 8877
+    },
+    {
+      "path": "benchmarks/fused_kernels/silu_mul_block_quant_benchmark.py",
+      "sha": "4e8d787bf9c79876ec6502e4e5035262b92c94fb",
+      "size": 5218
+    },
+    {
+      "path": "benchmarks/kernels",
+      "sha": "2972b1677b4fefb9225d2834afb9da9d976837ce",
+      "size": null
+    },
+    {
+      "path": "benchmarks/kernels/__init__.py",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size": 0
+    },
+    {
+      "path": "benchmarks/kernels/bench_concat_mla_q.py",
+      "sha": "c528ab86b29570203c1c2b37270337a1a2138516",
+      "size": 2938
+    },
+    {
+      "path": "benchmarks/kernels/bench_cp_gather_fp8.py",
+      "sha": "ca76597a1f3e788859ee135d7b285a22a3b7cff1",
+      "size": 5200
+    },
+    {
+      "path": "benchmarks/kernels/bench_cpu_sampling.py",
+      "sha": "fb7fdeb3dd7bf4cf035c9378764c74f93f12319a",
+      "size": 7061
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_2d_silu_mul_fp8_quant.py",
+      "sha": "d0880b3f03cd63c3ab5d95daaaa494ffdb3ab6a4",
+      "size": 7138
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_activation.py",
+      "sha": "e1cec02b7cad727ca8125beb61b80b5175fc54e3",
+      "size": 3264
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_block_fp8_gemm.py",
+      "sha": "9eddc907b93726f6d8a72603b881d5a88f57e2a4",
+      "size": 5224
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_cp_gather.py",
+      "sha": "5e73d6d6e95c47a86543a2a8b3afc77a8975a354",
+      "size": 7478
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_cutlass_moe_fp8.py",
+      "sha": "bff4f73e2c0f56358442086aecd61b673dca00b2",
+      "size": 12299
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_cutlass_moe_nvfp4.py",
+      "sha": "a14242732a48383bd5e89cc55872856413812f87",
+      "size": 16478
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_device_communicators.py",
+      "sha": "9f9a150471af68ad153658f699bb4f69ef047d2d",
+      "size": 25805
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_dsv41_mega_attn.py",
+      "sha": "1b3b5d9c3848cba3dee74812a52568d662a7b3d0",
+      "size": 9575
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_flydsl_moe_w4a16.py",
+      "sha": "09a01b301bea093b3e4063629bc1979e2d640f50",
+      "size": 9930
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_fp8_gemm.py",
+      "sha": "920961899038061c13125bdd37f9843b5e4d548a",
+      "size": 4914
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_fused_collective.py",
+      "sha": "aaa39fd9fe06aacb75793b8f30b0f253d5c48456",
+      "size": 40822
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_fused_moe_lora_one_shot.py",
+      "sha": "c5a592ea7e2b301405a1afc48c5dd06cc91381c7",
+      "size": 13073
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_fused_q_cutedsl.py",
+      "sha": "3a627eb07f7a056a0d1302f0b1b3f9f1ad1bc7f2",
+      "size": 3440
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_fused_topk.py",
+      "sha": "72bf2d97cc9fde335b839641fbb341c1e3e75dad",
+      "size": 3227
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_gelu_and_mul_sparse.py",
+      "sha": "9f8d97612161b5c80611450cdd22cf5e9a9d2eb7",
+      "size": 2824
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_gemm_rs_ar.py",
+      "sha": "3e47f61c74f0f8c402fafd39d32cb5ada6b15a5d",
+      "size": 14178
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_grouped_gemm_cutlass.py",
+      "sha": "04fc2960d1e474e1b29428028a9018321505647b",
+      "size": 12796
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_host_buffer_kv_copy.py",
+      "sha": "be4051c0bd41e209f54e3a132d773f40254eb90e",
+      "size": 8821
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_hy_v4_ihc.py",
+      "sha": "96220a66cbf17ebd63dc97d5adbbf335153b886e",
+      "size": 6666
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_inkling_qkvr_prep.py",
+      "sha": "8aa1233c50a8ccea9fd6cbbcbd79e0478009ef5e",
+      "size": 5067
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_int8_gemm.py",
+      "sha": "e9c6d64404d0dc6958aeb675bf6b893623649ffa",
+      "size": 5301
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_k3_cutedsl_residual.py",
+      "sha": "7b9e349a792c14692659ac6f6447777a91b9e3e0",
+      "size": 13320
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_kimi_k3_amd_fp8_fusions.py",
+      "sha": "dd210ae55ddc5c6f31107452d78cccd84d202848",
+      "size": 6165
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_kimi_k3_attn_res.py",
+      "sha": "dba82a8722267e95864ab0cbf4a240d65b2f7f38",
+      "size": 7140
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_kimi_k3_kda_decode.py",
+      "sha": "6b6d944455e9a3114882d108e42f74dcd6180c4c",
+      "size": 11141
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_kimi_k3_kda_projection.py",
+      "sha": "7a62caa941f8c57e8480b5160752fb65a2723ae5",
+      "size": 7579
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_kimi_k3_latent_moe_tail.py",
+      "sha": "855769263d840e258f58406a7e295cbeedc79270",
+      "size": 29730
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_kimi_k3_sp_collectives.py",
+      "sha": "9a244e6c8265e423e61b9a7c5789d2f388171c4b",
+      "size": 7085
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_layernorm.py",
+      "sha": "a662e3ac49cbada1a239b7f9f9b26d02ddb628c7",
+      "size": 3034
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_lora.py",
+      "sha": "606741d0474e9b4eeb50b6ea2db1c7b5739ea54a",
+      "size": 52152
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_machete.py",
+      "sha": "3ec8b2ecdebb7616e943f14a0641ffad4db05798",
+      "size": 22029
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_marlin.py",
+      "sha": "f2330a4ff0f08a196bccd53f0d447c43fa6dd214",
+      "size": 8213
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_mla_k_concat.py",
+      "sha": "3cae613e82c7d5f725fdeb787b29bd7823cc1aed",
+      "size": 4666
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_moe.py",
+      "sha": "f746e9aab339c07385f54c0cc123e0326ace254a",
+      "size": 39431
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_moe_align_block_size.py",
+      "sha": "7ddf5b3ecf7c626a66c4e7b5b03df6301d2cb1e9",
+      "size": 4880
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_moe_defaults.py",
+      "sha": "00c6606db009dbe831ca38699952ae20dd13e1c7",
+      "size": 9605
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_moe_permute_unpermute.py",
+      "sha": "f5aa21fb4bd55b3dd2cf8778ce582f75db8d8957",
+      "size": 10446
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_mrope.py",
+      "sha": "6548c74f808920264fcff6200f61d9fda2bea77f",
+      "size": 10848
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_multimem_reduce_scatter.py",
+      "sha": "0f0966eff441b030b665feed450bfeaa81620175",
+      "size": 15031
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_mxfp4_qutlass.py",
+      "sha": "dfc7721876a1739055f851f86468ce01fb3fd670",
+      "size": 5773
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_nvfp4_gemm.py",
+      "sha": "6b19eb113f3e77f93043ae2e92ffaf55e771b14e",
+      "size": 6269
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_nvfp4_quant.py",
+      "sha": "c48353820b98dfc8d2b136f2cf02a7bd3c098a90",
+      "size": 6415
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_nvfp4_qutlass.py",
+      "sha": "6fecc816f9466ce3d2cf7e0f1780da0ea50cf39d",
+      "size": 6171
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_paged_attention.py",
+      "sha": "f4249d6270aa120dc09c1c068ccf703328995b7b",
+      "size": 6108
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_per_token_group_quant.py",
+      "sha": "afc31104f73a7c7cbe7a55bb1028277d98958b12",
+      "size": 4978
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_per_token_quant_fp8.py",
+      "sha": "0069b06c64564034a2bbc19067f7ae4438a45d9c",
+      "size": 8282
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_persistent_topk.py",
+      "sha": "a77a04cfd6251a6024a4b12bd8e0f84c07da1e5a",
+      "size": 4904
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_quant.py",
+      "sha": "d01c7ac37c5387f11b8c4f471403a08238b2e686",
+      "size": 3340
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_rdna_hybrid_w4a16_gemm.py",
+      "sha": "7ce49e2e11326fd420bcc3e20d9ea44e90aa026c",
+      "size": 7152
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_relu_squared.py",
+      "sha": "00550ca475b83677516303eca9b50ce4d0d388eb",
+      "size": 3797
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_reshape_and_cache.py",
+      "sha": "f49bf61036d0bd32d67d153808025ada72f40f59",
+      "size": 4936
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_reshape_and_cache_flash.py",
+      "sha": "84d9cc707c40523dd5ba9205c87e8dbbb6e025d8",
+      "size": 6248
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_rope.py",
+      "sha": "5e1df3b2939abf2a7632c7148d6794bbc6b53167",
+      "size": 4056
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_router_gemm.py",
+      "sha": "f4550da9dff58ab9ffe221e3a3444a31f92e34d8",
+      "size": 5042
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_selective_state_update.py",
+      "sha": "476dce7dff8d2feb1962d70b788615354e19c697",
+      "size": 26224
+    },
+    {
+      "path": "benchmarks/kernels/benchmark_shapes.py",
+      "sha": "3e23c4cac059c04cf6a4153e9830cbec2ace36f0",
+      "size": 2157
+    }
+  ],
+  "relevant_paths_output_limited": true,
+  "readme": {
+    "url": "https://raw.githubusercontent.com/ntovas/vllm/187a0eb98aa42341d703f83421d693fa7585581b/README.md",
+    "sha256": "4dc7399323b9660117f8cc1226afb7a81cdbb912dbb4ae74b66d89052417d11c",
+    "text": "<!-- markdownlint-disable MD001 MD041 -->\n<p align=\"center\">\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://raw.githubusercontent.com/vllm-project/vllm/main/docs/assets/logos/vllm-logo-text-dark.png\">\n    <img alt=\"vLLM\" src=\"https://raw.githubusercontent.com/vllm-project/vllm/main/docs/assets/logos/vllm-logo-text-light.png\" width=55%>\n  </picture>\n</p>\n\n<h3 align=\"center\">\nEasy, fast, and cheap LLM serving for everyone\n</h3>\n\n<p align=\"center\">\n| <a href=\"https://docs.vllm.ai\"><b>Documentation</b></a> | <a href=\"https://blog.vllm.ai/\"><b>Blog</b></a> | <a href=\"https://arxiv.org/abs/2309.06180\"><b>Paper</b></a> | <a href=\"https://x.com/vllm_project\"><b>Twitter/X</b></a> | <a href=\"https://discuss.vllm.ai\"><b>User Forum</b></a> | <a href=\"https://slack.vllm.ai\"><b>Developer Slack</b></a> |\n</p>\n\n\ud83d\udd25 We have built a vLLM website to help you get started with vLLM. Please visit [vllm.ai](https://vllm.ai) to learn more.\nFor events, please visit [vllm.ai/events](https://vllm.ai/events) to join us.\n\n---\n\n## About\n\nvLLM is a fast and easy-to-use library for LLM inference and serving.\n\nOriginally developed in the [Sky Computing Lab](https://sky.cs.berkeley.edu) at UC Berkeley, vLLM has grown into one of the most active open-source AI projects built and maintained by a diverse community of many dozens of academic institutions and companies from over 2000 contributors.\n\nvLLM is fast with:\n\n- State-of-the-art serving throughput\n- Efficient management of attention key and value memory with [**PagedAttention**](https://blog.vllm.ai/2023/06/20/vllm.html)\n- Continuous batching of incoming requests, chunked prefill, prefix caching\n- Fast and flexible model execution with piecewise and full CUDA/HIP graphs\n- Quantization: FP8, MXFP8/MXFP4, NVFP4, INT8, INT4, GPTQ/AWQ, GGUF, compressed-tensors, ModelOpt, TorchAO, and [more](https://docs.vllm.ai/en/latest/features/quantization/index.html)\n- Optimized attention kernels including FlashAttention, FlashInfer, TRTLLM-GEN, FlashMLA, and Triton\n- Optimized GEMM/MoE kernels for various precisions using CUTLASS, TRTLLM-GEN, CuTeDSL\n- Speculative decoding including n-gram, suffix, EAGLE, DFlash\n- Automatic kernel generation and graph-level transformations using torch.compile\n- Disaggregated prefill, decode, and encode\n\nvLLM is flexible and easy to use with:\n\n- Seamless integration with popular Hugging Face models\n- High-throughput serving with various decoding algorithms, including *parallel sampling*, *beam search*, and more\n- Tensor, pipeline, data, expert, and context parallelism for distributed inference\n- Streaming outputs\n- Generation of structured outputs using xgrammar or guidance\n- Tool calling and reasoning parsers\n- OpenAI-compatible API server, plus Anthropic Messages API and gRPC support\n- Efficient multi-LoRA support for dense and MoE layers\n- Support for NVIDIA GPUs, AMD GPUs, Intel GPUs, and x86/ARM/PowerPC CPUs. Additionally, diverse hardware plugins such as Google TPUs, Intel Gaudi, IBM Spyre, Huawei Ascend, Rebellions NPU, Apple Silicon, MetaX GPU, and more.\n\nvLLM seamlessly supports 200+ model architectures on Hugging Face, including:\n\n- Decoder-only LLMs (e.g., Llama, Qwen, Gemma)\n- Mixture-of-Expert LLMs (e.g., Mixtral, DeepSeek-V3, Qwen-MoE, GPT-OSS)\n- Hybrid attention and state-space models (e.g., Mamba, Qwen3.5)\n- Multi-modal models (e.g., LLaVA, Qwen-VL, Pixtral)\n- Embedding and retrieval models (e.g., E5-Mistral, GTE, ColBERT)\n- Reward and classification models (e.g., Qwen-Math)\n\nFind the full list of supported models [here](https://docs.vllm.ai/en/latest/models/supported_models.html).\n\n## Getting Started\n\nInstall vLLM with [`uv`](https://docs.astral.sh/uv/) (recommended) or `pip`:\n\n```bash\nuv pip install vllm\nvllm download-kernels  # precompiled kernels for faster startup\n```\n\nOr [build from source](https://docs.vllm.ai/en/latest/getting_started/installation/gpu/index.html#build-wheel-from-source) for development.\n\nVisit our [documentation](https://docs.vllm.ai/en/latest/) to learn more.\n\n- [Installation](https://docs.vllm.ai/en/latest/getting_started/installation.html)\n- [Quickstart](https://docs.vllm.ai/en/latest/getting_started/quickstart.html)\n- [List of Supported Models](https://docs.vllm.ai/en/latest/models/supported_models.html)\n\n## Contributing\n\nWe welcome and value any contributions and collaborations.\nPlease check out [Contributing to vLLM](https://docs.vllm.ai/en/latest/contributing/index.html) for how to get involved.\n\n## Citation\n\nIf you use vLLM for your research, please cite our [paper](https://arxiv.org/abs/2309.06180):\n\n```bibtex\n@inproceedings{kwon2023efficient,\n  title={Efficient Memory Management for Large Language Model Serving with PagedAttention},\n  author={Woosuk Kwon and Zhuohan Li and Siyuan Zhuang and Ying Sheng and Lianmin Zheng and Cody Hao Yu and Joseph E. Gonzalez and Hao Zhang and Ion Stoica},\n  booktitle={Proceedings of the ACM SIGOPS 29th Symposium on Operating Systems Principles},\n  year={2023}\n}\n```\n\n## Contact Us\n\n<!-- --8<-- [start:contact-us] -->\n- For technical questions and feature requests, please use GitHub [Issues](https://github.com/vllm-project/vllm/issues)\n- For discussing with fellow users, please use the [vLLM Forum](https://discuss.vllm.ai)\n- For coordinating contributions and development, please use [Slack](https://slack.vllm.ai)\n- For security disclosures, please use GitHub's [Security Advisories](https://github.com/vllm-project/vllm/security/advisories) feature\n- For collaborations and partnerships, please contact us at [collaboration@vllm.ai](mailto:collaboration@vllm.ai)\n<!-- --8<-- [end:contact-us] -->\n\n## Media Kit\n\n- If you wish to use vLLM's logo, please refer to [our media kit repo](https://github.com/vllm-project/media-kit)\n",
+    "complete": true
+  }
+}

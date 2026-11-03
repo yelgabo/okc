@@ -1,0 +1,136 @@
+{
+  "retrieved_utc": "2026-11-01T23:51:37.109Z",
+  "queries": [
+    {
+      "query": "\"muse_decode_layer\" in:readme fork:true",
+      "status": 200,
+      "total_count": 17,
+      "incomplete_results": false,
+      "items": [
+        {
+          "full_name": "lee101/openkernels",
+          "default_branch": "master",
+          "pushed_at": "2026-10-28T08:32:52Z",
+          "fork": false
+        },
+        {
+          "full_name": "alygg77/okc-muse-spark-kernels",
+          "default_branch": "main",
+          "pushed_at": "2026-10-29T21:11:40Z",
+          "fork": false
+        },
+        {
+          "full_name": "ScrashOff/okc-muse-kernels",
+          "default_branch": "main",
+          "pushed_at": "2026-10-30T21:52:16Z",
+          "fork": false
+        },
+        {
+          "full_name": "Kushagrabainsla/muse-spark-open",
+          "default_branch": "main",
+          "pushed_at": "2026-11-01T04:47:54Z",
+          "fork": false
+        },
+        {
+          "full_name": "lilaclilac09/open-kernel-challenge",
+          "default_branch": "main",
+          "pushed_at": "2026-10-24T15:38:36Z",
+          "fork": false
+        },
+        {
+          "full_name": "ruwwww/open-kernel-challenge",
+          "default_branch": "main",
+          "pushed_at": "2026-10-29T18:35:19Z",
+          "fork": false
+        },
+        {
+          "full_name": "theluckystrike/muse-spark-open-kernels",
+          "default_branch": "main",
+          "pushed_at": "2026-10-23T10:04:14Z",
+          "fork": false
+        },
+        {
+          "full_name": "xharshvardhan/open-kernel-challenge",
+          "default_branch": "main",
+          "pushed_at": "2026-10-27T03:26:55Z",
+          "fork": false
+        },
+        {
+          "full_name": "trxphxle/okc-2026-muse-kernels",
+          "default_branch": "main",
+          "pushed_at": "2026-10-31T10:57:07Z",
+          "fork": false
+        },
+        {
+          "full_name": "vjeux/okc-2026",
+          "default_branch": "main",
+          "pushed_at": "2026-10-28T02:03:36Z",
+          "fork": false
+        },
+        {
+          "full_name": "operatorstack/open-kernel-challenge-solutions",
+          "default_branch": "main",
+          "pushed_at": "2026-10-26T02:35:32Z",
+          "fork": false
+        },
+        {
+          "full_name": "sid19991/open-kernel-challenge",
+          "default_branch": "main",
+          "pushed_at": "2026-10-29T14:59:40Z",
+          "fork": false
+        },
+        {
+          "full_name": "zhebrak/muse-spark-kernels",
+          "default_branch": "main",
+          "pushed_at": "2026-10-28T19:39:37Z",
+          "fork": false
+        },
+        {
+          "full_name": "infraax/okc-kernel-challenge",
+          "default_branch": "main",
+          "pushed_at": "2026-10-27T11:46:00Z",
+          "fork": false
+        },
+        {
+          "full_name": "nibague/open-kernel-challenge",
+          "default_branch": "master",
+          "pushed_at": "2026-10-27T15:05:10Z",
+          "fork": false
+        },
+        {
+          "full_name": "chinesepowered/hack-argonspeed",
+          "default_branch": "main",
+          "pushed_at": "2026-10-25T23:30:21Z",
+          "fork": false
+        },
+        {
+          "full_name": "keell0renz/muse-open-kernel-challenge",
+          "default_branch": "main",
+          "pushed_at": "2026-11-01T07:11:10Z",
+          "fork": false
+        }
+      ]
+    },
+    {
+      "query": "\"OpenKernel Challenge\" in:readme",
+      "status": 200,
+      "total_count": 1,
+      "incomplete_results": false,
+      "items": [
+        {
+          "full_name": "KnowingNothing/OpenKernel",
+          "default_branch": "main",
+          "pushed_at": "2025-12-20T01:00:19Z",
+          "fork": false
+        }
+      ]
+    },
+    {
+      "query": "\"muse\" \"kernel\" user:Eric-Mao06",
+      "status": 200,
+      "total_count": 0,
+      "incomplete_results": false,
+      "items": []
+    }
+  ]
+}

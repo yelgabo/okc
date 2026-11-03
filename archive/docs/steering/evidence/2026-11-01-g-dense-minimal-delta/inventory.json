@@ -1,0 +1,2161 @@
+{
+  "root_read_head": "8cef427608ea05f7a47470666468b93b52be6802",
+  "requested_reconciliation_commit": "0f51f77",
+  "source_pins": [
+    {
+      "path": "..\\okc\\.build\\today\\kel\\kernels\\muse_decode_layer.py",
+      "bytes": 995999,
+      "sha256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a"
+    },
+    {
+      "path": "..\\okc\\muse_decode_layer\\cand\\g1b4_stage_release.py",
+      "bytes": 869076,
+      "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+    }
+  ],
+  "unchanged_config_bindings": {
+    "bfp_SK2_CONFIGS": true,
+    "bfp_SK2_PICK": true,
+    "bfp_SK2_K": true,
+    "_GRAFT_LT_PICKS": true,
+    "_GRAFT_QKV256": true,
+    "_GRAFT_LT_T": true,
+    "bfp_COMPRESS": true
+  },
+  "unchanged_function_ast": {
+    "dense": {
+      "ast_equal": true,
+      "lines": [
+        12388,
+        12289
+      ]
+    },
+    "_graft_layouts": {
+      "ast_equal": true,
+      "lines": [
+        12291,
+        12187
+      ]
+    },
+    "_graft_lt_run": {
+      "ast_equal": true,
+      "lines": [
+        12371,
+        12272
+      ]
+    },
+    "_pool_router_fp32": {
+      "ast_equal": true,
+      "lines": [
+        14090,
+        16642
+      ]
+    },
+    "bfp__sk2_geom": {
+      "ast_equal": true,
+      "lines": [
+        9570,
+        9534
+      ]
+    },
+    "bfp__sk2_src": {
+      "ast_equal": true,
+      "lines": [
+        9596,
+        9559
+      ]
+    }
+  },
+  "cells": [
+    {
+      "load": "decode 1",
+      "context": "sliding",
+      "tokens": 1,
+      "weight": 46,
+      "operators": {
+        "qkv": {
+          "route": "SK2",
+          "config_name": "qkv8_r176",
+          "config": [
+            "qkv8_r176",
+            "qkv_gate",
+            2304,
+            24,
+            3,
+            1,
+            4,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+              "aggregate_us": 11.4,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+              "aggregate_us": 10.5,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "o": {
+          "route": "G0 deferred GLE O+boundary;607 ordinary SK2 O then boundary",
+          "config_name": "o8h_r88",
+          "config": [
+            "o8h_r88",
+            "o",
+            8192,
+            32,
+            4,
+            1,
+            4,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 4, 1, 4, true...",
+              "aggregate_us": 6.3,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+              "aggregate_us": 6.0,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "pr": {
+          "route": "GLE_FRT pooler + full-FP32 router",
+          "config_name": "pooler",
+          "config": [
+            "pooler",
+            "pooler",
+            4096,
+            32,
+            4,
+            1,
+            8,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+              "aggregate_us": 17.6,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+              "aggregate_us": 17.9,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "FP32 pooler/router staging; BF16 pooler stage before norm, FP32 router logits"
+        },
+        "un": {
+          "route": "SK2",
+          "config_name": "slice8_r192",
+          "config": [
+            "slice8_r192",
+            "unpooler",
+            1024,
+            8,
+            1,
+            1,
+            8,
+            2,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+              "aggregate_us": 4.5,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+              "aggregate_us": 4.4,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+          17.6,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+          11.4,
+          1
+        ],
+        [
+          "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 4, 1, 4, true...",
+          6.3,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          4.5,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+          17.9,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+          10.5,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          6.0,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          4.4,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "decode 1",
+      "context": "full",
+      "tokens": 1,
+      "weight": 16,
+      "operators": {
+        "qkv": {
+          "route": "SK2",
+          "config_name": "qkv8_r176",
+          "config": [
+            "qkv8_r176",
+            "qkv_gate",
+            2304,
+            24,
+            3,
+            1,
+            4,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+              "aggregate_us": 11.3,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+              "aggregate_us": 10.6,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "o": {
+          "route": "G0 deferred GLE O+boundary;607 ordinary SK2 O then boundary",
+          "config_name": "o8h_r88",
+          "config": [
+            "o8h_r88",
+            "o",
+            8192,
+            32,
+            4,
+            1,
+            4,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 4, 1, 4, true...",
+              "aggregate_us": 6.2,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+              "aggregate_us": 5.9,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "pr": {
+          "route": "GLE_FRT pooler + full-FP32 router",
+          "config_name": "pooler",
+          "config": [
+            "pooler",
+            "pooler",
+            4096,
+            32,
+            4,
+            1,
+            8,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+              "aggregate_us": 17.4,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+              "aggregate_us": 17.9,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "FP32 pooler/router staging; BF16 pooler stage before norm, FP32 router logits"
+        },
+        "un": {
+          "route": "SK2",
+          "config_name": "slice8_r192",
+          "config": [
+            "slice8_r192",
+            "unpooler",
+            1024,
+            8,
+            1,
+            1,
+            8,
+            2,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+              "aggregate_us": 4.6,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+              "aggregate_us": 4.5,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+          17.4,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+          11.3,
+          1
+        ],
+        [
+          "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 4, 1, 4, true...",
+          6.2,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          4.6,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+          17.9,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+          10.6,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          5.9,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          4.5,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "decode 16",
+      "context": "sliding",
+      "tokens": 16,
+      "weight": 46,
+      "operators": {
+        "qkv": {
+          "route": "SK2",
+          "config_name": "qkv16_r176",
+          "config": [
+            "qkv16_r176",
+            "qkv_gate",
+            2304,
+            24,
+            3,
+            1,
+            4,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+              "aggregate_us": 10.6,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+              "aggregate_us": 10.6,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "o": {
+          "route": "SK2",
+          "config_name": "o8h_r88",
+          "config": [
+            "o8h_r88",
+            "o",
+            8192,
+            32,
+            4,
+            1,
+            4,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+              "aggregate_us": 6.0,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+              "aggregate_us": 6.1,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "pr": {
+          "route": "SK2F pooler + BF16 hi/lo router",
+          "config_name": "pooler",
+          "config": [
+            "pooler",
+            "pooler",
+            4096,
+            32,
+            4,
+            1,
+            8,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+              "aggregate_us": 18.9,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+              "aggregate_us": 18.9,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "FP32 pooler/router staging; BF16 pooler stage before norm, FP32 router logits"
+        },
+        "un": {
+          "route": "SK2",
+          "config_name": "unpooler16h_r100",
+          "config": [
+            "unpooler16h_r100",
+            "unpooler",
+            8192,
+            32,
+            4,
+            1,
+            4,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+              "aggregate_us": 15.3,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+              "aggregate_us": 14.9,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+          18.9,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+          15.3,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+          10.6,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+          6.0,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+          18.9,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+          14.9,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+          10.6,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+          6.1,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "decode 16",
+      "context": "full",
+      "tokens": 16,
+      "weight": 16,
+      "operators": {
+        "qkv": {
+          "route": "SK2",
+          "config_name": "qkv16_r176",
+          "config": [
+            "qkv16_r176",
+            "qkv_gate",
+            2304,
+            24,
+            3,
+            1,
+            4,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+              "aggregate_us": 10.1,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+              "aggregate_us": 10.4,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "o": {
+          "route": "SK2",
+          "config_name": "o8h_r88",
+          "config": [
+            "o8h_r88",
+            "o",
+            8192,
+            32,
+            4,
+            1,
+            4,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+              "aggregate_us": 9.9,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+              "aggregate_us": 6.1,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "pr": {
+          "route": "SK2F pooler + BF16 hi/lo router",
+          "config_name": "pooler",
+          "config": [
+            "pooler",
+            "pooler",
+            4096,
+            32,
+            4,
+            1,
+            8,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+              "aggregate_us": 17.3,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+              "aggregate_us": 17.3,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "FP32 pooler/router staging; BF16 pooler stage before norm, FP32 router logits"
+        },
+        "un": {
+          "route": "SK2",
+          "config_name": "unpooler16h_r100",
+          "config": [
+            "unpooler16h_r100",
+            "unpooler",
+            8192,
+            32,
+            4,
+            1,
+            4,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+              "aggregate_us": 14.6,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+              "aggregate_us": 14.6,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+          17.3,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+          14.6,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+          10.1,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+          9.9,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+          17.3,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+          14.6,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+          10.4,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+          6.1,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "decode 32",
+      "context": "sliding",
+      "tokens": 32,
+      "weight": 46,
+      "operators": {
+        "qkv": {
+          "route": "SK2",
+          "config_name": "qkv32_r208",
+          "config": [
+            "qkv32_r208",
+            "qkv_gate",
+            2304,
+            24,
+            3,
+            1,
+            4,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+              "aggregate_us": 11.2,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+              "aggregate_us": 11.4,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "o": {
+          "route": "SK2",
+          "config_name": "o32h_r100",
+          "config": [
+            "o32h_r100",
+            "o",
+            8192,
+            32,
+            2,
+            2,
+            2,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+              "aggregate_us": 6.9,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+              "aggregate_us": 6.2,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "pr": {
+          "route": "SK2F pooler + BF16 hi/lo router",
+          "config_name": "pooler",
+          "config": [
+            "pooler",
+            "pooler",
+            4096,
+            32,
+            4,
+            1,
+            8,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+              "aggregate_us": 22.0,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+              "aggregate_us": 20.4,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "FP32 pooler/router staging; BF16 pooler stage before norm, FP32 router logits"
+        },
+        "un": {
+          "route": "SK2",
+          "config_name": "unpooler32_r144",
+          "config": [
+            "unpooler32_r144",
+            "unpooler",
+            8192,
+            64,
+            4,
+            2,
+            2,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+              "aggregate_us": 18.2,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+              "aggregate_us": 16.0,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+          22.0,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+          18.2,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+          11.2,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+          6.9,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+          20.4,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+          16.0,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+          11.4,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+          6.2,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "decode 32",
+      "context": "full",
+      "tokens": 32,
+      "weight": 16,
+      "operators": {
+        "qkv": {
+          "route": "SK2",
+          "config_name": "qkv32_r208",
+          "config": [
+            "qkv32_r208",
+            "qkv_gate",
+            2304,
+            24,
+            3,
+            1,
+            4,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+              "aggregate_us": 11.3,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+              "aggregate_us": 11.4,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "o": {
+          "route": "SK2",
+          "config_name": "o32h_r100",
+          "config": [
+            "o32h_r100",
+            "o",
+            8192,
+            32,
+            2,
+            2,
+            2,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+              "aggregate_us": 11.9,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+              "aggregate_us": 6.2,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "pr": {
+          "route": "SK2F pooler + BF16 hi/lo router",
+          "config_name": "pooler",
+          "config": [
+            "pooler",
+            "pooler",
+            4096,
+            32,
+            4,
+            1,
+            8,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+              "aggregate_us": 20.9,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+              "aggregate_us": 19.6,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "FP32 pooler/router staging; BF16 pooler stage before norm, FP32 router logits"
+        },
+        "un": {
+          "route": "SK2",
+          "config_name": "unpooler32_r144",
+          "config": [
+            "unpooler32_r144",
+            "unpooler",
+            8192,
+            64,
+            4,
+            2,
+            2,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+              "aggregate_us": 17.8,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+              "aggregate_us": 15.9,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+          20.9,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+          17.8,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+          11.9,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+          11.3,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+          19.6,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+          15.9,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+          11.4,
+          1
+        ],
+        [
+          "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+          6.2,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "verify 1",
+      "context": "sliding",
+      "tokens": 8,
+      "weight": 46,
+      "operators": {
+        "qkv": {
+          "route": "narrow SK2",
+          "config_name": "qkv8_r176",
+          "config": [
+            "qkv8_r176",
+            "qkv_gate",
+            2304,
+            24,
+            3,
+            1,
+            4,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel_narrow_1858d55769b5<1, 8, 3, 1, 4, 2, 5, ...",
+              "aggregate_us": 9.9,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...",
+              "aggregate_us": 9.1,
+              "calls": 1
+            }
+          ],
+          "special": "T8 QKV narrow override uses5 stages, not static qkv8 cap6",
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "o": {
+          "route": "SK2",
+          "config_name": "o8h_r88",
+          "config": [
+            "o8h_r88",
+            "o",
+            8192,
+            32,
+            4,
+            1,
+            4,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+              "aggregate_us": 6.1,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+              "aggregate_us": 6.0,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "pr": {
+          "route": "GLE_FRT pooler + full-FP32 router",
+          "config_name": "pooler",
+          "config": [
+            "pooler",
+            "pooler",
+            4096,
+            32,
+            4,
+            1,
+            8,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+              "aggregate_us": 19.9,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+              "aggregate_us": 18.7,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "FP32 pooler/router staging; BF16 pooler stage before norm, FP32 router logits"
+        },
+        "un": {
+          "route": "SK2",
+          "config_name": "slice8_r192",
+          "config": [
+            "slice8_r192",
+            "unpooler",
+            1024,
+            8,
+            1,
+            1,
+            8,
+            2,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+              "aggregate_us": 4.5,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+              "aggregate_us": 4.7,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+          19.9,
+          1
+        ],
+        [
+          "void sk2_kernel_narrow_1858d55769b5<1, 8, 3, 1, 4, 2, 5, ...",
+          9.9,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          6.1,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          4.5,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+          18.7,
+          1
+        ],
+        [
+          "void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...",
+          9.1,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          6.0,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          4.7,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "verify 1",
+      "context": "full",
+      "tokens": 8,
+      "weight": 16,
+      "operators": {
+        "qkv": {
+          "route": "narrow SK2",
+          "config_name": "qkv8_r176",
+          "config": [
+            "qkv8_r176",
+            "qkv_gate",
+            2304,
+            24,
+            3,
+            1,
+            4,
+            2,
+            1,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel_narrow_1858d55769b5<1, 8, 3, 1, 4, 2, 5, ...",
+              "aggregate_us": 9.2,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...",
+              "aggregate_us": 9.3,
+              "calls": 1
+            }
+          ],
+          "special": "T8 QKV narrow override uses5 stages, not static qkv8 cap6",
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "o": {
+          "route": "SK2",
+          "config_name": "o8h_r88",
+          "config": [
+            "o8h_r88",
+            "o",
+            8192,
+            32,
+            4,
+            1,
+            4,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+              "aggregate_us": 6.0,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+              "aggregate_us": 6.1,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        },
+        "pr": {
+          "route": "GLE_FRT pooler + full-FP32 router",
+          "config_name": "pooler",
+          "config": [
+            "pooler",
+            "pooler",
+            4096,
+            32,
+            4,
+            1,
+            8,
+            1,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+              "aggregate_us": 18.6,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+              "aggregate_us": 18.6,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "FP32 pooler/router staging; BF16 pooler stage before norm, FP32 router logits"
+        },
+        "un": {
+          "route": "SK2",
+          "config_name": "slice8_r192",
+          "config": [
+            "slice8_r192",
+            "unpooler",
+            1024,
+            8,
+            1,
+            1,
+            8,
+            2,
+            2,
+            1
+          ],
+          "profile": [
+            {
+              "kernel": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+              "aggregate_us": 4.8,
+              "calls": 1
+            },
+            {
+              "kernel": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+              "aggregate_us": 4.5,
+              "calls": 1
+            }
+          ],
+          "special": null,
+          "numerical_change": "none in projection MMA/weight codec; downstream mandatory boundary casts differ",
+          "accumulation": "FP32 MMA plus FP32 escape correction",
+          "output": "BF16"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void sk2_kernel_glef4c6d3331426<1, 8, 4, 1, 8, 1, 6, true...",
+          18.6,
+          1
+        ],
+        [
+          "void sk2_kernel_narrow_1858d55769b5<1, 8, 3, 1, 4, 2, 5, ...",
+          9.2,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          6.0,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          4.8,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+          18.6,
+          1
+        ],
+        [
+          "void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...",
+          9.3,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+          6.1,
+          1
+        ],
+        [
+          "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+          4.5,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "verify 16",
+      "context": "sliding",
+      "tokens": 128,
+      "weight": 46,
+      "operators": {
+        "qkv": {
+          "g0_route": "rs128 d2s5hzwP",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "tn",
+            16,
+            false,
+            [
+              395136991298,
+              4294967331,
+              0,
+              1407374883553282,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "grouped QKV+un rq inG0 or QKV+O Lt in607 atT128; do not split aggregate calls"
+        },
+        "o": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "nn",
+            8,
+            false,
+            [
+              77309411394,
+              4294967331,
+              0,
+              1407374883553283,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "grouped QKV+un rq inG0 or QKV+O Lt in607 atT128; do not split aggregate calls"
+        },
+        "pr": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "tn",
+            1,
+            true,
+            [
+              575525617730,
+              4294967331,
+              0,
+              1970324836974598,
+              558779540176897,
+              60129542158,
+              292057776128,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "FP324608 concatenated pooler/router staging",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "grouped QKV+un rq inG0 or QKV+O Lt in607 atT128; do not split aggregate calls"
+        },
+        "un": {
+          "g0_route": "rs128 d2s5hzwP",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "nn",
+            2,
+            false,
+            [
+              77309411394,
+              4294967331,
+              0,
+              1407374883553283,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "grouped QKV+un rq inG0 or QKV+O Lt in607 atT128; do not split aggregate calls"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void rq<128, 5, 1, 0, 0, 0, 42999939, 1>(RqP, RqTmap, RqT...",
+          30.7,
+          2
+        ],
+        [
+          "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+          25.2,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+          8.5,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+          28.5,
+          2
+        ],
+        [
+          "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+          25.4,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN",
+          16.9,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "verify 16",
+      "context": "full",
+      "tokens": 128,
+      "weight": 16,
+      "operators": {
+        "qkv": {
+          "g0_route": "rs128 d2s5hzwP",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "tn",
+            16,
+            false,
+            [
+              395136991298,
+              4294967331,
+              0,
+              1407374883553282,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "grouped QKV+un rq inG0 or QKV+O Lt in607 atT128; do not split aggregate calls"
+        },
+        "o": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "nn",
+            8,
+            false,
+            [
+              77309411394,
+              4294967331,
+              0,
+              1407374883553283,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "grouped QKV+un rq inG0 or QKV+O Lt in607 atT128; do not split aggregate calls"
+        },
+        "pr": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "tn",
+            1,
+            true,
+            [
+              575525617730,
+              4294967331,
+              0,
+              1970324836974598,
+              558779540176897,
+              60129542158,
+              292057776128,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "FP324608 concatenated pooler/router staging",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "grouped QKV+un rq inG0 or QKV+O Lt in607 atT128; do not split aggregate calls"
+        },
+        "un": {
+          "g0_route": "rs128 d2s5hzwP",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "nn",
+            2,
+            false,
+            [
+              77309411394,
+              4294967331,
+              0,
+              1407374883553283,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "grouped QKV+un rq inG0 or QKV+O Lt in607 atT128; do not split aggregate calls"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "void rq<128, 5, 1, 0, 0, 0, 42999939, 1>(RqP, RqTmap, RqT...",
+          30.6,
+          2
+        ],
+        [
+          "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+          24.7,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+          7.2,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+          28.6,
+          2
+        ],
+        [
+          "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+          24.9,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN",
+          16.8,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "verify 32",
+      "context": "sliding",
+      "tokens": 256,
+      "weight": 46,
+      "operators": {
+        "qkv": {
+          "g0_route": "rs128 n256s5m1hzmEH",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": {
+            "id": 66,
+            "tile": 124,
+            "stages": 35,
+            "splitk": 1,
+            "red": 0,
+            "swz": 0,
+            "custom": 0,
+            "cluster": 2
+          },
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "retain exact dense profile rows below"
+        },
+        "o": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "nn",
+            2,
+            false,
+            [
+              85899345986,
+              4294967331,
+              0,
+              1407374883553286,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "retain exact dense profile rows below"
+        },
+        "pr": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "tn",
+            2,
+            true,
+            [
+              785979015234,
+              4294967331,
+              0,
+              562949953421312,
+              558779540176897,
+              60129542158,
+              292057776128,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "FP324608 concatenated pooler/router staging",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "retain exact dense profile rows below"
+        },
+        "un": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "nn",
+            2,
+            false,
+            [
+              85899345986,
+              4294967331,
+              0,
+              1407374883553287,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "retain exact dense profile rows below"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+          32.0,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+          25.9,
+          1
+        ],
+        [
+          "void rq<256, 5, 1, 0, 1, 0, 65603, 1>(RqP, RqTmap, RqTmap)",
+          18.1,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+          9.9,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+          31.5,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+          25.6,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN",
+          20.7,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+          9.1,
+          1
+        ]
+      ]
+    },
+    {
+      "load": "verify 32",
+      "context": "full",
+      "tokens": 256,
+      "weight": 16,
+      "operators": {
+        "qkv": {
+          "g0_route": "rs128 n256s5m1hzmEH",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": {
+            "id": 66,
+            "tile": 124,
+            "stages": 35,
+            "splitk": 1,
+            "red": 0,
+            "swz": 0,
+            "custom": 0,
+            "cluster": 2
+          },
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "retain exact dense profile rows below"
+        },
+        "o": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "nn",
+            2,
+            false,
+            [
+              85899345986,
+              4294967331,
+              0,
+              1407374883553286,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "retain exact dense profile rows below"
+        },
+        "pr": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "tn",
+            2,
+            true,
+            [
+              785979015234,
+              4294967331,
+              0,
+              562949953421312,
+              558779540176897,
+              60129542158,
+              292057776128,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "FP324608 concatenated pooler/router staging",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "retain exact dense profile rows below"
+        },
+        "un": {
+          "g0_route": "same saved Lt plan",
+          "g607_route": "saved checked nonsplit cuBLASLt",
+          "plan": [
+            "nn",
+            2,
+            false,
+            [
+              85899345986,
+              4294967331,
+              0,
+              1407374883553287,
+              558779540176897,
+              60129542158,
+              292058693646,
+              0
+            ]
+          ],
+          "compute": "CUBLAS_COMPUTE_32F (68)",
+          "operands": "BF16",
+          "output": "BF16",
+          "source_selection_verified": true,
+          "per_operator_profiler_attribution": "retain exact dense profile rows below"
+        }
+      },
+      "g0_dense_profile": [
+        [
+          "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+          32.2,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+          25.4,
+          1
+        ],
+        [
+          "void rq<256, 5, 1, 0, 1, 0, 65603, 1>(RqP, RqTmap, RqTmap)",
+          18.0,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+          9.0,
+          1
+        ]
+      ],
+      "g607_dense_profile": [
+        [
+          "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+          31.8,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+          25.4,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN",
+          20.5,
+          1
+        ],
+        [
+          "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+          9.0,
+          1
+        ]
+      ]
+    }
+  ],
+  "contracts": [
+    {
+      "id": "D1",
+      "component": "QKV/O/pooler/unpooler stage outputs",
+      "required": "Round reconstructed FP32 partial sums to BF16 before next nonlinear/operator stage; router FP32 vector/logits separate",
+      "baseline": "baseline.py274,310,314-328,340-349",
+      "delta": "route/boundary cast additions; GLE_T/B1X disabled because moving rounds through linear rewrite is inequivalent",
+      "minimal_arm": "retain casts/disable deferred rewrite or prove a different bit-boundary-preserving implementation"
+    },
+    {
+      "id": "D2",
+      "component": "compressed ordinary SK2",
+      "required": "Preserve BF16 weights/operands and FP32 correction/reduction; producer/reader ordering",
+      "delta": "only2 conditional global proxy fences plus PDL launchattribute0",
+      "minimal_arm": "math may remain exact upstream; common host/progress/PDL contract cannot be omitted"
+    },
+    {
+      "id": "D3",
+      "component": "rs128 internal split partials",
+      "required": "Weight/input precision and cross-stage BF16 edge explicit; exact allowed internal BF16 partial reduction unresolved",
+      "delta": "entire RQ tail cut/stub; conservative internal-reduction exclusion",
+      "minimal_arm": "not safely reenabled by deleting ban: resolve precision AND KS selfzero poll/ordinary launch admission separately"
+    },
+    {
+      "id": "D4",
+      "component": "Lt splitK guard",
+      "required": "BF16 operands/outputs and documented intended reduction precision; splitK alone not prohibited",
+      "delta": "guard accepts only0/1; broader than necessary for verified FP32-reduction plans",
+      "minimal_arm": "all8 existing plans accepted in607; no selected-plan change from removing guard"
+    },
+    {
+      "id": "D6",
+      "component": "shared pre-expert effective gamma",
+      "required": "Pinned baseline precomputes1+raw in BF16parameterdtype then passes to MuseSpark1xRMSNorm forward; interface parity dependency, not universal bitwise-intermediate rule",
+      "delta": "none: bothG0/607 store raw g_preexp and active routes add1 inFP32",
+      "minimal_arm": "resolve once as a common source epoch; do not charge as integration regression"
+    },
+    {
+      "id": "D5",
+      "component": "short FP32 router",
+      "required": "Use unrounded FP32 normalized router vector from pinned JIT norm boundary; BF16 pooler input remains distinct",
+      "delta": "GLE_FRT retained; GLE_T/B1X removed for different boundary issues",
+      "minimal_arm": "do not replace hr with BF16-upcast h or feed FP32 hr to pooler"
+    }
+  ],
+  "host_flags": {
+    "ordinary_bfp": [
+      "-O3",
+      "nativeH200 sm_90a",
+      "no use_fast_math",
+      "optional SK2_DELAY_ESC only when nonzero; no such selected profile evidence"
+    ],
+    "gle_frt": [
+      "-O3",
+      "compute_90/sm_90",
+      "no use_fast_math"
+    ],
+    "rq": [
+      "-O3",
+      "sm_90a",
+      "-DNDEBUG",
+      "--expt-relaxed-constexpr"
+    ],
+    "global_pdl": [
+      true,
+      false
+    ],
+    "bfp_pdl_policy": "_bfp_pdl(T,role) returns0 when PDLFalse; proxy fences conditional on pdl",
+    "Lt": "compute32F/BF16operands; fullfeaturebatch layouts unchanged; nonsplit guard added; all8 accepted"
+  },
+  "minimal_arm": {
+    "generated": false,
+    "conforming_claim": false,
+    "existing_tools_sufficient_without_refactor": false,
+    "reason": "Existing fork tools couple mandatory stage casts with conservative RQ removal/Lt guard and common ordering/ownership repairs. Source generation is possible, safe mandatory-only RQ restoration is not established.",
+    "common_dependencies": [
+      "current native expert progress/precision epoch",
+      "required attention BF16 value boundary",
+      "new common ATT7 cooperative progress repair/proof; inherited issue notintegrationdelta",
+      "shared preexpert effective BF16gamma interface parity",
+      "per-state scratch/prefetch/Ltworkspace ownership",
+      "PDL crossproxy handoffs if enabled"
+    ],
+    "no_rq_option": "G0 projection math with mandatory downstream BF16 casts, RQ excluded, current accepted Lt plans retained reproduces607 dense policy; no distinct measured treatment",
+    "rq_option": "Requires separate precision decision, per-tile KS selfzero progress/admission and all writer/async fences, exact prepare/tuner/pack probes; no variant emitted"
+  },
+  "GPU": false,
+  "performance_forecast": null
+}

@@ -1,0 +1,5 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+G_SPLIT_FRONT_STARTUP_OK 32 verified-replays [(1, "'bfpf'", "('sk2',)"), (8, "'bfpf'", "('sk2',)")] [(1, 774351632, 773175824), (1, 773081200, 772410080), (8, 771770112, 774586336), (8, 774453648, 774407280)] sizes1/8 owners2each private-sk2-debug+routeoutputs math/natural-routes/concurrent-replay

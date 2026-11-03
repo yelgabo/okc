@@ -15,12 +15,23 @@ import re
 
 
 def load(path):
-    d = json.load(open(path))
-    return d.get("result", d) if "benchmarks" not in d else d
+    with open(path, encoding="utf-8") as f:
+        envelope = json.load(f)
+    d = dict(envelope.get("result", envelope))
+    # `okc status` returns an envelope with event records, whereas the
+    # profile JSON saves normalized benchmark/profile lists.
+    if "benchmarks" not in d:
+        records = d.get("records", [])
+        d["benchmarks"] = [r for r in records if r.get("event") == "benchmark"]
+        d["profiles"] = [r for r in records if r.get("event") == "profile"]
+    d.setdefault("job_id", envelope.get("id"))
+    d.setdefault("problem", envelope.get("board"))
+    d.setdefault("summary", {k: d[k] for k in ("speedup", "speedup_ci") if k in d})
+    return d
 
 
 def case_key(case):
-    return tuple(sorted((k, v) for k, v in case.items() if k != "seed"))
+    return tuple(sorted((k, v) for k, v in case.items() if k not in ("seed", "repeats")))
 
 
 def label(case):

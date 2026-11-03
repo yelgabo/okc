@@ -1,0 +1,57 @@
+{
+  "source": "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/detm-reduce/original.cu",
+  "source_sha256": "beba98d82228815d58d4a5be3e7a3836ef58064ad06085542f198782fca66708",
+  "original_device_prefix_sha256": "015add2d85dcc40191bec43768465404cf2df68d251c463aa947ddaa093b3844",
+  "compiled_device_prefix_sha256": "3197abe288fe5055dc45bc2cbb6644b3084867c8eae29e6a22eff68f1f635833",
+  "host_boundary": "template <int L, int MODE>\nstruct Instance {",
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\n#include <cuda/std/cstdint>\n"
+  },
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "declaration_adapter": {
+    "old": "constexpr float NEG_INF = -INFINITY;",
+    "new": "#define NEG_INF (__int_as_float((int)0xff800000u))"
+  },
+  "header_adapter": "Torch/ATen/algorithm/vector removed; cuda_runtime, CUDA cstdint, overflow float literal INFINITY (positive infinity); owned layer one plus anonymous namespaces closed after extract",
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_1753b6f4_5983one15attn_one_kernelILi8ELi3EEEvNS0_6ParamsE"
+  ],
+  "ptx_sha256": "f6f020b9e1084a3c794b3fe77413ea487e756f17ac2f5d5298dcf889ef5de5ad",
+  "cubin_sha256": "040a280d3a6499e8dec9c3740620d1d6d74e369d4175b994840e94539e0b969b",
+  "ptxas": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/detm-reduce/original-compile/device.ptx",
+    "-o",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/detm-reduce/original-compile/device.cubin"
+  ],
+  "exitcode": 0,
+  "resources": {
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_1753b6f4_5983one15attn_one_kernelILi8ELi3EEEvNS0_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 114,
+      "barriers": 16
+    }
+  },
+  "ptx_launch_bounds": [
+    ".maxntid 256, 1, 1",
+    ".minnctapersm 2"
+  ],
+  "ptxas_wgmma_serialization_warnings": 0
+}

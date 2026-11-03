@@ -1,0 +1,59 @@
+{
+  "scope": "Root source-only reconstruction/selected12-cell ledger verification; no GPU",
+  "runs": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools",
+        "-p",
+        "test_g_native_patch_ladder.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_complete_chains_and_no_unclassified_native_residual (test_g_native_patch_ladder.Ladder.test_complete_chains_and_no_unclassified_native_residual) ... ok\ntest_scope_and_gamma_consumers (test_g_native_patch_ladder.Ladder.test_scope_and_gamma_consumers) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 1.017s\n\nOK\n",
+      "seconds": 1.4288215099999988
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/g_native_patch_ladder.py",
+        ".",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/inventory/moe.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\"exact_native_reconstruction\": true, \"groups\": 12, \"steps\": {\"MOE_CUDA_SRC\": 21, \"_MA_ALT_SRCS['moe_helper0']\": 12}}\n",
+      "stderr": "",
+      "seconds": 1.0925700159999963
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/proj_g_dense_delta_inventory.py",
+        ".",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/inventory/dense.json"
+      ],
+      "returncode": 0,
+      "stdout": "DENSE_INVENTORY_OK 12 cells 6 contracts variant_generated=False\n",
+      "stderr": "",
+      "seconds": 1.247288988000001
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/attention_g_contract_inventory.py",
+        ".",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/inventory/attention.json"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.2603553080000012
+    }
+  ],
+  "passed": true
+}

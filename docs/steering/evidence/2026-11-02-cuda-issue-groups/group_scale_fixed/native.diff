@@ -1,0 +1,27 @@
+--- control
++++ candidate
+@@ -2099,12 +2099,13 @@
+   const int warp = WARP_IDX(tid);
+   const int wg = warp >> 2, wp = warp & 3, g = lane >> 2, wt = tid & 127;
+   constexpr int UBL = PB ? 4 : 5;
+-  const uint32_t k16c = (OKC_SC6W ? 4u : 16u) + p.zero;  // opaque 16 (4 with SC6W): the scale decode's multiply stays an IMAD (FMA pipe)
++  const uint32_t k16c = (OKC_SC6W ? 4u : 16u);
+   const uint32_t xring_s = smem_u32(ring + WGS_NS * UNIT_BYTES);
+   float d[WGS_NT][4];  // written first by a scale-d = 0 wgmma (no zeroing: ptxas would serialize the wgmmas, C7513)
+   // k16 steps per commit group: the whole function shares one register budget (96 at 544 threads) and ptxas
+   // serializes every wgmma if any pipeline does not fit (C7512), so the wide-N variants commit 2 steps at a time
+-  constexpr int GS = OKC_WGSGS;
++  constexpr int GS = NTT <= 4 ? 4 : OKC_WGSGS;
++  constexpr int FLUSH_CI = ((OKC_WGSFCI + 1) * OKC_WGSGS + GS - 1) / GS - 1;
+   uint32_t af[2][GS][4];
+   // slot-0 descriptor and code pointer, once per segment: a stage adds its slot's offset (the address field cannot
+   // carry: shared addresses >> 4 stay below 2^14) instead of rebuilding the descriptor (~8 uniform ops per stage)
+@@ -2185,7 +2186,7 @@
+         wg_wait<1>();
+         // the previous segment's deferred work, behind group OKC_WGSFCI of the first stage (scout: CI 3 lets this WG's
+         // own red.adds / epilogue stores drain a little longer before the count / release atomics: +0.5-1%)
+-        if (FIRST && ci == OKC_WGSFCI && pd.kind) wgs_flush<PB>(p, S, pd);
++        if (FIRST && ci == FLUSH_CI && pd.kind) wgs_flush<PB>(p, S, pd);
+       }
+     }
+     // All reads of this activation slot are complete before the ring can reuse it.

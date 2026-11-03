@@ -1,0 +1,312 @@
+{
+  "board": "muse_attention_decode",
+  "call_id": "kc-fe75e566c1ae4d51",
+  "cluster": "sfo3",
+  "content_hash": "6a2ae6a73972a988425f0c27cbee483d89609538c8d02de940bb84fcaeefb009",
+  "created_at": 1793531138.1699111,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793531519.48473,
+  "id": "fe75e566c1ae4d51",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/profiles/attn_pr_qk2.fe75e566c1ae4d51.log"
+  },
+  "payload_ref": "muse_attention_decode/6a2ae6a73972a988425f0c27cbee483d89609538c8d02de940bb84fcaeefb009.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "1d519ebf2014fef91b41ffea9bcd7e9c5066784ef5a2a5e2cf06a8cec554d188",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_attention_decode/baseline.py": "37f51207283f85a65eb393b1dfb1344759d7df0bdec5450e34d24e7139f56ecc",
+        "problems/muse_attention_decode/reference.py": "386f7f67a1d788501e8fb9005d340423d098a0946e23810ba10878228c11a37b",
+        "problems/muse_attention_decode/task.yml": "645f889fbbd52d1d731bf5eb53356aa7ef6eea8fab3073f0a2a3dd582fe6e4bb"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "attn prep kernels: loaded\nattn fused kernel: loaded\nattn ws kernel: loaded\nattn one kernel: loaded\nattn prep kernels: loaded\nattn fused kernel: loaded\nattn ws kernel: loaded\nattn one kernel: loaded\nattn prep kernels: loaded\nattn fused kernel: loaded\nattn ws kernel: loaded\nattn one kernel: loaded\nattn prep kernels: loaded\nattn fused kernel: loaded\nattn ws kernel: loaded\nattn one kernel: loaded\nQ2_RESOURCE [{'(1, 1)': [107, 0, 0, 58960, 128, 3], '(1, 3)': [108, 0, 0, 58960, 128, 3], '(1, 11)': [114, 0, 0, 58960, 128, 3], '(1, 13)': [72, 0, 0, 58960, 128, 3], '(1, 17)': [116, 0, 0, 58960, 128, 3], '(1, 49)': [128, 0, 0, 58960, 256, 2], '(8, 1)': [111, 0, 0, 90704, 256, 2], '(8, 3)': [111, 0, 0, 90704, 256, 2], '(8, 11)': [112, 0, 0, 90704, 256, 2], '(8, 15)': [82, 0, 0, 90704, 256, 2], '(8, 19)': [112, 0, 0, 90704, 256, 2], '(8, 51)': [80, 0, 0, 107104, 384, 2], '(8, 115)': [145, 0, 0, 107104, 384, 1]}, {'(1, 1)': [107, 0, 0, 58960, 128, 3], '(1, 3)': [108, 0, 0, 58960, 128, 3], '(1, 11)': [114, 0, 0, 58960, 128, 3], '(1, 13)': [72, 0, 0, 58960, 128, 3], '(1, 17)': [116, 0, 0, 58960, 128, 3], '(1, 49)': [128, 0, 0, 58960, 256, 2], '(8, 1)': [111, 0, 0, 90704, 256, 2], '(8, 3)': [111, 0, 0, 90704, 256, 2], '(8, 11)': [112, 0, 0, 90704, 256, 2], '(8, 15)': [82, 0, 0, 90704, 256, 2], '(8, 19)': [112, 0, 0, 90704, 256, 2], '(8, 51)': [80, 0, 0, 107104, 384, 2], '(8, 115)': [145, 0, 0, 107104, 384, 1]}, {'(1, 1)': [107, 0, 0, 58960, 128, 3], '(1, 3)': [108, 0, 0, 58960, 128, 3], '(1, 11)': [114, 0, 0, 58960, 128, 3], '(1, 13)': [72, 0, 0, 58960, 128, 3], '(1, 17)': [116, 0, 0, 58960, 128, 3], '(1, 49)': [128, 0, 0, 58960, 256, 2], '(8, 1)': [111, 0, 0, 90704, 256, 2], '(8, 3)': [111, 0, 0, 90704, 256, 2], '(8, 11)': [112, 0, 0, 90704, 256, 2], '(8, 15)': [82, 0, 0, 90704, 256, 2], '(8, 19)': [112, 0, 0, 90704, 256, 2], '(8, 51)': [80, 0, 0, 107104, 384, 2], '(8, 115)': [145, 0, 0, 107104, 384, 1]}, {'(1, 1)': [107, 0, 0, 58960, 128, 3], '(1, 3)': [108, 0, 0, 58960, 128, 3], '(1, 11)': [114, 0, 0, 58960, 128, 3], '(1, 13)': [72, 0, 0, 58960, 128, 3], '(1, 17)': [116, 0, 0, 58960, 128, 3], '(1, 49)': [128, 0, 0, 58960, 256, 2], '(8, 1)': [111, 0, 0, 90704, 256, 2], '(8, 3)': [111, 0, 0, 90704, 256, 2], '(8, 11)': [112, 0, 0, 90704, 256, 2], '(8, 15)': [82, 0, 0, 90704, 256, 2], '(8, 19)': [112, 0, 0, 90704, 256, 2], '(8, 51)': [80, 0, 0, 107104, 384, 2], '(8, 115)': [145, 0, 0, 107104, 384, 1]}]\nTraceback (most recent call last):\n  File \"/tmp/muse_attention_decode-ob5dfcs9/run/worker.py\", line 484, in child_main\n    out = kernel()(state.get(\"data\"))\n          ^^^^^^^^\n  File \"/tmp/muse_attention_decode-ob5dfcs9/run/worker.py\", line 408, in kernel\n    sub = importlib.import_module(module)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1331, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 935, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 995, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 488, in _call_with_frames_removed\n  File \"/tmp/muse_attention_decode-ob5dfcs9/run/submission.py\", line 3932, in <module>\n    _q2_run()\n  File \"/tmp/muse_attention_decode-ob5dfcs9/run/submission.py\", line 3852, in _q2_run\n    budget()\n  File \"/tmp/muse_attention_decode-ob5dfcs9/run/submission.py\", line 3809, in budget\n    def budget(): assert _q2_time.monotonic()-started<280,'Q2 incomplete before280s'\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Q2 incomplete before280s\nattn prep kernels: loaded\nattn fused kernel: loaded\nattn ws kernel: loaded\nattn one kernel: loaded\nattn prep kernels: loaded\nattn fused kernel: loaded\nattn ws kernel: loaded\nattn one kernel: loaded\nattn prep kernels: loaded\nattn fused kernel: loaded\nattn ws kernel: loaded\nattn one kernel: loaded\nattn prep kernels: loaded\nattn fused kernel: loaded\nattn ws kernel: loaded\nattn one kernel: loaded\nQ2_RESOURCE [{'(1, 1)': [107, 0, 0, 58960, 128, 3], '(1, 3)': [108, 0, 0, 58960, 128, 3], '(1, 11)': [114, 0, 0, 58960, 128, 3], '(1, 13)': [72, 0, 0, 58960, 128, 3], '(1, 17)': [116, 0, 0, 58960, 128, 3], '(1, 49)': [128, 0, 0, 58960, 256, 2], '(8, 1)': [111, 0, 0, 90704, 256, 2], '(8, 3)': [111, 0, 0, 90704, 256, 2], '(8, 11)': [112, 0, 0, 90704, 256, 2], '(8, 15)': [82, 0, 0, 90704, 256, 2], '(8, 19)': [112, 0, 0, 90704, 256, 2], '(8, 51)': [80, 0, 0, 107104, 384, 2], '(8, 115)': [145, 0, 0, 107104, 384, 1]}, {'(1, 1)': [107, 0, 0, 58960, 128, 3], '(1, 3)': [108, 0, 0, 58960, 128, 3], '(1, 11)': [114, 0, 0, 58960, 128, 3], '(1, 13)': [72, 0, 0, 58960, 128, 3], '(1, 17)': [116, 0, 0, 58960, 128, 3], '(1, 49)': [128, 0, 0, 58960, 256, 2], '(8, 1)': [111, 0, 0, 90704, 256, 2], '(8, 3)': [111, 0, 0, 90704, 256, 2], '(8, 11)': [112, 0, 0, 90704, 256, 2], '(8, 15)': [82, 0, 0, 90704, 256, 2], '(8, 19)': [112, 0, 0, 90704, 256, 2], '(8, 51)': [80, 0, 0, 107104, 384, 2], '(8, 115)': [145, 0, 0, 107104, 384, 1]}, {'(1, 1)': [107, 0, 0, 58960, 128, 3], '(1, 3)': [108, 0, 0, 58960, 128, 3], '(1, 11)': [114, 0, 0, 58960, 128, 3], '(1, 13)': [72, 0, 0, 58960, 128, 3], '(1, 17)': [116, 0, 0, 58960, 128, 3], '(1, 49)': [128, 0, 0, 58960, 256, 2], '(8, 1)': [111, 0, 0, 90704, 256, 2], '(8, 3)': [111, 0, 0, 90704, 256, 2], '(8, 11)': [112, 0, 0, 90704, 256, 2], '(8, 15)': [82, 0, 0, 90704, 256, 2], '(8, 19)': [112, 0, 0, 90704, 256, 2], '(8, 51)': [80, 0, 0, 107104, 384, 2], '(8, 115)': [145, 0, 0, 107104, 384, 1]}, {'(1, 1)': [107, 0, 0, 58960, 128, 3], '(1, 3)': [108, 0, 0, 58960, 128, 3], '(1, 11)': [114, 0, 0, 58960, 128, 3], '(1, 13)': [72, 0, 0, 58960, 128, 3], '(1, 17)': [116, 0, 0, 58960, 128, 3], '(1, 49)': [128, 0, 0, 58960, 256, 2], '(8, 1)': [111, 0, 0, 90704, 256, 2], '(8, 3)': [111, 0, 0, 90704, 256, 2], '(8, 11)': [112, 0, 0, 90704, 256, 2], '(8, 15)': [82, 0, 0, 90704, 256, 2], '(8, 19)': [112, 0, 0, 90704, 256, 2], '(8, 51)': [80, 0, 0, 107104, 384, 2], '(8, 115)': [145, 0, 0, 107104, 384, 1]}]\nQ2_EAGER_BEGIN 1 1 sliding\nQ2_EAGER_BEGIN 1 1 full\nQ2_EAGER_BEGIN 1 8 sliding\nQ2_EAGER_BEGIN 1 8 full\nQ2_EAGER_BEGIN 16 1 sliding\nQ2_EAGER_BEGIN 16 1 full\nQ2_EAGER_BEGIN 16 8 sliding\nQ2_EAGER_BEGIN 16 8 full\nQ2_EAGER_BEGIN 32 1 sliding\nQ2_EAGER_BEGIN 32 1 full\nQ2_EAGER_BEGIN 32 8 sliding\nQ2_EAGER_BEGIN 32 8 full\nQ2_CASE 713301 sliding [8.86400043964386, 8.991999551653862, 9.02399979531765, 9.02399979531765]\nQ2_CASE 713302 sliding [8.975999895483255, 8.895999751985073, 9.02399979531765, 9.02399979531765]\nQ2_CASE 713303 sliding [8.895999751985073, 8.86400043964386, 8.991999551653862, 9.02399979531765]\nQ2_CASE 713301 full [16.992000862956047, 16.767999157309532, 16.736000776290894, 16.863999888300896]\nQ2_CASE 713302 full [16.992000862956047, 16.767999157309532, 16.767999157309532, 16.847999766469]\nQ2_CASE 713303 full [16.992000862956047, 16.767999157309532, 16.767999157309532, 16.79999940097332]\nQ2_CORE 48 80 all_math_passed\nQ2_SCORE 713301 loads [10.961548935982488, 10.998709127306938, 11.014193596859132, 11.04722562576494] cross_factors [0.9992017903690847, 0.9987032208726929, 0.9997655517906044, 0.9992667009954292] duplicate_log_null 0.003384316039046188 win False context_regression_gate False\nQ2_SCORE 713302 loads [11.044645306443975, 10.927483469488159, 11.02245124357362, 11.043096562066387] cross_factors [1.0003353075322652, 1.0000233728808885, 0.998558842819898, 0.9982474621236768] duplicate_log_null 0.010664687851066206 win False context_regression_gate False\nQ2_SCORE 713303 loads [10.985290361267905, 10.903742044202742, 10.998709127306938, 11.030709370970726] cross_factors [0.9997965580573556, 0.9993125687128507, 0.9985557311744018, 0.9980723424990879] duplicate_log_null 0.007451100884100149 win False context_regression_gate False\nQ2_DECISION False all_three_seeds_required\nQ2_DONE 21.10776329500368 judged_frozen_control_no_submit\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 126.74,
+        "power.limit": 700,
+        "temperature.gpu": 40
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 450,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 120.53,
+        "power.limit": 700,
+        "temperature.gpu": 39
+      },
+      "node": "n-hbquzsoc2fbla3mk4cpu32bkrb"
+    },
+    "passed": false,
+    "records": [
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 10,
+          "heads": "tp8",
+          "layer": "sliding",
+          "seed": 6774102729948703398
+        },
+        "event": "test",
+        "index": 0,
+        "message": "AssertionError: Q2 incomplete before280s",
+        "status": "fail"
+      },
+      {
+        "case": {
+          "batch": 3,
+          "ctx": 2047,
+          "heads": "tp8",
+          "layer": "sliding",
+          "seed": 6774245707524055465
+        },
+        "event": "test",
+        "index": 1,
+        "message": "relative L2 error 6.026e-03 (worst row 6.346e-03) [bound 0.150: 2.5 x the reference's 0.072 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 5,
+          "ctx": 5000,
+          "heads": "tp8",
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 8,
+          "seed": 6774388685099407533,
+          "spread": "mixed"
+        },
+        "event": "test",
+        "index": 2,
+        "message": "relative L2 error 7.824e-02 (worst row 1.462e-01) [bound 0.150: 2.5 x the reference's 0.078 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 3000,
+          "heads": "tp8",
+          "layer": "full",
+          "seed": 6774531662674759602
+        },
+        "event": "test",
+        "index": 3,
+        "message": "relative L2 error 5.376e-03 (worst row 6.452e-03) [bound 0.150: 2.5 x the reference's 0.067 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 8,
+          "ctx": 8192,
+          "heads": "dp",
+          "layer": "full",
+          "seed": 6774674640250111672,
+          "spread": "mixed"
+        },
+        "event": "test",
+        "index": 4,
+        "message": "relative L2 error 8.518e-02 (worst row 9.491e-02) [bound 0.150: 2.5 x the reference's 0.085 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 2,
+          "ctx": 100000,
+          "heads": "tp8",
+          "layer": "full",
+          "page": 1,
+          "q_len": 8,
+          "seed": 6774817617825463743
+        },
+        "event": "test",
+        "index": 5,
+        "message": "relative L2 error 8.808e-02 (worst row 1.153e-01) [bound 0.150: 2.5 x the reference's 0.088 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 6000,
+          "dist": "edges",
+          "heads": "tp8",
+          "layer": "sliding",
+          "page": 1,
+          "seed": 6774960595400815815
+        },
+        "event": "test",
+        "index": 6,
+        "message": "relative L2 error 5.968e-03 (worst row 6.495e-03) [bound 0.150: 2.5 x the reference's 0.068 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 6000,
+          "dist": "edges",
+          "heads": "tp8",
+          "layer": "full",
+          "q_len": 8,
+          "seed": 6775103572976167888
+        },
+        "event": "test",
+        "index": 7,
+        "message": "relative L2 error 7.993e-02 (worst row 1.101e-01) [bound 0.150: 2.5 x the reference's 0.080 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 1048576,
+          "heads": "tp8",
+          "layer": "full",
+          "q_len": 8,
+          "seed": 6775246550551519962
+        },
+        "event": "test",
+        "index": 8,
+        "message": "relative L2 error 1.021e-01 (worst row 1.178e-01) [bound 0.150: 2.5 x the reference's 0.103 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 3,
+          "ctx": 4000,
+          "heads": "tp8",
+          "kv_scale": 0.015625,
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 8,
+          "seed": 6776104416003632427
+        },
+        "event": "test",
+        "index": 9,
+        "message": "relative L2 error 7.497e-02 (worst row 1.120e-01) [bound 0.150: 2.5 x the reference's 0.075 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 2,
+          "ctx": 9000,
+          "heads": "tp8",
+          "kv_scale": 0.015625,
+          "layer": "full",
+          "seed": 6776247393578984508
+        },
+        "event": "test",
+        "index": 10,
+        "message": "relative L2 error 5.246e-03 (worst row 5.771e-03) [bound 0.150: 2.5 x the reference's 0.080 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 80000,
+          "dist": "soft",
+          "heads": "tp8",
+          "layer": "full",
+          "seed": 6775389528126872037,
+          "spread": "mixed"
+        },
+        "event": "test",
+        "index": 11,
+        "message": "relative L2 error 5.220e-03 (worst row 5.758e-03) [bound 0.150: 2.5 x the reference's 0.077 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 6000,
+          "dist": "soft",
+          "heads": "tp8",
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 8,
+          "seed": 6775532505702224113
+        },
+        "event": "test",
+        "index": 12,
+        "message": "relative L2 error 6.874e-02 (worst row 1.043e-01) [bound 0.150: 2.5 x the reference's 0.069 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 2,
+          "ctx": 20000,
+          "dist": "soft",
+          "heads": "dp",
+          "layer": "full",
+          "q_len": 8,
+          "seed": 6775675483277576190
+        },
+        "event": "test",
+        "index": 13,
+        "message": "relative L2 error 7.135e-02 (worst row 7.779e-02) [bound 0.150: 2.5 x the reference's 0.071 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 80000,
+          "dist": "coherent",
+          "heads": "tp8",
+          "layer": "full",
+          "page": 1,
+          "seed": 6775818460852928268,
+          "spread": "mixed"
+        },
+        "event": "test",
+        "index": 14,
+        "message": "relative L2 error 4.164e-03 (worst row 5.221e-03) [bound 0.150: 2.5 x the reference's 0.055 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 2,
+          "ctx": 20000,
+          "dist": "coherent",
+          "heads": "dp",
+          "layer": "full",
+          "q_len": 8,
+          "seed": 6775961438428280347
+        },
+        "event": "test",
+        "index": 15,
+        "message": "relative L2 error 3.917e-02 (worst row 4.617e-02) [bound 0.111: 2.5 x the reference's 0.038 with FP8 E4M3 queries + 0.015]",
+        "status": "pass"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793531143.9560432,
+  "status": "done",
+  "team": "yelgabo"
+}

@@ -1,0 +1,12 @@
+D32_SPLIT_COPIES (17, 1, 2048, 15, 15)
+D32_SPLIT_COPIES (24, 1, 2048, 11, 11)
+D32_SPLIT_COPIES (32, 1, 2048, 8, 8)
+D32_SPLIT_COPIES (32, 1, 2048, 8, 8)
+test_actual_launch_scope_and_private_workspace_size (__main__.SplitCopies) ... ok
+test_frozen_device_and_explicit_override (__main__.SplitCopies) ... ok
+test_split_and_lane_destinations_have_one_writer (__main__.SplitCopies) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 30.137s
+
+OK

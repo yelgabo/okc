@@ -1,0 +1,15 @@
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_complete_six_load_gate_and_unchanged_drift (tools.test_gopt_ws_split.SourceAndModel.test_complete_six_load_gate_and_unchanged_drift) ... ok
+test_exported_positions_for_empty_and_mixed_routes (tools.test_gopt_ws_split.SourceAndModel.test_exported_positions_for_empty_and_mixed_routes) ... ok
+test_finalizer_interleaving_uses_immutable_generation (tools.test_gopt_ws_split.SourceAndModel.test_finalizer_interleaving_uses_immutable_generation) ... ok
+test_fixed_source_selection_and_internal_publication (tools.test_gopt_ws_split.SourceAndModel.test_fixed_source_selection_and_internal_publication) ... ok
+test_complete_ownership_replay_metadata_and_official_arm (tools.test_gopt_ws_split_host.Host.test_complete_ownership_replay_metadata_and_official_arm) ... ok
+test_completed_rows_survive_final_failure_exits (tools.test_gopt_ws_split_host.Host.test_completed_rows_survive_final_failure_exits) ... ok
+test_metadata_guard_and_replay_failures_preserve_error (tools.test_gopt_ws_split_host.Host.test_metadata_guard_and_replay_failures_preserve_error) ... ok
+test_primary_error_survives_cleanup_error (tools.test_gopt_ws_split_host.Host.test_primary_error_survives_cleanup_error) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 100.123s
+
+OK

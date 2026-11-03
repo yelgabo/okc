@@ -1,0 +1,220 @@
+{
+  "created_at_utc": "2026-11-02T19:20:02.728248+00:00",
+  "head": "6e1811647d0f525be53a0ebf28bc98e9ca10731e",
+  "inputs": {
+    "muse_decode_layer/profiles/scored.607eb52bdaf24160.json": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+    "docs/steering/evidence/2026-11-02-captain-fresh-incumbent-profile/control.cc474883117947c0.json": "99fc065c3c13389922e9914a5a2ea15b69dd6786f954ef74d65cfe67c46170fd",
+    "muse_decode_layer/baseline_profile/status.7d42771c3384449d.json": "dd4933eb3d79c9952d2e44cfb65e3886adaf7f99614938583edd41bb3a9c5c37"
+  },
+  "jobs": [
+    "607eb52bdaf24160",
+    "cc474883117947c0",
+    "7d42771c3384449d"
+  ],
+  "receipt_validation": "PASS: owning identity, complete official records and score reconstruction",
+  "benchmark_cases_equal_excluding_seed": true,
+  "excluded_case_fields": [
+    "seed"
+  ],
+  "benchmark_case_count": 12,
+  "benchmark_cases": [
+    {
+      "batch": 1,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "full",
+      "load": "decode 1",
+      "page": 1,
+      "repeats": 60,
+      "weight": 16
+    },
+    {
+      "batch": 1,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "full",
+      "load": "verify 1",
+      "page": 1,
+      "q_len": 8,
+      "weight": 16
+    },
+    {
+      "batch": 1,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "sliding",
+      "load": "decode 1",
+      "page": 1,
+      "repeats": 60,
+      "weight": 46
+    },
+    {
+      "batch": 1,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "sliding",
+      "load": "verify 1",
+      "page": 1,
+      "q_len": 8,
+      "weight": 46
+    },
+    {
+      "batch": 16,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "full",
+      "load": "decode 16",
+      "page": 1,
+      "spread": "agentic",
+      "weight": 16
+    },
+    {
+      "batch": 16,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "full",
+      "load": "verify 16",
+      "page": 1,
+      "q_len": 8,
+      "spread": "agentic",
+      "weight": 16
+    },
+    {
+      "batch": 16,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "sliding",
+      "load": "decode 16",
+      "page": 1,
+      "spread": "agentic",
+      "weight": 46
+    },
+    {
+      "batch": 16,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "sliding",
+      "load": "verify 16",
+      "page": 1,
+      "q_len": 8,
+      "spread": "agentic",
+      "weight": 46
+    },
+    {
+      "batch": 32,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "full",
+      "load": "decode 32",
+      "page": 1,
+      "spread": "agentic",
+      "weight": 16
+    },
+    {
+      "batch": 32,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "full",
+      "load": "verify 32",
+      "page": 1,
+      "q_len": 8,
+      "spread": "agentic",
+      "weight": 16
+    },
+    {
+      "batch": 32,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "sliding",
+      "load": "decode 32",
+      "page": 1,
+      "spread": "agentic",
+      "weight": 46
+    },
+    {
+      "batch": 32,
+      "ctx": 80000,
+      "dist": "soft",
+      "layer": "sliding",
+      "load": "verify 32",
+      "page": 1,
+      "q_len": 8,
+      "spread": "agentic",
+      "weight": 46
+    }
+  ],
+  "manifests": {
+    "public": {
+      "code_sha256": "2999d8a201bb2b0bad6c7b3998af2143a1ed720d531dbb4d15670721ee9f957b",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "fresh": {
+      "code_sha256": "1ba270d841be831b06a5862f4094cd0d5072edfbd0f6e84b95f79248296367dd",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "60e242544d5f5a5fc143870461f7373b85accb677a536cb337581ded938c4a48",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:8c102d00529abd8b80898116ac64a9c8f66bbd256d56142be4b96fb626e89452"
+    },
+    "baseline": {
+      "code_sha256": "2999d8a201bb2b0bad6c7b3998af2143a1ed720d531dbb4d15670721ee9f957b",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    }
+  },
+  "changed_manifest_paths": {
+    "configs/muse-spark-open.yaml": {
+      "historical": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+      "fresh": "60e242544d5f5a5fc143870461f7373b85accb677a536cb337581ded938c4a48"
+    }
+  },
+  "unchanged_manifest_paths": [
+    "challenge/checks.py",
+    "challenge/nvfp4.py",
+    "harness/eval.py",
+    "harness/runner.py",
+    "harness/static_checks.py",
+    "harness/worker.py",
+    "problems/muse_decode_layer/baseline.py",
+    "problems/muse_decode_layer/reference.py",
+    "problems/muse_decode_layer/task.yml"
+  ],
+  "semantic_config_delta": "UNKNOWN: no config bytes in owning receipts",
+  "not_established": [
+    "same sampled tensors or sequence lengths",
+    "same dependency versions",
+    "same baseline kernel selection",
+    "causal performance effect of config or image"
+  ]
+}

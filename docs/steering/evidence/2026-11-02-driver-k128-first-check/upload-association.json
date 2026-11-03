@@ -1,0 +1,17 @@
+{
+  "job": "bf8671b4bfa845a2",
+  "physical_source_sha256": "440f41b118eeb3676867e15d109c2d5f7da0213873f84a17c9d68d1af868703f",
+  "source_bytes": 885489,
+  "implementation_commit": "15688256020e80c2c2f72f97e76cbd13b034ac0a",
+  "server_content_identifier": "6c48754b6bc8be2b755374c5d739b39c4b9c5d6f2b38824506628196b15a996e",
+  "payload_ref": "muse_decode_layer/6c48754b6bc8be2b755374c5d739b39c4b9c5d6f2b38824506628196b15a996e.py",
+  "team": "yelgabo",
+  "board": "muse_decode_layer",
+  "mode": "check",
+  "observed_at": "2026-11-02T21:16:12.768596+00:00",
+  "terminal_status": "done",
+  "terminal_result_status": "ok",
+  "terminal_receipt": "status-wait.raw.json",
+  "initial_observation_status": "queued",
+  "status": "done"
+}

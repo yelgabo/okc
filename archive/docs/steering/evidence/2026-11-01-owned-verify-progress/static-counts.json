@@ -1,0 +1,39 @@
+{
+  "control": {
+    "instructions": 17528,
+    "counts": {
+      "HGMMA": 192,
+      "MMA": 288,
+      "BAR": 189,
+      "MEMBAR": 43,
+      "FENCE": 33,
+      "LDL": 0,
+      "STL": 0,
+      "BPT.TRAP": 0,
+      "WARPGROUP.ARRIVE": 96
+    },
+    "wait_immediates": {
+      "0x1": 96,
+      "0x0": 12
+    }
+  },
+  "repair": {
+    "instructions": 17744,
+    "counts": {
+      "HGMMA": 192,
+      "MMA": 288,
+      "BAR": 189,
+      "MEMBAR": 43,
+      "FENCE": 33,
+      "LDL": 0,
+      "STL": 0,
+      "BPT.TRAP": 73,
+      "WARPGROUP.ARRIVE": 96
+    },
+    "wait_immediates": {
+      "0x1": 96,
+      "0x0": 12
+    }
+  },
+  "scope": "Static selected instruction counts; same math/wait/fence counts, not dynamic timing or performance."
+}

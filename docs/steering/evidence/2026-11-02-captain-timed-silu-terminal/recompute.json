@@ -1,0 +1,245 @@
+{
+  "at": "2026-11-02T11:32:00.396Z",
+  "job": "dc62cff972934f54",
+  "board": "muse_decode_layer",
+  "mode": "check",
+  "team": "yelgabo",
+  "content_hash": "9d81f93b5c66212041d7864224fd5538c39df2a8b3b196c3a29e75892f8d5b7f",
+  "inputs": [
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/terminal-status.json",
+      "sha256": "53134aae5ebdd4bb342b6b66852d31fd090dfcd31ba26df04a20e6cf49ee74f5",
+      "publication": "worker archive pending at read; captain direct local raw read"
+    },
+    {
+      "path": "muse_decode_layer/profiles/scored.607eb52bdaf24160.json",
+      "sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+      "publication": "existing committed owning public receipt"
+    }
+  ],
+  "passed": true,
+  "tests": 13,
+  "benchmarks": 12,
+  "profiles": 12,
+  "official_speedup": 2.0732886764638923,
+  "recomputed_speedup": 2.073288676463892,
+  "speedup_ci": [
+    2.042189346316934,
+    2.1043880066108502
+  ],
+  "public607_speedup": 2.1260826764231093,
+  "descriptive_score_ratio": 0.9751684162875374,
+  "prepare_s": 112.53586404,
+  "queue_s": 615.643851518631,
+  "worker_s": 238.83695197105408,
+  "comparison": [
+    {
+      "load": "decode 1",
+      "median_ns": 78756.99990644153,
+      "baseline_ns": 172736.51715368032,
+      "contexts": [
+        {
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 76997.33823197173,
+          "baseline_ns": 169904.0001258254
+        },
+        {
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 83816.02722054221,
+          "baseline_ns": 180880.00360876322
+        }
+      ],
+      "old_median_ns": 78549.04481802233,
+      "old_over_current": 0.997359535169366,
+      "latency_change_percent": 0.2647455343358862
+    },
+    {
+      "load": "decode 16",
+      "median_ns": 160429.8123520714,
+      "baseline_ns": 313159.21678117686,
+      "contexts": [
+        {
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 140833.4234166236,
+          "baseline_ns": 269279.9908109009
+        },
+        {
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 216769.4305414838,
+          "baseline_ns": 439311.9914457202
+        }
+      ],
+      "old_median_ns": 158241.00957331894,
+      "old_over_current": 0.9863566331801908,
+      "latency_change_percent": 1.3832083002088824
+    },
+    {
+      "load": "decode 32",
+      "median_ns": 198813.52054569247,
+      "baseline_ns": 359530.3246721385,
+      "contexts": [
+        {
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 159565.1021687146,
+          "baseline_ns": 268576.0031454265
+        },
+        {
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 311652.7233795039,
+          "baseline_ns": 621023.9990614355
+        }
+      ],
+      "old_median_ns": 191739.73579615884,
+      "old_over_current": 0.9644200015667048,
+      "latency_change_percent": 3.689263845160329
+    },
+    {
+      "load": "verify 1",
+      "median_ns": 114822.08515895189,
+      "baseline_ns": 261765.6857736649,
+      "contexts": [
+        {
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 112811.37373515598,
+          "baseline_ns": 258896.00813388824
+        },
+        {
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 120602.88050236505,
+          "baseline_ns": 270016.0089880228
+        }
+      ],
+      "old_median_ns": 115990.82289963329,
+      "old_over_current": 1.010178684170937,
+      "latency_change_percent": -1.0076122502318263
+    },
+    {
+      "load": "verify 16",
+      "median_ns": 275449.147290853,
+      "baseline_ns": 566133.6892104197,
+      "contexts": [
+        {
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 253545.13532005416,
+          "baseline_ns": 521024.01619777083
+        },
+        {
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 338423.1817068996,
+          "baseline_ns": 695823.9991217852
+        }
+      ],
+      "old_median_ns": 269347.02911194804,
+      "old_over_current": 0.9778466615746622,
+      "latency_change_percent": 2.2655227343787665
+    },
+    {
+      "load": "verify 32",
+      "median_ns": 358495.6607481057,
+      "baseline_ns": 784897.5548310386,
+      "contexts": [
+        {
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 315495.0279534278,
+          "baseline_ns": 690511.9963921607
+        },
+        {
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 482122.4800328047,
+          "baseline_ns": 1056256.0353428125
+        }
+      ],
+      "old_median_ns": 359297.21608943515,
+      "old_over_current": 1.002235885755651,
+      "latency_change_percent": -0.22308977232095017
+    }
+  ],
+  "producerRows": [
+    {
+      "load": "decode 1",
+      "layer": "sliding",
+      "rows": []
+    },
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "rows": []
+    },
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "rows": []
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "rows": []
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 µs   0.6%      1"
+      ]
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 µs   0.3%      1"
+      ]
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "rows": []
+    },
+    {
+      "load": "verify 1",
+      "layer": "full",
+      "rows": []
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 µs   0.4%      1"
+      ]
+    },
+    {
+      "load": "verify 16",
+      "layer": "full",
+      "rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 µs   0.3%      1"
+      ]
+    },
+    {
+      "load": "verify 32",
+      "layer": "sliding",
+      "rows": [
+        "okc::timed_silu_table_build(float*)                                1.0 µs   0.3%      1"
+      ]
+    },
+    {
+      "load": "verify 32",
+      "layer": "full",
+      "rows": [
+        "okc::timed_silu_table_build(float*)                                1.2 µs   0.2%      1"
+      ]
+    }
+  ],
+  "limits": "Unmatched historical seeds/nodes/baselines. Rounded profile kernel time is not isolated launch overhead, exposed endpoint cost, table domain equality, or causal nonlinear attribution.",
+  "decision": "STOP/PARK exact treatment; no repeat/rescue/matched-followon/public/default allocation"
+}

@@ -1,0 +1,57 @@
+--- ed082519-control
++++ chunk-phased-treatment
+@@ -1893,38 +1893,35 @@
+   const int R = S.jrow[nj];
+   const float rG = __fdividef(1.f, (float)gridDim.x);
+   const int q0 = muldiv_g(R, blockIdx.x, gridDim.x, rG), q1 = muldiv_g(R, blockIdx.x + 1, gridDim.x, rG);
+-  int j = 0;
+   static_assert(NT * 8 * 2 == HD, "G224 two chunks per compute thread");
+   constexpr int GB = OKC_GATHB;
+-  for (int qb = q0; qb < q1; qb += GB) {
+-    uint4 v[GB][2];
+-    uint4* d[GB][2];
+-#pragma unroll
+-    for (int k = 0; k < GB; ++k) {
+-      const int q = qb + k;
+-      if (q < q1) { while (S.jrow[j + 1] <= q) ++j; }
+-#pragma unroll
+-      for (int chunk = 0; chunk < 2; ++chunk) {
+-        d[k][chunk] = nullptr;
++#pragma unroll 1
++  for (int chunk = 0; chunk < 2; ++chunk) {
++    int j = 0;
++    for (int qb = q0; qb < q1; qb += GB) {
++      uint4 v[GB];
++      uint4* d[GB];
++#pragma unroll
++      for (int k = 0; k < GB; ++k) {
++        const int q = qb + k;
++        if (q < q1) { while (S.jrow[j + 1] <= q) ++j; }
++        d[k] = nullptr;
+         if (q < q1) {
+           const int r = q - S.jrow[j], cnt = S.jC[j];
+           if (r < cnt) {
+             const int ntt = (cnt + 7) >> 3, column = tid + chunk * NT;
+-            d[k][chunk] = reinterpret_cast<uint4*>(p.xA + (size_t)S.jrow[j] * HD)
++            d[k] = reinterpret_cast<uint4*>(p.xA + (size_t)S.jrow[j] * HD)
+                 + ((((column >> 5) * ntt + (r >> 3)) * 32 + (column & 31)) * 8 + (r & 7));
+             const int group = column & 31;
+             const unsigned* xs32 = reinterpret_cast<const unsigned*>(p.x + (size_t)(S.ent[S.jS[j] + r] >> 3) * HD + (column >> 5) * 256)
+                 + (8 * ((group >> 1) & 3) + 2 * (group >> 3) + (group & 1));
+-            v[k][chunk] = make_uint4(__ldg(xs32), __ldg(xs32 + 32), __ldg(xs32 + 64), __ldg(xs32 + 96));
++            v[k] = make_uint4(__ldg(xs32), __ldg(xs32 + 32), __ldg(xs32 + 64), __ldg(xs32 + 96));
+           }
+         }
+       }
+-    }
+-#pragma unroll
+-    for (int k = 0; k < GB; ++k) {
+-#pragma unroll
+-      for (int chunk = 0; chunk < 2; ++chunk)
+-        if (d[k][chunk]) *d[k][chunk] = v[k][chunk];
++#pragma unroll
++      for (int k = 0; k < GB; ++k)
++        if (d[k]) *d[k] = v[k];
+     }
+   }
+   asm volatile("fence.proxy.async.global;\n" ::: "memory");

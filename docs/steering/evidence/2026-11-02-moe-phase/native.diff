@@ -1,0 +1,119 @@
+--- control
++++ candidate
+@@ -1827,6 +1827,39 @@
+   return (OKC_WGSREORD && pb == 0 && (g1 & 15) != 0 && ue > g0) ? ue : g0;
+ }
+ __device__ void wgs_ranges(const Params& p, Smem& S);  // below (needs the cost tables)
++
++template<int FIELD>
++__device__ __forceinline__ void ph_single(const Params& p) {
++  asm volatile("{ .reg .u64 t; mov.u64 t, %%globaltimer; st.global.u64 [%0], t; }"
++               ::"l"(p.dbg + blockIdx.x * 24 + FIELD):"memory");
++}
++template<int FIELD>
++__device__ __forceinline__ void ph_mark(const Params& p) {
++  if (threadIdx.x == 0) ph_single<FIELD>(p);
++}
++template<int FIRST>
++__device__ __forceinline__ void ph_wg(const Params& p) {
++  if ((threadIdx.x & 127) == 0) {
++    asm volatile("{ .reg .u64 t; mov.u64 t, %%globaltimer; st.global.u64 [%0], t; }"
++                 ::"l"(p.dbg + blockIdx.x * 24 + FIRST + (threadIdx.x >> 7)):"memory");
++  }
++}
++__device__ __forceinline__ void ph_init(const Params& p) {
++  if (threadIdx.x == 0) {
++    for (int i=14;i<18;++i) p.dbg[blockIdx.x * 24+i]=0;
++    unsigned sm; asm volatile("mov.u32 %0, %%smid;":"=r"(sm));
++    p.dbg[blockIdx.x * 24+18]=sm;
++  }
++  ph_mark<0>(p);
++}
++__device__ __forceinline__ void ph_meta(const Params& p,const Smem& S) {
++  if (threadIdx.x == 0) {
++    p.dbg[blockIdx.x * 24+19]=S.njF+S.njS;
++    for(int i=0;i<4;++i)p.dbg[blockIdx.x * 24+20+i]=S.wgr[i];
++  }
++  ph_mark<2>(p);
++}
++
+ __device__ void wgs_wproducer(const Params& p, Smem& S, unsigned char* ring) {
+   WS_JOIN();  // routing tables and this CTA's stage ranges are ready
+   if ((threadIdx.x & 31) != 0) return;
+@@ -1850,8 +1883,10 @@
+       asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(WGS_STG) : "memory");
+       asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\n"
+                    ::"r"(smem_u32(ring + ws * UNIT_BYTES)), "l"(src), "r"(WGS_STG), "r"(smem_u32(bar)) L2H_ARG : "memory");
++      if (pb && i == 0) ph_single<17>(p);
+       if (++ws == WGS_NS) { ws = 0; wph ^= 1; }
+     }
++    if (!pb) ph_single<16>(p);
+   }
+ }
+ // x producer: one bulk copy per stage (lane 0): the job's x slice for the stage is contiguous in xA (phase A, written
+@@ -1888,7 +1923,9 @@
+         if (!pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_xr(p, S) + j) < npad) __nanosleep(32); }  // every row gathered
+       }
+       // phase B stage st reads inter columns 256 st .. +255: the 2 phase-A units (x 4 warpgroups) that wrote them
++      if (pb && i == 0) ph_single<14>(p);
+       if (pb && !(OKC_WGSX & 8)) { while (ld_acquire(mf_da(p, S) + j * 16 + st) < 8) __nanosleep(32); }
++      if (pb && i == 0) ph_single<15>(p);
+       uint64_t* bar = S.bars + BX_F + xs;
+       const uint32_t bytes = (uint32_t)npad * 512u;
+       asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n" ::"r"(smem_u32(bar)), "r"(bytes) : "memory");
+@@ -2387,6 +2424,7 @@
+   // programmatic dependent launch: everything below reads the previous kernel's outputs (routing, x) or writes
+   // scratch, so wait for it here; without the launch attribute this returns at once
+   asm volatile("griddepcontrol.wait;\n" ::: "memory");
++  ph_init(p);
+ #if OKC_WS
+   if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }
+ #endif
+@@ -2536,6 +2574,7 @@
+   asm volatile("bar.arrive 7, %0;\n" ::"n"(NT + 32) : "memory");  // the x producer computes the stage ranges
+ #endif
+   DBG(1);
++  ph_mark<1>(p);
+ #if OKC_MFIN && OKC_WGS && (OKC_MFQ & 8)
+   {  // the other parity's counters and hand-off flags belong to the next launch (the previous launch is over): zero them
+     const int o = 1 - S.gen;
+@@ -2584,12 +2623,15 @@
+   DBG(7);
+   WS_JOIN();
+   DBG(6);
++  ph_meta(p, S);
+   {
+     unsigned char* ring = reinterpret_cast<unsigned char*>(xbuf);
+     int seq = 0;
+     wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);
++    ph_wg<3>(p);
+     DBG(2);
+     wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);
++    ph_wg<7>(p);
+     DBG(3);
+   }
+ #else
+@@ -2623,6 +2665,7 @@
+ #if !(OKC_MFIN && OKC_WGS && (OKC_MFQ & 4))
+   CTA_SYNC();
+   if (tid == 0) {
++    ph_mark<11>(p);
+     int* bc = p.ctr + 4 + (S.gen & 1);
+     __threadfence();
+     int old;
+@@ -2632,6 +2675,7 @@
+   }
+   CTA_SYNC();
+   DBG(4);
++  ph_mark<12>(p);
+   // phases A and B are over everywhere: zero the per-launch flags for the next launch (this CTA's share)
+   {
+     const int G = gridDim.x, i0 = blockIdx.x * NT + tid;
+@@ -2868,6 +2912,7 @@
+     dst[0] = o[0]; dst[1] = o[1];
+   }
+ #endif
++  ph_mark<13>(p);
+   DBG(5);  // nothing to reset at exit: the flags were zeroed after the barrier, ss is double buffered
+ }
+ 

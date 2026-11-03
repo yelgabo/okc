@@ -1,0 +1,53 @@
+{
+  "scope": "Root coefficient and disjoint source composition review only; no Triton/CUDA execution, whole-model math, device resources, graph capture or H200 timing",
+  "runs": [
+    {
+      "argv": [
+        "/root/.cache/okc-host-validate/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools",
+        "-p",
+        "test_proj_g_preexpert_gamma.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "ACTUAL_FINITE_BF16_COEFFICIENTS 65280\n",
+      "stderr": "test_actual_prepare_expression_all_finite_bf16 (test_proj_g_preexpert_gamma.Tests.test_actual_prepare_expression_all_finite_bf16) ... ok\ntest_default_off_and_pin (test_proj_g_preexpert_gamma.Tests.test_default_off_and_pin) ... ok\ntest_independent_ast_transform_and_complete_callers (test_proj_g_preexpert_gamma.Tests.test_independent_ast_transform_and_complete_callers) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 3.107s\n\nOK\n",
+      "seconds": 4.153272694999998
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools",
+        "-p",
+        "test_g_integration_common.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_disjoint_complete_composition (test_g_integration_common.CommonSource.test_disjoint_complete_composition) ... ok\ntest_off_identity_and_rejects_other_epochs (test_g_integration_common.CommonSource.test_off_identity_and_rejects_other_epochs) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 3.079s\n\nOK\n",
+      "seconds": 3.727163533999999
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/g_integration_common.py",
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/common/on.py",
+        "--enable"
+      ],
+      "returncode": 0,
+      "stdout": "{\"input_sha256\": \"ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab\", \"source_sha256\": \"4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280\", \"bytes\": 871077, \"enabled\": true, \"default_off\": true, \"scope\": \"Common inherited attention admission and preexpert coefficient repairs; not an upstream-to607 regression treatment\", \"required_common_to_all_ablation_arms\": true, \"H200_qualified\": false, \"GPU\": false, \"dispatch_enabled\": false}\n",
+      "stderr": "",
+      "seconds": 1.381480823000004
+    }
+  ],
+  "passed": true
+}

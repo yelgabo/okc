@@ -1,0 +1,72 @@
+/w/device.cu(2951): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/w/device.cu(864): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=true, MODE=0]" at line 3393
+
+/w/device.cu(694): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=true, MODE=0]" at line 3393
+
+/w/device.cu(1956): warning #177-D: variable "kdesc0" was declared but never referenced
+    const uint64_t kdesc0 = ((uint64_t)((1024 >> 4) | (1u << 30)) << 32) | klo0;
+                   ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=true, MODE=0]" at line 3393
+
+/w/device.cu(1160): warning #549-D: variable "pg" is used before its value is set
+          asm volatile("" :: "r"(pg[0]), "r"(pg[PK - 1]));
+                                 ^
+          detected during:
+            instantiation of "__nv_bool <unnamed>::segment<L,FLAT,ROLE,MODE>(const <unnamed>::Params &, <unnamed>::Smem<L, FLAT> &, int, int, __nv_bool, int, int, int, int, int, int, int, int, __nv_bool) [with L=1, FLAT=true, ROLE=1, MODE=0]" at line 3377
+            instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=true, MODE=0]" at line 3393
+
+/w/device.cu(155): warning #177-D: member "<unnamed>::Cfg<L, F>::NTX [with L=1, F=false]" was declared but never referenced
+    static constexpr int NTX = NT + NP;
+                         ^
+
+/w/device.cu(156): warning #177-D: member "<unnamed>::Cfg<L, F>::MINB [with L=1, F=false]" was declared but never referenced
+    static constexpr int MINB = WS ? (F2 ? 1 : 2) : (S2 ? 1 : 2);
+                         ^
+
+/w/device.cu(158): warning #177-D: member "<unnamed>::Cfg<L, F>::BASEREGS [with L=1, F=false]" was declared but never referenced
+    static constexpr int BASEREGS = (65536 / (MINB * NTX)) / 8 * 8 > 255 ? 248 : (65536 / (MINB * NTX)) / 8 * 8;
+                         ^
+
+/w/device.cu(159): warning #177-D: member "<unnamed>::Cfg<L, F>::PREGS [with L=1, F=false]" was declared but never referenced
+    static constexpr int PREGS = 0 > 0 ? 0 : ((L == 1 && NP <= 128) ? 56 : 32);
+                         ^
+
+/w/device.cu(160): warning #177-D: member "<unnamed>::Cfg<L, F>::CREGS [with L=1, F=false]" was declared but never referenced
+    static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
+                         ^
+
+/w/device.cu(174): warning #177-D: variable "<unnamed>::IDX_SLOTS" was declared but never referenced
+  constexpr int IDX_SLOTS = 2 * STAGES;
+                ^
+
+/w/device.cu(221): warning #177-D: function "<unnamed>::cp_async16_pred" was declared but never referenced
+  __attribute__((device)) __inline__ __attribute__((always_inline)) void cp_async16_pred(uint32_t dst, const void* src, int src_bytes, bool pred) {
+                                                                         ^
+
+/w/device.cu(435): warning #177-D: function "<unnamed>::wgmma_m64n64k32_e4m3_ss_z" was declared but never referenced
+  __attribute__((device)) __inline__ __attribute__((always_inline)) void wgmma_m64n64k32_e4m3_ss_z(float* d, uint64_t da, uint64_t db) {
+                                                                         ^
+
+/w/device.cu(526): warning #177-D: function "<unnamed>::red_v2" was declared but never referenced
+  __attribute__((device)) __inline__ __attribute__((always_inline)) void red_v2(float* a, float x, float y) {
+                                                                         ^
+
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN41_GLOBAL__N__cffe84ae_9_device_cu_b95fc04411attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN41_GLOBAL__N__cffe84ae_9_device_cu_b95fc04411attn_kernelILi1ELb1ELi0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 3 barriers
+ptxas info    : Compile time = 193.859 ms
+ptxas info    : Function properties for _ZN39_INTERNAL_cffe84ae_9_device_cu_b95fc04441_GLOBAL__N__cffe84ae_9_device_cu_b95fc0449spin_failEv
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

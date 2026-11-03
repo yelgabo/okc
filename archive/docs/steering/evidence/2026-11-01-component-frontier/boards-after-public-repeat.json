@@ -1,0 +1,137 @@
+{
+  "utc": "2026-11-01T11:45:53+00:00",
+  "boards": [
+    {
+      "board": "overall",
+      "you": {
+        "rank": 381,
+        "team": "yelgabo",
+        "first": false,
+        "ahead": 380
+      },
+      "ranked": 1810,
+      "thresholds": [
+        {
+          "team": "mgpai22",
+          "rank": 10
+        },
+        {
+          "team": "pepinu",
+          "rank": 50
+        }
+      ]
+    },
+    {
+      "board": "muse_decode_layer",
+      "you": {
+        "rank": 381,
+        "team": "yelgabo",
+        "speedup": 2.0434,
+        "first": false,
+        "ahead": 380,
+        "to_first": 1.2158
+      },
+      "ranked": 1159,
+      "thresholds": [
+        {
+          "team": "mgpai22",
+          "rank": 10,
+          "value": 9490.799903378942,
+          "speedup": 2.3834,
+          "job": "d8b3fb90f4c248b8"
+        },
+        {
+          "team": "pepinu",
+          "rank": 50,
+          "value": 9880.414613097584,
+          "speedup": 2.2894,
+          "job": "6931364ea8464cf7"
+        }
+      ]
+    },
+    {
+      "board": "muse_attention_decode",
+      "you": {
+        "rank": 215,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 214,
+        "to_first": 1.2821
+      },
+      "ranked": 1232,
+      "thresholds": [
+        {
+          "team": "miketung",
+          "rank": 10,
+          "value": 1284.0704465741649,
+          "speedup": 2.9331,
+          "job": "ae320e4fb37d421f"
+        },
+        {
+          "team": "concept-guest",
+          "rank": 50,
+          "value": 1390.118870955221,
+          "speedup": 2.7093,
+          "job": "bd59d00e5c534f60"
+        }
+      ]
+    },
+    {
+      "board": "muse_moe_w4a16",
+      "you": {
+        "rank": 382,
+        "team": "yelgabo",
+        "speedup": 2.2157,
+        "first": false,
+        "ahead": 381,
+        "to_first": 1.2476
+      },
+      "ranked": 1286,
+      "thresholds": [
+        {
+          "team": "gauravjain14",
+          "rank": 10,
+          "value": 5157.219766158455,
+          "speedup": 2.6077,
+          "job": "1084b630433041f9"
+        },
+        {
+          "team": "vishaal-drkm",
+          "rank": 50,
+          "value": 5481.6036609196235,
+          "speedup": 2.4534,
+          "job": "48494e439a5749ff"
+        }
+      ]
+    },
+    {
+      "board": "muse_bf16_proj",
+      "you": {
+        "rank": 307,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 306,
+        "to_first": 1.0815
+      },
+      "ranked": 1595,
+      "thresholds": [
+        {
+          "team": "pjmullin3",
+          "rank": 10,
+          "value": 3003.733984172228,
+          "speedup": 1.6083,
+          "job": "2ffb86ba8e1c4e39"
+        },
+        {
+          "team": "andreilungeanu",
+          "rank": 50,
+          "value": 3054.312669857953,
+          "speedup": 1.5816,
+          "job": "a53ae3da77c044bc"
+        }
+      ]
+    }
+  ]
+}

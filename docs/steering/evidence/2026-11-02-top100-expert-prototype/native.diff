@@ -1,0 +1,76 @@
+--- control
++++ candidate
+@@ -1990,8 +1990,8 @@
+         st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(fork_bf16(d4[h] * gsc) * w0));
+         st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(fork_bf16(d4[2 + h] * gsc) * w1));
+ #else
+-        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), fork_bf16(d4[h] * gsc) * w0);
+-        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0 + 8), fork_bf16(d4[2 + h] * gsc) * w1);
++        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(fork_bf16(d4[h] * gsc)));
++        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(fork_bf16(d4[2 + h] * gsc)));
+ #endif
+       }
+     }
+@@ -2013,6 +2013,24 @@
+ #endif
+   }
+ }
++
++// Scratch prototype: transport the required BF16 down result, not rounded gamma*y.
++// Keep the FP32 allocation/fixup offsets and the original global publication chain.
++static_assert(OKC_YBF == 0, "pre-gamma transport requires FP32 product semantics");
++__device__ __forceinline__ float2 expert_top100_y2(const Params& p, int q, int col) {
++  const __nv_bfloat16* src = reinterpret_cast<const __nv_bfloat16*>(p.ybuf) + (size_t)q * HD + col;
++  const __nv_bfloat162 packed = __ldcg(reinterpret_cast<const __nv_bfloat162*>(src));
++  const float2 v = __bfloat1622float2(packed);
++  const float g0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + col)));
++  const float g1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + col + 1)));
++  // Explicit FP32 products prevent contraction through the former global-store boundary.
++  return make_float2(__fmul_rn(v.x, g0), __fmul_rn(v.y, g1));
++}
++__device__ __forceinline__ float4 expert_top100_y4(const Params& p, int q, int col) {
++  const float2 a = expert_top100_y2(p, q, col), b = expert_top100_y2(p, q, col + 2);
++  return make_float4(a.x, a.y, b.x, b.y);
++}
++
+ template <bool PB>
+ __device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd) {
+   if (pd.kind == 0) return;
+@@ -2670,7 +2688,7 @@
+ #pragma unroll
+       for (int sl = 0; sl < 8; ++sl) {
+         const int q = S.pos[tk * 8 + sl];
+-        yv[sl] = q >= 0 ? __ldcg(reinterpret_cast<const float2*>(p.ybuf + (size_t)q * HD + col)) : make_float2(0.f, 0.f);
++        yv[sl] = q >= 0 ? expert_top100_y2(p, q, col) : make_float2(0.f, 0.f);
+       }
+ #endif
+       {
+@@ -2695,7 +2713,7 @@
+ #if B4_EARLY_Y
+           const float2 v = yv[sl];
+ #else
+-          const float2 v = __ldcg(reinterpret_cast<const float2*>(p.ybuf + (size_t)q * HD + col));
++          const float2 v = expert_top100_y2(p, q, col);
+ #endif
+           acc.x += r * v.x; acc.y += r * v.y;
+         }
+@@ -2738,8 +2756,7 @@
+           const float2 y2 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.z)), y3 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.w));
+           const float4 a = make_float4(y0.x, y0.y, y1.x, y1.y), b = make_float4(y2.x, y2.y, y3.x, y3.y);
+ #else
+-          const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;
+-          const float4 a = __ldcg(src), b = __ldcg(src + 1);
++          const float4 a = expert_top100_y4(p, qv[sl], tid * 8), b = expert_top100_y4(p, qv[sl], tid * 8 + 4);
+ #endif
+           ps[sl] = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w + b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;
+         }
+@@ -2774,8 +2791,7 @@
+           const float2 y2 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.z)), y3 = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&yr.w));
+           const float4 a = make_float4(y0.x, y0.y, y1.x, y1.y), b = make_float4(y2.x, y2.y, y3.x, y3.y);
+ #else
+-          const float4* src = reinterpret_cast<const float4*>(p.ybuf + (size_t)qv[sl] * HD) + tid * 2;
+-          const float4 a = __ldcg(src), b = __ldcg(src + 1);
++          const float4 a = expert_top100_y4(p, qv[sl], tid * 8), b = expert_top100_y4(p, qv[sl], tid * 8 + 4);
+ #endif
+           acc[0] += r * a.x; acc[1] += r * a.y; acc[2] += r * a.z; acc[3] += r * a.w;
+           acc[4] += r * b.x; acc[5] += r * b.y; acc[6] += r * b.z; acc[7] += r * b.w;

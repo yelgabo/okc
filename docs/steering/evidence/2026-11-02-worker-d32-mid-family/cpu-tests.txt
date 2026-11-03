@@ -1,0 +1,11 @@
+test_actual_concurrent_tasks_and_preparation_warm_attestation (__main__.Mid32.test_actual_concurrent_tasks_and_preparation_warm_attestation) ... ok
+test_actual_final_selector_neighbors_raw_sc6_and_other_five_loads (__main__.Mid32.test_actual_final_selector_neighbors_raw_sc6_and_other_five_loads) ... ok
+test_exact_host_delta_and_unchanged_shaders_math_startup (__main__.Mid32.test_exact_host_delta_and_unchanged_shaders_math_startup) ... ok
+test_legal_distinct_topk_worst_split_job_bound (__main__.Mid32.test_legal_distinct_topk_worst_split_job_bound) ... ok
+test_real_fallback_entries_resource_failures_and_no_unconditional_build (__main__.Mid32.test_real_fallback_entries_resource_failures_and_no_unconditional_build) ... ok
+test_wrong_keys_source_flags_module_and_runtime_failure_negatives (__main__.Mid32.test_wrong_keys_source_flags_module_and_runtime_failure_negatives) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 10.215s
+
+OK

@@ -1,0 +1,22 @@
+{
+  "stage_receipt": {
+    "path": "muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.receipt.json",
+    "bytes": 218509,
+    "sha256": "fea1189cf02a3648690ef0b0dced398e6640864d40d3d49522561e3a24fb5285"
+  },
+  "stage_log": {
+    "path": "muse_bf16_proj/experiments/profiles/sk_stage_xor_release.dfcfdd01d6f04525.log",
+    "bytes": 11110,
+    "sha256": "e786fff38fccc25cec6a59733519c4ad366a771dd99d4d5a7c6e537dcd054a9b"
+  },
+  "stage_source": {
+    "path": "muse_bf16_proj/experiments/sk_stage_xor_release.py",
+    "bytes": 450781,
+    "sha256": "de1111b98072f5251ff9b2edd5d453cc22eb8fe1710a943c60922909cc796229"
+  },
+  "C2_receipt": {
+    "path": "muse_bf16_proj/profiles/scored.9eba96894ee1402e.json",
+    "bytes": 226537,
+    "sha256": "ef05fff639192689adea716945c06108c7f9ddadca45fe2475333663c83c136a"
+  }
+}

@@ -1,0 +1,12 @@
+test_actual_oracle_bf16_boundary_and_negative (__main__.HostTests.test_actual_oracle_bf16_boundary_and_negative) ... /root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/_subclasses/functional_tensor.py:283: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+ok
+test_actual_score_and_noise_gates (__main__.HostTests.test_actual_score_and_noise_gates) ... ok
+test_math_fail_closed (__main__.HostTests.test_math_fail_closed) ... ok
+test_private_inputs_and_complete_copy (__main__.HostTests.test_private_inputs_and_complete_copy) ... ok
+test_exact_scope_and_abi (__main__.SourceTests.test_exact_scope_and_abi) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.978s
+
+OK

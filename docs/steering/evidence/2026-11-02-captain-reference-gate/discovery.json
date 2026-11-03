@@ -1,0 +1,166 @@
+{
+  "observed_utc": "2026-11-02T08:38:33.763Z",
+  "scope": "Bounded primary metadata/tree refresh, not an exhaustive source search or adoption qualification",
+  "requests": [
+    {
+      "url": "https://api.github.com/repos/mpeng19/auto-inference",
+      "status": 200,
+      "observed_utc": "2026-11-02T08:23:53.991Z",
+      "bytes": 5214,
+      "sha256": "fb1031bf52252f465645239ffcb5ad12728696050db6fb40595091b5644ba4fd"
+    },
+    {
+      "url": "https://api.github.com/repos/mpeng19/auto-inference/git/trees/main?recursive=1",
+      "status": 200,
+      "observed_utc": "2026-11-02T08:23:54.215Z",
+      "bytes": 51985,
+      "sha256": "e2cf8692792268e5bf6bfbc38bb9802c68c32fb40e4cf4776983299f2e9b5b1c"
+    },
+    {
+      "url": "https://api.github.com/repos/mpeng19/mpeng19.github.io",
+      "status": 200,
+      "observed_utc": "2026-11-02T08:24:10.026Z",
+      "bytes": 5337,
+      "sha256": "c8ed87cff5b252a8f74041d33c926cace6f8650fc936fcca528fb12a43fd65b0"
+    },
+    {
+      "url": "https://api.github.com/repos/mpeng19/vllm",
+      "status": 200,
+      "observed_utc": "2026-11-02T08:24:10.085Z",
+      "bytes": 15796,
+      "sha256": "80ae1923f08fe85689e959129e2a93f9392f2384c3b84181d9071961e3176160"
+    },
+    {
+      "url": "https://api.github.com/repos/mpeng19/sglang",
+      "status": 200,
+      "observed_utc": "2026-11-02T08:24:10.088Z",
+      "bytes": 16006,
+      "sha256": "7a0a2600dfd48aafbf22c07cc10cf68c916e0564d3432dc292751d7798ac9e54"
+    },
+    {
+      "url": "https://api.github.com/repos/mpeng19/ThunderKittens",
+      "status": 200,
+      "observed_utc": "2026-11-02T08:24:10.094Z",
+      "bytes": 16493,
+      "sha256": "5e5108cb7dd2fe5c6081dfc5cc254ac43dc9eab03c1671175b44e76946b84a42"
+    },
+    {
+      "url": "https://openkernelchallenge.dev/api/leaderboard",
+      "status": 200,
+      "observed_utc": "2026-11-02T08:35:20.339Z",
+      "bytes": 82305,
+      "sha256": "98324e37a0a83666996358b0d0f5a75d5f6d9577b1740537732a64c07f00776f"
+    }
+  ],
+  "repository_queries": [
+    {
+      "query": "\"open kernel challenge\" pushed:>=2026-11-01",
+      "relevant_results": [
+        "ruwwww/open-kernel-challenge",
+        "jacobpmiller/open-kernel-challenge-2026",
+        "keell0renz/muse-open-kernel-challenge",
+        "KingCobra52/muse_bf16_optimization",
+        "Kushagrabainsla/muse-spark-open"
+      ],
+      "own_repository_omitted": true
+    },
+    {
+      "query": "muse spark kernel pushed:>=2026-11-01",
+      "outcome": "Known challenge results plus unrelated repositories; no new qualified implementation"
+    },
+    {
+      "query": "user:mpeng19",
+      "outcome": "11 returned public repositories; selected auto-inference tree and four fork/website metadata reads recorded"
+    },
+    {
+      "query": "user:halvenhq",
+      "outcome": "422 INVALID_ARGUMENT; not proof no repositories exist"
+    },
+    {
+      "query": "user:StarAtNyte",
+      "outcome": "Returned public metadata titles do not identify a challenge repository; no full source census"
+    },
+    {
+      "query": "user:tonybolivar muse in:readme",
+      "outcome": "No returned results; scoped query only"
+    }
+  ],
+  "jacob": {
+    "head": "3035b292a2b0c894a1b67407f51812430045850c",
+    "readme_blob": "42d7e42dc5946739bdedd615a8624342cf328227",
+    "already_screened": "2026-11-01-discovery-0610.md",
+    "allocation": "None; unchanged lead"
+  },
+  "code_search": {
+    "url": "https://api.github.com/search/code?q=muse_decode_layer+language%3APython&per_page=30&page=3",
+    "reported_count": 94,
+    "incomplete_results": false,
+    "scope": "Returned envelope and visible selected hits inspected; large tool display omitted intervening content; not all code hits audited"
+  },
+  "mpeng": {
+    "tree": "f28ff938446fe214e7e44452a6008314e9db0589",
+    "tree_entries": 215,
+    "truncated": false,
+    "relevant_named_paths": [],
+    "other_metadata": [
+      {
+        "repository": "mpeng19/sglang",
+        "pushed_at": "2026-08-29T07:14:53Z",
+        "default_branch": "main",
+        "fork": true,
+        "parent": "sgl-project/sglang"
+      },
+      {
+        "repository": "mpeng19/ThunderKittens",
+        "pushed_at": "2026-09-12T19:29:53Z",
+        "default_branch": "main",
+        "fork": true,
+        "parent": "HazyResearch/ThunderKittens"
+      },
+      {
+        "repository": "mpeng19/mpeng19.github.io",
+        "pushed_at": "2026-10-29T06:03:58Z",
+        "default_branch": "main",
+        "fork": false
+      },
+      {
+        "repository": "mpeng19/vllm",
+        "pushed_at": "2026-08-29T06:52:24Z",
+        "default_branch": "main",
+        "fork": true,
+        "parent": "vllm-project/vllm"
+      }
+    ]
+  },
+  "rank_observation": {
+    "layer_observed_utc": "2026-11-02T08:23:08.189Z",
+    "layer_canonical_parsed_sha256": "01328df380a65c8549987000f756eb5d5fd5d5430292b9200bb72d5d75fbb4ba",
+    "layer_rows": 1180,
+    "layer_own_rank": 342,
+    "own_layer_row": {
+      "job": "607eb52bdaf24160",
+      "team": "yelgabo",
+      "speedup": 2.1260826764231093,
+      "submitted_at": 1793534312.3883686,
+      "attempts": 42,
+      "value": 10639.426326569794
+    },
+    "layer_100": {
+      "job": "681ad7c8ad304c4d",
+      "team": "halvenhq",
+      "speedup": 2.2601201168110268,
+      "submitted_at": 1793550743.5474572,
+      "attempts": 56,
+      "value": 10008.450361442152
+    },
+    "overall_own": {
+      "rank": 342,
+      "team": "yelgabo",
+      "solved": 4
+    },
+    "overall_rows": 1850,
+    "overall_canonical_parsed_sha256": "98324e37a0a83666996358b0d0f5a75d5f6d9577b1740537732a64c07f00776f",
+    "raw_full_boards_archived": false
+  },
+  "new_verified_stronger_implementation": false
+}

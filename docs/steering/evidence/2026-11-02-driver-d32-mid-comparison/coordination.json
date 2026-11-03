@@ -1,0 +1,23 @@
+{
+  "human_priority_commit": "b9ca9dff",
+  "merge_and_allocation": "5b4a729a2ed329e1de268af6935dff7d8c52bbe7",
+  "remote_changed_files_verified": 28,
+  "broad_dense_proposal": "supersededbeforedelivery/code/GPU;unallocatedreserve",
+  "calibration_job": "94ef698e91964dfa",
+  "calibration_source": "04314b16/869198LF",
+  "privatechecks_before": 7,
+  "privatechecks_after": 6,
+  "direct_delivery": true,
+  "explicit_mid_implementation_pickup": true,
+  "worker_chat": "01a19976-9e99-79c0-bab1-644bd8c0293a",
+  "first_owned_file": "tools/d32_mid_family.py",
+  "window_active_minutes": 30,
+  "worker_post_poll": false,
+  "automation_readback": {
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "status": "ACTIVE",
+    "target_thread_id": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+    "updated_at": 1793663100084,
+    "D32priority_controlID_MIDscope_confirmed": true
+  }
+}

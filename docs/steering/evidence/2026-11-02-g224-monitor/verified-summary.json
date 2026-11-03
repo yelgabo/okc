@@ -1,0 +1,89 @@
+{
+  "at_utc": "2026-11-02T10:26:02.160643+00:00",
+  "evidence_commit": "fd277700a819c47c12d99dc365977d2a583f771c",
+  "terminal": {
+    "job": "e1271ad5e5e34b24",
+    "source": "d5c0ded18bd609bb8da2cfc35633d9a2ad593611ef03a0eb91a5356405bce2c9",
+    "passed": true,
+    "events": {
+      "setup": 1,
+      "test": 13,
+      "benchmark": 12,
+      "profile": 12
+    },
+    "speedup": 1.9746646855150114,
+    "ci": [
+      1.9450447152322863,
+      2.0042846557977363
+    ],
+    "prepare_s": 98.749577628,
+    "gpu": "H200",
+    "node": "n-pe2w4ezypgo3uplzzi5nvj4iag",
+    "canonical_records_match": true
+  },
+  "layer_quota": {
+    "scored": {
+      "per_day": 5,
+      "used": 0,
+      "left": 5
+    },
+    "checks": {
+      "per_day": 10,
+      "used": 6,
+      "left": 4
+    }
+  },
+  "live_jobs": [],
+  "layer": {
+    "board": "muse_decode_layer",
+    "you": {
+      "rank": 343,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 342,
+      "to_first": 1.1685
+    },
+    "cutoffs": [
+      {
+        "attempts": 33,
+        "job": "ec6a583cf4d0447b",
+        "rank": 50,
+        "speedup": 2.3028,
+        "submitted_at": 1793532337.5949967,
+        "team": "adityakm24",
+        "value": 9823.087387434833
+      },
+      {
+        "attempts": 29,
+        "job": "0f541cc5308a42c8",
+        "rank": 100,
+        "speedup": 2.2627,
+        "submitted_at": 1793540447.8098798,
+        "team": "josemiguel",
+        "value": 9997.139434357909
+      }
+    ]
+  },
+  "overall": {
+    "board": "overall",
+    "you": {
+      "rank": 343,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 342
+    },
+    "cutoffs": [
+      {
+        "rank": 50,
+        "solved": 4,
+        "team": "adityakm24"
+      },
+      {
+        "rank": 100,
+        "solved": 4,
+        "team": "josemiguel"
+      }
+    ]
+  }
+}

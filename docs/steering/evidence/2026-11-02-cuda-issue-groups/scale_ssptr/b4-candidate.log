@@ -1,0 +1,99 @@
+
+==========
+== CUDA ==
+==========
+
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.
+   Use the NVIDIA Container Toolkit to start this container with GPU support; see
+   https://docs.nvidia.com/datacenter/cloud-native/ .
+
+tr: misaligned [:upper:] and/or [:lower:] construct
+/w/candidate-device.cu(2100): warning #177-D: variable "g" was declared but never referenced
+    const int wg = warp >> 2, wp = warp & 3, g = lane >> 2, wt = tid & 127;
+                                             ^
+          detected during:
+            instantiation of "void okc::wgs_phase<PB>(const okc::Params &, okc::Smem &, unsigned char *, int, int, int &) [with PB=false]" at line 2583
+            instantiation of "void okc::moe_fused<BIG>(okc::Params) [with BIG=false]" at line 2871
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/w/candidate-device.cu(147): warning #177-D: variable "okc::NRB" was declared but never referenced
+  constexpr int NRB = 0 ? 4 : 2;
+                ^
+
+/w/candidate-device.cu(162): warning #177-D: variable "okc::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+/w/candidate-device.cu(162): warning #177-D: variable "okc::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+/w/candidate-device.cu(165): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;
+                ^
+
+/w/candidate-device.cu(171): warning #177-D: variable "okc::XP_SK" was declared but never referenced
+  constexpr int XP_SK = HD + 8;
+                ^
+
+/w/candidate-device.cu(173): warning #177-D: variable "okc::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;
+                ^
+
+/w/candidate-device.cu(174): warning #177-D: variable "okc::NST" was declared but never referenced
+  constexpr int NST = 3;
+                ^
+
+/w/candidate-device.cu(586): warning #177-D: variable "okc::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;
+                ^
+
+/w/candidate-device.cu(987): warning #177-D: variable "okc::NSF" was declared but never referenced
+  constexpr int NSF = 3;
+                ^
+
+/w/candidate-device.cu(1689): warning #177-D: variable "okc::WGS_FIXF" was declared but never referenced
+  constexpr size_t WGS_FIXF = (size_t)2 * WGS_SLOTS * 4 * WGS_FIXW + 2 * WGS_SLOTS * 4 + 136 * 16;
+                   ^
+
+/w/candidate-device.cu(1696): warning #177-D: variable "okc::MF_CE" was declared but never referenced
+  constexpr int MF_CE = 0, MF_EXIT = 64, MF_XR = 128, MF_XRS = 96, MF_DA = 384, MF_INTS = 4096;
+                ^
+
+/w/candidate-device.cu(1696): warning #177-D: variable "okc::MF_EXIT" was declared but never referenced
+  constexpr int MF_CE = 0, MF_EXIT = 64, MF_XR = 128, MF_XRS = 96, MF_DA = 384, MF_INTS = 4096;
+                           ^
+
+/w/candidate-device.cu(1696): warning #177-D: variable "okc::MF_XR" was declared but never referenced
+  constexpr int MF_CE = 0, MF_EXIT = 64, MF_XR = 128, MF_XRS = 96, MF_DA = 384, MF_INTS = 4096;
+                                         ^
+
+/w/candidate-device.cu(1859): warning #177-D: variable "okc::WGS_XROWS" was declared but never referenced
+  constexpr int WGS_XROWS = EMAX + 8 * JMAX;
+                ^
+
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 5780.124 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 5246.720 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

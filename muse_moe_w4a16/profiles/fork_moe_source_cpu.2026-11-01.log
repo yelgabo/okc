@@ -1,0 +1,9 @@
+test_all_selected_precision_and_launch_sites (__main__.NativeRepair.test_all_selected_precision_and_launch_sites) ... ok
+test_sc6_pack_and_fallback_sources_unchanged (__main__.NativeRepair.test_sc6_pack_and_fallback_sources_unchanged) ... ok
+test_scope_and_failclosed_pin (__main__.NativeRepair.test_scope_and_failclosed_pin) ... ok
+test_state_scales_and_unused_legacy_reachability (__main__.NativeRepair.test_state_scales_and_unused_legacy_reachability) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.342s
+
+OK

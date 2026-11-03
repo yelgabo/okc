@@ -1,0 +1,175 @@
+{
+  "control": "cc474883117947c0",
+  "candidate": "e4c8f00532b74d15",
+  "assertions": "PASS",
+  "rows": [
+    {
+      "load": "decode 1",
+      "layer": "sliding",
+      "short": true,
+      "control_frt": 1,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 1,
+      "long_signature_equal": null,
+      "parsed_rows": [
+        9,
+        10
+      ]
+    },
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "short": true,
+      "control_frt": 1,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 1,
+      "long_signature_equal": null,
+      "parsed_rows": [
+        9,
+        10
+      ]
+    },
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "short": false,
+      "control_frt": 0,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 0,
+      "long_signature_equal": true,
+      "parsed_rows": [
+        9,
+        9
+      ]
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "short": false,
+      "control_frt": 0,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 0,
+      "long_signature_equal": true,
+      "parsed_rows": [
+        9,
+        9
+      ]
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "short": false,
+      "control_frt": 0,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 0,
+      "long_signature_equal": true,
+      "parsed_rows": [
+        8,
+        8
+      ]
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "short": false,
+      "control_frt": 0,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 0,
+      "long_signature_equal": true,
+      "parsed_rows": [
+        8,
+        8
+      ]
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "short": true,
+      "control_frt": 1,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 1,
+      "long_signature_equal": null,
+      "parsed_rows": [
+        9,
+        10
+      ]
+    },
+    {
+      "load": "verify 1",
+      "layer": "full",
+      "short": true,
+      "control_frt": 1,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 1,
+      "long_signature_equal": null,
+      "parsed_rows": [
+        9,
+        10
+      ]
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "short": false,
+      "control_frt": 0,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 0,
+      "long_signature_equal": true,
+      "parsed_rows": [
+        7,
+        7
+      ]
+    },
+    {
+      "load": "verify 16",
+      "layer": "full",
+      "short": false,
+      "control_frt": 0,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 0,
+      "long_signature_equal": true,
+      "parsed_rows": [
+        7,
+        7
+      ]
+    },
+    {
+      "load": "verify 32",
+      "layer": "sliding",
+      "short": false,
+      "control_frt": 0,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 0,
+      "long_signature_equal": true,
+      "parsed_rows": [
+        8,
+        8
+      ]
+    },
+    {
+      "load": "verify 32",
+      "layer": "full",
+      "short": false,
+      "control_frt": 0,
+      "candidate_frt": 0,
+      "control_router": 0,
+      "candidate_router": 0,
+      "long_signature_equal": true,
+      "parsed_rows": [
+        8,
+        8
+      ]
+    }
+  ]
+}

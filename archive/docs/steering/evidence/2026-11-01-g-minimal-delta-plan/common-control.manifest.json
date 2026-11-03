@@ -1,0 +1,12 @@
+{
+  "input_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "source_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+  "bytes": 871077,
+  "enabled": true,
+  "default_off": true,
+  "scope": "Common inherited attention admission and preexpert coefficient repairs; not an upstream-to607 regression treatment",
+  "required_common_to_all_ablation_arms": true,
+  "H200_qualified": false,
+  "GPU": false,
+  "dispatch_enabled": false
+}

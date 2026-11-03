@@ -1,0 +1,138 @@
+{
+  "queried_at_utc": "2026-11-01T22:46:49Z",
+  "local_context": {
+    "checkout": "C:/Users/gretc/Documents/GitHub/okc",
+    "root_commit": "ad76533d4af57da3b0d533dcbec9a10c4c2fc56f",
+    "report_base": "2026-11-01-public-source-refresh-1830.md"
+  },
+  "repository": "keell0renz/muse-open-kernel-challenge",
+  "queries": [
+    {
+      "method": "web.open",
+      "url": "https://github.com/keell0renz/muse-open-kernel-challenge",
+      "result": "README/public page inspected; source and team claims kept distinct"
+    },
+    {
+      "method": "GitHub connector fetch",
+      "url": "https://github.com/keell0renz/muse-open-kernel-challenge",
+      "result": "default main; pushed_at2026-11-01T07:11:10Z; detected Apache2.0; zero forks"
+    },
+    {
+      "method": "GitHub connector fetch",
+      "url": "https://github.com/keell0renz/muse-open-kernel-challenge/commit/main",
+      "result": "unchanged exact pinned HEAD"
+    },
+    {
+      "method": "GitHub connector fetch",
+      "url": "https://github.com/keell0renz/muse-open-kernel-challenge/tree/main",
+      "result": "complete root directory5entries"
+    },
+    {
+      "method": "GitHub connector fetch",
+      "url": "https://github.com/keell0renz/muse-open-kernel-challenge/tree/8e30e1be994db4310794b8d04e90d18d895deb84/kernels",
+      "result": "complete kernel directory5files"
+    },
+    {
+      "method": "GitHub connector fetch",
+      "url": "https://github.com/keell0renz/muse-open-kernel-challenge/blob/main/NOTICE",
+      "result": "credits unchanged; no new source-dependent lead"
+    },
+    {
+      "method": "git ls-remote --symref",
+      "url": "https://github.com/keell0renz/muse-open-kernel-challenge.git",
+      "result": "HEAD -> refs/heads/main; only advertised head/main both8e30; no tags"
+    }
+  ],
+  "head": {
+    "sha": "8e30e1be994db4310794b8d04e90d18d895deb84",
+    "date": "2026-11-01T07:11:09Z",
+    "message": "README: open-source standing on all five boards",
+    "tree": "8c95b5e7aea2f3abb47e1fc2a4b0dd33705e0d93",
+    "parents": [
+      "34352903efb5f394b6fb2fb0ba7848afc39162f0"
+    ],
+    "url": "https://github.com/keell0renz/muse-open-kernel-challenge/commit/8e30e1be994db4310794b8d04e90d18d895deb84"
+  },
+  "changed_since_pinned": false,
+  "root_entries": [
+    {
+      "path": "LESSONS.md",
+      "type": "file",
+      "sha": "36fa83cb4e913f05a1f7feb83e216cb651d05a28",
+      "size": 7770
+    },
+    {
+      "path": "LICENSE",
+      "type": "file",
+      "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "size": 11358
+    },
+    {
+      "path": "NOTICE",
+      "type": "file",
+      "sha": "3d086c00575f0caca10942974e6ae65244be4703",
+      "size": 2471
+    },
+    {
+      "path": "README.md",
+      "type": "file",
+      "sha": "7c53568837d320d1cb294de490109bd85d419dc6",
+      "size": 4425
+    },
+    {
+      "path": "kernels",
+      "type": "dir",
+      "sha": "479f346c32c6d1fdd41f804ddf6e08e2d6bd0ffd",
+      "size": 0
+    }
+  ],
+  "kernel_entries": [
+    {
+      "path": "kernels/muse_attention_decode.py",
+      "sha": "607bc1567944361edf53466f74fe7c3fe4a1ec74",
+      "size": 281018
+    },
+    {
+      "path": "kernels/muse_bf16_proj.py",
+      "sha": "f57e73d0e0248beecf1dc88e7d0f8ea1e4708472",
+      "size": 643105
+    },
+    {
+      "path": "kernels/muse_decode_layer.py",
+      "sha": "4aa86640b593add917e7f10e716dcc9ca24a077d",
+      "size": 979654
+    },
+    {
+      "path": "kernels/muse_moe_w4a16.py",
+      "sha": "521611ff84a1df48cc3e106e9d8a595e39688d8a",
+      "size": 360637
+    },
+    {
+      "path": "kernels/muse_prefill_layer.py",
+      "sha": "c455520a2cc44f0c3c45a167d7a641baf516a76a",
+      "size": 370116
+    }
+  ],
+  "layer_source_match": {
+    "Git_blob": "4aa86640b593add917e7f10e716dcc9ca24a077d",
+    "raw_CRLF_bytes": 995999,
+    "raw_SHA256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a",
+    "LF_bytes": 979654,
+    "LF_SHA256": "82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19",
+    "LF_git_blob_matches_live": true
+  },
+  "source_result_distinction": {
+    "owned_exact_file_receipt": "3a5f879df0d44825",
+    "owned_exact_file_score": 2.2487905322335195,
+    "historical_team_row": "232de027eda1481f",
+    "team_row_score": 2.2659,
+    "team_row_is_exact_file_receipt": false,
+    "README_claims_not_revalidated_as_current_board": true
+  },
+  "decision": "No new upstream source changes next integration decision. Wait root-owned measurement; no new experiment.",
+  "limits": [
+    "Advertised public refs only; hidden/deleted/private/unpushed refs excluded.",
+    "No all-GitHub rediscovery or rereview of unchanged credited sources.",
+    "No new source import, implementation, gain estimate, current rank assertion or GPU/judge action."
+  ]
+}

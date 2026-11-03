@@ -1,0 +1,126 @@
+{
+  "job": "3e6852d30c5c4535",
+  "revision": "7370f630",
+  "payload_sha256": "b4da948d317165b18df8a0c47dca3ca139dac1fbfa47ab7c964165a3bd91b41d",
+  "rows": [
+    {
+      "tokens": 1,
+      "distribution": "normal",
+      "control_us": 33.70933296779791,
+      "candidate_us": 34.885333540538944,
+      "delta_us": 1.1760005727410316,
+      "delta_pct": 3.4886497868837907,
+      "affected": true
+    },
+    {
+      "tokens": 8,
+      "distribution": "normal",
+      "control_us": 79.11199952165286,
+      "candidate_us": 79.64533319075902,
+      "delta_us": 0.5333336691061561,
+      "delta_pct": 0.6741501571581265,
+      "affected": true
+    },
+    {
+      "tokens": 16,
+      "distribution": "normal",
+      "control_us": 117.01599943141143,
+      "candidate_us": 117.57866603632768,
+      "delta_us": 0.5626666049162452,
+      "delta_pct": 0.48084587376964194,
+      "affected": true
+    },
+    {
+      "tokens": 32,
+      "distribution": "normal",
+      "control_us": 126.29333076377709,
+      "candidate_us": 126.69066650172074,
+      "delta_us": 0.3973357379436493,
+      "delta_pct": 0.31461339687590684,
+      "affected": false
+    },
+    {
+      "tokens": 128,
+      "distribution": "normal",
+      "control_us": 186.89599881569544,
+      "candidate_us": 186.10933298865953,
+      "delta_us": -0.7866658270359039,
+      "delta_pct": -0.42091100506205237,
+      "affected": false
+    },
+    {
+      "tokens": 256,
+      "distribution": "normal",
+      "control_us": 233.49066451191902,
+      "candidate_us": 234.09600059191385,
+      "delta_us": 0.605336079994828,
+      "delta_pct": 0.2592549390615595,
+      "affected": false
+    },
+    {
+      "tokens": 1,
+      "distribution": "skewed",
+      "control_us": 33.8080000753204,
+      "candidate_us": 34.815999368826546,
+      "delta_us": 1.0079992935061455,
+      "delta_pct": 2.981540733732957,
+      "affected": true
+    },
+    {
+      "tokens": 8,
+      "distribution": "skewed",
+      "control_us": 40.87466653436422,
+      "candidate_us": 41.06399975717068,
+      "delta_us": 0.1893332228064537,
+      "delta_pct": 0.4632043239968242,
+      "affected": true
+    },
+    {
+      "tokens": 16,
+      "distribution": "skewed",
+      "control_us": 63.38399928063154,
+      "candidate_us": 63.75466721753279,
+      "delta_us": 0.3706679369012491,
+      "delta_pct": 0.5847973323048317,
+      "affected": true
+    },
+    {
+      "tokens": 32,
+      "distribution": "skewed",
+      "control_us": 56.8933334822456,
+      "candidate_us": 56.77333318938812,
+      "delta_us": -0.12000029285748326,
+      "delta_pct": -0.21092153599143737,
+      "affected": false
+    },
+    {
+      "tokens": 128,
+      "distribution": "skewed",
+      "control_us": 102.36533296604951,
+      "candidate_us": 102.66133273641269,
+      "delta_us": 0.29599977036318137,
+      "delta_pct": 0.2891601695481638,
+      "affected": false
+    },
+    {
+      "tokens": 256,
+      "distribution": "skewed",
+      "control_us": 159.3173344930013,
+      "candidate_us": 159.56533451875052,
+      "delta_us": 0.24800002574920654,
+      "delta_pct": 0.1556641821421456,
+      "affected": false
+    }
+  ],
+  "finished_utc": "2026-11-03T06:01:19.360481+00:00",
+  "finished_vancouver": "2026-11-02 23:01:19 MST",
+  "complete_six_factors": {
+    "min": 0.9849217311011426,
+    "max": 0.9986520824179572,
+    "descriptive_geomean": 0.9922320059821862
+  },
+  "regression_rows": 16,
+  "unchanged_guard_breaches": 0,
+  "stop": "Retain original fused helper and NS3; no third launch, mask, sweep, retry, integration or public action",
+  "uncertainty": "Four paired cross factors and duplicate-log nulls per row; no paired treatment CI or retained individual private replay samples"
+}

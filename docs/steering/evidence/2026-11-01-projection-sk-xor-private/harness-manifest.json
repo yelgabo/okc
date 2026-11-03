@@ -1,0 +1,11 @@
+{
+  "c2_sha256": "5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4",
+  "augmented_sha256": "d23aa17be4cf9e7c5869803b3b4603d8e72395953687adc0287fb1c75738d586",
+  "c2_lf_sha256": "7f4fd58cdd940f36c8d4d355f3de85687bc7f6ab04981842ce936db76d78adc2",
+  "body_sha256": "92b16040b139ead412cc40c1d81e1f2ea36137ea7f22870036e5d6f06c1c1ba0",
+  "scope": "private C2 normal judged control; SK10-only XOR comparison; no public permission",
+  "score_model_sha256": "00e99c9e51423bf349f69ac3aed7f58838c0bce788c59292289d886055b2e694",
+  "codec_sha256": "346e6b75e9ff7e1579e7d9dfd52fa7332a32dc08f3ee3fd764fbfe4eddb92de7",
+  "physical_sha256": "e5d82cf2f1245495e070f6953a6f0b048cf21ac786b0cf4aa97384d3fc6f7020",
+  "bytes": 330402
+}

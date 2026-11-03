@@ -1,0 +1,11 @@
+{
+  "job_id": "e044121f822d47b1",
+  "problem": "muse_moe_w4a16",
+  "source_sha256": "4c8c470f408815616472746b99bcda4ae3bdcedb201bd0833284e15f29e685c5",
+  "published_commit": "b56bd8f1e1509d267539c8344477ac4472c6f92d",
+  "accepted_at": "2026-11-03T04:17:37.577258+00:00",
+  "post_count": 1,
+  "wrapper_exit": 1,
+  "wrapper_error": "zsh read-only status assignment after accepted response; no retry",
+  "cli_exit": "not recorded because wrapper assignment failed"
+}

@@ -13,24 +13,31 @@ verify, batch, sliding or full). --target prints the uniform time cut that would
 """
 
 import argparse
-import json
 import math
+
+from hotspots import load
 
 LOADS = ("d1", "d16", "d32", "v1", "v16", "v32")
 
 
 def load_run(path):
-    d = json.load(open(path))
-    d = d.get("result", d) if "benchmarks" not in d else d
+    d = load(path)
+    if d.get("problem") != "muse_decode_layer":
+        raise ValueError("expected a muse_decode_layer receipt")
     shapes = {}
     for b in d["benchmarks"]:
         case = b["case"]
         kind = "d" if case.get("q_len", 1) == 1 else "v"
         name = f"{kind}{case['batch']}{'s' if case['layer'] == 'sliding' else 'f'}"
+        if name in shapes:
+            raise ValueError(f"duplicate scored shape: {name}")
         shapes[name] = {
             "sglang": b["baseline_ns"] / 1000, "ours": b["median_ns"] / 1000,
             "floor": b["speed_of_light_ns"] / 1000, "weight": case["weight"],
         }
+    expected = {load + x for load in LOADS for x in "sf"}
+    if shapes.keys() != expected:
+        raise ValueError(f"expected twelve scored shapes; missing {expected - shapes.keys()}")
     return d["job_id"], d["summary"]["speedup"], shapes
 
 
@@ -51,6 +58,8 @@ def main():
                     help="shape=us saved, e.g. d1s=10")
     ap.add_argument("--target", type=float)
     args = ap.parse_args()
+    if args.target is not None and (not math.isfinite(args.target) or args.target <= 0):
+        ap.error("--target must be finite and positive")
     job, judged, shapes = load_run(args.run)
     base = score(shapes)
     print(f"job {job}: judged {judged:.3f}x, model {base:.3f}x")
@@ -65,15 +74,15 @@ def main():
         for item in args.save:
             name, us = item.split("=")
             trial[name] -= float(us)
+            if not math.isfinite(trial[name]) or trial[name] <= 0:
+                ap.error(f"savings must leave a finite positive latency: {item}")
         print(f"with savings {' '.join(args.save)}: {score(shapes, trial):.3f}x")
     if args.target:
-        lo, hi = 0.1, 1.0
-        for _ in range(60):
-            mid = (lo + hi) / 2
-            trial = {n: x["ours"] * mid for n, x in shapes.items()}
-            lo, hi = (mid, hi) if score(shapes, trial) >= args.target else (lo, mid)
-        print(f"target {args.target:.3f}x: keep {lo:.3f} of every shape's time "
-              f"(cut {100 * (1 - lo):.1f}%)")
+        keep = base / args.target
+        print(f"target {args.target:.3f}x: keep {keep:.3f} of every shape's time "
+              f"(cut {100 * (1 - keep):.1f}%)")
+    print(f"all shapes at TASK floors (idealized, not achievable forecast): "
+          f"{score(shapes, {n: s['floor'] for n, s in shapes.items()}):.3f}x")
 
 
 if __name__ == "__main__":

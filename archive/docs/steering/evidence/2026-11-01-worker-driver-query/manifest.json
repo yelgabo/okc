@@ -1,0 +1,54 @@
+{
+  "at": "2026-11-02T05:33:16.200Z",
+  "scope": "SOURCE/CPU only; unintegrated read-only host query; no compiled/runtime proof",
+  "base_archive": "26b3b88b7a98920d0717d6d8ac0af8660677b199",
+  "immutable_manifest_files_verified": 32,
+  "failed_upload_sha256": "f25d714e928835fba07741ca56fa8783137032f268652c22ec4f5511d771bc9a",
+  "failed_reader_sha256": "5435108e9eb729c7fe1f705244845cc7c916b9af780081e682c83ae81f736c1b",
+  "tests": {
+    "exit": 0,
+    "count": 6,
+    "mocked_native": true
+  },
+  "host_compile": "NOT_RUN",
+  "driver_link": "-lcuda required, not tested/wired",
+  "gpu": "NOT_RUN",
+  "files": [
+    {
+      "path": "tools/g_outgoing_driver_query.py",
+      "bytes": 6144,
+      "sha256": "50246c23c2951c721bb4108cb03ebfdb8b8f2903b461d4cb569e3d93331ca235"
+    },
+    {
+      "path": "tools/test_g_outgoing_driver_query.py",
+      "bytes": 5047,
+      "sha256": "b839613b51fc6eba86df924edb32ef1eb667324dd651a1d882fb6c641da4d2c0"
+    },
+    {
+      "path": "docs/steering/2026-11-01-worker-driver-query.md",
+      "bytes": 6001,
+      "sha256": "d203241811f4b43900b42dc555a51876ee7713b4beb8d87220480afe4de15b6f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-driver-query/cpu-tests.txt",
+      "bytes": 950,
+      "sha256": "c8922e37ee74cabdc1bd8154de6d84981667068cfe5954ce118c16a6e31286d1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-driver-query/header-sha256.txt",
+      "bytes": 374,
+      "sha256": "99cfb0a7b40e4a8b95dcd59a50b678bbfddd1b993555ad132340952a6f8faab4"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-driver-query/runtime-interop.txt",
+      "bytes": 1520,
+      "sha256": "0c4367dce341ab8ab4bcfaf8cb4a9e0ca20f6f3605c9055833b9f5ddc4cc3cd6"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-driver-query/driver-edge-abi.txt",
+      "bytes": 1696,
+      "sha256": "1abb502f3f31d2b41e8be4d9cd77d95173112a71142807e6b092895e1775d354"
+    }
+  ],
+  "hash_scope": "canonical committed blob bytes (Git normalizes text line endings)"
+}

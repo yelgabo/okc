@@ -1,0 +1,219 @@
+{
+  "checked_at": "2026-11-03T04:45:37.013588+00:00",
+  "evidence_base": "2d1e78f8686a52fe3a16c58e51736b3d24ff2b23",
+  "source_original": "/Users/gretchengabo/GitHub/okc/docs/incumbent-architecture-2026-11-02.html",
+  "original_sha256": "21abdc7c69ccb23d88a716f11152bd2683d6d8befa194148efd16844d1dfac44",
+  "receipt_profile_rows_checked": 244,
+  "profile_totals_checked": 24,
+  "embedded_data_changed": false,
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "workload_rows": [
+    {
+      "tokens": 1,
+      "context": "sliding",
+      "fused_expert_us": 29.8,
+      "total_activity_us": 81.6,
+      "expert_activity_share_percent": 36.51960784313726
+    },
+    {
+      "tokens": 1,
+      "context": "full",
+      "fused_expert_us": 42.8,
+      "total_activity_us": 101.0,
+      "expert_activity_share_percent": 42.37623762376238
+    },
+    {
+      "tokens": 16,
+      "context": "sliding",
+      "fused_expert_us": 77.0,
+      "total_activity_us": 144.1,
+      "expert_activity_share_percent": 53.4351145038168
+    },
+    {
+      "tokens": 16,
+      "context": "full",
+      "fused_expert_us": 65.2,
+      "total_activity_us": 210.5,
+      "expert_activity_share_percent": 30.973871733966746
+    },
+    {
+      "tokens": 32,
+      "context": "sliding",
+      "fused_expert_us": 70.6,
+      "total_activity_us": 143.1,
+      "expert_activity_share_percent": 49.33612858141159
+    },
+    {
+      "tokens": 32,
+      "context": "full",
+      "fused_expert_us": 87.6,
+      "total_activity_us": 320.1,
+      "expert_activity_share_percent": 27.366447985004683
+    },
+    {
+      "tokens": 8,
+      "context": "sliding",
+      "fused_expert_us": 71.6,
+      "total_activity_us": 124.0,
+      "expert_activity_share_percent": 57.74193548387096
+    },
+    {
+      "tokens": 8,
+      "context": "full",
+      "fused_expert_us": 58.8,
+      "total_activity_us": 119.4,
+      "expert_activity_share_percent": 49.246231155778894
+    },
+    {
+      "tokens": 128,
+      "context": "sliding",
+      "fused_expert_us": 155.3,
+      "total_activity_us": 250.5,
+      "expert_activity_share_percent": 61.99600798403194
+    },
+    {
+      "tokens": 128,
+      "context": "full",
+      "fused_expert_us": 178.1,
+      "total_activity_us": 364.8,
+      "expert_activity_share_percent": 48.82127192982456
+    },
+    {
+      "tokens": 256,
+      "context": "sliding",
+      "fused_expert_us": 204.8,
+      "total_activity_us": 324.3,
+      "expert_activity_share_percent": 63.15140302189331
+    },
+    {
+      "tokens": 256,
+      "context": "full",
+      "fused_expert_us": 203.3,
+      "total_activity_us": 493.3,
+      "expert_activity_share_percent": 41.2122440705453
+    }
+  ],
+  "ui_checks": [
+    {
+      "context": "sliding",
+      "headline": "All dense + router GEMMs has the most recorded activity",
+      "muted": true,
+      "phaseTime": "WGS not selected for this workload",
+      "share": "Tiny path selected",
+      "time": "WGS not selected for this workload",
+      "tokens": "1"
+    },
+    {
+      "context": "full",
+      "headline": "Fused expert kernel has the most recorded activity",
+      "muted": true,
+      "phaseTime": "WGS not selected for this workload",
+      "share": "Tiny path selected",
+      "time": "WGS not selected for this workload",
+      "tokens": "1"
+    },
+    {
+      "context": "sliding",
+      "headline": "Fused expert kernel has the most recorded activity",
+      "muted": true,
+      "phaseTime": "WGS not selected for this workload",
+      "share": "Tiny2 path selected",
+      "time": "WGS not selected for this workload",
+      "tokens": "8"
+    },
+    {
+      "context": "full",
+      "headline": "Fused expert kernel has the most recorded activity",
+      "muted": true,
+      "phaseTime": "WGS not selected for this workload",
+      "share": "Tiny2 path selected",
+      "time": "WGS not selected for this workload",
+      "tokens": "8"
+    },
+    {
+      "context": "sliding",
+      "headline": "Fused expert kernel has the most recorded activity",
+      "muted": true,
+      "phaseTime": "WGS not selected for this workload",
+      "share": "MID path selected",
+      "time": "WGS not selected for this workload",
+      "tokens": "16"
+    },
+    {
+      "context": "full",
+      "headline": "Attention group has the most recorded activity",
+      "muted": true,
+      "phaseTime": "WGS not selected for this workload",
+      "share": "MID path selected",
+      "time": "WGS not selected for this workload",
+      "tokens": "16"
+    },
+    {
+      "context": "sliding",
+      "headline": "Fused expert kernel has the most recorded activity",
+      "muted": false,
+      "phaseTime": "70.6 \u00b5s \u00b7 entire fused expert kernel",
+      "share": "49.3% of layer activity",
+      "time": "70.6 \u00b5s \u00b7 entire fused expert kernel",
+      "tokens": "32"
+    },
+    {
+      "context": "full",
+      "headline": "Attention group has the most recorded activity",
+      "muted": false,
+      "phaseTime": "87.6 \u00b5s \u00b7 entire fused expert kernel",
+      "share": "27.4% of layer activity",
+      "time": "87.6 \u00b5s \u00b7 entire fused expert kernel",
+      "tokens": "32"
+    },
+    {
+      "context": "sliding",
+      "headline": "Fused expert kernel has the most recorded activity",
+      "muted": false,
+      "phaseTime": "155.3 \u00b5s \u00b7 entire fused expert kernel",
+      "share": "62.0% of layer activity",
+      "time": "155.3 \u00b5s \u00b7 entire fused expert kernel",
+      "tokens": "128"
+    },
+    {
+      "context": "full",
+      "headline": "Fused expert kernel has the most recorded activity",
+      "muted": false,
+      "phaseTime": "178.1 \u00b5s \u00b7 entire fused expert kernel",
+      "share": "48.8% of layer activity",
+      "time": "178.1 \u00b5s \u00b7 entire fused expert kernel",
+      "tokens": "128"
+    },
+    {
+      "context": "sliding",
+      "headline": "Fused expert kernel has the most recorded activity",
+      "muted": false,
+      "phaseTime": "204.8 \u00b5s \u00b7 entire fused expert kernel",
+      "share": "63.2% of layer activity",
+      "time": "204.8 \u00b5s \u00b7 entire fused expert kernel",
+      "tokens": "256"
+    },
+    {
+      "context": "full",
+      "headline": "Fused expert kernel has the most recorded activity",
+      "muted": false,
+      "phaseTime": "203.3 \u00b5s \u00b7 entire fused expert kernel",
+      "share": "41.2% of layer activity",
+      "time": "203.3 \u00b5s \u00b7 entire fused expert kernel",
+      "tokens": "256"
+    }
+  ],
+  "visual_checks": [
+    "Full WGS and phase SVGs rendered in Chrome and inspected.",
+    "Measured total is outside internal stages; no stage microsecond estimates.",
+    "Default page has no horizontal viewport overflow; diagrams have their own narrow-screen scroll regions."
+  ],
+  "independent_review": "Unavailable under the current no-new-agent instruction; direct receipt and rendered checks performed.",
+  "no_kernel_or_job_changes": true,
+  "original_artifact_last_commit": "5500ecae77dccfd46ec7d4606b39d2fc4ca76d33",
+  "output_hashes": {
+    "docs/incumbent-architecture-profiled.html": "2951918fa3ed1d83bc5f7179261d3cfc9a60cb9680866ae5779219598e3d1dec",
+    "docs/figures/incumbent-wgs-profiled.svg": "235a940578a4559a63c27fbf7b45200f4f140594d4a08b83d87e73f2a3234893",
+    "docs/figures/incumbent-phases-profiled.svg": "d596d59af4c7e494fdb40af0bbf4b8580e27074bf0dd60c64c4e72594fb4ceac"
+  }
+}

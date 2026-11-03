@@ -1,0 +1,234 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "base_bytes": 869076,
+  "source_sha256": "5d883c43db730990246d07a0e52800e01b3161973705b8cb785c26e0d3f08933",
+  "bytes": 869931,
+  "exact_original_prefix": true,
+  "scope": "state-local serial BF16 pooler plus FP32 router, eligible T1/T8 only",
+  "GPU": false,
+  "CUDA_numerical_equivalence": "NOT RUN",
+  "performance_qualified": false,
+  "CPU_contracts": {
+    "independent_prepare_states": 2,
+    "startup_before_activation": true,
+    "selected_short_calls": 12,
+    "fallback_cases": 20,
+    "all_seven_factories_identical": true,
+    "factories": [
+      {
+        "index": 0,
+        "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "ordered_flags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ]
+      },
+      {
+        "index": 1,
+        "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "ordered_flags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ]
+      },
+      {
+        "index": 2,
+        "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "ordered_flags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_SPLIT=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ]
+      },
+      {
+        "index": 3,
+        "cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "ordered_flags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ]
+      },
+      {
+        "index": 4,
+        "cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "ordered_flags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ]
+      },
+      {
+        "index": 5,
+        "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "ordered_flags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1",
+          "-DOKC_SHORT_FINAL_RELAXED=1"
+        ]
+      },
+      {
+        "index": 6,
+        "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+        "ordered_flags": [
+          "-O3",
+          "-gencode=arch=compute_90a,code=sm_90a",
+          "-lineinfo",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1",
+          "-DOKC_SHORT_FINAL_RELAXED=1"
+        ]
+      }
+    ],
+    "route_requests": [
+      {
+        "tokens": 1,
+        "selected_key": "tiny"
+      },
+      {
+        "tokens": 8,
+        "selected_key": "tiny2"
+      },
+      {
+        "tokens": 16,
+        "selected_key": "mid"
+      },
+      {
+        "tokens": 32,
+        "selected_key": "b4"
+      },
+      {
+        "tokens": 33,
+        "selected_key": "main"
+      },
+      {
+        "tokens": 128,
+        "selected_key": "main"
+      },
+      {
+        "tokens": 256,
+        "selected_key": "main"
+      },
+      {
+        "tokens": 384,
+        "selected_key": "main"
+      }
+    ],
+    "CUDA_numeric_proof": false
+  }
+}

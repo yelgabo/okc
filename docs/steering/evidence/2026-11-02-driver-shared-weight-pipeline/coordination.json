@@ -1,0 +1,19 @@
+{
+  "allocation_commit": "13f5e41fe847ada909dfb47229526c35b426875a",
+  "remote_changed_blobs_verified": 8,
+  "direct_delivery": true,
+  "worker_chat": "01a19976-9e99-79c0-bab1-644bd8c0293a",
+  "worker_active_turn": "01a19e6f-023a-7622-8618-d0ba2f5bcad5",
+  "started_at_epoch": 1793659437,
+  "worker_pickup": "I’m picking up the shared-A pipeline implementation. I’ll start with the fixed storage and ownership map, then build the selected B4/MAIN paths. The parked K128 candidate stays untouched.",
+  "wait_cursor": "fd0bbd43-4605-48b2-b976-4c327984bd1a:13",
+  "captain_only_dispatch": true,
+  "job_dispatched": false,
+  "automation_readback": {
+    "status": "ACTIVE",
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "target_thread_id": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+    "updated_at": 1793659493571,
+    "current_SS_allocation_confirmed": true
+  }
+}

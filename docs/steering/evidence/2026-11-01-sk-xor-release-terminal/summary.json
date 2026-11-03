@@ -1,0 +1,102 @@
+{
+  "job": "2b537518091248f1",
+  "board": "muse_bf16_proj",
+  "mode": "run",
+  "source_sha256": "685ffab5d1614343d3c46d505967ae6817e3784736297018c78984354333f765",
+  "source_bytes": 321640,
+  "receipt_sha256": "16ae423f02431a8f0dc53a13f365898e483d85647bf24934d55b8f420bdf3aea",
+  "control_job": "9eba96894ee1402e",
+  "control_receipt_sha256": "ef05fff639192689adea716945c06108c7f9ddadca45fe2475333663c83c136a",
+  "official_score": 1.3941200708702308,
+  "official_ci": [
+    1.3732082698071773,
+    1.4150318719332842
+  ],
+  "reconstructed_score": 1.3941200708702308,
+  "archived_C2_official_score": 1.5278064829557674,
+  "archived_C2_ci": [
+    1.504889385711431,
+    1.5507235802001038
+  ],
+  "reconstructed_C2_score": 1.5278064829557674,
+  "reported_score_ratio": 0.9124978106998862,
+  "prepare_seconds": 123.332824071,
+  "official_tests": 9,
+  "profiles": 30,
+  "checks": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "flags": [],
+  "coverage": {
+    "overrides": 10,
+    "fallbacks": 0,
+    "pick_keys": 110,
+    "math_checks": 160,
+    "captures": 10,
+    "fresh": 30
+  },
+  "target_raw_regressions": 10,
+  "target_raw_change_percent_range": [
+    7.372401712955701,
+    35.141007430694216
+  ],
+  "target_regressions": 10,
+  "target_change_percent_range": [
+    5.157381486952328,
+    52.41128134672821
+  ],
+  "untargeted_faster": 10,
+  "untargeted_slower": 10,
+  "counterfactual_replace10_score_with_old_baselines": 1.3960011414159887,
+  "counterfactual_replace10_factor_vs_old": 0.9137290337420341,
+  "counterfactual_scope": "Only ten new adjusted medians inserted into old C2 other20 and old baseline medians. Different seeds/weights/setup/baselines/overhead/tuner/environment. Not paired, not a candidate official score or causal attribution.",
+  "machine": {
+    "gpu_after": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 1980,
+      "driver_version": "580.159.03",
+      "name": "NVIDIA H200",
+      "power.draw": 129.52,
+      "power.limit": 700,
+      "temperature.gpu": 37
+    },
+    "gpu_before": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 1980,
+      "driver_version": "580.159.03",
+      "name": "NVIDIA H200",
+      "power.draw": 130.22,
+      "power.limit": 700,
+      "temperature.gpu": 36
+    },
+    "node": "n-hg25ugy45aa3trrcfa4kf5iljz"
+  },
+  "control_machine": {
+    "gpu_after": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 1980,
+      "driver_version": "580.178.04",
+      "name": "NVIDIA H200",
+      "power.draw": 126.8,
+      "power.limit": 700,
+      "temperature.gpu": 37
+    },
+    "gpu_before": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 1980,
+      "driver_version": "580.178.04",
+      "name": "NVIDIA H200",
+      "power.draw": 137.18,
+      "power.limit": 700,
+      "temperature.gpu": 36
+    },
+    "node": "n-wsbc7j2d6xnjjdziaz2kmgurhe"
+  },
+  "closure": "Close exact BEFORE-A/global-record SX production variant; no public retry, layer port or unsupported attribution."
+}

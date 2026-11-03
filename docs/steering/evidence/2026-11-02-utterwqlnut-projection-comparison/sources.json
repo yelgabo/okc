@@ -1,0 +1,45 @@
+{
+  "evidence_base": "358f997624f302241e7090bc0a2a8ef32e54153a",
+  "checked_at": "2026-11-03T04:04:12.831664+00:00",
+  "own_files": [
+    {
+      "path": "muse_bf16_proj/submission.py",
+      "sha256": "6a4ea57210e43e13f0d8b2c8419e0974102853be0152bc745ab4a8ef674f3d33",
+      "bytes": 226787,
+      "url": "https://github.com/yelgabo/okc/blob/358f997624f302241e7090bc0a2a8ef32e54153a/muse_bf16_proj/submission.py"
+    },
+    {
+      "path": "muse_decode_layer/submission.py",
+      "sha256": "b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49",
+      "bytes": 815669,
+      "url": "https://github.com/yelgabo/okc/blob/358f997624f302241e7090bc0a2a8ef32e54153a/muse_decode_layer/submission.py"
+    },
+    {
+      "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+      "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "bytes": 869076,
+      "url": "https://github.com/yelgabo/okc/blob/358f997624f302241e7090bc0a2a8ef32e54153a/muse_decode_layer/cand/g1b4_stage_release.py"
+    },
+    {
+      "path": "muse_bf16_proj/profiles/scored.9eba96894ee1402e.json",
+      "sha256": "62cb9f8216efa9a18a4e65035d9a70cc250100b240b7b1e79efb45df68787321",
+      "bytes": 216979,
+      "url": "https://github.com/yelgabo/okc/blob/358f997624f302241e7090bc0a2a8ef32e54153a/muse_bf16_proj/profiles/scored.9eba96894ee1402e.json"
+    },
+    {
+      "path": "muse_bf16_proj/profiles/scored.40b9f54be6fe4d4e.json",
+      "sha256": "769a3331fda86df9297e71e7a1ec25d4464e34f9100a9619f4ad18eefe741d86",
+      "bytes": 217071,
+      "url": "https://github.com/yelgabo/okc/blob/358f997624f302241e7090bc0a2a8ef32e54153a/muse_bf16_proj/profiles/scored.40b9f54be6fe4d4e.json"
+    }
+  ],
+  "external_pin": "e5c79030dc251222c4e98cf79af8679c1b0f29c7",
+  "external_source_sha256": "28efd0826317814da738e0783072732d716126ce60c115fc30dc70504c0190ca",
+  "source_checks": [
+    "Static prepare, final dispatch and compiler flag tracing; no import or execution.",
+    "Actual standalone receipt profiles inspected for all 30 cases in both own receipts.",
+    "Scored whole-layer final dense wrapper, disabled _rq_gemm and fused FP32 router wrapper inspected.",
+    "Archived C2 and C3 receipt timings are distinct from current tracked source hash; no exact present-source performance claim."
+  ],
+  "independent_review": "Unavailable under current no-new-agent instructions. Direct static and receipt checks only."
+}

@@ -1,0 +1,18 @@
+{
+  "old_harness_bytes": 918522,
+  "old_package_bytes": 872355,
+  "reused_core_overhead": 46167,
+  "prospective_bytes_before_new_binding_and_reader": 939717,
+  "private_placement_count": 4,
+  "sc6_packed_weight_mib_per_arm_approx": 3432,
+  "private_packed_weight_gib_approx": 13.40625,
+  "cold_replay_count": 6912,
+  "flush_bytes_each": 268435456,
+  "logical_flush_bytes": 1855425871872,
+  "prepare_guard_s": 295,
+  "fit": "UNMEASURED",
+  "new_native_modules_after_candidate_prepare": 2,
+  "gpu": false,
+  "compiler": false,
+  "judge_action": false
+}

@@ -1,0 +1,33 @@
+exact_device.cu(1482): warning #177-D: variable "ce" was declared but never referenced
+      const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
+                                             ^
+          detected during:
+            instantiation of "void okc::run_phase<PB,BIG>(const okc::Params &, okc::Smem &, __nv_bfloat16 *) [with PB=false, BIG=false]" at line 2400
+            instantiation of "void okc::moe_fused<BIG>(okc::Params) [with BIG=false]" 
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+exact_device.cu(139): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;   
+                ^
+
+exact_device.cu(145): warning #177-D: variable "okc::XP_SK" was declared but never referenced
+  constexpr int XP_SK = HD + 8;    
+                ^
+
+exact_device.cu(147): warning #177-D: variable "okc::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;    
+                ^
+
+exact_device.cu(148): warning #177-D: variable "okc::NST" was declared but never referenced
+  constexpr int NST = 3;           
+                ^
+
+exact_device.cu(532): warning #177-D: variable "okc::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;   
+                ^
+
+exact_device.cu(933): warning #177-D: variable "okc::NSF" was declared but never referenced
+  constexpr int NSF = OKC_NSF;
+                ^
+

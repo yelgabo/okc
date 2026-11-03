@@ -1,0 +1,89 @@
+{
+  "created_utc": "2026-11-02T04:10:58.860819+00:00",
+  "evidence_base": "5418771dead164c053a9cda5ab18192ea76cb878",
+  "scope": "One fixed source-only outgoing expert-to-unpool seam. No GPU, compiler, host link, CUDA import, measurement or qualification.",
+  "common": {
+    "input_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "source_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+    "bytes": 871077,
+    "enabled": true,
+    "default_off": true,
+    "scope": "Common inherited attention admission and preexpert coefficient repairs; not an upstream-to607 regression treatment",
+    "required_common_to_all_ablation_arms": true,
+    "H200_qualified": false,
+    "GPU": false,
+    "dispatch_enabled": false
+  },
+  "arms": {
+    "off": {
+      "input_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+      "source_sha256": "828eaaa104cff1a32f1e7869cb817f9cf1034a093ae2c2725b16f7013cd706c3",
+      "bytes": 875396,
+      "enabled": false,
+      "policy": 0,
+      "reverse_exact": true,
+      "native_primary_unchanged": true,
+      "secondary_device_body_unchanged": true,
+      "secondary_host_adapter_changed": true,
+      "runtime_graph_support": "NOT_RUN",
+      "GPU_qualified": false,
+      "compiled_host": false,
+      "dispatch_enabled": false,
+      "cuda_sha256": "d71c985b16ce33e3e401a9262e1555390166432fa315bfe63695b1085e70004d",
+      "cpp_sha256": "1ec57da52d7973456dbb331489fa140695574e70ecccf4778fef9d8fd9e97a6b",
+      "selected_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a"
+      ],
+      "archive_sha256": "c91b57ab0abc68581d9565b2b33ab7ac7816c58dca69670faac6eacb756ba668"
+    },
+    "on": {
+      "input_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+      "source_sha256": "df18320fc4352a25fe2bd8d2371a43ef48ad3ea6a9d85bb6cf89d571855c3ad0",
+      "bytes": 875395,
+      "enabled": true,
+      "policy": 1073741826,
+      "reverse_exact": true,
+      "native_primary_unchanged": true,
+      "secondary_device_body_unchanged": true,
+      "secondary_host_adapter_changed": true,
+      "runtime_graph_support": "NOT_RUN",
+      "GPU_qualified": false,
+      "compiled_host": false,
+      "dispatch_enabled": false,
+      "cuda_sha256": "d71c985b16ce33e3e401a9262e1555390166432fa315bfe63695b1085e70004d",
+      "cpp_sha256": "1ec57da52d7973456dbb331489fa140695574e70ecccf4778fef9d8fd9e97a6b",
+      "selected_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a"
+      ],
+      "archive_sha256": "2fadaf8fed7eba9311b6f853e02eb192f6f7a3346d5ab16fefd68ea2779771de"
+    }
+  },
+  "GPU_qualified": false,
+  "host_compiled": false,
+  "future_gates": [
+    "actual target host compilation and both-arm resources",
+    "cooperative-primary captured programmatic edge and runtime support",
+    "fresh/empty ownership numerical correctness and graph replay",
+    "independently prepared paired whole-six measurement"
+  ],
+  "secondary_device_prefix_sha256": "47a6170eccfacab231565b45982648d4c7342039da7cd2f7c298d957dd416355",
+  "native_pair_source_identical": true,
+  "off_on_single_delta": "_OS_ENABLED = False -> True; installation freezes policy0 or1073741826 in per-state tuple",
+  "native_host_delta": "explicit seam_pdl parameter, attribute1 only in pdl-positive launch branch, single fixed slice8 dispatch; no setter exports/calls",
+  "stages": 2,
+  "pacing": [
+    0,
+    0,
+    0
+  ],
+  "launch_policy": {
+    "incoming_route_to_expert": "ordinary completion unchanged",
+    "expert": "original checked cooperative source unchanged",
+    "secondary": "role un, T1/T8 only",
+    "final_boundary": "ordinary completion unchanged"
+  },
+  "cpu_test_returncode": 0,
+  "cpu_test_scope": "Actual final dense -> prior dense -> patched _bfp_gemm -> bfp_kernel_fn -> bfp__run -> patched bfp__run_sk2 under CPU tensor/native stubs; not full layer execution or native API test"
+}

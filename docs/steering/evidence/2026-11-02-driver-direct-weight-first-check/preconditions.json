@@ -1,0 +1,38 @@
+{
+  "at_utc": "2026-11-02T23:17:06.615921+00:00",
+  "owner_chat": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+  "allocation": "7a1b048a",
+  "implementation": "368b85c9",
+  "payload": "docs/steering/evidence/2026-11-02-worker-direct-weight-registers/generated/candidate.py",
+  "sha256": "a27a1baff54f5496e339044760d1a58927af8733fa6af6fadcc68c60dcf140bd",
+  "bytes": 875672,
+  "team": "yelgabo",
+  "layer_quota": {
+    "name": "muse_decode_layer",
+    "title": "Whole decoder layer",
+    "limits": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 12,
+        "left": 8
+      }
+    }
+  },
+  "live_jobs": [],
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu",
+    "--",
+    "/usr/local/bin/okc",
+    "check",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc/docs/steering/evidence/2026-11-02-worker-direct-weight-registers/generated/candidate.py",
+    "--no-wait",
+    "--json"
+  ]
+}

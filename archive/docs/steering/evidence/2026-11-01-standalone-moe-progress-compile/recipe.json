@@ -1,0 +1,10 @@
+{
+  "driver_path": "tools/moe_decoder_compile.py",
+  "driver_sha256": "0e44f8e6e46dad84e99b2f6a9c0cc45870aac766420c269d8de797fd5aaafdc4",
+  "driver_adapter": "remove only main51 from name-expression list; no compile flag/device extraction changes",
+  "selected_expressions": [
+    "&moe_main_kernel<47>",
+    "&sk_8_3_0::moe_fused_kernel<1>"
+  ],
+  "gpu_execution": false
+}

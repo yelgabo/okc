@@ -1,0 +1,10 @@
+{
+  "sha256": "4c6d3f13e0b9c72c4d4ab67f440a35f6ae39a954c818f78d35f3ff3d9090423b",
+  "bytes": 881883,
+  "exact_reversal": true,
+  "native_sources_unchanged": true,
+  "host_syntax_checked": false,
+  "target_qualified": false,
+  "completion": "fresh per-eager-use events; graph references for captures",
+  "capture_mode": "helper-only RELAXED with exact previous restore; cleanup errors restore before abort"
+}

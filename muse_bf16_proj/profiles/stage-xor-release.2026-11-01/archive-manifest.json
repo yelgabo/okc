@@ -1,0 +1,23 @@
+{
+  "job": "dfcfdd01d6f04525",
+  "source_commit": "a08f501260ea7e9625c01aa4eeecda0934afa7f9",
+  "source_sha256": "de1111b98072f5251ff9b2edd5d453cc22eb8fe1710a943c60922909cc796229",
+  "files": {
+    "muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.json": {
+      "bytes": 177024,
+      "sha256": "b95f50534ee186ed855f612b402f1496d7a7fe8ade885a8e7b2fc7f9f03bd8aa"
+    },
+    "muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.txt": {
+      "bytes": 12420,
+      "sha256": "a933bad48b0a569b088f42618256475036bcbc9b66711c0da84ff78e82aa1b5f"
+    },
+    "muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.log": {
+      "bytes": 11110,
+      "sha256": "e786fff38fccc25cec6a59733519c4ad366a771dd99d4d5a7c6e537dcd054a9b"
+    },
+    "muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.receipt.json": {
+      "bytes": 218509,
+      "sha256": "fea1189cf02a3648690ef0b0dced398e6640864d40d3d49522561e3a24fb5285"
+    }
+  }
+}

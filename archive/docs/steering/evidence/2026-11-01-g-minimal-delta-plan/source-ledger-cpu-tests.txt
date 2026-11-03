@@ -1,0 +1,12 @@
+Command (WSL Ubuntu, root checkout):
+python3 -m unittest discover -s tools -p test_g_integration_source_ledger.py -v
+
+test_whole_module_inventory_is_pinned_and_complete ... ok
+test_wrappers_and_registration_are_not_lost ... ok
+test_wrong_source_fails_before_any_claim ... ok
+
+Ran 3 tests in 0.309s
+OK
+
+Scope: actual source-only ledger and provenance guards. Neither submission was
+imported. No CUDA arithmetic, H200 correctness, resource or performance claim.

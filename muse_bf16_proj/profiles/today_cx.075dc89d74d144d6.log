@@ -1,0 +1,92 @@
+CXBUILD prod 23.6 s, bench 14.6 s, round cx-a, vb [0, 1, 2, 4, 12, 13, 14]
+CXOVH 3.81 us
+CX cgemv qkv_gate m=1 med prod=9.42 v0=9.47 v4=10.19 v1=10.40 v2=10.42 v12=11.78 v13=11.94 v14=11.97
+CX cgemv qkv_gate m=1 d prod v0=+0.05/47 v4=+0.80/8 v1=+0.96/5 v2=+0.96/7 v12=+2.35/0 v13=+2.50/0 v14=+2.56/0
+CX cgemv o m=1 med v0=5.60 prod=5.73 v4=5.79 v2=6.72 v1=6.85 v13=7.74 v14=8.05 v12=8.10
+CX cgemv o m=1 d prod v0=-0.13/65 v4=+0.10/32 v2=+0.99/5 v1=+1.09/3 v13=+2.02/0 v14=+2.34/0 v12=+2.37/0
+CX cgemv pooler m=1 med prod=14.05 v0=14.08 v4=14.62 v1=18.02 v2=18.14 v12=20.32 v13=20.38 v14=20.38
+CX cgemv pooler m=1 d prod v0=+0.03/41 v4=+0.58/2 v1=+4.00/0 v2=+4.10/0 v12=+6.30/0 v13=+6.34/0 v14=+6.34/0
+CX cgemv unpooler m=1 med prod=4.00 v0=4.06 v4=4.35 v1=4.62 v2=4.74 v12=5.23 v13=5.34 v14=5.41
+CX cgemv unpooler m=1 d prod v0=+0.03/40 v4=+0.32/9 v1=+0.64/5 v2=+0.74/6 v12=+1.22/2 v13=+1.34/2 v14=+1.34/2
+CX rd rdp8 m=8 med prod=14.11 v2=14.26 v0=14.29 v4=14.50 v12=14.59 v1=14.77 v14=15.02 v13=15.33
+CX rd rdp8 m=8 d prod v2=+0.16/27 v0=+0.16/30 v4=+0.37/13 v12=+0.45/12 v1=+0.70/11 v14=+0.98/6 v13=+1.23/6
+CX rd rdo8 m=8 med v2=5.86 v1=5.92 v0=5.95 prod=6.02 v4=6.08 v13=6.43 v14=6.43 v12=7.01
+CX rd rdo8 m=8 d prod v2=-0.10/63 v1=-0.06/62 v0=-0.02/50 v4=+0.08/34 v13=+0.42/7 v14=+0.42/9 v12=+0.99/4
+CXDONE 39.2 s
+judged| sk build 0.0 s
+judged| prepare done 84.0 s
+CXBUILD prod 23.6 s, bench 14.6 s, round cx-a, vb [0, 1, 2, 4, 12, 13, 14]
+CXOVH 3.81 us
+CX cgemv qkv_gate m=1 med prod=9.42 v0=9.47 v4=10.19 v1=10.40 v2=10.42 v12=11.78 v13=11.94 v14=11.97
+CX cgemv qkv_gate m=1 d prod v0=+0.05/47 v4=+0.80/8 v1=+0.96/5 v2=+0.96/7 v12=+2.35/0 v13=+2.50/0 v14=+2.56/0
+CX cgemv o m=1 med v0=5.60 prod=5.73 v4=5.79 v2=6.72 v1=6.85 v13=7.74 v14=8.05 v12=8.10
+CX cgemv o m=1 d prod v0=-0.13/65 v4=+0.10/32 v2=+0.99/5 v1=+1.09/3 v13=+2.02/0 v14=+2.34/0 v12=+2.37/0
+CX cgemv pooler m=1 med prod=14.05 v0=14.08 v4=14.62 v1=18.02 v2=18.14 v12=20.32 v13=20.38 v14=20.38
+CX cgemv pooler m=1 d prod v0=+0.03/41 v4=+0.58/2 v1=+4.00/0 v2=+4.10/0 v12=+6.30/0 v13=+6.34/0 v14=+6.34/0
+CX cgemv unpooler m=1 med prod=4.00 v0=4.06 v4=4.35 v1=4.62 v2=4.74 v12=5.23 v13=5.34 v14=5.41
+CX cgemv unpooler m=1 d prod v0=+0.03/40 v4=+0.32/9 v1=+0.64/5 v2=+0.74/6 v12=+1.22/2 v13=+1.34/2 v14=+1.34/2
+CX rd rdp8 m=8 med prod=14.11 v2=14.26 v0=14.29 v4=14.50 v12=14.59 v1=14.77 v14=15.02 v13=15.33
+CX rd rdp8 m=8 d prod v2=+0.16/27 v0=+0.16/30 v4=+0.37/13 v12=+0.45/12 v1=+0.70/11 v14=+0.98/6 v13=+1.23/6
+CX rd rdo8 m=8 med v2=5.86 v1=5.92 v0=5.95 prod=6.02 v4=6.08 v13=6.43 v14=6.43 v12=7.01
+CX rd rdo8 m=8 d prod v2=-0.10/63 v1=-0.06/62 v0=-0.02/50 v4=+0.08/34 v13=+0.42/7 v14=+0.42/9 v12=+0.99/4
+CXDONE 39.2 s
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:10:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop

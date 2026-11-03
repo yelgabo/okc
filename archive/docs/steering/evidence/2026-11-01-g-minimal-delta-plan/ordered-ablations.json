@@ -1,0 +1,284 @@
+{
+  "schema": 1,
+  "dated_addendum_2026_11_01_qualification": {
+    "evidence_commit": "603ed5b081d5c8a2a6be8c04ea7788d51078ab4b",
+    "historical_ordered_steps_below": "Preserved earlier snapshot; use this addendum and newer candidate graph for current dispatch dependencies",
+    "current_report": "../../2026-11-01-g-candidate-funnel-qualification.md",
+    "current_candidate_graph": "../2026-11-01-g-candidate-funnel/candidate-graph.json",
+    "independent_surviving_performance_treatments": 1,
+    "singlearm_treatment": {
+      "source": "muse_decode_layer/cand/g1b4_common_short_rmw_release.py",
+      "bytes": 914572,
+      "sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+      "status": "LOCAL_READY_FOR_STARTUP_GATED_MEASUREMENT_H200_UNQUALIFIED",
+      "shared_common_qualification": "May occur inside this fixed arm's own fail-closed prepare in the same authorized attempt",
+      "prior_separate_common_GPU_run_required": false,
+      "prior_private_gain_check_required_for_measurement": false,
+      "source_CPU_review_pass_is_H200_qualification": false,
+      "actual_native_RMW_exercise_required_for_attribution": true,
+      "matched_controls_still_required_for_causal_cost": true,
+      "promotion_gate_changed": false
+    },
+    "bounded_parallel_screens": {
+      "expert_unpool_PDL": "PARKED_MISSING_EXPOSED_BUDGET",
+      "O_boundary_last_owner": "CLOSED_SOURCE_BUDGET_SCREEN",
+      "paired_RNE": "CLOSED_DEPENDENCY_BUDGET",
+      "scale_boundary": "CLOSED_NO_EXACT_DEPENDENCY_REMOVAL",
+      "full_family_gamma": "CLOSED_RESOURCE"
+    },
+    "goal_status": "paused",
+    "dispatch_enabled": false,
+    "accepted1fad_outcome": "UNKNOWN",
+    "latest_API_probe_UTC": "2026-11-01T22:23:34Z",
+    "latest_API_result": "15s local status/jobs/quota retrieval timeouts, no terminal evidence",
+    "next_gate": "Explicit resume, own accepted job/live ledger/quota reconciliation, then exact fixed-source/startup/official gates",
+    "legacy_diagnostics": "Remain HOLD or deferred; never submit old privatef042"
+  },
+  "date": "2026-11-01",
+  "evidence_commit": "c932a89",
+  "human_priority_commit": "ccb5e19",
+  "dispatch_enabled": false,
+  "broad_goal_status": "paused",
+  "scope": "G0-to-607 integration attribution only; no prefill or unrelated component tuning",
+  "historical_observations": {
+    "G0": {
+      "job": "3a5f879df0d44825",
+      "score": 2.2487905322335195,
+      "lf_sha256": "82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19"
+    },
+    "G607": {
+      "job": "607eb52bdaf24160",
+      "score": 2.1260826764231093,
+      "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+    },
+    "paired": false,
+    "attributed_cost": null,
+    "guaranteed_recoverable_gain": null
+  },
+  "accepted_job": {
+    "job": "1fad70bbe3854cbc",
+    "source_commit": "43c6c09b848b8ab1c28c57ebbed455b6b76821e9",
+    "source_bytes": 980787,
+    "source_sha256": "4ad326c3451d1b9a7ba22e6c89a2b06ebd8f565c20300abd9fc0d3b0a35001bc",
+    "outcome": "UNKNOWN",
+    "last_probe_utc": "2026-11-01T21:38:04Z",
+    "last_api_result": 530,
+    "duplicate_dispatch_allowed": false
+  },
+  "source_ledgers": [
+    "source-ledger.json",
+    "../2026-11-01-g-native-minimal-ladder/inventory.json",
+    "../2026-11-01-g-dense-minimal-delta/inventory.json",
+    "../2026-11-01-g-attention-host-contract/inventory.json"
+  ],
+  "coverage": {
+    "loads": [
+      "decode 1",
+      "decode 16",
+      "decode 32",
+      "verify 1",
+      "verify 16",
+      "verify 32"
+    ],
+    "contexts": [
+      "sliding",
+      "full"
+    ],
+    "cells_per_arm_per_seed": 12,
+    "context_weights": {
+      "sliding": 46,
+      "full": 16
+    },
+    "official_score": "GM_over_6_loads(weighted_baseline_latency / weighted_candidate_latency)",
+    "private_comparison": "Same inputs/weights/natural routing/runner, independent mutable state; raw cold graph-event ratios are separate from official adjusted score",
+    "post_hoc_cell_selection": false
+  },
+  "ordered_steps": [
+    {
+      "order": 0,
+      "id": "recover_accepted",
+      "status": "HOLD_SERVICE",
+      "question": "What happened to the existing accepted job?",
+      "requires": [
+        "own terminal receipt/log/profiles",
+        "live ledger/quota",
+        "reported migrated runner/evaluator/baseline/compiler identity or explicit gaps"
+      ],
+      "new_gpu_dispatch": false
+    },
+    {
+      "order": 1,
+      "id": "common_control",
+      "status": "OFF_SOURCE_CPU_AND_INDEPENDENT_REVIEW_PASS_H200_UNQUALIFIED",
+      "question": "Can a minimal common progress/interface epoch pass complete H200 qualification?",
+      "factors": [
+        "inherited attention software-join cooperative admission",
+        "inherited pre-expert effective BF16 coefficient"
+      ],
+      "historical_gap_delta": false,
+      "requires": [
+        "human resume",
+        "service and own-job reconciliation",
+        "independent source/proof review",
+        "complete source/host/device/capture/admission/math/empty/fresh/guard gates"
+      ],
+      "H200_result": null
+    },
+    {
+      "order": 2,
+      "id": "short_arrival_RMW",
+      "status": "HOLD_COMMON_CONTROL_REBASE",
+      "question": "What is the conditional whole-layer cost of the added acq_rel final-arrival atomic representation?",
+      "factor": "only Tiny/Tiny2 returning strong GPU RMW qualifier",
+      "historical_related_source": "f0426f7160768de01997b271744542ae3442d0851a1c27e586ced322a8fc6864",
+      "requires": [
+        "common control qualified",
+        "new explicit artifact/reader pins",
+        "all required BF16 rounds/fences/acquire/joins/loads preserved",
+        "all12 cells and3heldouts/fourcrosses"
+      ],
+      "H200_result": null
+    },
+    {
+      "order": 3,
+      "id": "postexpert_effective_gamma",
+      "status": "CLOSED_RESOURCE_NO_NEW_SPILL",
+      "question": "Can an equivalent prepare-time BF16 effective coefficient reduce the cost of the chosen repair representation?",
+      "factor": "coupled immutable derived coefficient plus all native consumers",
+      "causal_limit": "Hoisting removes an original addition and the new BF16 conversion; not an isolated conversion cost",
+      "requires": [
+        "all finite BF16 scalar equivalence",
+        "all native/fallback/layout/selector consumer proof",
+        "local selected compiler/resource screen",
+        "common control fixed",
+        "all12 cells/heldouts/duplicate controls"
+      ],
+      "H200_result": null,
+      "stop_reason": "Exact full-family ONd675 raises MAIN spills; no GPU qualification or timing run"
+    },
+    {
+      "order": 4,
+      "id": "RMW_gamma_interaction",
+      "status": "HOLD_GAMMA_ARM_NOT_QUALIFIED",
+      "question": "Do individually eligible representations interact?",
+      "factorial": "RMW0/1 x gamma0/1, fixed before measurements",
+      "requires": [
+        "individual effects valid and all arms qualified",
+        "same common control and all12-cell heldout banks",
+        "independent duplicate placements and full-score gate"
+      ],
+      "H200_result": null
+    },
+    {
+      "order": 5,
+      "id": "one_coherent_PDL_edge",
+      "status": "PROOF_BLOCKED",
+      "question": "Can a specific safe producer/consumer edge recover lost overlap?",
+      "requires": [
+        "material residual measured opportunity",
+        "producer publication",
+        "consumer wait before every dependent read",
+        "generic/async proxy proof",
+        "parameter and buffer lifetime",
+        "resident progress and exact graph launch API support",
+        "same BF16 math/common control/all12cells"
+      ],
+      "global_PDL_flag_toggle_allowed": false,
+      "H200_result": null
+    },
+    {
+      "order": 6,
+      "id": "large_only_choices",
+      "status": "DEFERRED_MEASURED_OPPORTUNITY",
+      "question": "Does a named compliant conservative-policy alternative have a material full-six budget?",
+      "requires": [
+        "short path resolved or explicit pivot",
+        "precision/reduction and RQ admission questions resolved",
+        "new evidence to reopen any closed representation"
+      ],
+      "H200_result": null
+    }
+  ],
+  "legacy_queue": {
+    "stage": "DEFERRED: already-retained improvement, not the first integration-loss ablation; inherited common control unqualified",
+    "serial_front": "DEFERRED: FRT retained from G0; inherited common control unqualified",
+    "owned_four_cell": "HOLD: unrelated to the short discrepancy and separate eligibility/source epoch",
+    "f042_original": "HOLD: retain historical source and reader; no silent common-control repinning"
+  },
+  "promotion_gate": {
+    "all_seeds_all_crosses_sixload_factor_gt": 1.01,
+    "duplicate_log_null_multiplier": 2,
+    "per_context_max_regression_us": "max(0.5,0.01*control_us)",
+    "requires_clean_pure_candidate_official_qualification": true,
+    "small_valid_effect_may_be_recorded_without_promotion": true,
+    "no_numeric_only_fence_removal": true,
+    "no_private_diagnostic_submission": true
+  },
+  "stop": [
+    "app goal paused",
+    "service unavailable",
+    "prior accepted job or live ledger unknown",
+    "source/reader identity mismatch",
+    "missing precision/order/progress proof",
+    "resource/capture/ownership/freshness/guard or setup-budget failure",
+    "valid registered performance miss; no automatic retry/sweep"
+  ],
+  "new_latency_measurements": null,
+  "recommended_new_submission": null,
+  "common_control_source": {
+    "input_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "source_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+    "bytes": 871077,
+    "enabled": true,
+    "default_off": true,
+    "scope": "Common inherited attention admission and preexpert coefficient repairs; not an upstream-to607 regression treatment",
+    "required_common_to_all_ablation_arms": true,
+    "H200_qualified": false,
+    "GPU": false,
+    "dispatch_enabled": false,
+    "generator": "tools/g_integration_common.py",
+    "leaf_commits": [
+      "8e36c26",
+      "5527744"
+    ],
+    "composition_commit": "2a6e3c3"
+  },
+  "postexpert_source_prototype": {
+    "off": {
+      "manifest": "../2026-11-01-g-native-gamma-precompute/off.manifest.json",
+      "source_sha256": "e17901d562b35f127c49110d222205fab254d078ae37e941a687774973a44c18",
+      "bytes": 870703,
+      "enabled": false
+    },
+    "on": {
+      "manifest": "../2026-11-01-g-native-gamma-precompute/on.manifest.json",
+      "source_sha256": "d6756bb50a0362af9c9cd03d44a88c80fa593628254ffb2a931a643fccafdcad",
+      "bytes": 870702,
+      "enabled": true
+    },
+    "review_commit": "27f5cd2",
+    "compiler_gate": {
+      "status": "CLOSED_RESOURCE",
+      "all_fixed_builds_compiled": 15,
+      "baseline_to_off_equivalence": "normalized PTX, full normalized SASS, resources and bounds identical at all5keys",
+      "on_MAIN_spill_store_bytes": [
+        4,
+        44
+      ],
+      "on_MAIN_spill_load_bytes": [
+        32,
+        68
+      ],
+      "MAIN_registers": 96,
+      "MAIN_barriers": 16,
+      "MAIN_stack_bytes": 8,
+      "short_mid_B4_resources": "unchanged",
+      "H200_result": null,
+      "automatic_retry_or_short_mask_queued": false,
+      "report": "../../2026-11-01-g-native-gamma-compile.md",
+      "root_commit": "c932a89",
+      "owner_commit": "18a17f1",
+      "root_archive_review": "root-compiler-archive-review.json"
+    }
+  }
+}

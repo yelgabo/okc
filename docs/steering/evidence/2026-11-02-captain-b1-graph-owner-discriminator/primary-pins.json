@@ -1,0 +1,45 @@
+{
+  "retrieved_utc": "2026-11-02T13:39:26.976Z",
+  "stopVerification": [
+    {
+      "commit": "49cdba497f2ef68f988e10fd7852a814133550d1",
+      "files": 10,
+      "verified": true
+    },
+    {
+      "commit": "72063f363bf8abdf9067acaac8b86c7ea52ff867",
+      "files": 2,
+      "verified": true
+    }
+  ],
+  "primary": [
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-c-programming-guide/index.html",
+      "status": 200,
+      "bytes": 3921829,
+      "sha256": "88d30ad0d013f1d08c9f957826b4ff4b42df23c46e56982bfd8ba4a72084924b",
+      "retrieved_utc": "2026-11-02T13:33:54.996Z"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__STREAM.html",
+      "status": 200,
+      "bytes": 237386,
+      "sha256": "ecafde02a830630a38324a924d1c45b080b9a6fda17613aa1e9c14ccfed8f63f",
+      "retrieved_utc": "2026-11-02T13:33:55.422Z"
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__GRAPH.html",
+      "status": 200,
+      "bytes": 692815,
+      "sha256": "da8dbb93d14374cfd71ff9df7f96fb2e4b74f1a21fb2b1cb9f6fc1821b84e614",
+      "retrieved_utc": "2026-11-02T13:33:55.645Z"
+    }
+  ],
+  "claims": [
+    "Programming Guide 6.2.8.7.4 graph/exec/clone references and deferred in-flight release",
+    "Driver Stream capture graph access/operations permitted with ownership restrictions",
+    "Driver Graph user references/NO_DESTRUCTOR_SYNC/no CUDA or blocking callback"
+  ],
+  "target_api_calls": 0,
+  "quota_calls": 0
+}

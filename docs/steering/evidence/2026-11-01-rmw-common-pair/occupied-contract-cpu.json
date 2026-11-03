@@ -1,0 +1,421 @@
+{
+  "source_sha256": "c4a5ee29bcfeca248c0fee638ed103e9f211f7a8cc32b86bd3bb642676bf45e3",
+  "GPU": false,
+  "scope": "Exact frozen fixture under CPU route-contract/native-predicate facades; proposed repair in memory only, no device-cause localization.",
+  "tests": 5,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 0.028807336999999933,
+  "observations": [
+    {
+      "t": 1,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 1,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 1,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 1,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 1,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 1,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 1,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 1,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 1,
+      "occupied": true
+    },
+    {
+      "t": 1,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 8,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 8,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 0,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 8,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 8,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 1,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 8,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 8,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 2,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 8,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    },
+    {
+      "t": 8,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 8,
+      "occupied": true
+    },
+    {
+      "t": 8,
+      "arm": 3,
+      "unique": true,
+      "max_expert_entries": 0,
+      "occupied": false
+    }
+  ],
+  "source_locations": {
+    "fixture_line": 17823,
+    "old_cpu_mock": "tools/test_g_common_rmw_pair.py:native_run"
+  },
+  "proposed_replacements": [
+    {
+      "old": "ids=torch.zeros((t,8),device=dev,dtype=torch.int32)",
+      "new": "occupied_ids=torch.arange(8,device=dev,dtype=torch.int32).expand(t,8).contiguous();ids=occupied_ids.clone()"
+    },
+    {
+      "old": "ids.fill_(0 if occupied else -1)",
+      "new": "ids.copy_(occupied_ids) if occupied else ids.fill_(-1)"
+    }
+  ],
+  "selected": [
+    {
+      "t": 1,
+      "on": false,
+      "name": "glue_moe_899615447b094660_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ]
+    },
+    {
+      "t": 8,
+      "on": false,
+      "name": "glue_moe_e8c02faa679f456e_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ]
+    },
+    {
+      "t": 1,
+      "on": true,
+      "name": "glue_moe_7e8bb26727fdbec3_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ]
+    },
+    {
+      "t": 8,
+      "on": true,
+      "name": "glue_moe_227343a3f2e52b76_sm90a",
+      "cuda_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+      "flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ]
+    }
+  ]
+}

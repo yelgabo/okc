@@ -1,0 +1,125 @@
+{
+  "job_id": "dc62cff972934f54",
+  "decision": "STOP_PARK_EXACT_TREATMENT_NO_REPEAT_NO_PROMOTION",
+  "files": [
+    {
+      "path": "docs/steering/2026-11-02-worker-timed-silu-check.md",
+      "bytes": 8560,
+      "sha256": "6d5cb49884f2b86d231c30722f302832d7670b45c352d1aa87b76221ef686761"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/acceptance-association.json",
+      "bytes": 872,
+      "sha256": "e999b4034b9a01d5519f60fc57b5d3ade20f62bb1932daca4b268da297dfb436"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/accepted-status.json",
+      "bytes": 394,
+      "sha256": "1523228595869b1657d613f94b41ecd02ecf1733e59526cfa7371f8f625e2f55"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/all12-contexts.csv",
+      "bytes": 1763,
+      "sha256": "67fd0636ed34607fb6c0e946a85ba0ccd7f4b4c436beb99093572a61f1303e80"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/candidate.dc62cff972934f54.json",
+      "bytes": 58327,
+      "sha256": "4c28502e2477c1eeea5c6800fbaecdc13d111ffb78e448fc6995a3c6f39065a8"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/candidate.dc62cff972934f54.log",
+      "bytes": 369,
+      "sha256": "6499b6142d73be1b11b3d769321a4d98d81948528cac631eb1c4a8eb617a17dd"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/candidate.dc62cff972934f54.txt",
+      "bytes": 14420,
+      "sha256": "1d486438ca076a43c537e04eebb5beaf2f5caa17a4ab5d0c27a348b83a7ecada"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/dispatch-intent.json",
+      "bytes": 716,
+      "sha256": "03fff4c6d542990778c845a72d2dfe9511a6ba0d57f841427f8fc425ae4ff566"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/dispatch.json",
+      "bytes": 69,
+      "sha256": "3f430b5a0e66b1f9ccf8ba59e74e3d3456587dd5c5d54813e8b22dadad5daee6"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/dispatch.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/postaccept-problems.json",
+      "bytes": 1536,
+      "sha256": "a2a2f3ab2d18e147d75d211c54640e43031f6551a09a38a2c033c8e658a76ecd"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/preflight-auth.json",
+      "bytes": 8,
+      "sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/preflight-auth.txt",
+      "bytes": 8,
+      "sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/preflight-jobs.json",
+      "bytes": 13825,
+      "sha256": "fdb93afe7967d0762f84a5795b309ec498a2d66d99d77b726ba33699e97452d4"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/preflight-problems.json",
+      "bytes": 1536,
+      "sha256": "c864046096ae65c7ada70b0bead18c03878c539e698b4b14866485a2beb1b585"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/status-observation-1115.json",
+      "bytes": 394,
+      "sha256": "1523228595869b1657d613f94b41ecd02ecf1733e59526cfa7371f8f625e2f55"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/status-observation-1120.json",
+      "bytes": 394,
+      "sha256": "1523228595869b1657d613f94b41ecd02ecf1733e59526cfa7371f8f625e2f55"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/status-observation-1126.json",
+      "bytes": 510,
+      "sha256": "dfdbf0e819c9ebc634680760ff2c0391d0344515fa0f8b394e9f0a8c28cafedc"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/status-wait.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/terminal-decision.json",
+      "bytes": 11245,
+      "sha256": "54eea5aa2baf14036104d29668724d5d9c9c8a6820a4044dba2bd46535f4ac5f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/terminal-log-tail.txt",
+      "bytes": 2325,
+      "sha256": "02a1e34eede459f5abfcd332507a009f8babcea7b9cb0b54dc3a77fe38a2525f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-check/terminal-status.json",
+      "bytes": 74321,
+      "sha256": "53134aae5ebdd4bb342b6b66852d31fd090dfcd31ba26df04a20e6cf49ee74f5"
+    }
+  ],
+  "historical_control": {
+    "path": "muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.json",
+    "sha256": "9ba1d7d77c00ae9a1bdba61c64ed93975566879f2767d473aa050c19fd6c573c"
+  },
+  "kernel_source_unchanged": true,
+  "new_checks": 1,
+  "public_or_scored_submissions": 0,
+  "new_source_compiles": 0,
+  "shared_ledgers_modified": false
+}

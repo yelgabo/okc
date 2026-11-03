@@ -1,0 +1,128 @@
+{
+  "archived_utc": "2026-11-02T15:07:37.502Z",
+  "job_id": "60b38a62a135442c",
+  "decision": "STOP_EXACT_TARGET_HOST_CXX_STANDARD_MISMATCH",
+  "check_posts": 1,
+  "files": [
+    {
+      "path": "docs/steering/2026-11-02-worker-pr-target-terminal.md",
+      "bytes": 6008,
+      "sha256": "f30f9335dce4d1ff98755ab5dbe9a7590f1228874e8e7e3afa0257c230323c71",
+      "physical_sha256": "f30f9335dce4d1ff98755ab5dbe9a7590f1228874e8e7e3afa0257c230323c71"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/accepted-status.json",
+      "bytes": 395,
+      "sha256": "20f6a45dc00e721b848f8d898991c12ccc7af9a83104b830e283fd56a9a0eabd",
+      "physical_sha256": "20f6a45dc00e721b848f8d898991c12ccc7af9a83104b830e283fd56a9a0eabd"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/dispatch-intent.json",
+      "bytes": 642,
+      "sha256": "d9b8b34bcf9410eda6c1063bb2ad988e6e8e204348cfa0f6e03a311c5e6d9c9b",
+      "physical_sha256": "d9b8b34bcf9410eda6c1063bb2ad988e6e8e204348cfa0f6e03a311c5e6d9c9b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/dispatch.json",
+      "bytes": 69,
+      "sha256": "446038220826f981b4a95ac037b1b795d6d743f7b95a31a094dee42c5bd98760",
+      "physical_sha256": "446038220826f981b4a95ac037b1b795d6d743f7b95a31a094dee42c5bd98760"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/final-jobs.json",
+      "bytes": 13823,
+      "sha256": "7fd96ca7466afd0ddacf6823e9af7053e5998e1492af3202f667a38736e12ff1",
+      "physical_sha256": "7fd96ca7466afd0ddacf6823e9af7053e5998e1492af3202f667a38736e12ff1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/final-quota.json",
+      "bytes": 1537,
+      "sha256": "308c457086221faecb6b4a1809453668d33b5b26c83a1a164abbc562aca60f6f",
+      "physical_sha256": "308c457086221faecb6b4a1809453668d33b5b26c83a1a164abbc562aca60f6f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/initial-status-error.json",
+      "bytes": 182,
+      "sha256": "277090e0e288bf88b3f6ade1dbd9cd0b57feae87e12e1c4c9dd60cc6c4216a53",
+      "physical_sha256": "277090e0e288bf88b3f6ade1dbd9cd0b57feae87e12e1c4c9dd60cc6c4216a53"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/preflight-at.txt",
+      "bytes": 25,
+      "sha256": "196cf05443a74ebdae5e365ecceea584fdc612ba4977657fc8ab8fca0cbaefde",
+      "physical_sha256": "196cf05443a74ebdae5e365ecceea584fdc612ba4977657fc8ab8fca0cbaefde"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/preflight-auth.txt",
+      "bytes": 8,
+      "sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2",
+      "physical_sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/preflight-jobs.json",
+      "bytes": 13836,
+      "sha256": "4082d1632e00206d7b1e5e3acb213c8afaedc8fcaf6ddce9eecb71056f5baa6d",
+      "physical_sha256": "4082d1632e00206d7b1e5e3acb213c8afaedc8fcaf6ddce9eecb71056f5baa6d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/preflight-quota.json",
+      "bytes": 1536,
+      "sha256": "d29759f797fc508e5dd3abf18246ea84c3280ce651e1c0e78ab990d055323d4d",
+      "physical_sha256": "d29759f797fc508e5dd3abf18246ea84c3280ce651e1c0e78ab990d055323d4d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/preflight-transport-note.json",
+      "bytes": 242,
+      "sha256": "28a251b549de58552ccbec394408b6c7ce2e7e27dcc2bbf2488359b3d51b04e8",
+      "physical_sha256": "28a251b549de58552ccbec394408b6c7ce2e7e27dcc2bbf2488359b3d51b04e8"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/setup-build-error.txt",
+      "bytes": 2001,
+      "sha256": "dc9d89cf66ce81a8355fcef8e8230dbe42a31b101a100badb996be9ecc8d4dcb",
+      "physical_sha256": "dc9d89cf66ce81a8355fcef8e8230dbe42a31b101a100badb996be9ecc8d4dcb"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/setup-record.json",
+      "bytes": 2216,
+      "sha256": "29f03d9ba3a4ae558264bf5b77570861b0b43367b4b725677ee3cb6c2c85179b",
+      "physical_sha256": "29f03d9ba3a4ae558264bf5b77570861b0b43367b4b725677ee3cb6c2c85179b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/source-association.json",
+      "bytes": 642,
+      "sha256": "2cd107e06f7383a7c3a99250408d32b1fdb65266e0ef4c89baeab09583782547",
+      "physical_sha256": "2cd107e06f7383a7c3a99250408d32b1fdb65266e0ef4c89baeab09583782547"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-decision.json",
+      "bytes": 1776,
+      "sha256": "b6b98ac57d8e9afc6dbb52d0bd39081868a0eba270d8e8890622383991439174",
+      "physical_sha256": "b6b98ac57d8e9afc6dbb52d0bd39081868a0eba270d8e8890622383991439174"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-log-tail.txt",
+      "bytes": 16372,
+      "sha256": "387917007e3a773a114de2980aa2bffb92d2acfc1598f7920c55cbad54e7a344",
+      "physical_sha256": "387917007e3a773a114de2980aa2bffb92d2acfc1598f7920c55cbad54e7a344"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-status.json",
+      "bytes": 22414,
+      "sha256": "291e2b74a2dd91d95cbe5116a44bfbc06c956e700b11892a9a9609164b277111",
+      "physical_sha256": "291e2b74a2dd91d95cbe5116a44bfbc06c956e700b11892a9a9609164b277111"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/wait.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/generated/profiles/candidate.60b38a62a135442c.log",
+      "bytes": 16372,
+      "sha256": "387917007e3a773a114de2980aa2bffb92d2acfc1598f7920c55cbad54e7a344",
+      "physical_sha256": "387917007e3a773a114de2980aa2bffb92d2acfc1598f7920c55cbad54e7a344"
+    }
+  ]
+}

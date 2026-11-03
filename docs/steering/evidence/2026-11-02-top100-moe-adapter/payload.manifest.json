@@ -1,0 +1,313 @@
+{
+  "evidence_base": "a58f058548249a3c5c1a5b5885b516fb15869603",
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "candidate_sha256": "dff221ae6ccc2de35d7a4c123aea3e3eb1345d3685f6eb97e52cbbfef6a0c8c4",
+  "native_control_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "native_candidate_sha256": "3cc12ae09f1954013f5cc9be858120d29b12bf14fff267391b94c5000d2256ea",
+  "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "source_sha256": "19aeaf356be6329dea1031966a4b7efbab4f039748f122acc78300e670cb5b57",
+  "bytes": 323514,
+  "closure": {
+    "_stored_pos": {
+      "source_sha256": "8bc36467551224e002637fa2ed0aaf1d37431b85cbd3d9a8422cd6cb6a8d7836",
+      "globals": [
+        "DQ7",
+        "list",
+        "range",
+        "sorted"
+      ],
+      "packaged_line": 6989,
+      "emitted_sha256": "8bc36467551224e002637fa2ed0aaf1d37431b85cbd3d9a8422cd6cb6a8d7836"
+    },
+    "_pack_codes": {
+      "source_sha256": "a03c96e2a25f6f292c4e2f87be3df650b519ba5bce1a6d4eba11ac50ab7444e1",
+      "globals": [
+        "_POS",
+        "_REG_HJ",
+        "enumerate",
+        "range",
+        "torch"
+      ],
+      "packaged_line": 7013,
+      "emitted_sha256": "a03c96e2a25f6f292c4e2f87be3df650b519ba5bce1a6d4eba11ac50ab7444e1"
+    },
+    "_pack_scales": {
+      "source_sha256": "e1597839a290d3d1c179e4f24402852fb0983181458b34d8bc37f1a1ad7a9e80",
+      "globals": [
+        "torch"
+      ],
+      "packaged_line": 7032,
+      "emitted_sha256": "e1597839a290d3d1c179e4f24402852fb0983181458b34d8bc37f1a1ad7a9e80"
+    },
+    "_sc6_ok": {
+      "source_sha256": "3e82c3bda16c9d470d4f96d62f22530a4ef341929e05f0e3a4bcb1c4e7bddac0",
+      "globals": [
+        "bool",
+        "torch"
+      ],
+      "packaged_line": 7042,
+      "emitted_sha256": "3e82c3bda16c9d470d4f96d62f22530a4ef341929e05f0e3a4bcb1c4e7bddac0"
+    },
+    "_sc6_wgs": {
+      "source_sha256": "845d7208ee62e059b683d774d9e59ebddb5be1c383f378e4f217c0cd92aeb793",
+      "globals": [
+        "int",
+        "range",
+        "torch"
+      ],
+      "packaged_line": 7061,
+      "emitted_sha256": "845d7208ee62e059b683d774d9e59ebddb5be1c383f378e4f217c0cd92aeb793"
+    },
+    "_fat_order": {
+      "source_sha256": "e7b5a72ac71e8a95544010d512e39ba2f45706af3b1afc5164ddfc00913912d5",
+      "globals": [
+        "torch"
+      ],
+      "packaged_line": 7075,
+      "emitted_sha256": "e7b5a72ac71e8a95544010d512e39ba2f45706af3b1afc5164ddfc00913912d5"
+    },
+    "_unit_order": {
+      "source_sha256": "0128938a4653f1b8a5a1d8f16f68d35714dc0ac017d53b8bc7112e7aa5850d73",
+      "globals": [
+        "torch"
+      ],
+      "packaged_line": 7085,
+      "emitted_sha256": "0128938a4653f1b8a5a1d8f16f68d35714dc0ac017d53b8bc7112e7aa5850d73"
+    },
+    "_pack_codes_nat": {
+      "source_sha256": "1a05474aa4c7a15312b79b5c51bdf8d2110dcc108ee6598eb78b01f2b1eecca8",
+      "globals": [
+        "_POS",
+        "enumerate",
+        "range",
+        "torch"
+      ],
+      "packaged_line": 7093,
+      "emitted_sha256": "1a05474aa4c7a15312b79b5c51bdf8d2110dcc108ee6598eb78b01f2b1eecca8"
+    },
+    "_kperm_src": {
+      "source_sha256": "eb51a28459768c9903bf3861e533516f62e161482e568b8d47d15aac5239528b",
+      "globals": [
+        "list",
+        "range",
+        "sorted",
+        "torch"
+      ],
+      "packaged_line": 7112,
+      "emitted_sha256": "eb51a28459768c9903bf3861e533516f62e161482e568b8d47d15aac5239528b"
+    },
+    "_kperm_codes": {
+      "source_sha256": "2cec244328dc98e0688dee109549e0dc47eda3b5485b245c5050d9ed2e593f31",
+      "globals": [
+        "_kperm_src",
+        "torch"
+      ],
+      "packaged_line": 7124,
+      "emitted_sha256": "2cec244328dc98e0688dee109549e0dc47eda3b5485b245c5050d9ed2e593f31"
+    },
+    "_kperm_rows": {
+      "source_sha256": "324d5bfe0d8e713313b70f167c427fab5d0166b2bbc6422c0a48b1ea106d47fc",
+      "globals": [
+        "_kperm_src",
+        "torch"
+      ],
+      "packaged_line": 7132,
+      "emitted_sha256": "324d5bfe0d8e713313b70f167c427fab5d0166b2bbc6422c0a48b1ea106d47fc"
+    },
+    "_wgs_copy": {
+      "source_sha256": "8ef140c12b49198f76479fa8213d22e791c0b1ee32bde0c0d7fe50bbaffce7fd",
+      "globals": [
+        "_kperm_codes",
+        "_pack_codes_nat",
+        "_sc6_wgs",
+        "torch"
+      ],
+      "packaged_line": 7143,
+      "emitted_sha256": "8ef140c12b49198f76479fa8213d22e791c0b1ee32bde0c0d7fe50bbaffce7fd"
+    },
+    "_wgs_on": {
+      "source_sha256": "bad3929ba346e569cf5c259499db1f9aa3330e0fa535bb97693bfabc29afb295",
+      "globals": [
+        "MOE_DEFINES",
+        "MOE_MID_DEFINES",
+        "MOE_TINY2_DEFINES",
+        "MOE_TINY_DEFINES",
+        "any",
+        "tuple"
+      ],
+      "packaged_line": 7173,
+      "emitted_sha256": "bad3929ba346e569cf5c259499db1f9aa3330e0fa535bb97693bfabc29afb295"
+    },
+    "_ma_scales_prmt_exact": {
+      "source_sha256": "bb78f911b1b801cf1e048d34d40b573ddf69c016c5a6f99729b324231eaa185a",
+      "globals": [
+        "bool",
+        "torch"
+      ],
+      "packaged_line": 6871,
+      "emitted_sha256": "bb78f911b1b801cf1e048d34d40b573ddf69c016c5a6f99729b324231eaa185a"
+    },
+    "_main_defines": {
+      "source_sha256": "397205c6c2ae1e557fcc575e0ba91bcb821ac787e2ea5ad7f98acfca2d7c6a51",
+      "globals": [
+        "MAIN_FALLBACK_DEFINES",
+        "MOE_DEFINES",
+        "tuple"
+      ],
+      "packaged_line": 7167,
+      "emitted_sha256": "397205c6c2ae1e557fcc575e0ba91bcb821ac787e2ea5ad7f98acfca2d7c6a51"
+    },
+    "_ma_ext": {
+      "source_sha256": "7d6432159d118a61f4f2ff29af5b841779ca45e7d4d9e563dba1e82588fcf167",
+      "globals": [
+        "DQ7",
+        "MOE_CPP_SRC",
+        "MOE_CUDA_SRC",
+        "MOE_DEFINES",
+        "_MA_ALT_SRCS",
+        "_MA_EXTS",
+        "_MA_MAIN_NS",
+        "_MA_PDL",
+        "any",
+        "load_inline",
+        "repr",
+        "torch",
+        "tuple"
+      ],
+      "packaged_line": 6893,
+      "emitted_sha256": "7d6432159d118a61f4f2ff29af5b841779ca45e7d4d9e563dba1e82588fcf167"
+    },
+    "_df_inter": {
+      "source_sha256": "7e3f70716a093c58071be8cdef343ac9fc9a2e9f325b6b6aaeb643c5018d062b",
+      "globals": [
+        "torch"
+      ],
+      "packaged_line": 10141,
+      "emitted_sha256": "7e3f70716a093c58071be8cdef343ac9fc9a2e9f325b6b6aaeb643c5018d062b"
+    },
+    "_ma_make_scratch": {
+      "source_sha256": "195d3956c8c8ddb84992e44039ad787570e8a7da256a5b353dc59604fbbf489d",
+      "globals": [
+        "WGS_FIXF",
+        "WGS_XROWS",
+        "_MA_EMAX",
+        "_df_inter",
+        "torch"
+      ],
+      "packaged_line": 10147,
+      "emitted_sha256": "195d3956c8c8ddb84992e44039ad787570e8a7da256a5b353dc59604fbbf489d"
+    },
+    "_fork_native_ma_prepare": {
+      "source_sha256": "1bdae7436f8f176d150880547bb7ce96121f0ffaff469145d6b2a528c192ff00",
+      "globals": [
+        "_fat_order",
+        "_guarded",
+        "_kperm_rows",
+        "_ma_make_scratch",
+        "_pack_codes",
+        "_pack_scales",
+        "_unit_order",
+        "_wgs_copy",
+        "_wgs_on",
+        "globals",
+        "range",
+        "torch",
+        "zip"
+      ],
+      "packaged_line": 10156,
+      "emitted_sha256": "bebba905a30305338f16668b390c2b63367970f9b89c6e2446d3435827e17f4b"
+    },
+    "_fork_native_moe": {
+      "source_sha256": "03c4dd2c025faeb518003b74ce9f13d5d194072a5cbdf22f3c227ccabb9ebeb0",
+      "globals": [
+        "MOE_DEFINES",
+        "MOE_HAS_PDL",
+        "MOE_MID_DEFINES",
+        "MOE_MID_MAX_M",
+        "MOE_TINY2_DEFINES",
+        "MOE_TINY2_MAX_M",
+        "MOE_TINY_DEFINES",
+        "MOE_TINY_MAX_M",
+        "RuntimeError",
+        "_RouterExt",
+        "_ma_ext",
+        "_main_defines",
+        "_moe_global_cache",
+        "bool",
+        "tuple",
+        "type"
+      ],
+      "packaged_line": 16084,
+      "emitted_sha256": "03c4dd2c025faeb518003b74ce9f13d5d194072a5cbdf22f3c227ccabb9ebeb0"
+    },
+    "_expert_pair_source": {
+      "source_sha256": "6a3b3c87904c0d4ffbeba02de0404fefab6205a969cacb9a78fec043d719b629",
+      "globals": [
+        "MOE_CUDA_SRC",
+        "RuntimeError",
+        "_EXPERT_PAIR_EDITS"
+      ],
+      "packaged_line": 17249,
+      "emitted_sha256": "6a3b3c87904c0d4ffbeba02de0404fefab6205a969cacb9a78fec043d719b629"
+    },
+    "_expert_pair_bind": {
+      "source_sha256": "87e167e7cb78275ab5d849174acb0a3c1faeb0555a61e86def4cd457ab8f906e",
+      "globals": [
+        "RuntimeError",
+        "_fork_native_moe",
+        "bool",
+        "type"
+      ],
+      "packaged_line": 17258,
+      "emitted_sha256": "87e167e7cb78275ab5d849174acb0a3c1faeb0555a61e86def4cd457ab8f906e"
+    },
+    "_RouterExt": {
+      "source_sha256": "761dfa46a7c863f148a387934856fd440ded396f1e56b79becc06a5ed99357e7",
+      "globals": [
+        "getattr"
+      ],
+      "packaged_line": 16073,
+      "emitted_sha256": "761dfa46a7c863f148a387934856fd440ded396f1e56b79becc06a5ed99357e7"
+    }
+  },
+  "adapter_body_sha256": "8b9bd523cf11a3196ae19273709ef3a15a40f68c6d5b318f299dcdf45e812e58",
+  "official_arm": "control",
+  "supported_local_range": [
+    0,
+    32
+  ],
+  "supported_tokens": [
+    1,
+    4,
+    8,
+    16,
+    32,
+    33,
+    128,
+    256,
+    257
+  ],
+  "mutable_ownership": "per preparation: weights, scratch, guard tails, extension map; outputs per call",
+  "shared": "compiled modules and input-independent native module metadata; PDL stays zero",
+  "input_cache": false,
+  "dependencies": {
+    "tools/expert_top100_pair_package.py": "df62aa76b51032df2dc498b464e51acc6c758ad6bb5eb819c7115c46feedc108",
+    "tools/expert_top100_pregamma.py": "852fa1edff7a903344369d28f933749d729ad094c28ceea965eef1b9145058e0",
+    "tools/prod_size_compile_g.py": "15c5436f92c8fa2d32d38825150ef4f5d63c67963edb301eee0ad1b158ddf272",
+    "tools/g_native_patch_ladder.py": "b55ff6179da9278353bf37eab9a7c2303879df1357e4edff5f3bc131f5290cb7",
+    "muse_moe_w4a16/reference.py": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+    "muse_moe_w4a16/TASK.md": "e0bb1883b0ba1be360cecb9c7088fa1e7af2c1ded22607154c1a91780c9aacb0"
+  },
+  "preparation_guard_seconds": 295,
+  "dispatch_ready": false,
+  "gpu_qualified": false,
+  "pending": [
+    "target build and memory/preparation fit",
+    "real packing/numerical qualification",
+    "fresh observed candidate graph replays and empty/occupied transitions",
+    "four-placement ownership validation on GPU",
+    "heldout paired cold timings, all crosses and duplicate nulls",
+    "strict owning job/source/result reader",
+    "separate whole-layer qualification"
+  ]
+}

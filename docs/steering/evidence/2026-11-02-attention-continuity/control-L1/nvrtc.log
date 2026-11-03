@@ -1,0 +1,40 @@
+attention.cu(2952): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+attention.cu(865): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=true, MODE=0]" 
+
+attention.cu(695): warning #177-D: variable "IDX_SLOTS" was declared but never referenced
+    constexpr int IDX_SLOTS = 2 * STAGES;
+                  ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=true, MODE=0]" 
+
+attention.cu(1957): warning #177-D: variable "kdesc0" was declared but never referenced
+    const uint64_t kdesc0 = ((uint64_t)((1024 >> 4) | (1u << 30)) << 32) | klo0;
+                   ^
+          detected during instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=true, MODE=0]" 
+
+attention.cu(1161): warning #549-D: variable "pg" is used before its value is set
+          asm volatile("" :: "r"(pg[0]), "r"(pg[PK - 1]));
+                                 ^
+          detected during:
+            instantiation of "__nv_bool <unnamed>::segment<L,FLAT,ROLE,MODE>(const <unnamed>::Params &, <unnamed>::Smem<L, FLAT> &, int, int, __nv_bool, int, int, int, int, int, int, int, int, __nv_bool) [with L=1, FLAT=true, ROLE=1, MODE=0]" at line 3378
+            instantiation of "void <unnamed>::attn_kernel<L,FLAT,MODE>(<unnamed>::Params) [with L=1, FLAT=true, MODE=0]" 
+
+attention.cu(161): warning #177-D: member "<unnamed>::Cfg<L, F>::CREGS [with L=1, F=false]" was declared but never referenced
+    static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
+                         ^
+
+attention.cu(161): warning #177-D: member "<unnamed>::Cfg<L, F>::CREGS [with L=8, F=true]" was declared but never referenced
+    static constexpr int CREGS = ((BASEREGS * NTX - PREGS * NP) / (NT > 0 ? NT : 1)) / 8 * 8 > 248
+                         ^
+
+attention.cu(175): warning #177-D: variable "<unnamed>::IDX_SLOTS" was declared but never referenced
+  constexpr int IDX_SLOTS = 2 * STAGES;
+                ^
+

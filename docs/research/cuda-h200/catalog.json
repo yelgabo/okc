@@ -1,0 +1,1152 @@
+{
+  "schema": 1,
+  "date": "2026-11-02",
+  "scope": "H200 research intake, selected-code audit, compiler evidence repair and bounded standalone MoE experiments; no promoted GPU speedup",
+  "evidence_commit": "df237d362f67ae544473f8e30d6f5ba8b65755bf",
+  "source": {
+    "path": "source.txt",
+    "sha256": "5cf54cd0f92975ab2347f9b32ec21b5817ada25caac82f137b946d62f2ca2f14",
+    "original_name": "Pasted text.txt",
+    "citation_status": "Original citation IDs are unresolved; recovered primary URLs are separate."
+  },
+  "notes": [
+    "README.md",
+    "hardware-and-numerics.md",
+    "pipelines.md",
+    "scheduling.md",
+    "profiling.md",
+    "validation.md",
+    "application.md",
+    "references.md",
+    "part2.md",
+    "source_corrections.md"
+  ],
+  "sections": [
+    {
+      "id": "S01",
+      "heading": "# CUDA optimization playbook for PyTorch + native-CUDA MoE kernels on H200",
+      "start": 1,
+      "end": 2,
+      "note": "README.md"
+    },
+    {
+      "id": "S02",
+      "heading": "## Executive summary",
+      "start": 3,
+      "end": 25,
+      "note": "application.md"
+    },
+    {
+      "id": "S03",
+      "heading": "## Hopper architecture and the kernel design it rewards",
+      "start": 26,
+      "end": 29,
+      "note": "hardware-and-numerics.md"
+    },
+    {
+      "id": "S04",
+      "heading": "### The Hopper execution model to target",
+      "start": 30,
+      "end": 55,
+      "note": "pipelines.md"
+    },
+    {
+      "id": "S05",
+      "heading": "### H100 versus H200",
+      "start": 56,
+      "end": 59,
+      "note": "hardware-and-numerics.md"
+    },
+    {
+      "id": "S06",
+      "heading": "### Do not search for \u201cTMA2\u201d optimizations on H200",
+      "start": 60,
+      "end": 63,
+      "note": "hardware-and-numerics.md"
+    },
+    {
+      "id": "S07",
+      "heading": "## Memory hierarchy, WGMMA pipelines, and MoE-specific scheduling",
+      "start": 64,
+      "end": 67,
+      "note": "scheduling.md"
+    },
+    {
+      "id": "S08",
+      "heading": "### Global memory and L2",
+      "start": 68,
+      "end": 91,
+      "note": "scheduling.md"
+    },
+    {
+      "id": "S09",
+      "heading": "### Shared memory and bank layout",
+      "start": 92,
+      "end": 125,
+      "note": "pipelines.md"
+    },
+    {
+      "id": "S10",
+      "heading": "### TMA stages and prefetch depth",
+      "start": 126,
+      "end": 163,
+      "note": "pipelines.md"
+    },
+    {
+      "id": "S11",
+      "heading": "### Warp specialization and register reallocation",
+      "start": 164,
+      "end": 186,
+      "note": "pipelines.md"
+    },
+    {
+      "id": "S12",
+      "heading": "### Thread-block clusters and multicast",
+      "start": 187,
+      "end": 202,
+      "note": "scheduling.md"
+    },
+    {
+      "id": "S13",
+      "heading": "## Numeric formats, instruction selection, and compiler-level tuning",
+      "start": 203,
+      "end": 204,
+      "note": "hardware-and-numerics.md"
+    },
+    {
+      "id": "S14",
+      "heading": "### BF16 and FP16",
+      "start": 205,
+      "end": 240,
+      "note": "hardware-and-numerics.md"
+    },
+    {
+      "id": "S15",
+      "heading": "### NVFP4 on H200: optimize it as W4A16",
+      "start": 241,
+      "end": 286,
+      "note": "hardware-and-numerics.md"
+    },
+    {
+      "id": "S16",
+      "heading": "### FP8",
+      "start": 287,
+      "end": 292,
+      "note": "hardware-and-numerics.md"
+    },
+    {
+      "id": "S17",
+      "heading": "### `ldmatrix`, `mma`, `dp4a`, or WGMMA?",
+      "start": 293,
+      "end": 298,
+      "note": "pipelines.md"
+    },
+    {
+      "id": "S18",
+      "heading": "### Compiler flags",
+      "start": 299,
+      "end": 322,
+      "note": "hardware-and-numerics.md"
+    },
+    {
+      "id": "S19",
+      "heading": "## Launch strategy, profiling, and verification",
+      "start": 323,
+      "end": 324,
+      "note": "validation.md"
+    },
+    {
+      "id": "S20",
+      "heading": "### Persistent versus ordinary grouped kernels",
+      "start": 325,
+      "end": 359,
+      "note": "scheduling.md"
+    },
+    {
+      "id": "S21",
+      "heading": "### Split-K carefully",
+      "start": 360,
+      "end": 376,
+      "note": "scheduling.md"
+    },
+    {
+      "id": "S22",
+      "heading": "### CUDA graphs",
+      "start": 377,
+      "end": 392,
+      "note": "validation.md"
+    },
+    {
+      "id": "S23",
+      "heading": "### Streams and events",
+      "start": 393,
+      "end": 398,
+      "note": "validation.md"
+    },
+    {
+      "id": "S24",
+      "heading": "### Nsight Systems: first pass",
+      "start": 399,
+      "end": 431,
+      "note": "profiling.md"
+    },
+    {
+      "id": "S25",
+      "heading": "### Nsight Compute: kernel pass",
+      "start": 432,
+      "end": 480,
+      "note": "profiling.md"
+    },
+    {
+      "id": "S26",
+      "heading": "### A practical roofline interpretation",
+      "start": 481,
+      "end": 522,
+      "note": "profiling.md"
+    },
+    {
+      "id": "S27",
+      "heading": "### Microbenchmarks I would add immediately",
+      "start": 523,
+      "end": 584,
+      "note": "profiling.md"
+    },
+    {
+      "id": "S28",
+      "heading": "### Correctness and race verification",
+      "start": 585,
+      "end": 627,
+      "note": "validation.md"
+    },
+    {
+      "id": "S29",
+      "heading": "## Recommended checks, expected payoff, and experimental priority",
+      "start": 628,
+      "end": 684,
+      "note": "application.md"
+    },
+    {
+      "id": "S30",
+      "heading": "### Triton versus handwritten CUDA",
+      "start": 685,
+      "end": 718,
+      "note": "scheduling.md"
+    },
+    {
+      "id": "S31",
+      "heading": "### Suggested profiler templates",
+      "start": 719,
+      "end": 789,
+      "note": "profiling.md"
+    },
+    {
+      "id": "S32",
+      "heading": "### Experimental discipline",
+      "start": 790,
+      "end": 838,
+      "note": "profiling.md"
+    },
+    {
+      "id": "S33",
+      "heading": "## Prioritized action plan and reference set",
+      "start": 839,
+      "end": 866,
+      "note": "references.md"
+    }
+  ],
+  "recommendations": {
+    "path": "application.md",
+    "ids": [
+      "R01",
+      "R02",
+      "R03",
+      "R04",
+      "R05",
+      "R06",
+      "R07",
+      "R08",
+      "R09",
+      "R10",
+      "R11",
+      "R12",
+      "R13",
+      "R14",
+      "R15",
+      "R16",
+      "R17",
+      "R18",
+      "R19",
+      "R20",
+      "R21",
+      "R22",
+      "R23",
+      "R24",
+      "R25",
+      "R26",
+      "R27",
+      "R28",
+      "R29",
+      "R30",
+      "R31",
+      "R32",
+      "R33",
+      "R34",
+      "R35",
+      "R36"
+    ]
+  },
+  "evidence": [
+    {
+      "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+      "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "normalize_lf": true,
+      "notes": [
+        "README.md",
+        "hardware-and-numerics.md",
+        "pipelines.md",
+        "scheduling.md",
+        "profiling.md",
+        "validation.md",
+        "application.md",
+        "part2.md"
+      ]
+    },
+    {
+      "path": "muse_decode_layer/submission.py",
+      "sha256": "b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49",
+      "normalize_lf": true,
+      "notes": [
+        "README.md",
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "muse_moe_w4a16/submission.py",
+      "sha256": "c7854a71ad4639ed1c0ef7ff3013a831765344bf82f27caba15f034a030e03d7",
+      "normalize_lf": true,
+      "notes": [
+        "validation.md",
+        "application.md",
+        "part2.md"
+      ]
+    },
+    {
+      "path": "muse_moe_w4a16/TASK.md",
+      "sha256": "e0bb1883b0ba1be360cecb9c7088fa1e7af2c1ded22607154c1a91780c9aacb0",
+      "normalize_lf": true,
+      "notes": [
+        "hardware-and-numerics.md",
+        "scheduling.md",
+        "profiling.md",
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "muse_decode_layer/TASK.md",
+      "sha256": "22cae4f18fe204ab9d5a4aa34dae4e839363beb1f5967f33668a39d173507c46",
+      "normalize_lf": true,
+      "notes": [
+        "hardware-and-numerics.md",
+        "profiling.md",
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/g_native_patch_ladder.py",
+      "sha256": "b55ff6179da9278353bf37eab9a7c2303879df1357e4edff5f3bc131f5290cb7",
+      "normalize_lf": true,
+      "notes": [
+        "hardware-and-numerics.md",
+        "pipelines.md",
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/moe_owned_locality_census.py",
+      "sha256": "9c169b990c2c3c462fd2f6f867bc977aec9663a2ca99165b592ec30127f28607",
+      "normalize_lf": true,
+      "notes": [
+        "scheduling.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/moe_weight_reuse_model.py",
+      "sha256": "351dd5628332b3dab27cf859906bc103fe29dd34d1d6e97ce011e5e223b5f6e5",
+      "normalize_lf": true,
+      "notes": [
+        "scheduling.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/moe_make_bench_ab.py",
+      "sha256": "99e987aae63e128668c94a693064c8821e47b9d3be09194c72fe68e17c933d72",
+      "normalize_lf": true,
+      "notes": [
+        "profiling.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/expert_top100_moe_harness.py",
+      "sha256": "51221799f84e6a7bedfd6686be187294eda05fea4145b7511d90a396d8d9e0eb",
+      "normalize_lf": true,
+      "notes": [
+        "profiling.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/top100_profile_evidence/audit.json",
+      "sha256": "ab0516c292503a6f70de2ea4fc1fb6bdb96e77935f216f76af7894bc9f64ad53",
+      "normalize_lf": false,
+      "notes": [
+        "README.md",
+        "profiling.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-research-mainloop-overlap-decision.md",
+      "sha256": "b58474fea346a2562f7a884024ef6aa1603d94b34f207546b6a1d7923609b626",
+      "normalize_lf": true,
+      "notes": [
+        "hardware-and-numerics.md",
+        "pipelines.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-grouped-engine-work-decision.md",
+      "sha256": "7567e157319905360935f53e3352ff7d5b6942d6643c87b31634db0fe2f5ba20",
+      "normalize_lf": true,
+      "notes": [
+        "scheduling.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-broad-expert-architecture.md",
+      "sha256": "bbda792d24446d19a4c952acb45bebe5133ae91d2cad54b0ad09797530dd7a9f",
+      "normalize_lf": true,
+      "notes": [
+        "scheduling.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-research-flute-engine-screen.md",
+      "sha256": "629aa22e7ed526d0239658d1ca4df89b48e838cf44765f9aeaee783ad6ef8e30",
+      "normalize_lf": true,
+      "notes": [
+        "hardware-and-numerics.md",
+        "scheduling.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-driver-shared-a-terminal-and-direct-weight-next.md",
+      "sha256": "63de6e6f7c58f029c451ce3d2443defacbec2ac5bd3d2cd7e5525deef4b2289f",
+      "normalize_lf": true,
+      "notes": [
+        "pipelines.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-driver-direct-weight-terminal-and-dense-backing.md",
+      "sha256": "36dd359568fb24d35fab527fb70c77fbd0ad2ed5a0b3123ff50e7a004de63e2a",
+      "normalize_lf": true,
+      "notes": [
+        "pipelines.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-driver-k128-terminal.md",
+      "sha256": "cbd5bf48e3ad8c6f90472f190f07249c0c6e51e137743676c07d8de6c6ca0af2",
+      "normalize_lf": true,
+      "notes": [
+        "pipelines.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-02-driver-d32-mid-terminal.md",
+      "sha256": "d39af25d263d9b08f2dfa00399c488a1c8fd2c41267e8d1a049086c78e6f9f98",
+      "normalize_lf": true,
+      "notes": [
+        "scheduling.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/2026-11-01-local-cuda128-compile.md",
+      "sha256": "d42b25e4709e0ff9381c08c005ac360658e306c9feeb8990426fb0813f4518f6",
+      "normalize_lf": true,
+      "notes": [
+        "hardware-and-numerics.md",
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/ruled-out.md",
+      "sha256": "e375f30831d64978ef3c616dd16a1624126cf9cee82a2c39d0e716e50db6c546",
+      "normalize_lf": true,
+      "notes": [
+        "pipelines.md",
+        "scheduling.md",
+        "validation.md",
+        "application.md",
+        "part2.md"
+      ]
+    },
+    {
+      "path": "tools/moe_compile_check.sh",
+      "sha256": "de02c08f7b1e299879c898f7d712b5e87a417e6df96d9d7cb35488599469caef",
+      "normalize_lf": true,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/moe_compile_fused.sh",
+      "sha256": "9a2cf5f393d06933d0fb98c0064b68e13638e37afdeecf7fbe8fc4c3270c9277",
+      "normalize_lf": true,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/moe_compile_w4.sh",
+      "sha256": "c7df9c736dd61b01bdb75fbd3238d7415231d1d1aab425ae8753bdbb3c102f56",
+      "normalize_lf": true,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/moe_compile_legacy.sh",
+      "sha256": "a3eaa41fad2ec33fe1c68e17c58409ff76a606716681ee3b233a0256d38960f4",
+      "normalize_lf": true,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/dl_moe_compile_check.sh",
+      "sha256": "d67c5f07d6592517228f8f361c2305f800e4dc234765aadcc3e0653b1d9ba15a",
+      "normalize_lf": true,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/test_moe_compile_wrappers.py",
+      "sha256": "b42659d539368a366fcc8e905c275e56d729623187746734012e6ed8e6ca6307",
+      "normalize_lf": true,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/check_cuda_research.py",
+      "sha256": "44d56e420831c1d104821160e8d18e3c7908bf6a68f0e5edd5e50525565fc3f9",
+      "normalize_lf": true,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "tools/test_cuda_research.py",
+      "sha256": "be011a2dff930ab290aafedd0c3a33427de098c67db422ebe1b2a1771f15b945",
+      "normalize_lf": true,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-cuda-research/before.log",
+      "sha256": "781279f9878aada63cba50c6f0a26db01652121c7896cc21aebb05a19b6f6f95",
+      "normalize_lf": false,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-cuda-research/after.log",
+      "sha256": "2e492d07d1d255b957b3f1bb74b537b61c5a41ae4c0142d965725a61b7272e79",
+      "normalize_lf": false,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-cuda-research/device-compile.json",
+      "sha256": "16cf65735ac38857904e6ef920aa3d918b9dac16ace96951e9649eb59910bcf4",
+      "normalize_lf": false,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-cuda-research/device-compile.log",
+      "sha256": "40408a7829f81ecbf16b0c7adbefa8d5fb189b5e509763126605a39a0c9b8e4b",
+      "normalize_lf": false,
+      "notes": [
+        "validation.md",
+        "application.md"
+      ]
+    },
+    {
+      "path": "docs/research/cuda-h200/part2-source.txt",
+      "sha256": "74d4615add14874542c814d6e93db98ba2db7091334bdda4e33ad126a47e0afd",
+      "normalize_lf": false,
+      "notes": [
+        "part2.md"
+      ]
+    },
+    {
+      "path": "docs/research/cuda-h200/source_corrections.md",
+      "sha256": "e33be03b69fc36cc00a51b1dafdd12cfa4f0ef099bf4f1e41f1fd19c9e0944a4",
+      "normalize_lf": true,
+      "notes": [
+        "part2.md",
+        "source_corrections.md"
+      ]
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-cuda-issue-groups/status-wait.raw.json",
+      "sha256": "6d654ab15b5b71e7ece73e8a55c9a326348e2fb7cb9c6b591c7c4971b8ed5d6a",
+      "notes": [
+        "part2.md"
+      ]
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-cuda-issue-groups/analysis.json",
+      "sha256": "a4140667b6ffc26d74011e844f982f3c6074bb33140f36bd61be1f7f412fa11a",
+      "notes": [
+        "part2.md"
+      ]
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-cuda-group-scale/status-wait.raw.json",
+      "sha256": "ae0b281bbad9235d134c31a6804c1d237d67a0ff4cfbf7e79851cae417ce137d",
+      "notes": [
+        "part2.md"
+      ]
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-cuda-group-scale/analysis.json",
+      "sha256": "f18b531ac73438c87fc0e40c0efe87c59fd061b21fbda5dce3f0a31b9ce7b20f",
+      "notes": [
+        "part2.md"
+      ]
+    }
+  ],
+  "claims": {
+    "README.md": {
+      "units": [
+        "7b5568fc7ca484556264998fcc76e7365200df6599b87ad70e5407f36b12c075",
+        "ef65fd96dd976cdf9fc1f27caa7f04fc927829e72c7f497b3b70789dc1110c5e",
+        "8d3e7aea33c701ef5bcc5f84ae8a77461b729084cc179d7039dba6ed73c3ea4f",
+        "6d162aa9fb2614ecb594c84306b7173f507cc2ac682a21b0108215582a11a63d",
+        "70716848e4db38ba253f5da27c9a8d5f0f0aac5edcef211d43504e7cde78bc36",
+        "2725049b3b6e99d1a4aaeef00315b0acc28bf2005754dd6327b794354c7e4182",
+        "daba9338c3822185d099d0be4f6a96117d679a6a660a28de5aeaff63cc6df4d5",
+        "3db993402fa75f2d241d4fb6b3f25b2992e8b7fb9c6700298c98d72ef5e45f5b",
+        "3aabbb1975cc7a036bc896b61159f8b744dc576f8993847997f3368c9e961dfa",
+        "4199ba454d6d3ae83657120c2bb6bd674eefc0dd7d3cd4cc844171dc6725135b",
+        "cd67c827ca0375d276e21353ea37e649a2cda4fd37638c96723bc4366add93b2",
+        "510cdf88813f5b1c3e45fa72df780f28c8d5b416bc09cf605f18fab9a67c3cd0",
+        "e4c4fbdd3440672369b2946ca9b2f93bcc7ce80229d64cf9ae64cecc765999e4",
+        "20fb1c1026025473d6948101483474e0bbd6db03aa4bc902948c7da4254fa76a",
+        "0107e3e11d1e4536b978b5386abf0c7829b128897f919e33b7450b4c6cf4707e",
+        "805fa314e1f0b091be3f13bad15f8cf17f2d92b9375797da2609a0e518cb3c07",
+        "fcd0b97df7eb38ace950bdd2944c347a84093263180f6b0b3d8caa44c39d329b",
+        "1b208aadf49f409a5923ca29ba624fde5ec13850afeab3399a04e4fac52731d6",
+        "192356d866af4c74070733c93e331a8eddac4321c2c58798b2458f9fffb34fc9",
+        "425622972c50e77bc422b90ae3f6df30040c346c2d5bd6e65801a3d1d9fc74cf",
+        "076f72b91885dc541059e033fc9340a8dfdd82328e5582605a4c4df1230b0f25",
+        "85eca9b5fd5c76a1e4437931887b034915d7b2ecf1a70a510b471c7d4bcd04da",
+        "9bd268c6a207811bc3faf1172752103b707ebdd0c2aa14f16b20705689920d02",
+        "2cb956c10c840e41b1d0134a8029fded07ede51178d203a364dbd14c963b6c01",
+        "c89e6249bc1022f30817cd44ded628a8c52ef86d0e39184bfaf1abd0fe8f04e7"
+      ],
+      "evidence": [
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "muse_decode_layer/submission.py",
+        "tools/top100_profile_evidence/audit.json"
+      ],
+      "source_sections": [
+        "S01"
+      ],
+      "primary_urls": [],
+      "depends_on_notes": [
+        "hardware-and-numerics.md",
+        "pipelines.md",
+        "scheduling.md",
+        "profiling.md",
+        "validation.md",
+        "references.md"
+      ]
+    },
+    "hardware-and-numerics.md": {
+      "units": [
+        "42ee3962cf332ac17b55fd66b32efce3f4bf0d04152699174616987a916c86ae",
+        "bdd77bef3ccbe5a664b63c1bd6000ea982752c1123be1690c9261117b154323a",
+        "35fb01a95c4cc2d96338d01d0a5e6e8f1ce02712121067e9ec1c38a4e78604d6",
+        "72dc05c338a992b91443091198db623bbfdc6089a2c22f88f3598ebf551e4c0d",
+        "0bc1ae0500921b875b01f133e33d760ef44c4437205e86569ef036408870d59d",
+        "eee65c1b6b950f0f3c9bb4f32774a68671d81ce4928e48d88b00d07b00f37586",
+        "9afc1d9f19aafac4f68277b932c79e662a685271da0c4d695d97132d7d67bae0",
+        "c54d4e9f88b69bfe665a2935efcbdaaacf3a300c2c423d51b0f5014141f72618",
+        "72b11c9000546b9a028604cf9380ba6c228a13436d25f2fcfa09c241ca432c9d",
+        "4d8aca06038aa92a4383ad54bfdefcac7ed5a5ff66e88b8fd469510b5e43f4ed",
+        "1332f15f52b4db6c44a38f1ed091bb570d1141bc52a80e58a04aa932966bb033",
+        "06e8688880040b2047c946ec4fd767e50eecc37a7baa4305b44dc5e8cbead446",
+        "23654693f05fbbd3696faf15389f9200b7520b1d40609f2b2792734eee763aea",
+        "829340854942a1000afde7f8d420ac4178359408d88669697458ebaba85508ba"
+      ],
+      "evidence": [
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "muse_moe_w4a16/TASK.md",
+        "muse_decode_layer/TASK.md",
+        "tools/g_native_patch_ladder.py",
+        "docs/steering/2026-11-02-research-mainloop-overlap-decision.md",
+        "docs/steering/2026-11-02-research-flute-engine-screen.md",
+        "docs/steering/2026-11-01-local-cuda128-compile.md"
+      ],
+      "source_sections": [
+        "S03",
+        "S05",
+        "S06",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S18"
+      ],
+      "primary_urls": [
+        "https://docs.nvidia.com/cuda/archive/12.8.1/cuda-compiler-driver-nvcc/index.html",
+        "https://docs.nvidia.com/cuda/archive/12.8.1/hopper-tuning-guide/index.html",
+        "https://docs.nvidia.com/nim/large-language-models/latest/reward-model.html"
+      ]
+    },
+    "pipelines.md": {
+      "units": [
+        "92fff237eff291b6ca6523da8c07b24e1d42af9900032dda7da3750d58279f6f",
+        "ff3c7b6df322f84d7e4f9ab1a4a0ae8c05bcffc412e37b9ef487b0dd88da688a",
+        "59df2938873f5d6bb1f02590ea42f0ce61ba710e21367dfdf0774629bc0eba73",
+        "8175298485841d970e8db00b83c0fd894df67c55fdfb806168f89c2c57f48933",
+        "f6ad6e6ff3f1c0725daed82f754195199f0c57f5ae931e747d07613cc6a46eb7",
+        "b610a2ade15441efcae4aca52624973b04d9f36c4770c49e2fc1ea0b2fa27cba",
+        "42860f8e20590959df32bbde0323fb14590b34e6d2ec32a7ae1478a3ca9f2af7",
+        "2bfa46f246a0da8e2be9099626a22afc3d371ee2cb8ce31e56abb7751604e375",
+        "ba9ac9f463bbb53609db9d6d5afa58269812375d32d28f125e41b088f74e8a9b",
+        "3dc71d549bce92c128069c51fb9180aecd50f4b731ffc20ab37a1f6a1e103f55",
+        "c33bb846c95e1cb1b1e1198fd53c48fcf4da3c1c84f75f295a751f5e81e3deaf",
+        "d6dd18bb9f58bd390d37cbde5d1f898d0c0ef9d37f4154fec126451f3cd13cd4",
+        "0fee9786992f5bae940f19216dde82a2cabb9c7c790bad679d733b850d7bf8d2"
+      ],
+      "evidence": [
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "tools/g_native_patch_ladder.py",
+        "docs/steering/2026-11-02-research-mainloop-overlap-decision.md",
+        "docs/steering/2026-11-02-driver-shared-a-terminal-and-direct-weight-next.md",
+        "docs/steering/2026-11-02-driver-direct-weight-terminal-and-dense-backing.md",
+        "docs/steering/2026-11-02-driver-k128-terminal.md",
+        "docs/ruled-out.md"
+      ],
+      "source_sections": [
+        "S04",
+        "S09",
+        "S10",
+        "S11",
+        "S17"
+      ],
+      "primary_urls": [
+        "https://docs.nvidia.com/cuda/archive/12.8.2/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-instructions-wgmma-fence"
+      ]
+    },
+    "scheduling.md": {
+      "units": [
+        "7ad0ebdf7ec354cfb5a094604b77f4345748c013327ec9f5dd0aee051c19f408",
+        "32e85681ff9b7a18c7cf81e794c51f89030af60022088dca2b9f35f96fa5ec4a",
+        "421a699431ce7bf825acf61657db3ccc8b2f06fbeaaeba96922d65793e3cf046",
+        "0f130b70fafa69b4e54f3d7a1e6ee84cd0121011c9776d9ade0893d2149c38f1",
+        "dee945ee02af199ecc55d725a8ce79b937ef3ebca0e0c988c3adb49ea921480b",
+        "2b44faf6b483f927fbd6afd05e1432d10bab179374f7b9ba0bdc8565ddf162a2",
+        "7fdef4442322985e82c0a22ed06abf9c66bd455137a9569fc9cec85190305260",
+        "402bfdb832ec25f243232888b7527ead11e226ebb4d9e944c07b156555683f5a",
+        "9b4ef4e8dcd1f96b32c632c4c0367c12f7e6ada25e709d4343f601e1430d0040",
+        "02f79be0536fe571ffae409c78eee8a4b4274c1a4850328e5a7e47a670dab2f9",
+        "6ff50fee71047324c2d4a78d988bc85599dada560924d250abcb99de0dca9c72",
+        "22fc2bd589f61b41d393cd74d900c0dfb9824c04d679abf057f6e75ceae5e21c",
+        "ed3238e9224409119e38a14a21f01735f8e2a745165826d31b2dffc7f9e82c4b",
+        "f1e2c9ae2ef11e9cb484556180c06968378871cc5d1fecb5c4df810e6877a832",
+        "26aaa246064938982cb8c484abcdae07d425fe990c84cc139695b192a8c7d99d"
+      ],
+      "evidence": [
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "muse_moe_w4a16/TASK.md",
+        "tools/moe_owned_locality_census.py",
+        "tools/moe_weight_reuse_model.py",
+        "docs/steering/2026-11-02-worker-grouped-engine-work-decision.md",
+        "docs/steering/2026-11-02-worker-broad-expert-architecture.md",
+        "docs/steering/2026-11-02-research-flute-engine-screen.md",
+        "docs/steering/2026-11-02-driver-d32-mid-terminal.md",
+        "docs/ruled-out.md"
+      ],
+      "source_sections": [
+        "S07",
+        "S08",
+        "S12",
+        "S20",
+        "S21",
+        "S30"
+      ],
+      "primary_urls": []
+    },
+    "profiling.md": {
+      "units": [
+        "78dcc568ade043dea9272701f3d4424756717a2ebecb3361654328aeb1408d5f",
+        "e38a9e17810b8fa2f04a82552a436c010ef209c78adf759e5ee085234856a52e",
+        "ed710efa426a9aa3a0b91b1248332726b847b6a0bead2069281b0f860bf34235",
+        "e8a21193db8b7be1b5f1d80b4d27bb09c79ba8ffe04508cc3059a9444b6e65bd",
+        "d6d0e6b083d31cde0b0ac2cf276d107c2593d95a803c3286724751a43b3efb22",
+        "7dd8d7dabe7d36b4967251f0600dd0ab5e73647b188f2229a6b8904258cb4329",
+        "3fed2a5b6af307548e5cd5ace8ef5dcc85393a94c2dfb26cd48965a0cd7db15a",
+        "5e3ac5d45eb16ae121a3784d943af7ad282e6db77ca03e920be08769622d4f81",
+        "43b476e6917c45f2be266ee475c4df1fbe6b0d30e7be92197a108c5f344a6fb6",
+        "af6904f218b1aa1c41efd66adbf6c0fa54175055d593a1a5f1b45aeb4c84dce3",
+        "ddcbcc7671c4084c89175da4b41c9a15421aa4c8ab4409686eb2a10749c58dc0",
+        "088df77634255e62cc7bc22bef4b7de00f9f9234a3df8f846b5bcd6ae88d287a",
+        "601aaca7ac79e25f6ddb04e31227a0f1ca99b22f89170f2d45eee3f5d8c4c10c",
+        "5f4ab813668d97029153d5870a970759da88e3cdea9936e32fe95d1e89b53a73",
+        "f8e64d2b98f7f558e52c192c1425510867c8d4617cd12640848cec8cae427356",
+        "ed9ace891ecdeb2a520f86345801993d4d6b29dbdd29e6a6623ea6325e134c82"
+      ],
+      "evidence": [
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "muse_moe_w4a16/TASK.md",
+        "muse_decode_layer/TASK.md",
+        "tools/moe_make_bench_ab.py",
+        "tools/expert_top100_moe_harness.py",
+        "tools/top100_profile_evidence/audit.json"
+      ],
+      "source_sections": [
+        "S24",
+        "S25",
+        "S26",
+        "S27",
+        "S31",
+        "S32"
+      ],
+      "primary_urls": [
+        "https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html",
+        "https://docs.nvidia.com/nsight-systems/UserGuide/index.html"
+      ]
+    },
+    "validation.md": {
+      "units": [
+        "c4ea4332c98b9909f9f0bbdbc06d9d1d9d4b18b5177820bebd187be3c99b0238",
+        "a218abba92bf706c7ef47db47459de4c00386f02ef4f17303b698db2cf5cd85d",
+        "03501488bd24e4e089f74f88efd1f02715312b060f1e0b7b4617b8ae1d2c4478",
+        "2b56f99a7e9a42673b8e38941c77fa55d9bdb24487ac3c036c9bfe0ae8e4c560",
+        "508fd692b3efee74a172dc7a45f1ecea3ca928c0476780eca7e9bd9517b73db8",
+        "809eb3ff1f9ccbabe2317cda1362b5c4b01de317f94dccc4b9806c7bc5e7a299",
+        "5a978163678b88fd2f85077f4e8690ea0d15d5e2d22faa3f0aa1abea67cb5246",
+        "c22cf02520bdf41061a64c4e1cf63b2503499ee72865a04c83c96235367b9018",
+        "64a63ba713bd3a636baf925a7980ae6db2d1ca0c1c85cdc818e26c635df0dd4b",
+        "6991e95ebb7cde5cb90f89971f2a24df9c5e7dc0eadb5a0b21a2cae87ffa769a",
+        "0fe43a5c69db5378ec4bd462ae77bef183c6d161f86809e796bc4dd13d1f4dd8",
+        "2feb19472bbb2abd28d47602d11bd36dd6d1175dc5c91e9a4e59fe73667f71db",
+        "e0c064cb173f9dacdcddee729dff3c049d9caaedb146df35b4b440f0510f51ec",
+        "267a23ebe6ead1e558ac94ea47d3eb9b68096539d0ef2840f691a6afb042df16",
+        "01b2d6bbdf4b9d4bfacff4d927824a25cd91bf21cc619ddb908d855637ae616c",
+        "8ff6409dce574485a87c3c00d0d44f0e5ed83adcd60e56b65647b74c0f0131c0"
+      ],
+      "evidence": [
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "muse_decode_layer/submission.py",
+        "muse_moe_w4a16/submission.py",
+        "muse_moe_w4a16/TASK.md",
+        "muse_decode_layer/TASK.md",
+        "tools/g_native_patch_ladder.py",
+        "docs/steering/2026-11-01-local-cuda128-compile.md",
+        "docs/ruled-out.md",
+        "tools/moe_compile_check.sh",
+        "tools/moe_compile_fused.sh",
+        "tools/moe_compile_w4.sh",
+        "tools/moe_compile_legacy.sh",
+        "tools/dl_moe_compile_check.sh",
+        "tools/test_moe_compile_wrappers.py",
+        "tools/check_cuda_research.py",
+        "tools/test_cuda_research.py",
+        "docs/steering/evidence/2026-11-02-cuda-research/before.log",
+        "docs/steering/evidence/2026-11-02-cuda-research/after.log",
+        "docs/steering/evidence/2026-11-02-cuda-research/device-compile.json",
+        "docs/steering/evidence/2026-11-02-cuda-research/device-compile.log"
+      ],
+      "source_sections": [
+        "S19",
+        "S22",
+        "S23",
+        "S28"
+      ],
+      "primary_urls": [
+        "https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html",
+        "https://docs.nvidia.com/cuda/archive/12.8.1/cuda-compiler-driver-nvcc/index.html"
+      ]
+    },
+    "application.md": {
+      "units": [
+        "212e2a34e752b971756380d2342ade98f8aed02f676c5f8edcf3020cf69d4bdd",
+        "e291d9562513d202fc69df073da90d8e580a82df1c06f48f02d06aad1e0187fe",
+        "652ff7f5e84b2ee1bb67c1bec0d4dedc34ef2bc8e0ed3598870230263eb1bb4a",
+        "81b0f9c138ededf453e7936acdc894dea41fab3dfce589ff9aa9e6a21112e595",
+        "23cca02b74f386463efa24796c7a9011b0d2c93f0c38b4d15d5d276205b59b43",
+        "9830fcc444ae30c19224111be8471e5f567d9d0c730084d9526933b5555b5b3e",
+        "b2f38e1b4182ca8bc8280e2bf7ab896d49454a0de109c067639771a349f15309",
+        "861a1d1bc11f27088547cc674075375483a788e4c4ddb07b74b37c08565c957a",
+        "f452e12d0fab6174fc4409211b47a542dfaa07a64fa18d42d3ccdccbd29fbd6c",
+        "de360c71f74a28aeb9c2090405b72da3a0e918f427e9bbe53a68fcea800bf1b5",
+        "9f491c38d0111ff7c4537a7d98f8afdc2711040708a895435c3e2a99399d1311",
+        "b66e2b789235fa072fe98c82066e7940f719d7421c9fe406a2b37c08491d8ff6",
+        "54024e03c329f2d79aa8a354662ea0c6f798cac8c98ada10daa6c30bbd719ea0",
+        "3a6a0923bc4e0bb89bcd84b604e21d01d6fd52cf126c926dd8490db1db22d3dc",
+        "37654cbe5a1eed216de9259d08fc3ab706609cfa4b46bb91848968a4d7249ad7",
+        "3c81a0051221fb0f6a664d3641aec35c98978225d96b368bcb4c1208e8832de1",
+        "dfd0b444eb98cc895a79092ee89fd5720dc97d70c015edb7bf57cc1cfa367a71",
+        "71f284d9f33d1ae6e29a4c2e4faec4a3b662c430d8ea752c162b4f81d29e7b4a",
+        "72cbfd3d064cd3d4b9742447a7179cf46ec4020ae340af2c41b9cc33b1a0c4fb",
+        "945cc1891248290dace2524829187ca52606dabdcc2d47bb31391431bd9a6100",
+        "dd8a262081c07553fd7e78be1ce78888267515575f11c3bbf3a75624cf663bcd",
+        "6e73818434152b657a2f984fd93d762bf364daa781fcee46ef88538fb02925aa",
+        "2b32c7d5befd6bd6cb38fe52515da7e48a2333b11eff17354ed0c14f72fc07e3",
+        "8ad6460a8d4fc5794eabe2c259b80e425601a91c40832e8d4cc8d2af36f5ded3",
+        "9aae10abdc558203048b3baac8c503bcc01a9713362ecdfa9cb46d15c03aead3",
+        "df7f355b1eedee214c024141458d85201f01a34caa3b51c97cae68d9e6860d0b",
+        "56390ecd2fd4c0b75c9aaa30101b65f984a700bb77eefa3d32cba04d135b3e9d",
+        "8e16676a3446c0c281e70081a0e076fd0ce7b13c99e835bb3bc496a28c51a9ba",
+        "edeae30125fa19e171c23fba4825c5fa09aea2a907d42642bd056f28f8978312",
+        "99b58cd728c1768759cb33db5385ec5be397df91f0cf2bf5c091553b37ed7635",
+        "ce6718a59c6665e3b2b3e2a3a805c029a61ac365d1d4b4d276d7f87d6b2a1d96",
+        "3b20c9467211b111b8059ec6d338b2b1e7db9359ff40bee3c235f262297e95e2",
+        "5658273ddc5124b4edf9253fd3cd77b8462df9b19dbababc5777e456f9413e11",
+        "0e9d87b52c6c6160e0b82f340f772e4683bf1ef13604c8ed75886645db56c024",
+        "6e73d138576bf962eebd521df6ca3be03ceb4ce9d6d9e13664d682a79530e83b",
+        "a7c7d97a0ebe3c039c33eb62bb0bd0b2e62fadb117d3f8cffd88c6b31b16314a",
+        "6bd1d1b36286a7f7d0bd1e9c79d8a962596dab08cf2d7095720a7cdbf32b15a1",
+        "4ee6155034402f33ab0f9f78e08e0013f5aadbc621f3427976f944ac6ed69008",
+        "f66b76ec1d6a9f955097c1883030a13f6a9a0bcf85fd1175154dee1f2a2baaed",
+        "baff67f0d6819cf13c975f1f841263b6ed14b337196b885b742e67e52d04f8fc",
+        "bd58c52cd4029136ef137bf097b1016804107c536d0d5a9b6c1758d1d2f0c5bf",
+        "04e7e264a7f4f7d42c921d836dc89ce1829a20b0a0f35c0ad5e8b7d058f00f22",
+        "f8b0c69a001cdc2130329b1f72a8c4c1acae0adf328f10e182dd255847d1a5bf",
+        "46e2f679df5e8fc66d105cd4e4aecd47f51e835a030663433a7a90635d6561a7",
+        "9faa2be33755e1eaf55d0a90c1d23f475a020aab19865e81428a00edd88e67c8"
+      ],
+      "evidence": [
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "muse_decode_layer/submission.py",
+        "muse_moe_w4a16/submission.py",
+        "muse_moe_w4a16/TASK.md",
+        "muse_decode_layer/TASK.md",
+        "tools/g_native_patch_ladder.py",
+        "tools/moe_owned_locality_census.py",
+        "tools/moe_weight_reuse_model.py",
+        "tools/moe_make_bench_ab.py",
+        "tools/expert_top100_moe_harness.py",
+        "tools/top100_profile_evidence/audit.json",
+        "docs/steering/2026-11-02-research-mainloop-overlap-decision.md",
+        "docs/steering/2026-11-02-worker-grouped-engine-work-decision.md",
+        "docs/steering/2026-11-02-worker-broad-expert-architecture.md",
+        "docs/steering/2026-11-02-research-flute-engine-screen.md",
+        "docs/steering/2026-11-02-driver-shared-a-terminal-and-direct-weight-next.md",
+        "docs/steering/2026-11-02-driver-direct-weight-terminal-and-dense-backing.md",
+        "docs/steering/2026-11-02-driver-k128-terminal.md",
+        "docs/steering/2026-11-02-driver-d32-mid-terminal.md",
+        "docs/steering/2026-11-01-local-cuda128-compile.md",
+        "docs/ruled-out.md",
+        "tools/moe_compile_check.sh",
+        "tools/moe_compile_fused.sh",
+        "tools/moe_compile_w4.sh",
+        "tools/moe_compile_legacy.sh",
+        "tools/dl_moe_compile_check.sh",
+        "tools/test_moe_compile_wrappers.py",
+        "tools/check_cuda_research.py",
+        "tools/test_cuda_research.py",
+        "docs/steering/evidence/2026-11-02-cuda-research/before.log",
+        "docs/steering/evidence/2026-11-02-cuda-research/after.log",
+        "docs/steering/evidence/2026-11-02-cuda-research/device-compile.json",
+        "docs/steering/evidence/2026-11-02-cuda-research/device-compile.log"
+      ],
+      "source_sections": [
+        "S02",
+        "S29"
+      ],
+      "primary_urls": [],
+      "depends_on_notes": [
+        "hardware-and-numerics.md",
+        "pipelines.md",
+        "scheduling.md",
+        "profiling.md",
+        "validation.md",
+        "references.md"
+      ]
+    },
+    "references.md": {
+      "units": [
+        "a805d67a616e5cb5aaebb8d32aa3b5c0d6e4603d40a93f8a0547fc3149a8c33b",
+        "79f5e70db683cc419c07826e4a1dc286b6499eb287b8cdb40e919c84e4d30b59",
+        "c8312c2c3231bc7f0362a366c381661a99a3717976d46d8b47eedfee5822d780",
+        "23cca02b74f386463efa24796c7a9011b0d2c93f0c38b4d15d5d276205b59b43",
+        "837e29f7d482c2a74a8103cffb550513a56ea9be71d9d405ed2e2775206e0919",
+        "0e2ea007a28fb01ec64810ea9e7b4fcbc84e76c465e39756fe6487ef6a551cf0",
+        "d869eba1c5e79b651f44a3d8efaf4d45529291316f34ec17e5295da0189373c5",
+        "cddb16a57e8ed36434a933b00bfd26e87f1df1b0905b0a08d9fbf4d86e2385c2",
+        "1e2f25376a2088a58987d230654e2e98a314964774c70a6332ea78ddfc917fcb",
+        "f92b0f68a9f63ccc681ae41bd89909f8a2ac473e0e506330cfcacac15aaa84c2",
+        "8fb0dec2a094334b1bfb4272f1cc7484569f64c8a831cb63b046a3cdc38c1a12",
+        "3f92bff1ae23c5b18ccb7ab8e170d70e6cec3d5e0076a1c5242e0d09339c25f9",
+        "46ec41dc31c40cbb2ce6d931668f9ed355f65b4479aebdcbf55e28d5ba8cd4fd",
+        "e05e1cb11b1fb989413dd7d8cc5b67d2aeb98bd985582820cf07184495dc51a8",
+        "7af05a4d3b88aff02ca6cdd62d4f75b613e4680ce2626811a7f08875db63f213",
+        "48644a6540b925b19b8ac59c04a9fea4c3a4555d88290ca022be8b7a6e9827db",
+        "ea496a655f6be97a6c00a077934b5c563b7738d4a2066bd2f4c21ab03a760c26",
+        "0fea6cfcc5da86277c027db2f26697c57bee2b91db2d681bc593c7d85bffd521"
+      ],
+      "evidence": [],
+      "source_sections": [
+        "S33"
+      ],
+      "primary_urls": [
+        "https://arxiv.org/abs/2301.03598",
+        "https://arxiv.org/abs/2407.08608v2",
+        "https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html",
+        "https://docs.nvidia.com/cuda/archive/12.8.1/cuda-c-programming-guide/index.html",
+        "https://docs.nvidia.com/cuda/archive/12.8.1/cuda-compiler-driver-nvcc/index.html",
+        "https://docs.nvidia.com/cuda/archive/12.8.1/hopper-tuning-guide/index.html",
+        "https://docs.nvidia.com/cuda/archive/12.8.2/parallel-thread-execution/index.html",
+        "https://docs.nvidia.com/nim/large-language-models/latest/reward-model.html",
+        "https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html",
+        "https://docs.nvidia.com/nsight-systems/UserGuide/index.html",
+        "https://docs.pytorch.org/docs/2.10/cpp_extension.html",
+        "https://github.com/NVIDIA/cutlass/blob/v3.8.0/examples/57_hopper_grouped_gemm/57_hopper_grouped_gemm.cu",
+        "https://www.nvidia.com/en-us/data-center/h200/"
+      ]
+    },
+    "part2.md": {
+      "units": [
+        "87f4ae8f7025470b593de6ad96da61c70d993998c39c52ea11168e5e15adf135",
+        "0e5f85ed9679e422dec7af322278493d7ad5de6ca757159916b950be7be5c79a",
+        "43d1788f4aab258369b39756a29e5ec2d828dda1871e27e5938aa208e5adebbc",
+        "079b9161041496f4113d9e4be67ebc6efa2376ea516fd1b09ae88d31990afad5",
+        "efb94c255ba3d2c497b5a59718cb6a80388db1224044d2bc7866014ed0c924c5",
+        "be1d16460b56f380572646e3f3f3cb7755e504be8ce54503800bebd365bdc78a",
+        "677d2bfdf11424491e29bcacc3eae8b719abd787d793b9d2dcf346e5be89fd15",
+        "0e66f586fc6d3e65a4edaec7d6939f7432004c09a83f436af61c4e82b4ebcee7"
+      ],
+      "evidence": [
+        "muse_decode_layer/cand/g1b4_stage_release.py",
+        "muse_moe_w4a16/submission.py",
+        "docs/ruled-out.md",
+        "docs/research/cuda-h200/part2-source.txt",
+        "docs/steering/evidence/2026-11-02-cuda-issue-groups/status-wait.raw.json",
+        "docs/steering/evidence/2026-11-02-cuda-issue-groups/analysis.json",
+        "docs/steering/evidence/2026-11-02-cuda-group-scale/status-wait.raw.json",
+        "docs/steering/evidence/2026-11-02-cuda-group-scale/analysis.json"
+      ],
+      "source_sections": [],
+      "supplement": "part2-source.txt"
+    },
+    "source_corrections.md": {
+      "units": [
+        "c935a7f3fac2f2c1c8267b8c374c8308b2d9e48ed1c02c728f22e1362d5efdc3",
+        "f8c08e7895ea9f78a14cddf6a26e4b2a7a9a5d5e7b8ed4a2052bf88cfb1cd515",
+        "854dd5c3f30e55300a7063281ed6c746c1be7ba0657c75a4696aa4b908283570",
+        "d013912e3d297a6a14bd2d072374e1e53ace8f8db5b514447fc7ea8ffe66c58e",
+        "b3b47d4188033b42f3947ec8abcaa3c8b8dc5d914966777e7baa63d3a7c542f6",
+        "a57102d0dd7e2d9f19e9abf7df4b0946507ab0f7d2ec2587f566a68eaf4d2455",
+        "73bdc5e5bff7a92295fe06c5e77596e193b6f2d849fd5dc88bced7bf6aceb8bd",
+        "a664b0fb53920bfa00698d065d0bb043dcc4b9a4314b83d8986cfd38b35a998f",
+        "cf5fa024124f12f4ab2d91552e7e91cda099754ceaea132c1ba1cab39397b904",
+        "438a770c076709c1b06608240f4e7c45060996083c5d9a4aa85e660d8793289f",
+        "e743290f778bd56426f1ccf7f2862cf7565d66dea033e25539aa4803dcffe932",
+        "af76af3de37ba8dfc4cf7cc1b4defe191bd4bf248b13d9e64cc171e236ce05a8",
+        "c92ff4a31bcd85dc6e22dca486d6e32f7d3ffba8645991585949e5c510c1c173",
+        "378dbfd18f2399cca325ba44b18be85b31c3c84cf7f7b6c94c6b1d2863600476",
+        "7211082a256e216cd4ab59ad08e69abb148a2e25907ab76c9445723fbe72d9cf",
+        "00322b544383d247babbdcd1ad93d5ed7ebb2d92f137259dbaa539a656b0c5be",
+        "3400c88511f618eb0041b785cb754ab397616f2ed3b50f8909459860cdd561bf",
+        "d1c5c45a6e6475848d1b50d0e294cba5d75203c8eacef8a62b4aa50c47526c73",
+        "500f18622b1118896772c24ac2b41677d6383f9b32a1d8c9936737ee47075566",
+        "5c10757f644b7a5dbf51d9f2cb4739c204c2459ae39a4df76f43d9ed5ecf9fa5",
+        "6df77c2db2e899fcaf9f0c180b21f7802634e48ba01268d51cf5cfcfa6a67803",
+        "309ed5cf76b1044ad4f4b7670cca7672e272b1c881b034aa8387529a525f2e1f",
+        "df18cb13a5a802fd2c400619597aaee5990cd9593d920cb2614bbeeffd48daed",
+        "8cd7d6e5207a295575407baf68acb6ea35a1a7b5debc00abab6d4b1b5c53e7c7",
+        "98a214d93dada1f025a1b11b40468ed6afe7d4c97b7f1729fe1262c8072fca72",
+        "93732f048a167fa98794f6771d51d2ec1bee47928e1bbb62bbcf50684db3cf8c",
+        "34900722155cf8e76bb6289ebbf573b4d2b56d66c51ee851c11c4d2059cfa9b3",
+        "b16450098fd7c0846829eb501a40eb4ed2a16aeb72e8141e7c575252a915ebcd",
+        "85050632d50423e5cc8b743eab3dd9b475630fad8a20be307bc8ae3726490597",
+        "313c0883e2c93e067cdc95190e260607a7c37a2f0fd73e4f555bdf4558146267",
+        "da91601e0d577a908a820e1420316feacc056bb22be79a1a78c2e3d2b116f7f5",
+        "b02559b4fefc7b641bdc7f2a6efe34515a3ee5bac07ceb867be8df8cb9c68514",
+        "d42b46fbc8a6cda3f4c31eee8b62339170ff520fa09ab26c6bacd50d766c507a",
+        "eeee3558d67d7376fadfa3eedb49870f21aae2fa1612133ab7797634ed5e0f28",
+        "cbc35f0bcf10c76155cd849e251bc06b5d05e89acdd87cf2394fb136cdf8af53",
+        "cc4db2db30f9ea0fb1df6d3d7ba2be4c140064414dbc3a0bee1c5636ec4ebc39",
+        "2d68f8dd7aec3fc41a06872a5efa117e52b34ab1d6e4f14be3f4792b9803b16d",
+        "981fefa5f1e849d67a3302ca431b415810e544b96f3db9243a4cc6ef5f4e15c9",
+        "5216b1e8a57e73532d3874e3a6410a8132ca3845657735c8b4b31ffd1a0621b4",
+        "73ddce69f06862478b3915d558ffec12b6bb2fe136460153be68533dc5033015",
+        "6726d4995ba57e5bc79a133bc8fa2b4fd1c430f22603c9f8c61b9b382370008b",
+        "a2f2b37b1c31262a396aa89ce2011f12fc29d4ef3230284be30d6e5ab089469a"
+      ],
+      "evidence": [
+        "docs/research/cuda-h200/part2-source.txt"
+      ],
+      "source_sections": [],
+      "status": "Supplied research copy; original source qualifications retained, not a new independent four-kernel audit"
+    }
+  },
+  "supplements": [
+    {
+      "path": "part2-source.txt",
+      "sha256": "74d4615add14874542c814d6e93db98ba2db7091334bdda4e33ad126a47e0afd",
+      "note": "part2.md",
+      "repository_commit": "779b06ad6b5a1eefcd0a0006b6870668b987f2de",
+      "moe_blob": "96b5bf91433fc87154de1edc40ce7a31b5c4c025"
+    }
+  ],
+  "refresh_notes": [
+    "November 2: added the supplied correction supplement and its verified Git blob. Existing ruled-out rows are unchanged; one new issue-group compiler closure was appended. Earlier digest claims retain their dated scope.",
+    "November 2: appended the compiler-only stable-SS-pointer identity result; prior experiment rows and their conclusions are unchanged.",
+    "November 2 terminal: appended exact scale-only matched failure and corrected the scope of initial grouped compiler closures. Their equality condition skipped a first-stage flush at active FCI4; no grouped GPU source had run. Earlier research claims retain their dated scope.",
+    "Concurrent D32 diagnostic closure appended during merge: FP8 isfinite setup failure is scoped to its exact diagnostic; preserved alongside optimizer closures. No CUDA research claim changes.",
+    "Part2 experiment digest now links the scale-only terminal failure, identical pointer code, caught grouping schedule defect and corrected pending combined test. No GPU speedup or promoted default is claimed.",
+    "Concurrent D32 job62a4f6b27ed74b50 natural-routing diagnostic closure reviewed and preserved. Its receipt does not identify the differing arms/load. This does not change MoE evidence or research conclusions.",
+    "Corrected combined native7db5ec77 passes own H200 correctness but fails all24 frozen whole-six factors. Reconciled part2 digest and exact closure; pinned both owning receipts and strict analyses. No runtime candidate is promoted."
+  ]
+}

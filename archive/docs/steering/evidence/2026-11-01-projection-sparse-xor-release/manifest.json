@@ -1,0 +1,17 @@
+{
+  "pins": {
+    "control_raw": "5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4",
+    "control_lf": "7f4fd58cdd940f36c8d4d355f3de85687bc7f6ab04981842ce936db76d78adc2",
+    "prototype": "d23aa17be4cf9e7c5869803b3b4603d8e72395953687adc0287fb1c75738d586",
+    "helper_body": "92b16040b139ead412cc40c1d81e1f2ea36137ea7f22870036e5d6f06c1c1ba0",
+    "release_body": "94f9fd09d92f10afbf4584d9537c8a1e271d24b3c5af1e4eba38e47f3b582902"
+  },
+  "bytes": 321640,
+  "sha256": "685ffab5d1614343d3c46d505967ae6817e3784736297018c78984354333f765",
+  "fixed_targets": 10,
+  "normal_prepare_calls": 1,
+  "extra_native_modules": 1,
+  "new_comparative_timings": false,
+  "H200_qualified": false,
+  "publication_authority": "root only"
+}

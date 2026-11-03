@@ -1,0 +1,162 @@
+ctrl=[splits=32,nc=1,mode=13] ctrl2=[splits=32,nc=1,mode=13] pubkel=[n_splits=32,flat=0,cs=0,ncl=1,nc=1] pubkel2=[n_splits=32,flat=0,cs=0,ncl=1,nc=1]
+ABCOLD b= 1 sliding L=1 in=0 ctrl=9.15 ctrl2=9.22 pubkel=9.02 pubkel2=8.90 cap0=ctrl2 t=153s
+ABWARM b= 1 sliding L=1 in=0 ctrl=4.77 ctrl2=4.75 pubkel=4.41 pubkel2=4.44 t=153s
+ABCOLD b= 1 sliding L=1 in=1 ctrl=9.34 ctrl2=9.22 pubkel=9.09 pubkel2=9.06 cap0=ctrl t=153s
+ABWARM b= 1 sliding L=1 in=1 ctrl=4.80 ctrl2=4.73 pubkel=4.51 pubkel2=4.60 t=153s
+ABCOLD b= 1 sliding L=1 pooled ctrl=9.22 ctrl2=9.22 pubkel=9.02 pubkel2=9.02
+ABWARM b= 1 sliding L=1 pooled ctrl=4.80 ctrl2=4.75 pubkel=4.51 pubkel2=4.60
+ABPLAN b= 1 full    L=1 ctrl=[splits=252,nc=8,mode=11] ctrl2=[splits=252,nc=8,mode=11] pubkel=[n_splits=252,flat=0,cs=0,ncl=1,nc=8,coop=1] pubkel2=[n_splits=252,flat=0,cs=0,ncl=1,nc=8,coop=1]
+ABCOLD b= 1 full    L=1 in=0 ctrl=17.09 ctrl2=16.90 pubkel=16.26 pubkel2=16.35 cap0=pubkel2 t=153s
+ABWARM b= 1 full    L=1 in=0 ctrl=11.44 ctrl2=11.07 pubkel=9.49 pubkel2=9.56 t=153s
+ABCOLD b= 1 full    L=1 in=1 ctrl=17.09 ctrl2=16.83 pubkel=16.29 pubkel2=16.26 cap0=pubkel2 t=153s
+ABWARM b= 1 full    L=1 in=1 ctrl=11.43 ctrl2=11.09 pubkel=9.48 pubkel2=9.55 t=153s
+ABCOLD b= 1 full    L=1 pooled ctrl=17.09 ctrl2=16.86 pubkel=16.29 pubkel2=16.29
+ABWARM b= 1 full    L=1 pooled ctrl=11.44 ctrl2=11.08 pubkel=9.49 pubkel2=9.55
+ABPLAN b=16 sliding L=1 ctrl=[splits=16,nc=1,mode=1] ctrl2=[splits=16,nc=1,mode=1] pubkel=[n_splits=16,flat=0,cs=0,ncl=1,nc=1] pubkel2=[n_splits=16,flat=0,cs=0,ncl=1,nc=1]
+ABCOLD b=16 sliding L=1 in=0 ctrl=12.83 ctrl2=12.80 pubkel=12.64 pubkel2=12.58 cap0=ctrl2 t=153s
+ABWARM b=16 sliding L=1 in=0 ctrl=7.23 ctrl2=7.10 pubkel=6.96 pubkel2=6.98 t=153s
+ABCOLD b=16 sliding L=1 in=1 ctrl=13.22 ctrl2=13.18 pubkel=12.99 pubkel2=12.99 cap0=ctrl2 t=153s
+ABWARM b=16 sliding L=1 in=1 ctrl=7.59 ctrl2=7.48 pubkel=6.90 pubkel2=6.93 t=153s
+ABCOLD b=16 sliding L=1 pooled ctrl=13.02 ctrl2=13.09 pubkel=12.86 pubkel2=12.90
+ABWARM b=16 sliding L=1 pooled ctrl=7.57 ctrl2=7.45 pubkel=6.95 pubkel2=6.97
+ABPLAN b=16 full    L=1 ctrl=[splits=264,nc=1,mode=49] ctrl2=[splits=264,nc=1,mode=49] pubkel=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pubkel2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=16 full    L=1 in=0 ctrl=100.10 ctrl2=100.19 pubkel=99.17 pubkel2=99.33 cap0=pubkel t=153s
+ABWARM b=16 full    L=1 in=0 ctrl=88.44 ctrl2=87.96 pubkel=86.61 pubkel2=86.69 t=154s
+ABCOLD b=16 full    L=1 in=1 ctrl=101.02 ctrl2=100.99 pubkel=100.29 pubkel2=100.29 cap0=ctrl t=154s
+ABWARM b=16 full    L=1 in=1 ctrl=89.17 ctrl2=88.84 pubkel=87.69 pubkel2=87.51 t=154s
+ABCOLD b=16 full    L=1 pooled ctrl=100.64 ctrl2=100.70 pubkel=99.71 pubkel2=99.74
+ABWARM b=16 full    L=1 pooled ctrl=88.67 ctrl2=88.27 pubkel=87.15 pubkel2=87.01
+ABPLAN b=32 sliding L=1 ctrl=[splits=8,nc=1,mode=1] ctrl2=[splits=8,nc=1,mode=1] pubkel=[n_splits=8,flat=0,cs=0,ncl=1,nc=1] pubkel2=[n_splits=8,flat=0,cs=0,ncl=1,nc=1]
+ABCOLD b=32 sliding L=1 in=0 ctrl=15.81 ctrl2=15.94 pubkel=15.84 pubkel2=15.87 cap0=ctrl2 t=154s
+ABWARM b=32 sliding L=1 in=0 ctrl=9.76 ctrl2=9.75 pubkel=9.33 pubkel2=9.39 t=154s
+ABCOLD b=32 sliding L=1 in=1 ctrl=15.55 ctrl2=15.62 pubkel=15.65 pubkel2=15.62 cap0=ctrl t=154s
+ABWARM b=32 sliding L=1 in=1 ctrl=9.50 ctrl2=9.53 pubkel=9.21 pubkel2=9.14 t=154s
+ABCOLD b=32 sliding L=1 pooled ctrl=15.71 ctrl2=15.78 pubkel=15.74 pubkel2=15.81
+ABWARM b=32 sliding L=1 pooled ctrl=9.75 ctrl2=9.74 pubkel=9.30 pubkel2=9.34
+ABPLAN b=32 full    L=1 ctrl=[splits=264,nc=1,mode=49] ctrl2=[splits=264,nc=1,mode=49] pubkel=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pubkel2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=32 full    L=1 in=0 ctrl=178.56 ctrl2=178.66 pubkel=177.31 pubkel2=177.31 cap0=ctrl t=154s
+ABWARM b=32 full    L=1 in=0 ctrl=170.44 ctrl2=170.44 pubkel=165.94 pubkel2=166.10 t=154s
+ABCOLD b=32 full    L=1 in=1 ctrl=180.26 ctrl2=180.19 pubkel=178.59 pubkel2=178.69 cap0=ctrl t=155s
+ABWARM b=32 full    L=1 in=1 ctrl=171.51 ctrl2=171.49 pubkel=167.52 pubkel2=167.29 t=155s
+ABCOLD b=32 full    L=1 pooled ctrl=179.36 ctrl2=179.46 pubkel=177.89 pubkel2=177.95
+ABWARM b=32 full    L=1 pooled ctrl=170.53 ctrl2=170.50 pubkel=166.23 pubkel2=166.28
+ABPLAN b= 1 sliding L=8 ctrl=[splits=33,nc=1,mode=15] ctrl2=[splits=33,nc=1,mode=15] pubkel=[n_splits=33,flat=0,cs=0,ncl=1,nc=1,coop=1] pubkel2=[n_splits=33,flat=0,cs=0,ncl=1,nc=1,coop=1]
+ABCOLD b= 1 sliding L=8 in=0 ctrl=11.30 ctrl2=11.30 pubkel=10.37 pubkel2=10.46 cap0=ctrl t=155s
+ABWARM b= 1 sliding L=8 in=0 ctrl=6.91 ctrl2=6.92 pubkel=6.11 pubkel2=6.07 t=155s
+ABCOLD b= 1 sliding L=8 in=1 ctrl=10.98 ctrl2=10.94 pubkel=10.27 pubkel2=10.30 cap0=pubkel2 t=155s
+ABWARM b= 1 sliding L=8 in=1 ctrl=6.83 ctrl2=6.82 pubkel=5.99 pubkel2=6.00 t=155s
+ABCOLD b= 1 sliding L=8 pooled ctrl=11.10 ctrl2=11.10 pubkel=10.34 pubkel2=10.37
+ABWARM b= 1 sliding L=8 pooled ctrl=6.89 ctrl2=6.90 pubkel=6.08 pubkel2=6.06
+ABPLAN b= 1 full    L=8 ctrl=[splits=252,nc=8,mode=11] ctrl2=[splits=252,nc=8,mode=11] pubkel=[n_splits=252,flat=0,cs=0,ncl=1,nc=8] pubkel2=[n_splits=252,flat=0,cs=0,ncl=1,nc=8]
+ABCOLD b= 1 full    L=8 in=0 ctrl=19.10 ctrl2=19.04 pubkel=18.78 pubkel2=18.91 cap0=ctrl2 t=155s
+ABWARM b= 1 full    L=8 in=0 ctrl=14.59 ctrl2=14.71 pubkel=13.67 pubkel2=13.71 t=155s
+ABCOLD b= 1 full    L=8 in=1 ctrl=19.10 ctrl2=19.17 pubkel=18.94 pubkel2=18.94 cap0=ctrl2 t=155s
+ABWARM b= 1 full    L=8 in=1 ctrl=14.61 ctrl2=14.68 pubkel=13.74 pubkel2=13.72 t=155s
+ABCOLD b= 1 full    L=8 pooled ctrl=19.10 ctrl2=19.10 pubkel=18.88 pubkel2=18.94
+ABWARM b= 1 full    L=8 pooled ctrl=14.60 ctrl2=14.70 pubkel=13.72 pubkel2=13.72
+ABPLAN b=16 sliding L=8 ctrl=[splits=8,nc=1,mode=3] ctrl2=[splits=8,nc=1,mode=3] pubkel=[n_splits=8,flat=0,cs=0,ncl=1,nc=1,coop=1] pubkel2=[n_splits=8,flat=0,cs=0,ncl=1,nc=1,coop=1]
+ABCOLD b=16 sliding L=8 in=0 ctrl=15.58 ctrl2=15.71 pubkel=15.65 pubkel2=15.62 cap0=ctrl t=155s
+ABWARM b=16 sliding L=8 in=0 ctrl=11.35 ctrl2=11.41 pubkel=11.04 pubkel2=11.04 t=155s
+ABCOLD b=16 sliding L=8 in=1 ctrl=15.87 ctrl2=15.90 pubkel=15.81 pubkel2=15.62 cap0=ctrl2 t=155s
+ABWARM b=16 sliding L=8 in=1 ctrl=11.03 ctrl2=11.11 pubkel=10.72 pubkel2=10.76 t=156s
+ABCOLD b=16 sliding L=8 pooled ctrl=15.78 ctrl2=15.84 pubkel=15.71 pubkel2=15.62
+ABWARM b=16 sliding L=8 pooled ctrl=11.29 ctrl2=11.37 pubkel=10.99 pubkel2=10.98
+ABPLAN b=16 full    L=8 ctrl=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51] pubkel=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pubkel2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=16 full    L=8 in=0 ctrl=114.88 ctrl2=114.82 pubkel=125.02 pubkel2=125.44 cap0=ctrl t=156s
+ABWARM b=16 full    L=8 in=0 ctrl=102.34 ctrl2=102.34 pubkel=126.29 pubkel2=126.49 t=156s
+ABCOLD b=16 full    L=8 in=1 ctrl=113.41 ctrl2=113.12 pubkel=127.62 pubkel2=127.65 cap0=pubkel2 t=156s
+ABWARM b=16 full    L=8 in=1 ctrl=103.91 ctrl2=103.84 pubkel=127.35 pubkel2=127.87 t=156s
+ABCOLD b=16 full    L=8 pooled ctrl=114.02 ctrl2=113.95 pubkel=126.11 pubkel2=126.40
+ABWARM b=16 full    L=8 pooled ctrl=102.53 ctrl2=102.40 pubkel=126.39 pubkel2=126.65
+ABPLAN b=32 sliding L=8 ctrl=[splits=4,nc=1,mode=3] ctrl2=[splits=4,nc=1,mode=3] pubkel=[n_splits=4,flat=0,cs=0,ncl=1,nc=1,coop=1] pubkel2=[n_splits=4,flat=0,cs=0,ncl=1,nc=1,coop=1]
+ABCOLD b=32 sliding L=8 in=0 ctrl=20.16 ctrl2=20.26 pubkel=19.74 pubkel2=19.74 cap0=pubkel2 t=156s
+ABWARM b=32 sliding L=8 in=0 ctrl=15.39 ctrl2=15.37 pubkel=14.72 pubkel2=14.75 t=156s
+ABCOLD b=32 sliding L=8 in=1 ctrl=19.87 ctrl2=19.90 pubkel=19.39 pubkel2=19.36 cap0=pubkel2 t=156s
+ABWARM b=32 sliding L=8 in=1 ctrl=15.03 ctrl2=15.22 pubkel=14.62 pubkel2=14.59 t=156s
+ABCOLD b=32 sliding L=8 pooled ctrl=19.97 ctrl2=20.10 pubkel=19.62 pubkel2=19.58
+ABWARM b=32 sliding L=8 pooled ctrl=15.10 ctrl2=15.29 pubkel=14.65 pubkel2=14.64
+ABPLAN b=32 full    L=8 ctrl=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51] pubkel=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pubkel2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=32 full    L=8 in=0 ctrl=192.83 ctrl2=192.99 pubkel=192.00 pubkel2=192.19 cap0=ctrl2 t=157s
+ABWARM b=32 full    L=8 in=0 ctrl=205.15 ctrl2=205.20 pubkel=202.02 pubkel2=202.20 t=157s
+ABCOLD b=32 full    L=8 in=1 ctrl=196.35 ctrl2=195.71 pubkel=195.07 pubkel2=195.17 cap0=pubkel2 t=157s
+ABWARM b=32 full    L=8 in=1 ctrl=206.91 ctrl2=207.69 pubkel=205.17 pubkel2=204.63 t=157s
+ABCOLD b=32 full    L=8 pooled ctrl=194.24 ctrl2=194.21 pubkel=193.09 pubkel2=193.18
+ABWARM b=32 full    L=8 pooled ctrl=205.74 ctrl2=205.56 pubkel=202.86 pubkel2=203.50
+ABADDR ctrl:acc=0x11de34000000,l=0x11def9a59000,cnt=0x11def9a99000 ctrl2:acc=0x11de35000000,l=0x11def9aba000,cnt=0x11def9afa000
+ABSUM cold b= 1 sliding L=1 ctrl=9.22 ctrl2=9.22 pubkel=9.02 pubkel2=9.02 null:ctrl2-ctrl=+0.00 null:pubkel2-pubkel=+0.00 d:pubkel=-0.19
+ABSUM warm b= 1 sliding L=1 ctrl=4.80 ctrl2=4.75 pubkel=4.51 pubkel2=4.60 null:ctrl2-ctrl=-0.05 null:pubkel2-pubkel=+0.09 d:pubkel=-0.29
+ABSUM cold b= 1 full    L=1 ctrl=17.09 ctrl2=16.86 pubkel=16.29 pubkel2=16.29 null:ctrl2-ctrl=-0.22 null:pubkel2-pubkel=+0.00 d:pubkel=-0.80
+ABSUM warm b= 1 full    L=1 ctrl=11.44 ctrl2=11.08 pubkel=9.49 pubkel2=9.55 null:ctrl2-ctrl=-0.36 null:pubkel2-pubkel=+0.06 d:pubkel=-1.94
+ABSUM cold b=16 sliding L=1 ctrl=13.02 ctrl2=13.09 pubkel=12.86 pubkel2=12.90 null:ctrl2-ctrl=+0.06 null:pubkel2-pubkel=+0.03 d:pubkel=-0.16
+ABSUM warm b=16 sliding L=1 ctrl=7.57 ctrl2=7.45 pubkel=6.95 pubkel2=6.97 null:ctrl2-ctrl=-0.12 null:pubkel2-pubkel=+0.02 d:pubkel=-0.62
+ABSUM cold b=16 full    L=1 ctrl=100.64 ctrl2=100.70 pubkel=99.71 pubkel2=99.74 null:ctrl2-ctrl=+0.06 null:pubkel2-pubkel=+0.03 d:pubkel=-0.93
+ABSUM warm b=16 full    L=1 ctrl=88.67 ctrl2=88.27 pubkel=87.15 pubkel2=87.01 null:ctrl2-ctrl=-0.40 null:pubkel2-pubkel=-0.15 d:pubkel=-1.52
+ABSUM cold b=32 sliding L=1 ctrl=15.71 ctrl2=15.78 pubkel=15.74 pubkel2=15.81 null:ctrl2-ctrl=+0.06 null:pubkel2-pubkel=+0.06 d:pubkel=+0.03
+ABSUM warm b=32 sliding L=1 ctrl=9.75 ctrl2=9.74 pubkel=9.30 pubkel2=9.34 null:ctrl2-ctrl=-0.01 null:pubkel2-pubkel=+0.04 d:pubkel=-0.44
+ABSUM cold b=32 full    L=1 ctrl=179.36 ctrl2=179.46 pubkel=177.89 pubkel2=177.95 null:ctrl2-ctrl=+0.10 null:pubkel2-pubkel=+0.06 d:pubkel=-1.47
+ABSUM warm b=32 full    L=1 ctrl=170.53 ctrl2=170.50 pubkel=166.23 pubkel2=166.28 null:ctrl2-ctrl=-0.03 null:pubkel2-pubkel=+0.05 d:pubkel=-4.30
+ABSUM cold b= 1 sliding L=8 ctrl=11.10 ctrl2=11.10 pubkel=10.34 pubkel2=10.37 null:ctrl2-ctrl=+0.00 null:pubkel2-pubkel=+0.03 d:pubkel=-0.77
+ABSUM warm b= 1 sliding L=8 ctrl=6.89 ctrl2=6.90 pubkel=6.08 pubkel2=6.06 null:ctrl2-ctrl=+0.01 null:pubkel2-pubkel=-0.03 d:pubkel=-0.81
+ABSUM cold b= 1 full    L=8 ctrl=19.10 ctrl2=19.10 pubkel=18.88 pubkel2=18.94 null:ctrl2-ctrl=+0.00 null:pubkel2-pubkel=+0.06 d:pubkel=-0.22
+ABSUM warm b= 1 full    L=8 ctrl=14.60 ctrl2=14.70 pubkel=13.72 pubkel2=13.72 null:ctrl2-ctrl=+0.10 null:pubkel2-pubkel=-0.01 d:pubkel=-0.88
+ABSUM cold b=16 sliding L=8 ctrl=15.78 ctrl2=15.84 pubkel=15.71 pubkel2=15.62 null:ctrl2-ctrl=+0.06 null:pubkel2-pubkel=-0.10 d:pubkel=-0.06
+ABSUM warm b=16 sliding L=8 ctrl=11.29 ctrl2=11.37 pubkel=10.99 pubkel2=10.98 null:ctrl2-ctrl=+0.08 null:pubkel2-pubkel=-0.01 d:pubkel=-0.30
+ABSUM cold b=16 full    L=8 ctrl=114.02 ctrl2=113.95 pubkel=126.11 pubkel2=126.40 null:ctrl2-ctrl=-0.06 null:pubkel2-pubkel=+0.29 d:pubkel=+12.10
+ABSUM warm b=16 full    L=8 ctrl=102.53 ctrl2=102.40 pubkel=126.39 pubkel2=126.65 null:ctrl2-ctrl=-0.13 null:pubkel2-pubkel=+0.27 d:pubkel=+23.85
+ABSUM cold b=32 sliding L=8 ctrl=19.97 ctrl2=20.10 pubkel=19.62 pubkel2=19.58 null:ctrl2-ctrl=+0.13 null:pubkel2-pubkel=-0.03 d:pubkel=-0.35
+ABSUM warm b=32 sliding L=8 ctrl=15.10 ctrl2=15.29 pubkel=14.65 pubkel2=14.64 null:ctrl2-ctrl=+0.18 null:pubkel2-pubkel=-0.01 d:pubkel=-0.45
+ABSUM cold b=32 full    L=8 ctrl=194.24 ctrl2=194.21 pubkel=193.09 pubkel2=193.18 null:ctrl2-ctrl=-0.03 null:pubkel2-pubkel=+0.10 d:pubkel=-1.15
+ABSUM warm b=32 full    L=8 ctrl=205.74 ctrl2=205.56 pubkel=202.86 pubkel2=203.50 null:ctrl2-ctrl=-0.17 null:pubkel2-pubkel=+0.64 d:pubkel=-2.88
+ABIN b= 1 sliding L=1 in=0 ctrl2=+0.06 pubkel=-0.13 pubkel2=-0.26
+ABIN b= 1 sliding L=1 in=1 ctrl2=-0.13 pubkel=-0.26 pubkel2=-0.29
+ABIN b= 1 full    L=1 in=0 ctrl2=-0.19 pubkel=-0.83 pubkel2=-0.74
+ABIN b= 1 full    L=1 in=1 ctrl2=-0.26 pubkel=-0.80 pubkel2=-0.83
+ABIN b=16 sliding L=1 in=0 ctrl2=-0.03 pubkel=-0.19 pubkel2=-0.26
+ABIN b=16 sliding L=1 in=1 ctrl2=-0.03 pubkel=-0.22 pubkel2=-0.22
+ABIN b=16 full    L=1 in=0 ctrl2=+0.10 pubkel=-0.93 pubkel2=-0.77
+ABIN b=16 full    L=1 in=1 ctrl2=-0.03 pubkel=-0.74 pubkel2=-0.74
+ABIN b=32 sliding L=1 in=0 ctrl2=+0.13 pubkel=+0.03 pubkel2=+0.06
+ABIN b=32 sliding L=1 in=1 ctrl2=+0.06 pubkel=+0.10 pubkel2=+0.06
+ABIN b=32 full    L=1 in=0 ctrl2=+0.10 pubkel=-1.25 pubkel2=-1.25
+ABIN b=32 full    L=1 in=1 ctrl2=-0.06 pubkel=-1.66 pubkel2=-1.57
+ABIN b= 1 sliding L=8 in=0 ctrl2=+0.00 pubkel=-0.93 pubkel2=-0.83
+ABIN b= 1 sliding L=8 in=1 ctrl2=-0.03 pubkel=-0.70 pubkel2=-0.67
+ABIN b= 1 full    L=8 in=0 ctrl2=-0.06 pubkel=-0.32 pubkel2=-0.19
+ABIN b= 1 full    L=8 in=1 ctrl2=+0.06 pubkel=-0.16 pubkel2=-0.16
+ABIN b=16 sliding L=8 in=0 ctrl2=+0.13 pubkel=+0.06 pubkel2=+0.03
+ABIN b=16 sliding L=8 in=1 ctrl2=+0.03 pubkel=-0.06 pubkel2=-0.26
+ABIN b=16 full    L=8 in=0 ctrl2=-0.06 pubkel=+10.14 pubkel2=+10.56
+ABIN b=16 full    L=8 in=1 ctrl2=-0.29 pubkel=+14.21 pubkel2=+14.24
+ABIN b=32 sliding L=8 in=0 ctrl2=+0.10 pubkel=-0.42 pubkel2=-0.42
+ABIN b=32 sliding L=8 in=1 ctrl2=+0.03 pubkel=-0.48 pubkel2=-0.51
+ABIN b=32 full    L=8 in=0 ctrl2=+0.16 pubkel=-0.83 pubkel2=-0.64
+ABIN b=32 full    L=8 in=1 ctrl2=-0.64 pubkel=-1.28 pubkel2=-1.18
+ABSCORE ctrl vs ctrl 1.0000 d1=1.0000 d16=1.0000 d32=1.0000 v1=1.0000 v16=1.0000 v32=1.0000
+ABSCORE ctrl2 vs ctrl 1.0000 d1=1.0052 d16=0.9982 d32=0.9988 v1=1.0000 v16=0.9992 v32=0.9987
+ABSCORE pubkel vs ctrl 1.0055 d1=1.0320 d16=1.0102 d32=1.0062 v1=1.0500 v16=0.9305 v32=1.0087
+ABSCORE pubkel2 vs ctrl 1.0047 d1=1.0320 d16=1.0092 d32=1.0051 v1=1.0467 v16=0.9304 v32=1.0087
+ABCHECKSUM ctrl=21/0/0 ctrl2=21/0/0 pubkel=21/0/0 pubkel2=21/0/0 (pass/fail/probe)
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:16 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:17 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:17 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:17 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:17 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 09:26:17 78:78 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 09:26:17 78:78 SyncActivityProfilerHandler.cpp:46] profiler_stop

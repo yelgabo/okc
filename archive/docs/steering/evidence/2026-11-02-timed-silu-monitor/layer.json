@@ -1,0 +1,31 @@
+{
+  "board": "muse_decode_layer",
+  "you": {
+    "rank": 346,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 345,
+    "to_first": 1.1685
+  },
+  "cutoffs": [
+    {
+      "attempts": 33,
+      "job": "ec6a583cf4d0447b",
+      "rank": 50,
+      "speedup": 2.3028,
+      "submitted_at": 1793532337.5949967,
+      "team": "adityakm24",
+      "value": 9823.087387434833
+    },
+    {
+      "attempts": 62,
+      "job": "b10ff369589748d4",
+      "rank": 100,
+      "speedup": 2.263,
+      "submitted_at": 1793498518.3795624,
+      "team": "chinesepowered",
+      "value": 9995.910037519952
+    }
+  ]
+}

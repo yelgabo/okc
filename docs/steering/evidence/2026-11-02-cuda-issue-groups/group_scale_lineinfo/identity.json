@@ -1,0 +1,30 @@
+{
+  "b4-control": {
+    "same_sass": false,
+    "sha256": "41ef5ca15d46dde491a597489775528cd99816b87833f19eaf567792484ce3df",
+    "previous_sha256": "1b6047f3af855e5d9e9de6b4bde4ba16644a7a887ebbf23ace7a5e313c6f16c0",
+    "same_instruction_encoding_sequence": true,
+    "instruction_encoding_count": 107360
+  },
+  "b4-candidate": {
+    "same_sass": false,
+    "sha256": "54598250fc7c61800f23f2ebac6943bb86767175a89155e99655584544ef37b9",
+    "previous_sha256": "1d999450795e9d707907a1c2f67b51394b2f70e2bc0508b838a3982968e0b2aa",
+    "same_instruction_encoding_sequence": true,
+    "instruction_encoding_count": 106368
+  },
+  "main-control": {
+    "same_sass": false,
+    "sha256": "e676bac4b52ca177328eb46490a5d7bb5317d948091de5e77ea6152851314a29",
+    "previous_sha256": "dd695145a39449ee2e270b0093b6514413b893ab86a7dd2713781b974ccd6b39",
+    "same_instruction_encoding_sequence": true,
+    "instruction_encoding_count": 95296
+  },
+  "main-candidate": {
+    "same_sass": false,
+    "sha256": "bea6365a26e38159d1d0d099805020fc96064b7e67cc577bfe1cd61938807006",
+    "previous_sha256": "879d9f1e91567f2297c111261d66faa2bddc590bd8a74288b403ba24a179dc4e",
+    "same_instruction_encoding_sequence": true,
+    "instruction_encoding_count": 94400
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "at": "2026-11-02T21:21:59.951373+00:00",
+  "files": {
+    "cpu-tests.txt": {
+      "bytes": 523,
+      "sha256": "db043eb3864406deb9c143227dc4ff26faf87cbec729a8279815bf07f5531f68"
+    },
+    "package-held.manifest.json": {
+      "bytes": 1018,
+      "sha256": "57d87360b4b62c956e4faed603dc2bc968c6b291bfa26fba49e6b68c21178a03"
+    },
+    "package-held.py": {
+      "bytes": 893550,
+      "sha256": "33f8c7804f9722a02c3aa0cb807b467a3945fb5e7eedc2d0c1b067167ced5bbd"
+    },
+    "prospective-budget.json": {
+      "bytes": 551,
+      "sha256": "9177f92a1c3fc22472d3df846d34e70b86beee38d5b23444a1e74fb75e1356b6"
+    }
+  },
+  "cpu_command": [
+    "/root/.cache/okc-host-validate/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools",
+    "-p",
+    "test_wgs_k128_pair_package.py",
+    "-v"
+  ],
+  "cpu_exitcode": 0
+}

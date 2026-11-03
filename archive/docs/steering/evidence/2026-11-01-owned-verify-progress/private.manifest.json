@@ -1,0 +1,18 @@
+{
+  "input_sha256": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3",
+  "output_sha256": "a841443465c47656f3614885c41d851bb796cd917f6ef2505b8c77e6f8cabc08",
+  "input_bytes": 511911,
+  "output_bytes": 512681,
+  "device_before_sha256": "35fc183846d5b9bf23efb5c3f0d0f7f556b00bfbe5ea45a3c30c59a9a054b300",
+  "device_after_sha256": "2a9a386762ca7814c98537d89c8478895ebdb635664837046da634d5dc89f617",
+  "reused_launcher_sha256": "38026abe7a6f3c70dc36980317c17d62e82e3823f9a78de16246c9e7502b2d28",
+  "changes": [
+    "exact existing checked cooperative host launcher",
+    "kernel_fn selected MAIN51 call PDLFalse",
+    "spin_failed timeout traps before return",
+    "distinct extension module name"
+  ],
+  "device_delta_only_host_launcher_and_timeout": true,
+  "GPU": false,
+  "H200_qualified": false
+}

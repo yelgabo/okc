@@ -1,0 +1,18 @@
+{
+  "owner_reader_commit": "ee972f1",
+  "owner_reader_raw_sha256": "d8898e101de7bb8a4622cc44ead11f6439c86e4793a4b180cda0e7543131d085",
+  "independent_before_owner_run": true,
+  "exact_summary_key_agreement": {
+    "official_score": "official_score",
+    "reconstructed_score": "reconstructed_score",
+    "C2_official_score": "archived_C2_official_score",
+    "C2_reconstructed_score": "reconstructed_C2_score",
+    "score_ratio_to_C2": "reported_score_ratio",
+    "prepare_seconds": "prepare_seconds",
+    "target_adjusted_regressions": "target_regressions",
+    "target_raw_regressions": "target_raw_regressions",
+    "counterfactual_replace10_into_old20_score": "counterfactual_replace10_score_with_old_baselines",
+    "counterfactual_factor_to_old": "counterfactual_replace10_factor_vs_old"
+  },
+  "all30_adjusted_median_pairs_equal": true
+}

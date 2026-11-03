@@ -1,0 +1,88 @@
+{
+  "board": "muse_decode_layer",
+  "call_id": "nyc3b:kc-5909739e8a4445b2",
+  "cluster": "nyc3b",
+  "content_hash": "b00b0050521bb5d5249023eb534e48f3b704ad3ee1742ce7ad9589e248f2fd3f",
+  "created_at": 1793670599.7691233,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793671276.2462792,
+  "id": "5909739e8a4445b2",
+  "mode": "check",
+  "output": {
+    "log": "/Users/gretchengabo/Documents/ChatGPT/okc/docs/steering/decode32/evidence/D32-ATTN-04/profiles/paired.5909739e8a4445b2.log"
+  },
+  "payload_ref": "muse_decode_layer/b00b0050521bb5d5249023eb534e48f3b704ad3ee1742ce7ad9589e248f2fd3f.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "1ba270d841be831b06a5862f4094cd0d5072edfbd0f6e84b95f79248296367dd",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "60e242544d5f5a5fc143870461f7373b85accb677a536cb337581ded938c4a48",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_decode_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_decode_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_decode_layer/task.yml": "6a73de4094ff00d7453fb94bd3aa40f5fae79ac7fbea149660eae2125dc5a0c7"
+      },
+      "image": "localhost:30500/kc/judge@sha256:8c102d00529abd8b80898116ac64a9c8f66bbd256d56142be4b96fb626e89452"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True\nD32_ATTN_PREPARED eligible=True source_sha256= 3de8f5caac947c54af133fd83b157e3d1f1ab16ebcee8d61bcd0573f8ad0b26d capability= 9 0 sms= 132\nFORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off\nG1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]\nG_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays\nD32_ROUTE_MISMATCH {\"tokens\":32,\"context\":\"sliding\",\"seed\":1102031,\"stage\":\"fresh-7\",\"mismatches\":[{\"placement\":3,\"treatment\":true,\"selected\":[false],\"row_count\":1,\"rows\":[6],\"control_ids\":[[216,156,94,93,153,49,144,221]],\"other_ids\":[[216,156,94,153,93,49,144,221]]}]}\nTraceback (most recent call last):\n  File \"/tmp/muse_decode_layer-6oakoczu/run/worker.py\", line 423, in child_main\n    send(_setup_op(msg, module, state, sync, perf))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-6oakoczu/run/worker.py\", line 322, in _setup_op\n    state[\"prep\"] = prepare(weights)\n                    ^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-6oakoczu/run/submission.py\", line 18132, in prepare\n    with torch.inference_mode(False),torch.no_grad():report=_eh_private(weights,state)\n                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_decode_layer-6oakoczu/run/submission.py\", line 18087, in _eh_private\n    _d32_require_same_routes(outputs,arms,tokens,context,seed,'fresh-'+str(rep))\n  File \"/tmp/muse_decode_layer-6oakoczu/run/submission.py\", line 17328, in _d32_require_same_routes\n    raise AssertionError('D32_NATURAL_ROUTING_MISMATCH')\nAssertionError: D32_NATURAL_ROUTING_MISMATCH\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 128.18,
+        "power.limit": 700,
+        "temperature.gpu": 34
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 345,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 86.79,
+        "power.limit": 700,
+        "temperature.gpu": 31
+      },
+      "node": "n-u6bdu2mavhbq33kzcbbykmzftf"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 2,
+        "baseline_prepare_pad": 821248,
+        "copies": null,
+        "error": "AssertionError: D32_NATURAL_ROUTING_MISMATCH",
+        "event": "setup",
+        "first": "submission",
+        "prepare_pad": null,
+        "prepare_s": null,
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793671059.371267,
+  "status": "done",
+  "team": "yelgabo"
+}

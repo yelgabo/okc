@@ -1,0 +1,65 @@
+{
+  "job": "16b4db27421d4714",
+  "status": "done",
+  "result_status": "ok",
+  "passed": false,
+  "returncode": 112,
+  "checks": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "flags": [],
+  "error": null,
+  "events": {
+    "setup": 1
+  },
+  "setup": {
+    "baseline_copies": 2,
+    "baseline_prepare_pad": 13243392,
+    "copies": null,
+    "error": "AcceleratorError: CUDA error: unspecified launch failure\nSearch for `cudaErrorLaunchFailure' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\nThe CUDA driver logged these messages, which may provide useful details:\nReturning 719 (CUDA_ERROR_LAUNCH_FAILED) from cuCtxSynchronize_v2\n\n",
+    "event": "setup",
+    "first": "submission",
+    "prepare_pad": null,
+    "prepare_s": null,
+    "status": "fail"
+  },
+  "created_at_utc": "2026-11-02T01:31:40.555270+00:00",
+  "started_at_utc": "2026-11-02T01:56:05.829248+00:00",
+  "finished_at_utc": "2026-11-02T02:00:03.410670+00:00",
+  "queue_s": 1465.2739777565002,
+  "worker_wall_s": 237.58142232894897,
+  "gpu": "H200",
+  "machine": {
+    "gpu_after": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 1980,
+      "driver_version": "595.91.07",
+      "name": "NVIDIA H200",
+      "power.draw": 126.43,
+      "power.limit": 700,
+      "temperature.gpu": 38
+    },
+    "gpu_before": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 345,
+      "driver_version": "595.91.07",
+      "name": "NVIDIA H200",
+      "power.draw": 90.78,
+      "power.limit": 700,
+      "temperature.gpu": 36
+    },
+    "node": "n-nzf2vzn536ewibf7w3dgpswb6g"
+  },
+  "score_us": null,
+  "speedup": null,
+  "speedup_ci": null,
+  "capsule_present": false,
+  "wl_prep_present": false,
+  "reader_exitcode": 1,
+  "reader_observation_exists": false,
+  "source_sha256": "c4a5ee29bcfeca248c0fee638ed103e9f211f7a8cc32b86bd3bb642676bf45e3"
+}

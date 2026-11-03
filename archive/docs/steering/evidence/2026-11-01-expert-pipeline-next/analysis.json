@@ -1,0 +1,544 @@
+{
+  "observed_at_utc": "2026-11-02T04:58:54.024115+00:00",
+  "mode": "SOURCE/CPU only; no GPU, CUDA import, compiler or challenge CLI",
+  "local_source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "selected_cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "baseline": {
+    "sizeof": 22240,
+    "ring_start": 22272,
+    "shared_bytes": 231168
+  },
+  "two_cta_rs_concept": {
+    "sizeof": 23776,
+    "ring_start": 23808,
+    "packed_interval": [
+      23808,
+      79104
+    ],
+    "x_interval": [
+      79104,
+      115968
+    ],
+    "shared_bytes": 115968,
+    "pair_shared_bytes": 231936,
+    "pair_registers_if_uniform_96": 61440,
+    "not_launchable_as_define_change": [
+      "gather NT*8==HD assertion",
+      "JMAX168 > MF_XRS96 unconditional assertion; literal136 doneAs allocation",
+      "hardcoded four-WG slots, 256-row unit mapping and publication parent ub>>1",
+      "host grid<=SM_count and grid<=136; WGS_SLOTS160"
+    ]
+  },
+  "decoded_ss_added_logical_shared_bytes_per_256row_K4096_unit": 4194304,
+  "extra_x_fraction_of_original_packed_plus_x": {
+    "1": 0.1,
+    "2": 0.18181818181818182,
+    "4": 0.3076923076923077,
+    "8": 0.47058823529411764
+  },
+  "scope": {
+    "affected": "D32/V16/V32, both contexts",
+    "whole_six_scenarios": {
+      "0.1": 1.0261617335642823,
+      "0.15": 1.0400475439438652,
+      "0.2": 1.0545209756965077
+    },
+    "expert_fraction_for_3pct_scenario": 0.11402594230747776,
+    "limitation": "Mixed profile/adjusted medians, full exposure, zero replacement cost: NOT a bound or forecast."
+  },
+  "standalone_job_repartition": [
+    {
+      "standalone_tokens": 128,
+      "seed": 76111,
+      "jobs64": 23,
+      "jobs32": 24,
+      "jobs24": 25,
+      "weight_job_ratio_32": 1.0434782608695652,
+      "weight_job_ratio_24": 1.0869565217391304
+    },
+    {
+      "standalone_tokens": 128,
+      "seed": 76117,
+      "jobs64": 23,
+      "jobs32": 24,
+      "jobs24": 25,
+      "weight_job_ratio_32": 1.0434782608695652,
+      "weight_job_ratio_24": 1.0869565217391304
+    },
+    {
+      "standalone_tokens": 128,
+      "seed": 76123,
+      "jobs64": 22,
+      "jobs32": 24,
+      "jobs24": 26,
+      "weight_job_ratio_32": 1.0909090909090908,
+      "weight_job_ratio_24": 1.1818181818181819
+    },
+    {
+      "standalone_tokens": 256,
+      "seed": 76111,
+      "jobs64": 24,
+      "jobs32": 26,
+      "jobs24": 30,
+      "weight_job_ratio_32": 1.0833333333333333,
+      "weight_job_ratio_24": 1.25
+    },
+    {
+      "standalone_tokens": 256,
+      "seed": 76117,
+      "jobs64": 26,
+      "jobs32": 28,
+      "jobs24": 29,
+      "weight_job_ratio_32": 1.0769230769230769,
+      "weight_job_ratio_24": 1.1153846153846154
+    },
+    {
+      "standalone_tokens": 256,
+      "seed": 76123,
+      "jobs64": 27,
+      "jobs32": 28,
+      "jobs24": 32,
+      "weight_job_ratio_32": 1.037037037037037,
+      "weight_job_ratio_24": 1.1851851851851851
+    }
+  ],
+  "standalone_not_layer": true,
+  "local_input_hashes": {
+    "docs\\steering\\evidence\\2026-11-01-captain-opportunity-sizing.json": "cb09eafee99ec29090c11c0695c5eb4eea7c59d1c627762b692a37126589177c",
+    "docs\\steering\\evidence\\2026-11-01-g-stage-probe\\f147d06a64504c1e.decoded.json": "85fbaf6bd2f009b67b0d48b1db06b7691b36fb449c22c606f50e71848bb1a3f0"
+  },
+  "searches": [
+    {
+      "query": "\"muse_decode_layer\" in:readme pushed:>=2026-10-30",
+      "total_count": 5,
+      "incomplete_results": false,
+      "items": [
+        {
+          "full_name": "ScrashOff/okc-muse-kernels",
+          "pushed_at": "2026-10-30T21:52:16Z",
+          "html_url": "https://github.com/ScrashOff/okc-muse-kernels"
+        },
+        {
+          "full_name": "Kushagrabainsla/muse-spark-open",
+          "pushed_at": "2026-11-01T04:47:54Z",
+          "html_url": "https://github.com/Kushagrabainsla/muse-spark-open"
+        },
+        {
+          "full_name": "ruwwww/open-kernel-challenge",
+          "pushed_at": "2026-11-02T04:04:14Z",
+          "html_url": "https://github.com/ruwwww/open-kernel-challenge"
+        },
+        {
+          "full_name": "trxphxle/okc-2026-muse-kernels",
+          "pushed_at": "2026-10-31T10:57:07Z",
+          "html_url": "https://github.com/trxphxle/okc-2026-muse-kernels"
+        },
+        {
+          "full_name": "keell0renz/muse-open-kernel-challenge",
+          "pushed_at": "2026-11-01T07:11:10Z",
+          "html_url": "https://github.com/keell0renz/muse-open-kernel-challenge"
+        }
+      ]
+    },
+    {
+      "query": "\"muse_moe_w4a16\" in:readme pushed:>=2026-10-30",
+      "total_count": 7,
+      "incomplete_results": false,
+      "items": [
+        {
+          "full_name": "ScrashOff/okc-muse-kernels",
+          "pushed_at": "2026-10-30T21:52:16Z",
+          "html_url": "https://github.com/ScrashOff/okc-muse-kernels"
+        },
+        {
+          "full_name": "harikanthl/muse",
+          "pushed_at": "2026-10-31T03:17:01Z",
+          "html_url": "https://github.com/harikanthl/muse"
+        },
+        {
+          "full_name": "ishnbl/muse_kernel",
+          "pushed_at": "2026-10-31T14:08:33Z",
+          "html_url": "https://github.com/ishnbl/muse_kernel"
+        },
+        {
+          "full_name": "ruwwww/open-kernel-challenge",
+          "pushed_at": "2026-11-02T04:04:14Z",
+          "html_url": "https://github.com/ruwwww/open-kernel-challenge"
+        },
+        {
+          "full_name": "Kushagrabainsla/muse-spark-open",
+          "pushed_at": "2026-11-01T04:47:54Z",
+          "html_url": "https://github.com/Kushagrabainsla/muse-spark-open"
+        },
+        {
+          "full_name": "keell0renz/muse-open-kernel-challenge",
+          "pushed_at": "2026-11-01T07:11:10Z",
+          "html_url": "https://github.com/keell0renz/muse-open-kernel-challenge"
+        },
+        {
+          "full_name": "trxphxle/okc-2026-muse-kernels",
+          "pushed_at": "2026-10-31T10:57:07Z",
+          "html_url": "https://github.com/trxphxle/okc-2026-muse-kernels"
+        }
+      ]
+    },
+    {
+      "query": "\"Open Kernel Challenge\" in:readme pushed:>=2026-10-31",
+      "total_count": 11,
+      "incomplete_results": false,
+      "items": [
+        {
+          "full_name": "jacobpmiller/open-kernel-challenge-2026",
+          "pushed_at": "2026-11-02T04:11:28Z",
+          "html_url": "https://github.com/jacobpmiller/open-kernel-challenge-2026"
+        },
+        {
+          "full_name": "arunjyotisarmarsece24-jpg/neuro-spark-accel",
+          "pushed_at": "2026-10-31T11:43:43Z",
+          "html_url": "https://github.com/arunjyotisarmarsece24-jpg/neuro-spark-accel"
+        },
+        {
+          "full_name": "harikanthl/muse",
+          "pushed_at": "2026-10-31T03:17:01Z",
+          "html_url": "https://github.com/harikanthl/muse"
+        },
+        {
+          "full_name": "ruwwww/open-kernel-challenge",
+          "pushed_at": "2026-11-02T04:04:14Z",
+          "html_url": "https://github.com/ruwwww/open-kernel-challenge"
+        },
+        {
+          "full_name": "keell0renz/muse-open-kernel-challenge",
+          "pushed_at": "2026-11-01T07:11:10Z",
+          "html_url": "https://github.com/keell0renz/muse-open-kernel-challenge"
+        },
+        {
+          "full_name": "Akshaysanthosh/h200-kernel-lab",
+          "pushed_at": "2026-10-31T10:31:05Z",
+          "html_url": "https://github.com/Akshaysanthosh/h200-kernel-lab"
+        },
+        {
+          "full_name": "nvbkdw/muse-spark-open-challenge",
+          "pushed_at": "2026-11-01T17:50:04Z",
+          "html_url": "https://github.com/nvbkdw/muse-spark-open-challenge"
+        },
+        {
+          "full_name": "Kushagrabainsla/muse-spark-open",
+          "pushed_at": "2026-11-01T04:47:54Z",
+          "html_url": "https://github.com/Kushagrabainsla/muse-spark-open"
+        },
+        {
+          "full_name": "trxphxle/okc-2026-muse-kernels",
+          "pushed_at": "2026-10-31T10:57:07Z",
+          "html_url": "https://github.com/trxphxle/okc-2026-muse-kernels"
+        },
+        {
+          "full_name": "ishnbl/muse_kernel",
+          "pushed_at": "2026-10-31T14:08:33Z",
+          "html_url": "https://github.com/ishnbl/muse_kernel"
+        },
+        {
+          "full_name": "asifehmad/openkernel-challenge",
+          "pushed_at": "2026-11-01T19:33:18Z",
+          "html_url": "https://github.com/asifehmad/openkernel-challenge"
+        }
+      ]
+    }
+  ],
+  "public_sources": [
+    {
+      "repo": "ruwwww/open-kernel-challenge",
+      "commit": "c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d",
+      "path": "muse_moe_w4a16/submission.py",
+      "url": "https://raw.githubusercontent.com/ruwwww/open-kernel-challenge/c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d/muse_moe_w4a16/submission.py",
+      "bytes": 179162,
+      "sha256": "10e0690d7fc21244bf29f6df2916b89f0ddcbe8f94d7afe15983478d315883a3",
+      "locators": {
+        "wgs_phase": [
+          2268,
+          2583,
+          2585
+        ],
+        "wgs_seg": [
+          2166,
+          2283,
+          2284,
+          2285,
+          2286,
+          2287,
+          2288,
+          2289,
+          2290
+        ],
+        "WgsPend": [
+          2066,
+          2102,
+          2167,
+          2259,
+          2265,
+          2271
+        ],
+        "p.inter": [
+          613,
+          703,
+          728,
+          914,
+          1082,
+          1397,
+          1406,
+          1428,
+          1738,
+          2825,
+          2829
+        ],
+        "WGS_NS": [
+          1815,
+          1965,
+          1971,
+          1986,
+          2173,
+          2186,
+          2187,
+          2784
+        ],
+        "kW4A16Wait1": [],
+        "transform_b": [],
+        "INT4": [],
+        "_ctas_per_sm": [],
+        "num_stages < 3": []
+      }
+    },
+    {
+      "repo": "ruwwww/open-kernel-challenge",
+      "commit": "c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d",
+      "path": "muse_decode_layer/submission.py",
+      "url": "https://raw.githubusercontent.com/ruwwww/open-kernel-challenge/c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d/muse_decode_layer/submission.py",
+      "bytes": 568813,
+      "sha256": "3cee8ba759569172a9f8a38c59e6589dd8045db0d414e6b33294604aad11ba0e",
+      "locators": {
+        "wgs_phase": [
+          5925,
+          6240,
+          6242
+        ],
+        "wgs_seg": [
+          5823,
+          5940,
+          5941,
+          5942,
+          5943,
+          5944,
+          5945,
+          5946,
+          5947
+        ],
+        "WgsPend": [
+          5723,
+          5759,
+          5824,
+          5916,
+          5922,
+          5928
+        ],
+        "p.inter": [
+          4274,
+          4365,
+          4390,
+          4571,
+          4739,
+          5054,
+          5063,
+          5085,
+          5395,
+          6484,
+          6488
+        ],
+        "WGS_NS": [
+          5472,
+          5622,
+          5628,
+          5643,
+          5830,
+          5843,
+          5844,
+          6443
+        ],
+        "kW4A16Wait1": [],
+        "transform_b": [],
+        "INT4": [],
+        "_ctas_per_sm": [],
+        "num_stages < 3": []
+      }
+    },
+    {
+      "repo": "ruwwww/open-kernel-challenge",
+      "commit": "c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d",
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/ruwwww/open-kernel-challenge/c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d/README.md",
+      "bytes": 7802,
+      "sha256": "1ac8bee95b7ffd8ae0a224c95ccb51a66a3310212d400556b99a30be28639d94",
+      "locators": {
+        "wgs_phase": [],
+        "wgs_seg": [],
+        "WgsPend": [],
+        "p.inter": [],
+        "WGS_NS": [],
+        "kW4A16Wait1": [],
+        "transform_b": [],
+        "INT4": [],
+        "_ctas_per_sm": [],
+        "num_stages < 3": []
+      }
+    },
+    {
+      "repo": "novitalabs/chord",
+      "commit": "6199d44a863a165139d2fd8387b307bbe21f1ca9",
+      "path": "chord_kernels/operator/include/deep_gemm/impls/sm90_w4a16_gemm.cuh",
+      "url": "https://raw.githubusercontent.com/novitalabs/chord/6199d44a863a165139d2fd8387b307bbe21f1ca9/chord_kernels/operator/include/deep_gemm/impls/sm90_w4a16_gemm.cuh",
+      "bytes": 48474,
+      "sha256": "a2a28fb6651292d255ca2e7d877c763b26d5faa66e1fab394a47192368b115cd",
+      "locators": {
+        "wgs_phase": [],
+        "wgs_seg": [],
+        "WgsPend": [],
+        "p.inter": [],
+        "WGS_NS": [],
+        "kW4A16Wait1": [
+          425,
+          538,
+          618
+        ],
+        "transform_b": [],
+        "INT4": [
+          65,
+          83,
+          239,
+          480
+        ],
+        "_ctas_per_sm": [],
+        "num_stages < 3": []
+      }
+    },
+    {
+      "repo": "novitalabs/chord",
+      "commit": "6199d44a863a165139d2fd8387b307bbe21f1ca9",
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/novitalabs/chord/6199d44a863a165139d2fd8387b307bbe21f1ca9/LICENSE",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "locators": {
+        "wgs_phase": [],
+        "wgs_seg": [],
+        "WgsPend": [],
+        "p.inter": [],
+        "WGS_NS": [],
+        "kW4A16Wait1": [],
+        "transform_b": [],
+        "INT4": [],
+        "_ctas_per_sm": [],
+        "num_stages < 3": []
+      }
+    },
+    {
+      "repo": "novitalabs/chord",
+      "commit": "6199d44a863a165139d2fd8387b307bbe21f1ca9",
+      "path": "chord_kernels/operator/grouped/heuristics.py",
+      "url": "https://raw.githubusercontent.com/novitalabs/chord/6199d44a863a165139d2fd8387b307bbe21f1ca9/chord_kernels/operator/grouped/heuristics.py",
+      "bytes": 17859,
+      "sha256": "b66cb485accae3f8ce96c31eb3ebf6504298d470b204c5a3bc0aaec0f7700ea4",
+      "locators": {
+        "wgs_phase": [],
+        "wgs_seg": [],
+        "WgsPend": [],
+        "p.inter": [],
+        "WGS_NS": [],
+        "kW4A16Wait1": [],
+        "transform_b": [],
+        "INT4": [
+          182,
+          367
+        ],
+        "_ctas_per_sm": [
+          156,
+          160,
+          164,
+          201,
+          205,
+          242,
+          254,
+          258,
+          442,
+          444
+        ],
+        "num_stages < 3": [
+          279
+        ]
+      }
+    },
+    {
+      "repo": "novitalabs/chord",
+      "commit": "6199d44a863a165139d2fd8387b307bbe21f1ca9",
+      "path": "docs/design.md",
+      "url": "https://raw.githubusercontent.com/novitalabs/chord/6199d44a863a165139d2fd8387b307bbe21f1ca9/docs/design.md",
+      "bytes": 6178,
+      "sha256": "af5fe44d05d2633891cf2d35672ef323f5d44143e1bb9b17e56366fe84f8e338",
+      "locators": {
+        "wgs_phase": [],
+        "wgs_seg": [],
+        "WgsPend": [],
+        "p.inter": [],
+        "WGS_NS": [],
+        "kW4A16Wait1": [],
+        "transform_b": [],
+        "INT4": [],
+        "_ctas_per_sm": [
+          128
+        ],
+        "num_stages < 3": []
+      }
+    },
+    {
+      "repo": "novitalabs/chord",
+      "commit": "6199d44a863a165139d2fd8387b307bbe21f1ca9",
+      "path": "docs/performance.md",
+      "url": "https://raw.githubusercontent.com/novitalabs/chord/6199d44a863a165139d2fd8387b307bbe21f1ca9/docs/performance.md",
+      "bytes": 8588,
+      "sha256": "67c05acaa5733a70cb339f1bf162d78c33b37c8aff2c8db42458e43b03894b40",
+      "locators": {
+        "wgs_phase": [],
+        "wgs_seg": [],
+        "WgsPend": [],
+        "p.inter": [],
+        "WGS_NS": [],
+        "kW4A16Wait1": [],
+        "transform_b": [],
+        "INT4": [],
+        "_ctas_per_sm": [],
+        "num_stages < 3": []
+      }
+    },
+    {
+      "repo": "inclusionAI/humming",
+      "commit": "948e6fd547e703065be51529ac1db5569256774e",
+      "path": "humming/include/humming/kernel/humming_ws.cuh",
+      "url": "https://raw.githubusercontent.com/inclusionAI/humming/948e6fd547e703065be51529ac1db5569256774e/humming/include/humming/kernel/humming_ws.cuh",
+      "bytes": 12324,
+      "sha256": "70b88113671d993fad05643b60380ad95f3965d5e91ee10319efd0904baf18c6",
+      "locators": {
+        "wgs_phase": [],
+        "wgs_seg": [],
+        "WgsPend": [],
+        "p.inter": [],
+        "WGS_NS": [],
+        "kW4A16Wait1": [],
+        "transform_b": [
+          174,
+          214
+        ],
+        "INT4": [],
+        "_ctas_per_sm": [],
+        "num_stages < 3": []
+      }
+    }
+  ]
+}

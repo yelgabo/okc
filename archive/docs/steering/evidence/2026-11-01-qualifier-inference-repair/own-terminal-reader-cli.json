@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "wsl.exe",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    "tools/g_common_rmw_receipt.py",
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/c1931f0c9e834485.terminal.json",
+    "--job",
+    "c1931f0c9e834485",
+    "--source",
+    ".build/rmw-v2/short-rmw.py",
+    "--log",
+    ".build/rmw-v2/profiles/short-rmw.c1931f0c9e834485.log",
+    "--mode",
+    "check",
+    "--control",
+    "muse_decode_layer/profiles/scored.607eb52bdaf24160.json",
+    "--output",
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/c1931f0c9e834485.observation.json"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"job\": \"c1931f0c9e834485\", \"score\": 2.1212410493206884, \"qualification\": \"complete_native\", \"paired\": false}\n",
+  "stderr": ""
+}

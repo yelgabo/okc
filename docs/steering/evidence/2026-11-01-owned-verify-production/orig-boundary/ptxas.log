@@ -1,0 +1,16 @@
+ptxas info    : 5459 bytes gmem
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_6364c0cd_4763bnd24attn_boundary_geo_kernelILi1ELi512EEEvPKfPK13__nv_bfloat16S3_S3_S6_PfPS4_S7_ff' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_6364c0cd_4763bnd24attn_boundary_geo_kernelILi1ELi512EEEvPKfPK13__nv_bfloat16S3_S3_S6_PfPS4_S7_ff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 64 bytes smem
+ptxas info    : Compile time = 18.581 ms
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_6364c0cd_4763bnd20attn_boundary_kernelEPKfPK13__nv_bfloat16S2_S2_S5_PfPS3_S6_ff' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_6364c0cd_4763bnd20attn_boundary_kernelEPKfPK13__nv_bfloat16S2_S2_S5_PfPS3_S6_ff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, used 1 barriers, 40 bytes smem
+ptxas info    : Compile time = 11.315 ms
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_6364c0cd_4763bnd15boundary_kernelEPKfPK13__nv_bfloat16S5_S2_S2_S5_PfPS3_ff' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_6364c0cd_4763bnd15boundary_kernelEPKfPK13__nv_bfloat16S5_S2_S2_S5_PfPS3_ff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, used 1 barriers, 36 bytes smem
+ptxas info    : Compile time = 9.447 ms

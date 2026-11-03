@@ -1,0 +1,218 @@
+{
+  "job": "f0b875484960438b",
+  "source_sha256": "cf1dbda332e6a53fa581293d1ddf224c91447436e877c2ed005270c7dd1d04fe",
+  "rows": [
+    {
+      "tokens": 1,
+      "routing": "normal",
+      "control_us": 34.002666206409536,
+      "candidate_us": 35.54133325815201,
+      "delta_us": 1.5386670517424719,
+      "elapsed_percent": 4.525136477246106,
+      "paired_factor_geomean": 0.9567119207400411,
+      "paired_factor_range": [
+        0.9231022556520757,
+        0.9864134239514079
+      ],
+      "duplicate_log_null_range": [
+        0.013887639093558597,
+        0.024006651542535493
+      ]
+    },
+    {
+      "tokens": 1,
+      "routing": "skewed",
+      "control_us": 34.22399967287978,
+      "candidate_us": 35.26666667312384,
+      "delta_us": 1.0426670002440588,
+      "elapsed_percent": 3.046595985887368,
+      "paired_factor_geomean": 0.9766286749496675,
+      "paired_factor_range": [
+        0.9673686000154591,
+        1.0028561617861353
+      ],
+      "duplicate_log_null_range": [
+        0.006641057847545711,
+        0.02162975120043248
+      ]
+    },
+    {
+      "tokens": 8,
+      "routing": "normal",
+      "control_us": 79.26400067905585,
+      "candidate_us": 80.24800010025501,
+      "delta_us": 0.9839994211991581,
+      "elapsed_percent": 1.241420333025367,
+      "paired_factor_geomean": 0.9856075514003096,
+      "paired_factor_range": [
+        0.9593550959266527,
+        1.0087824147018418
+      ],
+      "duplicate_log_null_range": [
+        0.010360913891954242,
+        0.01853450961438394
+      ]
+    },
+    {
+      "tokens": 8,
+      "routing": "skewed",
+      "control_us": 40.792000169555344,
+      "candidate_us": 41.466666695972286,
+      "delta_us": 0.6746665264169422,
+      "elapsed_percent": 1.6539187184071213,
+      "paired_factor_geomean": 0.9795770352618779,
+      "paired_factor_range": [
+        0.9557719345633582,
+        1.0094585836715593
+      ],
+      "duplicate_log_null_range": [
+        0.013376336729227499,
+        0.034366734186733375
+      ]
+    },
+    {
+      "tokens": 16,
+      "routing": "normal",
+      "control_us": 117.57866789897282,
+      "candidate_us": 118.96533332765102,
+      "delta_us": 1.3866654286781994,
+      "elapsed_percent": 1.1793511981864402,
+      "paired_factor_geomean": 0.9882348820651282,
+      "paired_factor_range": [
+        0.9750427106211885,
+        1.0025157640203404
+      ],
+      "duplicate_log_null_range": [
+        0.006882805665289116,
+        0.01920537138403275
+      ]
+    },
+    {
+      "tokens": 16,
+      "routing": "skewed",
+      "control_us": 63.66933323442936,
+      "candidate_us": 64.96533347914617,
+      "delta_us": 1.296000244716808,
+      "elapsed_percent": 2.0355172245089426,
+      "paired_factor_geomean": 0.9805559535170644,
+      "paired_factor_range": [
+        0.9591374203818743,
+        0.9945633681521857
+      ],
+      "duplicate_log_null_range": [
+        0.0034706411119784703,
+        0.021859209664225356
+      ]
+    },
+    {
+      "tokens": 32,
+      "routing": "normal",
+      "control_us": 126.06399816771348,
+      "candidate_us": 126.36266772945721,
+      "delta_us": 0.29866956174373627,
+      "elapsed_percent": 0.23691899835383,
+      "paired_factor_geomean": 0.9957589307347205,
+      "paired_factor_range": [
+        0.9894893756469358,
+        1.0019182746625401
+      ],
+      "duplicate_log_null_range": [
+        0.00685842334216647,
+        0.016023535606994016
+      ]
+    },
+    {
+      "tokens": 32,
+      "routing": "skewed",
+      "control_us": 57.349333850046,
+      "candidate_us": 57.53066701193651,
+      "delta_us": 0.18133316189050674,
+      "elapsed_percent": 0.316190528672311,
+      "paired_factor_geomean": 0.9974691461363839,
+      "paired_factor_range": [
+        0.970926122987202,
+        1.0093899298876217
+      ],
+      "duplicate_log_null_range": [
+        0.00607007855444246,
+        0.02654323546671271
+      ]
+    },
+    {
+      "tokens": 128,
+      "routing": "normal",
+      "control_us": 187.00266629457474,
+      "candidate_us": 186.67466565966606,
+      "delta_us": -0.32800063490867615,
+      "elapsed_percent": -0.1753989081588747,
+      "paired_factor_geomean": 0.999841271464236,
+      "paired_factor_range": [
+        0.9910547061676288,
+        1.0055724220322373
+      ],
+      "duplicate_log_null_range": [
+        0.0020420395914855175,
+        0.009835476486245854
+      ]
+    },
+    {
+      "tokens": 128,
+      "routing": "skewed",
+      "control_us": 102.61599905788898,
+      "candidate_us": 103.38666662573814,
+      "delta_us": 0.7706675678491592,
+      "elapsed_percent": 0.7510208689917919,
+      "paired_factor_geomean": 0.9922001074194359,
+      "paired_factor_range": [
+        0.9824003345250361,
+        1.0028040831239318
+      ],
+      "duplicate_log_null_range": [
+        0.004709785195950425,
+        0.015388582101095177
+      ]
+    },
+    {
+      "tokens": 256,
+      "routing": "normal",
+      "control_us": 233.57866580287615,
+      "candidate_us": 233.93599689006805,
+      "delta_us": 0.3573310871919091,
+      "elapsed_percent": 0.15298104643404198,
+      "paired_factor_geomean": 0.9986139055433998,
+      "paired_factor_range": [
+        0.9908198964963032,
+        1.0043431983770716
+      ],
+      "duplicate_log_null_range": [
+        0.002097173625668372,
+        0.009056331545606615
+      ]
+    },
+    {
+      "tokens": 256,
+      "routing": "skewed",
+      "control_us": 158.69066740075746,
+      "candidate_us": 159.76533169547716,
+      "delta_us": 1.074664294719696,
+      "elapsed_percent": 0.6772069916409995,
+      "paired_factor_geomean": 0.992645332619221,
+      "paired_factor_range": [
+        0.982387491330518,
+        1.0006359387676742
+      ],
+      "duplicate_log_null_range": [
+        0.0016154095238619089,
+        0.007840976185752212
+      ]
+    }
+  ],
+  "affected_aggregate_range": [
+    0.9664135137283059,
+    0.9901670391269535
+  ],
+  "affected_aggregate_geomean": 0.9778321353105629,
+  "repeat_count": 8,
+  "uncertainty": "No paired confidence interval. Raw row factors and duplicate log nulls retained; one unchanged T256 skewed cell exceeds its frozen drift gate.",
+  "decision": "Park exact NS4 treatment, retain NS3, no confirmation"
+}

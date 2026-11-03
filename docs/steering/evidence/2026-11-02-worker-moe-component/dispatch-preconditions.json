@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-11-02T17:26:49.490434+00:00",
+  "team": "yelgabo",
+  "board": "muse_moe_w4a16",
+  "mode": "check",
+  "private_left": 10,
+  "live_moe": [],
+  "deterministic_rebuild_exact": true,
+  "source_sha256": "8f12932a4d0fc8a2ca42a165610fd7659d4db960d8c65c8ea97281b75ec46d5d",
+  "source_bytes": 344689,
+  "registration_commit": "adcfa8e548bb3af2780fa1ccd24d53c5e9f59e81",
+  "command": [
+    "okc",
+    "check",
+    "docs/steering/evidence/2026-11-02-worker-moe-component/generated/target-proposal.py",
+    "--no-wait",
+    "--json"
+  ]
+}

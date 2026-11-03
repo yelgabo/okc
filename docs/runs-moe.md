@@ -3,6 +3,718 @@
 Every `okc check` on `muse_moe_w4a16`, newest last. Scores are the judge's speedup over
 SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/`.
 
+## October31 PDT active top10 campaign (post-login)
+
+Source baseline `d3eeeda`. Two checks dispatched from `codex/today-moe`; neither is a scored
+submission. Existing precision, ordering, gate thresholds and production policy unchanged.
+
+| job | source/artifact | purpose | status at dispatch |
+|---|---|---|---|
+|7631974774944a2a | current submission.py copied unchanged to `.build/today-moe/production51.py`; SHA25666618198aafc4d14cfe0350bf561fe8abc66f3d5bc9f6df1dbd2518508297c01 | fresh single-file correctness/timing for owned mode51 policy before coordinator's scored runs | pending |
+|e06255199f6d4de1 | `.build/today-moe/xp_diag.py`; SHA25665439aaad129401c62c40400e2a2eaccf5a360255f318c1b8469ad85b7622e3a | producer readiness/empty-slot attribution before any ring resizing | pending |
+
+Diagnostic reproduction:
+
+```
+python3 tools/moe_make_bench_ab.py .build/today-moe/xp_base.py unused.py --nopub=1 --base=51 --sizes=128,256 --routings=layer,std --seeds=211,212 xp=56
+python3 tools/moe_xprod_diag_patch.py .build/today-moe/xp_base.py .build/today-moe/xp_diag.py
+```
+
+The generated file repurposes diagnostic56 as51 plus xproducer-only local counters, disabling
+56's old light/skew/gather instrumentation so consumers match51. Other production predicates
+are unchanged. Phase A/B and job<=4/>4 n-tile buckets each store ready cycles, empty-region
+cycles, stage count and readiness-event count. StaticA times its xready spin only; claimedB
+times the done_as acquire **and proxy-fence region**. Empty region includes clock overhead
+and first-lap paths without a barrier wait. These are regions, not pure spin or utilization.
+Mode56, like51, does not claim phaseA dynamically (claim_a/claim_lean false).
+
+Counter storage is16 int64 values at `(1<<20)-16384+cta*64` in inter, below existing stage
+stamps at1<<20. G<=256 bounds the entire reservation; the host asserts both this and allocation
+bounds. Numerical fat51/56 paths do not use inter; skinny modes are not active for this arm.
+Single lane0 xproducer owns each CTA's16 words and writes all counters including zeros every
+launch. Host reads only after synchronization. Root read-only review confirms no changed
+acquire, proxy fence, barrier or release, and no consumer lifetime/alias issue at these bounds.
+Instrumentation can change producer pacing/register use; compare its timing with clean51 and
+use counters directionally. This is attribution only, never a submission candidate.
+
+Production check7631974774944a2a completed:5/5 official tests,2.193073x (95%CI
+2.160177–2.225969), spin flags0, policy FP32 worst error3.94e-3. Selected sk8w3s at
+1/8/16/32 and mode51 at128/256. Prepare reports228736B shared memory and152.3s build.
+This is below the existing2.215712x board best within normal variance; no new algorithmic
+gain is attributed. Frozen artifact/hash sent to coordinator for today's authorized scored
+runs. Saved status JSON, raw log and normalized profile text under
+`muse_moe_w4a16/profiles/production51.7631974774944a2a.*`.
+
+Coordinator dispatched scored336f3a63bd6a44f3 from the frozen production51 artifact after
+the successful exact-file check. Pending at dispatch. This file tunes policy; the check
+selected skinny at32, so the name does not mean mode51 executes at every token count.
+
+Scored336f3a63bd6a44f3 completed: passed5/5,2.199082x (95%CI2.166096–2.232068),
+policy again skinny1/8/16/32 and51 at128/256, spin flags0, policy FP32 worst3.96e-3.
+Below board best2.215712x; no headline improvement. Receipt/log saved
+`profiles/scored.336f3a63bd6a44f3.{json,log}`. Submitted by root, not this agent.
+
+### Producer diagnostic result: e06255199f6d4de1
+
+Passed5 official tests; control score2.191867x,95%CI2.158989–2.224745. All measured xp outputs
+equal clean51 at128/256 on layer/std seeds211/212. Instrumentation slows the full kernel by
+1.7/2.0us at128 (layer/std) and1.0/1.3us at256. These are diagnostic costs, not improvements.
+All32 ABXP bucket rows survive in the saved log; status/log/profile text committed under
+`profiles/xprod.e06255199f6d4de1.*`.
+
+Measured phase-A empty-region cycles dominate readiness: for256 layer seed211 summed over
+CTAs and both size buckets, empty18.847M versus ready0.962M. Phase B empty6.794M versus
+ready2.586M. At128 std seed211 (all small jobs), A empty19.852M versus ready1.555M, B
+empty6.828M versus ready3.192M. These sums overlap across CTAs, include instrumentation and
+the regions specified above, and are NOT additive wall time or attainable savings.
+
+**Correction to the preceding minority premise:** at256 layer seed211, A small-job stages
+9216 versus large2560 (78.3% small); std seed21112288 versus1536 (88.9% small). At128 std
+both seeds100% small. Small means<=4 n-tiles. This directly contradicts the older expectation
+that such jobs are a minority on these inputs, so a bounded deeper-ring capacity test is now
+justified by new evidence. It does not prove variable-sized per-job rings profitable or safe.
+
+Next proposed test, independent of the diagnostic: fixed four x slots at the launch's current
+stride, retaining208896-byte ring budget by reducing weight slots (3+3 becomes2+4 at32KB).
+The exact release/acquire sequence remains; every producer/consumer moves modulo4. Reuse
+diagnostic-only S.dg[0][0:2] for fourth xfull/xempty barriers, avoiding production shared-layout
+changes. Mode87 aliases51 traits; production mode51 remains3slots. Independent ordering and
+alias review required before dispatch. Gate:>=1.5us at256 and>=1us at128 on layer/std with
+consistent fresh seeds; no material32-token regression, no correctness/spin/replay failure.
+Any win needs a second paired confirmation, no promise of a score gain from wait-cycle totals.
+
+### Fixed four-slot capacity gate dispatched
+
+Check39804be1a59c429c: `.build/today-moe/ring4_gate.py`, SHA256
+5e8eaa8f1704c50be4d174f0ac2a2980bc0f86408852d4bbf34a81ca9156de31.
+Builder: `moe_make_bench_ab.py --nopub=1 --base=51 --gate=1 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=221,222,223,224 o87=87`, then
+`tools/moe_ring4_patch.py IN OUT`. Production submission.py is unmodified.
+
+Independent audit_attention_moe review found no issue: all7 x advances use modulo4;
+init/access covers the fourth barrier; mode87 traits equal51, including align_b. Diagnostic
+traits are false, so S.dg[0][0:2] has no overlapping writer. Ring byte usage for8K/16K/32K
+slots is180224/176128/204800B, all<=208896. Same producer/consumer stream and unchanged
+WGMMA-retire/release chains preserve phase/lifetime. Remaining constant3 stamp ordinals
+compile out for87. This proves only the reviewed source chain, not compiled correctness
+or profitability. Fewer weight slots remain a coupled performance cost to measure.
+
+Ring4 result39804be1a59c429c:5/5 official tests pass, judged control2.201468x
+(95%CI2.168446–2.234490). Outputs at128/256 bitwise equal51 on every measured seed;
+32-token maximum relative difference3.5e-5. Gate fails clearly:
+
+| tokens | layer o87-51 us | std | skewed |
+|---|---:|---:|---:|
+|32 |+0.1 |-0.4 |-0.5 |
+|128 |+2.2 |+1.5 |+1.2 |
+|256 |+2.9 |+3.9 |+1.9 |
+
+Every256 seed loses;128layer/skewed everyseed loses. No confirmation/promotion warranted.
+Production source and allpolicy tables unchanged. Generator retained as reproducible parked
+experiment, receipt/log/profiletext in `profiles/ring4.39804be1a59c429c.*`. This rejects the
+fixed4slot/one-less-weight-slot tradeoff, not all deeper or per-job rings. Hypothesis: lost
+weight lead outweighs extra x lead; neither purecause is isolated. Root asked to pivot to a
+structurally different official-library groupedMoE comparison, not repeat this geometry.
+
+### Primary-source Humming API feasibility (read-only, not a performance result)
+
+Source pinned `vllm-project/humming` commit948e6fd547e703065be51529ac1db5569256774e,
+inspected in ignored `.build/humming-api`; root separately probes the actual installed image.
+CurrentGitHub API cannot be assumed to match the image's package.
+
+- [`tests/kernels/humming/test_moe.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/tests/kernels/humming/test_moe.py)
+  explicitly covers grouped-contiguous BF16 input/output with float4e2m1 weights,
+  float8e4m3 group scales,16-element scale groups and tensor secondary scales.
+- [`humming/schema/humming.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/humming/schema/humming.py)
+  expects raw weight int32[E,N,K/8], scale[E,N,K/16], secondary scale[E,1]float32.
+  Original packed uint8 weights can be viewed as int32 without changing bits. Use
+  `HummingLayer.load_from_tensors`, NOT `load_from_unquantized` (which requantizes),
+  and call transform only in prepare. Preserve original NVFP4/E4M3/FP32 scale values.
+- [`humming/layer.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/humming/layer.py)
+  exposes HummingLayer(shape_n,shape_k,weight_config,input_config,num_experts,torch_dtype)
+  and forward(expert_layout,compute_config,top_k,...). Config: weight float4e2m1,
+  bs float8e4m3, group16, tensor scale2; input/output BF16, input quantization disabled,
+  compute use_f16_accum=False. Original SGLang Marlin baseline likewise passes one FP32
+  tensor scale per local expert, so that tensor-granularity mapping is supported.
+- [`humming/testing/data.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/humming/testing/data.py)
+  shows grouped-contiguous expert_layout as int64 exclusive-prefix offsets[E+1].
+  Gather BF16 route rows contiguously by expert; use top_k=1 once replicated. GEMM2 can
+  reuse the grouped ordering. Inverse scatter and weighted per-expert normalization
+  remain explicit. Test runner's `.item()`-sized allocation must NOT be copied into
+  timed kernel_fn: reserve fixed shape/config-derived capacity and pass device offsets.
+
+Legal integration must retain BF16 gate/up, BF16 filtered-SiLU product before GEMM2,
+BF16 GEMM2 output before per-expert RMSNorm, then routing weights. No FP8 activation
+shortcut, no routing-before-norm movement, no requantized weight cache. Prefer explicit
+GEMM stages over a fused MoE API that hides those boundaries. Compilation/correctness,
+nearby shapes, graph capture and speed remain entirely untested here.
+
+### Humming0.1.12 indexed integration prototype (no dispatch yet)
+
+Root capability check e30ec1bf8e8142df confirms installed Humming0.1.12. Exact release
+source inspected at `636ba85648c30ae2c2bfb335c9399593a67ecc1d` (tagv0.1.12), not the newer
+GitHub API above. **Grouped-contiguous is unsuitable for a partially filled fixed-capacity
+matrix in this release**: scheduler.cuh160 computes last expert length from shape_m, ignoring
+the final device offset. It would assign unused R=M*8 tail rows to expert31, wasting work.
+No such backend was dispatched. INDEXED instead supports device num_tokens_padded and
+sentinel masked row IDs without dynamic host sizing.
+
+`tools/prefill_humming_indexed.py BASELINE.py OUT.py` constructs only a prefill expert
+replacement and prepare extras, preserving every other baseline stage. Own Triton kernels
+count/rank local routes, construct per-GEMM padded prefixes, sorted IDs and block expert IDs.
+Caller-relative IDs0..31 are local; all others become -1 in the postnorm slot mask. Arbitrary
+device local_start remains handled by the original caller's shifted-ID expression.
+
+For each GEMM, BM comes from the explicitly passed Humming heuristic config, so metadata
+alignment matches the kernel's BlockShape::M. R=M*8; Sorted capacity is
+`(ceil(R/BM)+32)*BM`, expert-block capacity `ceil(R/BM)+32`, initialized sentinel R and
+expert0 respectively. Only blocks for actual local experts0..31 enter device NP. Every
+valid route occupies exactly one block row and retains its original route ID as write index.
+Humming scheduler.cuh139 reads NP to limit blocks; scheduler.cuh306–330 divides sorted IDs
+by top_k for input rows. loader_a.cuh108/140 masks reads by input shape_m; gmem_writer.cuh73/105
+masks output IDs by shape_m*top_k. Thus sentinelR maps to M (out of bounds) with GEMM1top_k8
+and to R with GEMM2top_k1, and is masked in both. Zero-routes produces NP0 safely without
+fake expert blocks. Partially filled final multicast tiles also have safe sentinel/expert0
+metadata. All matrices c1/c2/c3 are zeroed every call so unused nonlocal rows remain finite.
+
+GEMM1 uses BF16 x[M,4096] and BF16 output[R,8192]; unchanged SGLang silu_and_mul writes
+BF16[R,4096]; GEMM2 writes BF16[R,4096]; unchanged fused post-expert norm/weighted sum uses
+original topk weights and the filtered local slot mask. FP32 accumulation is explicit.
+Weights are loaded from original packed bits, E4M3 scales and FP32 tensor scales and only
+transformed in prepare. No activation quantization or weight requantization is introduced.
+
+Scratch is cached by metadata shape M, retaining old allocations so captured graphs remain
+valid. Every replay zeroes counts and matrix outputs and rewrites all rank/local entries and
+metadata; no input-derived answer is cached. No item()/CPU sync or input-dependent allocation
+occurs in the new experts call. Streams serialize rank->prefix->sort->GEMM stages. Distinct
+HummingLayer objects retain distinct lock buffers. Cache capacity is about4GiB at M16384,
+plus smaller per-shape buffers, not32 separate expert-capacity matrices.
+
+Generator output passes Python compilation. CPU contract oracle
+`tools/test_humming_route_contract.py` passes adversarial all-nonlocal/all-expert0/all-expert31,
+distributed and random routes under shuffled atomic order at BM16/32/64/128, verifying
+capacity, valid-route bijection, expert block ownership and sentinel bounds. This does NOT
+execute Triton or prove runtime Humming compatibility. Root requested independent source
+review before a backend check; queued replay, official correctness and cold timing remain
+required. No Humming performance or candidate promotion is claimed yet.
+
+### Prefill Humming backend check dispatch and ABI correction
+
+Root requested and reviewed the fixed-capacity INDEXED prototype; independent reviewer
+verified v0.1.12 scheduler/sentinel ABI, capacity, row mapping, precision and graph lifetimes.
+Preserve original FP32 contiguous topk weights and I32 contiguous IDs. A cache miss during
+capture now fails closed; scratch must first be warmed eagerly. First dispatch was
+be3cbc7f5a234c64 (`muse_prefill_layer`), file SHA256
+e53d374f6cf4239705cd3d20998ca3364ef0477dadd49031bafda0bff7324319.
+
+It failed in prepare before any GEMM: installed Humming0.1.12 expects tensor-scale parameter
+shape[32], whereas the source-derived wrapper supplied[32,1]. This is an integration ABI
+failure, not evidence of a mathematical failure or slow backend. Receipt/log retained as
+`profiles/prefill_humming.be3cbc7f5a234c64.{json,log}`. Corrected wrapper uses
+`gs.reshape_as(layer.weight_scale_2)`, a metadata-only operation on original FP32 scale values.
+
+Corrected plain check0de84000097946c9 dispatched, file SHA256
+bf6d95ae1cbba377dc5bd4a2cd9774815a54ebb26ddcfcab9a33834220c87232, pending. After this
+dispatch, generator additionally asserts both scale tensors contain32 values and are FP32,
+and uses contiguous original values instead of a redundant .float() no-op. The in-flight
+file remains frozen. These guards must be in the later fresh-stress/release build and checked
+before promotion. Package version alone did not guarantee the exact parameter ABI.
+
+`tools/prefill_humming_stress.py` is prepared, not dispatched: M32 four synthetic banks
+(zero-local, one-local expert, eight-local, changing mixed routing) and2000 queued graph
+replays with copied fresh x/IDs/topk weights. Device checks compare counts/NP to expected
+local counts, enforce exact zero on nonlocal cases and compare numerical error to a matched
+64-call eager envelope. This detects stale state/replay errors; official plain tests supply
+independent mathematical correctness. No stress dispatch until corrected plain check passes.
+
+### First passing Humming prefill candidate and fresh replay gate
+
+Corrected plain0de84000097946c9 passed5/5 at1.176449x (95%CI1.158802–1.194096), versus
+SGLang in the same run. This is a real candidate score, not an instrumented arm's control.
+Judged times us (candidate/SGLang): turn1 sliding935.6/1024.3, full1344.0/1437.2;
+turn4 sliding2750.1/3314.4, full4385.3/4944.5; firstturn's four cases
+14233.8/18455.6,13276.0/17184.6,17701.8/21581.7,21406.1/25391.9.
+Receipt/log/profile text retained as `profiles/prefill_humming_v2.0de84000097946c9.*`.
+
+Runtime heuristic BM values were104,160,176 (not necessarily powers of two), N256/K64,
+4stages, FP32 accumulation. CPU capacity oracle now also covers these observed BM values.
+
+Fresh-stress ece54526780a4f28 passed5 official tests and the M32 synthetic gate:2000 queued
+fresh x/IDs/weights replays versus64 eager controls, all four input banks. Peak relative error
+0.00242335 in both graph and eager, peak row-unit error0.0097561 in both, nonfinite0,
+share over1e-4 graph0.1265 versus eager0.203125, bad counts/NP0, nonlocal output exact0.
+Matched eager-envelope, row/share and order1 gates passed without relaxing official tests.
+This is state freshness evidence; plain/official tests establish independent model correctness.
+The stress build's1.140469x (95%CI1.123362–1.157576) must not be compared as an isolated
+optimization with the separate1.176449x run: prepare/allocation/process effects differ.
+Receipt/log/profile text: `profiles/humming_stress.ece54526780a4f28.*`.
+
+Root requested a pure first-submission candidate. Frozen `.build/today-moe/prefill_humming_v3.py`,
+SHA256f3024d1b01a5ef2bf655dcffe3110849ab6b0de15aecad6dba388f09e7ffb8fa, is byte-for-byte
+the prefix of the passing stress file. The only removed code is its appended prepare-time
+diagnostic wrapper. GPU functions, core prepare, _experts and FP32 ABI guards are identical.
+Path/hash/proof sent to root; this agent has not submitted publicly.
+
+### Experts-component paired confirmation and heuristic shape factor
+
+Check7598f81b9b4645f9 dispatched, SHA256c8e4e3bebccf01b7ea05defd2b99ed3e48f357775923e807b897c9568bc1168b.
+`tools/prefill_humming_component_bench.py CANDIDATE BASELINE OUT` uses Marlin/Marlin2,
+HummingR/R2, HummingM/M2 on identical supplied weights and held-out activation/routing seeds
+271/272 at753,3012,16384 tokens,12 randomized cold-L2 graph rounds. Duplicate Humming arms
+share only read-only transformed weights; each owns lock buffers, mutable metadata and
+scratch. Duplicate Marlin banks have independent workspace. Config factor only: Humming
+heuristics see R=M*8 versus estimated local M; actual tensor dimensions and device metadata
+remain unchanged, and no input-derived value chooses a policy. No zeroing removal is mixed in.
+All arms compare mathematical outputs with Marlin before timing; component time is not a
+whole-prefill score. HBSTOP explicitly marks incomplete coverage beyond the230s setup guard.
+Component7598f81b9b4645f9 completed5/5 official tests; control headline1.143518x
+(not an arm score). All six arm correctness checks and all sizes completed, no HBSTOP.
+At753, M minus R paired medians were -109/-162us on seeds271/272 (M2 -110/-162us),
+with R2 duplicate controls +1.8/+0.7us. At3012, M -228/-111us (M2 -230/-111us),
+R2 -1.1/-1.6us. At16384 results unresolved: M +9/-25us, M2 +44/+6us,
+R2 +37/+26us. Marlin versus indexedR medians at3012 were2467/2775 versus2024/2065us;
+at16384,13749/8780 versus9235/6687us. These establish component opportunity, not
+projected aggregate improvement. Receipt committed as `profiles/humming_component.7598f81b9b4645f9.json`.
+
+### Global local-M heuristic fresh gate: closed
+
+Checkec3618d1604e44ba used local-M estimate globally, same original four-bank fresh
+gate at32,64 eager controls and2000 queued replays. FAILED prepare before official tests.
+Metadata/nonfinite/zero-local errors all0, rel eager0.0011458 versus graph0.0016904,
+row0.00909 versus0.01042, but share of rel>1e-4 was0.046875 eager versus0.5 graph,
+violating the unchanged2x eager-share envelope. Small-shape heuristic changed BM24 to8.
+No math/latency score and no promotion; thresholds were not weakened. JSON/log committed
+as `profiles/humming_local.ec3618d1604e44ba.*`.
+
+New bounded policy is justified solely at paired-winner sizes753/3012; routed estimate
+remains at32 and unresolved16384. Checkd26a87ca2f484145 dispatched from
+`.build/today-moe/prefill_humming_bounded_stress.py`. Pure core is
+`.build/today-moe/prefill_humming_bounded.py`; diagnostic suffix runs the unchanged
+four-bank/64 eager/2000 queued gate at each of32,753,3012. No zero-removal or masked
+layout mixed in. CPU route contract oracle and generated syntax pass.
+
+Bounded d26a87ca2f484145 FAILED at unchanged32-token control before reaching either
+changed shape. Eager64 rel/row/share all0; graph2000 rel0.00232594,row0.010989,
+share0.002 (four outliers); metadata/nonfinite/zero-local errors all0. Same incumbent
+BM24. This is evidence of sparse nondeterminism and a short eager envelope, **not**
+evidence of a bounded753/3012 performance loss. No promotion or tolerance relaxation.
+Status/log committed `profiles/humming_bounded.d26a87ca2f484145.*`.
+
+Root approved a new isolated mechanism: disable Stream-K under original routed heuristic.
+Check74eb65dad3fa4e54 pending; pure `.build/today-moe/prefill_humming_nostream.py`,
+diagnostic `_nostream_stress.py` runs the unchanged32/753/3012 fresh gates. Pinned0.1.12
+`forward.py:110` serializes explicit tuning dict, `kernel/humming.py:505–513` uses provided
+tuning and merges into KernelConfig; `config/config.py:337` declares use_stream_k.
+No shape policy, precision, zeroing, routing or tolerance change. Generated syntax passes.
+
+### GROUPED_MASKED offline prototype (not dispatched)
+
+`tools/prefill_humming_masked.py` retains exact reviewed NVFP4 weight loading and rank
+metadata, using counts as Humming expert_layout. Source pinned0.1.12 scheduler masked
+case uses per-expert actual counts and capacity shape_m/32, allowing fixed GPU capacities
+without contiguous last-expert overcomputation. Shape-only tuning estimate m; real input
+shape32*MCAP. MCAP rounds m to lcm(BM1,BM2); top8 unique guarantees each expert count<=m.
+Device assert enabled explicitly with debug=True, pointer accesses also masked by rank<cap.
+No data-derived host reads/cache. Fresh counts reset each call, retained per-shape buffers
+fail closed on first allocation during capture. Planned bytes/free memory printed outside
+capture; insufficient memory fails the complete candidate, not partial coverage.
+
+Own gather writes one exclusive grouped slot per local route; G1 tailzero covers only
+[count,ceil(count/BM1)*BM1), no zero-count work. Guarded route-indexed SiLU uses FP32
+math and one BF16 store, reads only initialized valid G1 rows. G2 tailzero similarly covers
+BM2 remainder; G2 output scattered only for live rank/ID and other route rows explicitly0.
+Original expert norm then routing-weight order retained. No whole20GB buffer clears.
+CPU oracle `tools/test_humming_masked_contract.py` passes unique routing, slot bijection,
+capacity, tail disjointness and zero-count proof for1/8/32/753/3012/16384 tokens across
+BM8/24/64/104/128/160/176 combinations. Syntax passes; GPU correctness/performance untested.
+
+Ordering source: [PTX8.7 section8.9.4 API synchronization](https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#memory-synchronization).
+Completed prior same-stream task synchronizes with next start; kernel/graph dependency
+boundaries participate in proxy-preserved base causality. Thus ordinary gather/tailzero/
+SiLU kernel completion orders global writes before subsequent TMA reads. No PDL,
+overlapping dependent kernels or helper-written tensormap mutation; all Humming internal
+fences preserved. Humming's existing grouped-C descriptor updates (`scheduler.cuh:333–345`)
+retain tensor_map_release_cta/tensor_map_acquire_cta; these are a separate library chain
+from the completed-kernel global-input visibility argument. Independent read-review
+requested before any masked dispatch.
+Correction: INDEXED disables TMA/warp specialization, not necessarily WGMMA. No instruction
+family comparison is measured without SASS. Masked exactNVFP4 support still needs GPU check.
+
+Independent audit_attention_moe read-review found no layout/lifetime issue; confirmed
+both tail invocations explicitly enable debug=True. Provided tuning dictionary preserves
+the actual chosen BM (same explicit-config API chain cited above). Root approved plain
+correctness/resource/performance check c1f6023f03d34c72, dispatched from
+`.build/today-moe/prefill_humming_masked.py`, SHA256
+3314d555570555271f944adf4c8ef19553a4252a1d1f499d4d81732ebdfd75e5.
+Pending. Default StreamK policy retained for this new-backend initial gate; separate
+deterministic prerequisite, if needed, will be recorded and validated before promotion.
+Pure indexed-noStreamK source SHA256d88863eede8104c35948c0ad8c29fd7cca8aa0db291f3e272f45562e368fb1a4.
+
+Indexed-noStreamK74eb65dad3fa4e54 completed5/5 tests,1.092871x (95%CI1.076478–1.109264).
+All ten fresh statistics exactly0 at32/753/3012: matched64 eager and2000 queued per
+shape, including metadata, zero-local and nonfinite. Printed configs allFalse; BM24 at32,
+104 at300,160 at1506,176 at600/753/3012/4096/16384; corresponding remaining tile config
+unchanged. This is strong evidence that disabling StreamK resolves the observed replay
+variation on these cases, but it loses aggregate performance versus scoredR incumbent
+1.146466 (different runs, no isolated speedup claim). Candidate/SGLang per-shape median us:
+
+| shape | noStreamK | SGLang |
+|---|---:|---:|
+|753 turn1 sliding|1157.6|1081.2|
+|753 turn1 full|1512.7|1483.5|
+|3012 turn4 sliding|2862.4|3216.0|
+|3012 turn4 full|4392.9|4842.7|
+|16384 firstturn full ctx0|13938.0|17230.7|
+|16384 firstturn sliding ctx32768|13726.0|17245.9|
+|16384 firstturn full ctx32768|17529.2|20570.6|
+|16384 firstturn full ctx65536|21118.9|24225.5|
+
+Root approved deterministic-base bounded753/3012 localM factor to seek compensation.
+Checkda9700816b1641ea pending, pure `.build/today-moe/prefill_humming_nostream_bounded.py`
+differs only shape_estimate=bounded, all othersR, StreamKFalse. Same unchanged fresh3shape
+gate. No zero/masked combination; paired controls required before promotion.
+
+Maskedc1f6023f03d34c72 completed5/5 initial correctness tests but FAILED16384 benchmark
+recheck0: residual update relL2 0.6951 exceeds0.0422345 bound. No aggregate score. Smaller
+753/3012 benchmark setup reached, not enough to claim backend correctness. At16384:
+CAP16544,planned22759342208B,free93950246912B,total150109880320B; BM176,N256,K64,
+four stages, TMA/warpspec/mbarrier/StreamKTrue. Thus capacity allocation feasible on this
+image; replay/math failure unresolved. All printed configs and resources saved in
+`profiles/humming_masked.c1f6023f03d34c72.*`. Independent source review investigating
+TMA physical row footprint and grouped StreamK fixups; no blind sameconfig rerun approved.
+
+Concrete source hypothesis found after failure: own grouped Triton row*stride uses signed
+I32 arithmetic. AtCAP16544,32*CAP*4096=2168455168 elements exceeds2^31; C1 stride8192
+exceeds2^32. This matches16384 failure onset, while smaller shapes fit. Every grouped
+row is now widened to tl.int64 BEFORE stride multiplication at four sites: gather,
+tailzero, SiLU, scatter. Original failing artifact preserved; corrected frozen source
+`.build/today-moe/prefill_humming_masked_i64.py`. CPU boundary test confirms row itself
+fitsI32 but final offsets wrap; both contract tests pass. TMA A descriptor source
+`csrc/launcher/tensor.h:261–276` uses exact block_shape_m, no176->192 padding found.
+Independent exact-fix review requested; GPU confirmation still needed before causality claim.
+
+Independent audit confirms all four widened-before-stride sites and unchanged exact176-row
+TMA footprint. Root approved corrected single-factor gate f92ffc2953284a9a, dispatched
+from frozen `_masked_i64.py`, SHA256
+63eb4171f1813887b8f4c6b855770b54ebaa761f7176b1344ee21881002ded5f. Pending;
+only four pointer-width casts differ, no noStreamK/heuristic/zeroing change.
+
+Deterministic boundedda9700816b1641ea completed5/5 and all ten fresh statistics exactly0
+at32/753/3012,64 eager and2000 queued each. Headline1.161679904x,95%CI1.144254706–1.179105103.
+Actual753 BM48: G1N256K64,G2N128K128;3012 BM128,N256,K64 both. All use_stream_kFalse.
+Other shapes retain originalR configs. Candidate/SGLang medianus by officialindex0–7:
+1024.4/1063.5,1416.3/1435.7,2600.8/3316.2,4185.7/4907.4,13958.4/17261.1,
+13419.5/16795.9,17532.2/20533.4,21149.7/24278.2. Aggregate versus incumbent is
+cross-run and overlappingCI; paired component compensation gate remains required.
+Pure `_nostream_bounded.py`, SHA25629770518d1e74dae4a645193a06c8f76c5346d7263933352abf101c932bcaf5d,
+is exact prefix of passing stress source. New generator policy arg reproduces AST exactly.
+Paired duplicate component21e98162b7114898 dispatched: same original six arms, heldout271/272,
+cold random12rounds, shapes753/3012 only, allR/R2/M/M2 use_stream_kFalse. Pending; no
+zero-removal/masked combination. Status/log saved `profiles/humming_nostream_bounded.da9700816b1641ea.*`.
+
+Corrected maskedf92ffc2953284a9a PASSED5/5 and all8 benchmark rechecks,1.294149997x
+(95%CI1.274737747–1.313562247). Four casts alone fix the large-shape failure under
+unchanged configuration; this confirms the specific overflow fix on all official shapes.
+Candidate/SGLang medianus index0–7:968.2/1050.5,1342.6/1442.8,2339.4/3236.7,
+3942.8/4871.7,11138.3/16974.8,10813.7/16884.5,14799.2/20750.1,18662.9/24540.5.
+Largest allocation plan22.759GB, full coverage fits with last observed free43.369GB before
+allocation. Same TMA/warpspec/mbarrier/StreamKTrue configs. Not promoted until fresh edge
+gate; component score improvement versus other runs is not an isolated backend speedup.
+Receipt/log committed as `profiles/humming_masked_i64.f92ffc2953284a9a.*`.
+
+Root approved poisoned fresh gate defbb042449d44e7, pending. Pure63eb4171... source
+prefix unchanged; appended `tools/prefill_humming_masked_stress.py` suffix runs32/753/3012,
+64 eager controls/2000 fresh queued each, same unchanged envelope. Exactcounts, bounds,
+zero-local and nonfinite tested; indexedNP removed because masked backend has noNP.
+Before each bank reference, groupedGX/C1/C2/C3 are NaN poisoned. Same0local/singleexpert/
+all8local/mixed alternatives, counts=M extremes testCAPtails. All fresh reporting retained;
+230s setup guard before each new shape fails incomplete coverage. No NST/Mpolicy mixed in.
+
+Deterministic component21e98162b7114898 PASSED5/5 official tests and all six arm
+mathematical checks, no HBSTOP. Control headline1.101533x (95%CI1.085010–1.118056),
+not a bounded-policy score. M minus R paired medians at753 seeds271/272:
+-197.9/-191.6us; M2 -195.6/-190.8us; R2 null -0.90/+0.74us. At3012:
+M -399.8/-260.7us, M2 -399.9/-260.3us; R2 -0.61/-0.83us. All four Humming
+arms explicitly use_stream_kFalse with independent scratch/locks and shared readonly
+weights. This confirms compensation under deterministic config; no mixing with nozero
+or masked backend. Passed pure deterministic bounded candidate/hash sent to root;
+root alone decides scored runs/production integration. Receipt and complete component
+log saved `profiles/humming_nostream_component.21e98162b7114898.*`.
+
+### User defers prefill; only already-dispatched receipt completion
+
+User requested "ignore prefill for now" while defbb042449d44e7 was in flight. No new
+prefill dispatch, promotion or code change after that steering. Read-only completion:
+defbb passed5/5 and all poisoned fresh32/753/3012 gates,1.300970887x
+(95%CI1.281456324–1.320485450). Metadata/nonfinite/zero-local all0 at each shape.
+Matched eager/graph rel32 .0024736/.0024736;753 .003194/.003197;3012 .003217/.003280.
+Shares>1e-4 .375/.268,.75/.75,.75/.75; rows .00862/.00862,.01307/.01266,
+.01538/.01613. Registered2x-envelope passes; this is not deterministic arithmetic and
+does not authorize promotion. Receipt/log saved `profiles/humming_masked_fresh.defbb042449d44e7.*`.
+
+### Standalone structural hypothesis: device-count GROUPED_MASKED at128/256
+
+Root approved up to3 standalone checks (including fresh only if winner) after reviewing
+current standalone indexed loser8d64807ea7504495 and ring4/staged-pair closures. New
+mechanism is grouped slabs with GPUcounts enabling library TMA/warp specialization,
+not another fixed-ring geometry. Prior indexed128 G1/G2≈242/135us,256≈291/152us;
+that path loses to ownedpersistent47/51. Prior staged45/46 same mma.sync pipeline loses
+~30us; it does not test this library backend. Completed larger-shape library measurements
+prove API/math feasibility, not standalone performance. No projected speedup claimed.
+
+`tools/moe_humming_masked_bench.py` builds `.build/today-moe/moe_masked_ab.py` from frozen
+production51. Official kernel_fn remains entirely ownedcontrol;<=32 unchanged. One
+originalprepare/extension build. Four arms owned51/owned51dup share readonlyrepackedweights,
+each own_scratch; masked/maskeddup share readonlytransformedweights with independentlocks
+and metadata/workspace. All four arms checked against ownedFP32reference at everycase
+(original TEST_TOL .008, row.075, finite).128/256 layer/std heldout291/292 and skew291
+correctness; fixed previouslycalibrated layerrouter8, no fresh seed search.20 randomized
+cold-L2 rounds, duplicate null controls,280s entireprepare guard fails incomplete coverage.
+Acceptance:>=3us at128 and>=4us at256 plus2xnull consistently on both measured routings;
+all official/fresh gates before promotion. Stop if launch/gather/tail/norm costs erase GEMM
+gain; no geometry retune without new measured stage evidence. Syntax passes, independent
+adapter/alias read-review requested. No dispatch yet.
+
+Standalone gateae8993f4e3e1435c dispatched after root and independent read-review.
+Root caught required interface correction before dispatch: standalone gamma=(1+post_norm_w)
+is FP32 (ownedstate nw), while prefill's BF16 effectivegamma boundary differs. New adapter
+preserves FP32 gamma contiguous; no BF16 cast. Earlier indexed8d648... adapter used BF16gamma,
+so its numerical interface differs slightly as well as its kernel schedule; no promotion.
+Independent reviewer required post-graph output checks: all four arms now checked against
+FP32 ref after20 queued replays+sync with unchanged .008/.075 criteria, not only eager.
+One untimed CUDA profiler sample at256/std292 after AB timing attributes masked stages.
+Generated syntax passes; original officialjudged owned kernel_fn untouched. Pending.
+
+ae8993f4e3e1435c completed5/5 official tests, judgedownedcontrol2.200397x
+(95%CI2.167391–2.233403); prepare159.6s. Full MHRESULT retained, all40eager and32postgraph
+FP32 checks pass. Masked losses (us, seeds291/292):128 layer+180.2/+180.0,std+184.2/+144.6;
+256 layer+234.9/+231.8,std+228.7/+202.8. Maskedduplicate agrees; ownednull maximum2.69us.
+No confirmation/fresh or localtile retune; production source/policy unchanged.
+
+Untimed256/std292 masked profile: G1 244.447us,G2 136.064us (90.25% of421.599us total);
+tail17.344us/2calls,SiLU8.064,scatter5.888,norm4.160,gather3.296,rank1.600.
+GEMMs alone exceed samecase owned217.15us, so glue-only fusion cannot repair this loss.
+This closes the tested default GROUPED_MASKED schedule at128/256, not all TMA/dequant
+architectures. Actualcfg/CAP/counts/padding printed before final summary fell outside16KB
+receipt tail; no exact observed values asserted. No GPU reconstruction/rerun warranted.
+Receipt/log saved `profiles/humming_masked_moe.ae8993f4e3e1435c.*`.
+
+### Prospective standalone backlog after masked closure (no dispatch)
+
+Scoring source `TASK.md`: six equally weighted log load ratios.128/256-only work covers
+2/6 logscore;1/8/16/32 covers4/6; repeated8-token job reuse affects only16/32,2/6.
+At root's23:26PDT board snapshot,2.595612/2.215712=1.171457 required score ratio.
+If only two loads improve equally, each needs1.607605x (37.8% latency reduction); if
+four improve equally, each needs1.267914x (21.1% reduction). These are algebraic required
+changes under an unchanged cutoff, **not** speedup forecasts. Representative763197 medians
+versus statedhardwarefloors yield optimistic floor-only aggregate multipliers1.2715 for
+128/256,1.5947 for smallfour,1.2292 for16/32 only. Floors are lowerbounds, not attainable
+targets or measurements of any proposed mechanism. Rankcutoff may move.
+
+Priority1 is a traffic-attribution diagnostic before any new kernel: quantify duplicated
+36KB weightunits from multiple8-token jobs per expert at16/32 and compare existing
+loads-only/current skinny controls.763197 prepare-route means: loads-only39.9/69.7/105.4/
+146.7us at1/8/16/32, computing41.6/70.9/106.3/149.2us. These are not the official median
+latencies or a rigorous upperbound, but little arithmetic headroom is demonstrated on
+those inputs. New structural hypothesis: share one expert weightunit across paired
+8-token jobs via CTA-cluster TMA multicast with existing consumers/ring/fences, rather than
+another ALU/MMA-only replacement or old TMA/barrier geometry. Requires a primary-source
+instruction/descriptor proof and measured duplicatebyte/copy-only opportunity first.
+M<=8 has no repeated8-token job; a broad lowtoken score claim would be false.
+
+Acceptance before implementation: repeatable copy-only gain beyond2xduplicate null on
+heldout layer/std routing and meaningful aggregate score coverage; source shows multicast
+compatible with original36KB packing and barrier/lifetime semantics. Stop before a
+prototype if duplicatebyte share and coldcopy gain are insufficient. A new kernel must
+retain BF16 activation boundaries and FP32 standalone gamma, all fences, officialcorrectness,
+fresh replay gates and paired whole-score compensation. No claimed stage/core utilization
+beyond the measured timings; no occupancy/HBM/L2 hardware counters were collected here.
+
+### Fresh logical-count attribution only (no new GPU kernel)
+
+Root approved count-only check53c07507b9fd4f8c, dispatched on standaloneMoE from
+`.build/today-moe/moe_weight_count.py`, generated by `tools/moe_weight_count_check.py`.
+Production51 newline-normalized source prefix preserved (CRLF->LF during generation);
+all original top-level AST nodes identical. Official kernel_fn/math/policy unchanged.
+CPU map code embedded directly at generation time, no runtime file reads. M16/32,
+layer/std, heldout311/312, fixedrouter8; all32 counts, exactmap summary and actual
+deviceSM count printed.280s guard fails incomplete coverage. Early screen preregistered:
+every requested case must have>=10% pairable logical source-request savings. HBM/L2
+bytes and multicast benefit remain unmeasured. No copy/multicast kernel or barrier change.
+
+First uploader attempt was rejected422 before any job ID: "edits loaded modules".
+The tool had registered an embeddeddataclass module in sys.modules. Corrected by direct
+class/function embedding with no exec or module-state mutation. Not a GPU/math result
+and no duplicate check/job is claimed. Corrected source passes syntax, CPUmodel2tests.
+Pending53c07507b9fd4f8c; on screen failure park before any full rewrite.
+
+53c07507b9fd4f8c completed5/5 official, unchangedcontrol2.201850463x
+(95%CI2.168822706–2.234878220). Full8case WCOUNTRESULT retained,Gactual132. Early
+screen FAILS6/8: pairable savings M16layer311/3120/0%,M16std0/0%; M32layer18.1818/18.1818%,
+M32std0/0%. Logicalduplicates M16layer0/11.1111%,std0/0%; M32layer27.2727/36.3636%,std0/0%.
+All32counts, jobs/activeexperts, bytes and exactCPUmap stats saved in
+`profiles/weight_count.53c07507b9fd4f8c.*`. The16/layer312 duplicate misses the consecutive
+pair alignment, but fourstd cases and16/layer311 have none even under optimalpairing.
+Park the registered two-size/two-routing multicast hypothesis before GPUcopy/fullrewrite;
+no narrowing to32-layer after failure. HBM/L2 bytes, multicast benefit and residency
+unmeasured. Dated audit addendum records exacttable and stopping/reopening scope.
+
+### November1 PDT: skinny full-slot wait policy, one hypothesis
+
+Check87f22aa71e614460 dispatched from `.build/today-moe/moe_skinny_testwait.py`, SHA256
+58bce614db8b5baefa5d5c264a87da51515272bd11d1dd577beb146d2eabe99b. Builder
+`tools/moe_skinny_testwait_check.py` at776b859. Root approved after independent
+today_proj read-review: exact generated hash/sourcegate verified; PTX8.7section
+9.7.13.15.16 gives same acquire-on-True for test/try, old defaults acquire/CTA;
+parity and only two skinnyfull call sites change. Globalhelper/fat/empty/hand/producer
+progress/watchdog/fences unchanged. No short hint, NS/prefetch or vote changes.
+
+Four independently compiled arms sk8w3s mode0, neutral unusedbit256, testbit128 and
+testduplicate384; private scratch, sharedreadonlyweights. New flags excluded from
+production policy. Resourcevectors regs/local/static/dyn/blocksSM/maxThreads must
+match exactly before timing; all16cases1/8/16/32 layer/std, heldout321/322 fixedrouter8,
+64eager+64postgraph mathchecks, cold20random rounds, original.008/.075 limits/spin0.
+Registered1% sixload contribution beyond2xnull and percase-regression gate; this
+fixedsk8/3 contribution assumes large128/256ratio1 and is NOT an officialpolicy score.
+Two corrected fully counted stamped2/130 twins after timing, optional265s guard;
+corecoverage280s failclosed and finalsummary<10KB. Production source untouched.
+Reviewer notes timeoutbreak can reach loads withoutTrue exactlyasbaseline; timeout
+flag rejection remains required, never an acquire proof or successfulmeasurement.
+Pending; no promotion before exactcandidate official/fresh gates.
+
+87f22aa71e614460 FAILED prepare in host harness formatting: `for round in range(20)`
+shadowed built-inround, then compact `round(v,3)` raised TypeError at firstcase summary.
+Baseline preparation/selftests completed, build153.6s, policy skinny1/8/16/32+51large,
+spin0. Exactresourcegate and firstcase math reached, but no resourcevector or complete
+16case table retained; no official score or wait-policy timing conclusion. Failedreceipt/log
+saved `profiles/testwait_harness.87f22aa71e614460.*`. This is a tooling error, not kernel loss.
+
+Root authorized one host-only correction. Changed loop variable to round_idx; all
+CUDA/CPP/skinny/variant constant values exactly equal between frozenoriginal andv2.
+Added CPU scaffold executing ACTUAL20-round hostloop, compactformatter, scoregate and
+summary via AST with no-op event/graph stubs. Synthetic winning and losing scoregate
+branches pass; a negativecontrol recreates the old shadowing TypeError. Three source/
+host tests pass, syntax passes. Correctedcheck252df4a54d764ca5 dispatched from
+`.build/today-moe/moe_skinny_testwait_v2.py`; same preregistration/reviewedCUDA, pending.
+
+252df4a54d764ca5 FAILED optional stamp-host decoding after the complete core loop:
+inter is rank2; `.view(int64)[:G*16]` sliced rows, so reshape132x16 saw2162688 elements.
+No core summary had yet printed, therefore no per-shape timing or contribution score
+is recoverable/claimed. Baseline build153.4s/selftests spin0; the stack location is
+after core math/timing, not evidence of a wait-policy win. Failedreceipt/log saved
+`profiles/testwait_stamp_harness.252df4a54d764ca5.*`. No newGPU authorized yet.
+
+Host-v3 repair flattens the dtype-view before selecting2112 counter values, prints
+the complete core summary BEFORE optional stamps, and catches only decoder errors
+as explicit no-attribution. Kernel execution and spin-timeout failures remain fatal
+outside that catch. Core280s/stamp265s guards and registered performance gates unchanged.
+Persistent local `/root/.cache/okc-host-validate` now has officialCPU-onlyTorch2.10.0
+(Python3.14); CUDA_availableFalse. It is host validation, not a GPU benchmark.
+
+Six tests pass: source scope, callable-shadow check, ACTUAL20-round loop/all16compact
+case formatting and winning/losing scoregate/summary; plus REAL CPU Torch2D4096x4096BF16
+inter decoding, full valid headers, zero-header rejection, reproducedoldreshapeerror,
+core-preserving error/guard summaries and fatal CUDA-execution/spin/coreguard branches.
+CPUfixture A/B wait values are synthetic and not reported as hardware measurements.
+Validation log `profiles/testwait_host_cpu.2026-11-01.log`. V3scratch source generated
+and syntaxchecked; independenttoday_proj host-source re-review requested before root
+decides whether to authorize a further corrected check. CUDA/constants unchanged.
+
+Independent v3 host review caught a further exception-scope issue before any retry:
+GPU `.double()`/`.cpu()` were still inside a broad decodercatch. Finalv3 moves a
+flattened int64 prefix snapshot/CPUtransfer OUTSIDE the catch, after launch/sync/spin
+checks. Only CPUint64 reshape/header/math is optional inside. Snapshottransfer error
+negativecontrol stays fatal; zero/badCPUheaders remain no-attribution. Actual2DTorch
+tests and source/formatter tests all pass6/6, independently rerun by today_proj.
+Verbose validation log `profiles/testwait_host_cpu_v3.2026-11-01.log`.
+
+Root authorized ONE third/final corrected retry after this clearance.9be599cf333a47c4
+dispatched from `_skinny_testwait_v3.py`, exact reviewedSHA256
+528dea8ff79888a2b8f6693e9c5c63c20210547d6128f9bf8fc80b9f9cdcb4d1. SameCUDA/constants
+and preregistered gates; no fourth retry without new root review. Core prints before
+optional stamps, finalsummary always on decoder/guard fallback; kernel/transfer/spin
+errors remain fatal. Pending, no performance or promotion claim.
+
+### November 1 final skinny FULL-slot wait-policy result: close
+
+Check `9be599cf333a47c4`, source/dispatch commit `036b581`, reviewed generated SHA256
+`528dea8ff79888a2b8f6693e9c5c63c20210547d6128f9bf8fc80b9f9cdcb4d1`, completed
+on H200. All 5 official tests pass. The official path remains owned production control:
+2.207723314x (95% CI 2.174607465–2.240839164), not a test_wait candidate score.
+Its median us at M1/8/16/32/128/256 are 27.401/68.636/95.941/134.509/192.134/237.144;
+baseline medians used by the receipt are 77.648/145.904/186.976/209.360/460.368/627.152.
+
+Complete four-arm timing evidence survives the receipt: all 16 layer/std cases at fixed
+seeds321/322, 64 eager +64 postgraph FP32 checks pass, spin flags0. All arms have exactly
+130 registers, 0 local/static bytes, 155520 dynamic bytes, 1 block/SM, maxThreads288.
+Fixed-sk8/3 six-load contribution multipliers: null1.000295776, test1.000956258,
+test duplicate0.998638858. These assume unchanged128/256 and are NOT actual official
+policy gains. Both the prospective >=1%/2xnull gate and per-case regression gate fail;
+KEEP=False. Exact two-full-slot test_wait mechanism closed; no production edit, fresh
+promotion check or fourth harness retry. Reopen only with new evidence/mechanism.
+
+Optional corrected stamped twins completed all8 cases. Mean CTA thread0 A/B full-wait
+regions in us (try_wait -> test_wait), not critical-path savings:
+
+| M / routing | A region | B region |
+|---|---:|---:|
+| 1 layer | 2.677 -> 2.125 | .226 -> .224 |
+| 1 std | 2.908 -> 2.494 | .380 -> .383 |
+| 8 layer | 5.897 -> 5.812 | 1.955 -> 1.769 |
+| 8 std | 5.794 -> 5.261 | 1.771 -> 1.761 |
+| 16 layer | 4.280 -> 4.119 | 1.321 -> 1.272 |
+| 16 std | 5.857 -> 5.858 | 1.953 -> 1.947 |
+| 32 layer | 4.791 -> 4.913 | 1.973 -> 1.996 |
+| 32 std | 8.031 -> 7.693 | 3.011 -> 2.998 |
+
+Modest changes in these instrumented regions do not produce a repeatable whole-kernel
+improvement. Raw per-case medians/paired deltas, all resource vectors, stamp rows and
+official profiles/receipt are preserved in `profiles/testwait.9be599cf333a47c4.*`.
+Earlier87f.../252df... remain distinct host failures with no recoverable timing claim.
+
+### November 1 single-warp stable position map, one check
+
+`85a113a3f11d47a5`, source a776f32, generatedSHA256
+f5762dbdaebd9f646781fd5eba6e931246ad5228ddef5841fd68b4732687902f,
+changes only skinny position_pass for M<=16 to one warp's stable32-slot chunk scan.
+Measured historical generic positions1.6/1.8/1.9us at M1/8/16 std motivate this
+mechanism; full removal would algebraically give1.01795 six-load factor using
+current medians, not an attainable forecast. Initial routing/jobs/copies, all async
+fences, watchdog, math and M32+ original map unchanged. No token-order or polling
+change. Modes0/256/512/768, private workspaces, fresh fixed seeds441/442, layer/std
+1/8/16/32,64eager+64postgraph correctness, exact resources before timing, unchanged
+>=1%/2xnull/no-regression gate. All3 CPU source/bijection/actualhost tests pass;
+today_proj independent review found no blocker. Pending; root approved one check
+maximum, no retries/sweeps/public submit. Report: steering/2026-11-01-moe-singlewarp-position.md.
+
+85a113a3f11d47a5 DONE/ok H200:5official tests,64eager+64postgraph FP32 checks,
+all16cases,spin0, exact4arm resources130regs/0local/static/155520dynamic/1blockSM/
+maxThreads288. No candidate gain: fixed-sk8/3 six-load contribution test0.999496192,
+duplicate0.999798370, null0.998989769. >=1%/2xnull and per-case regression gates fail,
+KEEP=False. Modified-case paired deltas -.320 to +.704us; no repeatable improvement.
+Official unchangedowned control2.203921580x CI2.170862757–2.236980404; medians us
+M1/8/16/32/128/256=27.623/66.246/96.392/136.976/193.808/235.388. Candidate is
+not the judged production path. No new phase attribution; do not infer why metadata
+time did not translate into latency. Close exactsinglewarp-map mechanism; no retry,
+sweep, promotion or production edit. Full profiles/receipt `profiles/position.85a113a3f11d47a5.*`.
+
+### November1 new architecture comparator, exact external source only
+
+Root authorized one donor-only off-board measurement after recovering keell0renz
+commit8e30e1be994db4310794b8d04e90d18d895deb84, not the older alygg77 comparator.
+`b65c4c878014416c` checks its standalone file byte-identically, SHA256
+2d931f09133d058053dda833b51f1867ea06cdcac0c912521ad37e8f7853185c; no patched
+harness/defines, concurrent GPU prepares, production edits or public submit.
+PASS5tests H200,2.395702934x CI2.359767390–2.431638478. Median us M1/8/16/32/128/256:
+25.114/63.252/91.149/122.315/176.505/211.115. This is8.123% above our published
+2.215712x across different runs/inputs, NOT matched-owned causal evidence; still
+2.408% below fresh rank50 threshold2.4534. Full receipt/log/profiles saved as
+`profiles/kel_exact.b65c4c878014416c.*`; board snapshot also saved. Modules built53s,
+SC6W active, skinnySC6off. MAIN96regs, small149regs, dedicatedM8issuer151regs,
+all local/static0; no occupancy/physical-traffic claim. Combined new architecture
+merits ordering/precision/license audit and matched isolation before adoption.
+One check spent; no more dispatched. See steering/2026-11-01-moe-architecture-comparison.md.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
@@ -109,7 +821,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 
 ## F-MOE-0 (Family F donor comparison), 2026-10-31 UTC (2026-10-30 PDT)
 
-Question (docs/steering/2026-10-30-family-f-donor-baseline.md, track F-MOE): is the complete
+Question (archive/docs/steering/2026-10-30-family-f-donor-baseline.md, track F-MOE): is the complete
 alygg77 standalone MoE file faster than our frozen release under matched controls, and if so,
 on which token counts and through which mechanism? User decision relayed by the coordinator on
 2026-10-31: Family F is measurement and learning only. A donor win means "re-implement
@@ -276,7 +988,7 @@ F2 hybrid. Both are now re-implementation work in our own file, not donor candid
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
-Question (docs/plan-2026-10-29-steering.md, step 4): standalone, mode 16 beats the W4 chain
+Question (archive/docs/plan-2026-10-29-steering.md, step 4): standalone, mode 16 beats the W4 chain
 (legacy128) at 128 tokens, while the layer's prepare-time bench keeps the W4 chain there
 (e87fcb1ed5c64a62). Candidates: L2 state left by neighbouring kernels, overlap with
 neighbours, tuner noise, input differences. Three layer checks of a snapshot (the layer at
@@ -1141,7 +1853,7 @@ is recomputed from S.ord and the unit's round, not carried in shared state.
 
 ## Fat-path waits with the first try timed, 2026-10-29
 
-Defect (steering report docs/steering/2026-10-29-overnight.md, section 2). `mbar_wait_cyc`, the
+Defect (steering report archive/docs/steering/2026-10-29-overnight.md, section 2). `mbar_wait_cyc`, the
 wait counter of the phase A diagnostic modes (31, 33, 38, 40), returned 0 when the first
 `mbarrier.try_wait.parity` succeeded and started its clock only after a failed first try. The
 instruction is potentially blocking (PTX ISA 9.4, mbarrier.test_wait / mbarrier.try_wait): a try
@@ -1236,13 +1948,13 @@ Reading.
   (rank correlation 0.76 / 0.84), and the epilogue numbers of modes 33, 38 and 40 were timed by
   wall clock, so they stand.
 
-Next mechanism: see docs/steering/2026-10-29-fat-moe-waits.md (recommendation only, nothing
+Next mechanism: see archive/docs/steering/2026-10-29-fat-moe-waits.md (recommendation only, nothing
 built).
 [2026-10-29, later: built as modes 43 and 44, see "Code groups with the next stage hoisted".]
 
 ## Code groups with the next stage hoisted, 2026-10-29
 
-Brief: docs/steering/2026-10-29-fat-moe-waits.md, "Recommendation: one mechanism". Mode 41 put
+Brief: archive/docs/steering/2026-10-29-fat-moe-waits.md, "Recommendation: one mechanism". Mode 41 put
 the consumers' mbarrier waits at about 20% of the stage loops, 210-230 cycles each, while the
 producers found the ring full for 70% of phase A (check ca43908f02874886). H1 there: every stage
 starts with a serial path on each warp (the try_wait round trip, then the shared loads of the
@@ -1479,7 +2191,7 @@ coordinator for a scored run.
 
 ## Warp skew and the gap to the public kernel after mode 47, 2026-10-30
 
-Brief: docs/steering/2026-10-29-fat-moe-waits.md, next action 3 (per-warp stage-start skew, H2)
+Brief: archive/docs/steering/2026-10-29-fat-moe-waits.md, next action 3 (per-warp stage-start skew, H2)
 and a re-attribution of the same-process gap to the public kernel on mode 47.
 
 ### Method
@@ -1717,7 +2429,7 @@ other seeds; the two runs do not compare the modes directly.
 
 ## Phase attribution at 32 tokens against the public kernel, 2026-10-30
 
-Brief: the layer report (docs/steering/2026-10-30-layer-release-attribution.md, item 3) put our MoE
+Brief: the layer report (archive/docs/steering/2026-10-30-layer-release-attribution.md, item 3) put our MoE
 at about 102 us exposed against the public's 88 at decode 32 sliding, with nobody holding phase
 stamps at 32 tokens; mode 50 failed its gate there and 51 runs 47's code below 64 tokens.
 
@@ -4556,3 +5268,246 @@ withdrawn (see docs/context.md). The board entry was then da9225e4f89441fc (2.00
 The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4a16.
 
 Losers from these runs are in docs/ruled-out.md.
+
+## October31 23:07 PDT indexed library adapter
+
+8d64807ea7504495, source experiments/humming_indexed_r.py from checked prefill-v3 BODY
+via tools/moe_humming_candidate.py:5/5 official tests,0.911512837x,95%CI
+0.897840145–0.925185530. No public submission. Baseline/ours us byBS:
+1=80.00/91.01,8=142.91/167.23,16=187.47/228.86,32=206.05/253.86,
+128=459.39/448.17,256=612.37/546.62. Profile with baseline eae9a6b7d5dd4809 before dispatch.
+The indexed routed heuristic is unsuitable as current persistent-kernel replacement;
+retain source and loss, do not infer masked/local-heuristic backend behavior from it.
+
+Scored historical-best47 fresh repeat116c5185b14b487d:PASS5tests,2.213803083x.
+Source `git show ec565a7:muse_moe_w4a16/submission.py` exactly235700bytes,
+SHAb35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14 plus one trailing
+comment (frozen .build/today/moe_best47_repeat.py). Existing b50351288b504e81/5f381b8b6946492d
+check/paired evidence and abe7651dbaa44458 scored release validate that source. This is an
+authorized public fresh-control measurement, no new algorithmic speedup. Below best2.215712x.
+
+116c5185b14b487d95%CI2.180596037–2.247010129. Newreview correction: adapter8d648... cast
+FP32(1+post_norm_w) toBF16 inherited from PREFILL's explicit boundary. Standalone production51
+consumes FP32gamma; that adapter is not an exact51norm comparison (still a losing/unpromoted
+experiment). Correct new masked diagnostic before dispatch, preserve FP32gamma.
+2026-11-01 | bfbedf7d48e248a0 | baseline 6e078b5 plus tools/moe_token_locality_probe.py | off-board four-graph matched token order screen on six loads, seeds 781 and 782. Pending.
+bfbedf7d48e248a0 completed. Five tests passed, control 2.183905x (95% CI 2.151147–2.216664). All 12 cases retained. Six-load factors 0.998626/1.000309 and 1.000687/1.000423 miss 1% gate. Park sorted rows. No public submission.
+
+
+## Controlled standalone SC6 / byte scales, 2026-11-01
+
+Evidence7886294, private frozen file SHA54d819e6482aaaa16c8a4e6d38f60e1e98b044b8888120f40b5ab7f3bccfb4cf.
+Check05e51ddeb7014dd9 dispatched on muse_moe_w4a16, pending. Real supplied256-expert
+weights/global IDs; four private mutable scratch states, byte/byte/SC6/SC6; all six
+loads and seeds901/902. Common repaired BF16/fences/cooperative launch, MFIN/DFoff,
+empty scheduler guard. Private attributed comparator only, no public submit.
+Preregistered1% whole-six-load BOTHpaired ratios plus2x bothduplicate null, per-case
+regression <=max(.5us,1%), official math/fresh replay/empty/resource gates.
+Independent today_proj source/host clearance on exactfile,2source+4TorchCPUtestsPASS.
+Full registration: archive/docs/steering/2026-11-01-moe-sc6-controlled.md.
+
+Terminal addendum05e51ddeb7014dd9: H200 DONE/PASS5, official BYTE path2.2593108797x
+(95%CI2.2254212165-2.2932005429), prepare116.574s. All48normal/48fresh/48empty
+computing-arm comparisons pass, worstMarlinrelativeglobal.0062058/row.0067433.
+SC6whole-six-load pairs0.999806837/1.007118932 vsduplicateabsolute-lognull.006403393;
+registered1%+2xnull gateFAIL and percase-regression gateFAIL (256/901 +2.576us).
+Bothmainresources96regs/0local/0static/231168dynamic/1residentCTA/576threads.
+No SC6 port/promotion; no publicsubmit. Full perseedrows/resources/officialprofile
+retained underprofiles/sc6_compare.05e51ddeb7014dd9.*, full interpretation inSC6report.
+This closescompression-first ontherepairedcontrolledbackend, notall compression
+architectures; per-expertfrontier measurement is next, notanotherSC6knobsweep.
+2026-11-01 | 1c6ebc76b91d4b7f | native WGS frontier, private file SHA256 76c5b0e7483aba481f605a4d2a93363e1e8e968288f0bf977660da115ff9628b | Off-board measured writer/owner/finalizer schedule, separate from SC6 comparison. Pending.
+1c6ebc76b91d4b7f PASS5 and flags empty, 2.256419844× (95% CI 2.222573546–2.290266141), ordinary SC6 control. 6 benchmarks/6 profiles; all six attribution cases and the representative trace re-evaluation passed. Favorable fixed-owner model 1.003616/1.004271/1.003445 across seeds. Registered stop.
+
+2026-11-01 | 63f5a2a8ed2341d1 | a1031ff | Private component check of the Family G activation-slot retirement change. Exact source a08276dbd1dfe5551c360e2debe0fa67c4fdcfeb56d10ba347b858e3c60270c9 (388351 bytes), judged path repaired SC6 control. Four independent placements, three held-out inputs per load, all six workloads. Pending.
+
+63f5a2a8ed2341d1 terminal PASS 5/5, control 2.238110203x (95% CI 2.204538550-2.271681856), six workloads and six profiles. Stage retirement passed every held-out comparison (six-load factors 1.018493-1.028699). 72 each initial/fresh/all-remote/restored checks, three negative controls. Both arms 96 registers, zero local, 231168 dynamic shared, one CTA/SM. See stage-retire.63f5a2a8ed2341d1.analysis.json and the steering report for 18 timing rows and transfer limits.
+
+2026-11-01 | 46aafddc195c4c57 | exact candidate-only standalone treatment, 364234B SHA256 fde6b1ee532f77d4d2d3fc6bae337e2ceeea9d7e07e458a42a382b787100891b | root official off-board check following the controlled win, no public entry. Pending.
+
+46aafddc195c4c57 terminal PASS 5/5, no flags, six timings and six profiles. Candidate-only stage retirement scored 2.348798659x (95% CI 2.313566679-2.384030639). Confirmed selected WGS/SC6 backend. Medians at 1/8/16/32/128/256 tokens: 25.601/69.097/99.162/123.898/178.264/212.460 us. Compared on matched inputs in 63f5a2a8ed2341d1, where all three seeds cleared the gate. Measurement only for the standalone board.
+
+
+## Owned multiply decoder, 2026-11-01
+
+Registered574cc1c before ONE authorizedcheck835253441a214a1c, pending on actualMoE
+board. Frozenprivateharness628518B SHAb1e6e0886fe0058b9c5719950fb4dd06eef27b8f69975034affa234c440e98f3.
+OwnedderivedW4permutation+multiply16648, noimporteddonorcode/table. Actualfullpacking
+CPUproofandactualsm90aCUBINhotloops390->374, skinny140->128regs. Commoncoop
+admissionandBF16effectivegamma inbotharms. Currenttrackedc785source, historical
+abe765DISPATCHonly(skinny<=32/main47>=128), notclaimedhistoricalpublicbytes.
+4privatepacks/scratch/inputs/captures,2binaries,18normalcases/seeds9919971009,
+FP32fresh/skew/allremote/post gates, all4cross+EVERYseed whole-six-load>=1% and2xnull.
+No publicsubmit. Fullregisteredproof/gates: archive/docs/steering/2026-11-01-owned-multiply-decode.md.
+
+Terminal835253441a214a1c: H200 PASS5, officialCOMMONCONTROL2.189649236x
+(CI2.156804498-2.222493975), prepare46.253s. Reportedchecks72normal+72fresh+24skew+
+24empty+72post allpass, spin0, worstFP32.004383652/.004751944. Actualbank
+3,221,225,472codepositionsverified. Registeredall4crosswhole-six-load ratios
+1.001247993/1.002203525/1.001995933/1.002952178 vsduplicatenull.008029444;
+all-seed1%+2xnull gateFAIL, percase-regressionFAIL. ActualH200skinny130->128regs,
+both0local/155520dynamic/1CTA; main96regs/8local/228736dynamic/1CTA unchanged.
+LocalNVRTC140->128predictionmustnotbequotedasanH200measurement. Noport/promotion,
+nopublicsubmit. Stopmultiply-onlyvariant; nosecondcheck/selectivelarge-onlypolicy.
+Receipt/summarymultiply_decode.835253441a214a1c.*, CLIprofile/logmultiply_check.835253441a214a1c.*.
+
+## 2026-11-01 — native G stage observed-ready/retirement diagnostic
+
+Source5c1a1f8, artifactbf0ca4ae…392222B. Root dispatched/waited
+**f147d06a64504c1e** standalone MoE off-board. PASS5 control2.3402777977x
+CI[2.305173631,2.375381965], prepare171.324839s. Six private computing arms,
+MAIN128/256 seeds76111/76117/76123; B4FIN32 explicitly unmeasured.
+All216 registered normal/fresh/skew/remote/restored math checks passed
+(worst.0060922033/.0071880231 versus.008/.075). All12 detail mode/case
+attribution gates FAIL: whole4.91–9.54%, phase10.26–14.90% displacement.
+No causal weight/X/retire bottleneck conclusion, no candidate win, no rerun.
+Root owns canonical profiles g-stage-check.f147d06a64504c1e.{json,log,txt}.
+Derived completecapsule/report: archive/docs/steering/2026-11-01-g-stage-observed-readiness.md.
+New H200 route census yields conditional proportional three-pair six-load
+scenario1.012567/1.004403/1.004607, not measured gain/HBM/timing bound.
+## Owned fixed-band32 private paired check, 2026-11-01
+
+Root dispatched a5c7c7e3fe344919 (pending), harness evidence1bf61d2 and
+owned patcherfc28a77. Exact private artifact SHA256
+493d1678f7d92ffb2a9908675fcfa33257d235bd3b88cfc0b8696e27108b4c0c,
+631897bytes. Two control/two treatment computing arms; onlyM16/32 use the
+owned32-output-unit sameexpert8-row-job transpose. Other fourloads and judged
+entry use frozen common cooperative/BF16-effective-gamma control. No decoder
+or packing change. Seeds preregistered993701/993703/993709, all18cells required;
+four-cross pooled AND perseed1%/2xnull, percell regression, resource/math/fresh
+replay/empty/spin/budget/11KB gates. SevenTorchCPUhosttests PASS, localdevice
+compilation belongs topatcher; no H200result claimed. Fullsourcepins/costs:
+archive/docs/steering/2026-11-01-owned-moe-band32-registration.md. Root owns exactjob
+status/receipt/profile archival; no publicsubmit, production unchanged.
+
+
+Terminal a5c7c7e3fe344919: PASS5 official, common-control score2.1982215352150547,
+95%CI[2.165248212186829,2.2311948582432803], all18timing records/264privatechecks,
+prepare38.673292553s. Band32 loses all6targeted rows: duplicate-mean delta
+M16 +18.368/+15.416/+20.872us; M32 +31.048/+22.000/+30.304us. Four full-six-load
+factors0.945964140872/0.944172658054/0.943986837861/0.942199099693 vsnull0.006715307314;
+allseed/1pct/2xnull/regression gates FAIL, KEEPfalse. Actual all4skinny resources
+130regs/0local/0static/155520dynamic/1CTA/288threads; MAIN47 identical96regs/8local.
+Exact493d1678 source unchanged, no production/pure qualification/public submission.
+Root owns canonical receipt/log/profile; independent decoded report and closure:
+archive/docs/steering/2026-11-01-owned-moe-band32-terminal.md. Fixedband32 and offline
+153reg identity shortcut closed; no automatic band/cache/cap/credit sweep.
+
+
+## Owned cached-band32 six-arm private check, 2026-11-01
+
+Root dispatched LAST privateMoE check903e5b03411c4e2d (pending), exact945013B
+artifact SHA2564bf3864b23ef94213794558d86c862cf781acd1d3a0ed5a8667f4b4e223c39d2,
+harness6460509/cachepatche99d848/directfc28a77. Threeownedbinaries/sixprivate
+computingowners: control0/1,cached2/3,direct4/5; only16/32usecached/direct,
+otherfourloadsallcontrol. Samephysicalband32schedule/credits, new350u32shared
+representation1400rawB/+1408actualSmemgate. Seedspreregistered993727/993733/993739,
+all18rows/396mathchecks required; fourcrossctrl-vs-cached pooledANDallseed1pct/2xnull,
+regression/resource/finiteFP32ref/fresh32/skew/remote/post/spin/budget/11KB gates.
+Directcomparatordescriptiveonly. SevenactualTorchCPUhosttestsPASS, realistic
+transport4419B; no H200successclaim. Fullsourcepins/registration:
+archive/docs/steering/2026-11-01-owned-cached-band32-registration.md. Rootownsstatus/raw
+receipt/log/profilearchive; nochildGPU, no publiccandidate unlessstrongfullscorewin.
+
+
+Terminal903e5b03411c4e2d: PASS5/no flags, common-control2.190787796885395,
+95%CI[2.1579259799321138,2.2236496138386754], all396privatechecks/18sixarmrecords,
+prepare89.029513961s. Cached-vs-control fullsixfactors0.994470147488/0.997004522138/
+0.996364377034/0.998903579067 vsnull0.009646480237; allseed/regression gatesFAIL,
+KEEPfalse. TargetmeanM16ctrl102.554667/cached103.808001/direct117.456000us;
+M32ctrl137.653333/cached139.448001/direct160.367999us. Cached-vs-direct1.043792..
+1.046898 is recoveryfromfailedvariant, NOTwinvsbaseline. Actualcached128regs/
+0local/156928dynamic vsctrl/direct130/0/155520, all288threads/1CTA;MAINexact96regs/
+8local/228736dynamic. Independentactual_bc_summary recomputation matchesallgates
+exactly. Fullterminal/decoded: archive/docs/steering/2026-11-01-owned-cached-band32-terminal.md.
+Closecachedrepresentation/directband/CPUidentity; no purequalification/public
+candidate/automaticknobsweep. Rootowns canonicalrawarchive, productionunchanged.
+
+| 2026-11-01 | No official job; local source/compiler gate | OFF68bf4c1f (native7c915127) | Exactec565 progress prototype: both cooperative launchers, queuecapacityguard, fatalwatchdog; frozen abe765policy/strictchecks | No score/GPU | 5CPU tests pass; nativeproof14d5687/c00895f. Independent localCUDA12.8 main47 spills12/112→16/128 (baselinealready16Bstack), skinnyunchanged. Authorized unreachable db0b8cc1 alsofails. Bothclosed atno-new-spillgate; all3OFFflagsfalse, fullgraphqualifierdesignonly. Reports standalone-progress-off-prototype and standalone-moe-progress-compile, commitsabd6652/a20ec47. No production/public/queue action. |
+
+## November2UTC2026 frozen pre-gamma component private check
+
+Own **56e0c8b5634545e6**, prereg **adcfa8e548bb3af2780fa1ccd24d53c5e9f59e81**, captain allocation2f25832e. Exact344689LF-byte source8f12932a4d0fc8a2ca42a165610fd7659d4db960d8c65c8ea97281b75ec46d5d; official candidate2, controls0/1,candidates2/3. H200 PASS5tests/6bench/6profiles/no flags; official2.3324833814978434x,95%CI[2.2974961307753756,2.3674706322203107],prepare272.221707588s. Complete54cases/378observations/216captures/1152timings/54restorations/cleanup pass. Frozen reader exits0 but component_pass=false: all6bank/distribution groups/all24equal-six crossed factors fail>=1.01;16of18affected cells have>=1%regression. PARK exact treatment/no retry/tune/follow-on/public/default; official score is not candidate/control gain or layer evidence. Raw receipt/log/all6profiles: `muse_moe_w4a16/profiles/expert_top100_pregamma.56e0c8b5634545e6.*`; fullsource/capsule/attestations/reader: `docs/steering/evidence/2026-11-02-worker-moe-component/`. Terminal `docs/steering/2026-11-02-worker-moe-component-terminal.md`. Queue63.449752s,worker329.243756s distinguished from prepare. Final9privateleft does not authorize another job.
+
+
+## November2UTC2026 frozen T1 three-launch standalone private check
+
+Own **28248eb5e5854041**, prereg **9d7937d29b8fb0a6825b72bb2da5b916bf8347b8**, captain allocationc66f5ce6/sourcece14d11f. Exact370480LF-byte source5f10e2d73571d0cafa6d2fd4ab3dcf068f99979cf3d8c77470b63bab31fa0f58; frozen nativedbdd3381, officialcandidate2,2controls/2candidates,T1only. H200 PASS5tests/6bench/6profiles/no flags; official2.1658583028230054x,95%CI[2.1333704282806605,2.1983461773653503],prepare218.246490452s. All54cases/378observations/216captures/1152timings/54restorations/cleanup pass. Unchanged frozen reader exits0 but component_pass=false:0/24whole-six crosses reach1.01;6/6affectedT1cells regress>=1%. Descriptive24cross T1factor0.707998;all other-load drift retained. PARK exactthree-launchT1/no repair/retry/tune/T8/follow-on/public/default/layer. Official speedup is versusSGLang, not treatment/control gain. Fullraw receipt/log/all6profiles: muse_moe_w4a16/profiles/t1_three_standalone.28248eb5e5854041.*; source/attestations/reader in docs/steering/evidence/2026-11-02-worker-t1-moe-check/. Terminal docs/steering/2026-11-02-worker-t1-moe-terminal.md. Queue84.062889s/worker283.852265s distinctfromprepare; finalprivate8left/no-live gives no authority.
+
+
+## November 2, 2026: constant WGS scale multiplier private check
+
+Private `3aa3885f6b734f8c` terminal PASS5 tests/6 benchmarks/6 profiles/no flags; source `ca588999`, payload `ccef8a76` / 342733 bytes, native treatment `881874d4` against `c7c201ae`. Official versus-SGLang2.341016864x, 95% CI[2.305901611,2.376132117]. All54 cases/378 observations/216 captures/1152 timed replays/54 restorations and cleanup pass. Prepare273.985619s, queue626.302461s, worker331.904116s. Strict matched reader rejects performance: all24 whole-six factors0.992411..1.004932, descriptive mean0.997953, all6 groups fail>=1%/duplicate-null; three affected bank/load regressions>=1%. Local B4 spill bytes fall4/32 to0/0 but no measured speedup. Stop exact scale-only candidate, no confirmation/default/public action or layer/D32 source change. [Terminal and receipts](steering/2026-11-02-cuda-part2-experiments.md).
+
+Compiler-only follow-up: constant scales plus ordinary `S.ssp` read produces byte-identical B4/MAIN SASS to scale-only under local CUDA 12.8.1; no new GPU measurement is allocated. Exact GS4-small and pointer treatments are recorded in `docs/ruled-out.md`.
+
+
+## 2026-11-02 GOPT-PIPE-01 current skinny depth
+
+Private matched job `f0b875484960438b`, source21db3bc31971ec9d7dd19da21e047adc069ad08c, payloadSHA256cf1dbda332e6a53fa581293d1ddf224c91447436e877c2ed005270c7dd1d04fe. Candidate NS4 versus incumbent NS3 for current G1b4 tiny/tiny2/MID, with unchanged B4/MAIN. T1/8/16 affected; T32/128/256 unchanged controls; three held-out banks, normal/skewed EP8, eight repeats per placement/cell, duplicate controls/candidates. Registration checkpoint; terminal outcome follows. [Owning association](../muse_moe_w4a16/profiles/gopt-skinny-depth-2026-11-02/accepted.json), [frozen scope/gate](steering/2026-11-02-general-optimizer-pipeline-depth.md). No production or public change.
+
+Terminal `f0b875484960438b`: PASS5 tests/6 benchmarks/6 profiles, no flags; prepare279.219903s. All54 private cases/378 observations/216 captures/1152 cold timings/54 restorations pass, worst global/row7.54371e-5/1.98935e-4. Strict source/job/log reader passes. Official2.293332488x CI[2.258932501,2.327732475] is versus SGLang. All24 affected small-load aggregate factors0.966414–0.990167 fail promotion, descriptive mean0.977832;17/18 affected cells cross the1% regression threshold. Unchanged256/skewed bank1102049 also fails the drift gate, so exact causal loss unresolved. Mean affected elapsed changes+0.675..+1.539us across T1/T8/T16 normal/skewed. PARK exactNS4, RETAINNS3, no confirmation/default/public/layer action. [All12 group means and raw36 rows](steering/2026-11-02-general-optimizer-pipeline-depth.md#terminal-result-november-02-at-1848-mst-in-americavancouver).
+
+## November 2, 2026: corrected constant-scale / issue-group combination
+
+Own PRIVATE `3c45788127e945c4`, source9669ee15, exact342999 LF bytes/c4e6d108, native7db5ec77 versusc7c201ae. PASS5official/6benchmarks/6profiles/no flags; official versus-SGLang2.348334366x, 95% CI[2.313109350,2.383559381]. Complete54cases/378observations/216captures/1152timedreplays/54restorations/cleanup pass, worst global/row0.000135982/0.000171862. Prepare276.366447s, queue545.209209s, worker349.580438s. Strict reader valid but performance fails: all24 whole-six factors0.995560..1.008180, descriptive mean1.001063, three affected bank/load regressions>=1%, all6 groups fail frozen1%/duplicate-null gate. No confirmation/default/public or layer inference. Local B4/MAIN both96regs/zero spills, HGMMA512/wait0=48/async-fence84 unchanged, wait1/arrive256->192. Stop exact combination; no mask/threshold rescue. Full source/receipt/log/profiles/analysis in `docs/steering/evidence/2026-11-02-cuda-group-scale/`; [terminal report](steering/2026-11-02-cuda-part2-experiments.md). D32 and ring-depth owners unchanged.
+
+
+## November 2: GOPT-SHORT-02 source closure, no GPU job
+
+Actual pickup at ef50beab. The proposed serial WGS prefix is excluded from all selected Tiny/Tiny2/MID helper builds under WS=1/WGS=0. Three CUDA12.8.1 preprocessing checks pass; a synthetic forced-WGS control exposes the expected functions. No kernel, compiler-performance claim, runtime test, timing or judge job. NS3 remains unchanged. [Full source evidence and refill request](steering/2026-11-02-general-short-prefix-result.md).
+
+
+## November 2: T8/T16 WS norm aggregation accepted
+
+Own PRIVATE `b38a9ed6dc9743e9`, revision51d6286b/payload1e857ad4,344267 bytes, accepted for one same-process four-owner complete-MoE comparison. Explicit FTZ helper/job accumulation changes tiny2/MID only; NS3, tail/finalizer/publication remain. Four CUDA12.8.1 builds pass with145/152 registers,214784 shared bytes/288 threads,zero spills; five CPU tests pass. No target correctness/timing yet. [Frozen gates and source](steering/2026-11-02-general-ws-norm-aggregation.md).
+
+
+GOPT-WS-03 terminal `b38a9ed6dc9743e9`, revision51d6286b/payload1e857ad4: PASS5/6/6, no flags, return0;54 private cases/378 observations/216 captures/1152 cold timings/54 restorations pass. Worst global/row0.000277548359/0.000820404966, preparation254.148312s. All6 affected T8/T16 bank/distribution groups fail the frozen performance gate;24 aggregate factors0.979717–1.017916, descriptive geomean1.001545;7 affected regression rows, no unchanged-load guard breach. Official versusSGLang2.331049144x,95%CI2.296083406–2.366014881, is not a matched gain. Retain original norm updates/NS3, stop exact treatment; no confirmation/layer/default/public change. [All36 rows, uncertainty, identities and collection limits](steering/2026-11-02-general-ws-norm-aggregation.md#terminal-decision-retain-baseline-stop-exact-aggregation). Full artifacts under `muse_moe_w4a16/profiles/gopt-ws-norm-2026-11-02/`.
+
+
+## November2 MOE-BQUEUE-01 registration
+
+OKC MoE Worker owns the new B4/MAIN whole-unit phase-B queue, with unchanged weighted phase A and skinny builds. Native99a6888d versusc7c201ae; paired4c8c470f,354612bytes. Four local CUDA12.8.1 bool entries pass96regs/zero stack/spills, three source and two real-Torch CPU facade tests pass. No GPU outcome yet. One complete four-state/three-bank/two-distribution/six-load private comparison under295s, original1%/duplicate-null/regression/correctness gates. [Source, proof, stop and accepted-job state](steering/2026-11-02-moe-worker-queue-experiment.md). Public permissions unchanged.
+
+Own private MOE-BQUEUE-01 accepted `e044121f822d47b1`, source publishedb56bd8f1/paired4c8c470f. One POST,16checks/no live jobs at preflight. Shell wrapper exit1 after accepted JSON due zsh reserved status; no duplicate or retry. Target result pending. [Accepted record](steering/evidence/2026-11-02-moe-bqueue/accepted.json).
+
+
+MOE-BQUEUE-01 terminal ownPRIVATEe044121f822d47b1, sourceb56bd8f1/paired4c8c470f/native99a6888d: PASS5official/6benchmarks/6profiles/no flags,54cases/378observations/216captures/1152coldtimings/54restores/cleanup. Worst global/row0.000224079/0.000484750,prepare270.729127s,queue348.705469s,worker347.263598s. Strict reader validates but0/6 matched groups pass;24whole-six factors0.954109315–0.995526795,descriptivegeomean0.978879559,15/18affected regressionrows. Official5856.634195us/2.296284786x CI[2.261840514,2.330729058] versusSGLang is not a matched gain or target5559.830241 achievement. Stop exact whole-unit B queue, retain c7c201ae; no mask/granularity/cap sweep,confirmation,integration/public action. Candidate-only same-native wrapper built/tested while waiting is unqualified,never dispatched and stopped. Waiter56587ended0. Fullraw/log/6profiles/strictanalysis/summary in docs/steering/evidence/2026-11-02-moe-bqueue/. [All six official and twelve descriptive rows, source boundaries and next evidence](steering/2026-11-02-moe-worker-queue-experiment.md#terminal-decision-november-2-pacific).
+
+
+## November2 MOE-PHASE-01 accepted
+
+Own private6028cae5d12f4afb, publishede8998f7a/registrationb5fa3610, paired77ca05dc/native365c9eab versus unchangedc7c201ae. Official arm is originalcontrol0. Sparse boundary observer with duplicate controls/observers, 36timed rows, 4,608cold timings and180checked repeated traces, fixed295s guard and priced perturbation/uncertainty gate. NineCPU/source/reader tests andfour local device compilations pass, with no target result yet. Sole foreground waiter23561 writes ignored `.build/moe-phase/status-wait.raw.json`. [Complete source, scope and one-run stop](steering/2026-11-02-moe-sparse-phase-evidence.md). Exact control release425fc2a9 is prepared separately, with no accepted release check or public permission.
+
+MOE-PHASE-01 terminal6028cae5d12f4afb,77ca05dc/native365c9eab: setup return112 at success-capsule size after279.887460s, no official tests/benchmark/profile/score. Complete private378observations/54restores/216captures/4608timings/180traces retained in bounded failure capsule; worst global/row0.0000879050/0.0002260118. Frozen perturbation screen13/18rows pass, global false; raw representative omitted explicitly. Stop exact observer without retry/bound/guard increase or phase/gain qualification. Queue253.021123s,worker327.380771s,waiter23561ended1. [All retained evidence, exploratory spans and precise limits](steering/2026-11-02-moe-sparse-phase-evidence.md#terminal-stop). Next exact-file standalone release5df257af is separately prepared and does not rely on a valid observer.
+
+
+## November2 MOE-RELEASE-01 accepted
+
+Own private64f9998ef238476f, exact current standalone source5df257af/320466bytes, published9edf1ef6. Current c7 B4/MAIN with original skinny and scale fallbacks; actual five normal compiler calls unchanged, twoCPU tests pass. This prepares the newer base for a public decision independently of lost treatments. Fresh preflightzero live/14checks left, one POST. Target5official/6benchmark/6profile result and material public-score screen pending. Sole waiter52146 writes ignored `.build/moe-release/status-wait.raw.json`. Public submission remains unapproved. [Concrete release and stop](steering/2026-11-02-moe-control-release-qualification.md).
+
+MOE-RELEASE-01 terminal own64f9998ef238476f, exact5df257af/320466bytes, published9edf1ef6. PASS5official/6benchmarks/6profiles, return0 and no flags. H200 preparation182.675155s,queue329.790188s,worker272.758662s,waiter52146ended0. Official5762.134395us/2.333944174x CI[2.298935011,2.368953337], frozen release screen passes and5.065786% below old public6069.607719us cross-job. Target5559.8us remains202.334395us away. Per-load adjusted T1/T8/T16/T32/T128/T256=25.275012/64.619045/95.442923/127.401430/178.951249/220.020295us. Five point times lower than public, T16+0.016691us; no matched kernel-gain/regression claim. Exact complete source ready for user's public decision, no public job. All24private numerical leads have dispositions. [Source, full receipt/profiles, uncertainty, fallbacks and release recommendation](steering/2026-11-02-moe-control-release-qualification.md#terminal-result-and-public-decision).
+
+
+## November2 GOPT-WS-SPLIT-04 terminal
+
+Own private3e6852d30c5c4535, source7370f630/payloadb4da948d/352468bytes, helper2be4d7bb enabled only T1/T8/T16; B4/MAINc7c201ae unchanged. PASS5/6/6/no flags/return0. All54private cases/378observations/216captures/1152cold timings/54restorations/cleanup and6native FP32 finalizer probes pass; worstglobal/row0.000126546/0.000233705,prepare284.983602s. All6matched performance groups fail;24complete-six factors0.984921731–0.998652082,descriptivegeomean0.992232006;16/18affected regressionrows,no unchanged-guard breaches. Official5834.137938us/2.305139190x CI[2.270562102,2.339716278] versusSGLang is not an incumbent win. Retain fused WS/NS3/original norm; stop exact two-launch design, no mask/third-node/sweep/retry/integration/public action. Solewaiter75595ended0 before archive. [All36rows, exact source and stop](steering/2026-11-02-general-ws-split-finalizer.md#terminal-decision-retain-fused-ws-stop-the-two-launch-split).
+
+
+## November2 approved standalone base release
+
+User directly approved exact5df257af. One publicPOST accepted4aa033ef23a142cd; terminalPASS5/6/6, no flags/return0, official5788.720720us/2.323224880x CI[2.288376507,2.358073253]. Source320466bytesunchanged. Setup184.048388s,queue235.197197s,worker334.295472s,waiter10826ended0. Board nowverifiesnewbest4aa at rank373from434,26attempts;4.627762%lowerelapsed thanpublic6069.607719us. Target5559.8remains228.920720us away. Private5762.134395us remains independently attributed. Approval covers5dfonly. [Owning receipt/profiles/verified board and next continued implementation](steering/2026-11-02-moe-control-release-qualification.md#public-result-verified). MOE-LUT-01 is the next distinct B4/MAIN representation/decoder experiment; no stale-observer or queue revival.
+
+## November2 MOE-LUT-01 terminal loss
+
+Ownc985bbdb2980407a passed5official tests/6benchmarks/6profiles, all54private cases,378observations/216captures/1152cold timings/54restores. Prepare276.790803s. All7compiler requests and256/256/16640/16640table owners match the frozen source. Worst global/row error is0.000089915/0.000183763, within unchanged0.015/0.075bounds. Cleanup/restoration passes. Solewaiter73200ended0 before archive.
+
+Performance rejects the exact treatment:0/6bank/distribution groups, all18affected cells regress,24complete-six factors0.473011105–0.576767080, no unchanged-path drift under the registered duplicate-noise gate. Official candidate2 score12337.764699us/1.090027272x CI[1.073676863,1.106377681]. This is not a release lead. The current public remains5788.720720us.
+
+
+Stop exact pair lookup, retain public5df257af. No follow-on/rescue/public action. [All six official loads, complete matched rows and stop](steering/2026-11-02-moe-pair-lookup.md#terminal-decision-stop-exact-pair-lookup). Next source qualification is direct phase-A input staging, a distinct work-elimination design.
+
+## November2 MOE-DIRECT-X-01 terminal loss
+
+Own94c57451574c4cd3/paired1191e44c/nativec705df6a, publishedf1955498, PASS5/6/6 andall54private cases. Complete378observations/216captures/1152timings/54restores; prepare272.829260s. All6matched groups fail,24whole-six factors0.755196–0.803711,18affected regressions,one unchangedT16/skewed drift. Official7194.998534us/1.869145621x CI[1.841108436,1.897182805]. Retain global gather/public5df257af; stop exact direct input without mapping/cache/ring sweep, retry, mask, integration or public action. Waiter38355ended0. [Full six loads, evidence and next lossless output-storage preparation](steering/2026-11-02-moe-direct-input.md#terminal-decision-retain-global-gather).

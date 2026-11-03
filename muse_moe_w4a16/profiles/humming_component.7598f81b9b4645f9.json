@@ -1,0 +1,1014 @@
+{
+  "board": "muse_prefill_layer",
+  "call_id": "kc-7598f81b9b4645f9",
+  "cluster": "sfo3",
+  "content_hash": "cb1f6369cb409baf92071a49c72b2010bc7af59534f71e74601678dba1103402",
+  "created_at": 1793512190.5058842,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793512408.552409,
+  "id": "7598f81b9b4645f9",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/.build/today-moe/profiles/humming_component.7598f81b9b4645f9.log"
+  },
+  "payload_ref": "muse_prefill_layer/cb1f6369cb409baf92071a49c72b2010bc7af59534f71e74601678dba1103402.py",
+  "profile": {
+    "json": "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/.build/today-moe/profiles/humming_component.7598f81b9b4645f9.json",
+    "text": "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/.build/today-moe/profiles/humming_component.7598f81b9b4645f9.txt"
+  },
+  "result": {
+    "baseline_us": 387403.9,
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "b023c806840d9a0be71e887768b3bd414ad29978b94071d7d965af9f8cd976f0",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_prefill_layer/baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+        "problems/muse_prefill_layer/reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+        "problems/muse_prefill_layer/task.yml": "901aec1ab2767d7d76d851e526aab6b285a59cf425b9bae9e1da7047d33f9feb"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": " 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=753 seed=271 R2 rel=0.00606\nHUMINDEX workspace M=753 cfg=[{'block_shape': (48, 256, 64), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (48, 128, 128), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=753 seed=271 M rel=0.00602\nHUMINDEX workspace M=753 cfg=[{'block_shape': (48, 256, 64), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (48, 128, 128), 'warp_shape': (48, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=753 seed=271 M2 rel=0.00602\nHBTIME M=753 seed=271 raw_us={'marlin': 1096.384048461914, 'marlin2': 1097.1200466156006, 'R': 1081.3440084457397, 'R2': 1081.663966178894, 'M': 970.7199931144714, 'M2': 970.6559777259827}\nHBPAIR M=753 seed=271 vsR_us={'marlin': 15.040040016174316, 'marlin2': 16.479969024658203, 'R': 0.0, 'R2': 1.7598867416381836, 'M': -109.21603441238403, 'M2': -110.20797491073608}\nHBWORK M=753 seed=272 local_routes,max_expert,distinct=[1004, 280, 22]\nHBCHECK M=753 seed=272 marlin rel=8.97e-05\nHBCHECK M=753 seed=272 marlin2 rel=9.14e-05\nHBCHECK M=753 seed=272 R rel=0.00598\nHBCHECK M=753 seed=272 R2 rel=0.00598\nHBCHECK M=753 seed=272 M rel=0.00588\nHBCHECK M=753 seed=272 M2 rel=0.00588\nHBTIME M=753 seed=272 raw_us={'marlin': 819.6160197257996, 'marlin2': 819.3920254707336, 'R': 875.8400082588196, 'R2': 876.8640160560608, 'M': 713.7920260429382, 'M2': 713.5679721832275}\nHBPAIR M=753 seed=272 vsR_us={'marlin': -55.87196350097656, 'marlin2': -56.76800012588501, 'R': 0.0, 'R2': 0.7039904594421387, 'M': -161.92001104354858, 'M2': -162.1440052986145}\nHBWORK M=3012 seed=271 local_routes,max_expert,distinct=[5551, 2329, 23]\nHBCHECK M=3012 seed=271 marlin rel=8.06e-05\nHBCHECK M=3012 seed=271 marlin2 rel=8.17e-05\nHUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=3012 seed=271 R rel=0.00587\nHUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=3012 seed=271 R2 rel=0.00587\nHUMINDEX workspace M=3012 cfg=[{'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=3012 seed=271 M rel=0.00587\nHUMINDEX workspace M=3012 cfg=[{'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=3012 seed=271 M2 rel=0.00587\nHBTIME M=3012 seed=271 raw_us={'marlin': 2466.655969619751, 'marlin2': 2467.967987060547, 'R': 2023.5838890075684, 'R2': 2022.2721099853516, 'M': 1794.975996017456, 'M2': 1792.9919958114624}\nHBPAIR M=3012 seed=271 vsR_us={'marlin': 440.19198417663574, 'marlin2': 441.82395935058594, 'R': 0.0, 'R2': -1.0880231857299805, 'M': -227.87201404571533, 'M2': -230.14390468597412}\nHBWORK M=3012 seed=272 local_routes,max_expert,distinct=[6408, 2108, 24]\nHBCHECK M=3012 seed=272 marlin rel=8.39e-05\nHBCHECK M=3012 seed=272 marlin2 rel=8.48e-05\nHBCHECK M=3012 seed=272 R rel=0.00595\nHBCHECK M=3012 seed=272 R2 rel=0.00595\nHBCHECK M=3012 seed=272 M rel=0.00593\nHBCHECK M=3012 seed=272 M2 rel=0.00593\nHBTIME M=3012 seed=272 raw_us={'marlin': 2774.8160362243652, 'marlin2': 2761.47198677063, 'R': 2064.8961067199707, 'R2': 2068.0320262908936, 'M': 1959.3600034713745, 'M2': 1953.4399509429932}\nHBPAIR M=3012 seed=272 vsR_us={'marlin': 700.9601593017578, 'marlin2': 703.3920288085938, 'R': 0.0, 'R2': -1.5680789947509766, 'M': -111.10401153564453, 'M2': -110.71991920471191}\nHBWORK M=16384 seed=271 local_routes,max_expert,distinct=[34391, 14523, 28]\nHBCHECK M=16384 seed=271 marlin rel=4.21e-05\nHBCHECK M=16384 seed=271 marlin2 rel=4.3e-05\nHUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=16384 seed=271 R rel=0.00597\nHUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=16384 seed=271 R2 rel=0.00597\nHUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=16384 seed=271 M rel=0.00597\nHUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHBCHECK M=16384 seed=271 M2 rel=0.00597\nHBTIME M=16384 seed=271 raw_us={'marlin': 13749.44019317627, 'marlin2': 13667.648315429688, 'R': 9235.296249389648, 'R2': 9294.560432434082, 'M': 9270.848274230957, 'M2': 9279.104232788086}\nHBPAIR M=16384 seed=271 vsR_us={'marlin': 4527.39143371582, 'marlin2': 4490.943908691406, 'R': 0.0, 'R2': 36.5753173828125, 'M': 9.21630859375, 'M2': 43.8079833984375}\nHBWORK M=16384 seed=272 local_routes,max_expert,distinct=[20937, 4658, 29]\nHBCHECK M=16384 seed=272 marlin rel=5.14e-05\nHBCHECK M=16384 seed=272 marlin2 rel=4.68e-05\nHBCHECK M=16384 seed=272 R rel=0.00599\nHBCHECK M=16384 seed=272 R2 rel=0.00599\nHBCHECK M=16384 seed=272 M rel=0.00599\nHBCHECK M=16384 seed=272 M2 rel=0.00599\nHBTIME M=16384 seed=272 raw_us={'marlin': 8780.384063720703, 'marlin2': 8791.520118713379, 'R': 6687.359809875488, 'R2': 6752.384185791016, 'M': 6682.720184326172, 'M2': 6701.920032501221}\nHBPAIR M=16384 seed=272 vsR_us={'marlin': 2122.6882934570312, 'marlin2': 2142.0154571533203, 'R': 0.0, 'R2': 26.495933532714844, 'M': -24.608135223388672, 'M2': 5.536079406738281}\nHBRESULT\nHBWORK M=753 seed=271 local_routes,max_expert,distinct=[1649, 404, 25]\nHBCHECK M=753 seed=271 marlin rel=0.000122\nHBCHECK M=753 seed=271 marlin2 rel=8.57e-05\nHBCHECK M=753 seed=271 R rel=0.00606\nHBCHECK M=753 seed=271 R2 rel=0.00606\nHBCHECK M=753 seed=271 M rel=0.00602\nHBCHECK M=753 seed=271 M2 rel=0.00602\nHBTIME M=753 seed=271 raw_us={'marlin': 1096.384048461914, 'marlin2': 1097.1200466156006, 'R': 1081.3440084457397, 'R2': 1081.663966178894, 'M': 970.7199931144714, 'M2': 970.6559777259827}\nHBPAIR M=753 seed=271 vsR_us={'marlin': 15.040040016174316, 'marlin2': 16.479969024658203, 'R': 0.0, 'R2': 1.7598867416381836, 'M': -109.21603441238403, 'M2': -110.20797491073608}\nHBWORK M=753 seed=272 local_routes,max_expert,distinct=[1004, 280, 22]\nHBCHECK M=753 seed=272 marlin rel=8.97e-05\nHBCHECK M=753 seed=272 marlin2 rel=9.14e-05\nHBCHECK M=753 seed=272 R rel=0.00598\nHBCHECK M=753 seed=272 R2 rel=0.00598\nHBCHECK M=753 seed=272 M rel=0.00588\nHBCHECK M=753 seed=272 M2 rel=0.00588\nHBTIME M=753 seed=272 raw_us={'marlin': 819.6160197257996, 'marlin2': 819.3920254707336, 'R': 875.8400082588196, 'R2': 876.8640160560608, 'M': 713.7920260429382, 'M2': 713.5679721832275}\nHBPAIR M=753 seed=272 vsR_us={'marlin': -55.87196350097656, 'marlin2': -56.76800012588501, 'R': 0.0, 'R2': 0.7039904594421387, 'M': -161.92001104354858, 'M2': -162.1440052986145}\nHBWORK M=3012 seed=271 local_routes,max_expert,distinct=[5551, 2329, 23]\nHBCHECK M=3012 seed=271 marlin rel=8.06e-05\nHBCHECK M=3012 seed=271 marlin2 rel=8.17e-05\nHBCHECK M=3012 seed=271 R rel=0.00587\nHBCHECK M=3012 seed=271 R2 rel=0.00587\nHBCHECK M=3012 seed=271 M rel=0.00587\nHBCHECK M=3012 seed=271 M2 rel=0.00587\nHBTIME M=3012 seed=271 raw_us={'marlin': 2466.655969619751, 'marlin2': 2467.967987060547, 'R': 2023.5838890075684, 'R2': 2022.2721099853516, 'M': 1794.975996017456, 'M2': 1792.9919958114624}\nHBPAIR M=3012 seed=271 vsR_us={'marlin': 440.19198417663574, 'marlin2': 441.82395935058594, 'R': 0.0, 'R2': -1.0880231857299805, 'M': -227.87201404571533, 'M2': -230.14390468597412}\nHBWORK M=3012 seed=272 local_routes,max_expert,distinct=[6408, 2108, 24]\nHBCHECK M=3012 seed=272 marlin rel=8.39e-05\nHBCHECK M=3012 seed=272 marlin2 rel=8.48e-05\nHBCHECK M=3012 seed=272 R rel=0.00595\nHBCHECK M=3012 seed=272 R2 rel=0.00595\nHBCHECK M=3012 seed=272 M rel=0.00593\nHBCHECK M=3012 seed=272 M2 rel=0.00593\nHBTIME M=3012 seed=272 raw_us={'marlin': 2774.8160362243652, 'marlin2': 2761.47198677063, 'R': 2064.8961067199707, 'R2': 2068.0320262908936, 'M': 1959.3600034713745, 'M2': 1953.4399509429932}\nHBPAIR M=3012 seed=272 vsR_us={'marlin': 700.9601593017578, 'marlin2': 703.3920288085938, 'R': 0.0, 'R2': -1.5680789947509766, 'M': -111.10401153564453, 'M2': -110.71991920471191}\nHBWORK M=16384 seed=271 local_routes,max_expert,distinct=[34391, 14523, 28]\nHBCHECK M=16384 seed=271 marlin rel=4.21e-05\nHBCHECK M=16384 seed=271 marlin2 rel=4.3e-05\nHBCHECK M=16384 seed=271 R rel=0.00597\nHBCHECK M=16384 seed=271 R2 rel=0.00597\nHBCHECK M=16384 seed=271 M rel=0.00597\nHBCHECK M=16384 seed=271 M2 rel=0.00597\nHBTIME M=16384 seed=271 raw_us={'marlin': 13749.44019317627, 'marlin2': 13667.648315429688, 'R': 9235.296249389648, 'R2': 9294.560432434082, 'M': 9270.848274230957, 'M2': 9279.104232788086}\nHBPAIR M=16384 seed=271 vsR_us={'marlin': 4527.39143371582, 'marlin2': 4490.943908691406, 'R': 0.0, 'R2': 36.5753173828125, 'M': 9.21630859375, 'M2': 43.8079833984375}\nHBWORK M=16384 seed=272 local_routes,max_expert,distinct=[20937, 4658, 29]\nHBCHECK M=16384 seed=272 marlin rel=5.14e-05\nHBCHECK M=16384 seed=272 marlin2 rel=4.68e-05\nHBCHECK M=16384 seed=272 R rel=0.00599\nHBCHECK M=16384 seed=272 R2 rel=0.00599\nHBCHECK M=16384 seed=272 M rel=0.00599\nHBCHECK M=16384 seed=272 M2 rel=0.00599\nHBTIME M=16384 seed=272 raw_us={'marlin': 8780.384063720703, 'marlin2': 8791.520118713379, 'R': 6687.359809875488, 'R2': 6752.384185791016, 'M': 6682.720184326172, 'M2': 6701.920032501221}\nHBPAIR M=16384 seed=272 vsR_us={'marlin': 2122.6882934570312, 'marlin2': 2142.0154571533203, 'R': 0.0, 'R2': 26.495933532714844, 'M': -24.608135223388672, 'M2': 5.536079406738281}\nHUMINDEX workspace M=300 cfg=[{'block_shape': (104, 256, 64), 'warp_shape': (104, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (104, 256, 64), 'warp_shape': (104, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=753 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=1506 cfg=[{'block_shape': (160, 256, 64), 'warp_shape': (160, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (160, 256, 64), 'warp_shape': (160, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=600 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=4096 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=753 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=753 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nHUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start\nUSDT:2026-11-01 05:53:09 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop\nUSDT:2026-11-01 05:53:10 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start\nUSDT:2026-11-01 05:53:10 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop\nUSDT:2026-11-01 05:53:10 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start\nUSDT:2026-11-01 05:53:10 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop\nUSDT:2026-11-01 05:53:10 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start\nUSDT:2026-11-01 05:53:10 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 126.08,
+        "power.limit": 700,
+        "temperature.gpu": 34
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 139.8,
+        "power.limit": 700,
+        "temperature.gpu": 30
+      },
+      "node": "n-oiwen3u25vubdhxwxoeoxrqza5"
+    },
+    "passed": true,
+    "records": [
+      {
+        "baseline_copies": 2,
+        "baseline_prepare_pad": 25190400,
+        "copies": 5,
+        "error": null,
+        "event": "setup",
+        "first": "baseline",
+        "prepare_pad": 17363456,
+        "prepare_s": 17.065184835,
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 0,
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 300,
+          "seed": 5619559114007846130
+        },
+        "event": "test",
+        "index": 0,
+        "message": "update relative L2 error 3.641e-02 (worst row 7.405e-02) [bound 0.068]; attention input relative L2 error 2.403e-02 (worst row 5.480e-02) [bound 0.045]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 3000,
+          "layer": "full",
+          "page": 1,
+          "q_len": 753,
+          "seed": 5619837256726174785
+        },
+        "event": "test",
+        "index": 1,
+        "message": "update relative L2 error 7.017e-02 (worst row 1.388e-01) [bound 0.150]; attention input relative L2 error 4.632e-02 (worst row 9.199e-02) [bound 0.114]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 2,
+          "ctx": 2500,
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 753,
+          "seed": 5620115399444503441
+        },
+        "event": "test",
+        "index": 2,
+        "message": "update relative L2 error 6.783e-02 (worst row 1.337e-01) [bound 0.150]; attention input relative L2 error 4.437e-02 (worst row 9.968e-02) [bound 0.108]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 3,
+          "ctx": 5000,
+          "dist": "outliers",
+          "layer": "full",
+          "q_len": 200,
+          "seed": 5620393542162832098
+        },
+        "event": "test",
+        "index": 3,
+        "message": "update relative L2 error 6.431e-02 (worst row 1.317e-01) [bound 0.150]; attention input relative L2 error 3.387e-02 (worst row 6.811e-02) [bound 0.083]",
+        "status": "pass"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 4096,
+          "layer": "sliding",
+          "page": 1,
+          "q_len": 4096,
+          "seed": 5620671684881160756
+        },
+        "event": "test",
+        "index": 4,
+        "message": "update relative L2 error 5.148e-02 (worst row 1.213e-01) [bound 0.117]; attention input relative L2 error 3.417e-02 (worst row 9.187e-02) [bound 0.077]",
+        "status": "pass"
+      },
+      {
+        "baseline_ns": 1085583.992768079,
+        "baseline_parent_ns": 1094048.0064600706,
+        "baseline_raw_ns": 1089583.9929580688,
+        "baseline_runs_ns": [
+          1056704,
+          1095168,
+          1084000,
+          1166272,
+          1079136,
+          1107584
+        ],
+        "baseline_stats": {
+          "best_ns": 1056704.044342041,
+          "err_ns": 15294.908784686113,
+          "mean_ns": 1098144.0146764119,
+          "runs": 6,
+          "std_ns": 37464.722184892955,
+          "worst_ns": 1166272.0441818237
+        },
+        "best_ns": 1028352.0221710205,
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "turn 1",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5647373385840716580,
+          "weight": 46
+        },
+        "err_ns": 10658.08139477462,
+        "event": "benchmark",
+        "event_median_ns": 1063167.9892539978,
+        "flags": [],
+        "index": 0,
+        "mean_ns": 1067978.6602656047,
+        "median_ns": 1052972.3498264318,
+        "median_raw_ns": 1063167.9892539978,
+        "outside_bursts_ns": [
+          1097353.8,
+          1095255.25,
+          1095382.05
+        ],
+        "outside_ns": 1095255.25,
+        "paired_ratio": 1.0309710344692553,
+        "parent_ns": 1067152.0065516233,
+        "parent_runs_ns": [
+          1063680,
+          1030912,
+          1070624,
+          1098944,
+          1062688,
+          1098592
+        ],
+        "ratios": [
+          0.99782,
+          1.06523,
+          1.01696,
+          1.06295,
+          1.01778,
+          1.00993
+        ],
+        "replay_overhead": {
+          "gate_ns": 296960.01298725605,
+          "one_ns": 5152.000114321709,
+          "overhead_ns": 4000.000189989805,
+          "parent_one_ns": 302175.99868774414,
+          "parent_two_ns": 303328.0074596405,
+          "two_ns": 6304.000038653612
+        },
+        "runs": 6,
+        "runs_ns": [
+          1059008,
+          1028352,
+          1065984,
+          1097440,
+          1060352,
+          1096736
+        ],
+        "speed_of_light_ns": 256950.95121536904,
+        "speedup": 1.0309710344692553,
+        "speedup_of_medians": 1.0249403342782433,
+        "status": "pass",
+        "std_ns": 26106.861054248657,
+        "worst_ns": 1097440.0043487549
+      },
+      {
+        "baseline_ns": 1478496.016934514,
+        "baseline_parent_ns": 1485168.011393398,
+        "baseline_raw_ns": 1482720.0174331665,
+        "baseline_runs_ns": [
+          1422624,
+          1466624,
+          1448608,
+          1541856,
+          1498816,
+          1525760
+        ],
+        "baseline_stats": {
+          "best_ns": 1422623.9919662476,
+          "err_ns": 18825.740280746122,
+          "mean_ns": 1484048.028786977,
+          "runs": 6,
+          "std_ns": 46113.45771798773,
+          "worst_ns": 1541856.050491333
+        },
+        "best_ns": 1415488.0046844482,
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "turn 1",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5647651528559045335,
+          "weight": 16
+        },
+        "err_ns": 20339.000338472324,
+        "event": "benchmark",
+        "event_median_ns": 1454912.006855011,
+        "flags": [],
+        "index": 1,
+        "mean_ns": 1464368.0055936177,
+        "median_ns": 1452400.2257108148,
+        "median_raw_ns": 1454912.006855011,
+        "outside_bursts_ns": [
+          1490133.6,
+          1489645.2,
+          1489510.85
+        ],
+        "outside_ns": 1489510.85,
+        "paired_ratio": 1.0179673555275908,
+        "parent_ns": 1455711.9919918478,
+        "parent_runs_ns": [
+          1423184,
+          1416144,
+          1424048,
+          1515632,
+          1524528,
+          1487376
+        ],
+        "ratios": [
+          1.00002,
+          1.03623,
+          1.01816,
+          1.01792,
+          0.98374,
+          1.02616
+        ],
+        "replay_overhead": {
+          "gate_ns": 298703.9969302714,
+          "one_ns": 5216.000135987997,
+          "overhead_ns": 4224.000498652458,
+          "parent_one_ns": 303903.9969444275,
+          "parent_two_ns": 304832.01146125793,
+          "two_ns": 6207.999773323536
+        },
+        "runs": 6,
+        "runs_ns": [
+          1422592,
+          1415488,
+          1422848,
+          1514784,
+          1523520,
+          1486976
+        ],
+        "speed_of_light_ns": 496692.6391911021,
+        "speedup": 1.0179673555275908,
+        "speedup_of_medians": 1.0191688429602448,
+        "status": "pass",
+        "std_ns": 49820.17270755154,
+        "worst_ns": 1523519.9928283691
+      },
+      {
+        "baseline_ns": 3359344.0731056035,
+        "baseline_parent_ns": 3369775.9595233947,
+        "baseline_raw_ns": 3363344.0732955933,
+        "baseline_runs_ns": [
+          3325760,
+          3340352,
+          3422944,
+          3402304,
+          3386336,
+          3335168
+        ],
+        "baseline_stats": {
+          "best_ns": 3325759.8876953125,
+          "err_ns": 16486.826382052728,
+          "mean_ns": 3368810.6536865234,
+          "runs": 6,
+          "std_ns": 40384.312113885244,
+          "worst_ns": 3422944.0689086914
+        },
+        "best_ns": 2803423.8815307617,
+        "case": {
+          "batch": 4,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "turn 4",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5647929671277374091,
+          "weight": 46
+        },
+        "err_ns": 13213.487933407712,
+        "event": "benchmark",
+        "event_median_ns": 2832864.0460968018,
+        "flags": [],
+        "index": 2,
+        "mean_ns": 2836143.970489502,
+        "median_ns": 2828869.2018141416,
+        "median_raw_ns": 2832864.0460968018,
+        "outside_bursts_ns": [
+          2834655.0714285714,
+          2836889.785714286,
+          2927274.1428571427
+        ],
+        "outside_ns": 2834655.0714285714,
+        "paired_ratio": 1.1875218801036367,
+        "parent_ns": 2836799.928219989,
+        "parent_runs_ns": [
+          2806400,
+          2814688,
+          2844736,
+          2829888,
+          2898240,
+          2843712
+        ],
+        "ratios": [
+          1.18659,
+          1.18846,
+          1.2048,
+          1.20387,
+          1.17009,
+          1.17505
+        ],
+        "replay_overhead": {
+          "gate_ns": 296991.9953029603,
+          "one_ns": 5152.000114321709,
+          "overhead_ns": 4000.000189989805,
+          "parent_one_ns": 302208.0063819885,
+          "parent_two_ns": 303200.00648498535,
+          "two_ns": 6304.000038653612
+        },
+        "runs": 6,
+        "runs_ns": [
+          2803424,
+          2811296,
+          2841760,
+          2826816,
+          2894656,
+          2838912
+        ],
+        "speed_of_light_ns": 1036277.2319514662,
+        "speedup": 1.1875218801036367,
+        "speedup_of_medians": 1.1875240444892934,
+        "status": "pass",
+        "std_ns": 32366.30315927148,
+        "worst_ns": 2894655.94291687
+      },
+      {
+        "baseline_ns": 4898848.056793213,
+        "baseline_parent_ns": 4905584.130901843,
+        "baseline_raw_ns": 4902816.0572052,
+        "baseline_runs_ns": [
+          4964768,
+          4883328,
+          4865280,
+          4875104,
+          4922304,
+          4932096
+        ],
+        "baseline_stats": {
+          "best_ns": 4865280.1513671875,
+          "err_ns": 15831.719940422448,
+          "mean_ns": 4907146.692276001,
+          "runs": 6,
+          "std_ns": 38779.63560468069,
+          "worst_ns": 4964767.932891846
+        },
+        "best_ns": 4295519.828796387,
+        "case": {
+          "batch": 4,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "turn 4",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5648207813995702848,
+          "weight": 16
+        },
+        "err_ns": 16131.459031168617,
+        "event": "benchmark",
+        "event_median_ns": 4365759.84954834,
+        "flags": [],
+        "index": 3,
+        "mean_ns": 4352175.951004028,
+        "median_ns": 4360678.883220398,
+        "median_raw_ns": 4365759.84954834,
+        "outside_bursts_ns": [
+          4393598.222222222,
+          4434819.666666667,
+          4481234.111111111
+        ],
+        "outside_ns": 4393598.222222222,
+        "paired_ratio": 1.1234140802349961,
+        "parent_ns": 4368047.9866452515,
+        "parent_runs_ns": [
+          4358656,
+          4313440,
+          4297440,
+          4377440,
+          4381792,
+          4395744
+        ],
+        "ratios": [
+          1.14002,
+          1.13239,
+          1.13276,
+          1.11414,
+          1.12408,
+          1.12263
+        ],
+        "replay_overhead": {
+          "gate_ns": 298912.0143465698,
+          "one_ns": 5152.000114321709,
+          "overhead_ns": 3968.0004119873047,
+          "parent_one_ns": 304159.9988937378,
+          "parent_two_ns": 305247.9922771454,
+          "two_ns": 6335.999816656113
+        },
+        "runs": 6,
+        "runs_ns": [
+          4355456,
+          4312864,
+          4295520,
+          4376064,
+          4379392,
+          4393760
+        ],
+        "speed_of_light_ns": 1992419.5081577352,
+        "speedup": 1.1234140802349961,
+        "speedup_of_medians": 1.1231274270373997,
+        "status": "pass",
+        "std_ns": 39513.84343297459,
+        "worst_ns": 4393760.204315186
+      },
+      {
+        "baseline_ns": 17314560.60986966,
+        "baseline_parent_ns": 17324191.936990246,
+        "baseline_raw_ns": 17318848.609924316,
+        "baseline_runs_ns": [
+          17296928,
+          17340769,
+          17756128,
+          17203136,
+          17479776,
+          17274624
+        ],
+        "baseline_stats": {
+          "best_ns": 17203136.444091797,
+          "err_ns": 81935.72549975931,
+          "mean_ns": 17391893.704732258,
+          "runs": 6,
+          "std_ns": 200700.7191791585,
+          "worst_ns": 17756128.311157227
+        },
+        "best_ns": 13547360.42022705,
+        "case": {
+          "batch": 1,
+          "ctx": 0,
+          "dist": "soft",
+          "layer": "full",
+          "load": "first turn",
+          "page": 1,
+          "q_len": 16384,
+          "repeats": 6,
+          "seed": 5648764099432360365,
+          "weight": 16
+        },
+        "err_ns": 61430.15151380632,
+        "event": "benchmark",
+        "event_median_ns": 13790959.83505249,
+        "flags": [],
+        "index": 4,
+        "mean_ns": 13783274.65057373,
+        "median_ns": 13786623.126604637,
+        "median_raw_ns": 13790959.83505249,
+        "outside_bursts_ns": [
+          13801952,
+          13905387,
+          14021865.5
+        ],
+        "outside_ns": 13801952,
+        "paired_ratio": 1.2558956933012124,
+        "parent_ns": 13794383.892556652,
+        "parent_runs_ns": [
+          13753328,
+          13835440,
+          13883024,
+          13550640,
+          13989424,
+          13712400
+        ],
+        "ratios": [
+          1.25801,
+          1.25379,
+          1.27972,
+          1.26994,
+          1.25007,
+          1.26004
+        ],
+        "replay_overhead": {
+          "gate_ns": 297103.99196483195,
+          "one_ns": 5247.999913990498,
+          "overhead_ns": 4288.000054657459,
+          "parent_one_ns": 302271.9919681549,
+          "parent_two_ns": 303328.0074596405,
+          "two_ns": 6207.999773323536
+        },
+        "runs": 6,
+        "runs_ns": [
+          13750368,
+          13831552,
+          13875968,
+          13547360,
+          13983904,
+          13710496
+        ],
+        "speed_of_light_ns": 5518431.777650151,
+        "speedup": 1.2558956933012124,
+        "speedup_of_medians": 1.2558912562142943,
+        "status": "pass",
+        "std_ns": 150472.52603068508,
+        "worst_ns": 13983903.884887695
+      },
+      {
+        "baseline_ns": 16899455.847684294,
+        "baseline_parent_ns": 16907632.464542985,
+        "baseline_raw_ns": 16903679.847717285,
+        "baseline_runs_ns": [
+          16942335,
+          16853056,
+          17152737,
+          16754528,
+          16936129,
+          16871231
+        ],
+        "baseline_stats": {
+          "best_ns": 16754528.045654297,
+          "err_ns": 54512.87629695962,
+          "mean_ns": 16918335.914611816,
+          "runs": 6,
+          "std_ns": 133528.73133901082,
+          "worst_ns": 17152736.66381836
+        },
+        "best_ns": 13242719.650268555,
+        "case": {
+          "batch": 1,
+          "ctx": 32768,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "first turn",
+          "page": 1,
+          "q_len": 16384,
+          "repeats": 6,
+          "seed": 5649042242150689125,
+          "weight": 138
+        },
+        "err_ns": 49842.291689411155,
+        "event": "benchmark",
+        "event_median_ns": 13316016.19720459,
+        "flags": [],
+        "index": 5,
+        "mean_ns": 13347258.567810059,
+        "median_ns": 13320314.815392891,
+        "median_raw_ns": 13316016.19720459,
+        "outside_bursts_ns": [
+          13315032.666666666,
+          13812493.666666666,
+          13801995.666666666
+        ],
+        "outside_ns": 13315032.666666666,
+        "paired_ratio": 1.268697931084584,
+        "parent_ns": 13318832.034245133,
+        "parent_runs_ns": [
+          13400032,
+          13244512,
+          13376960,
+          13260704,
+          13568704,
+          13255488
+        ],
+        "ratios": [
+          1.26469,
+          1.27271,
+          1.28273,
+          1.26372,
+          1.24932,
+          1.27296
+        ],
+        "replay_overhead": {
+          "gate_ns": 298879.98662889004,
+          "one_ns": 5311.999935656786,
+          "overhead_ns": 4224.000032991171,
+          "parent_one_ns": 304351.9854545593,
+          "parent_two_ns": 305343.98555755615,
+          "two_ns": 6399.999838322401
+        },
+        "runs": 6,
+        "runs_ns": [
+          13397280,
+          13242720,
+          13373024,
+          13259008,
+          13557088,
+          13254432
+        ],
+        "speed_of_light_ns": 5663353.674806875,
+        "speedup": 1.268697931084584,
+        "speedup_of_medians": 1.2695101904666886,
+        "status": "pass",
+        "std_ns": 122088.18225001986,
+        "worst_ns": 13557087.898254395
+      },
+      {
+        "baseline_ns": 20694640.4078044,
+        "baseline_parent_ns": 20704960.67078784,
+        "baseline_raw_ns": 20698896.408081055,
+        "baseline_runs_ns": [
+          21074976,
+          20404160,
+          20959841,
+          20431648,
+          21915232,
+          20437952
+        ],
+        "baseline_stats": {
+          "best_ns": 20404159.545898438,
+          "err_ns": 240722.41491185446,
+          "mean_ns": 20870634.71476237,
+          "runs": 6,
+          "std_ns": 589647.0861845838,
+          "worst_ns": 21915231.704711914
+        },
+        "best_ns": 17084735.870361328,
+        "case": {
+          "batch": 1,
+          "ctx": 32768,
+          "dist": "soft",
+          "layer": "full",
+          "load": "first turn",
+          "page": 1,
+          "q_len": 16384,
+          "repeats": 6,
+          "seed": 5649320384869017886,
+          "weight": 16
+        },
+        "err_ns": 200407.8093059148,
+        "event": "benchmark",
+        "event_median_ns": 17259679.794311523,
+        "flags": [],
+        "index": 6,
+        "mean_ns": 17464261.054992676,
+        "median_ns": 17302120.127062157,
+        "median_raw_ns": 17259679.794311523,
+        "outside_bursts_ns": [
+          17144087.5,
+          17491723.5,
+          17696445
+        ],
+        "outside_ns": 17144087.5,
+        "paired_ratio": 1.196075409015108,
+        "parent_ns": 17260416.832286865,
+        "parent_runs_ns": [
+          17383297,
+          17112127,
+          17751552,
+          17137537,
+          18335457,
+          17085825
+        ],
+        "ratios": [
+          1.21243,
+          1.19248,
+          1.18134,
+          1.19236,
+          1.19583,
+          1.19632
+        ],
+        "replay_overhead": {
+          "gate_ns": 299039.99296948314,
+          "one_ns": 5344.000179320574,
+          "overhead_ns": 4256.000276654959,
+          "parent_one_ns": 304383.9931488037,
+          "parent_two_ns": 305536.0019207001,
+          "two_ns": 6432.000081986189
+        },
+        "runs": 6,
+        "runs_ns": [
+          17383232,
+          17111391,
+          17743040,
+          17136127,
+          18327040,
+          17084736
+        ],
+        "speed_of_light_ns": 7710004.388626896,
+        "speedup": 1.1960754090151078,
+        "speedup_of_medians": 1.1993122078495955,
+        "status": "pass",
+        "std_ns": 490896.8732684854,
+        "worst_ns": 18327039.71862793
+      },
+      {
+        "baseline_ns": 25018415.803089738,
+        "baseline_parent_ns": 25027023.351751268,
+        "baseline_raw_ns": 25022607.803344727,
+        "baseline_runs_ns": [
+          25951777,
+          24849537,
+          25652479,
+          24871679,
+          25173536,
+          24658976
+        ],
+        "baseline_stats": {
+          "best_ns": 24658975.60119629,
+          "err_ns": 207656.58184447454,
+          "mean_ns": 25192997.296651203,
+          "runs": 6,
+          "std_ns": 508652.6672494559,
+          "worst_ns": 25951776.5045166
+        },
+        "best_ns": 20963584.899902344,
+        "case": {
+          "batch": 1,
+          "ctx": 65536,
+          "dist": "soft",
+          "layer": "full",
+          "load": "first turn",
+          "page": 1,
+          "q_len": 16384,
+          "repeats": 6,
+          "seed": 5649876670305675411,
+          "weight": 16
+        },
+        "err_ns": 120752.08240497368,
+        "event": "benchmark",
+        "event_median_ns": 21267087.936401367,
+        "flags": [],
+        "index": 7,
+        "mean_ns": 21296437.581380207,
+        "median_ns": 21062555.724660676,
+        "median_raw_ns": 21267087.936401367,
+        "outside_bursts_ns": [
+          21075522,
+          21070360,
+          21160455
+        ],
+        "outside_ns": 21070360,
+        "paired_ratio": 1.1878148183981976,
+        "parent_ns": 21269328.153692186,
+        "parent_runs_ns": [
+          21681840,
+          21086032,
+          21452624,
+          21066705,
+          21539697,
+          20964335
+        ],
+        "ratios": [
+          1.19707,
+          1.17863,
+          1.19595,
+          1.18073,
+          1.16897,
+          1.17631
+        ],
+        "replay_overhead": {
+          "gate_ns": 298768.007196486,
+          "one_ns": 5344.000179320574,
+          "overhead_ns": 4192.00025498867,
+          "parent_one_ns": 304192.0065879822,
+          "parent_two_ns": 305247.9922771454,
+          "two_ns": 6496.000103652477
+        },
+        "runs": 6,
+        "runs_ns": [
+          21680161,
+          21083967,
+          21450209,
+          21065216,
+          21535488,
+          20963585
+        ],
+        "speed_of_light_ns": 9847682.949824065,
+        "speedup": 1.1878148183981976,
+        "speedup_of_medians": 1.1766231598095287,
+        "status": "pass",
+        "std_ns": 295780.9872706921,
+        "worst_ns": 21680160.522460938
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "turn 1",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5647373385840716580,
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 0,
+        "report": "kernel                                                           GPU time  share  calls\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 8192u, 4096u\u003e, Shape\u003c1...     413.4 µs  38.8%      1\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 4096u, 4096u\u003e, Shape\u003c1...     214.9 µs  20.2%      1\nnvjet_sm90_tst_128x192_64x5_2x1_v_bz_coopB_TNN                   152.4 µs  14.3%      3\nvoid at::native::vectorized_elementwise_kernel\u003c8, at::nat...      61.0 µs   5.7%      3\nnvjet_sm90_tst_112x128_64x7_1x2_h_bz_TNN                          38.0 µs   3.6%      1\nvoid sglang::act_and_mul_kernel\u003c__nv_bfloat16, (sglang::A...      33.2 µs   3.1%      1\nvoid cutlass::device_kernel\u003cflash::enable_sm90_or_later\u003cf...      26.0 µs   2.4%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...      22.1 µs   2.1%      1\nnvjet_sm90_tss_64x96_64x10_2x1_v_bz_splitK_NNT                    21.5 µs   2.0%      2\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...      21.1 µs   2.0%      1\n_post_expert_norm_weighted_sum_kernel                              8.2 µs   0.8%      1\nvoid cutlass::device_kernel\u003cflash::FlashAttnFwdCombine\u003ccu...       6.7 µs   0.6%      1\n... 17 more\ntotal                                                           1064.9 µs"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "turn 1",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5647651528559045335,
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 1,
+        "report": "kernel                                                           GPU time  share  calls\nvoid cutlass::device_kernel\u003cflash::enable_sm90_or_later\u003cf...     420.0 µs  29.3%      1\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 8192u, 4096u\u003e, Shape\u003c1...     353.8 µs  24.7%      1\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 4096u, 4096u\u003e, Shape\u003c1...     177.7 µs  12.4%      1\nnvjet_sm90_tst_128x192_64x5_2x1_v_bz_coopB_TNN                   161.1 µs  11.2%      3\nvoid at::native::vectorized_elementwise_kernel\u003c8, at::nat...      61.1 µs   4.3%      3\nvoid cublasLt::splitKreduce_kernel\u003c32, 16, int, float, fl...      47.1 µs   3.3%      2\nnvjet_sm90_tss_64x96_64x10_2x1_v_bz_splitK_NNT                    39.9 µs   2.8%      2\nnvjet_sm90_tst_112x128_64x7_1x2_h_bz_TNN                          39.3 µs   2.7%      1\nvoid sglang::act_and_mul_kernel\u003c__nv_bfloat16, (sglang::A...      33.1 µs   2.3%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...      22.2 µs   1.5%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...      21.6 µs   1.5%      1\n_post_expert_norm_weighted_sum_kernel                              7.3 µs   0.5%      1\n... 17 more\ntotal                                                           1434.7 µs\nGPU busy (kernels overlap: PDL or streams)                      1357.0 µs\nan overlapping kernel's time includes any wait for the one before it, so the rows add up to more"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "turn 4",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5647929671277374091,
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 2,
+        "report": "kernel                                                           GPU time  share  calls\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 8192u, 4096u\u003e, Shape\u003c1...     864.8 µs  31.2%      1\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 4096u, 4096u\u003e, Shape\u003c1...     435.2 µs  15.7%      1\nnvjet_sm90_tst_256x152_64x4_1x2_h_bz_coopA_TNT                   325.4 µs  11.7%      2\nnvjet_sm90_tst_128x256_64x4_2x1_v_bz_coopA_TNN                   253.4 µs   9.1%      1\nvoid at::native::vectorized_elementwise_kernel\u003c8, at::nat...     234.7 µs   8.5%      3\nnvjet_sm90_tst_192x144_64x5_1x2_h_bz_coopB_TNT                   151.4 µs   5.5%      1\nvoid sglang::act_and_mul_kernel\u003c__nv_bfloat16, (sglang::A...     135.6 µs   4.9%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...      80.1 µs   2.9%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...      78.8 µs   2.8%      1\nvoid cutlass::device_kernel\u003cflash::enable_sm90_or_later\u003cf...      62.6 µs   2.3%      1\nnvjet_sm90_tss_64x104_64x10_4x2_h_bz_NNT                          52.0 µs   1.9%      2\n_post_expert_norm_weighted_sum_kernel                             23.8 µs   0.9%      1\n... 17 more\ntotal                                                           2771.5 µs"
+      },
+      {
+        "case": {
+          "batch": 4,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "turn 4",
+          "page": 1,
+          "q_len": 753,
+          "repeats": 6,
+          "seed": 5648207813995702848,
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 3,
+        "report": "kernel                                                           GPU time  share  calls\nvoid cutlass::device_kernel\u003cflash::enable_sm90_or_later\u003cf...    1645.8 µs  36.5%      1\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 8192u, 4096u\u003e, Shape\u003c1...     914.5 µs  20.3%      1\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 4096u, 4096u\u003e, Shape\u003c1...     469.5 µs  10.4%      1\nnvjet_sm90_tst_256x152_64x4_1x2_h_bz_coopA_TNT                   322.5 µs   7.1%      2\nnvjet_sm90_tst_128x256_64x4_2x1_v_bz_coopA_TNN                   254.6 µs   5.6%      1\nvoid at::native::vectorized_elementwise_kernel\u003c8, at::nat...     234.7 µs   5.2%      3\nnvjet_sm90_tst_192x144_64x5_1x2_h_bz_coopB_TNT                   151.3 µs   3.4%      1\nvoid sglang::act_and_mul_kernel\u003c__nv_bfloat16, (sglang::A...     133.4 µs   3.0%      1\nnvjet_sm90_tss_64x104_64x10_4x2_h_bz_NNT                         130.4 µs   2.9%      2\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...      79.2 µs   1.8%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...      77.5 µs   1.7%      1\n_post_expert_norm_weighted_sum_kernel                             25.7 µs   0.6%      1\n... 17 more\ntotal                                                           4511.6 µs\nGPU busy (kernels overlap: PDL or streams)                      4425.1 µs\nan overlapping kernel's time includes any wait for the one before it, so the rows add up to more"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 0,
+          "dist": "soft",
+          "layer": "full",
+          "load": "first turn",
+          "page": 1,
+          "q_len": 16384,
+          "repeats": 6,
+          "seed": 5648764099432360365,
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 4,
+        "report": "kernel                                                           GPU time  share  calls\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 8192u, 4096u\u003e, Shape\u003c1...    3737.5 µs  27.0%      1\nnvjet_sm90_tst_192x192_64x4_2x1_v_bz_coopB_TNN                  2527.6 µs  18.2%      3\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 4096u, 4096u\u003e, Shape\u003c1...    1880.3 µs  13.6%      1\nnvjet_sm90_tst_320x128_64x3_1x2_h_bz_coopB_TNT                  1386.1 µs  10.0%      1\nvoid at::native::vectorized_elementwise_kernel\u003c8, at::nat...    1265.3 µs   9.1%      3\nvoid cutlass::device_kernel\u003cflash::enable_sm90_or_later\u003cf...     899.2 µs   6.5%      1\nvoid sglang::act_and_mul_kernel\u003c__nv_bfloat16, (sglang::A...     732.3 µs   5.3%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...     398.2 µs   2.9%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...     397.9 µs   2.9%      1\nnvjet_sm90_tss_128x256_64x4_2x1_v_bz_coopA_NNN                   279.6 µs   2.0%      2\n_post_expert_norm_weighted_sum_kernel                            121.1 µs   0.9%      1\nvoid at::native::(anonymous namespace)::vectorized_layer_...      79.5 µs   0.6%      1\n... 16 more\ntotal                                                          13860.2 µs"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 32768,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "first turn",
+          "page": 1,
+          "q_len": 16384,
+          "repeats": 6,
+          "seed": 5649042242150689125,
+          "weight": 138
+        },
+        "event": "profile",
+        "index": 5,
+        "report": "kernel                                                           GPU time  share  calls\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 8192u, 4096u\u003e, Shape\u003c1...    3848.5 µs  28.3%      1\nnvjet_sm90_tst_192x192_64x4_2x1_v_bz_coopB_TNN                  2536.9 µs  18.7%      3\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 4096u, 4096u\u003e, Shape\u003c1...    1950.4 µs  14.3%      1\nnvjet_sm90_tst_320x128_64x3_1x2_h_bz_coopB_TNT                  1491.3 µs  11.0%      1\nvoid at::native::vectorized_elementwise_kernel\u003c8, at::nat...    1265.6 µs   9.3%      3\nvoid sglang::act_and_mul_kernel\u003c__nv_bfloat16, (sglang::A...     733.9 µs   5.4%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...     400.3 µs   2.9%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...     399.5 µs   2.9%      1\nvoid cutlass::device_kernel\u003cflash::enable_sm90_or_later\u003cf...     310.6 µs   2.3%      1\nnvjet_sm90_tss_128x256_64x4_2x1_v_bz_coopA_NNN                   284.3 µs   2.1%      2\n_post_expert_norm_weighted_sum_kernel                            123.9 µs   0.9%      1\nvoid at::native::(anonymous namespace)::vectorized_layer_...      79.7 µs   0.6%      1\n... 16 more\ntotal                                                          13592.8 µs\nGPU busy (kernels overlap: PDL or streams)                     13383.5 µs\nan overlapping kernel's time includes any wait for the one before it, so the rows add up to more"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 32768,
+          "dist": "soft",
+          "layer": "full",
+          "load": "first turn",
+          "page": 1,
+          "q_len": 16384,
+          "repeats": 6,
+          "seed": 5649320384869017886,
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 6,
+        "report": "kernel                                                           GPU time  share  calls\nvoid cutlass::device_kernel\u003cflash::enable_sm90_or_later\u003cf...    4535.0 µs  25.3%      1\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 8192u, 4096u\u003e, Shape\u003c1...    3999.7 µs  22.3%      1\nnvjet_sm90_tst_192x192_64x4_2x1_v_bz_coopB_TNN                  2536.8 µs  14.2%      3\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 4096u, 4096u\u003e, Shape\u003c1...    2009.0 µs  11.2%      1\nnvjet_sm90_tst_320x128_64x3_1x2_h_bz_coopB_TNT                  1393.3 µs   7.8%      1\nvoid at::native::vectorized_elementwise_kernel\u003c8, at::nat...    1265.6 µs   7.1%      3\nvoid sglang::act_and_mul_kernel\u003c__nv_bfloat16, (sglang::A...     733.1 µs   4.1%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...     398.4 µs   2.2%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...     397.6 µs   2.2%      1\nnvjet_sm90_tss_128x256_64x4_2x1_v_bz_coopA_NNN                   279.9 µs   1.6%      2\n_post_expert_norm_weighted_sum_kernel                            126.5 µs   0.7%      1\nvoid at::native::(anonymous namespace)::vectorized_layer_...      80.3 µs   0.4%      1\n... 16 more\ntotal                                                          17910.6 µs"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 65536,
+          "dist": "soft",
+          "layer": "full",
+          "load": "first turn",
+          "page": 1,
+          "q_len": 16384,
+          "repeats": 6,
+          "seed": 5649876670305675411,
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 7,
+        "report": "kernel                                                           GPU time  share  calls\nvoid cutlass::device_kernel\u003cflash::enable_sm90_or_later\u003cf...    8009.9 µs  37.7%      1\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 8192u, 4096u\u003e, Shape\u003c1...    3909.4 µs  18.4%      1\nnvjet_sm90_tst_192x192_64x4_2x1_v_bz_coopB_TNN                  2531.2 µs  11.9%      3\nvoid humming\u003cMmaOpClass, Shape\u003c0u, 4096u, 4096u\u003e, Shape\u003c1...    1962.4 µs   9.2%      1\nnvjet_sm90_tst_320x128_64x3_1x2_h_bz_coopB_TNT                  1390.9 µs   6.5%      1\nvoid at::native::vectorized_elementwise_kernel\u003c8, at::nat...    1265.9 µs   6.0%      3\nvoid sglang::act_and_mul_kernel\u003c__nv_bfloat16, (sglang::A...     730.8 µs   3.4%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...     398.6 µs   1.9%      1\nvoid sglang::muse_spark_norm_residual_kernel\u003c8192l, 512, ...     398.6 µs   1.9%      1\nnvjet_sm90_tss_128x256_64x4_2x1_v_bz_coopA_NNN                   282.3 µs   1.3%      2\n_post_expert_norm_weighted_sum_kernel                            124.4 µs   0.6%      1\nvoid at::native::(anonymous namespace)::vectorized_layer_...      79.9 µs   0.4%      1\n... 16 more\ntotal                                                          21238.1 µs"
+      }
+    ],
+    "returncode": 0,
+    "score_us": 338782.376043279,
+    "speedup": 1.1435184572603319,
+    "speedup_ci": [
+      1.1263656804014268,
+      1.1606712341192367
+    ],
+    "status": "ok"
+  },
+  "started_at": 1793512201.1352859,
+  "status": "done",
+  "team": "yelgabo"
+}

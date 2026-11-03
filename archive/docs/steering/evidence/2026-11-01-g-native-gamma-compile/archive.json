@@ -1,0 +1,307 @@
+{
+  "builds": 15,
+  "files": [
+    {
+      "path": "tiny-baseline/input.cu.gz",
+      "uncompressed_bytes": 139768,
+      "uncompressed_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+    },
+    {
+      "path": "tiny-baseline/device.ptx.gz",
+      "uncompressed_bytes": 661034,
+      "uncompressed_sha256": "39830b4b71d9e4f11e27e34d7af5644e3187bd566ddc897d045c23d3cd4dfea2"
+    },
+    {
+      "path": "tiny-baseline/device.cubin.gz",
+      "uncompressed_bytes": 612496,
+      "uncompressed_sha256": "248f045467a3efdc4f0b466047a4d9372295508296bb0e3f0f4ac7523c31e6f7"
+    },
+    {
+      "path": "tiny-baseline/device.sass.gz",
+      "uncompressed_bytes": 3983572,
+      "uncompressed_sha256": "a0e9897f0d7005d93c3d5902fd26640e01a3b0eb3cdf0c9e70247bc1c0efc538"
+    },
+    {
+      "path": "tiny-off/input.cu.gz",
+      "uncompressed_bytes": 140096,
+      "uncompressed_sha256": "dde0826bee790f5bc6e1bf11544d392a5a1780fff936db6647848c6328bd7d6c"
+    },
+    {
+      "path": "tiny-off/device.ptx.gz",
+      "uncompressed_bytes": 662212,
+      "uncompressed_sha256": "fe0e8fc8e8e47046437b3d4bb9bd3d0383fae044837deceb986c858daaa8625e"
+    },
+    {
+      "path": "tiny-off/device.cubin.gz",
+      "uncompressed_bytes": 612752,
+      "uncompressed_sha256": "fe52e9d212a6f84293c1267106f6c84c4ed5f287807ab85c89a593d15c9cfc36"
+    },
+    {
+      "path": "tiny-off/device.sass.gz",
+      "uncompressed_bytes": 3985478,
+      "uncompressed_sha256": "da6e5aed34b32e9273359c0a0b7b3bf553c965362a8b9e4342d92da546766112"
+    },
+    {
+      "path": "tiny-on/input.cu.gz",
+      "uncompressed_bytes": 140096,
+      "uncompressed_sha256": "dde0826bee790f5bc6e1bf11544d392a5a1780fff936db6647848c6328bd7d6c"
+    },
+    {
+      "path": "tiny-on/device.ptx.gz",
+      "uncompressed_bytes": 658156,
+      "uncompressed_sha256": "bb3f72651f68372d53652acd977ca7ca9cd7f0b951635dbb324ff375aa427868"
+    },
+    {
+      "path": "tiny-on/device.cubin.gz",
+      "uncompressed_bytes": 610960,
+      "uncompressed_sha256": "2923a81547d46bf47a0d5f32666e393575f1f6fa7bef2dfbb549e2c10902ae58"
+    },
+    {
+      "path": "tiny-on/device.sass.gz",
+      "uncompressed_bytes": 3972259,
+      "uncompressed_sha256": "10f8637ff231ef77045e704aa808e1d3ca9d17a25303f8c4e7de46d051b57b97"
+    },
+    {
+      "path": "tiny2-baseline/input.cu.gz",
+      "uncompressed_bytes": 139768,
+      "uncompressed_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+    },
+    {
+      "path": "tiny2-baseline/device.ptx.gz",
+      "uncompressed_bytes": 666512,
+      "uncompressed_sha256": "c4abe60d93057ab49387fbcc731df25ce68ffed687fe5e77411c4fb8c595e19a"
+    },
+    {
+      "path": "tiny2-baseline/device.cubin.gz",
+      "uncompressed_bytes": 618128,
+      "uncompressed_sha256": "93f2316588fad3928faab33c75c58d6ab91c073bb4edc7bff1fa253f87d87926"
+    },
+    {
+      "path": "tiny2-baseline/device.sass.gz",
+      "uncompressed_bytes": 4019200,
+      "uncompressed_sha256": "4ad6b25495b6f49484750ccab27e7cdb5acc93f21810ce2053999381a3a837aa"
+    },
+    {
+      "path": "tiny2-off/input.cu.gz",
+      "uncompressed_bytes": 140096,
+      "uncompressed_sha256": "dde0826bee790f5bc6e1bf11544d392a5a1780fff936db6647848c6328bd7d6c"
+    },
+    {
+      "path": "tiny2-off/device.ptx.gz",
+      "uncompressed_bytes": 667690,
+      "uncompressed_sha256": "c09678544f88f24cc8493c8d62079450e06a3c7bae96d342b6113b9968f9ad7f"
+    },
+    {
+      "path": "tiny2-off/device.cubin.gz",
+      "uncompressed_bytes": 618384,
+      "uncompressed_sha256": "2d38c6092392229208f6ee9f44f0d86c7c23218cb525b501bc2a8d8a8c83c5e1"
+    },
+    {
+      "path": "tiny2-off/device.sass.gz",
+      "uncompressed_bytes": 4020951,
+      "uncompressed_sha256": "deb791cbb69cf418130e93a09738686882921ae392a08db613fa9367360ab1fd"
+    },
+    {
+      "path": "tiny2-on/input.cu.gz",
+      "uncompressed_bytes": 140096,
+      "uncompressed_sha256": "dde0826bee790f5bc6e1bf11544d392a5a1780fff936db6647848c6328bd7d6c"
+    },
+    {
+      "path": "tiny2-on/device.ptx.gz",
+      "uncompressed_bytes": 663638,
+      "uncompressed_sha256": "ac3b4ef010797cc942634820b0711816b55a56b18268531ce7b486efa1d63a0f"
+    },
+    {
+      "path": "tiny2-on/device.cubin.gz",
+      "uncompressed_bytes": 616336,
+      "uncompressed_sha256": "d7d0c05ef23730b020b19e6afedd84697b4d6745d4ba491645f7eca4467e3325"
+    },
+    {
+      "path": "tiny2-on/device.sass.gz",
+      "uncompressed_bytes": 4007919,
+      "uncompressed_sha256": "143593c6eccc3dfbadc383de353ac23cc16c6d402d112f121bc2026280ee21a6"
+    },
+    {
+      "path": "mid-baseline/input.cu.gz",
+      "uncompressed_bytes": 139768,
+      "uncompressed_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+    },
+    {
+      "path": "mid-baseline/device.ptx.gz",
+      "uncompressed_bytes": 668810,
+      "uncompressed_sha256": "b7199d4a04e987dde5c41ab9d23ff196fdf9cbb75635b8b7f91242c9350084d9"
+    },
+    {
+      "path": "mid-baseline/device.cubin.gz",
+      "uncompressed_bytes": 620816,
+      "uncompressed_sha256": "ffabbddaeb37a594bb4c7688cdf5db5cdb8b6363f63d2364c55cb3d2526249a5"
+    },
+    {
+      "path": "mid-baseline/device.sass.gz",
+      "uncompressed_bytes": 4041477,
+      "uncompressed_sha256": "2855ed6c9aa215858e41d10bf325729db9096f6cd21a935e791d3baf10aefb98"
+    },
+    {
+      "path": "mid-off/input.cu.gz",
+      "uncompressed_bytes": 140096,
+      "uncompressed_sha256": "dde0826bee790f5bc6e1bf11544d392a5a1780fff936db6647848c6328bd7d6c"
+    },
+    {
+      "path": "mid-off/device.ptx.gz",
+      "uncompressed_bytes": 669988,
+      "uncompressed_sha256": "22510e9223b205129878ab540394756a10ab8df823014ee80bdd8e63e130e9df"
+    },
+    {
+      "path": "mid-off/device.cubin.gz",
+      "uncompressed_bytes": 621072,
+      "uncompressed_sha256": "13984fed0b1e0e4791897cfbd8f81d2c157f28e882bead84448c45b64085fc44"
+    },
+    {
+      "path": "mid-off/device.sass.gz",
+      "uncompressed_bytes": 4043287,
+      "uncompressed_sha256": "dd0c400e3e13a9400c0ac5d45d99e65e89bac6de5fb7c91b0c6cf47664ed5bb0"
+    },
+    {
+      "path": "mid-on/input.cu.gz",
+      "uncompressed_bytes": 140096,
+      "uncompressed_sha256": "dde0826bee790f5bc6e1bf11544d392a5a1780fff936db6647848c6328bd7d6c"
+    },
+    {
+      "path": "mid-on/device.ptx.gz",
+      "uncompressed_bytes": 665936,
+      "uncompressed_sha256": "73a16883e87bc740eecc0ff6d99882b86b5f280ed2e4fec2a905c93fffa11a57"
+    },
+    {
+      "path": "mid-on/device.cubin.gz",
+      "uncompressed_bytes": 618640,
+      "uncompressed_sha256": "9df9aa8c57401f1ba2ab3594e5d08323e9e25e0600c15221fcee843b66cfb525"
+    },
+    {
+      "path": "mid-on/device.sass.gz",
+      "uncompressed_bytes": 4027541,
+      "uncompressed_sha256": "af05b6da2373343f56c265f2dec908026429a5b411b1a4f4899755445c107038"
+    },
+    {
+      "path": "b4-baseline/input.cu.gz",
+      "uncompressed_bytes": 155790,
+      "uncompressed_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71"
+    },
+    {
+      "path": "b4-baseline/device.ptx.gz",
+      "uncompressed_bytes": 5585021,
+      "uncompressed_sha256": "b798a68711488aab6e510cf5132f9e02c0c9f020273da39bcbb6920d6803a968"
+    },
+    {
+      "path": "b4-baseline/device.cubin.gz",
+      "uncompressed_bytes": 4200464,
+      "uncompressed_sha256": "2e70ff0e8c75df10b2d86f086234209af2a4f1dcf2cf9bdf4e03df0e2eda5c67"
+    },
+    {
+      "path": "b4-baseline/device.sass.gz",
+      "uncompressed_bytes": 28841611,
+      "uncompressed_sha256": "1463c287c6c69685a1c2e5e78e4dce629ca828e223dc6d7103cad6880775c0b9"
+    },
+    {
+      "path": "b4-off/input.cu.gz",
+      "uncompressed_bytes": 156118,
+      "uncompressed_sha256": "3ced6a551de75b969c3f5c4cd2a8ac7f3abd77a16e9ee41353b9facd9f770f1b"
+    },
+    {
+      "path": "b4-off/device.ptx.gz",
+      "uncompressed_bytes": 5603675,
+      "uncompressed_sha256": "c96c0a4c0ee0a4b5e7d63a3fc327f625fc7d54857d1eae12432efb58be1651b9"
+    },
+    {
+      "path": "b4-off/device.cubin.gz",
+      "uncompressed_bytes": 4202896,
+      "uncompressed_sha256": "919002baf2bf37c88bc9759c9b4a6a44ae6205a04630fdefa6c86246b9952707"
+    },
+    {
+      "path": "b4-off/device.sass.gz",
+      "uncompressed_bytes": 28859603,
+      "uncompressed_sha256": "215b5e1d705c2b7d38aa3cfd34947c6d974a3b86a64794acfa3de2433da99b16"
+    },
+    {
+      "path": "b4-on/input.cu.gz",
+      "uncompressed_bytes": 156118,
+      "uncompressed_sha256": "3ced6a551de75b969c3f5c4cd2a8ac7f3abd77a16e9ee41353b9facd9f770f1b"
+    },
+    {
+      "path": "b4-on/device.ptx.gz",
+      "uncompressed_bytes": 5516829,
+      "uncompressed_sha256": "bbab510562c52573991a9ec3b36e3985e237abe0cd73b40c9d15f3a520ad577e"
+    },
+    {
+      "path": "b4-on/device.cubin.gz",
+      "uncompressed_bytes": 4166160,
+      "uncompressed_sha256": "08ac26e3b8a922b5aa8c1806b00ea80031991c68b16303b1948dc14ed45d1f39"
+    },
+    {
+      "path": "b4-on/device.sass.gz",
+      "uncompressed_bytes": 28600077,
+      "uncompressed_sha256": "56a08a27674d030eab616d73f7f42da68c96d451d2ad8cce3f5d9802804963b4"
+    },
+    {
+      "path": "main-baseline/input.cu.gz",
+      "uncompressed_bytes": 155790,
+      "uncompressed_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71"
+    },
+    {
+      "path": "main-baseline/device.ptx.gz",
+      "uncompressed_bytes": 5148867,
+      "uncompressed_sha256": "1030881370481136977e07404d70176ad9cc13f3ade29b8bd39d569248658f59"
+    },
+    {
+      "path": "main-baseline/device.cubin.gz",
+      "uncompressed_bytes": 3814416,
+      "uncompressed_sha256": "fb06436d47831ab782c71803b6f4116c2070074c811a8ad1c61e3600ba5a8e69"
+    },
+    {
+      "path": "main-baseline/device.sass.gz",
+      "uncompressed_bytes": 26230793,
+      "uncompressed_sha256": "45dbaf9f28115a9584ace28dec1f1d8a935f5068660b9c4d9b483b3b5092ed04"
+    },
+    {
+      "path": "main-off/input.cu.gz",
+      "uncompressed_bytes": 156118,
+      "uncompressed_sha256": "3ced6a551de75b969c3f5c4cd2a8ac7f3abd77a16e9ee41353b9facd9f770f1b"
+    },
+    {
+      "path": "main-off/device.ptx.gz",
+      "uncompressed_bytes": 5167521,
+      "uncompressed_sha256": "a9a8bc1ba1ce2d05d464845111084107f0d993a570f294b34f0f221ac07479b4"
+    },
+    {
+      "path": "main-off/device.cubin.gz",
+      "uncompressed_bytes": 3816208,
+      "uncompressed_sha256": "4e8c9ef5878d072679f1e4947071c91effa300c07eb0085cd16f03f772117b10"
+    },
+    {
+      "path": "main-off/device.sass.gz",
+      "uncompressed_bytes": 26244874,
+      "uncompressed_sha256": "679b9d541d695590f84ed3a4bddc306dc5ed5c001de762c22c7d322335728f81"
+    },
+    {
+      "path": "main-on/input.cu.gz",
+      "uncompressed_bytes": 156118,
+      "uncompressed_sha256": "3ced6a551de75b969c3f5c4cd2a8ac7f3abd77a16e9ee41353b9facd9f770f1b"
+    },
+    {
+      "path": "main-on/device.ptx.gz",
+      "uncompressed_bytes": 5080511,
+      "uncompressed_sha256": "0d935cf98fcf08b5483cccf6924fe529681cfda5228f59d64d4e109905b2fa64"
+    },
+    {
+      "path": "main-on/device.cubin.gz",
+      "uncompressed_bytes": 3779472,
+      "uncompressed_sha256": "a0d94275ca1df83b2ae90f7fff6f01afcf8cfb0a981f7e549ee47ebf5f6f4429"
+    },
+    {
+      "path": "main-on/device.sass.gz",
+      "uncompressed_bytes": 25985684,
+      "uncompressed_sha256": "e39116d97c192de3081e0ad97184737a12896a7185a259202d61f5640115eb6e"
+    }
+  ],
+  "GPU": false,
+  "compression_scope": "Compiler evidence only; not entrant packaging/runtime"
+}

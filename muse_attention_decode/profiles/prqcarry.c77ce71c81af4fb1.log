@@ -1,0 +1,149 @@
+=16,nc=1,mode=1] kcarry=[splits=16,nc=1,mode=1] vcarry=[splits=16,nc=1,mode=1] both=[splits=16,nc=1,mode=1] ctrl2=[splits=16,nc=1,mode=1]
+ABCOLD b=16 sliding L=1 in=0 ctrl=13.06 kcarry=12.96 vcarry=13.12 both=13.09 ctrl2=13.09 cap0=kcarry t=191s
+ABWARM b=16 sliding L=1 in=0 ctrl=7.69 kcarry=7.62 vcarry=7.50 both=7.68 ctrl2=7.34 t=191s
+ABCOLD b=16 sliding L=1 in=1 ctrl=13.31 kcarry=13.15 vcarry=13.34 both=13.38 ctrl2=13.25 cap0=both t=191s
+ABWARM b=16 sliding L=1 in=1 ctrl=7.39 kcarry=7.24 vcarry=7.54 both=7.31 ctrl2=7.16 t=191s
+ABCOLD b=16 sliding L=1 pooled ctrl=13.22 kcarry=13.06 vcarry=13.15 both=13.22 ctrl2=13.18
+ABWARM b=16 sliding L=1 pooled ctrl=7.67 kcarry=7.59 vcarry=7.52 both=7.67 ctrl2=7.29
+ABPLAN b=16 full    L=1 ctrl=[splits=264,nc=1,mode=49] kcarry=[splits=264,nc=1,mode=49] vcarry=[splits=264,nc=1,mode=49] both=[splits=264,nc=1,mode=49] ctrl2=[splits=264,nc=1,mode=49]
+ABCOLD b=16 full    L=1 in=0 ctrl=100.26 kcarry=100.26 vcarry=100.45 both=100.29 ctrl2=100.19 cap0=ctrl2 t=191s
+ABWARM b=16 full    L=1 in=0 ctrl=88.39 kcarry=88.57 vcarry=88.62 both=88.78 ctrl2=88.45 t=191s
+ABCOLD b=16 full    L=1 in=1 ctrl=101.28 kcarry=101.31 vcarry=101.28 both=101.31 ctrl2=101.22 cap0=both t=191s
+ABWARM b=16 full    L=1 in=1 ctrl=89.49 kcarry=89.31 vcarry=89.21 both=89.38 ctrl2=89.25 t=191s
+ABCOLD b=16 full    L=1 pooled ctrl=100.70 kcarry=100.70 vcarry=100.83 both=100.80 ctrl2=100.77
+ABWARM b=16 full    L=1 pooled ctrl=88.65 kcarry=88.67 vcarry=88.82 both=88.92 ctrl2=88.58
+ABPLAN b=32 sliding L=1 ctrl=[splits=8,nc=1,mode=1] kcarry=[splits=8,nc=1,mode=1] vcarry=[splits=8,nc=1,mode=1] both=[splits=8,nc=1,mode=1] ctrl2=[splits=8,nc=1,mode=1]
+ABCOLD b=32 sliding L=1 in=0 ctrl=15.84 kcarry=15.74 vcarry=15.87 both=15.87 ctrl2=15.78 cap0=both t=191s
+ABWARM b=32 sliding L=1 in=0 ctrl=9.54 kcarry=9.56 vcarry=9.76 both=9.61 ctrl2=9.60 t=191s
+ABCOLD b=32 sliding L=1 in=1 ctrl=15.78 kcarry=15.78 vcarry=15.84 both=15.81 ctrl2=15.84 cap0=ctrl t=191s
+ABWARM b=32 sliding L=1 in=1 ctrl=9.57 kcarry=9.50 vcarry=9.64 both=9.54 ctrl2=9.65 t=191s
+ABCOLD b=32 sliding L=1 pooled ctrl=15.78 kcarry=15.74 vcarry=15.84 both=15.84 ctrl2=15.81
+ABWARM b=32 sliding L=1 pooled ctrl=9.56 kcarry=9.53 vcarry=9.73 both=9.57 ctrl2=9.64
+ABPLAN b=32 full    L=1 ctrl=[splits=264,nc=1,mode=49] kcarry=[splits=264,nc=1,mode=49] vcarry=[splits=264,nc=1,mode=49] both=[splits=264,nc=1,mode=49] ctrl2=[splits=264,nc=1,mode=49]
+ABCOLD b=32 full    L=1 in=0 ctrl=178.82 kcarry=178.88 vcarry=178.82 both=178.98 ctrl2=178.94 cap0=both t=192s
+ABWARM b=32 full    L=1 in=0 ctrl=170.05 kcarry=170.00 vcarry=169.86 both=169.86 ctrl2=169.83 t=192s
+ABCOLD b=32 full    L=1 in=1 ctrl=180.42 kcarry=180.22 vcarry=180.45 both=180.29 ctrl2=180.38 cap0=ctrl2 t=192s
+ABWARM b=32 full    L=1 in=1 ctrl=171.34 kcarry=171.26 vcarry=171.36 both=171.31 ctrl2=171.19 t=192s
+ABCOLD b=32 full    L=1 pooled ctrl=179.62 kcarry=179.36 vcarry=179.62 both=179.74 ctrl2=179.71
+ABWARM b=32 full    L=1 pooled ctrl=170.40 kcarry=170.38 vcarry=170.20 both=170.22 ctrl2=170.09
+ABPLAN b= 1 sliding L=8 ctrl=[splits=33,nc=1,mode=15] kcarry=[splits=33,nc=1,mode=15] vcarry=[splits=33,nc=1,mode=15] both=[splits=33,nc=1,mode=15] ctrl2=[splits=33,nc=1,mode=15]
+ABCOLD b= 1 sliding L=8 in=0 ctrl=11.39 kcarry=11.26 vcarry=11.10 both=11.42 ctrl2=11.14 cap0=kcarry t=192s
+ABWARM b= 1 sliding L=8 in=0 ctrl=7.15 kcarry=7.16 vcarry=7.15 both=7.12 ctrl2=7.22 t=193s
+ABCOLD b= 1 sliding L=8 in=1 ctrl=11.14 kcarry=11.20 vcarry=11.17 both=11.20 ctrl2=11.14 cap0=kcarry t=193s
+ABWARM b= 1 sliding L=8 in=1 ctrl=6.79 kcarry=6.83 vcarry=6.78 both=6.83 ctrl2=6.85 t=193s
+ABCOLD b= 1 sliding L=8 pooled ctrl=11.17 kcarry=11.23 vcarry=11.17 both=11.30 ctrl2=11.14
+ABWARM b= 1 sliding L=8 pooled ctrl=7.11 kcarry=7.13 vcarry=7.12 both=7.09 ctrl2=7.19
+ABPLAN b= 1 full    L=8 ctrl=[splits=252,nc=8,mode=11] kcarry=[splits=252,nc=8,mode=11] vcarry=[splits=252,nc=8,mode=11] both=[splits=252,nc=8,mode=11] ctrl2=[splits=252,nc=8,mode=11]
+ABCOLD b= 1 full    L=8 in=0 ctrl=19.20 kcarry=18.94 vcarry=18.91 both=18.82 ctrl2=19.17 cap0=vcarry t=193s
+ABWARM b= 1 full    L=8 in=0 ctrl=14.62 kcarry=14.37 vcarry=14.81 both=14.36 ctrl2=14.68 t=193s
+ABCOLD b= 1 full    L=8 in=1 ctrl=19.20 kcarry=19.01 vcarry=19.01 both=18.82 ctrl2=19.30 cap0=vcarry t=193s
+ABWARM b= 1 full    L=8 in=1 ctrl=14.55 kcarry=14.36 vcarry=14.78 both=14.36 ctrl2=14.71 t=193s
+ABCOLD b= 1 full    L=8 pooled ctrl=19.20 kcarry=18.98 vcarry=18.98 both=18.82 ctrl2=19.23
+ABWARM b= 1 full    L=8 pooled ctrl=14.59 kcarry=14.37 vcarry=14.80 both=14.36 ctrl2=14.70
+ABPLAN b=16 sliding L=8 ctrl=[splits=8,nc=1,mode=3] kcarry=[splits=8,nc=1,mode=3] vcarry=[splits=8,nc=1,mode=3] both=[splits=8,nc=1,mode=3] ctrl2=[splits=8,nc=1,mode=3]
+ABCOLD b=16 sliding L=8 in=0 ctrl=15.71 kcarry=15.58 vcarry=15.55 both=15.52 ctrl2=15.62 cap0=ctrl t=193s
+ABWARM b=16 sliding L=8 in=0 ctrl=11.28 kcarry=11.17 vcarry=11.30 both=11.13 ctrl2=11.28 t=193s
+ABCOLD b=16 sliding L=8 in=1 ctrl=15.52 kcarry=15.65 vcarry=15.68 both=15.71 ctrl2=15.71 cap0=vcarry t=193s
+ABWARM b=16 sliding L=8 in=1 ctrl=11.23 kcarry=11.26 vcarry=11.26 both=11.10 ctrl2=11.26 t=193s
+ABCOLD b=16 sliding L=8 pooled ctrl=15.58 kcarry=15.62 vcarry=15.65 both=15.58 ctrl2=15.68
+ABWARM b=16 sliding L=8 pooled ctrl=11.25 kcarry=11.22 vcarry=11.27 both=11.11 ctrl2=11.27
+ABPLAN b=16 full    L=8 ctrl=[splits=264,nc=1,mode=51] kcarry=[splits=264,nc=1,mode=51] vcarry=[splits=264,nc=1,mode=51] both=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51]
+ABCOLD b=16 full    L=8 in=0 ctrl=114.53 kcarry=114.14 vcarry=114.05 both=114.05 ctrl2=114.02 cap0=ctrl2 t=193s
+ABWARM b=16 full    L=8 in=0 ctrl=107.83 kcarry=107.15 vcarry=107.06 both=107.15 ctrl2=107.49 t=193s
+ABCOLD b=16 full    L=8 in=1 ctrl=114.37 kcarry=114.85 vcarry=113.79 both=114.37 ctrl2=114.30 cap0=ctrl t=193s
+ABWARM b=16 full    L=8 in=1 ctrl=107.72 kcarry=107.95 vcarry=108.03 both=108.09 ctrl2=107.63 t=194s
+ABCOLD b=16 full    L=8 pooled ctrl=114.40 kcarry=114.50 vcarry=113.92 both=114.18 ctrl2=114.08
+ABWARM b=16 full    L=8 pooled ctrl=107.83 kcarry=107.49 vcarry=107.66 both=107.69 ctrl2=107.60
+ABPLAN b=32 sliding L=8 ctrl=[splits=4,nc=1,mode=3] kcarry=[splits=4,nc=1,mode=3] vcarry=[splits=4,nc=1,mode=3] both=[splits=4,nc=1,mode=3] ctrl2=[splits=4,nc=1,mode=3]
+ABCOLD b=32 sliding L=8 in=0 ctrl=20.32 kcarry=20.42 vcarry=20.35 both=20.16 ctrl2=20.29 cap0=vcarry t=194s
+ABWARM b=32 sliding L=8 in=0 ctrl=15.36 kcarry=15.19 vcarry=15.20 both=14.88 ctrl2=15.21 t=194s
+ABCOLD b=32 sliding L=8 in=1 ctrl=19.78 kcarry=19.97 vcarry=19.94 both=19.65 ctrl2=19.81 cap0=both t=194s
+ABWARM b=32 sliding L=8 in=1 ctrl=14.92 kcarry=15.04 vcarry=15.03 both=14.71 ctrl2=14.99 t=194s
+ABCOLD b=32 sliding L=8 pooled ctrl=20.10 kcarry=20.16 vcarry=20.13 both=19.90 ctrl2=20.13
+ABWARM b=32 sliding L=8 pooled ctrl=15.23 kcarry=15.09 vcarry=15.13 both=14.79 ctrl2=15.10
+ABPLAN b=32 full    L=8 ctrl=[splits=264,nc=1,mode=51] kcarry=[splits=264,nc=1,mode=51] vcarry=[splits=264,nc=1,mode=51] both=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51]
+ABCOLD b=32 full    L=8 in=0 ctrl=192.58 kcarry=192.54 vcarry=193.57 both=192.93 ctrl2=192.48 cap0=ctrl2 t=194s
+ABWARM b=32 full    L=8 in=0 ctrl=203.73 kcarry=203.78 vcarry=204.06 both=203.43 ctrl2=203.48 t=194s
+ABCOLD b=32 full    L=8 in=1 ctrl=194.14 kcarry=194.43 vcarry=194.91 both=194.46 ctrl2=193.98 cap0=ctrl t=194s
+ABWARM b=32 full    L=8 in=1 ctrl=216.56 kcarry=217.23 vcarry=217.47 both=210.83 ctrl2=214.29 t=195s
+ABCOLD b=32 full    L=8 pooled ctrl=193.41 kcarry=193.28 vcarry=194.21 both=193.47 ctrl2=193.31
+ABWARM b=32 full    L=8 pooled ctrl=206.36 kcarry=206.30 vcarry=206.76 both=206.24 ctrl2=206.11
+ABADDR ctrl:acc=0xe445a000000,l=0xe4513a59000,cnt=0xe4513a99000 kcarry:acc=0xe445b000000,l=0xe4513aba000,cnt=0xe4513afa000 vcarry:acc=0xe4456000000,l=0xe4513b1a000,cnt=0xe4513b5a000 both:acc=0xe4457000000,l=0xe4513b7a000,cnt=0xe4513bba000 ctrl2:acc=0xe4452000000,l=0xe4513e00000,cnt=0xe4513bda000
+ABSUM cold b= 1 sliding L=1 ctrl=9.25 kcarry=9.22 vcarry=9.18 both=9.25 ctrl2=9.28 null:ctrl2-ctrl=+0.03 d:kcarry=-0.03 d:vcarry=-0.06 d:both=+0.00
+ABSUM warm b= 1 sliding L=1 ctrl=4.90 kcarry=4.55 vcarry=4.69 both=4.63 ctrl2=4.81 null:ctrl2-ctrl=-0.09 d:kcarry=-0.34 d:vcarry=-0.21 d:both=-0.26
+ABSUM cold b= 1 full    L=1 ctrl=17.38 kcarry=17.12 vcarry=17.12 both=17.34 ctrl2=17.12 null:ctrl2-ctrl=-0.26 d:kcarry=-0.26 d:vcarry=-0.26 d:both=-0.03
+ABSUM warm b= 1 full    L=1 ctrl=11.47 kcarry=11.08 vcarry=11.14 both=11.41 ctrl2=11.13 null:ctrl2-ctrl=-0.35 d:kcarry=-0.39 d:vcarry=-0.34 d:both=-0.06
+ABSUM cold b=16 sliding L=1 ctrl=13.22 kcarry=13.06 vcarry=13.15 both=13.22 ctrl2=13.18 null:ctrl2-ctrl=-0.03 d:kcarry=-0.16 d:vcarry=-0.06 d:both=+0.00
+ABSUM warm b=16 sliding L=1 ctrl=7.67 kcarry=7.59 vcarry=7.52 both=7.67 ctrl2=7.29 null:ctrl2-ctrl=-0.38 d:kcarry=-0.07 d:vcarry=-0.14 d:both=+0.00
+ABSUM cold b=16 full    L=1 ctrl=100.70 kcarry=100.70 vcarry=100.83 both=100.80 ctrl2=100.77 null:ctrl2-ctrl=+0.06 d:kcarry=+0.00 d:vcarry=+0.13 d:both=+0.10
+ABSUM warm b=16 full    L=1 ctrl=88.65 kcarry=88.67 vcarry=88.82 both=88.92 ctrl2=88.58 null:ctrl2-ctrl=-0.08 d:kcarry=+0.02 d:vcarry=+0.17 d:both=+0.26
+ABSUM cold b=32 sliding L=1 ctrl=15.78 kcarry=15.74 vcarry=15.84 both=15.84 ctrl2=15.81 null:ctrl2-ctrl=+0.03 d:kcarry=-0.03 d:vcarry=+0.06 d:both=+0.06
+ABSUM warm b=32 sliding L=1 ctrl=9.56 kcarry=9.53 vcarry=9.73 both=9.57 ctrl2=9.64 null:ctrl2-ctrl=+0.08 d:kcarry=-0.03 d:vcarry=+0.17 d:both=+0.02
+ABSUM cold b=32 full    L=1 ctrl=179.62 kcarry=179.36 vcarry=179.62 both=179.74 ctrl2=179.71 null:ctrl2-ctrl=+0.10 d:kcarry=-0.26 d:vcarry=+0.00 d:both=+0.13
+ABSUM warm b=32 full    L=1 ctrl=170.40 kcarry=170.38 vcarry=170.20 both=170.22 ctrl2=170.09 null:ctrl2-ctrl=-0.32 d:kcarry=-0.03 d:vcarry=-0.21 d:both=-0.19
+ABSUM cold b= 1 sliding L=8 ctrl=11.17 kcarry=11.23 vcarry=11.17 both=11.30 ctrl2=11.14 null:ctrl2-ctrl=-0.03 d:kcarry=+0.06 d:vcarry=+0.00 d:both=+0.13
+ABSUM warm b= 1 sliding L=8 ctrl=7.11 kcarry=7.13 vcarry=7.12 both=7.09 ctrl2=7.19 null:ctrl2-ctrl=+0.08 d:kcarry=+0.02 d:vcarry=+0.01 d:both=-0.02
+ABSUM cold b= 1 full    L=8 ctrl=19.20 kcarry=18.98 vcarry=18.98 both=18.82 ctrl2=19.23 null:ctrl2-ctrl=+0.03 d:kcarry=-0.22 d:vcarry=-0.22 d:both=-0.38
+ABSUM warm b= 1 full    L=8 ctrl=14.59 kcarry=14.37 vcarry=14.80 both=14.36 ctrl2=14.70 null:ctrl2-ctrl=+0.11 d:kcarry=-0.22 d:vcarry=+0.22 d:both=-0.22
+ABSUM cold b=16 sliding L=8 ctrl=15.58 kcarry=15.62 vcarry=15.65 both=15.58 ctrl2=15.68 null:ctrl2-ctrl=+0.10 d:kcarry=+0.03 d:vcarry=+0.06 d:both=+0.00
+ABSUM warm b=16 sliding L=8 ctrl=11.25 kcarry=11.22 vcarry=11.27 both=11.11 ctrl2=11.27 null:ctrl2-ctrl=+0.02 d:kcarry=-0.03 d:vcarry=+0.02 d:both=-0.14
+ABSUM cold b=16 full    L=8 ctrl=114.40 kcarry=114.50 vcarry=113.92 both=114.18 ctrl2=114.08 null:ctrl2-ctrl=-0.32 d:kcarry=+0.10 d:vcarry=-0.48 d:both=-0.22
+ABSUM warm b=16 full    L=8 ctrl=107.83 kcarry=107.49 vcarry=107.66 both=107.69 ctrl2=107.60 null:ctrl2-ctrl=-0.23 d:kcarry=-0.34 d:vcarry=-0.17 d:both=-0.14
+ABSUM cold b=32 sliding L=8 ctrl=20.10 kcarry=20.16 vcarry=20.13 both=19.90 ctrl2=20.13 null:ctrl2-ctrl=+0.03 d:kcarry=+0.06 d:vcarry=+0.03 d:both=-0.19
+ABSUM warm b=32 sliding L=8 ctrl=15.23 kcarry=15.09 vcarry=15.13 both=14.79 ctrl2=15.10 null:ctrl2-ctrl=-0.12 d:kcarry=-0.13 d:vcarry=-0.10 d:both=-0.43
+ABSUM cold b=32 full    L=8 ctrl=193.41 kcarry=193.28 vcarry=194.21 both=193.47 ctrl2=193.31 null:ctrl2-ctrl=-0.10 d:kcarry=-0.13 d:vcarry=+0.80 d:both=+0.06
+ABSUM warm b=32 full    L=8 ctrl=206.36 kcarry=206.30 vcarry=206.76 both=206.24 ctrl2=206.11 null:ctrl2-ctrl=-0.24 d:kcarry=-0.06 d:vcarry=+0.40 d:both=-0.12
+ABIN b= 1 sliding L=1 in=0 kcarry=+0.06 vcarry=-0.16 both=+0.06 ctrl2=+0.06
+ABIN b= 1 sliding L=1 in=1 kcarry=-0.26 vcarry=-0.19 both=-0.19 ctrl2=+0.00
+ABIN b= 1 full    L=1 in=0 kcarry=-0.29 vcarry=-0.26 both=-0.06 ctrl2=-0.26
+ABIN b= 1 full    L=1 in=1 kcarry=-0.22 vcarry=-0.29 both=+0.00 ctrl2=-0.26
+ABIN b=16 sliding L=1 in=0 kcarry=-0.10 vcarry=+0.06 both=+0.03 ctrl2=+0.03
+ABIN b=16 sliding L=1 in=1 kcarry=-0.16 vcarry=+0.03 both=+0.06 ctrl2=-0.06
+ABIN b=16 full    L=1 in=0 kcarry=+0.00 vcarry=+0.19 both=+0.03 ctrl2=-0.06
+ABIN b=16 full    L=1 in=1 kcarry=+0.03 vcarry=+0.00 both=+0.03 ctrl2=-0.06
+ABIN b=32 sliding L=1 in=0 kcarry=-0.10 vcarry=+0.03 both=+0.03 ctrl2=-0.06
+ABIN b=32 sliding L=1 in=1 kcarry=+0.00 vcarry=+0.06 both=+0.03 ctrl2=+0.06
+ABIN b=32 full    L=1 in=0 kcarry=+0.06 vcarry=+0.00 both=+0.16 ctrl2=+0.13
+ABIN b=32 full    L=1 in=1 kcarry=-0.19 vcarry=+0.03 both=-0.13 ctrl2=-0.03
+ABIN b= 1 sliding L=8 in=0 kcarry=-0.13 vcarry=-0.29 both=+0.03 ctrl2=-0.26
+ABIN b= 1 sliding L=8 in=1 kcarry=+0.06 vcarry=+0.03 both=+0.06 ctrl2=+0.00
+ABIN b= 1 full    L=8 in=0 kcarry=-0.26 vcarry=-0.29 both=-0.38 ctrl2=-0.03
+ABIN b= 1 full    L=8 in=1 kcarry=-0.19 vcarry=-0.19 both=-0.38 ctrl2=+0.10
+ABIN b=16 sliding L=8 in=0 kcarry=-0.13 vcarry=-0.16 both=-0.19 ctrl2=-0.10
+ABIN b=16 sliding L=8 in=1 kcarry=+0.13 vcarry=+0.16 both=+0.19 ctrl2=+0.19
+ABIN b=16 full    L=8 in=0 kcarry=-0.38 vcarry=-0.48 both=-0.48 ctrl2=-0.51
+ABIN b=16 full    L=8 in=1 kcarry=+0.48 vcarry=-0.58 both=+0.00 ctrl2=-0.06
+ABIN b=32 sliding L=8 in=0 kcarry=+0.10 vcarry=+0.03 both=-0.16 ctrl2=-0.03
+ABIN b=32 sliding L=8 in=1 kcarry=+0.19 vcarry=+0.16 both=-0.13 ctrl2=+0.03
+ABIN b=32 full    L=8 in=0 kcarry=-0.03 vcarry=+0.99 both=+0.35 ctrl2=-0.10
+ABIN b=32 full    L=8 in=1 kcarry=+0.29 vcarry=+0.77 both=+0.32 ctrl2=-0.16
+ABSCORE ctrl vs ctrl 1.0000 d1=1.0000 d16=1.0000 d32=1.0000 v1=1.0000 v16=1.0000 v32=1.0000
+ABSCORE kcarry vs ctrl 1.0020 d1=1.0080 d16=1.0033 d32=1.0015 v1=1.0008 v16=0.9988 v32=0.9998
+ABSCORE vcarry vs ctrl 1.0021 d1=1.0101 d16=1.0004 d32=0.9992 v1=1.0044 v16=1.0019 v32=0.9965
+ABSCORE both vs ctrl 1.0004 d1=1.0007 d16=0.9993 d32=0.9986 v1=1.0003 v16=1.0014 v32=1.0019
+ABSCORE ctrl2 vs ctrl 1.0008 d1=1.0037 d16=1.0002 d32=0.9992 v1=1.0012 v16=1.0003 v32=1.0000
+ABCHECKSUM ctrl=19/0/0 kcarry=19/0/0 vcarry=19/0/0 both=19/0/0 ctrl2=19/0/0 (pass/fail/probe)
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 04:57:41 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop

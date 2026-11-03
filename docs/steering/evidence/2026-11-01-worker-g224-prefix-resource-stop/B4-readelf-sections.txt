@@ -1,0 +1,51 @@
+There are 37 section headers, starting at offset 0x1a9028:
+
+Section Headers:
+  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0
+  [ 1] .shstrtab         STRTAB          0000000000000000 000040 00048a 00      0   0  1
+  [ 2] .strtab           STRTAB          0000000000000000 000568 001553 00      0   0  1
+  [ 3] .symtab           SYMTAB          0000000000000000 001ac0 0008a0 18      2  92  8
+  [ 4] .debug_frame      PROGBITS        0000000000000000 002360 0006f8 00      0   0  1
+  [ 5] .debug_line       PROGBITS        0000000000000000 002a58 0206fe 00      0   0  1
+  [ 6] .debug_str        PROGBITS        0000000000000000 023156 000d02 00      0   0  1
+  [ 7] .nv_debug_line_sass PROGBITS        0000000000000000 023e58 014d8a 00      0   0  1
+  [ 8] .nv_debug_ptx_txt PROGBITS        0000000000000000 038be2 104d68 00      0   0  1
+  [ 9] .note.nv.tkinfo   NOTE            0000000000000000 13d94c 0000b8 00   o  0   0  4
+  [10] .note.nv.cuinfo   NOTE            0000000000000000 13da04 000020 00  Io  9  12  4
+  [11] .nv.info          LOPROC+0        0000000000000000 13da24 0000d8 00      3   0  4
+  [12] .nv.compat        LOPROC+0x86     0000000000000000 13dafc 000024 00      0   0  4
+  [13] .nv.info._ZN3okc9moe_fusedILb1EEEvNS_6ParamsE LOPROC+0        0000000000000000 13db20 001428 00   I  3  25  4
+  [14] .nv.info._ZN3okc9moe_fusedILb0EEEvNS_6ParamsE LOPROC+0        0000000000000000 13ef48 001428 00   I  3  26  4
+  [15] .nv.info.g224_layout_anchor LOPROC+0        0000000000000000 140370 00004c 00   I  3  27  4
+  [16] .nv.callgraph     LOPROC+0x1      0000000000000000 1403bc 000020 08      3   0  4
+  [17] .rela.text._ZN3okc9moe_fusedILb1EEEvNS_6ParamsE RELA            0000000000000000 1403e0 000000 18   I  3  25  8
+  [18] .rela.text._ZN3okc9moe_fusedILb0EEEvNS_6ParamsE RELA            0000000000000000 1403e0 000000 18   I  3  26  8
+  [19] .rela.text.g224_layout_anchor RELA            0000000000000000 1403e0 000000 18   I  3  27  8
+  [20] .rela.debug_line  RELA            0000000000000000 1403e0 000048 18   I  3   5  8
+  [21] .rela.nv_debug_line_sass RELA            0000000000000000 140428 000048 18   I  3   7  8
+  [22] .rela.nv.constant4 RELA            0000000000000000 140470 000588 18   I  3  24  8
+  [23] .rela.debug_frame RELA            0000000000000000 1409f8 0001f8 18   I  3   4  8
+  [24] .nv.constant4     PROGBITS        0000000000000000 140bf0 0001d8 00   A  0   0  8
+  [25] .text._ZN3okc9moe_fusedILb1EEEvNS_6ParamsE PROGBITS        0000000000000000 140e00 033a80 00  AX  3   3 128
+  [26] .text._ZN3okc9moe_fusedILb0EEEvNS_6ParamsE PROGBITS        0000000000000000 174880 033a80 00  AX  3  72 128
+  [27] .text.g224_layout_anchor PROGBITS        0000000000000000 1a8300 000380 00  AX  3  88 128
+  [28] .nv.global.init   PROGBITS        0000000000000000 1a8680 000121 00  WA  0   0  8
+  [29] .nv.shared._ZN3okc9moe_fusedILb1EEEvNS_6ParamsE NOBITS          0000000000000000 1a87b0 000400 00 WAI  0  25 16
+  [30] .nv.shared.reserved.0 NOBITS          0000000000000000 1a87b0 000000 00  WA  0   0  1
+  [31] .nv.global        NOBITS          0000000000000000 1a87b0 000009 00  WA  0   0  4
+  [32] .nv.shared._ZN3okc9moe_fusedILb0EEEvNS_6ParamsE NOBITS          0000000000000000 1a87b0 000400 00 WAI  0  26 16
+  [33] .nv.shared.g224_layout_anchor NOBITS          0000000000000000 1a87b0 000400 00 WAI  0  27 16
+  [34] .nv.constant0._ZN3okc9moe_fusedILb1EEEvNS_6ParamsE PROGBITS        0000000000000000 1a87b0 000330 00  AI  0  25  4
+  [35] .nv.constant0._ZN3okc9moe_fusedILb0EEEvNS_6ParamsE PROGBITS        0000000000000000 1a8ae0 000330 00  AI  0  26  4
+  [36] .nv.constant0.g224_layout_anchor PROGBITS        0000000000000000 1a8e10 000218 00  AI  0  27  4
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  p (processor specific)
+
+STDERR:
+readelf: Warning: [25]: Unexpected value (3) in info field.
+readelf: Warning: [26]: Unexpected value (72) in info field.
+readelf: Warning: [27]: Unexpected value (88) in info field.

@@ -1,0 +1,958 @@
+{
+  "scope": "Actual full Python backend module imports + source factories executed. Missing SGLang/Triton imports, GPU capability and load_inline are explicit CPU stubs; no native host link/device/runtime proof.",
+  "packages": [
+    {
+      "mask": 4,
+      "bytes": 907642,
+      "sha256": "3b205d408edd8a238dec686fac306b5a28ac9136b42512939ae80db7c79611ec",
+      "embedded_backend_identity": true
+    },
+    {
+      "mask": 15,
+      "bytes": 951539,
+      "sha256": "d3f2b31ea0991e8b7e14709913e8a55d1304fe20fc47fd369e8a5f1c0334d689",
+      "embedded_backend_identity": true
+    }
+  ],
+  "records": [
+    {
+      "family": "G",
+      "input_sha256": "a6f97289c7abc8e49e7b7943e63f9b8138a8682988bb4c1b2603e3704fdc6464",
+      "packed_sha256": "0fadbabece84c447b5c197ee23372c19db8544055494d3dc3f0eb430d059cce2",
+      "real_load_inline_calls": 13,
+      "identical_python_definitions_imports": 204,
+      "python_legal_comments_checked": 259,
+      "captures": [
+        {
+          "original_name": "muse_att_v298w1pf_90a",
+          "packed_name": "muse_att_v298w1pf_90a",
+          "functions": [
+            "run"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "c6bb9a9f78b05b7f9b12a510d13eaada9878fc9e2d5188d5f8af5703c911aa74"
+            ],
+            "cuda_sources": [
+              "b1040eab286b73397eb64d387a200a09a3752b38d409753999a3d6c6f88c3d45"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "c6bb9a9f78b05b7f9b12a510d13eaada9878fc9e2d5188d5f8af5703c911aa74"
+            ],
+            "cuda_sources": [
+              "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "c6bb9a9f78b05b7f9b12a510d13eaada9878fc9e2d5188d5f8af5703c911aa74"
+            ],
+            "cuda_sources": [
+              "8552606b5a813c205588d136cf83922619d06bc4d3cfc06245b7e16acfb88249"
+            ]
+          },
+          "protected_legal_comments_checked": 18,
+          "flags": [
+            "-DOKC_QDIRECT=0",
+            "-DOKC_PK2=0",
+            "-DOKC_W0ENABLE=1",
+            "-O3",
+            "-DOKC_SM90=1",
+            "--expt-relaxed-constexpr"
+          ]
+        },
+        {
+          "original_name": "dl_okc_bf16proj_v86y4_90a",
+          "packed_name": "dl_okc_bf16proj_v86y4_90a",
+          "functions": [
+            "skinny_tma_a",
+            "gemm90",
+            "wide",
+            "sk2",
+            "gq",
+            "sk2f",
+            "sk2_set_pdl"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "64bed0f9ea58fdc2a488a94e681e71bd59c76f2af0554fa9b452333d84ca791e"
+            ],
+            "cuda_sources": [
+              "2bcb9a0a70fbd65e6e1735d60f0f7b0547b6883f2fb7266e56a650f1dff07997"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "64bed0f9ea58fdc2a488a94e681e71bd59c76f2af0554fa9b452333d84ca791e"
+            ],
+            "cuda_sources": [
+              "5db634e5ee9c5374d58f84e10e11a5a40369b2adebc0da480cee665511294e49"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "64bed0f9ea58fdc2a488a94e681e71bd59c76f2af0554fa9b452333d84ca791e"
+            ],
+            "cuda_sources": [
+              "7b86024ef93fff6aa4d43f9f0c0e7ab89d85f354cc138599ba19f7012c7a9550"
+            ]
+          },
+          "protected_legal_comments_checked": 0,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a"
+          ]
+        },
+        {
+          "original_name": "graft_glue_41f5d5075ec6",
+          "packed_name": "graft_glue_7c6a149b9da6",
+          "functions": [
+            "b1",
+            "b2c"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [],
+            "cuda_sources": [
+              "06ace3dd83bb99d3a459e661402636f4a2458c820e35d7e07e609f95246e3c8c"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [],
+            "cuda_sources": [
+              "39c020a1a59cf2f82e5b64f1ec72d873bdcb0714adb5b55d7ead6299f5546a62"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [],
+            "cuda_sources": [
+              "06ace3dd83bb99d3a459e661402636f4a2458c820e35d7e07e609f95246e3c8c"
+            ]
+          },
+          "protected_legal_comments_checked": 0,
+          "flags": [
+            "-O3",
+            "-std=c++20",
+            "--expt-relaxed-constexpr",
+            "--fmad=false",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo"
+          ]
+        },
+        {
+          "original_name": "graft_b2_9f63f5f4042e",
+          "packed_name": "graft_b2_9961e5547e65",
+          "functions": [
+            "b2s"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [],
+            "cuda_sources": [
+              "1e2c1a8114a0f61ffd5c26b78a03796f5c2e0ea8a65cf007c0485a7a33789382"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [],
+            "cuda_sources": [
+              "a708871061263b97d5a8f8a0107118d9c0081d2ab748c8c1ca8c57e3f8cb575d"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [],
+            "cuda_sources": [
+              "1e2c1a8114a0f61ffd5c26b78a03796f5c2e0ea8a65cf007c0485a7a33789382"
+            ]
+          },
+          "protected_legal_comments_checked": 0,
+          "flags": [
+            "-O3",
+            "-std=c++20",
+            "--expt-relaxed-constexpr",
+            "--fmad=false",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo"
+          ]
+        },
+        {
+          "original_name": "sl_early_tail_982fe01208a1",
+          "packed_name": "sl_early_tail_c69360387339",
+          "functions": [
+            "b1"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [],
+            "cuda_sources": [
+              "c102604257753dca99f8f16d2aaf39e2267de227acfc1e0c90817e5f778d46f8"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [],
+            "cuda_sources": [
+              "a2ce67a78cbc3bf1bfaa1f3fe49a503b6fe6bf0fefec88ddb33dfb4c41220172"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [],
+            "cuda_sources": [
+              "c102604257753dca99f8f16d2aaf39e2267de227acfc1e0c90817e5f778d46f8"
+            ]
+          },
+          "protected_legal_comments_checked": 0,
+          "flags": [
+            "-O3",
+            "-std=c++17",
+            "--use_fast_math"
+          ]
+        },
+        {
+          "original_name": "proj_dl_escape_d8a1e29286a8",
+          "packed_name": "proj_dl_escape_e21a62197229",
+          "functions": [
+            "sk2",
+            "sk2_set_pdl"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "7009090e46ad06a2d82812f86a4a439aeff2be8494c353b4f702ab48bc234010"
+            ],
+            "cuda_sources": [
+              "7e964aabb50f5966f0ed38a76ce69179f4b8be71d4b8d863cb1a825d46ac951d"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "7009090e46ad06a2d82812f86a4a439aeff2be8494c353b4f702ab48bc234010"
+            ],
+            "cuda_sources": [
+              "6e59e24a58f634b36b13bdac23a60d7ef1584d83de0869d3c57e3a718169b2b2"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "7009090e46ad06a2d82812f86a4a439aeff2be8494c353b4f702ab48bc234010"
+            ],
+            "cuda_sources": [
+              "2c8741a857a91f3d24693d7bf8690297373b3b0bbb8370179b0215d1fbfa16fb"
+            ]
+          },
+          "protected_legal_comments_checked": 0,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90,code=sm_90"
+          ]
+        },
+        {
+          "original_name": "router_fp32_b71070b0728c",
+          "packed_name": "router_fp32_b71070b0728c",
+          "functions": [
+            "router_fp32_launch"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "7bd9c640e0ddd56846a53e40db59793f8883ccfb6ea05b9edbc42409c918720a"
+            ],
+            "cuda_sources": [
+              "fca15f68b4c78e113650cb7145b22874463b69a5e5c3f95904791e6029d94092"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "7bd9c640e0ddd56846a53e40db59793f8883ccfb6ea05b9edbc42409c918720a"
+            ],
+            "cuda_sources": [
+              "fca15f68b4c78e113650cb7145b22874463b69a5e5c3f95904791e6029d94092"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "7bd9c640e0ddd56846a53e40db59793f8883ccfb6ea05b9edbc42409c918720a"
+            ],
+            "cuda_sources": [
+              "fca15f68b4c78e113650cb7145b22874463b69a5e5c3f95904791e6029d94092"
+            ]
+          },
+          "protected_legal_comments_checked": 0,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90,code=sm_90"
+          ]
+        },
+        {
+          "original_name": "gle_o_4944bfa97e00",
+          "packed_name": "gle_o_8e8b5bb2fa8f",
+          "functions": [
+            "gle_o",
+            "gle_pr",
+            "sk2_set_pdl"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "84aebde86b0e442a2671275e3cd01e9489453109b8490d0cf66de65a22dd146a"
+            ],
+            "cuda_sources": [
+              "4b3fc2c3fe55fd732ac29fe524c571ea8db35893a5b6419a66e825206d1092b8"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "84aebde86b0e442a2671275e3cd01e9489453109b8490d0cf66de65a22dd146a"
+            ],
+            "cuda_sources": [
+              "00ebe795bbc13764e43311ac5de51fa05e6adfc655bc1002fdb1ad0a0e41797f"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "84aebde86b0e442a2671275e3cd01e9489453109b8490d0cf66de65a22dd146a"
+            ],
+            "cuda_sources": [
+              "8b284df7dcdd7814b487781a187e42441c103c564bc98e16de221ab4040dd129"
+            ]
+          },
+          "protected_legal_comments_checked": 0,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90,code=sm_90"
+          ]
+        },
+        {
+          "original_name": "glue_moe_415a2bdc6eb73960_sm90a",
+          "packed_name": "glue_moe_6ba733cfdb959ef5_sm90a",
+          "functions": [
+            "okc_run",
+            "okc_set_pdl"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "5abaad96b86970a65f850f55ecf0e16185ad0c3484d56eef6b634aa1f2a32f12"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "793af4d4204ac4a1d5356f61415e690174f1b95f90005efde2858886ae3b000b"
+            ]
+          },
+          "protected_legal_comments_checked": 3,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=8",
+            "-DOKC_TINY=1",
+            "-DOKC_EPI4=0",
+            "-DOKC_FAST1=2",
+            "-DOKC_L2H=0",
+            "-DOKC_NACC=4",
+            "-DOKC_UWARP=0",
+            "-DOKC_WS=1",
+            "-DOKC_WSB=1",
+            "-DOKC_WSBL=2",
+            "-DOKC_WSBLK=2",
+            "-DOKC_FINPF=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ]
+        },
+        {
+          "original_name": "glue_moe_b2495a009a910301_sm90a",
+          "packed_name": "glue_moe_2a9b2f74d71e1550_sm90a",
+          "functions": [
+            "okc_run",
+            "okc_set_pdl"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "5abaad96b86970a65f850f55ecf0e16185ad0c3484d56eef6b634aa1f2a32f12"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "793af4d4204ac4a1d5356f61415e690174f1b95f90005efde2858886ae3b000b"
+            ]
+          },
+          "protected_legal_comments_checked": 3,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=8",
+            "-DOKC_TINY=1",
+            "-DOKC_CPF=0",
+            "-DOKC_EPI4=0",
+            "-DOKC_FAST1=2",
+            "-DOKC_NACC=4",
+            "-DOKC_UWARP=0",
+            "-DOKC_WS=1",
+            "-DOKC_WSB=1",
+            "-DOKC_WSBL=2",
+            "-DOKC_WSBLK=1",
+            "-DOKC_FINPF=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ]
+        },
+        {
+          "original_name": "glue_moe_1b555edc8284ed23_sm90a",
+          "packed_name": "glue_moe_bd45bf8ac049398f_sm90a",
+          "functions": [
+            "okc_run",
+            "okc_set_pdl"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "5abaad96b86970a65f850f55ecf0e16185ad0c3484d56eef6b634aa1f2a32f12"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "793af4d4204ac4a1d5356f61415e690174f1b95f90005efde2858886ae3b000b"
+            ]
+          },
+          "protected_legal_comments_checked": 3,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=8",
+            "-DOKC_TINY=1",
+            "-DOKC_SPLIT=1",
+            "-DOKC_CPF=0",
+            "-DOKC_EPI4=0",
+            "-DOKC_FAST1=2",
+            "-DOKC_NACC=4",
+            "-DOKC_UWARP=0",
+            "-DOKC_WS=1",
+            "-DOKC_WSB=1",
+            "-DOKC_WSBL=2",
+            "-DOKC_WSBLK=2",
+            "-DOKC_FINPF=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ]
+        },
+        {
+          "original_name": "glue_moe_7e37cd900cb88979_sm90a",
+          "packed_name": "glue_moe_47cc66d6ab41b09c_sm90a",
+          "functions": [
+            "okc_run",
+            "okc_set_pdl",
+            "okc_attrs"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "9f9548fd5af1fca06a1ddf1d7a73db0e127eb20df0bddf723ae4e36b1a5167c1"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "08e4d5c4644873e88f73dcc1d12bcb7212d50cbde30a0122f487ce76f23e3f18"
+            ]
+          },
+          "protected_legal_comments_checked": 8,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=16",
+            "-DOKC_FAST1=0",
+            "-DOKC_EPI4=0",
+            "-DOKC_WGS=1",
+            "-DOKC_B4FIN=1",
+            "-DOKC_SC6W=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ]
+        },
+        {
+          "original_name": "glue_moe_45a005177ff52c30_sm90a",
+          "packed_name": "glue_moe_4baab9b4a8d63863_sm90a",
+          "functions": [
+            "okc_run",
+            "okc_set_pdl",
+            "okc_attrs"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "9f9548fd5af1fca06a1ddf1d7a73db0e127eb20df0bddf723ae4e36b1a5167c1"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+            ],
+            "cuda_sources": [
+              "08e4d5c4644873e88f73dcc1d12bcb7212d50cbde30a0122f487ce76f23e3f18"
+            ]
+          },
+          "protected_legal_comments_checked": 8,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=16",
+            "-DOKC_FAST1=0",
+            "-DOKC_EPI4=0",
+            "-DOKC_WGS=1",
+            "-DOKC_SC6W=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "owned-4",
+      "input_sha256": "83c5436ad5801422f51377b32b168d27889a1b3ea4dc1e02097e646179b8101f",
+      "packed_sha256": "7612276301d5da296d35995f852b51328f6f33d20c0fd7b9c17bec5fbfe8656c",
+      "real_load_inline_calls": 4,
+      "identical_python_definitions_imports": 56,
+      "python_legal_comments_checked": 0,
+      "captures": [
+        {
+          "original_name": "okc_decode_layer_moe1",
+          "packed_name": "okc_decode_layer_moe1",
+          "functions": [
+            "moe_fused_run"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "5524df4d33ce86aea398fd01d0c37a1489e7eed47fa6264cfe8fbe99b473efc9"
+            ],
+            "cuda_sources": [
+              "aa7b24a3d9a4ba3a6ae4e9480167b569d95bc9f2e921501f4e25b505f07a3c23",
+              "d67e1f727972ad62199882c2cb6c39ce64c5fc742ae8ddbd15d9ba0cd6578806"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "5524df4d33ce86aea398fd01d0c37a1489e7eed47fa6264cfe8fbe99b473efc9"
+            ],
+            "cuda_sources": [
+              "35fc183846d5b9bf23efb5c3f0d0f7f556b00bfbe5ea45a3c30c59a9a054b300",
+              "7c3bd01fff4606f3b32f6eded6694328998293f02fb1b30ee9bcc08864972391"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "5524df4d33ce86aea398fd01d0c37a1489e7eed47fa6264cfe8fbe99b473efc9"
+            ],
+            "cuda_sources": [
+              "aa7b24a3d9a4ba3a6ae4e9480167b569d95bc9f2e921501f4e25b505f07a3c23",
+              "d67e1f727972ad62199882c2cb6c39ce64c5fc742ae8ddbd15d9ba0cd6578806"
+            ]
+          },
+          "protected_legal_comments_checked": 0,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a"
+          ]
+        },
+        {
+          "original_name": "okc_decode_layer_one",
+          "packed_name": "okc_decode_layer_one",
+          "functions": [
+            "attn_one",
+            "attn_one_prepare",
+            "attn_one_probe_coop"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "1e6d6082d8c5859f62a4c7f1c60a26d0eeca402b8cce5d3a4de413573b0a9ffe"
+            ],
+            "cuda_sources": [
+              "80ed00bf7e7561064fa82cd7d70a0907f9b91007fbc2934a7bd84d864c52d234",
+              "b7bec1d9dd1cd70f82994ba228fd1ca493caba9ebbd3f861274f449f57291ec7"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "1e6d6082d8c5859f62a4c7f1c60a26d0eeca402b8cce5d3a4de413573b0a9ffe"
+            ],
+            "cuda_sources": [
+              "beba98d82228815d58d4a5be3e7a3836ef58064ad06085542f198782fca66708",
+              "38eff9b18395e634fb51fdc597348739efa71bb4a1c9bbabceaf810925a49338"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "1e6d6082d8c5859f62a4c7f1c60a26d0eeca402b8cce5d3a4de413573b0a9ffe"
+            ],
+            "cuda_sources": [
+              "d74515180260701c2459a59f22e7015366d6cb60465286e8ef9569666559f1e9",
+              "b7bec1d9dd1cd70f82994ba228fd1ca493caba9ebbd3f861274f449f57291ec7"
+            ]
+          },
+          "protected_legal_comments_checked": 13,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-DONE_TRIG=1"
+          ]
+        },
+        {
+          "original_name": "okc_owned_slice_main",
+          "packed_name": "okc_owned_slice_main",
+          "functions": [
+            "route_fwd",
+            "attn_boundary"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "3fc4bde0c3ff5438e1d99ac7b497ef3033985726b33acaa0b3242d2561612170"
+            ],
+            "cuda_sources": [
+              "2aa223a98b670ebd91ad5a14e3f575add19f0b0401beeea085a206c58573600b",
+              "8d976973dcad8f9124407a73df8d84cfcfd1d2b73f319b30b95b9df21fdde785"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "3fc4bde0c3ff5438e1d99ac7b497ef3033985726b33acaa0b3242d2561612170"
+            ],
+            "cuda_sources": [
+              "2ab4bab0520fb2306e71b200e97514bcdb4d665cb40b46fbade2392cf0baba07",
+              "c4e0ce527a847c551302c140d2b71a11949448ab5741ddae5e66c0eb0f69a634"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "3fc4bde0c3ff5438e1d99ac7b497ef3033985726b33acaa0b3242d2561612170"
+            ],
+            "cuda_sources": [
+              "2aa223a98b670ebd91ad5a14e3f575add19f0b0401beeea085a206c58573600b",
+              "f86a914ffb96f256ae0b18d662309f9b6cfe08e7dcae5f7fda65fdcd58556bdf"
+            ]
+          },
+          "protected_legal_comments_checked": 8,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a"
+          ]
+        },
+        {
+          "original_name": "okc_dlplt_v1_0",
+          "packed_name": "okc_dlplt_v1_0",
+          "functions": [
+            "lt_version",
+            "lt_plan_new",
+            "lt_heuristic",
+            "lt_expand",
+            "lt_sweep",
+            "lt_add_config",
+            "lt_count",
+            "lt_rejected",
+            "lt_info",
+            "lt_run"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "d192e109033cbd9309f9c0fc75acd627fe205c0d5f888ead932decebfca96fd1"
+            ],
+            "cuda_sources": []
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "7eb7df3830db1927210a462128f7f8aecc9fe20893af1366fac6cbba4d1ef370"
+            ],
+            "cuda_sources": []
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "ab48143d785cef87bd98bbc6e211d8a50523cc9356c6bd5257b26f26c2b35a64"
+            ],
+            "cuda_sources": []
+          },
+          "protected_legal_comments_checked": 4,
+          "flags": null
+        }
+      ]
+    },
+    {
+      "family": "owned-15",
+      "input_sha256": "6de124667ee5b56c81771b4fd5d2591dc62e1bcfbf60f18baa680438d543bf42",
+      "packed_sha256": "c1c6065a095efb407a15c8a1fe8f6936fc3078750b1ca7adb27447846342205e",
+      "real_load_inline_calls": 5,
+      "identical_python_definitions_imports": 58,
+      "python_legal_comments_checked": 0,
+      "captures": [
+        {
+          "original_name": "okc_decode_layer_moe1",
+          "packed_name": "okc_decode_layer_moe1",
+          "functions": [
+            "moe_fused_run"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "5524df4d33ce86aea398fd01d0c37a1489e7eed47fa6264cfe8fbe99b473efc9"
+            ],
+            "cuda_sources": [
+              "aa7b24a3d9a4ba3a6ae4e9480167b569d95bc9f2e921501f4e25b505f07a3c23",
+              "d67e1f727972ad62199882c2cb6c39ce64c5fc742ae8ddbd15d9ba0cd6578806"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "5524df4d33ce86aea398fd01d0c37a1489e7eed47fa6264cfe8fbe99b473efc9"
+            ],
+            "cuda_sources": [
+              "35fc183846d5b9bf23efb5c3f0d0f7f556b00bfbe5ea45a3c30c59a9a054b300",
+              "7c3bd01fff4606f3b32f6eded6694328998293f02fb1b30ee9bcc08864972391"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "5524df4d33ce86aea398fd01d0c37a1489e7eed47fa6264cfe8fbe99b473efc9"
+            ],
+            "cuda_sources": [
+              "aa7b24a3d9a4ba3a6ae4e9480167b569d95bc9f2e921501f4e25b505f07a3c23",
+              "d67e1f727972ad62199882c2cb6c39ce64c5fc742ae8ddbd15d9ba0cd6578806"
+            ]
+          },
+          "protected_legal_comments_checked": 0,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a"
+          ]
+        },
+        {
+          "original_name": "okc_decode_layer_one",
+          "packed_name": "okc_decode_layer_one",
+          "functions": [
+            "attn_one",
+            "attn_one_prepare",
+            "attn_one_probe_coop"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "1e6d6082d8c5859f62a4c7f1c60a26d0eeca402b8cce5d3a4de413573b0a9ffe"
+            ],
+            "cuda_sources": [
+              "80ed00bf7e7561064fa82cd7d70a0907f9b91007fbc2934a7bd84d864c52d234",
+              "b7bec1d9dd1cd70f82994ba228fd1ca493caba9ebbd3f861274f449f57291ec7"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "1e6d6082d8c5859f62a4c7f1c60a26d0eeca402b8cce5d3a4de413573b0a9ffe"
+            ],
+            "cuda_sources": [
+              "beba98d82228815d58d4a5be3e7a3836ef58064ad06085542f198782fca66708",
+              "38eff9b18395e634fb51fdc597348739efa71bb4a1c9bbabceaf810925a49338"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "1e6d6082d8c5859f62a4c7f1c60a26d0eeca402b8cce5d3a4de413573b0a9ffe"
+            ],
+            "cuda_sources": [
+              "d74515180260701c2459a59f22e7015366d6cb60465286e8ef9569666559f1e9",
+              "b7bec1d9dd1cd70f82994ba228fd1ca493caba9ebbd3f861274f449f57291ec7"
+            ]
+          },
+          "protected_legal_comments_checked": 13,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-DONE_TRIG=1"
+          ]
+        },
+        {
+          "original_name": "okc_owned_slice_main",
+          "packed_name": "okc_owned_slice_main",
+          "functions": [
+            "route_fwd",
+            "attn_boundary"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "3fc4bde0c3ff5438e1d99ac7b497ef3033985726b33acaa0b3242d2561612170"
+            ],
+            "cuda_sources": [
+              "2aa223a98b670ebd91ad5a14e3f575add19f0b0401beeea085a206c58573600b",
+              "8d976973dcad8f9124407a73df8d84cfcfd1d2b73f319b30b95b9df21fdde785"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "3fc4bde0c3ff5438e1d99ac7b497ef3033985726b33acaa0b3242d2561612170"
+            ],
+            "cuda_sources": [
+              "2ab4bab0520fb2306e71b200e97514bcdb4d665cb40b46fbade2392cf0baba07",
+              "c4e0ce527a847c551302c140d2b71a11949448ab5741ddae5e66c0eb0f69a634"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "3fc4bde0c3ff5438e1d99ac7b497ef3033985726b33acaa0b3242d2561612170"
+            ],
+            "cuda_sources": [
+              "2aa223a98b670ebd91ad5a14e3f575add19f0b0401beeea085a206c58573600b",
+              "f86a914ffb96f256ae0b18d662309f9b6cfe08e7dcae5f7fda65fdcd58556bdf"
+            ]
+          },
+          "protected_legal_comments_checked": 8,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a"
+          ]
+        },
+        {
+          "original_name": "okc_dlplt_v1_0",
+          "packed_name": "okc_dlplt_v1_0",
+          "functions": [
+            "lt_version",
+            "lt_plan_new",
+            "lt_heuristic",
+            "lt_expand",
+            "lt_sweep",
+            "lt_add_config",
+            "lt_count",
+            "lt_rejected",
+            "lt_info",
+            "lt_run"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "d192e109033cbd9309f9c0fc75acd627fe205c0d5f888ead932decebfca96fd1"
+            ],
+            "cuda_sources": []
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "7eb7df3830db1927210a462128f7f8aecc9fe20893af1366fac6cbba4d1ef370"
+            ],
+            "cuda_sources": []
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "ab48143d785cef87bd98bbc6e211d8a50523cc9356c6bd5257b26f26c2b35a64"
+            ],
+            "cuda_sources": []
+          },
+          "protected_legal_comments_checked": 4,
+          "flags": null
+        },
+        {
+          "original_name": "okc_decode_layer_skp",
+          "packed_name": "okc_decode_layer_skp",
+          "functions": [
+            "wd_fwd"
+          ],
+          "normalized_source_sha256": {
+            "cpp_sources": [
+              "668bfca5dd188f3bfd998e1c6736d94cc01c5e417a3916484c515cfa46745c35"
+            ],
+            "cuda_sources": [
+              "e1d139f4b8dc5bac08d4bc0f0bb572aa7ddf1dba8ff3404511551fdb8832c10c"
+            ]
+          },
+          "raw_original_source_sha256": {
+            "cpp_sources": [
+              "668bfca5dd188f3bfd998e1c6736d94cc01c5e417a3916484c515cfa46745c35"
+            ],
+            "cuda_sources": [
+              "bda385df3d4421729989e15b26b35ae4ddad90ac8fc8c6fa00c22a6b6214dc30"
+            ]
+          },
+          "raw_packed_source_sha256": {
+            "cpp_sources": [
+              "668bfca5dd188f3bfd998e1c6736d94cc01c5e417a3916484c515cfa46745c35"
+            ],
+            "cuda_sources": [
+              "8ab7e2721b51b796fef77fc2724645aec8cd95ae47a5f5d5be2122b70201a034"
+            ]
+          },
+          "protected_legal_comments_checked": 7,
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-DSK_PDL=1"
+          ]
+        }
+      ]
+    }
+  ]
+}

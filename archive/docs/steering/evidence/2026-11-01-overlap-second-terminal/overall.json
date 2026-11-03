@@ -1,0 +1,21 @@
+{
+  "board": "overall",
+  "you": {
+    "rank": 342,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 341
+  },
+  "cutoffs": [
+    {
+      "rank": 50,
+      "solved": 4,
+      "team": "asfires"
+    },
+    {
+      "rank": 100,
+      "solved": 4,
+      "team": "halvenhq"
+    }
+  ]
+}

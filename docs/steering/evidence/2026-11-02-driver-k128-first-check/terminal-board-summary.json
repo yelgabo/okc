@@ -1,0 +1,120 @@
+{
+  "observed_at_utc": "2026-11-02T21:32:10.346164+00:00",
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 2,
+            "left": 18
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 11,
+            "left": 9
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          }
+        }
+      }
+    ]
+  },
+  "overall_you": {
+    "rank": 371,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 370
+  },
+  "layer_you": {
+    "rank": 371,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 370,
+    "to_first": 1.1704
+  },
+  "layer_top100": {
+    "attempts": 6,
+    "job": "701a8a2c1c414ce1",
+    "rank": 100,
+    "speedup": 2.2678,
+    "submitted_at": 1793617899.6485205,
+    "team": "adityuhkapoor",
+    "value": 9974.588987732088
+  },
+  "layer_own_row": {
+    "attempts": 42,
+    "job": "607eb52bdaf24160",
+    "rank": 371,
+    "speedup": 2.1261,
+    "submitted_at": 1793534312.3883686,
+    "team": "yelgabo",
+    "value": 10639.426326569794
+  },
+  "active_jobs": []
+}

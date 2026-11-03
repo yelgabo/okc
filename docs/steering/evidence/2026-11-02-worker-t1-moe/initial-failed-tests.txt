@@ -1,0 +1,23 @@
+setUpClass (__main__.T1Tests) ... ERROR
+
+======================================================================
+ERROR: setUpClass (__main__.T1Tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/t1_moe_test.py", line 80, in setUpClass
+    state, packed = prepare_small(namespace)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/expert_top100_moe_test.py", line 95, in prepare_small
+    state = namespace[entry]({})
+  File "<actual-held-T1-moe>", line 6565, in prepare
+  File "<actual-held-T1-moe>", line 6128, in _expert_moe_prepare
+  File "<actual-held-T1-moe>", line 6023, in _fork_native_moe
+  File "<actual-held-T1-moe>", line 5951, in _ma_ext
+  File "<actual-held-T1-moe>", line 6378, in _h_loader
+  File "<actual-held-T1-moe>", line 6306, in require
+RuntimeError: EXPERT_MOE_HARNESS: exact compiler source/flags/name/exports
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.640s
+
+FAILED (errors=1)

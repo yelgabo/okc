@@ -1,0 +1,24 @@
+setUpClass (proj_test_stage_xor.StageXOR) ... ERROR
+test_all_geometry_sparse_empty_and_max_unit (test_sk_stage_repair_independent.StageRecords.test_all_geometry_sparse_empty_and_max_unit) ... ok
+test_dense_stage_prefix_capacity (test_sk_stage_repair_independent.StageRecords.test_dense_stage_prefix_capacity) ... ok
+test_source_transport_and_lifetime (test_sk_stage_repair_independent.StageRecords.test_source_transport_and_lifetime) ... ok
+
+======================================================================
+ERROR: setUpClass (proj_test_stage_xor.StageXOR)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/proj_test_stage_xor.py", line 11, in setUpClass
+    cls.source=ART.read_text(encoding='utf8');tree=ast.parse(cls.source)
+               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 788, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 772, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/mnt/c/Users/gretc/Documents/GitHub/okc/.build/today-proj/stage-xor.py'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.689s
+
+FAILED (errors=1)

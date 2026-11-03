@@ -1,0 +1,489 @@
+{
+  "ONE": {
+    "source_sha256": "beba98d82228815d58d4a5be3e7a3836ef58064ad06085542f198782fca66708",
+    "source_bytes": 151256,
+    "raw_discardable_body_bytes": 23756,
+    "named_chunks": [
+      {
+        "condition": "ONE_DIAG",
+        "discarded": "then",
+        "start": 47495,
+        "end": 47674,
+        "line": 1033,
+        "bytes": 179
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 48141,
+        "end": 48246,
+        "line": 1045,
+        "bytes": 105
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 48323,
+        "end": 48409,
+        "line": 1052,
+        "bytes": 86
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 48619,
+        "end": 48806,
+        "line": 1060,
+        "bytes": 187
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 55651,
+        "end": 55735,
+        "line": 1227,
+        "bytes": 84
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 62561,
+        "end": 62641,
+        "line": 1357,
+        "bytes": 80
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 66591,
+        "end": 66671,
+        "line": 1434,
+        "bytes": 80
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 70746,
+        "end": 70895,
+        "line": 1514,
+        "bytes": 149
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 79570,
+        "end": 79611,
+        "line": 1701,
+        "bytes": 41
+      },
+      {
+        "condition": "SPEC",
+        "discarded": "then",
+        "start": 83038,
+        "end": 83602,
+        "line": 1779,
+        "bytes": 564
+      },
+      {
+        "condition": "L == 1",
+        "discarded": "then",
+        "start": 85772,
+        "end": 86108,
+        "line": 1858,
+        "bytes": 336
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 90438,
+        "end": 90817,
+        "line": 1967,
+        "bytes": 379
+      },
+      {
+        "condition": "!ONE",
+        "discarded": "then",
+        "start": 91817,
+        "end": 92082,
+        "line": 2007,
+        "bytes": 265
+      },
+      {
+        "condition": "L == 1",
+        "discarded": "then",
+        "start": 92396,
+        "end": 103547,
+        "line": 2026,
+        "bytes": 11151
+      },
+      {
+        "condition": "XPIPE != 0",
+        "discarded": "then",
+        "start": 106404,
+        "end": 114857,
+        "line": 2314,
+        "bytes": 8453
+      },
+      {
+        "condition": "!ONE",
+        "discarded": "then",
+        "start": 126845,
+        "end": 127158,
+        "line": 2714,
+        "bytes": 313
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 141012,
+        "end": 141130,
+        "line": 3006,
+        "bytes": 118
+      },
+      {
+        "condition": "DETM",
+        "discarded": "then",
+        "start": 143078,
+        "end": 143159,
+        "line": 3057,
+        "bytes": 81
+      },
+      {
+        "condition": "!COOP",
+        "discarded": "then",
+        "start": 143822,
+        "end": 143853,
+        "line": 3084,
+        "bytes": 31
+      },
+      {
+        "condition": "!COOP",
+        "discarded": "then",
+        "start": 145438,
+        "end": 145634,
+        "line": 3117,
+        "bytes": 196
+      },
+      {
+        "condition": "STAMPS && !COOP",
+        "discarded": "then",
+        "start": 145746,
+        "end": 146041,
+        "line": 3128,
+        "bytes": 295
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 146108,
+        "end": 146443,
+        "line": 3140,
+        "bytes": 335
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 146644,
+        "end": 146744,
+        "line": 3154,
+        "bytes": 100
+      },
+      {
+        "condition": "STAMPS",
+        "discarded": "then",
+        "start": 147103,
+        "end": 147251,
+        "line": 3166,
+        "bytes": 148
+      }
+    ],
+    "assumptions": {
+      "L": 8,
+      "COOP": 1,
+      "ONE": 1,
+      "SPEC": 0,
+      "SOLO": 0,
+      "HMRG": 0,
+      "DETM": 0,
+      "FIN8": 0,
+      "QK2": 0,
+      "PE16": 0,
+      "STAMPS": 0,
+      "WAVE": 0,
+      "XPIPE": 0,
+      "ONE_DIAG": 0,
+      "ONE_STAMP": 0,
+      "ONE_PROBE": 0,
+      "ONE_XPIPE": 0
+    },
+    "helper_results_at_MODE51": {},
+    "scope": "Byte upper budget only: no source modified or compile/runtime equivalence claimed"
+  },
+  "MOE": {
+    "source_sha256": "35fc183846d5b9bf23efb5c3f0d0f7f556b00bfbe5ea45a3c30c59a9a054b300",
+    "source_bytes": 121690,
+    "raw_discardable_body_bytes": 11128,
+    "named_chunks": [
+      {
+        "condition": "skew_st(MODE)",
+        "discarded": "then",
+        "start": 35695,
+        "end": 35998,
+        "line": 770,
+        "bytes": 303
+      },
+      {
+        "condition": "lean_stage(MODE)",
+        "discarded": "else",
+        "start": 38494,
+        "end": 38533,
+        "line": 861,
+        "bytes": 39
+      },
+      {
+        "condition": "!bar_release_a(MODE)",
+        "discarded": "then",
+        "start": 54475,
+        "end": 54517,
+        "line": 1230,
+        "bytes": 42
+      },
+      {
+        "condition": "pair_st(MODE)",
+        "discarded": "then",
+        "start": 56509,
+        "end": 56981,
+        "line": 1271,
+        "bytes": 472
+      },
+      {
+        "condition": "skew_st(MODE)",
+        "discarded": "then",
+        "start": 67212,
+        "end": 67277,
+        "line": 1528,
+        "bytes": 65
+      },
+      {
+        "condition": "grp_codes(MODE)",
+        "discarded": "else",
+        "start": 70526,
+        "end": 76563,
+        "line": 1597,
+        "bytes": 6037
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 77921,
+        "end": 78210,
+        "line": 1755,
+        "bytes": 289
+      },
+      {
+        "condition": "kPa",
+        "discarded": "then",
+        "start": 80796,
+        "end": 80856,
+        "line": 1822,
+        "bytes": 60
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 80942,
+        "end": 80979,
+        "line": 1828,
+        "bytes": 37
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 81085,
+        "end": 81186,
+        "line": 1832,
+        "bytes": 101
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 81925,
+        "end": 82026,
+        "line": 1855,
+        "bytes": 101
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 82132,
+        "end": 82233,
+        "line": 1861,
+        "bytes": 101
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 84185,
+        "end": 84369,
+        "line": 1911,
+        "bytes": 184
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 84536,
+        "end": 84565,
+        "line": 1923,
+        "bytes": 29
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 85615,
+        "end": 85864,
+        "line": 1945,
+        "bytes": 249
+      },
+      {
+        "condition": "dyn_b(MODE)",
+        "discarded": "else",
+        "start": 88409,
+        "end": 88934,
+        "line": 2010,
+        "bytes": 525
+      },
+      {
+        "condition": "defer_a(MODE)",
+        "discarded": "then",
+        "start": 92119,
+        "end": 92575,
+        "line": 2101,
+        "bytes": 456
+      },
+      {
+        "condition": "pa_diag(MODE)",
+        "discarded": "then",
+        "start": 95098,
+        "end": 95130,
+        "line": 2172,
+        "bytes": 32
+      },
+      {
+        "condition": "pa_diag(MODE)",
+        "discarded": "then",
+        "start": 100006,
+        "end": 100038,
+        "line": 2292,
+        "bytes": 32
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 103213,
+        "end": 103343,
+        "line": 2380,
+        "bytes": 130
+      },
+      {
+        "condition": "fast_setup(MODE)",
+        "discarded": "else",
+        "start": 105775,
+        "end": 106350,
+        "line": 2445,
+        "bytes": 575
+      },
+      {
+        "condition": "fast_setup(MODE)",
+        "discarded": "else",
+        "start": 112097,
+        "end": 112174,
+        "line": 2609,
+        "bytes": 77
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 117860,
+        "end": 117891,
+        "line": 2737,
+        "bytes": 31
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 118302,
+        "end": 118333,
+        "line": 2756,
+        "bytes": 31
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 118930,
+        "end": 118961,
+        "line": 2781,
+        "bytes": 31
+      },
+      {
+        "condition": "final_ss(MODE)",
+        "discarded": "else",
+        "start": 119932,
+        "end": 119997,
+        "line": 2809,
+        "bytes": 65
+      },
+      {
+        "condition": "kDiag",
+        "discarded": "then",
+        "start": 120031,
+        "end": 120475,
+        "line": 2813,
+        "bytes": 444
+      },
+      {
+        "condition": "kLight",
+        "discarded": "then",
+        "start": 120504,
+        "end": 121094,
+        "line": 2829,
+        "bytes": 590
+      }
+    ],
+    "assumptions": {
+      "MODE": 51,
+      "kDiag": 0,
+      "kPa": 0,
+      "kLight": 0
+    },
+    "helper_results_at_MODE51": {
+      "is_diag": false,
+      "is_light": false,
+      "pa_diag": false,
+      "pb_diag": false,
+      "skew_st": false,
+      "grp_hoist": false,
+      "pair_st": false,
+      "defer_a": false,
+      "vol_regs": false,
+      "a_only": false,
+      "b_only": false,
+      "fast_setup": true,
+      "lean_stage": true,
+      "grp_codes": true,
+      "own_a": true,
+      "dyn_b": true,
+      "fast_silu": true,
+      "bar_release_a": true,
+      "fence_ar": true,
+      "dual_chain": true,
+      "final_ss": true,
+      "mma_max": 2
+    },
+    "scope": "Byte upper budget only: no source modified or compile/runtime equivalence claimed"
+  },
+  "raw_budget": 34884,
+  "minimum_single32_saving": 72105,
+  "minimum_all4_saving": 125549,
+  "source_changes": false,
+  "GPU": false
+}

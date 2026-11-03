@@ -1,0 +1,62 @@
+{
+  "b4": {
+    "control": [
+      [
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+        "8",
+        "4",
+        "32"
+      ],
+      [
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "8",
+        "4",
+        "32"
+      ]
+    ],
+    "candidate": [
+      [
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "0",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  "main": {
+    "control": [
+      [
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "0",
+        "0",
+        "0"
+      ]
+    ],
+    "candidate": [
+      [
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+        "0",
+        "0",
+        "0"
+      ]
+    ]
+  }
+}

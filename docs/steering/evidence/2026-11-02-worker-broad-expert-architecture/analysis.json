@@ -1,0 +1,151 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "budgets": [
+    {
+      "target_layer_gain": 0.03,
+      "conditional_expert_activity_fraction": 0.08797589086969398,
+      "required_net_weighted_savings_us": {
+        "decode 16": 6.119716486174455,
+        "decode 32": 6.6325307919858645,
+        "verify 16": 12.85696696761489,
+        "verify 32": 17.361048786946867
+      }
+    },
+    {
+      "target_layer_gain": 0.06576288172015832,
+      "conditional_expert_activity_fraction": 0.1847217306475743,
+      "required_net_weighted_savings_us": {
+        "decode 16": 12.849481934465459,
+        "decode 32": 13.926230861175673,
+        "verify 16": 26.995591242766793,
+        "verify 32": 36.45274797537212
+      }
+    },
+    {
+      "target_layer_gain": 0.1,
+      "conditional_expert_activity_fraction": 0.26992646845546275,
+      "required_net_weighted_savings_us": {
+        "decode 16": 18.77643343797935,
+        "decode 32": 20.349843529911677,
+        "verify 16": 39.44757653840737,
+        "verify 32": 53.26694099278365
+      }
+    }
+  ],
+  "costs": [
+    {
+      "tokens": 16,
+      "expected_local_routes": 16,
+      "expected_tokens_per_expert": 0.5,
+      "expected_active_experts": 12.745270290173686,
+      "encoded_bytes_single_pass": 360838382.5743074,
+      "sc6_bytes_single_pass": 350815094.16946554,
+      "expanded_bf16_bytes_single_pass": 1282980915.8197596,
+      "ideal_expanded_stream_us_at_4p8TBps": 267.28769079578325,
+      "ideal_sc6_stream_us_at_4p8TBps": 73.08647795197199,
+      "useful_gemm_flops": 1610612736,
+      "grouped_intermediates_min_read_write_bytes": 1310720,
+      "masked_workspace_cap_T_bytes": 20971520
+    },
+    {
+      "tokens": 32,
+      "expected_local_routes": 32,
+      "expected_tokens_per_expert": 1.0,
+      "expected_active_experts": 20.41423074379787,
+      "encoded_bytes_single_pass": 577958555.243032,
+      "sc6_bytes_single_pass": 561904150.9307256,
+      "expanded_bf16_bytes_single_pass": 2054963751.975225,
+      "ideal_expanded_stream_us_at_4p8TBps": 428.11744832817186,
+      "ideal_sc6_stream_us_at_4p8TBps": 117.0633647772345,
+      "useful_gemm_flops": 3221225472,
+      "grouped_intermediates_min_read_write_bytes": 2621440,
+      "masked_workspace_cap_T_bytes": 41943040
+    },
+    {
+      "tokens": 128,
+      "expected_local_routes": 128,
+      "expected_tokens_per_expert": 4.0,
+      "expected_active_experts": 31.450143245733827,
+      "encoded_bytes_single_pass": 890402365.909042,
+      "sc6_bytes_single_pass": 865668966.8560131,
+      "expanded_bf16_bytes_single_pass": 3165875078.787705,
+      "ideal_expanded_stream_us_at_4p8TBps": 659.5573080807719,
+      "ideal_sc6_stream_us_at_4p8TBps": 180.34770142833605,
+      "useful_gemm_flops": 12884901888,
+      "grouped_intermediates_min_read_write_bytes": 10485760,
+      "masked_workspace_cap_T_bytes": 167772160
+    },
+    {
+      "tokens": 256,
+      "expected_local_routes": 256,
+      "expected_tokens_per_expert": 8.0,
+      "expected_active_experts": 31.99055179843087,
+      "encoded_bytes_single_pass": 905702170.7499691,
+      "sc6_bytes_single_pass": 880543777.1180255,
+      "expanded_bf16_bytes_single_pass": 3220274384.888779,
+      "ideal_expanded_stream_us_at_4p8TBps": 670.890496851829,
+      "ideal_sc6_stream_us_at_4p8TBps": 183.446620232922,
+      "useful_gemm_flops": 25769803776,
+      "grouped_intermediates_min_read_write_bytes": 20971520,
+      "masked_workspace_cap_T_bytes": 335544320
+    }
+  ],
+  "full_bank": {
+    "elements": 1610612736,
+    "encoded_bytes": 905969664.0,
+    "sc6_bytes": 880803840.0,
+    "expanded_bf16_bytes": 3221225472
+  },
+  "inflation_vs_encoded": 3.5555555555555554,
+  "inflation_vs_sc6": 3.657142857142857,
+  "control_functions": {
+    "_ma_ext": {
+      "line": 6893,
+      "end": 6920,
+      "sha256": "7d6432159d118a61f4f2ff29af5b841779ca45e7d4d9e563dba1e82588fcf167"
+    },
+    "_pack_codes": {
+      "line": 7013,
+      "end": 7029,
+      "sha256": "a03c96e2a25f6f292c4e2f87be3df650b519ba5bce1a6d4eba11ac50ab7444e1"
+    },
+    "_sc6_ok": {
+      "line": 7042,
+      "end": 7048,
+      "sha256": "3e82c3bda16c9d470d4f96d62f22530a4ef341929e05f0e3a4bcb1c4e7bddac0"
+    },
+    "_sc6_wgs": {
+      "line": 7061,
+      "end": 7071,
+      "sha256": "845d7208ee62e059b683d774d9e59ebddb5be1c383f378e4f217c0cd92aeb793"
+    },
+    "_wgs_copy": {
+      "line": 7143,
+      "end": 7160,
+      "sha256": "8ef140c12b49198f76479fa8213d22e791c0b1ee32bde0c0d7fe50bbaffce7fd"
+    },
+    "_fork_native_ma_prepare": {
+      "line": 10156,
+      "end": 10184,
+      "sha256": "1bdae7436f8f176d150880547bb7ce96121f0ffaff469145d6b2a528c192ff00"
+    },
+    "_after_attention": {
+      "line": 16711,
+      "end": 16725,
+      "sha256": "58af32a3978d471053a43c13f8cedc634c6f534402c63f314e304869db1f0f61"
+    },
+    "_fork_native_moe": {
+      "line": 16084,
+      "end": 16106,
+      "sha256": "beb6f1e488e0babd69ed1dcff3bbc75a36ad75f16b96bfefceaac7e673c93228"
+    }
+  },
+  "assumptions": [
+    "Hypothetical uniform independent per-token top8 across256experts: any named expert inclusion probability1/32. Not reconstruction of measured routing.",
+    "One complete W13/W2 read per active expert, no extra tile reloads. Bytes are logical work; physical HBM/L2 traffic unmeasured.",
+    "4.8TB/s is vendor H200 peak, not measured achieved bandwidth. Stream times are conditional optimistic floors if all logical bytes traverse HBM.",
+    "Activity fraction model assumes all removed activity exposed and every replacement cost paid; required savings, not a speed prediction."
+  ],
+  "decision": "NO_ADEQUATE_PATH_FOUND",
+  "measured_saving": null
+}

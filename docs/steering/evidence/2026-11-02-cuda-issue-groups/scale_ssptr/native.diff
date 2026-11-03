@@ -1,0 +1,29 @@
+--- control
++++ candidate
+@@ -2099,7 +2099,7 @@
+   const int warp = WARP_IDX(tid);
+   const int wg = warp >> 2, wp = warp & 3, g = lane >> 2, wt = tid & 127;
+   constexpr int UBL = PB ? 4 : 5;
+-  const uint32_t k16c = (OKC_SC6W ? 4u : 16u) + p.zero;  // opaque 16 (4 with SC6W): the scale decode's multiply stays an IMAD (FMA pipe)
++  const uint32_t k16c = (OKC_SC6W ? 4u : 16u);
+   const uint32_t xring_s = smem_u32(ring + WGS_NS * UNIT_BYTES);
+   float d[WGS_NT][4];  // written first by a scale-d = 0 wgmma (no zeroing: ptxas would serialize the wgmmas, C7513)
+   // k16 steps per commit group: the whole function shares one register budget (96 at 544 threads) and ptxas
+@@ -2367,16 +2367,8 @@
+ #endif
+ }
+ 
+-// a volatile shared load at every use: hoisted, the pointer would stay live across the accumulate loops (96-register
+-// cap: spills)
+ __device__ __forceinline__ float* ss_cur() {
+-#if OKC_WGS
+-  unsigned long long v;
+-  asm volatile("ld.volatile.shared.u64 %0, [%1];\n" : "=l"(v) : "r"(smem_u32(&reinterpret_cast<const Smem*>(smem_raw)->ssp)));
+-  return reinterpret_cast<float*>(v);
+-#else
+-  return reinterpret_cast<const Smem*>(smem_raw)->ssp;  // the skinny / fat builds have registers to spare: let it hoist
+-#endif
++  return reinterpret_cast<const Smem*>(smem_raw)->ssp;
+ }
+ template <bool BIG>
+ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {

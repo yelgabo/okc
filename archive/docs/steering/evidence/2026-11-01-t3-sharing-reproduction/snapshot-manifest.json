@@ -1,0 +1,43 @@
+{
+  "captured_utc": "2026-11-01T23:34:33.723160+00:00",
+  "raw_snapshots": [
+    {
+      "name": "events.40356bc9-4e84-4f44-81ab-572185175234.log",
+      "bytes": 1265904,
+      "sha256": "0d873fd2ff1988d08e2ddd93ed545ed06556ccd08a45b1cd14cec8fc5b29ab25"
+    },
+    {
+      "name": "rollout-2026-11-01T15-18-52-01a19968-9e4f-74d1-b55e-25d1a3bfe702.jsonl",
+      "bytes": 966524,
+      "sha256": "c0784c3d54f0679fa18b84730f23e14bd3fcd06e1f501af2e7903a05e810b3a4"
+    },
+    {
+      "name": "rollout-2026-11-01T15-20-50-01a1996a-6992-7c91-b571-35da58cfdcbb.jsonl",
+      "bytes": 117304,
+      "sha256": "6646f18a82f6a09277c2bc11f6368343812ad56d530f7f341d9b6c2274170cc0"
+    },
+    {
+      "name": "rollout-2026-11-01T15-31-41-01a19974-57c5-7781-ab5c-2f71b614ec36.jsonl",
+      "bytes": 110795,
+      "sha256": "cf0435b904a3e40230e4460c1a39900f3591ef6ae3e199f78bcbb089b2b1bc2f"
+    },
+    {
+      "name": "rollout-2026-11-01T15-32-20-01a19974-f297-7791-8750-95c36b7ba898.jsonl",
+      "bytes": 116075,
+      "sha256": "74b156e70bd03110a9aa67dbb28b48a02e6492012c4cee29ebecc12b0a8704bc"
+    }
+  ],
+  "app.asar": {
+    "bytes": 18279277,
+    "sha256": "c2668373dad61f7dd4a10a3688588974409abe439b36ba75fd15112809f39650"
+  },
+  "server.asar": {
+    "bytes": 190112121,
+    "sha256": "42d80f7b8ed083b9d7baf62f0a92abf5a0f02375c57878f7cd2ae3d56759a167"
+  },
+  "server_bundle": {
+    "name": "binCli-C12fvdZY.mjs",
+    "bytes": 14696322,
+    "sha256": "472d7e2d82900ae9da669da1dfd9cd4b7075f61e6e6ac9bda9d6dd9644550d25"
+  }
+}

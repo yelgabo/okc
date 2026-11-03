@@ -1,0 +1,25 @@
+{
+  "accepted_at": "2026-11-02T00:10:29.381Z",
+  "implementation_commit": "a0b6af2ec00dfed54f37fd81de00c14098748711",
+  "mode": "check",
+  "job_id": "c1931f0c9e834485",
+  "problem": "muse_decode_layer",
+  "source_path": ".build/rmw-v2/short-rmw.py",
+  "source_sha256": "978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a",
+  "source_bytes": 918978,
+  "initial_receipt": {
+    "board": "muse_decode_layer",
+    "content_hash": "ce36aa2c06c6003cea3613d1e40d94f986d29cd38fc6352ccb7363b82aab30bd",
+    "created_at": 1793578229.1554496,
+    "duplicate_of": null,
+    "id": "c1931f0c9e834485",
+    "mode": "check",
+    "payload_ref": "muse_decode_layer/ce36aa2c06c6003cea3613d1e40d94f986d29cd38fc6352ccb7363b82aab30bd.py",
+    "result": null,
+    "status": "queued",
+    "team": "yelgabo"
+  },
+  "private_tranche_used": 1,
+  "private_tranche_cap": 4,
+  "public_submissions": 0
+}

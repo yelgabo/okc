@@ -1,0 +1,209 @@
+{
+  "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+  "native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "old_source_sha256": "b35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14",
+  "old_source_commit": "ec565a7",
+  "old_public_policy": {
+    "1": "sk8w3s",
+    "8": "sk8w3s",
+    "16": "sk8w3s",
+    "32": "sk8w3s",
+    "128": "main-lean-grp-nohoist",
+    "256": "main-lean-grp-nohoist"
+  },
+  "new_routes": [
+    {
+      "tokens": 1,
+      "route": "Tiny",
+      "small": true,
+      "oldsmall": true,
+      "old_us": 27.000975244260186,
+      "new_us": 25.27501234943677
+    },
+    {
+      "tokens": 8,
+      "route": "Tiny2",
+      "small": true,
+      "oldsmall": true,
+      "old_us": 67.38785858648528,
+      "new_us": 64.61904458730446
+    },
+    {
+      "tokens": 16,
+      "route": "MID",
+      "small": true,
+      "oldsmall": true,
+      "old_us": 95.42623257239289,
+      "new_us": 95.44292345630646
+    },
+    {
+      "tokens": 32,
+      "route": "B4",
+      "small": false,
+      "oldsmall": true,
+      "old_us": 136.74663592043888,
+      "new_us": 127.40143002852871
+    },
+    {
+      "tokens": 128,
+      "route": "MAIN",
+      "small": false,
+      "oldsmall": false,
+      "old_us": 192.86942906429772,
+      "new_us": 178.95124875777535
+    },
+    {
+      "tokens": 256,
+      "route": "MAIN",
+      "small": false,
+      "oldsmall": false,
+      "old_us": 240.83856801896243,
+      "new_us": 220.020294792071
+    }
+  ],
+  "private_result": {
+    "job": "64f9998ef238476f",
+    "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+    "passed": true,
+    "public_submission_approved": false,
+    "material_release_lead": true,
+    "scope": "Exact-file official release qualification; public comparison is cross-job, not a matched mechanism gain",
+    "score_us": 5762.134394618605,
+    "speedup": 2.3339441739782876,
+    "speedup_ci": [
+      2.2989350113686133,
+      2.368953336587962
+    ],
+    "official_tests": 5,
+    "official_benchmarks": 6,
+    "official_profiles": 6,
+    "public_baseline": {
+      "job": "abe7651dbaa44458",
+      "score_us": 6069.607719056422,
+      "speedup": 2.2157
+    },
+    "lower_elapsed_percent": 5.065785775124465,
+    "target_us": 5559.8,
+    "target_met": false,
+    "loads": [
+      {
+        "tokens": 1,
+        "load": "decode 1",
+        "adjusted_us": 25.27501234943677,
+        "sglang_us": 76.76799735054374,
+        "speedup": 3.03730800559844
+      },
+      {
+        "tokens": 16,
+        "load": "decode 16",
+        "adjusted_us": 95.44292345630646,
+        "sglang_us": 188.33600170910358,
+        "speedup": 1.9732840831863596
+      },
+      {
+        "tokens": 32,
+        "load": "decode 32",
+        "adjusted_us": 127.40143002852871,
+        "sglang_us": 210.76800068840384,
+        "speedup": 1.6543613414795035
+      },
+      {
+        "tokens": 8,
+        "load": "verify 1",
+        "adjusted_us": 64.61904458730446,
+        "sglang_us": 142.76800164952874,
+        "speedup": 2.209379642817839
+      },
+      {
+        "tokens": 128,
+        "load": "verify 16",
+        "adjusted_us": 178.95124875777535,
+        "sglang_us": 460.9279935248196,
+        "speedup": 2.575718228983817
+      },
+      {
+        "tokens": 256,
+        "load": "verify 32",
+        "adjusted_us": 220.020294792071,
+        "sglang_us": 630.2719870582223,
+        "speedup": 2.86460841102798
+      }
+    ]
+  },
+  "public_board_row": {
+    "attempts": 26,
+    "job": "4aa033ef23a142cd",
+    "rank": 373,
+    "speedup": 2.3232,
+    "submitted_at": 1793684818.1926465,
+    "team": "yelgabo",
+    "value": 5788.7207203627
+  },
+  "stage_bytes": {
+    "old_codes": 32768,
+    "old_scales": 4096,
+    "new_codes": 32768,
+    "new_scales": 3072
+  },
+  "scope": "Source comparison and cross-job whole-call points; no internal phase cost or isolated speedup",
+  "public_completed_result": {
+    "job": "4aa033ef23a142cd",
+    "mode": "run",
+    "source_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+    "passed": true,
+    "counts": {
+      "test": 5,
+      "benchmark": 6,
+      "profile": 6
+    },
+    "score_us": 5788.7207203627,
+    "speedup": 2.32322487984139,
+    "speedup_ci": [
+      2.288376506643769,
+      2.3580732530390107
+    ],
+    "queue_s": 235.19719696044922,
+    "worker_s": 334.29547214508057,
+    "prepare_s": 184.048388058,
+    "remaining_us": 228.9207203627002,
+    "waiter": 10826,
+    "waiter_exit": 0,
+    "public_board_observed_job": "4aa033ef23a142cd",
+    "scope": "Scored result and matching own public board row independently verified. No isolated-mechanism attribution.",
+    "loads": [
+      {
+        "tokens": 1,
+        "us": 26.72799011159,
+        "baseline_us": 80.19200013950467
+      },
+      {
+        "tokens": 16,
+        "us": 93.95846278390749,
+        "baseline_us": 186.6400041617453
+      },
+      {
+        "tokens": 32,
+        "us": 127.56485713119083,
+        "baseline_us": 210.09600162506104
+      },
+      {
+        "tokens": 8,
+        "us": 67.2052271542108,
+        "baseline_us": 146.97600109502673
+      },
+      {
+        "tokens": 128,
+        "us": 180.87158456182152,
+        "baseline_us": 464.2560016363859
+      },
+      {
+        "tokens": 256,
+        "us": 217.34614978666218,
+        "baseline_us": 620.2240139245987
+      }
+    ],
+    "rank": 373,
+    "previous_public_score_us": 6069.607719056422,
+    "lower_elapsed_percent": 4.627761985537148
+  }
+}

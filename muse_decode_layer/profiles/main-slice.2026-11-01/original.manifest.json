@@ -1,0 +1,63 @@
+{
+  "source": ".build/today/owned-main-slice/original.cu",
+  "source_sha256": "1d8591ecd58f897bce6e521c95a68f7acbe6d4fcda3ce3c559be32b3ce5f4ec8",
+  "original_device_prefix_sha256": "1d8591ecd58f897bce6e521c95a68f7acbe6d4fcda3ce3c559be32b3ce5f4ec8",
+  "compiled_device_prefix_sha256": "fdcb8f7ca1de2b1090a8553cbcf2bf76bccc31b719dfdaf719b6c989b2d27c8f",
+  "host_boundary": "unreferenced host launch wrappers",
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\n#include <cuda/std/cstdint>\n"
+  },
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "declaration_adapter": {
+    "removed_host_functions": [
+      "1601bdc8c718facb0672f942b3f7e259ab90399fc85c9a797a4e503cfbcba97f",
+      "d61abf603215fb97dc570099eaee4a57261ac752211675cbc2fcdb8563da7fa3",
+      "d61abf603215fb97dc570099eaee4a57261ac752211675cbc2fcdb8563da7fa3",
+      "d61abf603215fb97dc570099eaee4a57261ac752211675cbc2fcdb8563da7fa3",
+      "d61abf603215fb97dc570099eaee4a57261ac752211675cbc2fcdb8563da7fa3",
+      "df08eef3f7c045d393e4b3b452dc9bdbeebda3f3f03568252a93730820279f79"
+    ]
+  },
+  "header_adapter": "Torch/ATen/algorithm/vector removed; cuda_runtime, CUDA cstdint, overflow float literal INFINITY (positive infinity); owned layer one plus anonymous namespaces closed after extract",
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_27beca8c_4224moe115moe_main_kernelILi51EEEvNS0_6ParamsE"
+  ],
+  "ptx_sha256": "71922e4de98c827cdce5184d6ffa36d3122c0e4e63bf9ccf75f202e9459a0ef7",
+  "cubin_sha256": "c11aa0efaabb780b2c98416b7940b092685e51769e161ed4d88eec317f7a7697",
+  "ptxas": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/root/.cache/okc-owned-main-original/device.ptx",
+    "-o",
+    "/root/.cache/okc-owned-main-original/device.cubin"
+  ],
+  "exitcode": 0,
+  "resources": {
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_27beca8c_4224moe115moe_main_kernelILi51EEEvNS0_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 96,
+      "barriers": 16
+    }
+  },
+  "ptx_launch_bounds": [
+    ".maxntid 576, 1, 1",
+    ".minnctapersm 1"
+  ],
+  "ptxas_wgmma_serialization_warnings": 0
+}

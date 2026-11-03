@@ -1,0 +1,210 @@
+{
+  "b4": {
+    "control": {
+      "entries": [
+        {
+          "entry": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "HGMMA": 512,
+          "wait0": 48,
+          "wait1": 256,
+          "arrive": 256,
+          "async_fence": 84,
+          "LDL": 8,
+          "STL": 1
+        },
+        {
+          "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "HGMMA": 512,
+          "wait0": 48,
+          "wait1": 256,
+          "arrive": 256,
+          "async_fence": 84,
+          "LDL": 8,
+          "STL": 1
+        }
+      ],
+      "resources": [
+        [
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "_ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "8",
+          "4",
+          "32"
+        ],
+        [
+          "_ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "sass_sha256": "41ef5ca15d46dde491a597489775528cd99816b87833f19eaf567792484ce3df"
+    },
+    "candidate": {
+      "entries": [
+        {
+          "entry": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "HGMMA": 512,
+          "wait0": 48,
+          "wait1": 192,
+          "arrive": 192,
+          "async_fence": 84,
+          "LDL": 0,
+          "STL": 0
+        },
+        {
+          "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "HGMMA": 512,
+          "wait0": 48,
+          "wait1": 192,
+          "arrive": 192,
+          "async_fence": 84,
+          "LDL": 0,
+          "STL": 0
+        }
+      ],
+      "resources": [
+        [
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "sass_sha256": "54598250fc7c61800f23f2ebac6943bb86767175a89155e99655584544ef37b9"
+    }
+  },
+  "main": {
+    "control": {
+      "entries": [
+        {
+          "entry": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "HGMMA": 512,
+          "wait0": 48,
+          "wait1": 256,
+          "arrive": 256,
+          "async_fence": 84,
+          "LDL": 0,
+          "STL": 0
+        },
+        {
+          "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "HGMMA": 512,
+          "wait0": 48,
+          "wait1": 256,
+          "arrive": 256,
+          "async_fence": 84,
+          "LDL": 0,
+          "STL": 0
+        }
+      ],
+      "resources": [
+        [
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "sass_sha256": "e676bac4b52ca177328eb46490a5d7bb5317d948091de5e77ea6152851314a29"
+    },
+    "candidate": {
+      "entries": [
+        {
+          "entry": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "HGMMA": 512,
+          "wait0": 48,
+          "wait1": 192,
+          "arrive": 192,
+          "async_fence": 84,
+          "LDL": 0,
+          "STL": 0
+        },
+        {
+          "entry": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "HGMMA": 512,
+          "wait0": 48,
+          "wait1": 192,
+          "arrive": 192,
+          "async_fence": 84,
+          "LDL": 0,
+          "STL": 0
+        }
+      ],
+      "resources": [
+        [
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "_ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "sass_sha256": "bea6365a26e38159d1d0d099805020fc96064b7e67cc577bfe1cd61938807006"
+    }
+  }
+}

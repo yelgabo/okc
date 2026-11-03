@@ -1,0 +1,5 @@
+kernel                                                           GPU time  share  calls
+okc_t1::gate_up(okc_t1::Params)                                   21.4 µs  47.2%      1
+okc_t1::down(okc_t1::Params)                                      12.5 µs  27.5%      1
+okc_t1::norm_combine(okc_t1::Params)                              11.5 µs  25.3%      1
+total                                                             45.3 µs

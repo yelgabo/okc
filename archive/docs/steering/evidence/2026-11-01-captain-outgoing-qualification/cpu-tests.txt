@@ -1,0 +1,29 @@
+python.exe : test_actual_unpool_factory_flags_including_nonzero_delay 
+(test_g_short_outgoing_seam.OutgoingSeam.test_actual_unpool_factory_flags_including_nonzero_delay) ... ok
+At line:2 char:350
++ ... testOutput=(& python -m unittest discover -s tools -p test_g_short_ou ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (test_actual_unp...o_delay) ... ok:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+test_bad_shape_route_selection_and_missing_state_fail_closed 
+(test_g_short_outgoing_seam.OutgoingSeam.test_bad_shape_route_selection_and_missing_state_fail_closed) ... ok
+test_interleaved_controls_have_no_setter_or_policy_leak 
+(test_g_short_outgoing_seam.OutgoingSeam.test_interleaved_controls_have_no_setter_or_policy_leak) ... ok
+test_native_device_prefix_exact_and_scoped_host_argument 
+(test_g_short_outgoing_seam.OutgoingSeam.test_native_device_prefix_exact_and_scoped_host_argument) ... ok
+test_only_role_un_and_tokens_one_eight 
+(test_g_short_outgoing_seam.OutgoingSeam.test_only_role_un_and_tokens_one_eight) ... ok
+test_real_dense_dispatch_both_arms_tokens_and_private_states 
+(test_g_short_outgoing_seam.OutgoingSeam.test_real_dense_dispatch_both_arms_tokens_and_private_states) ... ok
+test_reverse_pins_and_exact_single_policy_delta 
+(test_g_short_outgoing_seam.OutgoingSeam.test_reverse_pins_and_exact_single_policy_delta) ... ok
+test_selected_cl_one_x_data_is_after_wait_proxy 
+(test_g_short_outgoing_seam.OutgoingSeam.test_selected_cl_one_x_data_is_after_wait_proxy) ... ok
+test_shared_extension_and_later_python_flag_changes_cannot_leak 
+(test_g_short_outgoing_seam.OutgoingSeam.test_shared_extension_and_later_python_flag_changes_cannot_leak) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 9.902s
+
+OK

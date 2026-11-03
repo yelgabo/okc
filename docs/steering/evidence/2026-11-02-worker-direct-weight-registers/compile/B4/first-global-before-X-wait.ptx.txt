@@ -1,0 +1,69 @@
+	and.b32  	%r19955, %r19954, 16383;
+	cvt.u64.u32 	%rd4175, %r19955;
+	or.b64  	%rd4176, %rd4175, 1099512152064;
+	add.s64 	%rd4160, %rd451, %rd4176;
+	.loc	1 2094 5, function_name $L__info_string17, inlined_at 1 2168 3
+	shl.b32 	%r1094, %r19942, 4;
+	add.s32 	%r19956, %r1094, %r19939;
+	cvt.u64.u32 	%rd4177, %r19956;
+	add.s64 	%rd4178, %rd450, %rd4177;
+	add.s64 	%rd4179, %rd74, %rd4178;
+	ld.global.v4.u32 	{%r19957, %r19958, %r19959, %r19960}, [%rd4179];
+	.loc	1 2103 7, function_name $L__info_string17, inlined_at 1 2168 3
+	cvt.u64.u32 	%rd4180, %r19946;
+	cvt.u64.u32 	%rd452, %r19945;
+	add.s64 	%rd4181, %rd4180, %rd450;
+	add.s64 	%rd4182, %rd74, %rd4181;
+	.loc	1 2104 7, function_name $L__info_string17, inlined_at 1 2168 3
+	cvt.u64.u32 	%rd4183, %r19944;
+	cvt.u64.u32 	%rd453, %r19943;
+	add.s64 	%rd4184, %rd4183, %rd450;
+	add.s64 	%rd4185, %rd74, %rd4184;
+	ld.global.u16 	%r19961, [%rd4185+8704];
+	.loc	1 2103 7, function_name $L__info_string17, inlined_at 1 2168 3
+	ld.global.u32 	%r19962, [%rd4182+8192];
+	.loc	1 2105 7, function_name $L__info_string17, inlined_at 1 2168 3
+	and.b32  	%r19963, %r19962, -50529028;
+	and.b32  	%r19964, %r19961, 64764;
+	.loc	1 2106 7, function_name $L__info_string17, inlined_at 1 2168 3
+	and.b32  	%r19965, %r19962, 197379;
+	mul.lo.s32 	%r19966, %r19965, 68173824;
+	.loc	1 2107 7, function_name $L__info_string17, inlined_at 1 2168 3
+	and.b32  	%r19967, %r19961, 771;
+	and.b32  	%r19968, %r19962, 50331648;
+	or.b32  	%r19969, %r19967, %r19968;
+	mul.lo.s32 	%r19970, %r19969, 272629764;
+	.loc	1 2108 7, function_name $L__info_string17, inlined_at 1 2168 3
+	mov.u32 	%r19971, 16704;
+	prmt.b32 	%r19972, %r19963, %r19934, %r19971;
+	mad.lo.s32 	%r1095, %r19972, %r398, 1610637312;
+	.loc	1 2109 7, function_name $L__info_string17, inlined_at 1 2168 3
+	mov.u32 	%r19973, 17218;
+	prmt.b32 	%r19974, %r19963, %r19934, %r19973;
+	mad.lo.s32 	%r1096, %r19974, %r398, 1610637312;
+	.loc	1 2110 7, function_name $L__info_string17, inlined_at 1 2168 3
+	prmt.b32 	%r19975, %r19964, %r19934, %r19971;
+	mad.lo.s32 	%r1097, %r19975, %r398, 1610637312;
+	.loc	1 2111 7, function_name $L__info_string17, inlined_at 1 2168 3
+	mov.u32 	%r19976, 1795;
+	prmt.b32 	%r19977, %r19966, %r19970, %r19976;
+	mad.lo.s32 	%r1098, %r19977, %r398, 1610637312;
+	.loc	1 2116 5, function_name $L__info_string17, inlined_at 1 2168 3
+	and.b32  	%r19532, %r19949, 1;
+	.loc	1 2116 5, function_name $L__info_string17, inlined_at 1 2168 3
+	.loc	1 1734 3, function_name $L__info_string5, inlined_at 1 2116 5
+	.loc	1 542 13, function_name $L__info_string6, inlined_at 1 1734 3
+	.loc	1 503 37, function_name $L__info_string7, inlined_at 1 542 13
+	mul.wide.s32 	%rd4186, %r19951, 8;
+	add.s64 	%rd4187, %rd640, %rd4186;
+	add.s64 	%rd454, %rd4187, 1040;
+	cvt.u32.u64 	%r19531, %rd454;
+	.loc	1 542 13, function_name $L__info_string6, inlined_at 1 1734 3
+	// begin inline asm
+	{
+ .reg .pred p;
+ WAIT_1:
+ mbarrier.try_wait.parity.shared::cta.b64 p, [%r19531], %r19532;
+ @!p bra WAIT_1;
+}
+

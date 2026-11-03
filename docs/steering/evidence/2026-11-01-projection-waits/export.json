@@ -1,0 +1,64 @@
+{
+  "source_sha256": "5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4",
+  "cuda_sha256": "f86b8064b33c1f516144392e4633bf54a2bdffc6985662f022cf86cd23292b66",
+  "sk_configs": {
+    "qkv8F": "1, 8, 3, 1, 4, 4, 4, true, false, 1057, 1, __nv_bfloat16, false",
+    "qkv16F": "1, 16, 3, 1, 4, 2, 5, true, false, 1057, 1, __nv_bfloat16, false",
+    "qkv32": "2, 32, 3, 1, 4, 2, 4, true, false, 1025, 1, __nv_bfloat16, false",
+    "o16F": "1, 16, 2, 2, 2, 2, 3, true, false, 1057, 1, __nv_bfloat16, false",
+    "o32F": "2, 32, 2, 2, 2, 2, 3, true, false, 1057, 1, __nv_bfloat16, false",
+    "pool16F": "1, 16, 2, 2, 2, 4, 4, true, false, 1057, 1, __nv_bfloat16, false",
+    "pool32F": "2, 32, 2, 2, 2, 4, 3, true, false, 1057, 1, __nv_bfloat16, false",
+    "slice8F": "1, 8, 1, 1, 8, 2, 4, true, false, 1057, 1, __nv_bfloat16, false",
+    "unp16F": "1, 16, 2, 2, 2, 2, 3, true, false, 1057, 1, __nv_bfloat16, false",
+    "unp32F": "2, 32, 2, 2, 2, 2, 3, true, false, 1057, 1, __nv_bfloat16, false"
+  },
+  "wd_configs": {
+    "b1n128c3s8h": "1, 128, 3, 1, false, 8, __nv_bfloat16, 0, true, 0",
+    "r64c8s8k": "1, 64, 8, 1, true, 8, float, 0, false, 6190",
+    "r128c8s6k": "1, 128, 8, 1, true, 6, float, 0, false, 6190"
+  },
+  "rt_configs": {
+    "rt8w8": [
+      8,
+      8,
+      4,
+      3
+    ],
+    "rt16w8": [
+      16,
+      8,
+      4,
+      3
+    ],
+    "rt16w8p8": [
+      16,
+      8,
+      8,
+      3
+    ]
+  },
+  "rt_mt": [
+    1,
+    2,
+    4
+  ],
+  "rd_configs": {
+    "rdp8": [
+      1,
+      2,
+      16,
+      8,
+      1
+    ],
+    "rdo8": [
+      1,
+      1,
+      8,
+      2,
+      1
+    ]
+  },
+  "limitations": "No kernel-body changes. SK_DEVICE_ONLY excludes host wrappers. RT emits9 existing MT/config combinations; only3 are active. No GEMV/Lt/CUTLASS device instantiation.",
+  "gpu_execution": false
+}

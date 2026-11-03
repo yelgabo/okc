@@ -34,6 +34,15 @@ route = prelude + route + "void compile_check_uses() {\n" + "\n".join(uses) + "\
 open(f"{sys.argv[2]}/route.cu", "w").write(route)
 PY
 
+keep=${KEEP:-.build/moe_compile_legacy.log}
+mkdir -p "$(dirname "$keep")"
+status=0
 docker run --rm --platform linux/arm64 -v "$work:/w" nvidia/cuda:12.8.1-devel-ubuntu24.04 \
-    sh -c 'cd /w && for f in w4 route; do nvcc -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v -c $f.cu -o $f.o 2>&1; done' \
-    | grep -E 'error|warning|Compiling entry|registers|spill' | sed -E 's/ptxas info *: //'
+    sh -ec 'cd /w && for f in w4 route; do nvcc -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v -c "$f.cu" -o "$f.o"; done' > "$keep" 2>&1 || status=$?
+if [ "$status" -ne 0 ]; then
+    cat "$keep"
+    exit "$status"
+fi
+grep -E 'error|warning|Compiling entry|registers|spill|C75' "$keep" \
+    | sed -E 's/ptxas info *: //' || true
+printf 'Full compiler log: %s\n' "$keep"

@@ -1,0 +1,239 @@
+{
+  "overall": {
+    "you": {
+      "rank": 305,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 304
+    },
+    "ranked": 1814,
+    "thresholds": [
+      {
+        "rank": 10,
+        "solved": 2,
+        "team": "DanielDubinsky"
+      },
+      {
+        "rank": 50,
+        "solved": 4,
+        "team": "pepinu"
+      }
+    ],
+    "entry": {
+      "rank": 305,
+      "solved": 4,
+      "team": "yelgabo"
+    }
+  },
+  "muse_decode_layer": {
+    "you": {
+      "rank": 305,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 304,
+      "to_first": 1.1685
+    },
+    "ranked": 1159,
+    "thresholds": [
+      {
+        "attempts": 41,
+        "job": "44ca417e0b4347e2",
+        "rank": 10,
+        "speedup": 2.394,
+        "submitted_at": 1793492368.2194428,
+        "team": "DanielDubinsky",
+        "value": 9448.823083688076
+      },
+      {
+        "attempts": 26,
+        "job": "6931364ea8464cf7",
+        "rank": 50,
+        "speedup": 2.2894,
+        "submitted_at": 1793516673.2765467,
+        "team": "pepinu",
+        "value": 9880.414613097584
+      }
+    ],
+    "entry": {
+      "attempts": 41,
+      "job": "607eb52bdaf24160",
+      "rank": 305,
+      "speedup": 2.1261,
+      "submitted_at": 1793534312.3883686,
+      "team": "yelgabo",
+      "value": 10639.426326569794
+    },
+    "quota_at_0453_pst": {
+      "scored": {
+        "per_day": 10,
+        "used": 8,
+        "left": 2
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 20,
+        "left": 0
+      }
+    }
+  },
+  "muse_attention_decode": {
+    "you": {
+      "rank": 219,
+      "team": "yelgabo",
+      "speedup": 2.6043,
+      "first": false,
+      "ahead": 218,
+      "to_first": 1.2821
+    },
+    "ranked": 1233,
+    "thresholds": [
+      {
+        "attempts": 39,
+        "job": "ae320e4fb37d421f",
+        "rank": 10,
+        "speedup": 2.9331,
+        "submitted_at": 1793531690.8537703,
+        "team": "miketung",
+        "value": 1284.0704465741649
+      },
+      {
+        "attempts": 41,
+        "job": "bd59d00e5c534f60",
+        "rank": 50,
+        "speedup": 2.7093,
+        "submitted_at": 1793425908.4728465,
+        "team": "concept-guest",
+        "value": 1390.118870955221
+      }
+    ],
+    "entry": {
+      "attempts": 25,
+      "job": "8914751e3b9f468b",
+      "rank": 219,
+      "speedup": 2.6043,
+      "submitted_at": 1793510570.8706555,
+      "team": "yelgabo",
+      "value": 1446.1905945986007
+    },
+    "quota_at_0453_pst": {
+      "scored": {
+        "per_day": 10,
+        "used": 3,
+        "left": 7
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 15,
+        "left": 5
+      }
+    }
+  },
+  "muse_bf16_proj": {
+    "you": {
+      "rank": 309,
+      "team": "yelgabo",
+      "speedup": 1.5278,
+      "first": false,
+      "ahead": 308,
+      "to_first": 1.0815
+    },
+    "ranked": 1598,
+    "thresholds": [
+      {
+        "attempts": 25,
+        "job": "2ffb86ba8e1c4e39",
+        "rank": 10,
+        "screening": "screened",
+        "speedup": 1.6083,
+        "submitted_at": 1793473956.7491114,
+        "team": "pjmullin3",
+        "value": 3003.733984172228
+      },
+      {
+        "attempts": 20,
+        "job": "b51d575ff0024790",
+        "rank": 50,
+        "screened_speedup": 1.571185699336654,
+        "speedup": 1.5848,
+        "submitted_at": 1793378901.9270737,
+        "team": "miketung",
+        "value": 3048.116772932689
+      }
+    ],
+    "entry": {
+      "attempts": 31,
+      "job": "9eba96894ee1402e",
+      "rank": 309,
+      "speedup": 1.5278,
+      "submitted_at": 1793509752.4725015,
+      "team": "yelgabo",
+      "value": 3161.918773020326
+    },
+    "quota_at_0453_pst": {
+      "scored": {
+        "per_day": 10,
+        "used": 4,
+        "left": 6
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 20,
+        "left": 0
+      }
+    }
+  },
+  "muse_moe_w4a16": {
+    "you": {
+      "rank": 385,
+      "team": "yelgabo",
+      "speedup": 2.2157,
+      "first": false,
+      "ahead": 384,
+      "to_first": 1.2476
+    },
+    "ranked": 1287,
+    "thresholds": [
+      {
+        "attempts": 27,
+        "job": "1084b630433041f9",
+        "rank": 10,
+        "screened_speedup": 2.55513797546463,
+        "speedup": 2.6077,
+        "submitted_at": 1793521489.0131469,
+        "team": "gauravjain14",
+        "value": 5157.219766158455
+      },
+      {
+        "attempts": 33,
+        "job": "f4db1d1c9b5048f9",
+        "rank": 50,
+        "speedup": 2.4547,
+        "submitted_at": 1793466477.9629803,
+        "team": "kimseunghyun-kr",
+        "value": 5478.660094200526
+      }
+    ],
+    "entry": {
+      "attempts": 25,
+      "job": "abe7651dbaa44458",
+      "rank": 385,
+      "speedup": 2.2157,
+      "submitted_at": 1793321438.0973241,
+      "team": "yelgabo",
+      "value": 6069.607719056422
+    },
+    "quota_at_0453_pst": {
+      "scored": {
+        "per_day": 10,
+        "used": 2,
+        "left": 8
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 17,
+        "left": 3
+      }
+    }
+  }
+}

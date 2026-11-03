@@ -1,0 +1,11 @@
+test_existing_edge_gates_not_weakened (test_g_outgoing_driver_query.DriverBridgeTests.test_existing_edge_gates_not_weakened) ... ok
+test_identity_namespace_and_old_stub_negatives (test_g_outgoing_driver_query.DriverBridgeTests.test_identity_namespace_and_old_stub_negatives) ... ok
+test_mixed_foreign_nodes_and_both_modes (test_g_outgoing_driver_query.DriverBridgeTests.test_mixed_foreign_nodes_and_both_modes) ... ok
+test_prefix_survives_foreign_node_failure (test_g_outgoing_driver_query.DriverBridgeTests.test_prefix_survives_foreign_node_failure) ... ok
+test_real_scratch_entry_calls_only_canonical_exports (test_g_outgoing_driver_query.DriverBridgeTests.test_real_scratch_entry_calls_only_canonical_exports) ... ok
+test_source_negatives_and_failed_pins (test_g_outgoing_driver_query.DriverBridgeTests.test_source_negatives_and_failed_pins) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.011s
+
+OK

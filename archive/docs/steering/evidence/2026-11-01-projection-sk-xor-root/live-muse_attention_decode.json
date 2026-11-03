@@ -1,0 +1,50 @@
+{
+  "utc": "2026-11-01T17:27:24.851611+00:00",
+  "board": "muse_attention_decode",
+  "you": {
+    "rank": 226,
+    "team": "yelgabo",
+    "speedup": 2.6043,
+    "first": false,
+    "ahead": 225,
+    "to_first": 1.2821
+  },
+  "rows": [
+    {
+      "attempts": 39,
+      "job": "ae320e4fb37d421f",
+      "rank": 10,
+      "speedup": 2.9331,
+      "submitted_at": 1793531690.8537703,
+      "team": "miketung",
+      "value": 1284.0704465741649
+    },
+    {
+      "attempts": 23,
+      "job": "7ca2993992984ed6",
+      "rank": 50,
+      "speedup": 2.7208,
+      "submitted_at": 1793456750.2458766,
+      "team": "adityakm24",
+      "value": 1384.2677466949674
+    },
+    {
+      "attempts": 1,
+      "job": "be6dcfb2fe014cf2",
+      "rank": 100,
+      "speedup": 2.6633,
+      "submitted_at": 1793507977.8634322,
+      "team": "msuiche",
+      "value": 1414.123448489679
+    },
+    {
+      "attempts": 25,
+      "job": "8914751e3b9f468b",
+      "rank": 226,
+      "speedup": 2.6043,
+      "submitted_at": 1793510570.8706555,
+      "team": "yelgabo",
+      "value": 1446.1905945986007
+    }
+  ]
+}

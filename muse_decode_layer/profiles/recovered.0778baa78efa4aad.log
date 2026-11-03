@@ -1,0 +1,134 @@
+2e+11,2e+11)
+ABCAND gate_negctl route skf-r@8 none:pass(4e-07,9e-06) tile:R(2e-01,4e+11) 1%:R(1e-01,4e+11) 0.1%:R(3e-02,2e+11) row:R(5e-01,5e+11) elem:R(1e-02,3e-01)
+ABCAND gate_negctl route concat-r@16 none:pass(1e-08,7e-07) tile:R(2e-01,3e+11) 1%:R(1e-01,4e+11) 0.1%:R(4e-02,1e+11) row:R(4e-01,1e+00) elem:R(7e-03,5e-01)
+ABCAND gate_negctl route skf-r@16 none:pass(4e-06,1e-04) tile:R(2e-01,3e+11) 1%:R(1e-01,4e+11) 0.1%:R(4e-02,1e+11) row:R(4e-01,1e+00) elem:R(7e-03,3e-01)
+ABCAND gate_negctl route concat-r@32 none:pass(1e-05,7e-04) tile:R(2e-01,5e+11) 1%:R(1e-01,5e+11) 0.1%:R(4e-02,5e+11) row:R(4e-01,2e+00) elem:R(7e-03,6e-01)
+ABCAND gate_negctl route skf-r@32 none:pass(5e-06,2e-04) tile:R(2e-01,5e+11) 1%:R(1e-01,5e+11) 0.1%:R(4e-02,5e+11) row:R(4e-01,2e+00) elem:R(3e-03,3e-01)
+ABCAND gate_negctl route concat-r@128 none:pass(0e+00,0e+00) tile:R(2e-01,7e+11) 1%:R(1e-01,6e+11) 0.1%:R(4e-02,4e+11) row:R(1e-01,6e+11) elem:R(2e-03,3e-01)
+ABCAND gate_negctl route concat-r@256 none:pass(0e+00,0e+00) tile:R(1e-01,7e+11) 1%:R(1e-01,7e+11) 0.1%:R(4e-02,4e+11) row:R(1e-01,2e+00) elem:R(1e-04,3e-02)
+ABCAND gate_negctl m1 1x8s hidden none:pass(0e+00,0e+00) tile:R(1e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(3e-02,7e-01) row:R(5e-01,1e+00) elem:R(5e-03,3e-01); stream none:pass(0e+00,0e+00) tile:R(1e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,7e-01) row:R(5e-01,1e+00) elem:R(8e-03,3e-01)
+ABCAND gate_negctl m1 1x8f hidden none:pass(0e+00,0e+00) tile:R(1e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(3e-02,7e-01) row:R(5e-01,1e+00) elem:R(3e-03,1e-01); stream none:pass(0e+00,0e+00) tile:R(1e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,7e-01) row:R(5e-01,1e+00) elem:R(5e-03,4e-01)
+ABCAND gate_negctl m1 16x1s hidden none:pass(4e-05,2e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(5e-02,1e+00) row:R(3e-01,1e+00) elem:R(1e-02,1e+00); stream none:pass(3e-05,1e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(3e-02,8e-01) row:R(3e-01,1e+00) elem:R(4e-03,3e-01)
+ABCAND gate_negctl m1 16x1f hidden none:pass(0e+00,0e+00) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(3e-01,1e+00) elem:R(2e-03,2e-01); stream none:pass(0e+00,0e+00) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(3e-02,7e-01) row:R(3e-01,1e+00) elem:R(4e-03,4e-01)
+ABCAND gate_negctl m1 32x1s hidden none:pass(2e-04,4e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(2e-03,2e-01); stream none:pass(1e-04,4e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(5e-03,7e-01)
+ABCAND gate_negctl m1 32x1f hidden none:pass(1e-04,4e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,9e-01) row:R(2e-01,1e+00) elem:R(2e-03,2e-01); stream none:pass(1e-04,3e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(3e-03,3e-01)
+ABCAND manifest moe checked 11 rejected ['main-m2-ar2-ub']; route gates ok 14/14; failures reference 0 replay 2 nonfinite 0 workspace 0 sensitivity 0 other 0
+ABCAND failed moe1 stress main-m2-ar2-ub: [replay] moe fused stress: T=32+128+17+256 main-m2-ar2-ub fresh-input gate: 2000 replays (one host sync after them) against as many eager calls, 4 input sets pe
+ABCAND failed M1 sk pdl tuner: fallback (RuntimeError: [replay] M1 fresh-input gate: 1x8s FAIL cand rel 1.4e-03/1.4e-03 el 9.3e-03/7.1e-03 >1e-4 191/2000 o1 0 | ctrl rel 1.4e-)
+ABKN K0 cgemv40_kernel<256,2>
+ABKN K1 one::attn_one_kernel<1,13>
+ABKN K2 cgemv_kernel<64,1>
+ABKN K3 bnd::attn_boundary_kernel
+ABKN K4 router_kernel<1>
+ABKN K5 muse_spark::routing_kernel<muse_spark::R
+ABKN K6 cgemv_kernel<512,1>
+ABKN K7 pre_norm_kernel<__nv_bfloat16>
+ABKN K8 moe1::sk_8_3_0::moe_fused_kernel<1>
+ABKN K9 cgemv40_kernel<128,2>
+ABKN K10 bnd::boundary_kernel
+ABKN K11 sk2_kernel<1,8,3,1,4,2,6,true,false,1,1,
+ABKN K12 attn_kernel<1,false,13>
+ABKN K13 sk2_kernel_gle35a06ad35022<1,8,4,1,4,1,4
+ABKN K14 sk2_kernel_gle35a06ad35022<1,8,4,1,8,1,6
+ABKN K15 _gle_route
+ABKN K16 okc::moe_fused<false>
+ABKN K17 sk2_kernel<1,8,1,1,8,2,4,true,false,2,1,
+ABKN K18 _sl_cluster_finish
+ABKN K19 one::attn_one_kernel<1,11>
+ABKN K20 attn_kernel<1,false,11>
+ABKN K21 sk_kernel<1,8,3,1,4,4,4,true,false,1057,
+ABKN K22 one::attn_one_kernel<8,15>
+ABKN K23 sk_kernel<1,8,4,1,4,1,4,true,false,1057,
+ABKN K24 bnd::attn_boundary_geo_kernel<1,1024>
+ABKN K25 sk_kernel<1,8,1,2,2,4,3,true,false,1,1,_
+ABKN K26 route_kernel<__nv_bfloat16,false>
+ABKN K27 sk_kernel<1,8,1,1,8,2,4,true,false,1057,
+ABKN K28 sk2_kernel_narrow_12cf58219a16<1,8,3,1,4
+ABKN K29 attn_kernel<8,false,15>
+ABKN K30 sk2_kernel<1,8,4,1,4,1,4,true,false,2,1,
+ABKN K31 glue_cluster_boundary<4,32,false,false,t
+ABKN K32 _sl_tile_route
+ABKN K33 one::attn_one_kernel<8,11>
+ABKN K34 attn_kernel<8,false,11>
+ABK d1s cand span 80.4 sum 96.5: K0 10.5 K1 5.3 K2 5.5 K3 5.9 K4 8.7 K5 10.0 K6 16.4 K7 1.6 K8 25.3 K9 3.6 K10 3.7
+ABK d1s donor span 74.3 sum 79.5: K11 11.0 K12 5.9 K13 6.8 K14 20.0 K15 2.7 K16 25.7 K17 4.9 K18 2.3
+ABK d1f cand span 87.8 sum 104.4: K0 10.4 K19 13.0 K2 6.0 K3 5.8 K4 8.4 K5 10.4 K6 16.3 K7 1.6 K8 25.4 K9 3.4 K10 3.8
+ABK d1f donor span 80.2 sum 87.3: K11 11.0 K20 12.4 K13 7.5 K14 20.2 K15 3.1 K16 26.2 K17 4.6 K18 2.4
+ABK v1s cand span 125.0 sum 137.4: K21 13.2 K22 8.8 K23 11.6 K24 6.1 K25 23.3 K26 4.6 K8 61.2 K27 4.6 K10 3.9
+ABK v1s donor span 120.4 sum 130.8: K28 10.9 K29 8.4 K30 7.6 K31 4.1 K14 20.8 K32 3.1 K16 68.7 K17 4.7 K18 2.4
+ABK v1f cand span 138.4 sum 145.0: K21 13.1 K33 15.3 K23 8.9 K24 5.3 K25 22.0 K26 4.6 K8 67.4 K27 4.5 K10 3.8
+ABK v1f donor span 125.4 sum 134.8: K28 11.1 K34 15.0 K30 7.4 K31 4.2 K14 21.1 K32 3.4 K16 65.7 K17 4.5 K18 2.3
+ABPIN donor sha256 8f17613bafb2369152f2739638bf8f6dfb193f6a79dbad3e6d25795cf1ebaf4a git-blob 02389585ece4c36bf983e2cd616a50c0f3a9364f as read (muse_decode_layer.py); comment-stripped and patched as sent: sha256 8f17613bafb2369152f2739638bf8f6dfb193f6a79dbad3e6d25795cf1ebaf4a git-blob 02389585ece4c36bf983e2cd616a50c0f3a9364f
+ABPIN cand sha256 a00a0efa0a761d990d7298a64340751e6a3979369aa8247a1f3d958f975c7480 git-blob e6c151d5e58acaa18f1e9bb4806cce08126dab5f (layer_m1rt51sc1g.py); comment-stripped as sent: sha256 b7dd9976496047999a025193f46ddae7db56e00669423c8ca99dbe563e08dc15 git-blob f02e3f25c573602abaad82cba512a5284957b1d5
+ABDIAG cand attention fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02; attn_one_ours=1
+ABPAD donor2 9243136 bytes
+ABPAD donor 12227072 bytes
+ABPAD cand 636928 bytes
+ABPAD cand2 3348480 bytes
+ABPREP order donor2 donor cand cand2 (dup own, seed 82)
+ABPREP donor2 17 s
+ABPREP donor 1 s
+ABPREP cand 70 s
+ABPREP cand2 61 s
+ABPREP all at 149 s
+ABEND prepare at 150 s
+ABCHK cand 8 of 8 PASS; shapes with a FAIL 0
+ABCHK cand2 8 of 8 PASS; shapes with a FAIL 0
+ABCHK donor 8 of 8 PASS; shapes with a FAIL 0
+ABCHK donor2 8 of 8 PASS; shapes with a FAIL 0
+ABPOS dev by position in the round: cand: p0 -0.03% (24) p1 -0.04% (29) p2 +0.06% (20) p3 +0.05% (23) | cand2: p0 -0.01% (34) p1 -0.10% (21) p2 +0.05% (20) p3 +0.02% (21) | donor: p0 -0.13% (16) p1 +0.04% (23) p2 +0.08% (28) p3 -0.08% (29) | donor2: p0 +0.41% (22) p1 +0.10% (23) p2 -0.27% (28) p3 -0.02% (23)
+ABPRED dev from the arm's per-input median by the arm replayed before it: cand: cand +0.30% (6) cand2 -0.04% (31) donor +0.08% (31) donor2 -0.06% (26) first +0.33% (2) | cand2: cand -0.20% (19) cand2 -0.11% (8) donor -0.01% (32) donor2 +0.26% (35) first +1.79% (2) | donor: cand -0.00% (26) cand2 -0.14% (30) donor -0.12% (8) donor2 +0.17% (31) first +1.13% (1) | donor2: cand +0.04% (42) cand2 +0.02% (27) donor -0.13% (23) donor2 +0.43% (1) first +2.78% (3)
+ABTWIN cand after cand2 minus after others -0.03%; cand2 after cand minus after others -0.22%; donor after donor2 minus after others +0.25%; donor2 after donor minus after others -0.19%
+ABPOL cand/cand2 moe same: 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:main-lean-grp-finss64 128:main-lean-grp-finss64 256:main-lean-grp-finss64
+ABPOL cand/cand2 w4 DIFF: cand 1:17/21 8:2/24 16:18/28 32:26/28 128:4/29 256:30/29 | cand2 1:27/21 8:27/24 16:18/28 32:26/28 128:4/29 256:30/29
+ABPOL cand/cand2 front same: 1:fp32 8:skf-r 16:skf-r 32:skf-r 128:concat-r 256:concat-r
+ABPOL cand/cand2 abnd same: 1:c8x256 8:c1x1024 16:sglang 32:sglang 128:sglang 256:c1x512
+ABPOL cand/cand2 skp same: o1:cgemv o2:o8 o3:o8 o4:o8 o5:o8 o6:o8 o7:o8 o8:o8 o9:o16 o10:o16 o11:o16 o12:o16 o13:o16 o14:o16 o15:o16 o16:o16 o17:o32 o18:o32 o19:o32 o20:o32 o21:o32 o22:o32 o23:o32 o24:o32 o25:o32 o26:o32 o27:o32 o28:o32 o29:o32 o30:o32 o31:o32 o32:o32 p1:cgemv p2:pool8 p3:pool8 p4:pool8 p5:pool8 p6:pool8 p7:pool8 p8:pool8 p9:pool16 p10:pool16 p11:pool16 p12:pool16 p13:pool16 p14:pool16 p15:pool16 p16:pool16 p17:pool32 p18:pool32 p19:pool32 p20:pool32 p21:pool32 p22:pool32 p23:pool32 p24:pool32 p25:pool32 p26:pool32 p27:pool32 p28:pool32 p29:pool32 p30:pool32 p31:pool32 p32:pool32 q1:cgemv q2:qkv8 q3:qkv8 q4:qkv8 q5:qkv8 q6:qkv8 q7:qkv8 q8:qkv8 q9:qkv16 q10:qkv16 q11:qkv16 q12:qkv16 q13:qkv16 q14:qkv16 q15:qkv16 q16:qkv16 q17:qkv32 q18:qkv32 q19:qkv32 q20:qkv32 q21:qkv32 q22:qkv32 q23:qkv32 q24:qkv32 q25:qkv32 q26:qkv32 q27:qkv32 q28:qkv32 q29:qkv32 q30:qkv32 q31:qkv32 q32:qkv32 u1:cgemv u2:slice8 u3:slice8 u4:slice8 u5:slice8 u6:slice8 u7:slice8 u8:slice8 u9:unp16 u10:unp16 u11:unp16 u12:unp16 u13:unp16 u14:unp16 u15:unp16 u16:unp16 u17:unp32 u18:unp32 u19:unp32 u20:unp32 u21:unp32 u22:unp32 u23:unp32 u24:unp32 u25:unp32 u26:unp32 u27:unp32 u28:unp32 u29:unp32 u30:unp32 u31:unp32 u32:unp32
+ABPOL cand/cand2 wide same: pooler:b1n128c2s8h qkv_gate:b1n128c3s8h
+ABPOL cand/cand2 m1 DIFF: cand {8: 'o+front', 16: 'o', 32: 'o+front'} | cand2 {}
+ABPOL cand/cand2 wspick same: -
+ABPOL cand/cand2 stages same: 11111111111111
+ABPOL donor/donor2 donor mm_pick DIFF: donor [((1, 'o'), 'bfp'), ((1, 'pr'), 'bfpf'), ((1, 'qkv'), 'bfp'), ((1, 'un'), 'bfp'), ((2, 'o'), 'bfp'), ((2, 'pr'), 'bfpf'), ((2, 'qkv'), 'bfp'), ((2, 'un'), False), ((4, 'o'), 'bfp'), ((4, 'pr'), 'bfpf'), ((4, 'qkv'), 'bfp'), ((4, 'un'), False), ((8, 'o'), 'bfp'), ((8, 'pr'), 'bfpf'), ((8, 'qkv'), 'bfp'), ((8, 'un'), 'bfp'), ((16, 'o'), 'bfp'), ((16, 'pr'), 'bfpf'), ((16, 'qkv'), 'bfp'), ((16, 'un'), 'bfp'), ((32, 'o'), 'bfp'), ((32, 'pr'), 'bfp'), ((32, 'qkv'), 'bfp'), ((32, 'un'), 'bfp'), ((64, 'o'), True), ((64, 'pr'), False), ((64, 'qkv'), False), ((64, 'un'), 'bfp'), ((128, 'o'), True), ((128, 'pr'), True), ((128, 'qkv'), True), ((128, 'un'), True), ((256, 'o'), True), ((256, 'pr'), True) | donor2 [((1, 'o'), 'bfp'), ((1, 'pr'), 'bfpf'), ((1, 'qkv'), 'bfp'), ((1, 'un'), 'bfp'), ((2, 'o'), 'bfp'), ((2, 'pr'), 'bfpf'), ((2, 'qkv'), 'bfp'), ((2, 'un'), False), ((4, 'o'), 'bfp'), ((4, 'pr'), 'bfpf'), ((4, 'qkv'), 'bfp'), ((4, 'un'), False), ((8, 'o'), 'bfp'), ((8, 'pr'), 'bfpf'), ((8, 'qkv'), 'bfp'), ((8, 'un'), 'bfp'), ((16, 'o'), 'bfp'), ((16, 'pr'), 'bfpf'), ((16, 'qkv'), 'bfp'), ((16, 'un'), 'bfp'), ((32, 'o'), 'bfp'), ((32, 'pr'), 'bfp'), ((32, 'qkv'), 'bfp'), ((32, 'un'), 'bfp'), ((64, 'o'), 'bfp'), ((64, 'pr'), True), ((64, 'qkv'), False), ((64, 'un'), False), ((128, 'o'), True), ((128, 'pr'), True), ((128, 'qkv'), True), ((128, 'un'), True), ((256, 'o'), True), ((256, 'pr'), True)
+ABPOL donor/donor2 donor moe_pick same: [(1, 'agent'), (2, 'agent'), (4, 'agent'), (8, 'agent'), (16, 'agent'), (32, 'agent'), (64, 'agent'), (128, 'agent'), (256, 'agent')]
+ABPOL donor/donor2 donor gluev2 same: [(1, False), (2, False), (4, False), (8, False), (16, False), (32, False), (64, False), (128, False), (256, False)]
+ABPOL donor/donor2 donor compose_graft_enabled same: [(1, True), (8, True), (16, True), (32, True), (128, True), (256, True)]
+ABPOL donor/donor2 donor compose_boundary_warps same: [(1, 16), (8, 16), (16, 16), (32, 16), (128, 16), (256, 16)]
+ABPOL donor/donor2 donor pbmax same: 0
+ABPOL donor/donor2 donor att_ok same: True
+ABPOL donor/donor2 donor ma_ok same: True
+ABPOL donor/donor2 donor ma_sfx same: ('-DOKC_PRMTSC=1',)
+ABPOL donor/donor2 donor marlin_cfg same: []
+ABPOL donor/donor2 donor graft_lt same: ["('o', 128)", "('o', 256)", "('pr', 128)", "('pr', 256)", "('qkv', 128)", "('qkv', 256)", "('un', 128)", "('un', 256)"]
+ABPOL donor/donor2 donor compose same: T1:(True, 16, ()) T8:(True, 16, ()) T16:(True, 16, ()) T32:(True, 16, ()) T128:(True, 16, ()) T256:(True, 16, ())
+ABTIME d1s cand 83.4 cand2 83.8 donor 77.6 donor2 77.6 | paired donor-cand -5.6 donor2-cand -5.9 donor-cand2 -6.1 donor2-cand2 -6.1 | null cand2-cand +0.5 donor2-donor -0.1 (n=24)
+ABTIME d1f cand 91.5 cand2 92.0 donor 83.1 donor2 83.6 | paired donor-cand -8.4 donor2-cand -8.0 donor-cand2 -8.9 donor2-cand2 -8.3 | null cand2-cand +0.5 donor2-donor +0.4 (n=24)
+ABTIME v1s cand 126.3 cand2 129.2 donor 120.4 donor2 120.5 | paired donor-cand -6.4 donor2-cand -6.0 donor-cand2 -9.0 donor2-cand2 -8.6 | null cand2-cand +2.9 donor2-donor +0.2 (n=24)
+ABTIME v1f cand 143.7 cand2 146.0 donor 132.4 donor2 132.3 | paired donor-cand -12.3 donor2-cand -11.7 donor-cand2 -14.2 donor2-cand2 -14.0 | null cand2-cand +1.9 donor2-donor -0.0 (n=24)
+ABLOAD d1 (46 sliding + 16 full) / 62: cand 85.5 cand2 85.9 donor 79.1 donor2 79.2 | cross cand/donor 1.0815 cand/donor2 1.0801 cand2/donor 1.0872 cand2/donor2 1.0858 pooled 1.0836 | null cand2/cand 1.0052 donor2/donor 1.0013
+ABLOAD v1 (46 sliding + 16 full) / 62: cand 130.8 cand2 133.6 donor 123.5 donor2 123.6 | cross cand/donor 1.0591 cand/donor2 1.0585 cand2/donor 1.0815 cand2/donor2 1.0809 pooled 1.0699 | null cand2/cand 1.0212 donor2/donor 1.0005
+ABSCORE geometric mean over 2 loads of load-time ratios (above 1: the right-hand arm faster): cand/donor 1.0702; cross cand/donor 1.0702 cand/donor2 1.0693 cand2/donor 1.0843 cand2/donor2 1.0834; pooled 1.0768; null cand2/cand 1.0132 donor2/donor 1.0009
+ABDECIDE donor faster: pooled cand/donor 1.0768 (log +0.0740), cross range 1.0693-1.0843, larger null |log| 0.0131; rule: all four cross ratios on one side of 1 and |log pooled| above twice the larger null
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 06:34:05 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop

@@ -1,0 +1,142 @@
+{
+  "analyzed_at_utc": "2026-11-02T12:17:20.473Z",
+  "base_commit": "10ad22f49d1b3c3c8c2b0c2897c56542a69e93e1",
+  "new_gpu_run": false,
+  "source": {
+    "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+    "bytes": 869076,
+    "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+  },
+  "pins": [
+    {
+      "path": "muse_decode_layer/profiles/scored.607eb52bdaf24160.json",
+      "bytes": 73701,
+      "sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029"
+    },
+    {
+      "path": "muse_decode_layer/profiles/muse_decode_layer.3a5f879df0d44825.json",
+      "bytes": 58394,
+      "sha256": "2307242ab66177b59f7cf5168098093415a1a01f8a5bac6835064bc514212408"
+    },
+    {
+      "path": "muse_decode_layer/baseline_profile/profiles/baseline.7d42771c3384449d.json",
+      "bytes": 64893,
+      "sha256": "dcc07bfc2b89652bf2cfd2e1919c49f6baaca7e7568603a0926e7abbd66aa93d"
+    }
+  ],
+  "comparisons": [
+    {
+      "path": "muse_decode_layer/profiles/scored.607eb52bdaf24160.json",
+      "job": "607eb52bdaf24160",
+      "judged": 2.1260826764231093,
+      "recomputed": 2.1260826764231093,
+      "loads": {
+        "d1": {
+          "ours": 78.54904481802232,
+          "sglang": 173.2898073631429,
+          "floor": 41.09763440860215
+        },
+        "d16": {
+          "ours": 158.24100957331896,
+          "sglang": 310.5388330746322,
+          "floor": 92.39515444301075
+        },
+        "d32": {
+          "ours": 191.73973579615887,
+          "sglang": 357.24438862093996,
+          "floor": 116.39986374193548
+        },
+        "v1": {
+          "ours": 115.99082289963329,
+          "sglang": 266.5878654637885,
+          "floor": 63.35939440860215
+        },
+        "v16": {
+          "ours": 269.3470291119481,
+          "sglang": 583.5463209528356,
+          "floor": 142.63018969462365
+        },
+        "v32": {
+          "ours": 359.2972160894351,
+          "sglang": 826.1760061366424,
+          "floor": 175.65122559999998
+        }
+      }
+    },
+    {
+      "path": "muse_decode_layer/profiles/muse_decode_layer.3a5f879df0d44825.json",
+      "job": "3a5f879df0d44825",
+      "judged": 2.2487905322335195,
+      "recomputed": 2.24879053223352,
+      "loads": {
+        "d1": {
+          "ours": 68.20387439088347,
+          "sglang": 174.45522626381248,
+          "floor": 41.09763440860215
+        },
+        "d16": {
+          "ours": 149.7007097249302,
+          "sglang": 312.0758657103344,
+          "floor": 92.39515444301075
+        },
+        "d32": {
+          "ours": 190.71903248703518,
+          "sglang": 365.74710588601806,
+          "floor": 116.39986374193548
+        },
+        "v1": {
+          "ours": 103.61862499583594,
+          "sglang": 262.2379428526807,
+          "floor": 63.35939440860215
+        },
+        "v16": {
+          "ours": 258.67070643168705,
+          "sglang": 571.2108385689075,
+          "floor": 142.63018969462365
+        },
+        "v32": {
+          "ours": 350.7969725295353,
+          "sglang": 793.8616825868526,
+          "floor": 175.65122559999998
+        }
+      }
+    }
+  ],
+  "prior_publication_verification": [
+    {
+      "commit": "10ad22f49d1b3c3c8c2b0c2897c56542a69e93e1",
+      "files": [
+        {
+          "path": "docs/steering/2026-11-02-worker-short-serial-stop.md",
+          "local": "15358c965acf58f9481a5777fc58f932f1469bc2",
+          "remote": "15358c965acf58f9481a5777fc58f932f1469bc2"
+        },
+        {
+          "path": "docs/steering/evidence/2026-11-02-worker-short-serial/stop-receipt.json",
+          "local": "440f5548c3bc9ecfd9b2216e9100cbb995815302",
+          "remote": "440f5548c3bc9ecfd9b2216e9100cbb995815302"
+        }
+      ]
+    },
+    {
+      "commit": "588d8d9df2d17b8801e77658caef6252079b27e5",
+      "files": [
+        {
+          "path": "docs/steering/2026-11-02-research-short-serial-contract.md",
+          "local": "a27dbab56c0c727400524dedf96d1798fa2b086c",
+          "remote": "a27dbab56c0c727400524dedf96d1798fa2b086c"
+        },
+        {
+          "path": "docs/steering/evidence/2026-11-02-research-short-serial-contract/scope.md",
+          "local": "31296633d90dd4b7e979f0595f5469c52b6a0546",
+          "remote": "31296633d90dd4b7e979f0595f5469c52b6a0546"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Historical unmatched reference; not causal",
+    "Activities are not exposed savings",
+    "Fresh rank/quota/live state not queried by captain"
+  ]
+}

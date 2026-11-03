@@ -1,0 +1,154 @@
+{
+  "at_utc": "2026-11-02T13:26:02.250493+00:00",
+  "evidence_commit": "72063f363bf8abdf9067acaac8b86c7ea52ff867",
+  "control": {
+    "job": "cc474883117947c0",
+    "source": "5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e",
+    "score": 2.109201357227871,
+    "ci": [
+      2.077563336869453,
+      2.1408393775862886
+    ],
+    "events": {
+      "setup": 1,
+      "test": 13,
+      "benchmark": 12,
+      "profile": 12
+    },
+    "prepare_s": 107.986480825,
+    "node": "n-434neka4hbrvz7ee7sd46ord7g",
+    "gpu": "H200"
+  },
+  "candidate": {
+    "job": "e4c8f00532b74d15",
+    "source": "85a3334badf1057846d7119fb4ab32d663b22461573fd0f90a3ec362884adaae",
+    "score": 2.0930728523387128,
+    "ci": [
+      2.061676759553632,
+      2.1244689451237933
+    ],
+    "events": {
+      "setup": 1,
+      "test": 13,
+      "benchmark": 12,
+      "profile": 12
+    },
+    "prepare_s": 117.972810421,
+    "node": "n-434neka4hbrvz7ee7sd46ord7g",
+    "gpu": "H200"
+  },
+  "layer_quota": {
+    "scored": {
+      "per_day": 5,
+      "used": 0,
+      "left": 5
+    },
+    "checks": {
+      "per_day": 10,
+      "used": 9,
+      "left": 1
+    }
+  },
+  "live_jobs": [],
+  "layer": {
+    "board": "muse_decode_layer",
+    "you": {
+      "rank": 351,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 350,
+      "to_first": 1.1685
+    },
+    "cutoffs": [
+      {
+        "attempts": 12,
+        "job": "2d70931165b44d27",
+        "rank": 50,
+        "speedup": 2.3097,
+        "submitted_at": 1793491329.9299495,
+        "team": "saarthak314",
+        "value": 9793.465695898662
+      },
+      {
+        "attempts": 44,
+        "job": "b1997d7350f34b62",
+        "rank": 100,
+        "speedup": 2.2646,
+        "submitted_at": 1793562407.3555424,
+        "team": "Danishlynx",
+        "value": 9988.840552535645
+      }
+    ]
+  },
+  "overall": {
+    "board": "overall",
+    "you": {
+      "rank": 351,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 350
+    },
+    "cutoffs": [
+      {
+        "rank": 50,
+        "solved": 4,
+        "team": "saarthak314"
+      },
+      {
+        "rank": 100,
+        "solved": 4,
+        "team": "Danishlynx"
+      }
+    ]
+  },
+  "weighted_loads": [
+    {
+      "load": "decode 1",
+      "control_us": 78.76453088391268,
+      "candidate_us": 81.74136826781658,
+      "descriptive_candidate_latency_change_pct": 3.779413589463654,
+      "different_seeds_both_contexts": true
+    },
+    {
+      "load": "decode 16",
+      "control_us": 152.01624972636304,
+      "candidate_us": 157.25644625372698,
+      "descriptive_candidate_latency_change_pct": 3.4471291962514305,
+      "different_seeds_both_contexts": true
+    },
+    {
+      "load": "decode 32",
+      "control_us": 191.8978122973195,
+      "candidate_us": 194.55923100421708,
+      "descriptive_candidate_latency_change_pct": 1.386893719650173,
+      "different_seeds_both_contexts": true
+    },
+    {
+      "load": "verify 1",
+      "control_us": 112.68166177082166,
+      "candidate_us": 117.19095892273202,
+      "descriptive_candidate_latency_change_pct": 4.001802139803035,
+      "different_seeds_both_contexts": true
+    },
+    {
+      "load": "verify 16",
+      "control_us": 261.71304474650816,
+      "candidate_us": 269.8307422520512,
+      "descriptive_candidate_latency_change_pct": 3.1017550208113365,
+      "different_seeds_both_contexts": true
+    },
+    {
+      "load": "verify 32",
+      "control_us": 351.0802216924128,
+      "candidate_us": 361.5110479291453,
+      "descriptive_candidate_latency_change_pct": 2.9710663239443713,
+      "different_seeds_both_contexts": true
+    }
+  ],
+  "descriptive_own_latency_factor": 0.9698272866341406,
+  "official_score_ratio": 0.992353264502752,
+  "same_reported_node": true,
+  "registered_triage_pass": false,
+  "causality_caveat": "Separate jobs and all12 different seeds/preparation/baselines. Same node does not create a matched causal comparison."
+}

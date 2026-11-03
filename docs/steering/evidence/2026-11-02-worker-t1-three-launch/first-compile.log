@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_t1_three_launch.py", line 191, in <module>
+    result = compile_fixed(args.out) if args.compile else generate(args.out/'generated')
+             ~~~~~~~~~~~~~^^^^^^^^^^
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_t1_three_launch.py", line 173, in compile_fixed
+    namespace['compile_source'](args)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/research-gamma13/artifacts/adapted-driver.py", line 84, in compile_source
+    check(status)
+    ~~~~~^^^^^^^^
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/research-gamma13/artifacts/adapted-driver.py", line 44, in check
+    if rc: raise RuntimeError('NVRTC status ' + str(rc))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: NVRTC status 7

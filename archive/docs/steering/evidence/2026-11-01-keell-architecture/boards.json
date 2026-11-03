@@ -1,0 +1,158 @@
+{
+  "captured": "2026-11-01T01:19:50.4215708-08:00",
+  "boards": [
+    {
+      "board": "muse_bf16_proj",
+      "ranked": 1588,
+      "ours": {
+        "rank": 298,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 297,
+        "to_first": 1.0815
+      },
+      "theirs": {
+        "attempts": 21,
+        "job": "2b4e6707f4194db6",
+        "rank": 31,
+        "speedup": 1.5876,
+        "submitted_at": 1793325983.3208544,
+        "team": "keell0renz",
+        "value": 3042.7755526076885
+      },
+      "top50": {
+        "attempts": 9,
+        "job": "55337ef4b4a046c1",
+        "rank": 50,
+        "speedup": 1.5793,
+        "submitted_at": 1793381748.0045712,
+        "team": "Pradipta-Sundar-Sahoo",
+        "value": 3058.82693837236
+      }
+    },
+    {
+      "board": "muse_attention_decode",
+      "ranked": 1227,
+      "ours": {
+        "rank": 210,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 209,
+        "to_first": 1.2821
+      },
+      "theirs": {
+        "attempts": 20,
+        "job": "4f8621d7ad67453e",
+        "rank": 48,
+        "speedup": 2.7168,
+        "submitted_at": 1793316843.6213655,
+        "team": "keell0renz",
+        "value": 1386.2916299146739
+      },
+      "top50": {
+        "attempts": 41,
+        "job": "bd59d00e5c534f60",
+        "rank": 50,
+        "speedup": 2.7093,
+        "submitted_at": 1793425908.4728465,
+        "team": "concept-guest",
+        "value": 1390.118870955221
+      }
+    },
+    {
+      "board": "muse_moe_w4a16",
+      "ranked": 1280,
+      "ours": {
+        "rank": 374,
+        "team": "yelgabo",
+        "speedup": 2.2157,
+        "first": false,
+        "ahead": 373,
+        "to_first": 1.2476
+      },
+      "theirs": {
+        "attempts": 23,
+        "job": "1deec788183a415a",
+        "rank": 73,
+        "speedup": 2.4203,
+        "submitted_at": 1793323341.2868736,
+        "team": "keell0renz",
+        "value": 5556.530215357376
+      },
+      "top50": {
+        "attempts": 15,
+        "job": "48494e439a5749ff",
+        "rank": 50,
+        "speedup": 2.4534,
+        "submitted_at": 1793411809.4047737,
+        "team": "vishaal-drkm",
+        "value": 5481.6036609196235
+      }
+    },
+    {
+      "board": "muse_decode_layer",
+      "ranked": 1151,
+      "ours": {
+        "rank": 381,
+        "team": "yelgabo",
+        "speedup": 2.0229,
+        "first": false,
+        "ahead": 380,
+        "to_first": 1.2281
+      },
+      "theirs": {
+        "attempts": 31,
+        "job": "232de027eda1481f",
+        "rank": 57,
+        "speedup": 2.2659,
+        "submitted_at": 1793423180.69917,
+        "team": "keell0renz",
+        "value": 9982.801332192916
+      },
+      "top50": {
+        "attempts": 6,
+        "job": "4f9d497f4cef4071",
+        "rank": 50,
+        "screened_speedup": 2.2605406599837035,
+        "speedup": 2.279,
+        "submitted_at": 1793259291.4628081,
+        "team": "tie-pilot-qxw",
+        "value": 9925.352948515565
+      }
+    },
+    {
+      "board": "muse_prefill_layer",
+      "ranked": 776,
+      "ours": {
+        "rank": 596,
+        "team": "yelgabo",
+        "speedup": 1.2166,
+        "first": false,
+        "ahead": 595,
+        "to_first": 1.8753
+      },
+      "theirs": {
+        "attempts": 29,
+        "job": "e979122f16aa4768",
+        "rank": 38,
+        "screened_speedup": 1.8903363700960731,
+        "speedup": 1.9213,
+        "submitted_at": 1793433485.1622775,
+        "team": "keell0renz",
+        "value": 201633.28440915112
+      },
+      "top50": {
+        "attempts": 5,
+        "job": "7731cb39ee1b43e1",
+        "rank": 50,
+        "screening": "pending",
+        "speedup": 1.871,
+        "submitted_at": 1793215626.352657,
+        "team": "booth-algo",
+        "value": 207054.10913832914
+      }
+    }
+  ]
+}

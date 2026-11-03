@@ -1,0 +1,160 @@
+{
+  "verified_at": "2026-11-02T09:50:53.482Z",
+  "terminal_commit": "217a98cb639543b8cccf12c971b063a65747979c",
+  "changed_remote_blobs": 12,
+  "canonical_manifest_entries": 33,
+  "manifest_itself_verified": true,
+  "job": {
+    "id": "e1271ad5e5e34b24",
+    "mode": "check",
+    "board": "muse_decode_layer",
+    "team": "yelgabo",
+    "status": "done",
+    "server_content_hash": "d5c0ded18bd609bb8da2cfc35633d9a2ad593611ef03a0eb91a5356405bce2c9",
+    "passed": true,
+    "returncode": 0
+  },
+  "score": {
+    "speedup": 1.9746646855150114,
+    "ci": [
+      1.9450447152322863,
+      2.0042846557977363
+    ],
+    "recomputed": 1.9746646855150114,
+    "prepare_s": 98.749577628
+  },
+  "counts": {
+    "setup": 1,
+    "test": 13,
+    "benchmark": 12,
+    "profile": 12
+  },
+  "historical_controls": {
+    "public607": "muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.json",
+    "common_c5e4": "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.json",
+    "causal": false,
+    "all_12_seeds_differ_from_public607": true
+  },
+  "weighted_loads": [
+    {
+      "load": "decode 1",
+      "current_weighted_us": 4949.882930913869,
+      "public607_weighted_us": 4870.0407787173845,
+      "common_c5e4_weighted_us": 4898.471501406653,
+      "latency_pct_vs607": 1.6394555163768532,
+      "latency_pct_vs_common": 1.049540239081792,
+      "current_baseline_ratio": 2.2069984789346173,
+      "public607_baseline_ratio": 2.2061351320644347
+    },
+    {
+      "load": "decode 16",
+      "current_weighted_us": 9914.378161875076,
+      "public607_weighted_us": 9810.942593545775,
+      "common_c5e4_weighted_us": 9575.663592401628,
+      "latency_pct_vs607": 1.05428777452381,
+      "latency_pct_vs_common": 3.537243828638914,
+      "current_baseline_ratio": 1.9439984910783503,
+      "public607_baseline_ratio": 1.9624421881026235
+    },
+    {
+      "load": "decode 32",
+      "current_weighted_us": 12412.274749162394,
+      "public607_weighted_us": 11887.863619361848,
+      "common_c5e4_weighted_us": 11929.476889809239,
+      "latency_pct_vs607": 4.411315157977036,
+      "latency_pct_vs_common": 4.0471000012212155,
+      "current_baseline_ratio": 1.7421335310993287,
+      "public607_baseline_ratio": 1.8631734686477892
+    },
+    {
+      "load": "verify 1",
+      "current_weighted_us": 7294.746086600706,
+      "public607_weighted_us": 7191.431019777265,
+      "common_c5e4_weighted_us": 7347.206450934629,
+      "latency_pct_vs607": 1.4366412823722197,
+      "latency_pct_vs_common": -0.7140178336386582,
+      "current_baseline_ratio": 2.283300351526988,
+      "public607_baseline_ratio": 2.298353083454426
+    },
+    {
+      "load": "verify 16",
+      "current_weighted_us": 19140.557597004823,
+      "public607_weighted_us": 16699.51580494078,
+      "common_c5e4_weighted_us": 16530.406210374113,
+      "latency_pct_vs607": 14.617440532867597,
+      "latency_pct_vs_common": 15.790001488243167,
+      "current_baseline_ratio": 1.8776130562543334,
+      "public607_baseline_ratio": 2.166522210684186
+    },
+    {
+      "load": "verify 32",
+      "current_weighted_us": 26857.45048478411,
+      "public607_weighted_us": 22276.42739754498,
+      "common_c5e4_weighted_us": 22068.881266573182,
+      "latency_pct_vs607": 20.564442428250352,
+      "latency_pct_vs_common": 21.698287105581436,
+      "current_baseline_ratio": 1.8501699343277778,
+      "public607_baseline_ratio": 2.2994222307889887
+    }
+  ],
+  "profile_rows": [
+    {
+      "load": "verify 16",
+      "context": "sliding",
+      "latency_current_us": 287.5639270615238,
+      "latency_607_us": 247.13099535493978,
+      "current_moe_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           216.4 µs  69.5%      1",
+        "total                                                            311.3 µs"
+      ],
+      "public_moe_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           155.3 µs  62.0%      1",
+        "total                                                            250.5 µs"
+      ]
+    },
+    {
+      "load": "verify 16",
+      "context": "full",
+      "latency_current_us": 369.53855951092055,
+      "latency_607_us": 333.21812616334677,
+      "current_moe_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           215.6 µs  53.0%      1",
+        "total                                                            406.6 µs"
+      ],
+      "public_moe_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           178.1 µs  48.8%      1",
+        "total                                                            364.8 µs"
+      ]
+    },
+    {
+      "load": "verify 32",
+      "context": "sliding",
+      "latency_current_us": 390.2707321292799,
+      "latency_607_us": 316.3895368878032,
+      "current_moe_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           293.7 µs  70.8%      1",
+        "total                                                            414.9 µs"
+      ],
+      "public_moe_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           204.8 µs  63.2%      1",
+        "total                                                            324.3 µs"
+      ]
+    },
+    {
+      "load": "verify 32",
+      "context": "full",
+      "latency_current_us": 556.5623004273269,
+      "latency_607_us": 482.6567937941269,
+      "current_moe_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           286.8 µs  49.7%      1",
+        "total                                                            576.7 µs"
+      ],
+      "public_moe_rows": [
+        "void okc::moe_fused<true>(okc::Params)                           203.3 µs  41.2%      1",
+        "total                                                            493.3 µs"
+      ]
+    }
+  ],
+  "decision": "PARK_EXACT_FROZEN_CANDIDATE_NO_FOLLOWON_CHECK_NO_PROMOTION",
+  "next_gate": "Materially different independently justified candidate; no occupancy-only rescue or diagnostic retry."
+}

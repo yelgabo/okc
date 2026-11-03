@@ -1,0 +1,45 @@
+[
+  {
+    "key": "b4",
+    "exit_code": 0,
+    "flags": [
+      "-O3",
+      "-std=c++17",
+      "-gencode=arch=compute_90a,code=sm_90a",
+      "-Xptxas=-v",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_FNST=4",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_B4FIN=1"
+    ],
+    "device_sha256": "47fde3a7865a1f7d69f1facad019643a50216ccd24e7bc0e60202189dc8b936d"
+  },
+  {
+    "key": "main",
+    "exit_code": 0,
+    "flags": [
+      "-O3",
+      "-std=c++17",
+      "-gencode=arch=compute_90a,code=sm_90a",
+      "-Xptxas=-v",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_FNST=4",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1"
+    ],
+    "device_sha256": "47fde3a7865a1f7d69f1facad019643a50216ccd24e7bc0e60202189dc8b936d"
+  }
+]

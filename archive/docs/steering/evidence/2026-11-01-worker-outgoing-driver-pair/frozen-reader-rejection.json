@@ -1,0 +1,9 @@
+{
+  "at": "2026-11-02T06:16:59.909Z",
+  "job": "6f83ee875dd847c1",
+  "exitcode": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_outgoing_driver_pair_read.py\", line 59, in <module>\n    raw=args.log.read_bytes();result=read(receipt,args.job,raw.decode('utf8'),manifest);result['owning_log_sha256']=hashlib.sha256(raw).hexdigest()\n                                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_outgoing_driver_pair_read.py\", line 51, in read\n    return read_scope['read'](receipt,job,log)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"<string>\", line 6, in read\nAssertionError\n",
+  "complete": false,
+  "private_raw_gate": null
+}

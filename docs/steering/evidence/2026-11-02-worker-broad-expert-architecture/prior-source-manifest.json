@@ -1,0 +1,25 @@
+{
+  "pin": "636ba85648c30ae2c2bfb335c9399593a67ecc1d",
+  "files": [
+    {
+      "path": "humming/include/humming/scheduler.cuh",
+      "sha256": "24443b74d10ac799d805d2ffc840503142696f744a1b3882379c55a6efc1f2e2"
+    },
+    {
+      "path": "humming/tune/sm90_policies.py",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": "humming/include/humming/kernel/humming_ws.cuh",
+      "sha256": "6a148cc29b81d4009066667c347d9091a8a138009f7884226e9969a6936e2899"
+    },
+    {
+      "path": "humming/forward.py",
+      "sha256": "0ebbf281e3bca07d61b113958006ec2efd41d6de4aa640cab5087d53039839d7"
+    },
+    {
+      "path": "humming/schema/humming.py",
+      "sha256": "b4d97879731e4d12ea5adbf6b56a66425bd698b77ae85c0574d2b4fde8fd93f1"
+    }
+  ]
+}

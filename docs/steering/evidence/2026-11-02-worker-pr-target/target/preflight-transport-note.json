@@ -1,0 +1,7 @@
+{
+  "first_attempt": "WSL bash compound redirection did not materialize local receipt files",
+  "scope": "read-only preflight",
+  "replacement": "direct WSL CLI execFileSync stdout capture",
+  "check_post_count": 1,
+  "post_retried": false
+}

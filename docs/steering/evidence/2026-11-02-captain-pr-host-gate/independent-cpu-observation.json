@@ -1,0 +1,9 @@
+{
+  "command": "wsl -e bash -lc \"cd /mnt/c/Users/gretc/Documents/GitHub/okc && /root/.cache/okc-host-validate/bin/python tools/test_g_pr_graph_owner_relaxed.py\"",
+  "exec_session": 15375,
+  "exitcode": 0,
+  "tests": 21,
+  "elapsed_s": 17.038,
+  "stdout_tail": "Ran 21 tests in 17.038s\n\nOK",
+  "scope": "observed tool terminal; CPU/source mocks only"
+}

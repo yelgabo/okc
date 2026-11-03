@@ -1,0 +1,1052 @@
+
+LITERAL _MA_ALT_SRCS['moe_helper0'] (1-based decoded-literal lines)
+
+2205:   const int tid = TIDX;
+2206:   DBG(0);
+2207:   // programmatic dependent launch: everything below reads the previous kernel's outputs (routing, x) or writes
+2208:   // scratch, so wait for it here; without the launch attribute this returns at once
+2209:   asm volatile("griddepcontrol.wait;\n" ::: "memory");
+2210: #if OKC_WS
+2211:   if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }
+2212: #endif
+2213: #if OKC_WGS
+2214:   if (tid >= NT) {
+2215:     if (tid < NT + 32) wgs_wproducer(p, S, reinterpret_cast<unsigned char*>(xbuf));
+2216:     else wgs_xproducer(p, S, reinterpret_cast<unsigned char*>(xbuf));
+2217:     return;
+2403: #endif
+2404: #if OKC_WS
+2405:   WS_JOIN();  // the helper's last epilogue stores are visible
+2406: #endif
+2407:   // programmatic dependent launch: the next kernel may start its own prologue now (its griddepcontrol.wait still
+2408:   // waits for this whole grid to finish and its writes to be visible)
+2409:   asm volatile("griddepcontrol.launch_dependents;\n" ::: "memory");
+2410:   // grid barrier on this launch's counter (two, by generation: the other one was zeroed by this launch for the next);
+2411:   // the last arriver bumps the generation, which no CTA of this launch reads again
+2412: #if OKC_FINPF && OKC_FINCOL && !OKC_WGS
+2413:   // the CTA's first final item: its routing (pos) and route weights are inputs, so they load before the barrier
+2414:   constexpr int FSEGP = HD / (NT * 4);
+2415:   const int itp = blockIdx.x;
+2416:   const bool hasp = itp < p.M * FSEGP;
+2417:   const int tkp = hasp ? itp / FSEGP : 0;
+2680:   TORCH_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&resident,kernel,okc::NTL,sm)==cudaSuccess
+2681:               && resident>=1 && grid<=resident*prop.multiProcessorCount,
+2682:               "FORK_MOE_RESOURCE cooperative residency");
+2683:   void* args[]={&p};
+2684:   const cudaError_t launch=cudaLaunchCooperativeKernel((const void*)kernel,dim3((unsigned)grid),
+2685:       dim3(okc::NTL),args,sm,st);
+2686:   TORCH_CHECK(launch==cudaSuccess,"FORK_MOE_LAUNCH ",cudaGetErrorString(launch));
+2687: 
+2688: }
+2689: 
+2690: 
+
+LITERAL bfp_SK2_SRC (1-based decoded-literal lines)
+
+1: 
+2: 
+3: #define SK2_WAIT(bar, par) mbar_wait_sleep((bar), (par))
+4: // PDL (programmatic dependent launch) for the sk2 launches: 0 = off (plain launches); N > 0 = launch with programmatic
+5: // stream serialization and issue the first N weight stages before griddepcontrol.wait (set by sk2_set_pdl)
+6: static int g_sk2_pdl = 0;
+7: void sk2_set_pdl(int64_t n) { g_sk2_pdl = (int)n; }
+8: #define SK2_DIAG 0
+9: // ============================================================================ sk2 (m <= 32): swapped operands
+10: // A = x tile (16 tokens x 16 k; ldmatrix from the TMA-loaded, 128B-swizzled tile), B = weights (8 rows x 16 k),
+11: // decoded to registers from the 12-bit stream (BF16 hi + lo for the router).  Each CTA owns R rows over the whole
+12: // K: no cross-CTA reduction.  Warps split the CTA's rows (NWR x NT n8 tiles) and, inside every stage, K (WSK).
+13: // A stage = UPS 64-k units: x tiles [UPS][TOKR rows x 128 B] (TMA, rows >= M zero-filled) + this CTA's weights.
+103:       if (crank == 0) mbar_expect_tx(qbar, (CL - 1) * NC * MT * NT * 16);
+104:     }
+105:     asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+106:     // weights never depend on the previous kernel: under PDL (pdl > 0) they stream while it finishes; x (its output)
+107:     // only after griddepcontrol.wait (a no-op when the launch has no programmatic dependency)
+108:     const long long pcx_t0 = clock64();
+109:     for (int st = 0; st < P; ++st) {
+110:       const long long pcx_tg = st < pcx_e ? 0 : pcx_d0 + (long long)(st - pcx_e) * pcx_g;   // PCX pacing: stage st goes out pcx_tg cycles after entry
+111:       if (pcx_tg > 0) { while (clock64() - pcx_t0 < pcx_tg) { } }
+112:       mbar_expect_tx(full0 + 8 * st, ((dgv & 4) ? 0 : XBYr) + WBY);
+113:       bulk_g2s(sbase + st * SST + XBY, wsrc + (size_t)(gs0 + st) * wstride, WBY, full0 + 8 * st);
+114:     }
+115:     if constexpr (CL == 1) {
+130:       mbar_init(cbar, 32 * NESC);
+131:       mbar_init(qbar, 1);
+132:       asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+133:     } else {
+134:       if (pdl) asm volatile("griddepcontrol.wait;" ::: "memory");
+135:       if (pdl) asm volatile("fence.proxy.async.global;" ::: "memory");  // upstream generic x -> TMA
+136:       if (!(dgv & 4))
+137:         for (int st = 0; st < P; ++st) tma_load_3d(sbase + st * SST, &xmap, full0 + 8 * st, 0, 0, (gs0 + st) * UPS);
+138:       if (COMP) {
+139:         mbar_expect_tx(pbar, pmax * 8);
+140:         bulk_g2s((uint32_t)__cvta_generic_to_shared(ptab_s), ptab + (size_t)cta * pmax, pmax * 8, pbar);
+141:       }
+142:     }
+143:   }
+144:   if (tid >= 32 && tid < 64) reinterpret_cast<uint32_t*>(ptab_s + pmax)[tid - 32] = 0u;
+145:   // local barriers are all this CTA needs to start streaming; the cluster barrier (rank 0's qbar initialized before
+146:   // ranks > 0 send into it) is only arrived at here and waited on right before the remote stores
+147:   __syncthreads();
+148:   if (pdl) asm volatile("griddepcontrol.wait;" ::: "memory");   // every thread: x and the outputs are ours from here
+149:   if (pdl) asm volatile("fence.proxy.async.global;" ::: "memory");  // upstream generic x -> TMA
+150:   if constexpr (CL == 1) {   // PCX hoist: the x tiles of the pre-issued stages, right after the wait
+151:     if (tid == 0 && !(dgv & 4))
+152:       for (int st = 0; st < P; ++st) tma_load_3d(sbase + st * SST, &xmap, full0 + 8 * st, 0, 0, (gs0 + st) * UPS);
+153:   }
+154:   if constexpr (CL > 1) asm volatile("barrier.cluster.arrive.relaxed.aligned;" ::: "memory");   // inits fenced above
+155: 
+156:   if (warp == NW) {
+157:     // producer warp: lane 0 refills the ring
+171:           bulk_g2s(s0 + XBY, wsr + (size_t)gsr * (32 * WBYR), WBYR, full0 + 8 * slot);
+172:           tma_load_3d(s0, &xmap, full0 + 8 * slot, 0, 0, gsr * UPS);
+173:         }
+174:       }
+175:       if (pdl) asm volatile("griddepcontrol.launch_dependents;" ::: "memory");  // last weight stage issued
+176:     }
+177:     __syncwarp();
+178:     if constexpr (CL > 1) asm volatile("barrier.cluster.wait.acquire.aligned;" ::: "memory");
+179:     return;
+180:   }
+181:   if (warp >= NW + 1) {
+182:     // NESC escape warps take turns on the stages (each has NESC stage-times per stage): exact corrections for the
+183:     // escapes, read from the x tiles of the ring as each stage lands (the table is in k order); lane t owns token t,
+337:       if (lane == 0) mbar_arrive(empty0 + 8 * slot);
+338:     }
+339:     if (trace && warp == 0 && lane == 0) tr[16 + 3 * st + 2] = gtime();
+340:   }
+341:   if (pdl) asm volatile("griddepcontrol.launch_dependents;" ::: "memory");   // the next kernel may start its prologue
+342:   if constexpr (FUSE) {
+343:     // router piece: 8 rows (one tile) over 4 stages of 8 units; hi and lo BF16 tiles into two FP32 accumulators
+344:     float accr[2][MT][4];
+345: #pragma unroll
+346:     for (int h = 0; h < 2; ++h)
+347: #pragma unroll
+348:       for (int mt = 0; mt < MT; ++mt) accr[h][mt][0] = accr[h][mt][1] = accr[h][mt][2] = accr[h][mt][3] = 0.f;
+349:     for (int st = nst; st < nstt; ++st) {
+588:         ++na;
+589:       }
+590:       if (pdl > 0) {   // programmatic dependent launch: may start while the previous kernel in the stream finishes
+591:         at_[na].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+592:         at_[na].val.programmaticStreamSerializationAllowed = 0;
+593:         ++na;
+594:       }
+595:       lc.attrs = at_;
+596:       lc.numAttrs = na;
+597:       C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xm, wsp, xp, op, tp, (int)pmax, (uint32_t)base4, M, N, K, (int)dg, dbg,
+598:                                         wsr, outr, part, rcnt, pdl));
+599:     } else {
+600:       kern<<<N / R, (NW + 1 + NESC) * 32, smem, at::cuda::getCurrentCUDAStream()>>>(xm, wsp, xp, op, tp, (int)pmax,
+
+G0 FUNCTION kernel_fn
+def kernel_fn(data, state):
+    _glue_bind_context(data["attn_input"])
+    return _glue_context_parent_kernel(data, state)
+
+607 FUNCTION kernel_fn
+def kernel_fn(data, state):
+    _glue_bind_context(data["attn_input"])
+    return _glue_context_parent_kernel(data, state)
+
+common FUNCTION kernel_fn
+def kernel_fn(data, state):
+    _glue_bind_context(data["attn_input"])
+    return _glue_context_parent_kernel(data, state)
+
+G0 FUNCTION _after_attention
+def _after_attention(data, state, o_in, gate, T):
+    global _GLE_W_CUR
+    gw = state.get('g_preffn')
+    _GLE_W_CUR = gw if (gw is not None and gw.dtype == torch.bfloat16 and gw.numel() == HIDDEN and gw.is_contiguous()) else None
+    return _gle_b1x_prior_after(data, state, o_in, gate, T)
+
+607 FUNCTION _after_attention
+def _after_attention(data, state, o_in, gate, T):
+    if (GLE_T.get(T, GLE_T.get(str(T), False)) and GLE_RC.get(T, 0) > 0 and gate is None and _pdl(T) and 'graft' in state
+            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):
+        mmp = state.get("mm_pick", {})
+        ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+        opick = mmp.get((T, "o"), mmp.get((_bucket(T), "o"), False))
+        moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                                   marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+        gw = state.get('g_preffn')
+        if (ppick in ("bfp", "bfpf") and opick == "bfp" and moe == "agent" and state.get("bfp") is not None
+                and state.get("router_fp32") is not None and state.get("router_fp32_ext") is not None
+                and gw is not None and gw.dtype == torch.bfloat16 and gw.numel() == HIDDEN and gw.is_contiguous()
+                and _gle_o_choice(state, T)):
+            return _gle_after_attention(data, state, o_in, gate, T)
+    return _gle_prior_after(data, state, o_in, gate, T)
+
+common FUNCTION _after_attention
+def _after_attention(data, state, o_in, gate, T):
+    if (GLE_T.get(T, GLE_T.get(str(T), False)) and GLE_RC.get(T, 0) > 0 and gate is None and _pdl(T) and 'graft' in state
+            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):
+        mmp = state.get("mm_pick", {})
+        ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+        opick = mmp.get((T, "o"), mmp.get((_bucket(T), "o"), False))
+        moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                                   marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+        gw = state.get('g_preffn')
+        if (ppick in ("bfp", "bfpf") and opick == "bfp" and moe == "agent" and state.get("bfp") is not None
+                and state.get("router_fp32") is not None and state.get("router_fp32_ext") is not None
+                and gw is not None and gw.dtype == torch.bfloat16 and gw.numel() == HIDDEN and gw.is_contiguous()
+                and _gle_o_choice(state, T)):
+            return _gle_after_attention(data, state, o_in, gate, T)
+    return _gle_prior_after(data, state, o_in, gate, T)
+
+G0 FUNCTION _gle_after_attention
+def _gle_after_attention(data, state, o_in, gate, T):
+    dev = o_in.device
+    f32 = dict(device=dev, dtype=torch.float32)
+    g = state['graft']
+    bst = state["bfp"]
+    ci, stream, tab, pmax, b4, n_rows = bst["sk2"][bfp__sk2_name("o", T)]
+    P = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    uv = torch.empty((2 * T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    uvf = torch.empty((2 * T, HIDDEN), **f32)
+    part = torch.empty((256 * T * 8,), **f32)
+    rt = torch.empty((2, T), **f32)
+    nch = GLE_RC.get(T, GLE_RC.get(str(T), 0))
+    s1 = torch.empty((T, HIDDEN), **f32)
+    _bfp_pdl(T, "o")
+    ext = _gle_ext()
+    ext.sk2_set_pdl(bfp_SK2_PDL)
+    ext.gle_o(stream, o_in, P, tab, pmax, b4, T, data['stream'], g['alpha1'], g['beta1'], g['alpha2'], state['g_preffn'], uv, part,
+              uvf)
+    if GLE_FRT:   # fused pooler + FP32 router (one launch)
+        pooled, logits = _gle_frt(uv, uvf, state)
+    else:         # 0389's T <= 8 split: BF16 pooler (bf16_proj sk2), FP32 router GEMV, here on the two rows per token
+        pooled = _bfp_gemm(state, "pool", uv, 2 * T, D_EXPERT, HIDDEN)
+        logits = _router_fp32_gemv(uvf, state)
+    if GLE_CAPTURE is not None:
+        GLE_CAPTURE.update(logits=logits, pooled=pooled, part=part, P=P)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    _graft_al(pooled, logits, xm, ids, wts, lids, part, rt)
+    _gle_route[(T, SL_TILE_CONFIG[T][1] + 1 + nch)](pooled, logits, part, T, state["bias"], state["g_preexp"], ids, wts, xm,
+                                                    data["local_start"], lids, rt, P, data['stream'], g['alpha1'], g['beta1'],
+                                                    g['alpha2'], s1, MODE=SL_ROUTE_CONFIG[T][1],
+                                                    PARTS=SL_TILE_CONFIG[T][1], NCH=nch, TT=T,
+                                                    num_warps=SL_TILE_CONFIG[T][0], launch_pdl=True)
+    m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    mx = _moe(T, state)
+    if MOE_HAS_PDL:
+        mx.okc_set_pdl(1 if _pdl(T) else 0)
+    for m0 in range(0, T, _MA_MMAX):
+        m1 = min(T, m0 + _MA_MMAX)
+        mx.okc_run(state["ma_w"], state["ma_scratch"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32, state["nsm"])
+    U, S = dense(m, state["unpool_slice"], T, state, "un")
+    if S != 1 or U.dtype != torch.bfloat16:
+        raise RuntimeError('gle: BF16 sliced unpooler expected')
+    s2 = torch.empty((T, HIDDEN), **f32)
+    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    nw, bc = SL_CLUSTER_CONFIG[T]
+    _sl_cluster_finish[(T, 8192 // bc)](U, T, s1, rt[1], g['beta2'], g['post2'], g['pre2'], s2, out, BC=bc, num_warps=nw,
+                                        launch_pdl=True)
+    return out, s2, ids
+
+607 FUNCTION _gle_after_attention
+def _gle_after_attention(data, state, o_in, gate, T):
+    dev = o_in.device
+    f32 = dict(device=dev, dtype=torch.float32)
+    g = state['graft']
+    bst = state["bfp"]
+    ci, stream, tab, pmax, b4, n_rows = bst["sk2"][bfp__sk2_name("o", T)]
+    P = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    uv = torch.empty((2 * T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    uvf = torch.empty((2 * T, HIDDEN), **f32)
+    part = torch.empty((256 * T * 8,), **f32)
+    rt = torch.empty((2, T), **f32)
+    nch = GLE_RC.get(T, GLE_RC.get(str(T), 0))
+    s1 = torch.empty((T, HIDDEN), **f32)
+    _bfp_pdl(T, "o")
+    ext = _gle_ext()
+    ext.sk2_set_pdl(bfp_SK2_PDL)
+    ext.gle_o(stream, o_in, P, tab, pmax, b4, T, data['stream'], g['alpha1'], g['beta1'], g['alpha2'], state['g_preffn'], uv, part,
+              uvf)
+    if GLE_FRT:   # fused pooler + FP32 router (one launch)
+        pooled, logits = _gle_frt(uv, uvf, state)
+    else:         # 0389's T <= 8 split: BF16 pooler (bf16_proj sk2), FP32 router GEMV, here on the two rows per token
+        pooled = _bfp_gemm(state, "pool", uv, 2 * T, D_EXPERT, HIDDEN)
+        logits = _router_fp32_gemv(uvf, state)
+    if GLE_CAPTURE is not None:
+        GLE_CAPTURE.update(logits=logits, pooled=pooled, part=part, P=P)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    _graft_al(pooled, logits, xm, ids, wts, lids, part, rt)
+    _gle_route[(T, SL_TILE_CONFIG[T][1] + 1 + nch)](pooled, logits, part, T, state["bias"], state["g_preexp"], ids, wts, xm,
+                                                    data["local_start"], lids, rt, P, data['stream'], g['alpha1'], g['beta1'],
+                                                    g['alpha2'], s1, MODE=SL_ROUTE_CONFIG[T][1],
+                                                    PARTS=SL_TILE_CONFIG[T][1], NCH=nch, TT=T,
+                                                    num_warps=SL_TILE_CONFIG[T][0], launch_pdl=False)
+    m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    mx = _moe(T, state)
+    if MOE_HAS_PDL:
+        mx.okc_set_pdl(1 if _pdl(T) else 0)
+    for m0 in range(0, T, _MA_MMAX):
+        m1 = min(T, m0 + _MA_MMAX)
+        mx.okc_run(state["ma_w"], state["ma_scratch"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32, state["nsm"])
+    U, S = dense(m, state["unpool_slice"], T, state, "un")
+    if S != 1 or U.dtype != torch.bfloat16:
+        raise RuntimeError('gle: BF16 sliced unpooler expected')
+    s2 = torch.empty((T, HIDDEN), **f32)
+    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    nw, bc = SL_CLUSTER_CONFIG[T]
+    _sl_cluster_finish[(T, 8192 // bc)](U, T, s1, rt[1], g['beta2'], g['post2'], g['pre2'], s2, out, BC=bc, num_warps=nw,
+                                        launch_pdl=False)
+    return out, s2, ids
+
+common FUNCTION _gle_after_attention
+def _gle_after_attention(data, state, o_in, gate, T):
+    dev = o_in.device
+    f32 = dict(device=dev, dtype=torch.float32)
+    g = state['graft']
+    bst = state["bfp"]
+    ci, stream, tab, pmax, b4, n_rows = bst["sk2"][bfp__sk2_name("o", T)]
+    P = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    uv = torch.empty((2 * T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    uvf = torch.empty((2 * T, HIDDEN), **f32)
+    part = torch.empty((256 * T * 8,), **f32)
+    rt = torch.empty((2, T), **f32)
+    nch = GLE_RC.get(T, GLE_RC.get(str(T), 0))
+    s1 = torch.empty((T, HIDDEN), **f32)
+    _bfp_pdl(T, "o")
+    ext = _gle_ext()
+    ext.sk2_set_pdl(bfp_SK2_PDL)
+    ext.gle_o(stream, o_in, P, tab, pmax, b4, T, data['stream'], g['alpha1'], g['beta1'], g['alpha2'], state['g_preffn'], uv, part,
+              uvf)
+    if GLE_FRT:   # fused pooler + FP32 router (one launch)
+        pooled, logits = _gle_frt(uv, uvf, state)
+    else:         # 0389's T <= 8 split: BF16 pooler (bf16_proj sk2), FP32 router GEMV, here on the two rows per token
+        pooled = _bfp_gemm(state, "pool", uv, 2 * T, D_EXPERT, HIDDEN)
+        logits = _router_fp32_gemv(uvf, state)
+    if GLE_CAPTURE is not None:
+        GLE_CAPTURE.update(logits=logits, pooled=pooled, part=part, P=P)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    _graft_al(pooled, logits, xm, ids, wts, lids, part, rt)
+    _gle_route[(T, SL_TILE_CONFIG[T][1] + 1 + nch)](pooled, logits, part, T, state["bias"], state["_g_preexp_effective"], ids, wts, xm,
+                                                    data["local_start"], lids, rt, P, data['stream'], g['alpha1'], g['beta1'],
+                                                    g['alpha2'], s1, MODE=SL_ROUTE_CONFIG[T][1],
+                                                    PARTS=SL_TILE_CONFIG[T][1], NCH=nch, TT=T,
+                                                    num_warps=SL_TILE_CONFIG[T][0], launch_pdl=False)
+    m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    mx = _moe(T, state)
+    if MOE_HAS_PDL:
+        mx.okc_set_pdl(1 if _pdl(T) else 0)
+    for m0 in range(0, T, _MA_MMAX):
+        m1 = min(T, m0 + _MA_MMAX)
+        mx.okc_run(state["ma_w"], state["ma_scratch"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32, state["nsm"])
+    U, S = dense(m, state["unpool_slice"], T, state, "un")
+    if S != 1 or U.dtype != torch.bfloat16:
+        raise RuntimeError('gle: BF16 sliced unpooler expected')
+    s2 = torch.empty((T, HIDDEN), **f32)
+    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    nw, bc = SL_CLUSTER_CONFIG[T]
+    _sl_cluster_finish[(T, 8192 // bc)](U, T, s1, rt[1], g['beta2'], g['post2'], g['pre2'], s2, out, BC=bc, num_warps=nw,
+                                        launch_pdl=False)
+    return out, s2, ids
+
+G0 FUNCTION _pdl
+def _pdl(T):
+    return PDL and T <= PDL_MAX_T
+
+607 FUNCTION _pdl
+def _pdl(T):
+    return PDL and T <= PDL_MAX_T
+
+common FUNCTION _pdl
+def _pdl(T):
+    return PDL and T <= PDL_MAX_T
+
+G0 FUNCTION _pcx_val
+def _pcx_val(role, T):
+    P, d0, g, e = (tuple(PCX_CFG.get((role, T), PCX_CFG.get((role, 0), (BFP_PDL_N, 0, 0, 0)))) + (0,))[:4]
+    return (1 << 30) | P | (d0 << 4) | (g << 9) | (e << 14)
+
+607 FUNCTION _pcx_val
+def _pcx_val(role, T):
+    P, d0, g, e = (tuple(PCX_CFG.get((role, T), PCX_CFG.get((role, 0), (BFP_PDL_N, 0, 0, 0)))) + (0,))[:4]
+    return (1 << 30) | P | (d0 << 4) | (g << 9) | (e << 14)
+
+common FUNCTION _pcx_val
+def _pcx_val(role, T):
+    P, d0, g, e = (tuple(PCX_CFG.get((role, T), PCX_CFG.get((role, 0), (BFP_PDL_N, 0, 0, 0)))) + (0,))[:4]
+    return (1 << 30) | P | (d0 << 4) | (g << 9) | (e << 14)
+
+G0 FUNCTION _bfp_pdl
+def _bfp_pdl(T, role=None):
+    """Their launchers read SK2_PDL (bfp_SK2_PDL once inlined) at every launch: same T rule as this file's glue."""
+    global bfp_SK2_PDL
+    bfp_SK2_PDL = _pcx_val(role, T) if _pdl(T) else 0
+
+607 FUNCTION _bfp_pdl
+def _bfp_pdl(T, role=None):
+    """Their launchers read SK2_PDL (bfp_SK2_PDL once inlined) at every launch: same T rule as this file's glue."""
+    global bfp_SK2_PDL
+    bfp_SK2_PDL = _pcx_val(role, T) if _pdl(T) else 0
+
+common FUNCTION _bfp_pdl
+def _bfp_pdl(T, role=None):
+    """Their launchers read SK2_PDL (bfp_SK2_PDL once inlined) at every launch: same T rule as this file's glue."""
+    global bfp_SK2_PDL
+    bfp_SK2_PDL = _pcx_val(role, T) if _pdl(T) else 0
+
+G0 FUNCTION _bfp_gemm
+def _bfp_gemm(st, name, x, m, n, k):
+    _bfp_pdl(m, name)
+    return bfp_kernel_fn({"x": x, "config": {"layer": _BFP_LAYER[name], "m": m, "n": n, "k": k}}, st["bfp"])
+
+607 FUNCTION _bfp_gemm
+def _bfp_gemm(st, name, x, m, n, k):
+    _bfp_pdl(m, name)
+    return bfp_kernel_fn({"x": x, "config": {"layer": _BFP_LAYER[name], "m": m, "n": n, "k": k}}, st["bfp"])
+
+common FUNCTION _bfp_gemm
+def _bfp_gemm(st, name, x, m, n, k):
+    _bfp_pdl(m, name)
+    return bfp_kernel_fn({"x": x, "config": {"layer": _BFP_LAYER[name], "m": m, "n": n, "k": k}}, st["bfp"])
+
+G0 FUNCTION _fork_native_moe
+NOT DEFINED
+
+607 FUNCTION _fork_native_moe
+def _fork_native_moe(M=None, state=None):
+    if state is None:
+        return _moe_global_cache(M)
+    sfx = tuple(state["ma_sfx"])
+    if M is not None and MOE_TINY_DEFINES and M <= MOE_TINY_MAX_M:
+        key, defines = "tiny", MOE_TINY_DEFINES
+    elif M is not None and MOE_TINY2_DEFINES and M <= MOE_TINY2_MAX_M and (sfx or "-DOKC_WGS=1" not in tuple(MOE_TINY2_DEFINES)):
+        key, defines = "tiny2", MOE_TINY2_DEFINES
+    elif M is not None and MOE_MID_DEFINES and M <= MOE_MID_MAX_M:
+        key, defines = "mid", MOE_MID_DEFINES
+    elif M is not None and 16 < M <= 32 and tuple(_main_defines(sfx)) == tuple(MOE_DEFINES):
+        key, defines = "b4", tuple(MOE_DEFINES) + ("-DOKC_B4FIN=1",)
+    else:
+        key, defines = "main", _main_defines(sfx)
+    if state["ma_sc6"] and "-DOKC_WGS=1" in defines:
+        defines = tuple(defines) + ("-DOKC_SC6W=1",)
+    ext = state["ma_ext"].get(key)
+    if ext is None:
+        ext = _RouterExt(_ma_ext(tuple(defines) + sfx))
+        if MOE_HAS_PDL:
+            ext.okc_set_pdl(0)
+        state["ma_ext"][key] = ext
+    return ext
+
+common FUNCTION _fork_native_moe
+def _fork_native_moe(M=None, state=None):
+    if state is None:
+        return _moe_global_cache(M)
+    sfx = tuple(state["ma_sfx"])
+    if M is not None and MOE_TINY_DEFINES and M <= MOE_TINY_MAX_M:
+        key, defines = "tiny", MOE_TINY_DEFINES
+    elif M is not None and MOE_TINY2_DEFINES and M <= MOE_TINY2_MAX_M and (sfx or "-DOKC_WGS=1" not in tuple(MOE_TINY2_DEFINES)):
+        key, defines = "tiny2", MOE_TINY2_DEFINES
+    elif M is not None and MOE_MID_DEFINES and M <= MOE_MID_MAX_M:
+        key, defines = "mid", MOE_MID_DEFINES
+    elif M is not None and 16 < M <= 32 and tuple(_main_defines(sfx)) == tuple(MOE_DEFINES):
+        key, defines = "b4", tuple(MOE_DEFINES) + ("-DOKC_B4FIN=1",)
+    else:
+        key, defines = "main", _main_defines(sfx)
+    if state["ma_sc6"] and "-DOKC_WGS=1" in defines:
+        defines = tuple(defines) + ("-DOKC_SC6W=1",)
+    ext = state["ma_ext"].get(key)
+    if ext is None:
+        ext = _RouterExt(_ma_ext(tuple(defines) + sfx))
+        if MOE_HAS_PDL:
+            ext.okc_set_pdl(0)
+        state["ma_ext"][key] = ext
+    return ext
+
+G0 FUNCTION _sl_tile_after_attention
+def _sl_tile_after_attention(data, state, o_in, gate, T):
+    """Copy of the base _after_attention (one-program-per-token path) with the grafted boundary/route kernels.
+    Every kernel the graft does not cover falls back to the base kernel with the base arguments."""
+    dev = o_in.device
+    f32 = dict(device=dev, dtype=torch.float32)
+    tail = torch.empty((T,), **f32)
+    s1 = torch.empty((T, HIDDEN), **f32)
+    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None
+    if gate is None:
+        P, S = dense(o_in, state["o"], T, state, "o")
+    else:
+        P, S = dense_ng(o_in, gate, state["o"], T, state)
+    if S != 1 or P.dtype != torch.bfloat16:
+        return _graft_after_attention(data,state,o_in,gate,T)
+    g=state['graft']
+    _sl_cluster_module().b1(P.view(T,8192),data['stream'],g['pre1'],g['alpha1'],g['beta1'],h,s1,g['alpha2'],tail,hr if T <= 8 else s1,T <= 8)
+    mmp = state.get("mm_pick", {})
+    ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+    P, S = _pool_router_fp32(h, hr, T, state, ppick)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                               marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+    use_marlin = moe == "marlin"
+    use_ma = moe == "agent"
+    if not (use_marlin or use_ma):
+        raise RuntimeError("no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available")
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    if S == -1:
+        pooled, logits = P
+        _graft_al(pooled, logits, xm, ids, wts, lids)
+        _sl_tile_route[(T,SL_TILE_CONFIG[T][1]+1)](pooled, logits, logits, state["bias"], state["g_preexp"], ids, wts, xm,
+                             data["local_start"], lids, SPLIT=True, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=True)
+    elif S == 1 and P.shape[-1] == 4608 and P.dtype == torch.float32:
+        allp = P.view(T, 4608)
+        _graft_al(allp, xm, ids, wts, lids)
+        _sl_tile_route[(T,SL_TILE_CONFIG[T][1]+1)](allp, allp, allp, state["bias"], state["g_preexp"], ids, wts, xm,
+                             data["local_start"], lids, SPLIT=False, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=True)
+    else:
+        _route[(T,)](P, S, T, state["bias"], state["g_preexp"], ids, wts, xm, data["local_start"], lids,
+                     PERMUTED=False, num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    if use_ma:
+        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+        ext = _moe(T, state)
+        if MOE_HAS_PDL:
+            ext.okc_set_pdl(1 if _pdl(T) else 0)
+        for m0 in range(0, T, _MA_MMAX):
+            m1 = min(T, m0 + _MA_MMAX)
+            ext.okc_run(state["ma_w"], state["ma_scratch"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,
+                        state["nsm"])
+    elif use_marlin:
+        m = _marlin_experts(xm, wts, lids, state)
+    wu = state["unpool_slice"] if T <= 8 else state["unpool"]
+    P, S = dense(m, wu, T, state, "un")
+    nu = wu.shape[0]
+    s2 = torch.empty((T, HIDDEN), **f32)
+    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    if S != 1 or P.dtype != torch.bfloat16:
+        raise RuntimeError('small-load cluster requires BF16 sliced unpooler')
+    nw,bc=SL_CLUSTER_CONFIG[T]
+    _sl_cluster_finish[(T,8192//bc)](P,T,s1,tail,g['beta2'],g['post2'],g['pre2'],s2,out,BC=bc,num_warps=nw,launch_pdl=True)
+    return out, s2, ids
+
+607 FUNCTION _sl_tile_after_attention
+def _sl_tile_after_attention(data, state, o_in, gate, T):
+    """Copy of the base _after_attention (one-program-per-token path) with the grafted boundary/route kernels.
+    Every kernel the graft does not cover falls back to the base kernel with the base arguments."""
+    dev = o_in.device
+    f32 = dict(device=dev, dtype=torch.float32)
+    tail = torch.empty((T,), **f32)
+    s1 = torch.empty((T, HIDDEN), **f32)
+    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None
+    if gate is None:
+        P, S = dense(o_in, state["o"], T, state, "o")
+    else:
+        P, S = dense_ng(o_in, gate, state["o"], T, state)
+    if S != 1 or P.dtype != torch.bfloat16:
+        return _graft_after_attention(data,state,o_in,gate,T)
+    g=state['graft']
+    _sl_cluster_module().b1(P.view(T,8192),data['stream'],g['pre1'],g['alpha1'],g['beta1'],h,s1,g['alpha2'],tail,hr if T <= 8 else s1,T <= 8)
+    mmp = state.get("mm_pick", {})
+    ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+    P, S = _pool_router_fp32(h, hr, T, state, ppick)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                               marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+    use_marlin = moe == "marlin"
+    use_ma = moe == "agent"
+    if not (use_marlin or use_ma):
+        raise RuntimeError("no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available")
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    if S == -1:
+        pooled, logits = P
+        _graft_al(pooled, logits, xm, ids, wts, lids)
+        _sl_tile_route[(T,SL_TILE_CONFIG[T][1]+1)](pooled, logits, logits, state["bias"], state["g_preexp"], ids, wts, xm,
+                             data["local_start"], lids, SPLIT=True, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=False)
+    elif S == 1 and P.shape[-1] == 4608 and P.dtype == torch.float32:
+        allp = P.view(T, 4608)
+        _graft_al(allp, xm, ids, wts, lids)
+        _sl_tile_route[(T,SL_TILE_CONFIG[T][1]+1)](allp, allp, allp, state["bias"], state["g_preexp"], ids, wts, xm,
+                             data["local_start"], lids, SPLIT=False, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=False)
+    else:
+        _route[(T,)](P, S, T, state["bias"], state["g_preexp"], ids, wts, xm, data["local_start"], lids,
+                     PERMUTED=False, num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    if use_ma:
+        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+        ext = _moe(T, state)
+        if MOE_HAS_PDL:
+            ext.okc_set_pdl(1 if _pdl(T) else 0)
+        for m0 in range(0, T, _MA_MMAX):
+            m1 = min(T, m0 + _MA_MMAX)
+            ext.okc_run(state["ma_w"], state["ma_scratch"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,
+                        state["nsm"])
+    elif use_marlin:
+        m = _marlin_experts(xm, wts, lids, state)
+    wu = state["unpool_slice"] if T <= 8 else state["unpool"]
+    P, S = dense(m, wu, T, state, "un")
+    nu = wu.shape[0]
+    s2 = torch.empty((T, HIDDEN), **f32)
+    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    if S != 1 or P.dtype != torch.bfloat16:
+        raise RuntimeError('small-load cluster requires BF16 sliced unpooler')
+    nw,bc=SL_CLUSTER_CONFIG[T]
+    _sl_cluster_finish[(T,8192//bc)](P,T,s1,tail,g['beta2'],g['post2'],g['pre2'],s2,out,BC=bc,num_warps=nw,launch_pdl=False)
+    return out, s2, ids
+
+common FUNCTION _sl_tile_after_attention
+def _sl_tile_after_attention(data, state, o_in, gate, T):
+    """Copy of the base _after_attention (one-program-per-token path) with the grafted boundary/route kernels.
+    Every kernel the graft does not cover falls back to the base kernel with the base arguments."""
+    dev = o_in.device
+    f32 = dict(device=dev, dtype=torch.float32)
+    tail = torch.empty((T,), **f32)
+    s1 = torch.empty((T, HIDDEN), **f32)
+    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None
+    if gate is None:
+        P, S = dense(o_in, state["o"], T, state, "o")
+    else:
+        P, S = dense_ng(o_in, gate, state["o"], T, state)
+    if S != 1 or P.dtype != torch.bfloat16:
+        return _graft_after_attention(data,state,o_in,gate,T)
+    g=state['graft']
+    _sl_cluster_module().b1(P.view(T,8192),data['stream'],g['pre1'],g['alpha1'],g['beta1'],h,s1,g['alpha2'],tail,hr if T <= 8 else s1,T <= 8)
+    mmp = state.get("mm_pick", {})
+    ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+    P, S = _pool_router_fp32(h, hr, T, state, ppick)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                               marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+    use_marlin = moe == "marlin"
+    use_ma = moe == "agent"
+    if not (use_marlin or use_ma):
+        raise RuntimeError("no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available")
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    if S == -1:
+        pooled, logits = P
+        _graft_al(pooled, logits, xm, ids, wts, lids)
+        _sl_tile_route[(T,SL_TILE_CONFIG[T][1]+1)](pooled, logits, logits, state["bias"], state["_g_preexp_effective"], ids, wts, xm,
+                             data["local_start"], lids, SPLIT=True, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=False)
+    elif S == 1 and P.shape[-1] == 4608 and P.dtype == torch.float32:
+        allp = P.view(T, 4608)
+        _graft_al(allp, xm, ids, wts, lids)
+        _sl_tile_route[(T,SL_TILE_CONFIG[T][1]+1)](allp, allp, allp, state["bias"], state["_g_preexp_effective"], ids, wts, xm,
+                             data["local_start"], lids, SPLIT=False, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=False)
+    else:
+        _route[(T,)](P, S, T, state["bias"], state["_g_preexp_effective"], ids, wts, xm, data["local_start"], lids,
+                     PERMUTED=False, num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    if use_ma:
+        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+        ext = _moe(T, state)
+        if MOE_HAS_PDL:
+            ext.okc_set_pdl(1 if _pdl(T) else 0)
+        for m0 in range(0, T, _MA_MMAX):
+            m1 = min(T, m0 + _MA_MMAX)
+            ext.okc_run(state["ma_w"], state["ma_scratch"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,
+                        state["nsm"])
+    elif use_marlin:
+        m = _marlin_experts(xm, wts, lids, state)
+    wu = state["unpool_slice"] if T <= 8 else state["unpool"]
+    P, S = dense(m, wu, T, state, "un")
+    nu = wu.shape[0]
+    s2 = torch.empty((T, HIDDEN), **f32)
+    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    if S != 1 or P.dtype != torch.bfloat16:
+        raise RuntimeError('small-load cluster requires BF16 sliced unpooler')
+    nw,bc=SL_CLUSTER_CONFIG[T]
+    _sl_cluster_finish[(T,8192//bc)](P,T,s1,tail,g['beta2'],g['post2'],g['pre2'],s2,out,BC=bc,num_warps=nw,launch_pdl=False)
+    return out, s2, ids
+
+G0 ordered top-level bindings / dispatch definitions
+97: PDL = True
+3780: OKC_PDL = 0
+6898: MOE_HAS_PDL = True
+6909: _MA_PDL = False
+9772: bfp_SK2_PDL = 0
+11373: ATT_HAS_PDL = True
+11549: def _after_attention(data, state, o_in, gate, T):
+    """o projection onwards: residual boundary, router, experts, unpooler, final boundary.
+    gate is None when o_in already carries rmsnorm(o) * sigmoid(gate). state["gluev2"] picks between the
+    one-program-per-token boundary kernels and the parallel (atomic-sum) ones; the tuner chooses per T."""
+    dev = o_in.device
+    f32 = dict(device=dev, dtype=torch.float32)
+    gv = state.get("gluev2", {})
+    v2 = gv.get(T, gv.get(_bucket(T), False)) if FORCE_GLUEV2 is None else FORCE_GLUEV2
+    s1 = torch.empty((T, HIDDEN), **f32)
+    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None
+    if v2:
+        # o projection with no K split (each program owns whole rows) + the boundary's four per-token sums
+        a_out = torch.empty((T, HIDDEN), **f32)
+        sums = torch.zeros((T, 4), **f32)
+        BN, BT, BK = 64, (16 if T <= 16 else 32), 128
+        _gemm_o[(HIDDEN // BN, triton.cdiv(T, BT))](
+            o_in, gate, state["o"], a_out, sums, data["stream"], state["gate1"], state["gate1"], T, HIDDEN,
+            K=1024, BN=BN, BT=BT, BK=BK, NORMGATE=gate is not None, num_warps=4, num_stages=3)
+        BC1 = 2048
+        _bnd1_apply[(T, HIDDEN // BC1)](a_out, sums, data["stream"], state["gate1"], state["gate1"], state["g_preffn"],
+                                        s1, h, N=HIDDEN, BC=BC1, num_warps=8)
+    else:
+        if gate is None:
+            P, S = dense(o_in, state["o"], T, state, "o")
+        else:
+            P, S = dense_ng(o_in, gate, state["o"], T, state)
+        _boundary1[(T,)](P, S, T, data["stream"], state["gate1"], state["gate1"], state["g_preffn"], s1, h, hr,
+                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    if T <= 8 and v2:
+        _router_input_norm[(T,)](s1, state["g_preffn"], hr, num_warps=8)
+    # 4. pooler + router (BF16 hi + lo rows, FP32 accumulation), routing, pre-expert norm
+    mmp = state.get("mm_pick", {})
+    ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+    P, S = _pool_router_fp32(h, hr, T, state, ppick)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                               marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+    use_marlin = moe == "marlin"
+    use_ma = moe == "agent"
+    if not (use_marlin or use_ma):
+        raise RuntimeError("no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available")
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    if S == -1:  # pooler and router came from the bf16_proj kernels as two separate tensors
+        pooled, logits = P
+        _route_split[(T,)](pooled, logits, state["bias"], state["g_preexp"], ids, wts, xm,
+                           data["local_start"], lids, PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    elif v2:
+        pool = torch.empty((T, D_EXPERT), **f32)
+        psum = torch.zeros((T,), **f32)
+        BCR = 1024
+        _route_a[(T, D_EXPERT // BCR)](P, S, T, state["bias"], ids, wts, data["local_start"], lids, pool, psum,
+                                       BC=BCR, num_warps=8)
+        _route_b[(T, D_EXPERT // BCR)](pool, psum, state["g_preexp"], xm, BC=BCR,
+                                       PERMUTED=not (use_marlin or use_ma), num_warps=8)
+    else:
+        _route[(T,)](P, S, T, state["bias"], state["g_preexp"], ids, wts, xm, data["local_start"], lids,
+                     PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    # 5. experts
+    if use_ma:
+        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+        ext = _moe(T, state)   # the build their kernel_fn picks for this M, then at most MMAX tokens per launch, as theirs
+        if MOE_HAS_PDL:
+            ext.okc_set_pdl(1 if _pdl(T) else 0)
+        for m0 in range(0, T, _MA_MMAX):      # (their scratch is sized for MMAX: T > 384 would overrun it)
+            m1 = min(T, m0 + _MA_MMAX)
+            ext.okc_run(state["ma_w"], state["ma_scratch"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,
+                        state["nsm"])     # lids: local expert index, -1 = another GPU's expert
+    elif use_marlin:
+        m = _marlin_experts(xm, wts, lids, state)
+    # 6. unpooler + post-FFN boundary + next layer's norm
+    wu = state["unpool_slice"] if T <= 8 else state["unpool"]
+    P, S = dense(m, wu, T, state, "un")
+    nu = wu.shape[0]
+    s2 = torch.empty((T, HIDDEN), **f32)
+    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    if v2:
+        fbuf = torch.zeros((T, HIDDEN), **f32)
+        sums2 = torch.zeros((T, 4), **f32)
+        BC2 = 1024
+        _bnd2_sums[(T, HIDDEN // BC2)](P, S, T, nu, s1, state["gate2"], state["gate2"], state["g_postffn"], fbuf, sums2,
+                                       BC=BC2, num_warps=8)
+        _bnd2_apply[(T, HIDDEN // BC2)](fbuf, sums2, s1, state["gate2"], state["gate2"], state["g_next"], s2, out,
+                                        N=HIDDEN, BC=BC2, num_warps=8)
+    else:
+        _boundary2[(T,)](P, S, T, nu, s1, state["gate2"], state["gate2"], state["g_postffn"], state["g_next"],
+                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    return out, s2, ids
+12517: _vj_after_attention = _after_attention
+12520: def _after_attention(data, state, o_in, gate, T):
+    if "graft" in state and T in _GRAFT_GLUE_T and state.get("compose_graft_enabled", {}).get(T, T in (1, 8, 128, 256)):
+        return _graft_after_attention(data, state, o_in, gate, T)
+    return _vj_after_attention(data, state, o_in, gate, T)
+13145: _sl_previous_after_attention=_after_attention
+13147: def _after_attention(data,state,o_in,gate,T):
+    if T in SL_CLUSTER_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):
+        return _sl_cluster_after_attention(data,state,o_in,gate,T)
+    return _sl_previous_after_attention(data,state,o_in,gate,T)
+13351: _sl_tile_prior_after=_after_attention
+13352: def _after_attention(data,state,o_in,gate,T):
+    if T in SL_TILE_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):
+        return _sl_tile_after_attention(data,state,o_in,gate,T)
+    return _sl_tile_prior_after(data,state,o_in,gate,T)
+13653: GLE_T = {1: True}
+14158: _gle_prior_after = _after_attention
+14159: def _after_attention(data, state, o_in, gate, T):
+    if (GLE_T.get(T, GLE_T.get(str(T), False)) and GLE_RC.get(T, 0) > 0 and gate is None and _pdl(T) and 'graft' in state
+            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):
+        mmp = state.get("mm_pick", {})
+        ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+        opick = mmp.get((T, "o"), mmp.get((_bucket(T), "o"), False))
+        moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                                   marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+        gw = state.get('g_preffn')
+        if (ppick in ("bfp", "bfpf") and opick == "bfp" and moe == "agent" and state.get("bfp") is not None
+                and state.get("router_fp32") is not None and state.get("router_fp32_ext") is not None
+                and gw is not None and gw.dtype == torch.bfloat16 and gw.numel() == HIDDEN and gw.is_contiguous()
+                and _gle_o_choice(state, T)):
+            return _gle_after_attention(data, state, o_in, gate, T)
+    return _gle_prior_after(data, state, o_in, gate, T)
+14279: _gle_b1x_prior_after = _after_attention
+14280: def _after_attention(data, state, o_in, gate, T):
+    global _GLE_W_CUR
+    gw = state.get('g_preffn')
+    _GLE_W_CUR = gw if (gw is not None and gw.dtype == torch.bfloat16 and gw.numel() == HIDDEN and gw.is_contiguous()) else None
+    return _gle_b1x_prior_after(data, state, o_in, gate, T)
+
+607 ordered top-level bindings / dispatch definitions
+93: PDL = False
+3763: OKC_PDL = 0
+6879: MOE_HAS_PDL = False
+6890: _MA_PDL = False
+9735: bfp_SK2_PDL = 0
+11292: ATT_HAS_PDL = True
+11462: def _after_attention(data, state, o_in, gate, T):
+    """o projection onwards: residual boundary, router, experts, unpooler, final boundary.
+    gate is None when o_in already carries rmsnorm(o) * sigmoid(gate). state["gluev2"] picks between the
+    one-program-per-token boundary kernels and the parallel (atomic-sum) ones; the tuner chooses per T."""
+    dev = o_in.device
+    f32 = dict(device=dev, dtype=torch.float32)
+    gv = state.get("gluev2", {})
+    v2 = gv.get(T, gv.get(_bucket(T), False)) if FORCE_GLUEV2 is None else FORCE_GLUEV2
+    s1 = torch.empty((T, HIDDEN), **f32)
+    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None
+    if v2:
+        a_out = torch.empty((T, HIDDEN), **f32)
+        sums = torch.zeros((T, 4), **f32)
+        BN, BT, BK = 64, (16 if T <= 16 else 32), 128
+        _gemm_o[(HIDDEN // BN, triton.cdiv(T, BT))](
+            o_in, gate, state["o"], a_out, sums, data["stream"], state["gate1"], state["gate1"], T, HIDDEN,
+            K=1024, BN=BN, BT=BT, BK=BK, NORMGATE=gate is not None, num_warps=4, num_stages=3)
+        BC1 = 2048
+        _bnd1_apply[(T, HIDDEN // BC1)](a_out, sums, data["stream"], state["gate1"], state["gate1"], state["g_preffn"],
+                                        s1, h, N=HIDDEN, BC=BC1, num_warps=8)
+    else:
+        if gate is None:
+            P, S = dense(o_in, state["o"], T, state, "o")
+        else:
+            P, S = dense_ng(o_in, gate, state["o"], T, state)
+        _boundary1[(T,)](P, S, T, data["stream"], state["gate1"], state["gate1"], state["g_preffn"], s1, h, hr,
+                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    if T <= 8 and v2:
+        _router_input_norm[(T,)](s1, state["g_preffn"], hr, num_warps=8)
+    mmp = state.get("mm_pick", {})
+    ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+    P, S = _pool_router_fp32(h, hr, T, state, ppick)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                               marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+    use_marlin = moe == "marlin"
+    use_ma = moe == "agent"
+    if not (use_marlin or use_ma):
+        raise RuntimeError("no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available")
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    if S == -1:  # pooler and router came from the bf16_proj kernels as two separate tensors
+        pooled, logits = P
+        _route_split[(T,)](pooled, logits, state["bias"], state["g_preexp"], ids, wts, xm,
+                           data["local_start"], lids, PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    elif v2:
+        pool = torch.empty((T, D_EXPERT), **f32)
+        psum = torch.zeros((T,), **f32)
+        BCR = 1024
+        _route_a[(T, D_EXPERT // BCR)](P, S, T, state["bias"], ids, wts, data["local_start"], lids, pool, psum,
+                                       BC=BCR, num_warps=8)
+        _route_b[(T, D_EXPERT // BCR)](pool, psum, state["g_preexp"], xm, BC=BCR,
+                                       PERMUTED=not (use_marlin or use_ma), num_warps=8)
+    else:
+        _route[(T,)](P, S, T, state["bias"], state["g_preexp"], ids, wts, xm, data["local_start"], lids,
+                     PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    if use_ma:
+        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+        ext = _moe(T, state)   # the build their kernel_fn picks for this M, then at most MMAX tokens per launch, as theirs
+        if MOE_HAS_PDL:
+            ext.okc_set_pdl(1 if _pdl(T) else 0)
+        for m0 in range(0, T, _MA_MMAX):      # (their scratch is sized for MMAX: T > 384 would overrun it)
+            m1 = min(T, m0 + _MA_MMAX)
+            ext.okc_run(state["ma_w"], state["ma_scratch"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,
+                        state["nsm"])     # lids: local expert index, -1 = another GPU's expert
+    elif use_marlin:
+        m = _marlin_experts(xm, wts, lids, state)
+    wu = state["unpool_slice"] if T <= 8 else state["unpool"]
+    P, S = dense(m, wu, T, state, "un")
+    nu = wu.shape[0]
+    s2 = torch.empty((T, HIDDEN), **f32)
+    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    if v2:
+        fbuf = torch.zeros((T, HIDDEN), **f32)
+        sums2 = torch.zeros((T, 4), **f32)
+        BC2 = 1024
+        _bnd2_sums[(T, HIDDEN // BC2)](P, S, T, nu, s1, state["gate2"], state["gate2"], state["g_postffn"], fbuf, sums2,
+                                       BC=BC2, num_warps=8)
+        _bnd2_apply[(T, HIDDEN // BC2)](fbuf, sums2, s1, state["gate2"], state["gate2"], state["g_next"], s2, out,
+                                        N=HIDDEN, BC=BC2, num_warps=8)
+    else:
+        _boundary2[(T,)](P, S, T, nu, s1, state["gate2"], state["gate2"], state["g_postffn"], state["g_next"],
+                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    return out, s2, ids
+12417: _vj_after_attention = _after_attention
+12420: def _after_attention(data, state, o_in, gate, T):
+    if "graft" in state and T in _GRAFT_GLUE_T and state.get("compose_graft_enabled", {}).get(T, T in (1, 8, 128, 256)):
+        return _graft_after_attention(data, state, o_in, gate, T)
+    return _vj_after_attention(data, state, o_in, gate, T)
+15726: _sl_previous_after_attention=_after_attention
+15728: def _after_attention(data,state,o_in,gate,T):
+    if T in SL_CLUSTER_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):
+        return _sl_cluster_after_attention(data,state,o_in,gate,T)
+    return _sl_previous_after_attention(data,state,o_in,gate,T)
+15928: _sl_tile_prior_after=_after_attention
+15929: def _after_attention(data,state,o_in,gate,T):
+    if T in SL_TILE_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):
+        return _sl_tile_after_attention(data,state,o_in,gate,T)
+    return _sl_tile_prior_after(data,state,o_in,gate,T)
+16216: GLE_T = {}
+16710: _gle_prior_after = _after_attention
+16711: def _after_attention(data, state, o_in, gate, T):
+    if (GLE_T.get(T, GLE_T.get(str(T), False)) and GLE_RC.get(T, 0) > 0 and gate is None and _pdl(T) and 'graft' in state
+            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):
+        mmp = state.get("mm_pick", {})
+        ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+        opick = mmp.get((T, "o"), mmp.get((_bucket(T), "o"), False))
+        moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                                   marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+        gw = state.get('g_preffn')
+        if (ppick in ("bfp", "bfpf") and opick == "bfp" and moe == "agent" and state.get("bfp") is not None
+                and state.get("router_fp32") is not None and state.get("router_fp32_ext") is not None
+                and gw is not None and gw.dtype == torch.bfloat16 and gw.numel() == HIDDEN and gw.is_contiguous()
+                and _gle_o_choice(state, T)):
+            return _gle_after_attention(data, state, o_in, gate, T)
+    return _gle_prior_after(data, state, o_in, gate, T)
+
+common ordered top-level bindings / dispatch definitions
+93: PDL = False
+3790: OKC_PDL = 0
+6906: MOE_HAS_PDL = False
+6917: _MA_PDL = False
+9762: bfp_SK2_PDL = 0
+11320: ATT_HAS_PDL = True
+11490: def _after_attention(data, state, o_in, gate, T):
+    """o projection onwards: residual boundary, router, experts, unpooler, final boundary.
+    gate is None when o_in already carries rmsnorm(o) * sigmoid(gate). state["gluev2"] picks between the
+    one-program-per-token boundary kernels and the parallel (atomic-sum) ones; the tuner chooses per T."""
+    dev = o_in.device
+    f32 = dict(device=dev, dtype=torch.float32)
+    gv = state.get("gluev2", {})
+    v2 = gv.get(T, gv.get(_bucket(T), False)) if FORCE_GLUEV2 is None else FORCE_GLUEV2
+    s1 = torch.empty((T, HIDDEN), **f32)
+    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None
+    if v2:
+        a_out = torch.empty((T, HIDDEN), **f32)
+        sums = torch.zeros((T, 4), **f32)
+        BN, BT, BK = 64, (16 if T <= 16 else 32), 128
+        _gemm_o[(HIDDEN // BN, triton.cdiv(T, BT))](
+            o_in, gate, state["o"], a_out, sums, data["stream"], state["gate1"], state["gate1"], T, HIDDEN,
+            K=1024, BN=BN, BT=BT, BK=BK, NORMGATE=gate is not None, num_warps=4, num_stages=3)
+        BC1 = 2048
+        _bnd1_apply[(T, HIDDEN // BC1)](a_out, sums, data["stream"], state["gate1"], state["gate1"], state["g_preffn"],
+                                        s1, h, N=HIDDEN, BC=BC1, num_warps=8)
+    else:
+        if gate is None:
+            P, S = dense(o_in, state["o"], T, state, "o")
+        else:
+            P, S = dense_ng(o_in, gate, state["o"], T, state)
+        _boundary1[(T,)](P, S, T, data["stream"], state["gate1"], state["gate1"], state["g_preffn"], s1, h, hr,
+                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    if T <= 8 and v2:
+        _router_input_norm[(T,)](s1, state["g_preffn"], hr, num_warps=8)
+    mmp = state.get("mm_pick", {})
+    ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+    P, S = _pool_router_fp32(h, hr, T, state, ppick)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                               marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+    use_marlin = moe == "marlin"
+    use_ma = moe == "agent"
+    if not (use_marlin or use_ma):
+        raise RuntimeError("no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available")
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    if S == -1:  # pooler and router came from the bf16_proj kernels as two separate tensors
+        pooled, logits = P
+        _route_split[(T,)](pooled, logits, state["bias"], state["_g_preexp_effective"], ids, wts, xm,
+                           data["local_start"], lids, PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    elif v2:
+        pool = torch.empty((T, D_EXPERT), **f32)
+        psum = torch.zeros((T,), **f32)
+        BCR = 1024
+        _route_a[(T, D_EXPERT // BCR)](P, S, T, state["bias"], ids, wts, data["local_start"], lids, pool, psum,
+                                       BC=BCR, num_warps=8)
+        _route_b[(T, D_EXPERT // BCR)](pool, psum, state["_g_preexp_effective"], xm, BC=BCR,
+                                       PERMUTED=not (use_marlin or use_ma), num_warps=8)
+    else:
+        _route[(T,)](P, S, T, state["bias"], state["_g_preexp_effective"], ids, wts, xm, data["local_start"], lids,
+                     PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    if use_ma:
+        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+        ext = _moe(T, state)   # the build their kernel_fn picks for this M, then at most MMAX tokens per launch, as theirs
+        if MOE_HAS_PDL:
+            ext.okc_set_pdl(1 if _pdl(T) else 0)
+        for m0 in range(0, T, _MA_MMAX):      # (their scratch is sized for MMAX: T > 384 would overrun it)
+            m1 = min(T, m0 + _MA_MMAX)
+            ext.okc_run(state["ma_w"], state["ma_scratch"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,
+                        state["nsm"])     # lids: local expert index, -1 = another GPU's expert
+    elif use_marlin:
+        m = _marlin_experts(xm, wts, lids, state)
+    wu = state["unpool_slice"] if T <= 8 else state["unpool"]
+    P, S = dense(m, wu, T, state, "un")
+    nu = wu.shape[0]
+    s2 = torch.empty((T, HIDDEN), **f32)
+    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)
+    if v2:
+        fbuf = torch.zeros((T, HIDDEN), **f32)
+        sums2 = torch.zeros((T, 4), **f32)
+        BC2 = 1024
+        _bnd2_sums[(T, HIDDEN // BC2)](P, S, T, nu, s1, state["gate2"], state["gate2"], state["g_postffn"], fbuf, sums2,
+                                       BC=BC2, num_warps=8)
+        _bnd2_apply[(T, HIDDEN // BC2)](fbuf, sums2, s1, state["gate2"], state["gate2"], state["g_next"], s2, out,
+                                        N=HIDDEN, BC=BC2, num_warps=8)
+    else:
+        _boundary2[(T,)](P, S, T, nu, s1, state["gate2"], state["gate2"], state["g_postffn"], state["g_next"],
+                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))
+    return out, s2, ids
+12445: _vj_after_attention = _after_attention
+12448: def _after_attention(data, state, o_in, gate, T):
+    if "graft" in state and T in _GRAFT_GLUE_T and state.get("compose_graft_enabled", {}).get(T, T in (1, 8, 128, 256)):
+        return _graft_after_attention(data, state, o_in, gate, T)
+    return _vj_after_attention(data, state, o_in, gate, T)
+15754: _sl_previous_after_attention=_after_attention
+15756: def _after_attention(data,state,o_in,gate,T):
+    if T in SL_CLUSTER_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):
+        return _sl_cluster_after_attention(data,state,o_in,gate,T)
+    return _sl_previous_after_attention(data,state,o_in,gate,T)
+15956: _sl_tile_prior_after=_after_attention
+15957: def _after_attention(data,state,o_in,gate,T):
+    if T in SL_TILE_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):
+        return _sl_tile_after_attention(data,state,o_in,gate,T)
+    return _sl_tile_prior_after(data,state,o_in,gate,T)
+16244: GLE_T = {}
+16738: _gle_prior_after = _after_attention
+16739: def _after_attention(data, state, o_in, gate, T):
+    if (GLE_T.get(T, GLE_T.get(str(T), False)) and GLE_RC.get(T, 0) > 0 and gate is None and _pdl(T) and 'graft' in state
+            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):
+        mmp = state.get("mm_pick", {})
+        ppick = mmp.get((T, "pr"), mmp.get((_bucket(T), "pr"), False))
+        opick = mmp.get((T, "o"), mmp.get((_bucket(T), "o"), False))
+        moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                                   marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+        gw = state.get('g_preffn')
+        if (ppick in ("bfp", "bfpf") and opick == "bfp" and moe == "agent" and state.get("bfp") is not None
+                and state.get("router_fp32") is not None and state.get("router_fp32_ext") is not None
+                and gw is not None and gw.dtype == torch.bfloat16 and gw.numel() == HIDDEN and gw.is_contiguous()
+                and _gle_o_choice(state, T)):
+            return _gle_after_attention(data, state, o_in, gate, T)
+    return _gle_prior_after(data, state, o_in, gate, T)

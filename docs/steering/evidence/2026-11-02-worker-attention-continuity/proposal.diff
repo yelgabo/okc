@@ -1,0 +1,79 @@
+--- muse_decode_layer\cand\g1b4_stage_release.py
++++ proposal.py
+@@ -3724,6 +3724,58 @@
+     return _ATT7
+ 
+ 
++_ATT7_CONTINUITY = None
++
++
++def _attention_continuity_cuda7():
++    import hashlib
++    source = ATT7_CUDA_SRC
++    if hashlib.sha256(source.encode()).hexdigest() != '22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5':
++        raise ValueError("attention control source identity mismatch")
++    edits = [('#define OKC_CONT 0', '#define OKC_CONT 1'), ('template <int L, bool F>\nstruct Smem {', 'template <bool Enabled>\nstruct ContinuityMergeStorage {};\ntemplate <>\nstruct ContinuityMergeStorage<true> {\n  alignas(16) float continuity_merge[64 * 18];\n};\n\ntemplate <int L, bool F>\nstruct Smem : ContinuityMergeStorage<(L == 1 && F && OKC_CONT)> {'), ('if (L == 1 && !CONT && !(OKC_NOXCH1 && !M_CL)) {', 'if (L == 1 && !(OKC_NOXCH1 && !M_CL)) {'), ('    float* xs = reinterpret_cast<float*>(S.k) + ((warp & 1) * 32 + lane) * 18;', '    float* xs;\n    if constexpr (L == 1 && CONT) xs = S.continuity_merge + ((warp & 1) * 32 + lane) * 18;\n    else xs = reinterpret_cast<float*>(S.k) + ((warp & 1) * 32 + lane) * 18;'), ('      mbar_fence_init();\n    }\n  }\n  // segment list in shared memory', '      mbar_fence_init();\n    }\n    __syncthreads();\n  }\n  // segment list in shared memory')]
++    for old, new in edits:
++        if source.count(old) != 1:
++            raise ValueError("attention continuity source anchor mismatch")
++        source = source.replace(old, new, 1)
++    return source
++
++
++def _att7_continuity():
++    global _ATT7_CONTINUITY
++    if _ATT7_CONTINUITY is None:
++        import os
++        from torch.utils.cpp_extension import load_inline
++        major, minor = torch.cuda.get_device_capability()
++        arch = f"{major}{minor}" + ("a" if major >= 9 else "")
++        os.environ["TORCH_CUDA_ARCH_LIST"] = f"{major}.{minor}" + ("a" if major == 9 else "")
++        _ATT7_CONTINUITY = load_inline(name=f"muse_att_cont_merge_3fa5ac28206c_{arch}", cpp_sources=ATT7_CPP_SRC, cuda_sources=_attention_continuity_cuda7(),
++                            functions=["run"], extra_cuda_cflags=["-DOKC_QDIRECT=0", "-DOKC_PK2=0", "-DOKC_W0ENABLE=1", "-O3", f"-DOKC_SM90={1 if major >= 9 else 0}", "--expt-relaxed-constexpr"],
++                            verbose=False)
++    return _ATT7_CONTINUITY
++
++
++def _prepare_attention_modules7(state):
++    state["attention_modules7"] = (_att7(), _att7_continuity())
++
++
++def _attention_module7(cfg, plan, tma, device, state, requested):
++    modules = state["attention_modules7"]
++    target = (cfg["batch"] in (16, 32) and cfg["q_len"] in (1, 8)
++              and cfg["window"] == 0 and cfg["page_size"] == 1
++              and cfg["num_q_heads"] == 16 and cfg["num_kv_heads"] == 2
++              and cfg["head_dim"] == 64)
++    if target:
++        expected = (2 * _num_sms7(device), 1, 1, 0, 1)
++        actual = tuple(plan[key] for key in ("n_splits", "flat", "nc", "cs", "ncl"))
++        expected_tma = (1024 << 2) if cfg["q_len"] == 1 else ((1135 << 2) | 2)
++        if actual != expected or tma != expected_tma:
++            raise ValueError("attention continuity launch flags or geometry drift")
++    selected = modules[int(target)]
++    if requested is not None and requested is not selected:
++        raise ValueError("attention continuity module outside its selected scope")
++    return selected
++
++
+ _WS7 = {}
+ _PF7 = None   # (pooler weight stream pointer, bytes) for the next attention launch
+ _NUM_SMS7 = {}
+@@ -11166,7 +11218,7 @@
+     st["ma_sc6"] = bool(SC6_WGS and st["ma_sfx"] and _wgs_on() and _sc6_ok(weights["w13_sf"], weights["w2_sf"]))
+     print("FORK_MOE_SCALE",st["ma_sfx"],st["ma_sc6"],flush=True)
+     st["ma_ext"] = {}
+-    builders = [_att7, bfp__get_ext, _graft_glue_module, _graft_b2_module, _sl_cluster_module]
++    builders = [lambda: _prepare_attention_modules7(st), bfp__get_ext, _graft_glue_module, _graft_b2_module, _sl_cluster_module]
+     builders.extend(_fork_build_tasks(weights, st))
+     ths = [threading.Thread(target=_build, args=(f,)) for f in builders]
+     for th in ths:
+@@ -11276,7 +11328,7 @@
+     n_ctas = n_splits * (1 if flat else B) * pairs
+     scratch, bar = _cluster_bufs7(n_ctas if cs > 1 else 1, L, device, owner)
+     scale_log2 = cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E
+-    (_mod or _att7()).run(qkv, data["seq_lens"], data["cache_loc"], data["k_cache"], data["v_cache"], page_table,
++    _attention_module7(cfg, plan, tma, device, attention_state, _mod).run(qkv, data["seq_lens"], data["cache_loc"], data["k_cache"], data["v_cache"], page_table,
+                   data["k_scale"], data["v_scale"], _inv_freq(cfg["rope_theta"], device), out, ws_acc, ws_l,
+                   ws_cnt, B, L, hq, hkv, P, window, 1 if cfg["rope_theta"] else 0, n_splits, flat, nc, scale_log2,
+                   dbg, cs, ncl, scratch, bar, tma, *prefetch)

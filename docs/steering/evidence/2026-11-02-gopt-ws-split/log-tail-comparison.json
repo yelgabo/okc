@@ -1,0 +1,7 @@
+{
+  "job": "3e6852d30c5c4535",
+  "cli_log_sha256": "317222b8b7c7e7c6366d5d8ad21d9972f7191f6a79a2dc202b955ed2705acd6d",
+  "raw_log_sha256": "0c87b92dacdecfcca313e8ee7974bf02d1b3834dea67c784f53c232b0e596284",
+  "comparison": "CLI owning log equals server tail with USDT profiler lines removed",
+  "removed_profiler_lines": 12
+}

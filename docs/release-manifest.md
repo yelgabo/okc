@@ -1,5 +1,72 @@
 # Decode-layer release manifest
 
+## November1 subsequent eligibility update
+
+Historical standalone MoE bestabe7651dbaa44458 remains the recorded public
+2.215711562x point, but it is **not a source-clear recommendation for a new
+submission**. Exactec565a7/b35d3217 source and its owning policy/six profiles
+show ordinary launches plus software-grid joins and nonfatal watchdogs in
+both selected skinny and main47 paths. Passing historical tests do not
+establish that progress contract. No exact repaired replacement is qualified,
+and no withdrawal or production mutation occurred. See
+`archive/docs/steering/2026-11-01-historical-moe-progress-gap.md`.
+
+The same issue was **not** found in retained projectionC2's selected custom
+SK/RD/WD paths: its joins are within a CTA or an explicitly launched cluster;
+see `archive/docs/steering/2026-11-01-c2-projection-progress.md`. This is a bounded
+progress audit, not a new performance or complete vendor-library proof.
+Layer607e remains the retained recommendation. New public single-arm
+layer1fad70bbe3854cbc is running and is not promoted by this update.
+
+## November 1 current recommendation (18:19 UTC snapshot)
+
+The current layer board entry is **607eb52bdaf24160**, not the historical
+October31 entry retained below. Use
+`muse_decode_layer/cand/g1b4_stage_release.py`,869076bytes, SHA256
+`ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`.
+Official PASS13,2.1260826764231093x,95%CI[2.0941914362767626,2.1579739165694556].
+This is the attributed, repaired G fork with the recorded stage-retirement
+change. Receipt `muse_decode_layer/profiles/scored.607eb52bdaf24160.json`;
+source and eligibility: `archive/docs/steering/2026-11-01-g-public-layer-measurement.md`.
+Do not substitute the older root submission.py or unqualified private hybrid.
+
+| Board | Retained best public job | Score | Reproducible source |
+|---|---|---:|---|
+| Layer |607eb52bdaf24160|2.1260826764x|Exact candidate above|
+| Projection |9eba96894ee1402e|1.5278064830x|C2 at3044ee7; tools/proj_sk_xor_control.py restores exact216576B/SHA5610b8a6 submitted file|
+| Attention |8914751e3b9f468b|2.6042902049x|d3eeeda plus repeatcomment2, SHA b296c13ad2745336e97488e297fcde751a5fc10c818c92b6f2250656369efe75; owning row in docs/runs-attention.md|
+| MoE |abe7651dbaa44458|2.2157115620x|ec565a7:muse_moe_w4a16/submission.py,235700B/SHA b35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14|
+
+Projection's tracked submission.py is C3 and is not the best public C2 source.
+Do not choose it just because of its filename. Global repair2b537518 is closed
+as a measured loss; stage-local measurementdfcfdd01d6f04525 passed all9 official tests but
+scored1.419146839x and is also closed as a loss. Neither is promoted. New source/code/compiler/bit-test clearance alone does not establish
+a release improvement. Prefill remains excluded. The complete historical
+manifest follows unchanged.
+
+## Board entry verified October31 PDT: attention port on stable M1+51+C1
+
+Job `8f2780d7382047e6`, scored **2.022870x**,95%CI1.992527–2.053214,13/13tests.
+Official public board was read and selects this job, replacing7b84ed4346d5497b (2.018705x).
+Candidate `muse_decode_layer/cand/layer_attn31s.py`, SHA256
+`585d46e2cd059ea7ea76c25110fd199bb228d2ee7f96239b44ae0bfb8025893b`, sourceaea73a1.
+Only the owned attention device source was refreshed from the stable prior candidate;
+HMRG1/PRQ31, no workspace placement pick, host PDL/precision/gates retained.
+
+Paired gatec0402e4c92bc4b20: all24checks perarm, all6loads, independentprepared copies,
+pooledinc/cand1.0042, allcrosses1.0036–1.0048, maxnull0.0007log. M1policy differs at32
+in one incumbent arm, so this is the whole prepared candidate's gain, not isolated attention
+instruction attribution. Second paired9414182118414889 is NOT RESOLVED: pooled1.0015,
+maxlognull0.0011,allM1{} after gatefallback. First regime gain was not independently repeated.
+Public score movement is within runnoise; do not infer a0.42%official-score guarantee.
+
+Scored policy: M1{8:o+front,16:o,32:o}, open (8token saving2.94us), M1PDL=plain bitwise
+on14launches; unchanged-shape1x1 gates skipped as authorized. SUMMARY reports3non-promotional
+issues: sensitivity control on unpicked main-m2-ar2-ub@256, sensitivity route-side@128,
+and skf-r@1 fresh-input rejection (T1 usesfp32). Do not erase these by saying every diagnostic
+passed. Selected official path passes; full receipt retained in profiles/scored.8f2780d7382047e6.json.
+Main submission.py remains the older clean control; use the explicit candidate for this entry.
+
 The scored layer files, identified by full SHA256 of the file as submitted, with the source
 commit, build switches, the policies prepare() selected in the receipt run, and the receipt.
 Main's `muse_decode_layer/submission.py` was the M1 experiment (6377b5a, `PORT_SK_PDL = True`)
@@ -21,7 +88,7 @@ tolerances unchanged. Definition and thresholds: docs/runs-decode-layer.md, "Val
 change: fresh-input replay gate". The board entry below predates it and still carries the
 1e-4 bound; a file built with `tools/dl_gate_patch.py` carries the gate.
 
-Later on 2026-10-30 the user chose option 1 of docs/steering/2026-10-30-m1-1x1s-gate-failure.md
+Later on 2026-10-30 the user chose option 1 of archive/docs/steering/2026-10-30-m1-1x1s-gate-failure.md
 (relayed by the coordinator): the M1 gate judges only shapes whose captured candidate graph
 makes at least one M1 PDL launch, skips the others as "skipped: no M1 launch", and judges a
 shape as before when the census fails; bounds unchanged. Files built with
@@ -35,7 +102,7 @@ caution; see the addendum in docs/runs-decode-layer.md.
 
 ## Candidate (2026-10-31): layer_m1rt51s (not submitted)
 
-layer_m1rt51c plus the stable prepare-time picks (docs/plan-2026-10-30-tuner-stability.md,
+layer_m1rt51c plus the stable prepare-time picks (archive/docs/plan-2026-10-30-tuner-stability.md,
 design 1; A/A e582fde557114062), with a preference table that matches this candidate.
 
 | field | value |
@@ -93,7 +160,7 @@ layer_m1rt51 plus the M1 gate's census skip (user decision below) and the negati
 ## Candidate (2026-10-30): layer_g51b (not checked, not submitted)
 
 Release + MoE mode 51 + the current gate, no M1: the file to ship if the four-arm bench
-prepared for after the reset confirms mode 51 on its own (docs/steering/2026-10-30-m1-1x1s-gate-failure.md, section 3).
+prepared for after the reset confirms mode 51 on its own (archive/docs/steering/2026-10-30-m1-1x1s-gate-failure.md, section 3).
 
 | field | value |
 |---|---|
@@ -110,7 +177,7 @@ prepared for after the reset confirms mode 51 on its own (docs/steering/2026-10-
 Scored run d6c30f88c617438b: 2.013x (1.983-2.043), 13/13, prepare 154.8 s. M1's enforced gate
 failed at 1x1 sliding (one replay of 2000 at relative 3.2e-4, control bitwise), so M1 was off
 for the run. At one token M1 changes no launch; analysis and the after-reset reproduction in
-docs/steering/2026-10-30-m1-1x1s-gate-failure.md. Mode 51 ran at 32 / 128 / 256 and every
+archive/docs/steering/2026-10-30-m1-1x1s-gate-failure.md. Mode 51 ran at 32 / 128 / 256 and every
 MoE gate passed. The board entry is unchanged.
 
 layer_m1rt plus MoE mode 51: the combination four-arm bench 40b9b3f795f84073 measured as "cand
@@ -139,12 +206,12 @@ Scored 2.013x (1.983-2.043), passed 13/13, prepare 143 s, against the board entr
 | what it adds to the board entry | M1 with the runtime issue order (PDL order only on launches made as PDL secondaries, flagged in bit 30 of M), the reader-side `fence.proxy.async.global` after `griddepcontrol.wait` in thread 0 and in the producer lane, `ONE_TRIG`; the fresh-input gate on the MoE replay self-tests, the route-variant replay check and M1's replay stress |
 | M1 gate, enforced | `_m1_stress` at the eight T <= 32 shapes (1x1, 1x8, 16x1, 32x1, sliding and full): 2000 fresh-input replays with M1 off (control) and 2000 with M1 on (o + front), each checked on the device against that input's M1-off eager reference; order-1 = relative L2 >= 1e-2, the row-max element check within 2x the control's envelope (floor 2^-7), the candidate's relative error and share over 1e-4 within 2x the control's, ids flips within 2x the control's rate plus two. Then negative controls on an eager M1-on output, hidden and stream: a 64 x 128 tile, 1%, 0.1%, one row and one element of another input's reference must all be rejected and the uninjected output must pass. Any failure raises; `_m1_enable` then turns M1 off for the whole run (the layer runs as the board entry plus the gate) and the failure is listed with its class in the SUMMARY manifest. The measured build (40b9b3f795f84073) ran this gate report-only at 1000 replays and passed at all eight shapes |
 | single-element control | drawn among the elements where the two inputs' references differ by at least 1/8 of the row maximum. Offline (`tools/dl_gate_negctl_test.py`, CPU torch, synthetic rows of width 8192 at noise 3e-3): drawing among all elements missed 5/150, 4/150 and 6/150 trials at 1 / 8 / 32 rows (a stale value close to the fresh one), which would turn M1 off on about two runs in five across its 16 checks; with the 1/8 floor 0 misses in 600 trials, and the uninjected output never rejected. The MoE and route negative controls keep the unrestricted draw and stay report-only |
-| W4 GEMM2 early exit | at the coordinator's request after the PDL-secondaries audit (docs/review-pdl-secondaries-2026-10-30.md, e07a9a2): `w4_gemm_kernel` KIND 2 returned at `if (q >= total)` before its `griddepcontrol.wait`, so with no local routes every CTA could exit without waiting and the kernel could complete before its predecessor. The exit now executes the wait first when KIND is 2 (`dl_gate_patch.py`, always applied). Nothing is written on that path, and the W4 chain is not on the scored path while a fused MoE variant is picked |
+| W4 GEMM2 early exit | at the coordinator's request after the PDL-secondaries audit (archive/docs/review-pdl-secondaries-2026-10-30.md, e07a9a2): `w4_gemm_kernel` KIND 2 returned at `if (q >= total)` before its `griddepcontrol.wait`, so with no local routes every CTA could exit without waiting and the kernel could complete before its predecessor. The exit now executes the wait first when KIND is 2 (`dl_gate_patch.py`, always applied). Nothing is written on that path, and the W4 chain is not on the scored path while a fused MoE variant is picked |
 | unchanged from the board entry | MoE: mode 47, `LAYER_MODES` as the release, `_MOE1_SRC` byte-identical to b9c23bda's; `_SKP_CONFIGS`, attention plans, fronts, boundaries and every other check; `_ONE_PDL = False`, `MOE1_HELD = ()` |
 | inliners | at the release's source commit 2cee446 (`muse_moe_w4a16`, `muse_bf16_proj`, both inliners), the release and 6377b5a's file go through `dl_proj_inline.py` and `dl_moe_inline.py` unchanged, twice. At current main the MoE standalone carries mode 51's shared helpers, so re-inlining from main changes `_MOE1_SRC` even without mode 51; build from 2cee446's sources or from this file |
 | SASS (CUDA 12.8.1, sm_90a, `tools/dl_moe_sass_counts.sh`) | Projections (`skp1` against the release's `skp`, 39 kernels): the 23 single-CTA sk instances gain the wait (ACQBULK 0 -> 1) and the two reader-side fences (FENCE.G 0 -> 2); their SYNCS, UBLKCP, FENCE.S, MEMBAR and CCTL counts rise because the runtime build compiles both issue orders into each PDL instance; no opcode count of any kernel falls below the release's or 6377b5a's, and LDL / STL are 0 in all 39. The candidate's projection SASS counts are byte-identical to those of the build the four-arm bench timed (40b9b3f795f84073). Attention (`one1` against the release's `one`, 13 kernels): every fence, barrier, mbarrier, atomic and local-memory count equal, instruction totals move by -2 to +3 in 7 instances (ONE_TRIG's launch_dependents), LDL / STL 0; equal to 6377b5a's byte for byte. W4 (`w4`, 35 kernels): the 14 GEMM2 instances gain one ACQBULK and 2 instructions, nothing else changes; the 3 instances with LDL 1 / STL 16 are as in the release. MoE: `_MOE1_SRC` and `_MOE1_HOST_SRC` are byte-identical to the release's, so its SASS is the release's |
 | compile | `DL_DEFS=ONE_TRIG tools/dl_compile_check.sh FILE _ONE_SRC`: the attention extension compiles with ONE_TRIG (350 s, warnings only). The projection extension is assembled at run time, so its compile check is the SASS build above, which compiles device and host code with `SK_PDL` |
-| ordering | docs/steering/2026-10-30-m1-ptx-ordering.md (with the runtime-order addendum); independent review docs/review-m1-ordering-2026-10-30.md (fba35bb): sound with caveat, keep the reader-side fences, no code change; the caveat's audit of the other PDL secondaries is docs/review-pdl-secondaries-2026-10-30.md (pending at the time of writing) |
+| ordering | archive/docs/steering/2026-10-30-m1-ptx-ordering.md (with the runtime-order addendum); independent review archive/docs/review-m1-ordering-2026-10-30.md (fba35bb): sound with caveat, keep the reader-side fences, no code change; the caveat's audit of the other PDL secondaries is archive/docs/review-pdl-secondaries-2026-10-30.md (pending at the time of writing) |
 | expected effect | from 40b9b3f795f84073 read per load against the A/A run 724aa0dd6ed140ca: M1's own shapes give about +0.4% of the score (v1 +1.2%, d16 +0.6%, d32 +0.5%). The bench's +1.2% net includes mode 51 (about +0.7% at v16 / v32), which this file leaves out. +0.4% is under the 1-2% run-to-run swing of scored runs, so one scored run cannot confirm or refute it; it can show a regression only if it is large |
 | prepare time | not measured for this file. Estimate: a438b82ff2c141c2 (release + gate + 51) took 146 s; the M1 tuner and the SK_PDL / ONE_TRIG builds add about 40-50 s by the bench's ABEND (166 s with two M1 prepares against 72 s with none), and the enforced gate runs 2000 replays per arm instead of 1000. Expected under 220 s against the 300 s limit |
 | unpatched judge check of this exact file | none yet |
@@ -158,7 +225,7 @@ Scored 2.013x (1.983-2.043), passed 13/13, prepare 143 s, against the board entr
 | build switches | as the board entry: `SK_PDL` 0, `ONE_TRIG` 0, no M1, `_ONE_PDL = False`, `MOE1_HELD = ()` |
 | check | a438b82ff2c141c2, **2.022x** (1.991-2.052), 13/13, failed 0, every MoE gate line order-1 free |
 | policies in that check | MoE sk8w3s 1 / 8 / 16, mode 51 at 32 / 128 / 256; fronts and attention as the board entry |
-| same-process timing | bench 29fd004fd58e40ef (this file, comment-stripped, against the release, null arm): cand / release 1.0084, null 0.9997; v16 -5.1 / -5.3 us, v32 -6.5 / -1.1, every other shape within the null spread. Earlier, before this file existed: Bench fdf75ba5a8124544 (the M1 measurement build, which differs from it at T <= 32 only) against the release: v16 -4.7 / -3.2 us, v32 +1.2 / -4.6, null within 0.6 of cand on those shapes; mode 51 is the only difference at 128 / 256 tokens. **Not established** (2026-10-30): the null shared the candidate's state, and identical-code loads in 29fd004fd58e40ef read inc / cand 1.0066, so part of the 1.0084 may be an inc-arm bias; four-arm rerun prepared, docs/steering/2026-10-30-layer-bench-arm-bias.md |
+| same-process timing | bench 29fd004fd58e40ef (this file, comment-stripped, against the release, null arm): cand / release 1.0084, null 0.9997; v16 -5.1 / -5.3 us, v32 -6.5 / -1.1, every other shape within the null spread. Earlier, before this file existed: Bench fdf75ba5a8124544 (the M1 measurement build, which differs from it at T <= 32 only) against the release: v16 -4.7 / -3.2 us, v32 +1.2 / -4.6, null within 0.6 of cand on those shapes; mode 51 is the only difference at 128 / 256 tokens. **Not established** (2026-10-30): the null shared the candidate's state, and identical-code loads in 29fd004fd58e40ef read inc / cand 1.0066, so part of the 1.0084 may be an inc-arm bias; four-arm rerun prepared, archive/docs/steering/2026-10-30-layer-bench-arm-bias.md |
 | what the gate change removes | the shipped 1e-4 replay bound dropped unused MoE variants on FP32-atomics noise twice (6372154fcd7a4fa9, 3e2aa83358dd4f60); with the gate, 0 variants dropped in a438b82ff2c141c2 and fdf75ba5a8124544 |
 | gate coverage | MoE stress and route PDL test, and `_route_variant_check`'s replay part (user decision); still on 1e-4: `_one_stress`, the norm and route side-stream tests |
 | unpatched judge check of this exact file | none (the bench ran it comment-stripped; compiled code identical). a438b82ff2c141c2 checked the first gate version |
@@ -194,3 +261,4 @@ Scored 2.013x (1.983-2.043), passed 13/13, prepare 143 s, against the board entr
 | front | 1: fp32; 8 / 16 / 32: skf-r; 128 / 256: concat-r |
 | attention boundary | 1 / 8: c8x256; 16: sglang; 32: c1x1024; 128: sglang; 256: c1x512 |
 | per shape us (s / f) | d1 76.8 / 84.6, d16 138.2 / 221.2, d32 171.3 / 327.9, v1 122.6 / 122.4, v16 270.0 / 356.4, v32 366.5 / 514.3 |
+2026-11-01 new owned layer release: muse_decode_layer/cand/layer_lt_boundary.py SHA256 851c46951e1940b6874d35314d8ff7cc00a966a4718094881c764135ef13392a, paired 828974e3bbcc4d9b, clean 47bec92021ef4bbe, scored cb71acec29d141c6 PASS13 at 2.043438469x. Official board selects this job at rank 373. Separate from Family G.

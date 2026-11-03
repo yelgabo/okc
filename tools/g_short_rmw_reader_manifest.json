@@ -1,0 +1,34 @@
+{
+  "source_sha256": "f0426f7160768de01997b271744542ae3442d0851a1c27e586ced322a8fc6864",
+  "bytes": 906841,
+  "control_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "normal_judged": "607 control; short flag0; WGS stage retirement retained",
+  "affected": [
+    1,
+    8
+  ],
+  "seeds": [
+    993811,
+    993817,
+    993821
+  ],
+  "rows": 36,
+  "arms": 4,
+  "owners_sha256": "9b0d57f62cfdc268eef349eb93b2f52d2d24b4453a9f7ecb160b789bc8a9bb90",
+  "body_sha256": "13c1434430595d7fe4ebcc882d89f79c34b5c8577dc1541e069b224524b3361a",
+  "resource_sha256": "bbe383a00a8e7ff745c085de59bea9da43e7a24cc357a103ece2a5667cd29710",
+  "generation_only": true,
+  "gpu_execution": false,
+  "private_check_only": true,
+  "capsule_pins": {
+    "_WL_PIN": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "_WL_CONFORMANCE": {
+      "candidate_pin": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "job_id": "607eb52bdaf24160",
+      "receipt_sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+      "scope": "previous public incumbent, current official tests required"
+    },
+    "_WL_DEVICE_SHA": "38e186965ddf41652ffb7d12d5e082689f447fbff7ce9cc95e69c8f960a739b8",
+    "_WL_CORE_SHA": "5523fbbe30f5fa0f69fcd237e00c45f4ac79b78fb1db35a339b06b353f7f5b2e"
+  }
+}

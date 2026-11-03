@@ -1,0 +1,4 @@
+{
+  "promotion_gaps": [],
+  "leads": 24
+}

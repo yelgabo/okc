@@ -1,0 +1,353 @@
+{
+  "source_sha256": "c4a5ee29bcfeca248c0fee638ed103e9f211f7a8cc32b86bd3bb642676bf45e3",
+  "factory_builds": 7,
+  "extra_builds": 2,
+  "selected_compile_seconds": [
+    1.0612335499999999,
+    0.9433109439999994,
+    0.9593782380000002,
+    0.9573348769999992
+  ],
+  "records": [
+    {
+      "factory_index": 0,
+      "seconds": 1.0612335499999999,
+      "manifest": {
+        "source": ".build/rmw-pair-v3/compile/0/input.cu",
+        "source_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+        "original_device_prefix_sha256": "8b70b5e402464d74dcff75aef71518f5e4116b070eeaaab3b9ba63222e4800fd",
+        "compiled_device_prefix_sha256": "d4d87e0fbb453d0b940dca26de1187cb73962083865dabbe159995fa21ab5fa5",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+          "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+          "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "7de2561fae66d2ab258bd5015ec8f51375505ce57b11d0d62257546de36f05d5",
+        "cubin_sha256": "352da39d4fcf04392c7c55c476067ad67b714d04b0df4ffce1234d5778594cc6",
+        "ptxas": [
+          "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/rmw-pair-v3/compile/0/device.ptx",
+          "-o",
+          ".build/rmw-pair-v3/compile/0/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      }
+    },
+    {
+      "factory_index": 1,
+      "seconds": 0.9433109439999994,
+      "manifest": {
+        "source": ".build/rmw-pair-v3/compile/1/input.cu",
+        "source_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+        "original_device_prefix_sha256": "8b70b5e402464d74dcff75aef71518f5e4116b070eeaaab3b9ba63222e4800fd",
+        "compiled_device_prefix_sha256": "d4d87e0fbb453d0b940dca26de1187cb73962083865dabbe159995fa21ab5fa5",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+          "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+          "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "2aea8e0d4a357152875256b9fdb0cc5a00bec5a0a67faef2944b0b0fa6b16052",
+        "cubin_sha256": "7b100e1d44b6822a213ba7229c4b314c0e9f297735126e0ee6325e0332d8cb5e",
+        "ptxas": [
+          "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/rmw-pair-v3/compile/1/device.ptx",
+          "-o",
+          ".build/rmw-pair-v3/compile/1/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      }
+    },
+    {
+      "factory_index": 5,
+      "seconds": 0.9593782380000002,
+      "manifest": {
+        "source": ".build/rmw-pair-v3/compile/5/input.cu",
+        "source_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+        "original_device_prefix_sha256": "8b70b5e402464d74dcff75aef71518f5e4116b070eeaaab3b9ba63222e4800fd",
+        "compiled_device_prefix_sha256": "d4d87e0fbb453d0b940dca26de1187cb73962083865dabbe159995fa21ab5fa5",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+          "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+          "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_SHORT_FINAL_RELAXED=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "9ae46519358050bbdd7fd494e2c0caedcee3bf54fbe98277025901a21b7820e2",
+        "cubin_sha256": "13a5fe2b219dc12c7c73158b523aaac0d74e3a8c313a56132a468f7e2891db76",
+        "ptxas": [
+          "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/rmw-pair-v3/compile/5/device.ptx",
+          "-o",
+          ".build/rmw-pair-v3/compile/5/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      }
+    },
+    {
+      "factory_index": 6,
+      "seconds": 0.9573348769999992,
+      "manifest": {
+        "source": ".build/rmw-pair-v3/compile/6/input.cu",
+        "source_sha256": "3a91956f9d4a577cc3456baffcf02d9dacb82c875d6b0ff2deedf71bce4a7cf4",
+        "original_device_prefix_sha256": "8b70b5e402464d74dcff75aef71518f5e4116b070eeaaab3b9ba63222e4800fd",
+        "compiled_device_prefix_sha256": "d4d87e0fbb453d0b940dca26de1187cb73962083865dabbe159995fa21ab5fa5",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+          "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+          "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_SHORT_FINAL_RELAXED=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "c2821dadbec587d2817fe50f63e1bf03013f8a341db2255c2eaca4bb8aec254c",
+        "cubin_sha256": "3f8f279799a01b1053f812f827c0ec5d773f417e169906be0f4a1c1a74076564",
+        "ptxas": [
+          "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/rmw-pair-v3/compile/6/device.ptx",
+          "-o",
+          ".build/rmw-pair-v3/compile/6/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      }
+    }
+  ],
+  "GPU": false,
+  "scope": "Exact actual source/flags; both bool entries Tiny/Tiny2 OFF/ON; device-only NVRTC12.8 excludes host link/runtime13.0"
+}

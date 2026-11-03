@@ -1,0 +1,15 @@
+{
+  "decision": "STOP_EXACT_CONTEXT_SYNC_GRAPH_OWNER_PROTOCOL",
+  "blocked_publication": "6e454c18c6107f2c4f336a34977292b3c227628a",
+  "candidate_sha256": "25585f88ec8434023d31d54b78a7184c77959f2b589c870d714a6631b4f595be",
+  "candidate_bytes": 879911,
+  "contradiction_source": "f3a93a2",
+  "reason": "Owner A helper context synchronization can encompass independent owner B active capture",
+  "synthetic_contract_schedule": true,
+  "observed_gpu_failure": false,
+  "repair_implemented": false,
+  "target_authorized": false,
+  "new_checks": 0,
+  "private_check_reserved": 1,
+  "observed_utc": "2026-11-02T14:13:23.508Z"
+}

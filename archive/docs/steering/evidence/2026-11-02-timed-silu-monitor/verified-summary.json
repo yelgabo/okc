@@ -1,0 +1,136 @@
+{
+  "at_utc": "2026-11-02T11:30:25.407492+00:00",
+  "evidence_commit": "e078b95467d61cbc79c6680f96cef3f33e5b8a7a",
+  "terminal": {
+    "job": "dc62cff972934f54",
+    "passed": true,
+    "counts": {
+      "setup": 1,
+      "test": 13,
+      "benchmark": 12,
+      "profile": 12
+    },
+    "score": 2.0732886764638923,
+    "ci": [
+      2.042189346316934,
+      2.1043880066108502
+    ],
+    "prepare_s": 112.53586404,
+    "gpu": "H200",
+    "node": "n-nzf2vzn536ewibf7w3dgpswb6g",
+    "finished_utc": "2026-11-02T11:27:23.295050+00:00"
+  },
+  "layer_quota": {
+    "scored": {
+      "per_day": 5,
+      "used": 0,
+      "left": 5
+    },
+    "checks": {
+      "per_day": 10,
+      "used": 7,
+      "left": 3
+    }
+  },
+  "live_jobs": [],
+  "layer": {
+    "board": "muse_decode_layer",
+    "you": {
+      "rank": 346,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 345,
+      "to_first": 1.1685
+    },
+    "cutoffs": [
+      {
+        "attempts": 33,
+        "job": "ec6a583cf4d0447b",
+        "rank": 50,
+        "speedup": 2.3028,
+        "submitted_at": 1793532337.5949967,
+        "team": "adityakm24",
+        "value": 9823.087387434833
+      },
+      {
+        "attempts": 62,
+        "job": "b10ff369589748d4",
+        "rank": 100,
+        "speedup": 2.263,
+        "submitted_at": 1793498518.3795624,
+        "team": "chinesepowered",
+        "value": 9995.910037519952
+      }
+    ]
+  },
+  "overall": {
+    "board": "overall",
+    "you": {
+      "rank": 346,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 345
+    },
+    "cutoffs": [
+      {
+        "rank": 50,
+        "solved": 4,
+        "team": "adityakm24"
+      },
+      {
+        "rank": 100,
+        "solved": 4,
+        "team": "chinesepowered"
+      }
+    ]
+  },
+  "weighted_loads": [
+    {
+      "load": "decode 1",
+      "weighted_latency_us": 78.75699990644154,
+      "historic_607_weighted_latency_us": 78.54904481802234,
+      "descriptive_latency_change_pct": 0.2647455343358862,
+      "all_context_seeds_differ_from_607": true
+    },
+    {
+      "load": "decode 16",
+      "weighted_latency_us": 160.4298123520714,
+      "historic_607_weighted_latency_us": 158.24100957331893,
+      "descriptive_latency_change_pct": 1.3832083002088824,
+      "all_context_seeds_differ_from_607": true
+    },
+    {
+      "load": "decode 32",
+      "weighted_latency_us": 198.81352054569248,
+      "historic_607_weighted_latency_us": 191.73973579615884,
+      "descriptive_latency_change_pct": 3.689263845160329,
+      "all_context_seeds_differ_from_607": true
+    },
+    {
+      "load": "verify 1",
+      "weighted_latency_us": 114.8220851589519,
+      "historic_607_weighted_latency_us": 115.99082289963329,
+      "descriptive_latency_change_pct": -1.0076122502318263,
+      "all_context_seeds_differ_from_607": true
+    },
+    {
+      "load": "verify 16",
+      "weighted_latency_us": 275.44914729085303,
+      "historic_607_weighted_latency_us": 269.347029111948,
+      "descriptive_latency_change_pct": 2.2655227343787665,
+      "all_context_seeds_differ_from_607": true
+    },
+    {
+      "load": "verify 32",
+      "weighted_latency_us": 358.4956607481057,
+      "historic_607_weighted_latency_us": 359.29721608943515,
+      "descriptive_latency_change_pct": -0.22308977232095017,
+      "all_context_seeds_differ_from_607": true
+    }
+  ],
+  "score_recomputed": 2.073288676463892,
+  "descriptive_score_ratio_over_607": 0.9751684162875371,
+  "registered_followup_point_gate": false,
+  "historical_comparison_caveat": "Different seeds/nodes/baselines, not a causal or matched treatment effect. Failing point triage is an allocation decision only."
+}

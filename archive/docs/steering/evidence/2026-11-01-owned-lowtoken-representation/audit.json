@@ -1,0 +1,75 @@
+{
+  "source_pin": "c7854a71ad4639ed1c0ef7ff3013a831765344bf82f27caba15f034a030e03d7",
+  "scope": "CPU/source model only; no HBM counters, latency prediction, or production change",
+  "expansion_math_cases": 1904,
+  "immutable_prepare_packs": [
+    "skinny packed code+byte scales",
+    "fat packed code+byte scales"
+  ],
+  "representation": {
+    "current_unit_bytes": 36864,
+    "BF16_unit_bytes": 131072,
+    "scale16_unit_bytes": 40960,
+    "current_local32_skinny_bank_bytes": 905969664,
+    "current_both_layout_bank_bytes": 1811939328,
+    "BF16_local32_bank_bytes": 3221225472,
+    "scale16_local32_bank_bytes": 1006632960,
+    "active_ring_slots": 3,
+    "actual_H200_control_shared_bytes": 155520,
+    "BF16_same_ring_shared_bytes": 438144,
+    "scale16_same_ring_shared_bytes": 167808,
+    "traffic_ratio_BF16": 3.5555555555555554,
+    "traffic_ratio_scale16": 1.1111111111111112
+  },
+  "retained_census_sha256": "d9c4c976e3f83de1bac85ae6eb6ed43b3db7532e27cf3e387b5e2e085368879a",
+  "census_scope": "Independent local GPU distribution; not H200 replay, traffic, timing or bound.",
+  "activation_model": [
+    {
+      "M": 16,
+      "banks": 32,
+      "mean_weight_requested_bytes": 348585984,
+      "mean_pair_activation_minimum_bytes": 220160,
+      "mean_activation_requested_A_bytes": 2569984,
+      "mean_activation_requested_B_bytes": 2569984,
+      "mean_unique_X_capacity_bytes_upper": 131072,
+      "activation_to_total_requested_fraction": 0.014530932692210268,
+      "conditional_eliminate_all_activation_factor_one_load": 1.002442568337606
+    },
+    {
+      "M": 32,
+      "banks": 32,
+      "mean_weight_requested_bytes": 501645312,
+      "mean_pair_activation_minimum_bytes": 435456,
+      "mean_activation_requested_A_bytes": 3654912,
+      "mean_activation_requested_B_bytes": 3654912,
+      "mean_unique_X_capacity_bytes_upper": 262144,
+      "activation_to_total_requested_fraction": 0.01436241327172696,
+      "conditional_eliminate_all_activation_factor_one_load": 1.0024140008602702
+    }
+  ],
+  "measured_common_control_job": "835253441a214a1c",
+  "measured_us": {
+    "1": 28.656133966466932,
+    "16": 95.36408561250049,
+    "32": 132.62892210019137,
+    "8": 66.70387399236841,
+    "128": 199.27146685058736,
+    "256": 239.46754664479454
+  },
+  "prior_decoder_four_cross": [
+    1.0012479934821652,
+    1.0022035245640342,
+    1.00199593264134,
+    1.00295217751152
+  ],
+  "prior_duplicate_null": 0.00802944429703234,
+  "minimum_equal_latency_reduction_for_one_percent_six_load_score": {
+    "1": 0.05795476474579331,
+    "2": 0.02940985207235558,
+    "4": 0.01481466315842661,
+    "6": 0.00990099009900991
+  },
+  "conditional_proportional_eliminate_all_activation_M16_M32_factor": 1.0048624655599443,
+  "scenario_warning": "All activation requests removed at zero cost and latency proportional to total requested bytes; not measured, not a timing upper bound.",
+  "decision": "NO_GPU_CANDIDATE: expansion admission/traffic cost; no measured exposed activation-read budget"
+}

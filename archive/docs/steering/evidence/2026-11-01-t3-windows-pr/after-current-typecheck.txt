@@ -1,0 +1,8 @@
+~/evals$ tsc --noEmit ⊘ cache disabled
+~/scripts$ tsc --noEmit ⊘ cache disabled
+~/apps/server$ tsc --noEmit ⊘ cache disabled
+
+
+
+---
+vp run: 3/3 successful. (Run `vp run --last-details` for full details)

@@ -1,0 +1,29 @@
+{
+  "repository_base": "810d82649db8ee64382db021b758c2d1d14d9cf9",
+  "observations": {
+    "jobs": "2026-11-03T01:47:26.865975+00:00",
+    "layer-board": "2026-11-03T01:47:27.382047+00:00",
+    "overall-board": "2026-11-03T01:47:47.503308+00:00",
+    "serving-jobs": "2026-11-03T01:47:48.994170+00:00"
+  },
+  "recent_jobs_returned": 50,
+  "live_jobs": [
+    {
+      "flags": [],
+      "job_id": "f0b875484960438b",
+      "mode": "check",
+      "passed": null,
+      "problem": "muse_moe_w4a16",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "running",
+      "submitted_at": 1793669246.5397456
+    }
+  ],
+  "null_rank_rows": 1,
+  "layer_ranked_header": 1211,
+  "layer_rows_returned": 1212,
+  "serving_jobs": 0,
+  "collection_limit": "Initial rendering stopped at a null leaderboard rank after raw jobs and layer-board responses were saved. Null ranks were then guarded and the remaining reads completed. No failed read was interpreted as an empty job list."
+}

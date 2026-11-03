@@ -1,0 +1,7 @@
+{
+  "instructions_equal": true,
+  "instruction_count": 17528,
+  "normalized_instruction_sha256": "81f732679ca7bff09a8ee5b378a289fc3693ca0ecb03468e53b9a396220c79c3",
+  "normalization": "remove address and encoding comments only",
+  "host_wrapper_and_GPU_execution_tested": false
+}

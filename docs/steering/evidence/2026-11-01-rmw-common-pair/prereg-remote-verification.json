@@ -1,0 +1,86 @@
+{
+  "implementation_commit": "2686a7653d6cf2325e944f419cdf0f81e4b6308a",
+  "observed_remote": "2686a7653d6cf2325e944f419cdf0f81e4b6308a",
+  "files": [
+    {
+      "path": "docs/steering/2026-11-01-rmw-common-pair-registration.md",
+      "blob": "ce7c161240588c10fa381d8d55d16f58d9e1baed"
+    },
+    {
+      "path": "docs/steering/README.md",
+      "blob": "ddb85e7b5595b6fd39e524093fa7e8eb652d9f8d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/compile-0.nvrtc.log",
+      "blob": "f03d5569bcecfb210a2bae880d527e985aa93c0f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/compile-0.ptxas.log",
+      "blob": "da6bd39bcd2ed9ddf3af5a16aff9253045af706e"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/compile-1.nvrtc.log",
+      "blob": "f03d5569bcecfb210a2bae880d527e985aa93c0f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/compile-1.ptxas.log",
+      "blob": "59dca77f21ee4733bd7179e61a4c14be4495d2e3"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/compile-5.nvrtc.log",
+      "blob": "f03d5569bcecfb210a2bae880d527e985aa93c0f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/compile-5.ptxas.log",
+      "blob": "f8f5bd3a9204b6f7fc00e8c2275aa925c6074067"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/compile-6.nvrtc.log",
+      "blob": "f03d5569bcecfb210a2bae880d527e985aa93c0f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/compile-6.ptxas.log",
+      "blob": "1fd959c4ca59fd9d27bc9956eb0b7b04363984ef"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/cpu-tests.json",
+      "blob": "fe2f307a66450719353a7dd491d76996ffef8392"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/factory-capture.json",
+      "blob": "28ea230aeb543f6cfba219f958e88f94e190d177"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/file-pins.json",
+      "blob": "d7f1160437d639e45d51590c499e6198d4cd34c5"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-rmw-common-pair/selected-compile-summary.json",
+      "blob": "b26a6232ce8ec83bcd9dfd07052fd7dcb9c7ada6"
+    },
+    {
+      "path": "tools/g_common_rmw_pair.py",
+      "blob": "707acde26a793b2ae5bce40f574e3839359de991"
+    },
+    {
+      "path": "tools/g_common_rmw_pair_body.py",
+      "blob": "6227d597e8781b581c5165c447e61d4bb17c0521"
+    },
+    {
+      "path": "tools/g_common_rmw_pair_compile.py",
+      "blob": "f676ff55ea7b6c85bfcecc0c78f59cd4b4720c5f"
+    },
+    {
+      "path": "tools/g_common_rmw_pair_manifest.json",
+      "blob": "86b13d90d52f120fecada882c09e93852da0987f"
+    },
+    {
+      "path": "tools/g_common_rmw_pair_read.py",
+      "blob": "761f636e1f66102944892d78f8b1cbad87651b0a"
+    },
+    {
+      "path": "tools/test_g_common_rmw_pair.py",
+      "blob": "72799372f132d4a843b96fd38b770e7e2790bc15"
+    }
+  ]
+}
