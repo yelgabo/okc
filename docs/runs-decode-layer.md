@@ -1246,3 +1246,25 @@ alternatives (last-arriver counters in the o, pooler or unpooler kernels) are th
 slices in docs/ruled-out.md, which measured 0.45-1.3 us per removed launch at best and lost or tied as built.
 Decision for today's checks: the cgemv port (gaps 1, 2 and the o row, one hypothesis) goes first; no glue fusion
 check is spent unless that port lands and a concrete single-round-trip design remains.
+
+
+## 2026-11-03 - C2 m = 1 cgemv port into the public layer (checks 6e8939c91ce648dd, 8cfa2056a6f6461b)
+
+Tool `tools/dl_cg_patch.py` appends one block to the release bytes (ba9e327c) and copies C2's GEMV source and
+packing (3044ee7, public 9eba96894ee1402e) verbatim under `cg_` names. The block packs qkv_gate, o and the
+unpooler's 1024-row slice into C2's planar 12-bit row stream, builds the extension on a thread at the top of
+prepare, gates each projection against the release's own sk2 output on a fixed input, and offers cgemv to the
+layer's bf16 tuner as an m = 1 candidate.
+
+| date | job | source | change | score (CI) | cells and decision |
+|---|---|---|---|---|---|
+| 2026-11-03 | 6e8939c91ce648dd (check) | `g1b4_cg_release.py` 579e23ee | cgemv as an m = 1 bf16 tuner candidate | 10,786.6 us, 2.0971x (2.0656-2.1285) | The tuner picked cgemv for all three (cold-L2 graph medians cg / sk2: qkv_gate 12.06 / 13.31 us, o 8.35 / 9.06, slice 6.82 / 7.68), but the release's pinned-pick prepare (`_stack_unpinned_prepare`, line 15279) resets every T <= 32 choice to the static sk2 pick afterwards, so the timed path ran sk2 (profile rows unchanged). Control-equivalent run: d1 75.81 / 83.24, v1 120.24 / 124.36. Not a test of the hypothesis. |
+| 2026-11-03 | 8cfa2056a6f6461b (check) | `g1b4_cg_release.py` 440397ab | as above, with the tuner's m = 1 cgemv picks re-applied after the pinned-pick prepare | 10,726.7 us, 2.109x (2.077-2.140) | Timed path ran cgemv at T = 1: profile qkv_gate 9.0 / 9.1 us (sk2 10.5-10.7), o 5.3 / 5.3 (5.9-6.4), slice 3.5 / 3.4 (4.4-4.5). d1 74.64 / 79.89 us, below all ten release-byte draws (75.32-77.62 / 83.24-84.41: eight repeats, 607eb52, check 1); v1 and higher loads inside the control range (T = 1 only changes). Numerics gate: 2303/2304, 8191/8192, 1023/1024 elements bitwise equal to sk2. Keep rule fails on the six-load score (bar 10,642; d32 sliding drew 160.0). Not kept; ruled-out row. |
+
+Reading: the port recovers about 3.2 us of judge GPU time per decode 1 cell (2.2 / 4.1 us of endpoint against the
+control medians, about 0.56% of score), which is the predicted direction but about 60% of the profile-to-profile
+gap in the audit (5.5 us): in the layer cgemv runs 0.9-1.1 us slower than on the BF16 board for the same shape
+(qkv_gate 9.0 against 8.0, slice 3.5 against 2.4). A hypothesis for the remainder, not measured: on the board the
+kernel's x is the only activation in L2 and the weights stream from a quiet HBM, while in the layer the previous
+kernel's tail and write-back share the first microseconds. The score bar is set by the release's own
+draw-to-draw spread (1.3%), which is larger than the effect, so a single check of this size cannot clear it.
