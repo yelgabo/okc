@@ -1,0 +1,50 @@
+{
+  "scope": "CPU source/layout/work checks only; no native candidate, new compiler invocation, GPU execution or measured opportunity",
+  "read_main": "1c09aa7639b0157f6d968a81e6f2e5604aa0d3f2",
+  "local_archive": "3a961a9da35c06adb6eaf04e2531b9d323587933",
+  "local_uncommitted_user_checkout_access": false,
+  "selected_release": "muse_moe_w4a16/cand/current_control_release.py",
+  "release_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+  "release_manifest": "muse_moe_w4a16/cand/current_control_release.manifest.json",
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "baseline_selection": "Actual release factory Tiny2/MID requests: O3, sm90a, NS3, NW8, TINY1, WS1, WGS0, WSB1, WSBL2, NACC4, FAST1=2, PRMTSC1/DQ7; WSBLK1/2, MID SPLIT1. Exact full flags and fallbacks remain in release manifest; archived SASS is not a fresh H200 binary.",
+  "proposal": "T8/T16 only: single cooperative fused A+B+finalization call; four output-owning compute warps plus one weight producer, 64 output rows, four K1024 stages, three 36864-byte weight slots, one generic-load activation tile with 1032-BF16 row pitch; no cross-warp K partials. T1 and B4/MAIN unchanged.",
+  "cpu_checks": {
+    "byte_permutation_checked": 147456,
+    "code_vector_mapping_checks": 8192,
+    "partition_cases": 178,
+    "job_count_range_in_model": "0..88, enumeration not observed routing",
+    "a_credit_per_job": 512,
+    "weight_bytes_per_job_both_designs": 28311552,
+    "mma_warp_instructions_per_job_both_designs": 196608,
+    "baseline_partial_write_plus_read_bytes_per_job": 6291456,
+    "new_generic_activation_load_bytes_per_job_at_8_routes": 12582912,
+    "new_generic_activation_load_bytes_per_job_at_1_route": 1572864,
+    "phase_b_ctas_with_work": {"0":0,"1":64,"2":128,"3":132,"4":132,"8":132,"16":132,"32":132},
+    "weight_ring_bytes": 110592,
+    "one_activation_tile_bytes": 16512,
+    "prospective_smem_cap": 163840
+  },
+  "sass": {
+    "tiny2": {"sha256":"bec5c3b67ded5e18f8ea1ee19606e157f4a5a183c693b0aa08a85df1b90c7e93","helper_LDS128_sites":["112c0","112f0","11330","11360","11380","113a0","113c0","113e0"],"matching_entries":2},
+    "mid": {"sha256":"39ed3c89b46c8ef6487b04f2573f56deecefb0d6eb500d379d132347baf28e99","helper_LDS128_sites":["10af0","10b20","10b50","10b80","10bb0","10bd0","10be0","10c00"],"matching_entries":2}
+  },
+  "sensitivity_not_forecast": {
+    "equal_3pct_T8_T16_six_factor":1.0102047864498132,
+    "equal_5pct_T8_T16_elapsed_reduction":0.016952427508441503,
+    "equal_10pct_T8_T16_elapsed_reduction":0.03451061539437028,
+    "normal_controls_us":[79.112,117.016],
+    "net_3us_saved_each_six_factor":1.0108299772764404,
+    "equal_two_load_reduction_for_5788_720720_to_5559_8":0.11400817294475041
+  },
+  "primary_alternatives": {
+    "cutlass":"NVIDIA/cutlass@afa1772203677c5118fcd82537a9c8fefbcc7008:media/docs/efficient_gemm.md",
+    "gemlite":"dropbox/gemlite@f649e80e3014bc7ca8195573683c2c440f3bd94e:gemlite/triton_kernels/gemv_kernels.py",
+    "ptx":"https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html"
+  },
+  "not_proved":["native implementation correctness","FP32 reduction equivalence within task tolerances","target resource admission","actual activation traffic/cache hits","removable critical-path time","whole-score improvement","295-second paired preparation fit"],
+  "closed_unchanged":["NS4","norm aggregation b38a9ed6dc9743e9","two-launch split 3e6852d30c5c4535","T1 three-launch 28248eb5e5854041","inactive WGS prefix","B4/MAIN queue e044121f822d47b1","phase6028 observer"],
+  "kernel_modified":false,
+  "gpu_execution":false
+}
