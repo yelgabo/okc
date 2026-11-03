@@ -4799,7 +4799,7 @@ residency table and so cannot fire without ONE_CL. This is a local compiler obse
 the judge's build.
 
 Check file: `.build/attn_cert/main_cert.py`, SHA256
-dbdedb251b80bbcbdcbf6d560cc82aba701d8ee619ab86c655e889f7519340fe, written by
+879f55064ea792f9c48c6cc0fe171fd2af45206c4b4dd74d62bb7dd63edefe01, written by
 `tools/attn_make_main_cert.py .build/attention_base.py OUT` (2 held-out inputs, 100 rounds). Its
 judged path is the public file byte for byte (the first 292,419 bytes are aa3535d0). At import it
 execs `ctrl2` (the public file again, its own one-launch extension and workspace: the null) and
@@ -4815,3 +4815,9 @@ missing or the text differs, every cell's paired main - ctrl inside the ctrl2 - 
 range) and main bitwise equal to ctrl on every input where ctrl2 is bitwise equal to ctrl. Stop:
 pass, stop at one check; fail to compile or material SASS difference, one fix and one more
 check.
+
+Dispatch note: the first file (SHA256 dbdedb25) was refused before any job ID ("rejected: starts
+processes", 422; it ran cuobjdump). The dispatched file 879f5506 compares the machine code of the
+.text sections in each extension's embedded cubin in process instead; locally that parser finds
+the same 15 functions identical in the two Docker cubins and in an nvcc -fatbin image
+(uncompressed, one ELF). The SHA above is the dispatched file's.

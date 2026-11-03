@@ -9,8 +9,10 @@ extension name and its own workspace state: `ctrl2`, the public file again (the 
 at every switch default. The other three extensions keep their names, so they are shared, which
 is valid only while their sources match; the generator checks that.
 
-  CERTSASS  cuobjdump -sass of each arm's one-launch .so, function names normalized (the
-            anonymous-namespace hash), compared per function against ctrl.
+  CERTSASS  each arm's one-launch .so: the machine code (.text sections, with their sh_info and
+            flags) of every kernel in its embedded sm_90a cubin, names normalized (the
+            anonymous-namespace hash), compared per function against ctrl. The judge rejects files that start
+            processes, so cuobjdump is not run there.
   CERTBIT   per scored shape and held-out input (seeds 1000 + k): each arm called eagerly on the
             same inputs; output and the written cache rows compared bitwise against ctrl.
   CERTCHK   the judge-style FP32 check on seed-1 inputs for ctrl and main, batch-1 shapes.
@@ -33,11 +35,10 @@ ONE_NAME = 'name="okc_attn_one_v1"'
 
 CERT = r'''
 
+import hashlib
 import os as _ct_os
 import random as _ct_random
 import re as _ct_re
-import shutil as _ct_shutil
-import subprocess as _ct_subprocess
 import types as _ct_types
 
 @@CONFIG@@
@@ -72,17 +73,36 @@ def _ct_anon(text):
     return "".join(out)
 
 
-def _ct_sass(path):
-    from torch.utils.cpp_extension import CUDA_HOME
-    tool = _ct_shutil.which("cuobjdump") or (CUDA_HOME and _ct_os.path.join(CUDA_HOME, "bin", "cuobjdump"))
-    text = _ct_subprocess.run([tool, "-sass", path], capture_output=True, text=True,
-                              timeout=240).stdout
-    text = _ct_anon(text)
+def _ct_cubin_text(blob):
+    """Per kernel, the machine code of every sm_90 cubin embedded uncompressed in an extension
+    .so: ELF64 images with e_machine EM_CUDA (190), their .text.<name> sections keyed by the
+    normalized name, with the section's sh_info and flags."""
+    import struct
     out = {}
-    for f in _ct_re.split(r"\n\s+Function : ", text)[1:]:
-        name, body = f.split("\n", 1)
-        out[name.strip()] = body
+    at = blob.find(b"\x7fELF", 1)
+    while at >= 0:
+        try:
+            if blob[at + 4] == 2 and struct.unpack_from("<H", blob, at + 18)[0] == 190:
+                shoff, = struct.unpack_from("<Q", blob, at + 40)
+                shentsize, shnum, shstrndx = struct.unpack_from("<HHH", blob, at + 58)
+                secs = [struct.unpack_from("<IIQQQQIIQQ", blob, at + shoff + i * shentsize)
+                        for i in range(shnum)]
+                stro = at + secs[shstrndx][4]
+                for name_off, _, flags, _, off, size, _, info, _, _ in secs:
+                    end = blob.index(b"\0", stro + name_off)
+                    name = blob[stro + name_off:end].decode()
+                    if name.startswith(".text."):
+                        key = _ct_anon(name[6:])
+                        out[key] = (info >> 24, flags, bytes(blob[at + off:at + off + size]))
+        except Exception:
+            pass
+        at = blob.find(b"\x7fELF", at + 1)
     return out
+
+
+def _ct_sass(path):
+    with open(path, "rb") as f:
+        return _ct_cubin_text(f.read())
 
 
 _CT_RESULT = {}
@@ -100,13 +120,13 @@ def _ct_sass_compare(mods):
             same = [k for k in ref if s.get(k) == ref[k]]
             diff = sorted(set(ref) ^ set(s) | {k for k in ref if k in s and s[k] != ref[k]})
             for k in diff:
-                a, b = ref.get(k, "").splitlines(), s.get(k, "").splitlines()
-                nd = sum(x != y for x, y in zip(a, b)) + abs(len(a) - len(b))
-                print(f"CERTSASS DIFF {name} {k[:100]} ctrl_lines={len(a)} arm_lines={len(b)} "
-                      f"differing_lines={nd}", flush=True)
+                a, b = ref.get(k, (0, 0, b"")), s.get(k, (0, 0, b""))
+                nd = sum(x != y for x, y in zip(a[2], b[2])) + abs(len(a[2]) - len(b[2]))
+                print(f"CERTSASS DIFF {name} {k[:100]} info={a[0]}/{b[0]} bytes={len(a[2])}/"
+                      f"{len(b[2])} differing_bytes={nd}", flush=True)
             kern = [k for k in ref if "attn_one_kernel" in k]
             ksame = sum(s.get(k) == ref[k] for k in kern)
-            digest = hashlib.sha256("".join(ref[k] for k in sorted(kern)).encode()).hexdigest()[:16]
+            digest = hashlib.sha256(b"".join(ref[k][2] for k in sorted(kern))).hexdigest()[:16]
             line = (f"{name}_vs_ctrl functions={len(ref)}/{len(s)} identical={len(same)} "
                     f"differing={len(diff)} attn_one_kernel_identical={ksame}/{len(kern)} "
                     f"ctrl_kernel_digest={digest}")
