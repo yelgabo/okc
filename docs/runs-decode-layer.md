@@ -1625,3 +1625,22 @@ ratio), averaged over the two runs per side.
 Only decode 1 runs different code. The other rows follow pdl8d's own per-process PDL gates, which differed between the
 four processes (T = 8 on in control 1 and candidate 2, T = 16 on in control 2 and candidate 1, T = 32 on in control 2
 only: the decode 32 row). The T = 1 gate was on in all four.
+
+### Judge check `f8a55f1043804158`
+
+VALID 13/13, 10,297.4 us (2.197x, CI 2.164-2.230), prepare log `muse_decode_layer/cand/profiles/g1b4_rs.f8a55f1043804158.log`.
+
+| cell | pdl8d check 4a737387 | this check | delta |
+|---|---:|---:|---:|
+| decode 1 sliding / full | 70.8 / 77.0 | 65.5 / 74.1 | -5.3 / -2.9 |
+| decode 16 sliding / full | 127.7 / 205.2 | 127.1 / 211.4 | -0.6 / +6.2 |
+| decode 32 sliding / full | 149.4 / 306.8 | 153.1 / 300.7 | +3.7 / -6.1 |
+| verify 1 sliding / full | 112.9 / 118.7 | 109.7 / 122.6 | -3.2 / +3.9 |
+| verify 16 sliding / full | 245.1 / 336.9 | 248.8 / 331.2 | +3.7 / -5.7 |
+| verify 32 sliding / full | 321.0 / 483.9 | 322.4 / 485.7 | +1.4 / +1.8 |
+
+PDL gates (pdl8d code): T = 1 on, T = 16 on, T = 32 on, T = 8 off (six-edge final stress 5.14e-3 against the off arm's
+1.71e-3). Only decode 1 runs different code; its two cells moved -5.3 / -2.9 us against pdl8d's check, more than the box's
+-1.8 / -1.5 (the judge's router draw and per-input routing differ from the box's). The other cells are a pdl8d draw with
+T = 8 off. Keep rule: score and decode 1 met; verify 1 full (122.6 against 118.7) and the T = 8 stress clause missed because
+pdl8d's own T = 8 gate aborted on this draw. Not submitted by the lane.
