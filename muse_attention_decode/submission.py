@@ -2887,7 +2887,7 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // Late query-address scheduling after page copies: 1 = L1 SPEC;
 // 2 = L1 SPEC non-one-tile only; checked d331aca81c554d70, fresh gate 80415fe736bb4890.
 #ifndef ONE_LATE_TID
-#define ONE_LATE_TID 2
+#define ONE_LATE_TID 0
 #endif
 
 #ifndef ONE_DIET
