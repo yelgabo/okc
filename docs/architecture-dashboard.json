@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T19:59:00-07:00",
-  "snapshot": "de262c5a",
+  "reviewed_at": "2026-11-02T20:55:00-07:00",
+  "snapshot": "3e11a37e",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public607 retains2.126083×. Constant scales, corrected scale/groups and skinny NS4 fail component gates; NS3 stays. Attention diagnostics closed without matched timings. No qualified next D32 treatment."
+    "note": "Public607 retains2.126083× and NS3. Sliding split-copy treatment stopped after a valid ordinary check. Identity4a2a and WS normb38a are pending matched comparisons; no new layer gain."
   },
   "families": [
     {
@@ -24,11 +24,14 @@
       "summary": "Position map, token locality, multiply decoder and direct/cached band32 variants fail their gates. Owned hybrid baseline retained.",
       "layer": "Earlier owned layer tests combine M1 and mode 51. The current retained layer belongs to G.",
       "pending": [],
-      "limit": "The historical skinny and main47 paths need launch-progress qualification. Both disabled repairs failed the local no-new-spill gate before H200 timing.",
+      "limit": "Historical owned skinny/main47 launch-progress qualification remains open; both disabled repairs spill. New G-hosted T8/T16 helper aggregation is a pending component test, with no isolated A or layer gain.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
         "loss"
+      ],
+      "evaluation_pending": [
+        "G-hosted T8/T16 skinny-helper norm aggregationb38a9ed6dc9743e9"
       ]
     },
     {
@@ -80,21 +83,23 @@
       "id": "E",
       "name": "Attention producer / consumer",
       "status": "inconclusive",
-      "label": "D32 lookahead • isolated gain unconfirmed",
+      "label": "Lookahead unresolved; split-copy stopped",
       "metric": "−5.035 µs (−1.59%)",
-      "unit": "Targeted D32 full-context layer cell, separate-run comparison",
-      "summary": "Ordinary lookahead job17383751 passed timed-call reference checks. Unchanged sliding D32 improves more, so the observed gain remains inconclusive.",
-      "layer": "Layer-tested scheduling descendant inside G. Matched4fe/62a4 and strict5909 fail setup; observer8b1e exceeds its preparation budget. No matched gain; public G1b4 retained.",
+      "unit": "Earlier lookahead D32 full cell, separate run; unconfirmed",
+      "summary": "Lookahead remains unconfirmed. Sliding eight-copy reduction passes13/12/12 but its changed cell is+3.818µs (+2.42%) in a separate run; unchanged full improves more. Exact treatment stopped.",
+      "layer": "Public G1b4 retained. Distinct full-context identity-rescale job4a2a79bdac04499a accepted; no target correctness or timing verdict.",
       "pending": [],
-      "limit": "All diagnostic attempts are closed. Strict ordered routing remains; a distinct qualified comparison is missing. Only full-context batches17–32 change;128/256 verify paths remain unchanged. Earlier VP2 win/failure stays scoped.",
+      "limit": "Prior lookahead instruments remain closed. Split-copy source changes sliding B17..32 only;128/256 differences are drift. Identity screen retains all complete-layer routing, budget and regression gates.",
       "source": "architecture-performance-tracker.md#november-2-review-at-1959-vancouver-time",
       "outcomes": [
         "win",
         "loss",
         "inconclusive"
       ],
-      "evaluation_pending": [],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/decode32/2026-11-02-17-observer-budget-closure-and-refill.md"
+      "evaluation_pending": [
+        "Full-context identity-rescale4a2a79bdac04499a, payloadf7a5d1fb"
+      ],
+      "evidence_url": "https://github.com/yelgabo/okc/blob/3e11a37ed53424bf7ccfab2a74461124e05e9c9e/docs/steering/decode32/2026-11-02-19-reduction-result-identity-next.md"
     },
     {
       "id": "F",
@@ -115,7 +120,8 @@
       "outcomes": [
         "win",
         "loss"
-      ]
+      ],
+      "evidence_url": "https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-10-30-family-f-donor-baseline.md"
     },
     {
       "id": "G",
@@ -124,17 +130,19 @@
       "label": "Retained layer; new component gates fail",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "Public G1b4 retained. Constant scales, corrected scale/groups and current-helper NS4 pass correctness and fail performance gates. NS3 stays.",
+      "summary": "Public G1b4 and NS3 retained. Prior scales/groups/NS4 fail gates. New T8/T16 FTZ helper aggregation passes local qualification and is awaiting its private component result.",
       "layer": "Public607 retains2.126083×. New calibration94ef scores2.091748×. MID scores2.089423×, with no useful D32 signal.",
       "pending": [],
-      "evaluation_pending": [],
-      "limit": "The128/256 MAIN paths are unchanged. General helper-prefix proposal is compiled out at T1/T8/T16, with no candidate or GPU run. Decode32 Worker awaits a distinct qualified task; B4 phase attribution remains separately owned.",
+      "evaluation_pending": [
+        "T8/T16 WS norm aggregationb38a9ed6dc9743e9, payload1e857ad4"
+      ],
+      "limit": "WS norm changes only T8/T16;1/32/128/256 remain controls. No component or layer win yet. D32 identity screening stays with Decode32 Worker.",
       "source": "steering/2026-11-02-1854-performance-review.md",
       "outcomes": [
         "win",
         "loss"
       ],
-      "evidence_url": "https://github.com/yelgabo/okc/blob/de262c5ab97549cd5acb339665d6147dce40252d/docs/steering/2026-11-02-general-optimizer-pipeline-depth.md"
+      "evidence_url": "https://github.com/yelgabo/okc/blob/3e11a37ed53424bf7ccfab2a74461124e05e9c9e/docs/steering/2026-11-02-general-ws-norm-aggregation.md"
     }
   ],
   "context_pending": [
@@ -165,13 +173,13 @@
     },
     {
       "name": "D32 attention matched confirmation",
-      "label": "Diagnostics closed • no matched timings",
-      "summary": "4fe/62a4 and5909 failed setup. Observera099 was rejected before acceptance; explicit-tag8b1e failed its295-second prepare guard without observations. Closed, no retry; lookahead gain unresolved."
+      "label": "New identity screen pending",
+      "summary": "Lookahead instruments remain closed. Distinct full-context identity4a2a79bdac04499a is accepted after local compiler/host qualification; complete-layer target gates remain untested."
     },
     {
       "name": "G native component experiments",
-      "label": "Three checks closed without promotion",
-      "summary": "Scale-only3aa, corrected scales/groups3c45 and skinny NS4f0b8 pass correctness and fail their gates. Unchanged-control drift remains; retainNS3 and public G1b4."
+      "label": "Three closed; new WS norm comparison pending",
+      "summary": "Scale-only3aa, scales/groups3c45 and NS4f0b8 fail gates. T8/T16 explicit-FTZ norm aggregationb38a9ed6dc9743e9 is accepted; no target verdict. RetainNS3."
     },
     {
       "name": "Historical wins transfer audit",
@@ -181,7 +189,12 @@
     {
       "name": "Selected helper-prefix proposal",
       "label": "Source closure • inactive code",
-      "summary": "Tiny/Tiny2/MID WS=1/WGS=0 preprocess the proposed serial WGS scan out. Three actual builds plus one forced-WGS detection control pass. No GPU job or measured gain; await a distinct qualified task."
+      "summary": "Tiny/Tiny2/MID WS=1/WGS=0 preprocess the proposed serial scan out; source closure retained. The distinct active-helper norm aggregation test is now accepted, without a target result."
+    },
+    {
+      "name": "Sliding D32 split-copy reduction",
+      "label": "Valid check • exact treatment stopped",
+      "summary": "bd5776bdfcab42a7 passes13/12/12. Changed sliding+3.818µs (+2.42%); unchanged full-12.148µs (-3.83%) across separate runs. No causal gain or routing repair established."
     }
   ]
 }
