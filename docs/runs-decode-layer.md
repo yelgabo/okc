@@ -1675,3 +1675,64 @@ PDL gates (pdl8d code): T = 1 on, T = 16 on, T = 32 on, T = 8 off (six-edge fina
 -1.8 / -1.5 (the judge's router draw and per-input routing differ from the box's). The other cells are a pdl8d draw with
 T = 8 off. Keep rule: score and decode 1 met; verify 1 full (122.6 against 118.7) and the T = 8 stress clause missed because
 pdl8d's own T = 8 gate aborted on this draw. Not submitted by the lane.
+
+## 2026-11-03 - Routing slack at T = 16 / 32 (g1b4_rs2, box only, not built for dispatch)
+
+Question: can the TASK.md near-tie slack that g1b4_rs uses at T = 1 also cut distinct local experts at decode 16 and
+decode 32, by at least 2 us per cell more than the extra route-program cost? Answer from the box: no. No judge check
+was spent. Logs are in `muse_decode_layer/profiles/box/rs2/`, all on okc-h200 with router seed 106218864389449120,
+the f931 case seeds, and local_start set per input from case_fields.
+
+Per-expert slope at T = 16 / 32 (`tools/box_route_map.py` on g1b4_rs, 60 inputs per cell, least squares; `map.log`).
+The fused MoE costs 5.6 / 5.5 us per distinct local expert at decode 16 (sliding / full) and 5.3 / 5.5 us at decode 32.
+With routes as a second regressor the fit is 5.0-5.4 us per expert plus 0.1-0.5 us per route. The net layer time rises
+by 5.0 to 5.9 us per expert. So the slope is a little lower than at T = 1 (6.3 us), not higher.
+
+Score error at T = 16 / 32 (`tools/box_rs_check.py` on g1b4_rs, 200 inputs per cell, 800 in all; `err.log`). These
+loads take their router logits from the bfp router projection, not the T = 1 FP32 GEMV. The error is larger than at
+T = 1:
+
+| quantity the slack thresholds | T = 1 (round 1, 800 inputs) | T = 16 / 32 (800 inputs) |
+|---|---:|---:|
+| lead over the 9th best, max error | 5.4e-3 | 9.97e-3 (decode 32 full) |
+| distance below the 8th best, max error | 1.16e-2 | 1.43e-2 (decode 32 sliding) |
+
+The margins used were keep 0.016, window 0.021, rank eps 0.016 and count 0.25, with the same headroom ratio as round 1.
+
+Slack model (`tools/box_route_slack.py`, 200 inputs per cell; it now takes `--margins keep,window,count`; logs
+`slack.log` and `slack2.log`). It counts local experts that could be skipped, with non-local replacements only:
+
+| cell | distinct (ref) | skippable, no margins | margins 0.010 / 0.015 / 0.25 | margins 0.016 / 0.021 / 0.25 |
+|---|---:|---:|---:|---:|
+| decode 16 sliding | 7.49 | 1.94 | 1.35 | 0.95 |
+| decode 16 full | 7.63 | 1.99 | 1.43 | 1.14 |
+| decode 32 sliding | 9.05 | 2.15 | 1.52 | 1.08 |
+| decode 32 full | 9.21 | 2.15 | 1.59 | 1.23 |
+
+The model does not include the rank-eps correction. That correction raises the reference counts by local experts
+that might sit in the judge's top 8 through a near tie, and with 16 or 32 tokens it binds. The prototype
+`tools/dl_rs2_patch.py` builds g1b4_rs2.py (SHA256 84e47ce3...; it was a measurement build and is not committed).
+It routes the T = 16 / 32 launches of both after-attention paths through `_rs_tile_routeN`, one program for all tokens.
+It handles both paths because prepare's compose policy picks the graft path or the `_route_split` path per process.
+Checked on 50 inputs per cell (`v_*.log`; `tools/box_rs_check.py` now takes `--set NAME=VALUE`):
+
+| rank eps | decode 16 sliding | decode 16 full | decode 32 sliding | decode 32 full | pass |
+|---|---:|---:|---:|---:|---:|
+| 0.016 (margins as built) | 7.68 -> 7.32 | 7.88 -> 7.30 | 9.04 -> 8.90 | 9.18 -> 9.04 | 200/200 |
+| 0.010 (no room over the 9.97e-3 error) | 7.68 -> 7.06 | 7.88 -> 7.06 | 9.04 -> 8.56 | 9.18 -> 8.40 | 200/200 |
+| 0 | 7.68 -> 6.70 | 7.88 -> 6.64 | 9.04 -> 7.92 | 9.18 -> 7.92 | 199/200 |
+
+At rank eps 0 one decode 16 sliding input fails ("6 of this GPU's experts touched where the reference touches 10"),
+so the correction is load-bearing. At the safe setting the slack removes 0.36 / 0.58 / 0.14 / 0.14 experts per input.
+At 5.5 us per expert that is 2.0 / 3.2 / 0.8 / 0.8 us per cell before any route-program cost, and it misses the
+2 us bar at three of four cells even if the route program were free. At rank eps 0.010 the saving would be
+3.4 / 4.5 / 2.6 / 4.3 us, but that setting has no room over the measured error.
+
+Route-program cost (`--kernels`, 10 cold replays, `k1_ctl.log` / `k1_cand.log`). The base route kernel runs 3.95 /
+3.94 us at decode 16 and 4.80 / 5.20 us at decode 32. The single-program prototype runs 42.4 / 42.5 and
+104.3 / 104.1 us, and the layer net rises from 131.6 / 203.2 / 148.0 / 298.7 to 172.6 / 250.5 / 257.6 / 408.2 us.
+moe_fused moved by -1.8 / -5.6 / -0.4 / +0.0 us. A per-token top 16 with an atomic-ticket last-CTA decision would
+probably cost about 2 us over the base. That is an estimate; I did not build it, and it cannot rescue a saving of
+0.8 to 3.2 us.
+
+Decision: stop. Nothing was registered or dispatched. Ruled-out row in docs/ruled-out.md.

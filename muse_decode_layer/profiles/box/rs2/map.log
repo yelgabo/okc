@@ -1,0 +1,540 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+PDL8_AB T=1 sliding: off 77.38 on 71.68 us, median paired saving 5.76, wins 9/9
+PDL8_STRESS T=1 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0), on ['1.99e-03', '3.16e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=1 full: off 79.46 on 72.22 us, median paired saving 7.14, wins 9/9
+PDL8_AB T=16 sliding: off 160.10 on 154.98 us, median paired saving 5.12, wins 9/9
+PDL8_STRESS T=16 sliding: 2000 replays per arm, max rel diff to the PDL-off output off ['3.58e-03', '4.08e-03', '0.00e+00'] (int mismatches 0), on ['3.58e-03', '4.08e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift pass
+PDL8_AB T=16 full: off 236.06 on 231.14 us, median paired saving 5.06, wins 9/9
+PDL8_AB T=32 sliding: off 225.76 on 221.82 us, median paired saving 4.00, wins 9/9
+PDL8_AB T=32 full: off 346.98 on 342.59 us, median paired saving 4.64, wins 9/9
+PDL8_STRESS T=32 full: 2000 replays per arm, max rel diff to the PDL-off output off ['5.52e-03', '5.94e-03', '0.00e+00'] (int mismatches 0), on ['5.52e-03', '6.41e-03', '0.00e+00'] (int mismatches 0); bound 1e-04: strict FAIL, within the off arm's own drift FAIL, T off
+PDL8D_OFF T=8 full: 2000 replays, max rel diff to the PDL-off output ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_OFF T=8 sliding: 2000 replays, max rel diff to the PDL-off output ['3.16e-03', '3.98e-03', '0.00e+00'] (int mismatches 0)
+PDL8D_STRESS T=8 full all edges=attn+o+b1+pool+route+fin: on ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0) against off ['7.25e-03', '6.89e-03', '0.00e+00']: clean (0.4 s)
+PDL8D T=8 chosen edges attn+o+b1+pool+route+fin; left serialized none
+PDL8D_OFF T=8 full repeat: ['7.25e-03', '5.82e-03', '0.00e+00'] (int mismatches 0), informational
+PDL8D_STRESS T=8 full final edges=attn+o+b1+pool+route+fin: on ['7.25e-03', '6.89e-03', '0.00e+00'] (int mismatches 0) against off ['7.25e-03', '6.89e-03', '0.00e+00']: clean (0.4 s)
+PDL8D_STRESS T=8 sliding final edges=attn+o+b1+pool+route+fin: on ['6.33e-03', '6.09e-03', '0.00e+00'] (int mismatches 0) against off ['3.16e-03', '3.98e-03', '0.00e+00']: DRIFT (0.4 s)
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin: off 126.05 on 120.70 us, median paired saving 5.15, wins 9/9
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin: off 133.66 on 127.17 us, median paired saving 6.59, wins 9/9
+PDL8D T=8 off: final stress DRIFT, weighted saving 5.52 us, edges attn+o+b1+pool+route+fin; stress times ['0.4', '0.4', '0.4'] s
+PDL8 weighted paired saving T=1: 6.12 us
+PDL8 weighted paired saving T=16: 5.10 us
+PDL8 six-load estimate +1.83% (enabled loads only); enabled {1: True, 8: False, 16: True, 32: False}
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:25 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+MAP decode 16 sliding mode busiest: net med 129.47, moe_fused med 69.65, mean routes 26.93, mean distinct 7.67
+MAP decode 16 sliding distinct  5: n  1 routes  27.0 max_tok 16.0 net  109.89 moe_fused  50.34 (min  50.34 max  50.34)
+MAP decode 16 sliding distinct  6: n 11 routes  25.7 max_tok 11.8 net  117.54 moe_fused  57.73 (min  56.96 max  59.78)
+MAP decode 16 sliding distinct  7: n 13 routes  27.2 max_tok 11.2 net  124.45 moe_fused  63.62 (min  60.64 max  77.25)
+MAP decode 16 sliding distinct  8: n 22 routes  26.5 max_tok 10.6 net  130.58 moe_fused  70.54 (min  63.23 max  78.05)
+MAP decode 16 sliding distinct  9: n 10 routes  28.2 max_tok  9.6 net  136.46 moe_fused  76.26 (min  68.93 max  78.43)
+MAP decode 16 sliding distinct 10: n  2 routes  26.5 max_tok  7.5 net  135.55 moe_fused  76.55 (min  71.10 max  81.99)
+MAP decode 16 sliding distinct 12: n  1 routes  35.0 max_tok 10.0 net  160.64 moe_fused  96.45 (min  96.45 max  96.45)
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:29 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+MAP decode 16 full mode busiest: net med 202.03, moe_fused med 64.83, mean routes 26.82, mean distinct 7.83
+MAP decode 16 full distinct  5: n  2 routes  26.0 max_tok 11.5 net  185.66 moe_fused  50.30 (min  49.92 max  50.69)
+MAP decode 16 full distinct  6: n 11 routes  25.2 max_tok 11.6 net  194.27 moe_fused  57.06 (min  51.78 max  59.04)
+MAP decode 16 full distinct  7: n 19 routes  25.8 max_tok 10.8 net  200.03 moe_fused  63.81 (min  57.12 max  71.65)
+MAP decode 16 full distinct  8: n  8 routes  27.6 max_tok 11.0 net  206.85 moe_fused  70.41 (min  63.39 max  72.64)
+MAP decode 16 full distinct  9: n  9 routes  30.2 max_tok 11.7 net  213.54 moe_fused  77.28 (min  68.99 max  81.50)
+MAP decode 16 full distinct 10: n  7 routes  28.0 max_tok  8.6 net  215.78 moe_fused  79.10 (min  75.04 max  82.46)
+MAP decode 16 full distinct 11: n  2 routes  26.0 max_tok  5.0 net  217.82 moe_fused  82.26 (min  81.95 max  82.56)
+MAP decode 16 full distinct 12: n  2 routes  24.5 max_tok  4.0 net  224.05 moe_fused  87.89 (min  87.55 max  88.22)
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:31 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+MAP decode 32 sliding mode busiest: net med 153.60, moe_fused med 79.36, mean routes 51.73, mean distinct 9.02
+MAP decode 32 sliding distinct  6: n  1 routes  42.0 max_tok 24.0 net  135.73 moe_fused  59.17 (min  59.17 max  59.17)
+MAP decode 32 sliding distinct  7: n  7 routes  50.1 max_tok 21.6 net  145.49 moe_fused  71.94 (min  66.33 max  73.53)
+MAP decode 32 sliding distinct  8: n 11 routes  50.9 max_tok 22.5 net  148.27 moe_fused  73.70 (min  71.55 max  78.37)
+MAP decode 32 sliding distinct  9: n 20 routes  51.9 max_tok 21.1 net  153.52 moe_fused  79.30 (min  72.45 max  82.56)
+MAP decode 32 sliding distinct 10: n 14 routes  53.1 max_tok 21.5 net  158.98 moe_fused  85.12 (min  82.21 max  88.58)
+MAP decode 32 sliding distinct 11: n  6 routes  53.2 max_tok 20.5 net  164.14 moe_fused  91.36 (min  84.32 max  95.52)
+MAP decode 32 sliding distinct 12: n  1 routes  52.0 max_tok 20.0 net  168.14 moe_fused  95.04 (min  95.04 max  95.04)
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 22:34:38 22240:22240 SyncActivityProfilerHandler.cpp:46] profiler_stop
+MAP decode 32 full mode busiest: net med 305.36, moe_fused med 81.01, mean routes 51.57, mean distinct 9.23
+MAP decode 32 full distinct  7: n  5 routes  49.2 max_tok 21.6 net  294.27 moe_fused  68.10 (min  66.11 max  72.77)
+MAP decode 32 full distinct  8: n 13 routes  49.2 max_tok 21.5 net  297.79 moe_fused  74.05 (min  71.33 max  77.73)
+MAP decode 32 full distinct  9: n 19 routes  52.5 max_tok 23.2 net  304.26 moe_fused  80.77 (min  76.48 max  87.87)
+MAP decode 32 full distinct 10: n 12 routes  53.1 max_tok 21.3 net  308.56 moe_fused  84.13 (min  81.73 max  86.50)
+MAP decode 32 full distinct 11: n  8 routes  51.9 max_tok 20.5 net  314.37 moe_fused  90.47 (min  89.28 max  93.79)
+MAP decode 32 full distinct 12: n  3 routes  53.0 max_tok 16.7 net  322.08 moe_fused  97.18 (min  96.96 max  99.04)

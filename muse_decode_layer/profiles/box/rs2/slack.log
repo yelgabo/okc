@@ -1,0 +1,6 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+SLACK decode 16 sliding: mean distinct 7.49, mean skippable 1.94, inputs with >= 1 skippable 192 / 200, histogram {0: 8, 1: 56, 2: 76, 3: 60}
+SLACK decode 16 full: mean distinct 7.63, mean skippable 1.99, inputs with >= 1 skippable 182 / 200, histogram {0: 18, 1: 36, 2: 77, 3: 69}
+SLACK decode 32 sliding: mean distinct 9.05, mean skippable 2.15, inputs with >= 1 skippable 187 / 200, histogram {0: 13, 1: 34, 2: 64, 3: 89}
+SLACK decode 32 full: mean distinct 9.21, mean skippable 2.17, inputs with >= 1 skippable 192 / 200, histogram {0: 8, 1: 37, 2: 68, 3: 87}
