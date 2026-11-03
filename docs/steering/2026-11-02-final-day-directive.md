@@ -48,4 +48,6 @@ hash, affected cells before and after, decision. Chat-only results do not count.
 
 ## Ledger
 
-(empty at creation)
+| date | job | source | change | cells before and after | decision |
+|---|---|---|---|---|---|
+| 2026-11-03 | c1becf5a66274d37 (check) | 49d778b5, bench SHA ee7d00c8 | attention: cluster merge mode 136 (8-CTA cluster per KV head, DSMEM sum, no workspace / ticket / cooperative) | decode 1 sliding 9.18 -> 10.50 us cold (+1.31, +1.53 warm); verify 1 sliding 10.94 -> 13.54 (+2.59, +2.46 warm); nulls <= 0.13; other cells unchanged | Loss on both target cells, closed in ruled-out.md; no second check, no promotion; public best stays 8914751e3b9f468b |

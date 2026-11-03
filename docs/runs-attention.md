@@ -4290,3 +4290,28 @@ held-out inputs and beyond |ctrl2 - ctrl|; no other scored shape (unchanged code
 null. Pass: candidate-only official check plus the strict fresh-input replay stress gate
 (`attn_make_candidate_stress.py` pattern, 2000 queued inputs per shape, SPEC-miss replays,
 workspace scans) before any promotion. Fail: record in ruled-out.md with the per-cell numbers.
+
+### Result: c1becf5a66274d37, cluster merge loses on both target cells
+
+Receipt `profiles/clmerge.c1becf5a66274d37.{json,log}` (board muse_attention_decode, id
+c1becf5a66274d37, bench SHA256 ee7d00c8316694401f00b8187d74cfee050af097a63a2be9c2322ccba3b33019,
+source 49d778b5). Unchanged control passed 16/16 official tests, 2.600333x (95% CI
+2.561328-2.639338), checks.ok, no flags; every arm 19/19 ABCHECK (the cl arm's outputs against
+the control's, workspace clean); plans as registered (cl: 8 x 1 CTAs mode 136 at batch-1
+sliding q_len 1 and 8, every other shape the control's plan).
+
+| cell (us) | ctrl | cl | ctrl2 | null ctrl2-ctrl | cl-ctrl | cl-ctrl by input |
+|---|---:|---:|---:|---:|---:|---|
+| decode 1 sliding cold | 9.18 | 10.50 | 9.15 | -0.03 | +1.31 | +1.38 / +1.28 / +1.31 |
+| decode 1 sliding warm | 4.78 | 6.30 | 4.77 | -0.01 | +1.53 | |
+| verify 1 sliding cold | 10.94 | 13.54 | 10.82 | -0.13 | +2.59 | +2.62 / +2.46 / +2.88 |
+| verify 1 sliding warm | 6.83 | 9.29 | 6.87 | +0.04 | +2.46 | |
+| decode 1 full cold (unchanged code) | 17.06 | 16.90 | 17.06 | 0.00 | -0.16 | placement |
+| every other scored cell | | | | <= 0.16 | <= 0.45 | inside the null spread |
+
+Decision: fails the registered gate on both cells by more than the whole tail it targets
+(1.3 us at decode 1, 2.5 us at verify 1); the loss is the same warm as cold, so it is the
+cluster launch and barriers plus the 16-SM pull, not DRAM. No second check, no promotion;
+closed in docs/ruled-out.md. The mode stays in attn_one.cu behind `ONE_CL` (default 0: no
+instance is built and every judged instance's register count is unchanged, local sm_90a
+compile). The candidate-only gate generator `tools/attn_make_cl_gate.py` is retained unused.
