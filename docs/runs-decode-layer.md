@@ -1557,3 +1557,35 @@ entries by itself, so "ids equal" is the same kind of draw as "within the off ar
 noise needs an ids criterion relative to the off arm (for example on mismatches no larger than a multiple of the off arm's,
 with the float bound applied only to rows whose ids match), or a stress input whose routing has no near ties.
 Receipts: `muse_decode_layer/cand/profiles/g1b4_pdl8f.9ae1d02f0c2e4244.{json,log,txt}`.
+
+## 2026-11-03 - PDL8g (built; box dry run turned T = 8 off; not dispatched)
+
+Source `muse_decode_layer/cand/g1b4_pdl8g.py` (SHA256 58fe7f009a83b1851caa5ea45d8c1b9843d421de7833dd5aab19e264cc775051), generated
+by `tools/dl_pdl8g_patch.py` from the pdl8f block (pin c4164566; no CUDA edit and no T = 16 / 32 launch changed). It changes only
+how the stress inputs are built. Every stress input (x0 and the alternating x1, at every T) is resampled row by row until each
+token's gap between its 8th and 9th router selection score (sigmoid(logit / sqrt(32)) + bias, read from the route kernel's
+launch arguments in eager calls only) is at least 1e-3. Before use, the input must keep identical ids over 50 PDL-off graph
+replays. Stages, bound and fallbacks are pdl8f's, and stage lines also print the ids-mismatch counts on / off.
+
+Box dry run (`muse_decode_layer/profiles/box/g1b4_pdl8g.box_prepare.log`, prepare 22.2 s):
+
+| T | layer | input build (min gap, resample rounds) | det | det_fresh | fresh | fixed | ids on / off |
+|---|---|---|---|---|---|---|---|
+| 1 | sliding | x0 2.79e-3 (0), x1 1.21e-3 (0) | clean | clean | clean | clean | 0 / 0 |
+| 16 | sliding | x0 1.39e-3 (1), x1 1.08e-3 (1) | clean | clean | clean | clean | 0 / 0 |
+| 32 | full | x0 1.08e-3 (2), x1 1.16e-3 (1) | clean | clean | clean | clean | 0 / 0 |
+| 8 | full | x0 1.69e-3 (0); **x1 failed: ids moved on 52 entries over 50 PDL-off replays** | not run | | | | |
+
+The input-stability check raised, so T = 8 went off through the existing exception path; T = 1 / 16 / 32 were on. Per the lead's
+rule (stop if the box run turns any T off), no layer check was dispatched.
+
+What this shows and what it does not: at T = 1 / 16 / 32 the tie-free inputs removed the ids flips (0 / 0 everywhere, against 52
+off-arm flips at T = 16 in 9ae1d02f0c2e4244). At T = 8 full, an x1 whose score gaps were at least 1e-3 in the eager call still
+moved 52 id entries over 50 PDL-off replays, about one per replay. Two explanations are not separated: (1) order noise at T = 8
+full moves the selection scores by more than 1e-3; (2) the graph-replayed path routes from scores that differ from the eager
+call the gaps were read from (for example a different route kernel or router layout under capture). A per-replay readout of the
+graph's own route scores would separate them; it was not run.
+
+Lane status per the lead's last-gate rule: closed with pdl8d public. The T = 8 attention edges stay a measured saving (judge
+in-prepare A/B 4.6-5.8 us per verify 1 cell across 61c009066a5d40a6 and 9ae1d02f0c2e4244) waiting for a gate that does not flip on
+order noise.
