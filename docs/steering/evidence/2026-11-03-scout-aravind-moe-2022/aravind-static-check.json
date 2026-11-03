@@ -1,0 +1,12 @@
+{
+  "pin": "dcf3ee7c7c0b42e0f534648b88a06c138b7dfc40",
+  "files_verified": 31,
+  "submission_sha256": "badc756bfcd4bd4fc271f0fc4dcb312b7232733980d56d1d29cf1681a348fe52",
+  "final_kernel_fn_line": 1994,
+  "prepare_line": 1830,
+  "guard_present": true,
+  "gate_3_percent_present": true,
+  "raw_receipt_files": [],
+  "limits": "AST and source-string checks only. No foreign code, compilation, numerical check, SASS analysis or timing reproduction. Actual prepare-selected variants not established.",
+  "duplicate_prepare_or_kernel_fn_definitions": false
+}

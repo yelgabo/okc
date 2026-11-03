@@ -1,0 +1,169 @@
+{
+  "id": "ad24d406132fcf6cc31e434389e5dc12",
+  "updated_at": "2026-11-03T17:35:22Z",
+  "revision": "d3236cf8d6165e58983c55e8117b009355157e83",
+  "files": [
+    {
+      "path": "allocator-review-20261101-cold-after.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/074d80cde841a866e7461c47e5deb85ef2e3082c/allocator-review-20261101-cold-after.json",
+      "bytes": 2531,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-cold-before.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/f7539f1aba90a7d45fa5167912135abb846922af/allocator-review-20261101-cold-before.json",
+      "bytes": 2502,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-current-main-plan.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/2dd1e4d8e0c1e6dfe927ba333d9147b5a9156f35/allocator-review-20261101-current-main-plan.json",
+      "bytes": 1485,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-current-main-qwen-after.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/66e33c05cc45592af798c669f20e9a0ecbaeb4b7/allocator-review-20261101-current-main-qwen-after.json",
+      "bytes": 3579,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-current-main-qwen-before.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/fd097ddadae36b227aa2da4ef5766066e717b11b/allocator-review-20261101-current-main-qwen-before.json",
+      "bytes": 3581,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-green.txt",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/0192906556539189f739b09af89082960f9620de/allocator-review-20261101-green.txt",
+      "bytes": 576,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-kernel-cost.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/24d5cce53652b134caee5771e604a56c15cd6cc1/allocator-review-20261101-kernel-cost.json",
+      "bytes": 15209,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-main-sync-identity.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/0cd02f6fa274570fe089cae8044a86193c6e6b39/allocator-review-20261101-main-sync-identity.json",
+      "bytes": 302,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-patch.diff",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/5b29f3336a1f0574cba6b9b0603297e57b3d89a2/allocator-review-20261101-patch.diff",
+      "bytes": 9551,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-qwen-after.txt",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/b4463ca1931aa24ed0ecc49dee08bb33b2a56179/allocator-review-20261101-qwen-after.txt",
+      "bytes": 3580,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-qwen-before.txt",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/4cb8859fddaad4e06fbf82378912e20090f646ed/allocator-review-20261101-qwen-before.txt",
+      "bytes": 3580,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-red.txt",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/57bf5445e240e76a67d99b1c28d7a9033e2c9667/allocator-review-20261101-red.txt",
+      "bytes": 3195,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101-source-identity.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/97de3d70ab01bfa983e3030c1ba0056561aa6641/allocator-review-20261101-source-identity.json",
+      "bytes": 936,
+      "truncated": false
+    },
+    {
+      "path": "allocator-review-20261101.md",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/ca7870cc52b47e719b8903716aefd7fb2e40b5fc/allocator-review-20261101.md",
+      "bytes": 5763,
+      "truncated": false
+    },
+    {
+      "path": "current-pr-c16-evidence.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/aaa308b92c85b6d249779ed26f1556bf8cdc14bd/current-pr-c16-evidence.json",
+      "bytes": 34913,
+      "truncated": false
+    },
+    {
+      "path": "frozen-mathematics-function.py.txt",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/cd423191f24e1334c0ccca308f3d7d7c85ac162b/frozen-mathematics-function.py.txt",
+      "bytes": 2716,
+      "truncated": false
+    },
+    {
+      "path": "gsm8k-toggle-20261103-pairs.csv",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/4982caaa8c8fcb99b72e389f638fa7f79a644d95/gsm8k-toggle-20261103-pairs.csv",
+      "bytes": 205301,
+      "truncated": false
+    },
+    {
+      "path": "gsm8k-toggle-20261103.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/ee0edaf910cb76a9dd7dc0b10fac27bf37d6d73b/gsm8k-toggle-20261103.json",
+      "bytes": 17980,
+      "truncated": false
+    },
+    {
+      "path": "muse-b1-c16-paired-evidence.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/3f9a43cf25861ef0b6e611c6904c65041b98c14a/muse-b1-c16-paired-evidence.json",
+      "bytes": 8117,
+      "truncated": false
+    },
+    {
+      "path": "muse-b1-complete-candidate.patch",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/edad668bd6ebd6f9208ee75bbfa481bc393e04f4/muse-b1-complete-candidate.patch",
+      "bytes": 61830,
+      "truncated": false
+    },
+    {
+      "path": "muse-b1-sealed-aggregate-evidence.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/967c1441b9a8c0bb8e1eb8b7cd3b1c9cea32768e/muse-b1-sealed-aggregate-evidence.json",
+      "bytes": 3239,
+      "truncated": false
+    },
+    {
+      "path": "muse-pr47129-description-before-mean3.md",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/8dcf15caf3b9d0d0184b5e45d6b77d7eb4f05c62/muse-pr47129-description-before-mean3.md",
+      "bytes": 15345,
+      "truncated": false
+    },
+    {
+      "path": "muse-pr47129-mean3-comparison-scope.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/53df180682d3a9a574a6c1efa86aa675c2b86442/muse-pr47129-mean3-comparison-scope.json",
+      "bytes": 1297,
+      "truncated": false
+    },
+    {
+      "path": "muse-pr47129-mean3-paired-question-results.csv",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/ef903def5027811cd4f9e1b47c10409d2ce7c01f/muse-pr47129-mean3-paired-question-results.csv",
+      "bytes": 255934,
+      "truncated": false
+    },
+    {
+      "path": "muse-pr47129-mean3-paired-question-summary.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/dab59d0157e9e601f737c4a7890b6da3477a7dfd/muse-pr47129-mean3-paired-question-summary.json",
+      "bytes": 9575,
+      "truncated": false
+    },
+    {
+      "path": "muse-pr47129-quality-record-retention-audit.json",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/41172953019c80b1e38641199433217b36c3fef8/muse-pr47129-quality-record-retention-audit.json",
+      "bytes": 22041,
+      "truncated": false
+    },
+    {
+      "path": "pr47129-description-before-quality-20261103.md",
+      "raw_url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/1e95032a631fc4a7bc1d0e9d6d9f5639d9c9beeb/pr47129-description-before-quality-20261103.md",
+      "bytes": 19013,
+      "truncated": false
+    }
+  ]
+}

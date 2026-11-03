@@ -1,0 +1,22 @@
+[
+  {
+    "file": "watched-branches.json",
+    "changes": []
+  },
+  {
+    "file": "branches-forks-releases.json",
+    "changes": []
+  },
+  {
+    "file": "sglang-current.json",
+    "changes": []
+  },
+  {
+    "file": "review-watch.json",
+    "changes": []
+  },
+  {
+    "file": "extra-watch.json",
+    "changes": []
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "diagnostic_job": "2c84c321b3bb4dbb",
+  "diagnostic_receipt": "muse_attention_decode/profiles/pdl_bench.2c84c321b3bb4dbb.json",
+  "bench_source": "201c997777c9bc89c08cdbdf496b3d3a53ba68611a0e511857cfcf4bb673418e",
+  "judged_arm": "public attention control; diagnostic layerATT7 arms separate",
+  "observations": {
+    "T8_off_differing_replays_full": 1623,
+    "T8_off_differing_replays_sliding": 1983,
+    "replays_per_arm": 2000,
+    "jitter_without_PDL": "small ULP variation also observed",
+    "order_free_fixed_and_alternating_with_PDL": "bitwise clean in tested arms",
+    "consumer_audit_bad": 0
+  },
+  "scope_limits": [
+    "producer/consumer are stand-ins,not actual layer GEMMs",
+    "no injected missing-wait/stale-read negative control validates detection sensitivity",
+    "some per-element top lines evicted,summary evidence retained",
+    "small ULP size alone cannot universally exclude races"
+  ],
+  "interpretation": "Strong evidence for merge-order variation in tested inputs/plans; no observed stale/early read at tested sensitivity,not universal race absence",
+  "next_artifact": "muse_decode_layer/cand/g1b4_pdl8e.py",
+  "next_source_sha256": "27b5f25236ceda79934798dac5595cc37395e071f1c8f3cd65f93f5c064b130f",
+  "next_source_bytes": 914386,
+  "next_gates": {
+    "both_contexts": [
+      "order-free fixed",
+      "order-free alternating",
+      "production alternating",
+      "production fixed"
+    ],
+    "order_free": "on within max(1e-4,off drift),ids equal",
+    "production": "both arms normalized maxabs error<=1e-2,ids equal",
+    "fallback": "six-edge failure->four-edge set; fallback failure/exception->T8off",
+    "extra": "positive weighted paired saving"
+  },
+  "next_target_qualified": false,
+  "existing_allocation": "one owner layercheck after16:00Pacific;keep<10443.9us,every stageclean,bothattentionedgesON",
+  "historical_selection": "private4a737four T8edges versuspublicf931six still true; owner scope/authorization disposition separate"
+}

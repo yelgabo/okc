@@ -1,0 +1,20 @@
+[
+  {
+    "gist_id": "ad24d406132fcf6cc31e434389e5dc12",
+    "revision": "d3236cf8d6165e58983c55e8117b009355157e83",
+    "path": "gsm8k-toggle-20261103-pairs.csv",
+    "url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/4982caaa8c8fcb99b72e389f638fa7f79a644d95/gsm8k-toggle-20261103-pairs.csv",
+    "sha256": "c26e0a89433bc176f36557e4cc3f8ccd5942f924f43f457133d7cd460deebe04",
+    "bytes": 205301,
+    "local": ".build/scout-2026-11-03-1823/quality-source/gsm8k-toggle-20261103-pairs.csv"
+  },
+  {
+    "gist_id": "ad24d406132fcf6cc31e434389e5dc12",
+    "revision": "d3236cf8d6165e58983c55e8117b009355157e83",
+    "path": "gsm8k-toggle-20261103.json",
+    "url": "https://gist.githubusercontent.com/Zhuofeng-Li/ad24d406132fcf6cc31e434389e5dc12/raw/ee0edaf910cb76a9dd7dc0b10fac27bf37d6d73b/gsm8k-toggle-20261103.json",
+    "sha256": "29d98af380dbfb5afb730ddc3588cca46b941705b2f085164b2e91e3644df098",
+    "bytes": 17980,
+    "local": ".build/scout-2026-11-03-1823/quality-source/gsm8k-toggle-20261103.json"
+  }
+]

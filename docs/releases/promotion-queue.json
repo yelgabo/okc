@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-03T17:42:30.044010+00:00",
+  "observed_at": "2026-11-03T18:51:09.306045+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -468,10 +468,10 @@
       "source_identity": "muse_decode_layer/cand/g1b4_pdl8d.py;canonical Git SHA256 7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904;907644B",
       "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
       "artifact": "muse_decode_layer/cand/g1b4_pdl8d.py",
-      "release_state": "public-posted-selection-scope-review-open",
-      "reason": "Board/own CLI receipt verifies new public10374.616018us/2.180350575x,rank364. Same source private4a737 selected T8four edges excludingattn/o; public selectedall6 under a different own-off-drift baseline. Relative gate/testspass, but unresolved attention-edge cause and original T8hardoff/sourcefix condition are not reconciled for six-edge selection. No observed output failure or intent is inferred. Existing owner must reconcile actual mask/sourceproof/repeatbase;root does not withdraw or submit.",
+      "release_state": "public-selection-review-mechanism-evidence-added",
+      "reason": "Publicf931six-edge versus private4a737four-edge history remains exact. New own diagnostic2c84 strongly supports FP32merge-order variation for tested layerATT7stand-in chains: off/jittervary,order-freePDLfixed/alternatingbitwiseclean,consumer audit0. This updates the earlier unknown-cause explanation without proving universal race absence or rewriting the original T8conditional authority. Existing owner has prepared stronger pdl8e27b5gates;no full-layer target qualification yet. Owner source/authorization/repeatbase disposition remains separate;no new Driverapproval gate or rootwithdrawal.",
       "evidence": "muse_decode_layer/cand/profiles/g1b4_pdl8d.f931abf568544018.json",
-      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-1733.md",
+      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-1836.md",
       "public_submission_approved": true,
       "public_submission_condition_satisfied": null,
       "public_submission_approval_scope": "Historical02:58Pacific conditional best clean PDL authority; actual six-edge T8 selection requires reconciliation, not inferred blanket approval.",
@@ -493,7 +493,81 @@
         "route",
         "fin"
       ],
-      "review_evidence": "docs/steering/evidence/2026-11-03-driver-monitor-1733/selection-review.json"
+      "review_evidence": "docs/steering/evidence/2026-11-03-driver-monitor-1733/selection-review.json",
+      "release_mechanism_diagnostic_job": "2c84c321b3bb4dbb",
+      "release_mechanism_evidence": "muse_attention_decode/profiles/pdl_bench.2c84c321b3bb4dbb.json",
+      "release_mechanism_status": "merge-order-supported-for-tested-stand-in-chain; stronger full-layer gate pending"
+    },
+    {
+      "job": "00005928fed6437b",
+      "problem": "muse_bf16_proj",
+      "score_us": 3128.9932097669885,
+      "owner": "Existing TLB/XMC BF16 worker and final-day lead; retain release-preparation ownership",
+      "judged_arm": "Prepared production dispatcher selects nine null-twin instances; warm/XMC treatments not selected. Null arms add one L2 self-line prefetch; oM1 also differs from publicC2cgemv selection.",
+      "source_identity": "muse_bf16_proj/experiments/tlb_xmc.py;244253LF bytes;SHA256b42257c342e90185e6032273221307311b26b081525389e78825191540f111f0",
+      "source_sha256": "b42257c342e90185e6032273221307311b26b081525389e78825191540f111f0",
+      "artifact": "muse_bf16_proj/experiments/tlb_xmc.py",
+      "release_state": "selected-twin-numerical-lead-clean-release-preparation-needed",
+      "reason": "Valid9/30/30 at3128.993210us below public3161.918773us by1.0413%descriptively. Exactwarm/XMC treatments failed; selectednulltwins/dispatcher are real changes,not established byte-identical incumbentdraw/noise. No clean release or matched complete-call effect is qualified. Preserve separate lead; owner pins/cleans actual selecteddispatcher/source/packing/contracts,then qualifies under separately explicit bounded existing-lead allocation before a concrete publicapproval request. No private-wrapper submission or failedwarm/XMCsweep.",
+      "evidence": "muse_bf16_proj/experiments/profiles/tlb_xmc.00005928fed6437b.json",
+      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-1836.md",
+      "public_submission_approved": false,
+      "clean_release_artifact": null,
+      "release_qualification_job": null,
+      "selected_twin_cells": [
+        [
+          "o",
+          1,
+          "rdo8n"
+        ],
+        [
+          "o",
+          8,
+          "rdo8n"
+        ],
+        [
+          "pooler",
+          1,
+          "rdp8n"
+        ],
+        [
+          "pooler",
+          8,
+          "rdp8n"
+        ],
+        [
+          "qkv_gate",
+          8,
+          "qkv8n"
+        ],
+        [
+          "unpooler",
+          8,
+          "slice8n"
+        ],
+        [
+          "unpooler",
+          32,
+          "unp32n"
+        ],
+        [
+          "router",
+          1,
+          "rgemvn"
+        ],
+        [
+          "router",
+          32,
+          "rt16w8n"
+        ]
+      ],
+      "source_identity_limit": "Originalproduction94/94localinstruction-identity claim does not cover selectednullinstances; no retained targetSASScomparison located for them.",
+      "remaining_requirements": [
+        "Pinned clean selected-twin artifact without diagnostic/warm/XMC machinery",
+        "Review actualcode/dispatch/packing/precision/order/progress/lifetime/fallback contracts and all30cells",
+        "Matched clean complete-call comparison to exactC2 with duplicate controls/fresh outputs/regressions under owning bounded private allocation",
+        "Concrete reviewable release before any new publicapproval request"
+      ]
     }
   ]
 }

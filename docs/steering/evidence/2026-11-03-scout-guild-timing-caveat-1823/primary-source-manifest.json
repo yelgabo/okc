@@ -1,0 +1,37 @@
+[
+  {
+    "member": "guild/147.html",
+    "bytes": 13658,
+    "sha256": "edcf3c4b0154704ee95ccadbeea09951a4acd033726cf8e40288275248dde841"
+  },
+  {
+    "member": "guild/120.html",
+    "bytes": 54591,
+    "sha256": "02d6e9b5a8f76cf5c8f2aef71f60070eaa1ea483c0cb934026ecdf91e49f3593"
+  },
+  {
+    "member": "guild/147.json",
+    "bytes": 10502,
+    "sha256": "9c09fe28b38e22589d38c1d1bbe926582f4799771770ef7197cf9a274944c3b1"
+  },
+  {
+    "member": "quality/pr47129.json",
+    "bytes": 49540,
+    "sha256": "631e25f61fe2009fc5e1893a8cb6a25ea9684cb543b199ebdfcd6111819f7a2d"
+  },
+  {
+    "member": "quality/gist-metadata.json",
+    "bytes": 8347,
+    "sha256": "fd92fc88610bb909eff709a61376785fc48ba15f4c1ee1008f6e9f34db3aae2f"
+  },
+  {
+    "member": "quality/gsm8k-toggle-20261103-pairs.csv",
+    "bytes": 205301,
+    "sha256": "c26e0a89433bc176f36557e4cc3f8ccd5942f924f43f457133d7cd460deebe04"
+  },
+  {
+    "member": "quality/gsm8k-toggle-20261103.json",
+    "bytes": 17980,
+    "sha256": "29d98af380dbfb5afb730ddc3588cca46b941705b2f085164b2e91e3644df098"
+  }
+]

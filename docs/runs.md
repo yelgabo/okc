@@ -2525,3 +2525,218 @@ so the tuner keeps sk2's PDL path at o. Estimated layer effect from these benche
 qkv and slice edges about -0.1 to -0.5 us each, the o edge unchanged from pdl8b, so the T = 1 gain is at most
 about 1 us, below the layer's draw spread. Lane stopped after 2 of 4 checks. Receipts:
 `muse_bf16_proj/experiments/profiles/cg_pdl.aa5e4ae178d244de.{json,txt,log}` and `cg_pdl2.990758fa4f634261.{json,txt,log}`.
+
+### 2026-11-03 TLB warm-up and sk x multicast (final-day BF16 bench lane, TLBX)
+
+Steering: docs/steering/2026-11-03-bf16-proj-approaches.md (way 5 and the TLB finding). Bench file
+`muse_bf16_proj/experiments/tlb_xmc.py`: submission.py plus arms behind template bits; every production kernel's SASS is
+instruction-identical to submission.py's (local CUDA 12.8 sm_90a cubin, 94 of 94 functions; host and device code also
+compiled whole against the torch headers). No arm spills (local ptxas).
+
+- Warm (`w`): at kernel start one thread of CTA i issues `prefetch.global.L2` for the first stream byte of 2 MB pages
+  i, i + grid, ... of the weight stream, pages counted from the 2 MB boundary at or below the actual data_ptr and never
+  past the stream's end; the escape table (sk, cgemv) or escape lists (rd) take the reversed CTA order. Kernels: sk
+  (compressed, F and raw twins of qkv8, slice8, qkv16/32, o16/32, pool16/32, unp16/32), cgemv (4 layer shapes), rgemv,
+  sgemv, rd (rdp8, rdo8), rt (rt8w8, rt16w8). Null (`n`): the same thread prefetches its CTA's own first stage line only.
+- XMC (`x`, sk at qkv / pool / unp 16 and 32): 2-CTA cluster of adjacent row blocks; rank 0 multicasts each stage's x box
+  (3-D tensor form, ctaMask 0b11) into both CTAs' slot, each CTA bulk-copies its own weights, each full barrier expects
+  WBY + x bytes; rank 1's consumer and escape warps also arrive on rank 0's empty barrier (mapa, wd's remote arrive form)
+  and rank 0's empty count doubles; barriers initialized cluster-wide (mbarrier_init fence, relaxed cluster arrive,
+  wait) before the first multicast; split exit cluster barrier (release arrive after the stage loop, wait at the end).
+- Measurement: the arms are tuner candidates (the tune lines pick per shape), and `_tx_pairs` pairs the tuner's fastest
+  twin-carrying kernel per shape (qkv / o / pooler / slice / router at m = 1, 8, 16, 32) against its twins with
+  `_time_rounds` 9 x 3 from a cold L2: `TX layer m base median mad | arm saving/rounds>0.15/rounds>0`.
+- Acceptance (registered): keep an arm on a kernel where the paired saving exceeds 0.15 us in at least 8 of 9 rounds
+  and the null does not show the same saving; a judged cell counts as a win only if it beats the public receipt
+  `scored.9eba96894ee1402e.json`'s cell by more than the run's noise. Stop: the lane has 4 checks; a null on every
+  kernel in check 1 closes the warm-up.
+
+Check 1: source commit 63cec66d, `tlb_xmc.py` SHA256 b42257c342e90185e6032273221307311b26b081525389e78825191540f111f0.
+Quota before: 10 of 20 BF16 checks.
+
+00005928fed6437b done (check, private): PASS, 30 cells, no flags, sk build 30.5 s (C2 about 20 s), prepare 102.1 s.
+Score 1.5439x (95% CI 1.5207-1.5670) against the public C2 1.5278x (1.5049-1.5507): inside the CI. Receipts
+`muse_bf16_proj/experiments/profiles/tlb_xmc.00005928fed6437b.{json,txt,log}`.
+
+Paired TX block (9 rounds x 3 cold-L2 replays; median saving base - arm in us / rounds saving > 0.15 / rounds saving
+anything; negative = arm slower):
+
+| shape | base (median, mad) | warm w | null n | XMC x |
+|---|---|---|---|---|
+| qkv_gate 1 | cgemv 13.02, 0.10 | -0.35 / 0 / 0 | -0.19 / 1 / 3 | |
+| o 1 | rdo8 9.50, 0.03 | -0.16 / 0 / 0 | -0.29 / 0 / 0 | |
+| pooler 1 | rdp8 17.63, 0.03 | -0.13 / 0 / 1 | -0.03 / 0 / 3 | |
+| slice 1 | cgemv 7.90, 0.03 | +0.00 / 0 / 3 | +0.00 / 0 / 3 | |
+| router 1 | rgemv 8.10, 0.03 | +0.19 / 7 / 9 | +0.19 / 6 / 8 | |
+| qkv_gate 8 | qkv8 14.34, 0.10 | -0.22 / 0 / 0 | +0.10 / 4 / 8 | |
+| o 8 | rdo8 9.82, 0.03 | +0.00 / 2 / 3 | +0.19 / 5 / 8 | |
+| pooler 8 | rdp8 17.76, 0.03 | +0.06 / 3 / 5 | +0.10 / 4 / 5 | |
+| slice 8 | slice8 8.77, 0.06 | -0.03 / 0 / 2 | +0.06 / 4 / 5 | |
+| router 8 | rt8w8 8.54, 0.06 | -0.13 / 1 / 1 | -0.22 / 1 / 2 | |
+| qkv_gate 16 | qkv16 14.11, 0.10 | -0.13 / 2 / 2 | +0.16 / 5 / 5 | -1.76 / 0 / 0 |
+| o 16 | o16 9.89, 0.06 | -0.13 / 0 / 0 | +0.06 / 1 / 6 | |
+| pooler 16 | pool16 18.78, 0.10 | -0.03 / 1 / 4 | -0.16 / 1 / 1 | -1.89 / 0 / 0 |
+| unpooler 16 | unp16 18.14, 0.13 | +0.06 / 3 / 5 | -0.03 / 3 / 3 | -2.11 / 0 / 0 |
+| router 16 | rt16w8 8.74, 0.03 | -0.19 / 0 / 3 | -0.19 / 0 / 1 | |
+| qkv_gate 32 | qkv32 15.62, 0.58 | -0.19 / 1 / 2 | -0.22 / 1 / 1 | -2.72 / 0 / 0 |
+| o 32 | o32 10.21, 0.06 | -0.10 / 1 / 1 | +0.06 / 3 / 6 | |
+| pooler 32 | pool32 19.36, 0.06 | -0.48 / 1 / 1 | +0.10 / 4 / 6 | -2.94 / 0 / 0 |
+| unpooler 32 | unp32 18.88, 0.06 | -0.06 / 2 / 2 | +0.00 / 3 / 4 | -2.59 / 0 / 0 |
+| router 32 | rt16w8 9.63, 0.06 | +0.00 / 2 / 4 | +0.32 / 7 / 9 | |
+
+The tuner agrees: XMC twins time +2.0 to +2.8 us (compressed) and +2.0 to +3.0 (raw) over their bases at every shape.
+
+Decision against the registered gate: no warm arm saves > 0.15 us in 8 of 9 rounds on any kernel. The only warm
+arm above zero (rgemv at m = 1, +0.19, 7 of 9) is matched by its null (+0.19, 6 of 8), so whatever moved there is
+the single prefetched line or noise, not page walks; most warm arms cost 0.1 to 0.5 us. The TLB warm-up is null as
+built (stop rule: lane closed after check 1). XMC loses 1.8 to 2.9 us at every m = 16 / 32 shape, against a stated
+upper bound of about 0.5 us of gain, so no variant was dispatched. Judged cells: the tuner picked null twins at seven
+cells (o 1 / 8 rdo8n, pooler 1 / 8 rdp8n, router 1 rgemvn, qkv 8 qkv8n, slice 8 slice8n, unp 32 unp32n, router 32
+rt16w8n) and no warm or XMC twin; no cell beats the public receipt by more than the 0.5 to 0.8 us cross-run noise
+(largest gains router verify 32 -1.15 on an unchanged wd pick, qkv_gate decode 1 -0.53 on unchanged cgemv), so no
+arm wins on the judge. Lane stopped after 1 of 4 checks; the production file is unchanged.
+
+## 2026-11-03 way 4: register-A wgmma (ra) at pooler m = 128 (branch worktree-agent-afc824c826a59610f)
+
+Brief: docs/steering/2026-11-03-bf16-proj-approaches.md, way 4. Budget: 4 checks of muse_bf16_proj today.
+
+Design (`muse_bf16_proj/experiments/ra_wgmma.py`, `ra_kernel`): 128 weight rows per CTA (two consumer
+warpgroups of 64 rows, one m64n128k16 accumulator each, 64 FP32 registers per thread) and a 128-token x
+tile over one K slice, K split over a CLK-CTA cluster (pooler CLK 4, unpooler CLK 2; 128 CTAs, one wave),
+plus one producer warp. Each consumer warp reads its 16 rows' 12-bit rd units straight into registers
+(PF units ahead), decodes them with `decode8` and patches escapes by XOR as rd_kernel does; the decoded
+`av[4]` per k16 step is passed as the wgmma register-A fragment (`wgmma.mma_async ... {a0..a3}, desc_b, p,
+1, 1, 0`, syntax from CUTLASS `SM90_64x128x16_F32BF16BF16_RS`; layout = CUTLASS `ALayout_64x16`, which is
+the mma.m16n8k16 A layout per warp). Weights never touch shared memory. x is the B operand from a 6-stage
+TMA ring of wd's 128B-swizzled {64 k, 128 token} boxes (16 KB each). Two A register sets alternate so unit
+s decodes while unit s - 1's wgmma group runs (wait_group 1). Partials go through wd's pull reduction (part
+over the ring, cluster barrier, rank r sums its 128 / CLK tokens from every rank in rank order, BF16 out).
+rd's lane layout holds k 16a + 4b + c at step b; the stream is rd_pack of W with columns permuted inside
+each 64-k block (`ra_perm`) so those slots carry the natural k 16b + 2a + (0, 1, 8, 9)[c] that the
+shared-memory B operand uses. `tools/proj_ra_emulate.py` decodes the stream on the CPU exactly as the
+kernel does and finds every weight's bits at its A position (0 mismatches with escapes; the identity
+permutation gives 61,385 of 65,536 mismatches, so the check can fail).
+
+Compile (local nvcc 12.8 sm_90a via tools/compile_check.sh, `__maxnreg__(224)`): rap (PF 2) 180
+registers, rap3 (PF 3) 192, rau 180, ablations a1 154 / a2 36 / a3 36 / a4 122; no spills, no wgmma
+serialization warning. With `__launch_bounds__(288, 1)` ptxas capped them at 168 and spilled 20-96 B.
+
+Registered before dispatch: arms ctrl = the cuBLASLt pooler m = 128 pick (LT_PREF), rap, rap3, and the
+ablations a1 decode off (raw words as A), a2 wgmma off, a3 both off (memory pipeline only), a4 weights off
+(x ring and wgmma on A = 0); 9 rounds x 3 reps of cold-L2 graph replay, order rotating (`_time_rounds`);
+unpooler m = 128 rau against its Lt pick in the same check. rap / rap3 / rau self-test at m = 65 / 100 /
+128 against FP64 with probe rows and are offered to the ltune stable pick, which ships them only if they
+beat the Lt pin by its margin. Stop rule (brief): if rap is not within 2 us of ctrl and a1 + a2 is much
+larger than rap (no overlap headroom), log the loss and stop.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 11-03 | 415b2ebb5c604af1 | check (bench ra 1) | 95123f6f (SHA256 a487f6e1) | ra at pooler / unpooler m = 128 with ablations, offered to the ltune pick | 1.518x (1.495-1.540) | rap / rap3 / rau failed to launch (cudaErrorLaunchOutOfResources at 180 / 192 registers x 288 threads), so the judged path is the incumbent; ablations ran, diag 0 |
+
+Check 1 bench (in-process us, cold L2, 9 rounds x 3 reps, includes the ~4 us replay cost; d = median
+paired delta against ctrl / rounds faster): ctrl (Lt pin) 24.58; a1 weights + wgmma, no decode 53.76
+(+29.12, 0/9); a2 weights + decode, no wgmma 16.03 (-8.58, 9/9); a3 memory only 15.68 (-8.93, 9/9);
+a4 x ring + wgmma on A = 0 31.65 (+7.20, 0/9). `cudaOccupancyMaxActiveClusters` for the pooler
+launch: 30 clusters of 4 resident against 32 in the grid, so every pooler arm ran a second partial wave
+(measured; the P3 entry above listed this as untested). The memory pipeline is near the HBM bound:
+11.68 us after the replay cost for 50.3 MB of 12-bit weights = 4.31 TB/s (floor 10.49 at 4.8 TB/s),
+against P3's 2.2 TB/s; decode adds 0.35 us on top. The wgmma side is the cost: wgmma alone (a4) is
+7.2 us over the whole Lt GEMM, and with weight loads in flight (a1) 29 us over it. SASS (local, nvcc
+12.8) shows four chained `HGMMA.64x128x16.F32.BF16` from registers per unit, `gsb0` on the last and
+`WARPGROUP.DEPBAR.LE gsb0, 0x1`, with no extra waits inserted. The launch failure: the CTA's register
+allocation rounds 288 threads to 384, so 168 is the cap that ptxas chose under `__launch_bounds__(288, 1)`.
+
+Check 2 (registered): `__launch_bounds__(288, 1)` restored (168 registers, 20-byte spill); pooler rap,
+rap_a3, rap_a4 (two waves) and unpooler rau with a1-a4 (64 clusters of 2, one wave if the occupancy
+call confirms it), each against its Lt pin. Same stop rule: rau must come within 2 us of the unpooler
+ctrl; if rau_a4 alone is still above ctrl, the register-A wgmma path loses in one wave too, and the lane stops.
+| 11-03 | 63c0ecaf94114524 | check (bench ra 2) | 73cefcb4 (SHA256 50001b8b) | 168-register ra; pooler rap with a3 / a4, unpooler rau with a1-a4 | 1.521x (1.498-1.544) | all launched, diag 0; ltune rejected rap (-29.15 vs pin) and rau (-10.27); judged pooler m = 128 20.6 us on Lt f1, unpooler 19.3 on the pin |
+
+Check 2 bench (in-process us, as above): pooler ctrl 24.64; rap 53.86 (+29.34, 0/9); rap_a3 15.49
+(-9.18; 11.49 net = 4.38 TB/s); rap_a4 31.39 (+6.82); 30 of 32 clusters of 4 resident again. Unpooler,
+one wave (66 clusters of 2 resident for 64): ctrl 23.10; rau 33.15 (+9.76, 0/9); a1 decode off 30.59
+(+7.39); a2 wgmma off 13.28 (-9.82); a3 memory only 13.31 (-9.79; 9.31 net, which would be 5.41 TB/s,
+above the HBM peak, so either part of the stream survives the flush in L2 or the replay cost here is
+under 4 us); a4 wgmma on the x ring with zero A 18.62 (-4.42; 14.6 net).
+
+What it shows (measured): in one wave, the weight stream and decode reach the byte floor (a2 = a3), and
+wgmma alone on the x ring takes 14.6 us net, about 60% of tensor peak for 8.6 GFLOP. With both, the
+kernel takes 26.6 us net (decode off) and 29.2 (full), more than the 23.9 sum of its parts, so the two
+do not overlap. The pooler's two waves (30 of 32 clusters of 4) double its wgmma-bound time.
+Hypotheses (not tested): the loads for unit s + PF are issued by the same warps after each wait_group 1,
+so the in-flight weight bytes per SM (8 warps x PF 2 x 1.5 KB) shrink whenever the tensor pipe stalls
+the issue, and the 168-register cap blocks a deeper PF.
+
+Decision: the stop rule fired (rau +9.8 us; decode-off plus wgmma-off 43.9 against rau 33.2). Two of the
+four checks used; no geometry sweep. Logged in docs/ruled-out.md with its reopen condition. The
+incumbent is unchanged; the bench file keeps ra for the reopen.
+
+### 2026-11-03 fixed-cost calibration of the m <= 8 cells (FC-01)
+
+Question: of the 2 to 3 us that every m <= 8 cell sits above its byte floor on the judge (ramp lane
+793602020fd64ce9, steering 2026-11-03-bf16-proj-approaches.md), how much is the graph and launch itself and
+how much is ramp, tail and epilogue? Bench `muse_bf16_proj/experiments/fixed_cost.py` (SHA256 e12b4097,
+incumbent submission.py 6a4ea572 plus one block at the end of prepare(); kernel_fn and every pick unchanged, so the
+judged arm is the incumbent). Arms, each its own CUDA graph captured on one stream, replayed from a cold L2 (256 MB
+flush.sum() before every replay), 12 rounds x 5 reps with the order rotated: a empty graph and a 1-byte
+cudaMemsetAsync node; b null kernel 1 x 32; c 132 x 128; cx 128 x 128 through cudaLaunchKernelEx (cluster
+control); d 1024 x 96, d2 4096 x 96; e8 / e16 128 x 128 in clusters of 8 / 16; f pure stream of the o 12-bit bytes
+(12.58 MB), the pooler's (50.3 MB) and the router's (8.4 MB), 132 x 256, 8 x 16-byte ld.global.nc in flight per
+thread (SASS: all 8 issue before the first XOR, 48 registers, no spill), grid-sweep (f) and per-CTA slab (fs)
+orders; g the real m = 1 picks of o, pooler and router; h1 / h8 a one-thread pointer chase of 1 / 8 hops 4 MB apart.
+Reported: per-arm median and MAD of round medians, paired deltas against b and the named differences.
+Compile check (local nvcc 12.8): 99 entries, no spills. Stop: one check; a second only if the small arms' MAD
+exceeds 0.3 us.
+| 11-03 | 24068e6fd73e4240 | check (bench FC-01) | a1960e7b (SHA256 e12b4097) | fixed-cost calibration arms in prepare(); judged arm is the incumbent | 1.527x (1.504-1.550), 3,162.8 us | PASS 9 tests; no pick changed; not below public 3,161.9 us, so no queue entry |
+
+Result, in-process us (median of 12 round medians, MAD; delta vs b paired). Every small arm's MAD is 0.10 or less,
+so no second check.
+
+| arm | median | MAD | minus b |
+|---|---:|---:|---:|
+| a empty graph (torch captured it) | 2.91 | 0.00 | -1.92 |
+| a 1-byte memset node | 4.45 | 0.00 | -0.40 |
+| b null 1 x 32 | 4.86 | 0.03 | 0 |
+| c null 132 x 128 | 5.04 | 0.05 | +0.19 |
+| cx null 128 x 128, cudaLaunchKernelEx | 5.01 | 0.02 | +0.16 |
+| d null 1024 x 96 | 5.66 | 0.00 | +0.83 |
+| d2 null 4096 x 96 | 7.63 | 0.10 | +2.78 |
+| e8 / e16 null 128 x 128 in clusters of 8 / 16 | 5.02 / 5.02 | 0.00 | +0.19 / +0.18 |
+| f stream 12.58 MB (o) / 50.3 MB (pooler) / 8.39 MB (router) | 11.42 / 19.58 / 10.53 | 0.03-0.08 | +6.56 / +14.70 / +5.68 |
+| fs same, per-CTA slabs | 12.10 / 20.24 / 11.09 | 0.06-0.11 | +7.22 / +15.36 / +6.16 |
+| g o cgemv / pooler rdp8 / router rgemv (real m = 1 picks) | 9.26 / 17.49 / 7.73 | 0.03-0.06 | +4.37 / +12.61 / +2.83 |
+| h1 / h8 pointer chase, 4 MB hops | 5.12 / 7.46 | 0.06 / 0.05 | +0.22 / +2.62 |
+
+Paired differences: d - c +0.66, d2 - c +2.61; e8 - cx +0.03, e16 - cx +0.03; g - f: o -2.21, pooler -2.11,
+router -2.77; h8 - h1 +2.37 (0.34 us per dependent cold hop).
+
+The judge's own calibration is in the status JSON (`replay_overhead` per cell): it times a one-node and a two-node
+graph and subtracts overhead = 2 x one - two (3.8-4.2 us). Its one-node graph is 4.93-5.31 us, the same as arm b
+(4.86). So on the judged scale a one-kernel graph is left at one - overhead = two - one = 1.0-1.15 us, in every cell.
+
+Analysis:
+1. Graph and launch floor: b = 4.86 in-process; an empty graph is 2.91, and a kernel node adds 1.92 (a memset
+   node 1.54). On the judge's scale the one kernel node of every cell costs 1.0-1.15 us after the subtraction.
+   That part is not ours: a one-kernel graph cannot drop its node.
+2. CTA count: 1024 CTAs cost +0.66 us and 4096 CTAs +2.61 us over 132 when the CTAs do nothing (CTA dispatch at
+   about 0.64 ns per CTA). In a streaming kernel the dispatch overlaps the loads: the ramp lane (793602020fd64ce9)
+   judged 256 x 544 and 4096 x 96 the same on o.
+3. Cluster launch: free (+0.03 us at 8 and at 16).
+4. Streaming floor: arm f did not measure one. 132 x 256 threads with 8 loads per iteration and no pipelining
+   between iterations reached only 1.9 TB/s on 12.6 MB and 3.4 TB/s on 50 MB, and the real kernels beat it by
+   2.1-2.8 us, so g - f is negative and gives no ramp figure. In place of f, the two 12-bit kernels give a slope:
+   (12.61 - 4.37) us / (50.33 - 12.58) MB = 4.58 TB/s, intercept 1.62 us above b (a two-point fit across two
+   different kernels, cgemv and rdp8; a derivation, not a measurement).
+5. Ramp, tail and epilogue, from the judged cells of this check, after the node cost (two - one of each cell) and
+   bytes at 4.8 TB/s: o 5.06 - 1.06 - 2.62 = 1.38 us; router 3.75 - 1.09 - 1.75 = 0.91; unpooler slice
+   (6.29 MB) 3.61 - 1.15 - 1.31 = 1.15; pooler 13.44 - 0.99 - 10.49 = 1.96 (1.46 at the fitted 4.58 TB/s).
+   Each includes at least one cold DRAM round trip before the first byte arrives (h: 0.34 us per dependent hop
+   with a TLB miss, 0.22 us for the first).
+
+Of the 2 to 3 us above the byte floor, about 1.0-1.1 us is the kernel node of the graph and is not ours, and
+about 0.3 us is the first DRAM round trip. What is left for us is 0.6-1.1 us per cell at o, the router and the slice
+(about 1.1-1.6 at the pooler), spent in ramp, tail and epilogue. Clusters and CTA count are not where it goes.
+Over the ten decode 1 / verify 1 cells that bounds the remaining kernel-side gain at about 8 us of the 35-38 us
+loads if all of it were recovered, which no tested variant has done. Next step if reopened: a stream arm that keeps
+loads in flight across iterations (more CTAs or a software-pipelined loop), so f is a true floor and g - f
+becomes a measurement. Receipts: `muse_bf16_proj/experiments/profiles/fixed_cost.24068e6fd73e4240.{json,txt,log}`.
