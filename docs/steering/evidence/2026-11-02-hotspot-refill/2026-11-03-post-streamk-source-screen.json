@@ -1,0 +1,84 @@
+{
+  "request": "SAME existing short-load research refill; no new task",
+  "source_snapshot": "ed80352793b68dc04cf4cedff501ddf898101c33",
+  "reconciled_through": "47070a76fb8567b19f26927b071cd60c96abd783",
+  "decision": "QUALIFICATION_GAP: zero current implementation proposals and no ranked next",
+  "scope": "One source-only selected-path/primary-source pass. No implementation, target allocation, owner takeover or repeat of the completed b65 comparison.",
+  "selected_control": {
+    "release_sha256": "5df257afd6ae2863bc706826a9798d97b17e73830f1d10703c81bba21203eb9e",
+    "native_main_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+    "helper_bytes": 139768,
+    "local_source_check": "Extracted the literal from archived public607 ba9e327c and independently SHA256-checked it against the current release manifest. This is not access to an uncommitted local checkout.",
+    "actual_short_flags": "WS1/WGS0/NW8/NS3/FAST1=2/WSB1/WSBL2/FINPF1/PRMTSC1/DQ7; Tiny WSBLK2/L2H0, Tiny2 WSBLK1/CPF0",
+    "native_source_ranges": {
+      "ws_helper": "1510-1585",
+      "terminal_join_and_finalization": "2405 onward"
+    }
+  },
+  "distinct_mechanism_screen": {
+    "name": "In-call cold-epilogue code prewarming, not weight prefetch or a readiness/finalizer rewrite",
+    "primary_repository": "Kushagrabainsla/muse-spark-open",
+    "primary_commit": "ca71144194e993c9769f20654fade8008c6868c7",
+    "sources": {
+      "README.md": "bf2617367ab8bb3e523ff023afa434dd15cb6eaf",
+      "muse_moe_w4a16/tools/icache.py": "38c28371855addbc0360223e42b69453e7a77164"
+    },
+    "evidence": "Author reports about 6900 versus 2300 cycles for an attention merge, separately only 0-4 percent MoE sensitivity. Neither is a measurement of b8 Tiny/Tiny2. The separate active attention lane is not reassigned.",
+    "probe_semantics": "Four graphs: F=flush, C=flush+A, P=flush+B, B=flush+B+A, with distinct prepared weights/inputs. cold=(C-F)/REPS, warm=(B-P)/REPS. The priming call is subtracted. This is a differential diagnostic, not an optimized complete timed A callable or an isolated hardware-counter measurement.",
+    "actual_selected_path": "The b8 helper combines partial-buffer reads/releases, arithmetic, intermediate/y stores, norm atomics and A-readiness publication. The finalizer is embedded in the producer kernel. No common-PC, side-effect-free early warm entry is established by the source.",
+    "competing_costs": [
+      "Extra early instructions and live state compete with initial weight issue and helper work",
+      "Outlining or duplication can add calls/register pressure or warm different instructions",
+      "A dummy invocation must not read unwritten intermediate/y buffers, publish credits, update norm sums, reset scratch or enter unmatched barriers",
+      "Warming an entire real call outside the timed endpoint is not a candidate"
+    ],
+    "required_proof": "Common emitted instruction addresses for warm/real work; valid immutable inputs; no early observable writes or barrier arrivals; unchanged BF16/FP32 math and slot order; retained writer/proxy fences; cooperative progress and private graph-owned state.",
+    "opportunity_gap": "No source-bound >=2us complete-call opportunity has been established for b8 after the added warming/issue/call costs. The f401 wait summaries do not isolate instruction fetch, and cold/warm cycles from attention cannot supply it.",
+    "one_missing_fact_action": "A source-bound cold-code versus cold-data discrimination for the selected b8 Tiny/Tiny2 complete call, with independent states/duplicate controls and explicit accounting for the cost of any legal in-call warm path. This is a reopening condition, not a newly assigned instrument/check or a requirement that an unbuilt candidate first demonstrate a win.",
+    "disposition": "Unqualified hypothesis. Do not manufacture an endpoint or allocate a check from the foreign attention result. This bounded pass stops here."
+  },
+  "complete_alternative_crosscheck": {
+    "repository": "Aravind-11/muse-moe-w4a16",
+    "commit": "399305738cfb9effc85555e05b8691ba6c769813",
+    "file": "submission_v6.py",
+    "blob_sha": "f8bcc058de55270def866cfcf2ce3c6c7cef5626",
+    "bytes_from_git_tree": 38370,
+    "scope": "Read preparation, custom GEMM1 and epilogue, dispatch/gating and complete Marlin/post-norm wrapper. No target result or independently downloaded full-file hash claimed.",
+    "complete_path": "prepare clones/repackages W13 and prepares Marlin W13/W2; selected call maps IDs, aligns routes, runs fused gate/up+SiLU or Marlin+activation, then Marlin GEMM2 and post-expert norm/weighted sum.",
+    "required_repairs": "S2 sends FP32 scaled gate/up directly into reciprocal-based SiLU; b8 rounds gate and up to BF16 before its selected division and final BF16 product. Restoring those boundaries is mandatory for the preserved contract. The retained prepare creates only bank (0,32), unlike the current release range/fallback contract. Imported SGLang implementation and actual selected variant require version/source binding.",
+    "provenance_limit": "README explicitly calls v5/v6 early files, not its current scored entry. Its 47.5/96.8us headline short cells are not exact-file evidence and are not subtracted from our timings.",
+    "cost_decision": "Same useful dense expert weight payload, external route alignment, extra complete-call dependencies and intermediates, unknown selected S2/Marlin gate. Full-K warp ownership is not a new rescue for the stopped row-owned topology. No credible >=2us legal whole-call opportunity established; no transplant brief."
+  },
+  "bf16_reconciliation": {
+    "owning_receipts": ["c65acf82346c4493", "2748d7118de84c37"],
+    "receipt_paths": ["muse_bf16_proj/profiles/qkv_sks.c65acf82346c4493.json", "muse_bf16_proj/profiles/qkv_sks_abl.2748d7118de84c37.json"],
+    "observed_tuner_selection": "qkv M1=cgemv, M8/16/32=qkv8/qkv16/qkv32; O M1=cgemv,M8=rdo8; unpooler M1=cgemv,M8=slice8; router M1=rgemv,M8=rt8w8. The stream-K candidate is not the judged short-cell winner.",
+    "complete_streamk_cost": "Approximately 3-6us slower; exact medians retained in docs/runs.md and owning logs",
+    "timing_only_join_delta_us": [2.9, 3.6, 4.0],
+    "timing_only_no_reduction_minus_incumbent_us": [0.5, 1.0, 1.1],
+    "limits": "Wrong-output arms are not kernels eligible for promotion, isolated causal hardware costs or a family ceiling. No join/ramp/128CTA rescue or large-M brief follows.",
+    "decision": "No separately qualified >=1.5us summed short-cell alternative from this pass. Retention is provisional, not an optimality claim."
+  },
+  "dated_sensitivity_not_forecast": {
+    "T1_us": 26.7,
+    "T8_us": 67.2,
+    "two_us_saved_T1_sixload_factor": 1.0130612833178565,
+    "two_us_saved_T8_sixload_factor": 1.0050483298583588,
+    "foreign_four_percent_applied_only_as_sizing_us": [1.068, 2.688],
+    "T8_cost_headroom_if_foreign_four_percent_transferred_for_free_us": 0.688,
+    "warning": "The four-percent arithmetic is neither a b8 bound nor an expected saving. It illustrates why a foreign MoE percentage or attention cycle delta does not establish the required complete-cost margin. Ideal byte floors and summed profile activity supply no exposed-time budget."
+  },
+  "ownership_and_stop": {
+    "existing_owner_if_later_reopened": "MoE implementation owner for b8 T1/T8; BF16 owner retains separate short cells",
+    "current_proposals": 0,
+    "ranked_next": 0,
+    "new_build_briefs": 0,
+    "new_compiler_runs": 0,
+    "new_gpu_jobs": 0,
+    "other_owner_job_polls": 0,
+    "public_or_default_changes": 0,
+    "timer_changes": 0,
+    "stop": "One completed source-only pass. Preserve all exact negative closures, active attention/layer ownership, declined G0 and failed Factor-Y confirmation. No new allocation, reply gate or task."
+  }
+}
