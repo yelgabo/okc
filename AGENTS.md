@@ -89,6 +89,12 @@ The complete attachment and section coverage are preserved there. These notes
 do not reopen parked experiments or change D32 ownership or submission permission.
 Compiler checks must preserve the compiler's failure status and full diagnostics;
 successful output filtering is not build evidence.
+Resolve native source through the final Python factory and its actual build flags
+before assigning a source-level optimization. A file can contain several complete
+CUDA literals and repeated factory definitions. In public607, B4 and MAIN select
+`MOE_CUDA_SRC` and already use the parallel prefix scan; serial helper lines belong
+to Tiny/Tiny2/MID. Reproduce with `tools/d32_b4_prefix_audit.py`. See
+[the source correction](docs/steering/decode32/2026-11-02-13-b4-prefix-selected-source.md).
 When changing WGMMA grouping, read the active constants from the selected native
 literal. Nearby helper literals and old comments can differ. Test that deferred
 flush conditions remain reachable for every selected group size, and inspect

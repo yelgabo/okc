@@ -1,9 +1,8 @@
 # Decode32 task inbox
 
-## Next experiment queued — source-backed B4/T32 warp-parallel job-cost scan
+## B4 prefix task classified: selected source already has the parallel scan
 
-**[D32-12: H200 ~460-experiment source reconciliation and P0 B4 task](2026-11-02-12-h200-460-next-leads.md)** uses the user-supplied research note to identify a concrete current-code bottleneck: the selected B4/T32 x-producer invokes a one-lane serial `wgs_prefix`, although an older, different-cost version in the same release file has a warp-parallel prefix/range scan. **D32-MOE-01** is queued for Decode32 Worker **after** it completes or classifies the already-owned attention matched-routing diagnostic (`EXPERT_FRESH_ROUTING_MISMATCH`, job `62a4f6b27ed74b50`; strict-gate diagnostic source `9e5e5d64`). Do not interrupt or duplicate that job. The task fixes a single B4-only source treatment, tests exact prefix/range equivalence, and prescribes one private full-layer D32 check if valid, no Driver handoff. The report also marks already present SC6, phase-B data flags and T32 conditional pooler/router fusion to avoid redundant work. External ~460-experiment gains lack raw source/receipts and are **not measured OKC benefits**. Pickup of D32-MOE-01 is unconfirmed.
-
+[D32-MOE-01 selected-source audit](2026-11-02-13-b4-prefix-selected-source.md) records actual pickup and compiler-input capture. B4/T32 and MAIN select native `c7c201ae`, which already contains the all-lane scan and four-lane range lookup. The serial literal cited by [D32-12](2026-11-02-12-h200-460-next-leads.md) belongs to Tiny/Tiny2/MID. Close this exact duplicate proposal without a new kernel or GPU run. Three CPU checks cover selection and injected wrong-source/serial-call cases. The frozen attention routing diagnostic `9e5e5d64` remains next when the shared queue clears. A further B4 task needs a distinct mechanism and selected-source evidence.
 
 ## Current next action: confirm the completed attention experiment
 

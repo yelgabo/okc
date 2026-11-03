@@ -1,9 +1,8 @@
 # Shared project steering
 
-## H200 ~460-experiment lessons: actionable D32 next lead
+## D32 B4 prefix source correction
 
-**[D32-12 source-backed backlog and B4 warp-prefix experiment](decode32/2026-11-02-12-h200-460-next-leads.md)** reviews [the user's new ~460-experiment note](../research/h200-460-experiments.md). The selected public607 B4/T32 path still computes cost prefixes and four range boundaries in one producer lane; an earlier unselected warp-parallel implementation in the same source provides a non-drop-in starting point. **D32-MOE-01** is a single B4-only implementation and private full-layer test, queued after Decode32 Worker's currently owned strict matched-attention routing diagnostic. Existing SC6, phase-B flags, shape-specialized builds and conditional T32 pooler/router fusion are acknowledged rather than assigned again. General Optimizer keeps its T1/T8/T16 ring comparison and CUDA Optimizer its separate MoE pipeline. External 460-experiment percentages are unverified; no new gain or job is claimed. The task is published, worker pickup unconfirmed.
-
+[Actual factory capture for D32-MOE-01](decode32/2026-11-02-13-b4-prefix-selected-source.md) shows that public607 B4/T32 and MAIN already select the parallel prefix/range implementation. The serial helper cited in [D32-12](decode32/2026-11-02-12-h200-460-next-leads.md) belongs to Tiny/Tiny2/MID. Three CPU tests cover the selected source and negative cases. This closes the duplicate proposal without a new candidate or GPU run. The frozen attention routing diagnostic remains next after shared queue preflight. External ~460-experiment gains remain unverified.
 
 ## Public competition reconnaissance and recurring watch
 
