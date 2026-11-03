@@ -2525,3 +2525,31 @@ so the tuner keeps sk2's PDL path at o. Estimated layer effect from these benche
 qkv and slice edges about -0.1 to -0.5 us each, the o edge unchanged from pdl8b, so the T = 1 gain is at most
 about 1 us, below the layer's draw spread. Lane stopped after 2 of 4 checks. Receipts:
 `muse_bf16_proj/experiments/profiles/cg_pdl.aa5e4ae178d244de.{json,txt,log}` and `cg_pdl2.990758fa4f634261.{json,txt,log}`.
+
+### 2026-11-03 TLB warm-up and sk x multicast (final-day BF16 bench lane, TLBX)
+
+Steering: docs/steering/2026-11-03-bf16-proj-approaches.md (way 5 and the TLB finding). Bench file
+`muse_bf16_proj/experiments/tlb_xmc.py`: submission.py plus arms behind template bits; every production kernel's SASS is
+instruction-identical to submission.py's (local CUDA 12.8 sm_90a cubin, 94 of 94 functions; host and device code also
+compiled whole against the torch headers). No arm spills (local ptxas).
+
+- Warm (`w`): at kernel start one thread of CTA i issues `prefetch.global.L2` for the first stream byte of 2 MB pages
+  i, i + grid, ... of the weight stream, pages counted from the 2 MB boundary at or below the actual data_ptr and never
+  past the stream's end; the escape table (sk, cgemv) or escape lists (rd) take the reversed CTA order. Kernels: sk
+  (compressed, F and raw twins of qkv8, slice8, qkv16/32, o16/32, pool16/32, unp16/32), cgemv (4 layer shapes), rgemv,
+  sgemv, rd (rdp8, rdo8), rt (rt8w8, rt16w8). Null (`n`): the same thread prefetches its CTA's own first stage line only.
+- XMC (`x`, sk at qkv / pool / unp 16 and 32): 2-CTA cluster of adjacent row blocks; rank 0 multicasts each stage's x box
+  (3-D tensor form, ctaMask 0b11) into both CTAs' slot, each CTA bulk-copies its own weights, each full barrier expects
+  WBY + x bytes; rank 1's consumer and escape warps also arrive on rank 0's empty barrier (mapa, wd's remote arrive form)
+  and rank 0's empty count doubles; barriers initialized cluster-wide (mbarrier_init fence, relaxed cluster arrive,
+  wait) before the first multicast; split exit cluster barrier (release arrive after the stage loop, wait at the end).
+- Measurement: the arms are tuner candidates (the tune lines pick per shape), and `_tx_pairs` pairs the tuner's fastest
+  twin-carrying kernel per shape (qkv / o / pooler / slice / router at m = 1, 8, 16, 32) against its twins with
+  `_time_rounds` 9 x 3 from a cold L2: `TX layer m base median mad | arm saving/rounds>0.15/rounds>0`.
+- Acceptance (registered): keep an arm on a kernel where the paired saving exceeds 0.15 us in at least 8 of 9 rounds
+  and the null does not show the same saving; a judged cell counts as a win only if it beats the public receipt
+  `scored.9eba96894ee1402e.json`'s cell by more than the run's noise. Stop: the lane has 4 checks; a null on every
+  kernel in check 1 closes the warm-up.
+
+Check 1: source commit 63cec66d, `tlb_xmc.py` SHA256 b42257c342e90185e6032273221307311b26b081525389e78825191540f111f0.
+Quota before: 10 of 20 BF16 checks. Pending.
