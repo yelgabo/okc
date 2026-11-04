@@ -14038,13 +14038,13 @@ __device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigne
   const int njF = S.njF;
   const int nU = v1 - v0;
   const int seq0 = seq;
-  uint4 x0[2 * NCH];
-  int curj = -1;
 #if OKC_SKT > 8
   bool x1p = false;
   __nv_bfloat16* x1s = reinterpret_cast<__nv_bfloat16*>(ring + OKC_NS * UNIT_BYTES) + warp * 8 * X1P;
 #else
 #endif
+  uint4 x0[2 * NCH];
+  int curj = -1;
   float lgs = 0.f;                             // the last phase-B unit's epilogue constants (warp 0)
   uint32_t lnw0 = 0u, lnw1 = 0u;                // (norm weights as raw bf16 bits)
   for (int i = 0; i < nU; ++i) {

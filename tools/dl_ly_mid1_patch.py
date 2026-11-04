@@ -106,10 +106,10 @@ def tile_loop(old, indent, tk_old, tk_new):
 
 
 def patch_ring(ws):
-    ws = once(ws, "  int curj = -1;\n", "  int curj = -1;\n" + guard(
+    ws = once(ws, "  uint4 x0[2 * NCH];\n", guard(
         "  bool x1p = false;\n"
-        "  __nv_bfloat16* x1s = reinterpret_cast<__nv_bfloat16*>(ring + OKC_NS * UNIT_BYTES) + warp * 8 * X1P;\n", ""),
-        "ws decl")
+        "  __nv_bfloat16* x1s = reinterpret_cast<__nv_bfloat16*>(ring + OKC_NS * UNIT_BYTES) + warp * 8 * X1P;\n", "")
+        + "  uint4 x0[2 * NCH];\n", "ws decl")
     ws = once(ws, "      load_x_regs<PB>(p, S, j, lane, warp, x0);\n",
               "      load_x_regs<PB>(p, S, j, lane, warp, x0);\n" + guard(
                   "      load_x1_async<PB>(p, S, j, lane, warp, x1s); x1p = true;\n", ""), "ws x1")
