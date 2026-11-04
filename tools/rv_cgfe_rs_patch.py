@@ -7,15 +7,20 @@ trigger at the CTA's end). g1b4_rs.py (01426b89) is the same release prefix, byt
 the routing-slack edits. The port keeps cgfe's prefix (release + cgemv), puts g1b4_rs's PDL tail in place of pdl8b's,
 and appends cgfe's cgemv PDL block unchanged. Every split point is checked.
 
-    python3 tools/rv_cgfe_rs_patch.py
+    python3 tools/rv_cgfe_rs_patch.py                      # onto g1b4_rs, writes rv_cgfe_rs.py
+    python3 tools/rv_cgfe_rs_patch.py --base pdl8h         # onto g1b4_pdl8h (33c2353b), writes rv_cgfe_h.py
 """
 import hashlib
 import pathlib
 import py_compile
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 C = ROOT / "muse_decode_layer/cand"
-PINS = {"g1b4_rs.py": "01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07",
+BASES = {"rs": ("g1b4_rs.py", "01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07", "rv_cgfe_rs.py"),
+         "pdl8h": ("g1b4_pdl8h.py", "33c2353b52de29c5", "rv_cgfe_h.py")}
+base = BASES[sys.argv[sys.argv.index("--base") + 1] if "--base" in sys.argv else "rs"]
+PINS = {base[0]: base[1],
         "g1b4_cgfe.py": "3785f13a5ee3",
         "g1b4_pdl8b.py": ""}
 MARK = "# Added by yelgabo, November 3, 2026 (tools/dl_pdl8_patch.py)"
@@ -27,20 +32,20 @@ for name, pin in PINS.items():
     if not hashlib.sha256(b).hexdigest().startswith(pin):
         raise SystemExit(f"{name} is not {pin}")
     src[name] = b.decode()
-rs, cf, pb = src["g1b4_rs.py"], src["g1b4_cgfe.py"], src["g1b4_pdl8b.py"]
+rs, cf, pb = src[base[0]], src["g1b4_cgfe.py"], src["g1b4_pdl8b.py"]
 for name, s in src.items():
     if s.count(MARK) != 1:
         raise SystemExit(f"{name}: PDL block marker found {s.count(MARK)} times")
 if rs[:rs.index(MARK)] != pb[:pb.index(MARK)]:
-    raise SystemExit("g1b4_rs's prefix is not the release prefix")
+    raise SystemExit(f"{base[0]}'s prefix is not the release prefix")
 cf_tail = cf[cf.index(MARK):]
 if cf_tail.count(CG_PDL) != 1 or cf_tail[:cf_tail.index(CG_PDL)].rstrip("\n") != pb[pb.index(MARK):].rstrip("\n"):
     raise SystemExit("g1b4_cgfe's tail is not pdl8b's block plus the cgemv PDL block")
 head = "# okc: problem=muse_decode_layer\n"
-out = (cf[:cf.index(MARK)].replace(head, head + "# rv_cgfe_rs: g1b4_cgfe's release + cgemv prefix, g1b4_rs's PDL tail, "
+out = (cf[:cf.index(MARK)].replace(head, head + f"# {base[2][:-3]}: g1b4_cgfe's release + cgemv prefix, {base[0][:-3]}'s PDL tail, "
                                    "cgfe's cgemv PDL block (tools/rv_cgfe_rs_patch.py).\n", 1)
        + rs[rs.index(MARK):].rstrip("\n") + "\n\n\n" + cf_tail[cf_tail.index(CG_PDL):])
-dst = C / "rv_cgfe_rs.py"
+dst = C / base[2]
 dst.write_text(out)
 py_compile.compile(str(dst), doraise=True)
 print(dst.relative_to(ROOT), hashlib.sha256(out.encode()).hexdigest(), len(out))
