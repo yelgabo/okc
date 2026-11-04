@@ -475,3 +475,39 @@ Do not wrap it in `flock` (it refuses to start if a parent flock holds the same 
 `tools/box_bg.sh` and plain `flock ... box_run.py` keep working and queue on the same lock; those
 jobs still hold it through their compiles. The mo lane's `.build/box/mo_run.sh` already uses this
 form (seen running at 00:23 UTC).
+
+### Prepare budget under `--lock` (fix, 2026-11-03 17:16 PST)
+
+The mo lane's knob builds `mo_midskt16.py` and `mo_tiny2wsblk2.py` failed with `RuntimeError: G
+startup self-test exceeded prepare budget`. In `.build/box/mo/k_midskt16.log` a 38.5 s build was
+followed by 342.9 s of waiting to get the lock back. The layer files bound prepare with two clocks:
+
+- `prepare` sets `deadline = time.monotonic() + 295`, and the G startup self-test raises once
+  `time.monotonic() >= deadline` (g1b4_rs.py and g1b4_stage_release.py lines 17236 and 17168).
+- PDL8D's search stops at `(_PDL8_T0 or time.time()) + PDL8D_BUDGET_S` (230 s), with `_PDL8_T0 =
+  time.time()` at the start of prepare (g1b4_rs.py lines 17253 and 17763).
+
+Neither has an environment override. With `--lock` the runner now installs a budget clock: the
+submission's `time.monotonic` and `time.time` read real time minus the seconds this process spent
+waiting to get the lock back after a build, and they never go backwards. Build time still counts,
+as it does on the judge; only the queue wait is removed. The runner's own timings (`BXLOCK`,
+`BXBUILD`, `BXPHASE`, `import+prepare`) use the real clocks saved at start. A `BXCLOCK` line
+reports the offset after each wait, and `--no-budget-offset` turns the clock off.
+
+Checks, both on the box:
+
+- `tools/bx_box_run_clock_test.py` (CPU only, a private lock file): the test holds the lock,
+  releases it for a 2 s stand-in build, then waits 17.0 s behind another flock holder. Real
+  elapsed time was 20.0 s and the submission's clock moved 3.0 s, so a 15 s deadline taken before
+  the wait was not exceeded.
+- A cold build of g1b4_stage_release.py (`--ext-cache /root/.cache/bx_ext_bud`, empty) on the live
+  queue, with four other lanes' `bx_box_run.py --lock` jobs running (01:11:34-01:16:05 UTC,
+  `.build/bx_audit/bud/rel.log`). It waited 82.1 s for the first lock, opened five release
+  windows, and waited 1.1 + 39.5 + 11.0 + 40.6 s to get the lock back. Prepare took 186.3 s real
+  and 94.0 s on the submission's clocks (offset 92.3 s). The self-test passed
+  (G_RELEASE_STARTUP_OK) and both decode 1 checks passed. These waits stayed below the 295 s
+  budget, so this run shows the offset applied on a real cold build; the case past the budget is
+  covered by the clock test and by the mo lane's two failures from before the fix.
+
+The command is unchanged. Lanes using `--lock` pick the fix up from the current
+`tools/bx_box_run.py` (synced to the box at 01:11 UTC) and should re-run midskt16 and tiny2wsblk2.
