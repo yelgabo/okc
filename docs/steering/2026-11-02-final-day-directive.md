@@ -259,3 +259,4 @@ MoE factorized-output7479372115c64702 is terminal and archived at1454ac73: offic
 - 22:26 PT lead, user: the MoE cluster rewrite is Family H (next free letter after G). Plan header updated.
 - 22:32 PT lead: ly_fabq public run 3cb1ec765a6e4479 done: 10,255.6 us, 2.2057x, passed; below the row (ly_fab draw 0, 10,211.3), rank 322 unchanged. ly_fabq at the judge so far: check 10,212.7, run 10,255.6. Draw loop on ly_fabq continues (day2f).
 - 22:41 PT lead: ly_fabq repeat draw 0 (7d03f88d774f4243) done: 10,194.1 us, 2.2190x, passed; best public run so far, ahead of the row (ly_fab draw 0, 10,211.3). Board re-read pending.
+- 22:43 PT lead: board row is now ly_fabq draw 0 (7d03f88d774f4243), 10,194.1 us, 2.2190x, rank 311 (was 322). Rank-100 bar 9,885.7 us, 2.2882x.
