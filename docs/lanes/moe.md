@@ -1,6 +1,6 @@
 # moe lane checkpoint (round 5, decode 16 / 32 MoE prologue)
 
-Updated 2026-11-04 13:06 PT. Branch `worktree-agent-aac86ce8ff3fa9576`. Round 4's checkpoint is in git history
+Updated 2026-11-04 13:10 PT. Round 5 closed: no candidate clears the bar. Branch `worktree-agent-aac86ce8ff3fa9576`. Round 4's checkpoint is in git history
 (commit 040d9eb4).
 
 ## Base
@@ -35,7 +35,10 @@ MID ly_m5mh A/B (two rounds pooled, 24 pairs, w - c): decode 16 sliding +0.21 (8
 
 B4 ly_m5ww: xprod ranges 3.71 (base 5.12), first weight issue (gt) 4.78 (5.35), wprod after WS_JOIN 4.94 (5.30), but
 gather done (gt) 4.35 (4.22), WS_JOIN (gt) 4.39 (4.23), xready released 4.71 (4.56), xprod first xready (gt) 5.78
-(5.55). The weights now start 0.57 us earlier and the first x rows land 0.23 us later. A/B running.
+(5.55). The weights now start 0.57 us earlier and the first x rows land 0.23 us later. Gate: five guards pass, chk rc=0.
+
+B4 ly_m5ww A/B (pooled, 24 pairs, w - c): decode 32 sliding -0.43 (17/24), decode 32 full +0.50 (10/24), decode 16
+sliding +0.08 (9/24), decode 1 full -0.68 (23/24, thr 1.82); every cell inside. Below the 0.8 us bar.
 
 ## Box
 
@@ -44,6 +47,6 @@ Driver tools/ly_m5_ab.sh (stamps first, then gate, chk, two paired rounds vs ly_
 
 ## Next
 
-Pool the ww A/B (python tools/ly_prtl_table.py .build/prtl/m5_ww .build/prtl/m5_ww_r2), copy box logs to
-muse_decode_layer/profiles/box/moe5/, write the run-log section and ruled-out rows (ly_m5mh, ly_m5mh2, and ly_m5ww
-unless it clears the bar).
+Round 5 is closed and recorded (docs/runs-decode-layer.md "Decode 16 / 32 MoE prologue round 5 (box)", two rows in
+docs/ruled-out.md, logs in muse_decode_layer/profiles/box/moe5/). With wgs_ranges warm, B4's next wait is the first
+x rows (gather, xready at 5.78); at MID the FAST1 count loop's own body (0.2 us per 32 entries).
