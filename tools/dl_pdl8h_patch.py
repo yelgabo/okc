@@ -13,7 +13,11 @@ arm): a T stays on when its PDL-on routing ids mismatch the PDL-off output on at
 entries and every PDL-on output is within max(2e-2, the off arm's own drift) of it. A failed guard or any error turns
 that T off. No CUDA source, launch attribute, edge wiring or routing-slack code changes.
 
-    python3 tools/dl_pdl8h_patch.py
+    python3 tools/dl_pdl8h_patch.py                  # onto g1b4_rs (01426b89), writes g1b4_pdl8h.py
+    python3 tools/dl_pdl8h_patch.py --base pdl8d     # onto g1b4_pdl8d (7cb74240), writes g1b4_pdl8hn.py
+
+The organizers disqualified routing slack (final-day ledger, 2026-11-03 17:45 PT), so --base pdl8d applies the same
+edits to pdl8d: g1b4_pdl8hn.py is g1b4_pdl8h.py with tools/dl_rs_patch.py's two hunks reversed.
 """
 import hashlib
 import pathlib
@@ -21,9 +25,11 @@ import py_compile
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-SRC = ROOT / "muse_decode_layer/cand/g1b4_rs.py"
-DST = ROOT / "muse_decode_layer/cand/g1b4_pdl8h.py"
-RS_PIN = "01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07"
+BASES = {"rs": ("g1b4_rs.py", "01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07", "g1b4_pdl8h.py"),
+         "pdl8d": ("g1b4_pdl8d.py", "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904", "g1b4_pdl8hn.py")}
+BASE = BASES[sys.argv[sys.argv.index("--base") + 1] if "--base" in sys.argv else "rs"]
+SRC = ROOT / "muse_decode_layer/cand" / BASE[0]
+DST = ROOT / "muse_decode_layer/cand" / BASE[2]
 
 GUARD = r'''# A stale or partly written read moves outputs by 0.18 to 1.6 and flips 19 to 1165 ids (tools/dl_pdl8f_box_fault.py);
 # merge-order noise moves PDL-off outputs up to about 1e-2 and flips up to a few thousand ids at T = 32 by itself
@@ -127,8 +133,8 @@ def sub(s, old, new, n):
 
 def main():
     raw = SRC.read_bytes()
-    if hashlib.sha256(raw).hexdigest() != RS_PIN:
-        sys.exit("g1b4_rs.py is not 01426b89")
+    if hashlib.sha256(raw).hexdigest() != BASE[1]:
+        sys.exit(f"{BASE[0]} is not {BASE[1][:8]}")
     s = raw.decode()
     for old, new, n in EDITS:
         s = sub(s, old, new, n)

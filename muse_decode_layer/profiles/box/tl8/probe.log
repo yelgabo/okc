@@ -1,0 +1,39 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793755740.511 acquire start after 0.0 s
+TL8 bandwidth TB/s {'copy (read + write)': 4.268, 'sum (read)': 4.432}
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.42), ('sk2', 7.84), ('torch', 10.27)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+TL8 ma_w tensors [((134217728,), 'torch.int32'), ((67108864,), 'torch.uint8'), ((32,), 'torch.float32'), ((67108864,), 'torch.int32'), ((33554432,), 'torch.uint8'), ((32,), 'torch.float32'), ((256,), 'torch.int32'), ((4096,), 'torch.bfloat16'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((587202560,), 'torch.uint8'), ((293601280,), 'torch.uint8')] bytes 3598722304 per local expert 112460072.0
+TL8 verify 1 sliding n 20 medians plain_us 86.45 span 61.60 ramp 3.70 route 2.45 A 34.39 handoff 2.86 B 15.79 bend_spread 3.20 bend_to_bar 0.83 bar_idle 2.79 final 0.34 unit_us 1.18 unit_a 1.18 unit_b 1.12 a_wwait 2.98 b_wwait 0.65 units 5376.00 distinct 7.00 routes 13.00
+TL8 verify 1 sliding distinct  4 n  1 plain  60.26 span  39.55 units   3072 ramp 4.04 A 20.06 handoff 2.70 B  9.25 spread 1.92 tail 2.81 maxdiff 7.63e-06
+TL8 verify 1 sliding distinct  5 n  2 plain  69.58 span  48.42 units   3840 ramp 4.07 A 24.66 handoff 2.82 B 11.51 spread 3.81 tail 4.83 maxdiff 9.31e-10
+TL8 verify 1 sliding distinct  6 n  5 plain  76.00 span  53.60 units   4608 ramp 3.63 A 29.72 handoff 2.72 B 13.55 spread 2.18 tail 3.26 maxdiff 9.77e-04
+TL8 verify 1 sliding distinct  7 n  4 plain  82.58 span  61.60 units   5376 ramp 3.75 A 34.39 handoff 2.93 B 15.79 spread 2.70 tail 3.85 maxdiff 2.44e-04
+TL8 verify 1 sliding distinct  8 n  4 plain  90.40 span  68.77 units   6144 ramp 3.79 A 38.75 handoff 2.80 B 18.67 spread 3.57 tail 4.29 maxdiff 0.00e+00
+TL8 verify 1 sliding distinct  9 n  2 plain  96.67 span  76.24 units   6912 ramp 3.60 A 44.19 handoff 2.94 B 20.86 spread 3.46 tail 4.13 maxdiff 7.63e-06
+TL8 verify 1 sliding distinct 10 n  1 plain 104.45 span  83.78 units   7680 ramp 3.66 A 48.13 handoff 2.88 B 24.04 spread 4.19 tail 4.55 maxdiff 1.53e-05
+TL8 verify 1 sliding distinct 12 n  1 plain 127.33 span  98.18 units   9216 ramp 3.51 A 57.09 handoff 2.84 B 28.40 spread 3.87 tail 5.82 maxdiff 2.44e-04
+BXLOCK 1793755749.398 release build glue_moe_7ce1c4a2a4b9b15d_sm90a
+BXBUILD 1793755749.399 start build glue_moe_7ce1c4a2a4b9b15d_sm90a
+BXBUILD 1793755787.746 end build glue_moe_7ce1c4a2a4b9b15d_sm90a
+BXLOCK 1793755787.746 acquire build glue_moe_7ce1c4a2a4b9b15d_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+TL8 l2probe cold: span 18.34 A 5.64 B 2.61 unit A 1.184 B 1.120 awwait 1.14 units/cta (4, 6) | warm: span 15.33 A 5.15 B 2.63 unit A 1.184 B 1.120 awwait 0.35 units/cta (4, 6) | warm2: span 15.07 A 4.88 B 2.64 unit A 1.184 B 1.120 awwait 0.29 units/cta (4, 6)
+TL8 l2probe cold: span 17.89 A 5.35 B 2.63 unit A 1.184 B 1.120 awwait 0.88 units/cta (4, 6) | warm: span 15.23 A 4.98 B 2.62 unit A 1.184 B 1.120 awwait 0.31 units/cta (4, 6) | warm2: span 14.85 A 4.89 B 2.64 unit A 1.184 B 1.120 awwait 0.29 units/cta (4, 6)
+TL8 l2probe cold: span 18.98 A 5.53 B 2.62 unit A 1.184 B 1.120 awwait 1.27 units/cta (4, 6) | warm: span 15.97 A 5.74 B 2.62 unit A 1.184 B 1.120 awwait 0.30 units/cta (4, 6) | warm2: span 14.75 A 4.87 B 2.61 unit A 1.184 B 1.120 awwait 0.29 units/cta (4, 6)
+TL8 l2probe cold: span 18.50 A 5.42 B 2.61 unit A 1.184 B 1.120 awwait 0.88 units/cta (4, 6) | warm: span 15.46 A 5.05 B 2.63 unit A 1.184 B 1.120 awwait 0.32 units/cta (4, 6) | warm2: span 14.85 A 4.88 B 2.62 unit A 1.184 B 1.120 awwait 0.29 units/cta (4, 6)
+TL8 l2probe cold: span 18.82 A 5.47 B 2.62 unit A 1.184 B 1.120 awwait 1.16 units/cta (4, 6) | warm: span 15.46 A 5.29 B 2.62 unit A 1.184 B 1.120 awwait 0.34 units/cta (4, 6) | warm2: span 14.98 A 4.88 B 2.65 unit A 1.184 B 1.120 awwait 0.30 units/cta (4, 6)
+TL8 verify 1 full n 20 medians plain_us 90.93 span 70.37 ramp 3.78 route 2.45 A 39.88 handoff 2.87 B 18.62 bend_spread 3.02 bend_to_bar 0.88 bar_idle 2.94 final 0.34 unit_us 1.18 unit_a 1.18 unit_b 1.12 a_wwait 3.43 b_wwait 0.87 units 6144.00 distinct 8.00 routes 13.00
+TL8 verify 1 full distinct  6 n  3 plain  75.20 span  54.56 units   4608 ramp 3.85 A 29.37 handoff 2.74 B 13.65 spread 2.21 tail 3.51 maxdiff 9.77e-04
+TL8 verify 1 full distinct  7 n  5 plain  82.66 span  62.14 units   5376 ramp 3.68 A 34.75 handoff 2.93 B 15.81 spread 2.82 tail 4.16 maxdiff 9.77e-04
+TL8 verify 1 full distinct  8 n  3 plain  90.05 span  69.31 units   6144 ramp 3.59 A 39.21 handoff 2.95 B 18.04 spread 3.87 tail 4.19 maxdiff 3.81e-06
+TL8 verify 1 full distinct  9 n  4 plain  98.22 span  76.67 units   6912 ramp 3.82 A 43.90 handoff 2.74 B 20.43 spread 3.14 tail 4.80 maxdiff 3.05e-05
+TL8 verify 1 full distinct 10 n  1 plain 104.19 span  81.31 units   7680 ramp 3.68 A 47.93 handoff 2.51 B 22.59 spread 2.37 tail 3.97 maxdiff 0.00e+00
+TL8 verify 1 full distinct 11 n  3 plain 110.53 span  90.40 units   8448 ramp 3.78 A 53.63 handoff 2.73 B 25.14 spread 3.58 tail 4.46 maxdiff 3.05e-05
+TL8 verify 1 full distinct 14 n  1 plain 141.12 span 112.29 units  10752 ramp 3.63 A 68.23 handoff 3.09 B 31.81 spread 3.71 tail 4.91 maxdiff 2.98e-08
