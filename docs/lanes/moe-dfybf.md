@@ -1,6 +1,6 @@
 # Lane moe-dfybf checkpoint
 
-Updated 2026-11-04 14:11 PT. Branch moe-dfybf, worktree /Users/gretchengabo/GitHub/okc-wt-moe-dfybf.
+Updated 2026-11-04 14:16 PT. Branch moe-dfybf, worktree /Users/gretchengabo/GitHub/okc-wt-moe-dfybf. Lane stopped at its tool budget; a fresh lane resumes from "Next action".
 
 Base: muse_decode_layer/cand/ly_stk4.py, SHA256 a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e.
 Its prepare prints `FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off` (ly_stk4.py:17190, written by tools/dl_fork_moe.py:162).
@@ -34,10 +34,19 @@ muse_decode_layer/cand/ly_mdf.py, SHA256 28d4422ac37a7857da8d0f514ee13e8549f8331
 
 Protocol note for the lead: under OKC_DF the MID build drops the doneA credit (its `__threadfence` and atomicAdd) and the phase B `ld_acquire` wait. The replacement is a data-as-flag on the inter words themselves with gpu-scope relaxed accesses. The writer stores 32 bits and the reader loads 128 bits, so the PTX "overlap completely" clause of morally strong is not met; soundness rests on per-word single-copy atomicity of aligned 32-bit stores. This conflicts with the brief's "keep every fence and the release/acquire ordering" if read literally; the lead decides.
 
-## Box A/B (running, started 14:15 PT)
+## Box A/B: round 1 invalid, build failure
 
-Script muse_decode_layer/profiles/box/mdf/mdf.sh, box logs /root/okc/.build/mdf/arms_r{1,2}.{log,json}. tools/ly_arms.py on ly_mdf, decode 16 both layers, 48 runs, router seed 106218864389449120, two processes. Arms: base (MOE_MID_DEFINES back to @moe_helper0 with its own ext cache, which is ly_stk4's MID kernel), df (file default), base2 (duplicate of base, noise floor).
+Script muse_decode_layer/profiles/box/mdf/mdf.sh (box copy /root/okc/muse_decode_layer/profiles/box/mdf/mdf.sh), logs /root/okc/.build/mdf/arms_r1.{log,json}. tools/ly_arms.py on ly_mdf, decode 16 both layers, 48 runs, router seed 106218864389449120. Arms: base (MOE_MID_DEFINES back to @moe_helper0 with its own `ma_ext` dict, which is ly_stk4's MID kernel), df (file default), base2 (noise floor).
+
+Round 1 finished at 14:15 PT but measured nothing: prepare printed `FORK_MOE_ROUTE Marlin: native build failed [(16, ... main.cpp -o main.o ninja: build stopped: subcommand failed.)]`, so all three arms ran the Marlin fallback (decode 16 sliding 214.9 / 215.5 / 215.2 us, full 284.4 / 283.6 / 283.7 us, all checks PASS; these are Marlin numbers, not a DF result). `FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True` confirms PRMTSC=1, so DF would be active once it builds. Round 2 was stopped; no box job of this lane is running. The GPU lock was used for round 1.
+
+Failing build dir: /root/.cache/bx_ext/glue_moe_6f5ecd94975b9370_sm90a-bc5b91501686cbf4 (failing step is main.cpp). Likely cause (hypothesis, not yet seen): my host-side offset `p.inter += (size_t)(okc::EMAX - INTER_SENT_ROWS) * okc::HD;` is compiled in main.cpp, where INTER_SENT_ROWS or okc::HD may not be visible; ly_stk4's original line used the literal `128 * 4096`. Fix: use the literal `(size_t)(3072 - 128) * 4096` (EMAX = 3072 = _MA_EMAX) in the `_df_patch` host replacement in mkmdf.py.
 
 ## Next action
 
-Read the two rounds (check PASS per arm, df minus base per cell), then the final report and ruled-out rows.
+1. On the box: `cd /root/.cache/bx_ext/glue_moe_6f5ecd94975b9370_sm90a-bc5b91501686cbf4 && . /root/okc/tools/box_env.sh && ninja 2>&1 | grep -m5 error` to see the real error.
+2. Fix it in /private/tmp/claude-501/-Users-gretchengabo-GitHub-okc/aad66da8-25fc-49ca-a3a1-289176256272/scratchpad/mkmdf.py (or edit ly_mdf.py directly at the `p.inter +=` replacement inside `_df_patch`), rebuild ly_mdf.py, rsync, and rerun `nohup bash muse_decode_layer/profiles/box/mdf/mdf.sh` (it takes the GPU lock itself). Confirm the log has no `native build failed` and that base and df show the native decode 16 times (about 70-75 us MoE span; layer net far below Marlin's 215 us).
+3. Read results: `grep ^ARMS /root/okc/.build/mdf/arms_r{1,2}.log`; judge df minus base at decode 16 sliding and full only, against the base2 noise floor; the bar is -0.4 us at a sliding cell in both rounds.
+4. Ruled-out row for YBF (text below) goes into docs/ruled-out.md; DF gets a row or a candidate line depending on step 3.
+
+Draft YBF ruled-out row: `| 2026-11-04 OKC_YBF (WGS ybuf stored BF16 after the gamma multiply; B4 decode 32, MAIN verify 16/32) on ly_stk4 a054c8d5 | Not built: it adds a BF16 round after gamma that the reference (FP32 gamma, FP32 norm/finalize; precision contract archive/docs/steering/2026-11-01-g-fork-precision-contract.md:21,23) does not have. The exact factorized form already failed the standalone matched gate (MOE-FACTOR-Y-01, line 629). B4 final y read is one float2 per slot and latency-bound; expected gain under 0.2 us (estimate). Reopen only if the precision rules allow a post-gamma BF16 round. |`
