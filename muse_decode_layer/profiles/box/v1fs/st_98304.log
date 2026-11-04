@@ -1,0 +1,222 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793816491.589 acquire start after 15.3 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.91), ('sk2', 8.13), ('torch', 10.3)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+V1STI verify 1 sliding in 0 plain 99.30 inst 97.92 diff 1.56e-02 n 128 exit 47.10 wait_lat 0.45/0.96 st0..3 0.80 1.22 1.60 1.92 w2s 2.50/2.82 sl_end+ 3.58 fin_end+ 1.57
+V1STI verify 1 sliding in 1 plain 124.32 inst 125.38 diff 4.69e-02 n 128 exit 74.21 wait_lat 0.48/0.90 st0..3 0.77 1.15 1.54 1.89 w2s 2.50/2.78 sl_end+ 3.55 fin_end+ 1.63
+V1STI verify 1 sliding in 2 plain 95.94 inst 97.12 diff 1.56e-02 n 128 exit 46.72 wait_lat 0.45/1.06 st0..3 0.70 1.12 1.47 1.82 w2s 2.43/2.82 sl_end+ 3.55 fin_end+ 1.57
+V1STI verify 1 sliding in 3 plain 93.18 inst 91.74 diff 0.00e+00 n 128 exit 41.31 wait_lat 0.45/1.06 st0..3 0.74 1.12 1.50 1.86 w2s 2.43/2.75 sl_end+ 3.74 fin_end+ 1.66
+V1STI verify 1 sliding in 4 plain 116.22 inst 116.90 diff 5.86e-03 n 128 exit 65.66 wait_lat 0.45/0.86 st0..3 0.74 1.15 1.54 1.89 w2s 2.50/2.75 sl_end+ 3.49 fin_end+ 1.60
+V1STI verify 1 sliding in 5 plain 109.86 inst 110.18 diff 1.56e-02 n 128 exit 59.65 wait_lat 0.50/0.93 st0..3 0.77 1.18 1.57 1.89 w2s 2.50/2.75 sl_end+ 3.55 fin_end+ 1.63
+V1STI verify 1 sliding in 6 plain 103.84 inst 105.22 diff 3.91e-02 n 128 exit 54.59 wait_lat 0.58/1.06 st0..3 0.80 1.20 1.58 1.89 w2s 2.50/2.82 sl_end+ 3.74 fin_end+ 1.50
+V1STI verify 1 sliding in 7 plain 110.24 inst 110.53 diff 0.00e+00 n 128 exit 58.62 wait_lat 0.46/0.93 st0..3 0.83 1.22 1.60 1.94 w2s 2.53/2.85 sl_end+ 3.46 fin_end+ 1.63
+V1STI verify 1 sliding in 8 plain 98.08 inst 98.14 diff 0.00e+00 n 128 exit 46.78 wait_lat 0.45/0.99 st0..3 0.74 1.14 1.50 1.82 w2s 2.46/2.78 sl_end+ 3.52 fin_end+ 1.57
+V1STI verify 1 sliding in 9 plain 109.92 inst 110.59 diff 3.12e-02 n 128 exit 59.26 wait_lat 0.70/0.77 st0..3 0.54 0.93 1.31 1.66 w2s 2.30/2.53 sl_end+ 3.23 fin_end+ 1.66
+V1STI verify 1 sliding in 10 plain 109.95 inst 111.74 diff 0.00e+00 n 128 exit 61.38 wait_lat 0.48/1.12 st0..3 0.70 1.09 1.44 1.82 w2s 2.43/2.75 sl_end+ 3.78 fin_end+ 1.63
+V1STI verify 1 sliding in 11 plain 98.14 inst 98.43 diff 3.91e-03 n 128 exit 46.85 wait_lat 0.50/0.99 st0..3 0.80 1.18 1.57 1.92 w2s 2.53/2.91 sl_end+ 3.68 fin_end+ 1.63
+V1STI verify 1 sliding in 12 plain 115.78 inst 117.09 diff 0.00e+00 n 128 exit 66.37 wait_lat 0.48/1.06 st0..3 0.70 1.12 1.50 1.82 w2s 2.43/2.85 sl_end+ 3.78 fin_end+ 1.63
+V1STI verify 1 sliding in 13 plain 135.87 inst 133.98 diff 0.00e+00 n 128 exit 83.78 wait_lat 0.48/0.96 st0..3 0.77 1.15 1.54 1.89 w2s 2.50/2.78 sl_end+ 3.62 fin_end+ 1.57
+V1STI verify 1 sliding in 14 plain 103.78 inst 105.38 diff 0.00e+00 n 128 exit 53.28 wait_lat 0.42/0.86 st0..3 0.70 1.12 1.50 1.86 w2s 2.46/2.75 sl_end+ 3.58 fin_end+ 1.63
+V1STI verify 1 sliding in 15 plain 84.96 inst 86.37 diff 3.12e-02 n 128 exit 34.14 wait_lat 0.45/0.99 st0..3 0.67 1.09 1.44 1.79 w2s 2.40/2.69 sl_end+ 3.52 fin_end+ 1.73
+V1STI verify 1 sliding in 16 plain 97.95 inst 98.75 diff 3.12e-02 n 128 exit 47.71 wait_lat 0.48/1.02 st0..3 1.41 1.79 2.18 2.53 w2s 3.14/3.62 sl_end+ 4.19 fin_end+ 1.66
+V1STI verify 1 sliding in 17 plain 91.39 inst 93.31 diff 0.00e+00 n 128 exit 42.46 wait_lat 0.48/1.06 st0..3 0.74 1.15 1.49 1.86 w2s 2.46/2.78 sl_end+ 3.78 fin_end+ 1.60
+V1STI verify 1 sliding in 18 plain 105.57 inst 105.02 diff 4.69e-02 n 128 exit 54.72 wait_lat 0.48/0.93 st0..3 0.64 1.02 1.41 1.76 w2s 2.34/2.69 sl_end+ 3.52 fin_end+ 1.60
+V1STI verify 1 sliding in 19 plain 103.33 inst 103.78 diff 0.00e+00 n 128 exit 53.73 wait_lat 0.48/1.02 st0..3 0.72 1.12 1.50 1.86 w2s 2.46/2.85 sl_end+ 3.62 fin_end+ 1.60
+V1ST verify 1 sliding T 8 n 20 medians
+  moe_n                            132.000
+  moe_trig_min                      48.880
+  moe_trig                          51.904
+  moe_exit_min                      53.408
+  moe_exit_p50                      53.552
+  moe_exit                          54.160
+  sl_n                             128.000
+  sl_entry_min                      53.712
+  sl_entry_p50                      53.944
+  sl_entry_max                      54.528
+  sl_entry_before_exit             100.000
+  sl_entry_after_trig                1.712
+  sl_prologue_p50                    0.608
+  sl_prologue_max                    0.672
+  sl_wait_lat_min                    0.416
+  sl_wait_lat_p50                    0.480
+  sl_wait_lat_max                    0.992
+  sl_xissue_p50                      0.160
+  sl_prod_issue_p50                  0.480
+  sl_tab_before_wait                 0.000
+  sl_esc_cnt_p50                     3.000
+  sl_esc_cnt_max                     8.000
+  sl_w0_st0_after_wait_p50           0.736
+  sl_w0_st0_after_wait_max           0.992
+  sl_w7_st0_after_wait_p50           0.728
+  sl_e0_st0_after_wait_p50           0.752
+  sl_st0_landed_before_wait          0.000
+  sl_w0_st1_after_wait_p50           1.144
+  sl_w0_st1_after_wait_max           1.408
+  sl_w7_st1_after_wait_p50           1.120
+  sl_e0_st1_after_wait_p50           1.248
+  sl_st1_landed_before_wait          0.000
+  sl_w0_st2_after_wait_p50           1.504
+  sl_w0_st2_after_wait_max           1.792
+  sl_w7_st2_after_wait_p50           1.480
+  sl_e0_st2_after_wait_p50           1.576
+  sl_st2_landed_before_wait          0.000
+  sl_w0_st3_after_wait_p50           1.856
+  sl_w0_st3_after_wait_max           2.112
+  sl_w7_st3_after_wait_p50           1.832
+  sl_e0_st3_after_wait_p50           1.888
+  sl_st3_landed_before_wait          0.000
+  sl_cons_after_last_stage_p50       0.240
+  sl_esc_after_cons_p50              0.000
+  sl_esc_after_cons_max              0.384
+  sl_cbar_after_cons_p50             0.096
+  sl_red_p50                         0.064
+  sl_store_p50                       0.160
+  sl_wait_to_store_p50               2.464
+  sl_wait_to_store_max               2.784
+  sl_end_p50                        57.152
+  sl_end                            57.792
+  sl_end_after_exit                  3.584
+  sl_end_spread                      0.624
+  crit_cta                         121.500
+  crit_sm                           44.000
+  crit_entry                        54.512
+  crit_wait_lat                      0.944
+  crit_st0                           0.896
+  crit_st1                           1.328
+  crit_st2                           1.728
+  crit_st3                           2.048
+  crit_cons_done                     2.272
+  crit_esc_done                      2.352
+  crit_cbar                          2.416
+  crit_store                         2.672
+  fin_n                             64.000
+  fin_entry_min                     -1.504
+  fin_entry_max                     -1.152
+  fin_wait_min                       0.416
+  fin_wait_p50                       0.448
+  fin_wait_max                       0.480
+  fin_p_p50                          0.480
+  fin_p_max                          0.624
+  fin_carry_p50                      0.416
+  fin_carry_max                      0.512
+  fin_store_p50                      0.096
+  fin_store_max                      0.128
+  fin_end                           59.392
+  fin_end_after_sl_end               1.632
+  fin_end_after_exit                 5.200
+  fin_end_spread                     0.176
+  graph_plain                      103.808
+  graph_inst                       105.120
+  maxdiff                            0.005
+V1STI verify 1 full in 0 plain 113.98 inst 113.09 diff 7.81e-03 n 128 exit 55.20 wait_lat 0.51/1.02 st0..3 0.64 1.06 1.41 1.76 w2s 2.37/2.78 sl_end+ 3.68 fin_end+ 1.73
+V1STI verify 1 full in 1 plain 119.36 inst 117.44 diff 0.00e+00 n 128 exit 58.75 wait_lat 0.51/0.80 st0..3 0.74 1.15 1.54 2.66 w2s 3.33/3.81 sl_end+ 4.32 fin_end+ 1.57
+V1STI verify 1 full in 2 plain 123.36 inst 124.38 diff 3.12e-02 n 128 exit 66.72 wait_lat 0.45/0.86 st0..3 0.83 1.25 1.60 1.95 w2s 2.54/2.88 sl_end+ 3.55 fin_end+ 1.63
+V1STI verify 1 full in 3 plain 110.85 inst 112.42 diff 6.25e-02 n 128 exit 54.11 wait_lat 0.45/0.86 st0..3 0.80 1.18 1.55 1.89 w2s 2.50/2.85 sl_end+ 3.49 fin_end+ 1.60
+V1STI verify 1 full in 4 plain 137.44 inst 137.06 diff 3.12e-02 n 128 exit 79.30 wait_lat 0.48/0.90 st0..3 0.54 0.96 1.31 1.66 w2s 2.30/2.53 sl_end+ 3.33 fin_end+ 1.63
+V1STI verify 1 full in 5 plain 110.72 inst 112.83 diff 1.56e-02 n 128 exit 54.69 wait_lat 0.48/0.80 st0..3 0.80 1.18 1.57 1.90 w2s 2.53/2.75 sl_end+ 3.52 fin_end+ 1.54
+V1STI verify 1 full in 6 plain 106.21 inst 106.88 diff 3.12e-02 n 128 exit 48.80 wait_lat 0.48/0.93 st0..3 0.80 1.20 1.57 1.92 w2s 2.53/2.94 sl_end+ 3.62 fin_end+ 1.60
+V1STI verify 1 full in 7 plain 124.90 inst 125.57 diff 3.12e-02 n 128 exit 67.65 wait_lat 0.48/0.90 st0..3 0.67 1.09 1.47 1.82 w2s 2.43/2.69 sl_end+ 3.52 fin_end+ 1.57
+V1STI verify 1 full in 8 plain 131.20 inst 129.92 diff 1.95e-03 n 128 exit 72.70 wait_lat 0.51/0.83 st0..3 0.67 1.09 1.44 1.79 w2s 2.40/2.62 sl_end+ 3.33 fin_end+ 1.63
+V1STI verify 1 full in 9 plain 122.69 inst 124.06 diff 6.84e-03 n 128 exit 66.40 wait_lat 0.67/0.74 st0..3 0.54 0.96 1.31 1.70 w2s 2.30/2.59 sl_end+ 3.23 fin_end+ 1.63
+V1STI verify 1 full in 10 plain 117.06 inst 117.18 diff 0.00e+00 n 128 exit 58.91 wait_lat 0.48/0.90 st0..3 0.83 1.22 1.60 1.92 w2s 2.56/2.88 sl_end+ 3.71 fin_end+ 1.57
+V1STI verify 1 full in 11 plain 106.59 inst 105.41 diff 6.25e-02 n 128 exit 46.88 wait_lat 0.58/0.77 st0..3 0.67 1.07 1.44 1.79 w2s 2.40/2.66 sl_end+ 3.23 fin_end+ 1.70
+V1STI verify 1 full in 12 plain 119.17 inst 118.59 diff 0.00e+00 n 128 exit 60.45 wait_lat 0.54/0.70 st0..3 0.58 0.96 1.34 1.70 w2s 2.34/2.62 sl_end+ 3.20 fin_end+ 1.73
+V1STI verify 1 full in 13 plain 136.06 inst 138.11 diff 3.12e-02 n 128 exit 78.98 wait_lat 0.58/0.99 st0..3 0.86 1.25 1.60 1.95 w2s 2.56/2.94 sl_end+ 3.71 fin_end+ 1.70
+V1STI verify 1 full in 14 plain 125.44 inst 125.47 diff 7.81e-03 n 128 exit 68.00 wait_lat 0.51/0.90 st0..3 0.64 1.02 1.41 1.73 w2s 2.37/2.62 sl_end+ 3.33 fin_end+ 1.57
+V1STI verify 1 full in 15 plain 104.80 inst 105.86 diff 4.69e-02 n 128 exit 46.66 wait_lat 0.48/1.06 st0..3 0.72 1.12 1.47 1.82 w2s 2.46/2.78 sl_end+ 3.58 fin_end+ 1.57
+V1STI verify 1 full in 16 plain 136.80 inst 135.94 diff 0.00e+00 n 128 exit 77.66 wait_lat 0.48/0.93 st0..3 0.67 1.06 1.44 1.79 w2s 2.40/2.62 sl_end+ 3.42 fin_end+ 1.76
+V1STI verify 1 full in 17 plain 156.70 inst 157.02 diff 0.00e+00 n 128 exit 97.50 wait_lat 0.48/0.99 st0..3 0.67 1.06 1.44 1.76 w2s 2.40/2.69 sl_end+ 3.46 fin_end+ 1.63
+V1STI verify 1 full in 18 plain 113.38 inst 111.49 diff 6.25e-02 n 128 exit 52.74 wait_lat 0.46/0.99 st0..3 0.69 1.09 1.46 1.79 w2s 2.43/2.75 sl_end+ 3.65 fin_end+ 1.60
+V1STI verify 1 full in 19 plain 112.80 inst 112.61 diff 0.00e+00 n 128 exit 54.14 wait_lat 0.45/0.93 st0..3 0.83 1.25 1.60 1.94 w2s 2.56/2.88 sl_end+ 3.65 fin_end+ 1.63
+V1ST verify 1 full T 8 n 20 medians
+  moe_n                            132.000
+  moe_trig_min                      55.168
+  moe_trig                          57.280
+  moe_exit_min                      58.816
+  moe_exit_p50                      58.960
+  moe_exit                          59.680
+  sl_n                             128.000
+  sl_entry_min                      59.120
+  sl_entry_p50                      59.344
+  sl_entry_max                      59.856
+  sl_entry_before_exit             108.000
+  sl_entry_after_trig                1.616
+  sl_prologue_p50                    0.608
+  sl_prologue_max                    0.672
+  sl_wait_lat_min                    0.448
+  sl_wait_lat_p50                    0.480
+  sl_wait_lat_max                    0.896
+  sl_xissue_p50                      0.160
+  sl_prod_issue_p50                  0.512
+  sl_tab_before_wait                 0.000
+  sl_esc_cnt_p50                     3.000
+  sl_esc_cnt_max                     8.000
+  sl_w0_st0_after_wait_p50           0.680
+  sl_w0_st0_after_wait_max           0.928
+  sl_w7_st0_after_wait_p50           0.672
+  sl_e0_st0_after_wait_p50           0.720
+  sl_st0_landed_before_wait          0.000
+  sl_w0_st1_after_wait_p50           1.088
+  sl_w0_st1_after_wait_max           1.312
+  sl_w7_st1_after_wait_p50           1.080
+  sl_e0_st1_after_wait_p50           1.192
+  sl_st1_landed_before_wait          0.000
+  sl_w0_st2_after_wait_p50           1.464
+  sl_w0_st2_after_wait_max           1.696
+  sl_w7_st2_after_wait_p50           1.440
+  sl_e0_st2_after_wait_p50           1.536
+  sl_st2_landed_before_wait          0.000
+  sl_w0_st3_after_wait_p50           1.808
+  sl_w0_st3_after_wait_max           2.032
+  sl_w7_st3_after_wait_p50           1.792
+  sl_e0_st3_after_wait_p50           1.824
+  sl_st3_landed_before_wait          0.000
+  sl_cons_after_last_stage_p50       0.256
+  sl_esc_after_cons_p50              0.000
+  sl_esc_after_cons_max              0.352
+  sl_cbar_after_cons_p50             0.096
+  sl_red_p50                         0.064
+  sl_store_p50                       0.160
+  sl_wait_to_store_p50               2.432
+  sl_wait_to_store_max               2.752
+  sl_end_p50                        62.984
+  sl_end                            63.360
+  sl_end_after_exit                  3.520
+  sl_end_spread                      0.520
+  crit_cta                         122.500
+  crit_sm                           60.000
+  crit_entry                        59.696
+  crit_wait_lat                      0.848
+  crit_st0                           0.816
+  crit_st1                           1.200
+  crit_st2                           1.616
+  crit_st3                           1.936
+  crit_cons_done                     2.160
+  crit_esc_done                      2.368
+  crit_cbar                          2.400
+  crit_store                         2.656
+  fin_n                             64.000
+  fin_entry_min                     -1.040
+  fin_entry_max                     -0.800
+  fin_wait_min                       0.416
+  fin_wait_p50                       0.432
+  fin_wait_max                       0.448
+  fin_p_p50                          0.480
+  fin_p_max                          0.640
+  fin_carry_p50                      0.416
+  fin_carry_max                      0.608
+  fin_store_p50                      0.104
+  fin_store_max                      0.160
+  fin_end                           65.008
+  fin_end_after_sl_end               1.632
+  fin_end_after_exit                 5.120
+  fin_end_spread                     0.176
+  graph_plain                      119.264
+  graph_inst                       118.016
+  maxdiff                            0.012
