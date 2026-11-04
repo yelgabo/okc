@@ -38,8 +38,8 @@ if "--pin" in sys.argv:
     PIN = sys.argv[sys.argv.index("--pin") + 1]
 
 HEADER = {
-    "n": "# ly_q1n: ly_v1un with qkv_gate at T = 1 through the file's narrow sk2 build (NACC 2, escape warps off the ring), as at T = 2..8 (tools/dl_ly_q1_patch.py --mode n).\n",
-    "w8": "# ly_q1w8: ly_v1un with qkv_gate at T = 1 on 8 consumer warps of 1 unit (sk2 WSK 8, UPW 1; same stream, ring and escapes) (tools/dl_ly_q1_patch.py --mode w8).\n",
+    "n": "# {name}: {base} with qkv_gate at T = 1 through the file's narrow sk2 build (NACC 2, escape warps off the ring), as at T = 2..8 (tools/dl_ly_q1_patch.py --mode n).\n",
+    "w8": "# {name}: {base} with qkv_gate at T = 1 on 8 consumer warps of 1 unit (sk2 WSK 8, UPW 1; same stream, ring and escapes) (tools/dl_ly_q1_patch.py --mode w8).\n",
 }
 EDITS = {
     "n": [
@@ -70,7 +70,7 @@ def main():
         if n != 1:
             sys.exit(f"anchor found {n} times, 1 expected: {old[:90]!r}")
         s = s.replace(old, new)
-    s = HEADER[MODE] + s
+    s = HEADER[MODE].format(name=DST.stem, base=SRC.stem) + s
     DST.write_text(s)
     py_compile.compile(str(DST), doraise=True)
     print("base", SRC.name, sha)

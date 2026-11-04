@@ -6528,4 +6528,7 @@ decode 1 cell, about 0.23% of the layer score at 0.212% per us, if the box delta
 one condition, and the same anchor appears once in the lead's stack ly_stk1 (d7db12a1), whose T = 1 code is
 ly_v1un's: `python3 tools/dl_ly_q1_patch.py --mode n --base muse_decode_layer/cand/ly_stk1.py --pin
 d7db12a14807eeb57df914dac468f4f2567b6bfc4e6771a549c167e92fc39878 --out muse_decode_layer/cand/ly_stk1_q1n.py`
-builds the stacked file. ly_q1w8 is below the bar (ruled-out row added).
+builds the stacked file (SHA256 e010ef869d29387dc85a30d4acbbbcb8248d735c6f6e1ebb49dc105ebc1a31fc; diff against
+ly_stk1 is the header and that condition; reference check PASS 12 / 12 on the box with `G_RELEASE_STARTUP_OK` and the
+control's CG_GATE line, `.build/prtl/stk1q1n/chk.log`; not A/B'd, every A/B here is against ly_v1un). ly_q1w8 is
+below the bar (ruled-out row added).
