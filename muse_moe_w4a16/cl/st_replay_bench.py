@@ -118,7 +118,7 @@ def flat(lists):
     return units, starts
 
 
-def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record=True, burn=0, polc=0, stores=0, cons=1):
+def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record=True, burn=0, polc=0, stores=0, cons=1, slot_off=0, coop=0, graph=True, inl=0):
     lists = lists_fn(0)
     units, starts = flat(lists)
     G, N = len(lists), len(units)
@@ -129,19 +129,20 @@ def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record
     issued = torch.zeros(N if record else 0, dtype=torch.int64, device="cuda")
     sink = torch.zeros(2 * G, dtype=torch.int32, device="cuda")
     scratch = torch.zeros(8 * 4096 if stores else 0, dtype=torch.int16, device="cuda")
-    smem = max(depth * UNIT, 118784)  # one CTA per SM, as helper0 (its smem rules out a second)
+    smem = max(depth * UNIT + slot_off, 118784)  # one CTA per SM, as helper0 (its smem rules out a second)
 
     def launch():
-        ext.launch(base, du, ds, stamps, ready, issued, sink, depth, delay, evict_first, smem, burn, polc, scratch, cons)
+        ext.launch(base, du, ds, stamps, ready, issued, sink, depth, delay, evict_first, smem, burn, polc, scratch, cons, slot_off, coop, inl)
 
     launch()
     torch.cuda.synchronize()
-    g = torch.cuda.CUDAGraph()
-    s = torch.cuda.Stream()
-    with torch.cuda.stream(s):
-        with torch.cuda.graph(g, stream=s):
-            launch()
-    torch.cuda.synchronize()
+    if graph:
+        g = torch.cuda.CUDAGraph()
+        s = torch.cuda.Stream()
+        with torch.cuda.stream(s):
+            with torch.cuda.graph(g, stream=s):
+                launch()
+        torch.cuda.synchronize()
     rows = []
     for r in range(replays + 2):
         lst = lists_fn(r)
@@ -154,7 +155,10 @@ def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record
             flush.sum()
         a, b = torch.cuda.Event(True), torch.cuda.Event(True)
         a.record()
-        g.replay()
+        if graph:
+            g.replay()
+        else:
+            launch()
         b.record()
         torch.cuda.synchronize()
         if r < 2:
@@ -181,8 +185,14 @@ def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record
             isd = issued.cpu().tolist()
             lat = sorted((r_ - i_) * 1e-3 for r_, i_ in zip(ru, isd))
             row["lat_med_us"], row["lat_p90_us"] = lat[len(lat) // 2], lat[(9 * len(lat)) // 10]
+            percta = []
+            for c in range(G):
+                l_ = sorted((ru[k] - isd[k]) * 1e-3 for k in range(starts[c] + 4, starts[c + 1]))
+                if l_:
+                    percta.append((st[c][3], l_[len(l_) // 2]))
+            row["percta"] = percta
         rows.append(row)
-    keys = rows[0].keys()
+    keys = [k for k in rows[0].keys() if k != "percta"]
     med = {k: statistics.median(r[k] for r in rows) for k in keys}
     med["min_span_us"] = min(r["span_us"] for r in rows)
     med["max_span_us"] = max(r["span_us"] for r in rows)
@@ -203,10 +213,15 @@ def main():
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--seq", default="", help="JSON with recorded per-CTA unit lists: {name: [[unit, ...], ...]}")
     ap.add_argument("--evict-first", type=int, default=1)
+    ap.add_argument("--inl", default="0", help="1: refill issued by consumer warp 1 after a named barrier, as helper0")
+    ap.add_argument("--coop", default="0", help="1: cudaLaunchCooperativeKernel, as helper0")
+    ap.add_argument("--eager", type=int, default=0, help="1: launch eagerly instead of replaying a CUDA graph")
+    ap.add_argument("--slot-off", default="0", help="ring byte offsets in shared memory to sweep")
     ap.add_argument("--cons", default="1", help="consumer warps polling the full barrier (helper0: 8)")
     ap.add_argument("--polc", default="0", help="1: helper0's constant L2 policy word instead of createpolicy")
     ap.add_argument("--stores", default="0", help="1: helper0-shaped evict_last bf16 stores per unit")
     ap.add_argument("--burn", default="0", help="extra warps running an integer + mma.sync loop (power load)")
+    ap.add_argument("--flush-gib", type=int, default=1)
     ap.add_argument("--flush", default="read", choices=("read", "write"),
                     help="1 GiB L2 flush before each replay: read (sum, as the judge) or write (fill_, leaves L2 dirty)")
     a = ap.parse_args()
@@ -217,7 +232,7 @@ def main():
     with GpuLock(a.lock):
         nunits = NLOC * (RBA + RBB)
         base = torch.randint(0, 255, (nunits * UNIT,), dtype=torch.uint8, device="cuda")
-        flush = torch.ones(1 << 28, dtype=torch.float32, device="cuda")
+        flush = torch.ones(a.flush_gib << 28, dtype=torch.float32, device="cuda")
         buf = torch.ones(1 << 30, dtype=torch.float32, device="cuda")
         ts = []
         for _ in range(7):
@@ -250,11 +265,14 @@ def main():
                             for burn, polc, stores, cons in [(int(b), int(c), int(t), int(w)) for b in a.burn.split(",")
                                                              for c in a.polc.split(",") for t in a.stores.split(",")
                                                              for w in a.cons.split(",")]:
+                              for so, coop in [(int(x), int(y)) for x in a.slot_off.split(",") for y in a.coop.split(",")]:
+                               for inl in [int(x) for x in a.inl.split(",")]:
                                 fn = lambda r, n=name, ph=phase, g=G: assign(n, sets[r], ph, g)  # noqa: E731
                                 med, rows = run(ext, base, flush, fn, depth, delay, a.replays, a.evict_first,
-                                                burn=burn, polc=polc, stores=stores, cons=cons)
+                                                burn=burn, polc=polc, stores=stores, cons=cons, slot_off=so, coop=coop, graph=not a.eager, inl=inl)
                                 med.update(pattern=pat, phase=phase, k=k, depth=depth, delay=delay, burn=burn,
-                                           polc=polc, stores=stores, ef=a.evict_first, cons=cons)
+                                           polc=polc, stores=stores, ef=a.evict_first, cons=cons,
+                                           slot_off=so, coop=coop, eager=a.eager, inl=inl)
                                 results.append(dict(summary=med, rows=rows))
                                 pr(med, rate)
         if a.out:
@@ -263,7 +281,7 @@ def main():
 
 def pr(m, rate):
     print(f"ST {m['pattern']:>8} {m['phase']:>2} k {m['k']:2d} D {m['depth']} delay {m['delay']:4d} grid {m['grid']:3d}"
-          f" cons {m.get('cons', 1)} burn {m.get('burn', 0):2d} polc {m.get('polc', 0)} stores {m.get('stores', 0)} ef {m.get('ef', 1)} units {m['units']:5d} span {m['span_us']:7.2f} [{m['min_span_us']:.2f}-{m['max_span_us']:.2f}]"
+          f" inl {m.get('inl', 0)} coop {m.get('coop', 0)} eager {m.get('eager', 0)} off {m.get('slot_off', 0)} cons {m.get('cons', 1)} burn {m.get('burn', 0):2d} polc {m.get('polc', 0)} stores {m.get('stores', 0)} ef {m.get('ef', 1)} units {m['units']:5d} span {m['span_us']:7.2f} [{m['min_span_us']:.2f}-{m['max_span_us']:.2f}]"
           f" TB/s {m['tbs']:.3f} ({100 * m['tbs'] * 1e12 / rate:5.1f}%) steady {m.get('steady_tbs', 0):.3f}"
           f" ({100 * m.get('steady_tbs', 0) * 1e12 / rate:5.1f}%) ramp {m['ramp_us']:.2f}"
           f" endspread {m['end_spread_us']:.2f} cta_unit {m.get('cta_unit_us', 0):.3f} mean {m.get('cta_unit_mean_us', 0):.3f}"

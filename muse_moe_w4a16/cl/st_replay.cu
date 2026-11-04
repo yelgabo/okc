@@ -21,6 +21,8 @@ struct ReplayParams {
   int depth;
   int delay_ns;
   int evict_first;
+  int inl;                      // 1: helper0's refill: consumer warp 1 lane 0 issues unit i + D after a named barrier
+  int slot_off;                 // byte offset of the ring inside dynamic shared memory (helper0: 128-aligned)
   int cons;                     // consumer warps that each wait on the full barrier and arrive on empty (helper0: 8)
   int polc;                     // 1: the L2 hint is helper0's constant policy 0x12F0000000000000 instead of createpolicy
   int stores;                   // 1: the consumer writes 64 bf16 per unit with an evict_last hint, as helper0's epilogue
@@ -69,8 +71,22 @@ __device__ __forceinline__ void burn_loop(volatile int* stop, unsigned* sink) {
   if (o == 0x12345678u) *sink = o;
 }
 
+__device__ __forceinline__ void issue(const ReplayParams& p, uint8_t* ring, uint64_t* full, int u0, int i, int D, uint64_t pol) {
+  const int s = i % D;
+  const uint8_t* src = p.base + static_cast<size_t>(p.units[u0 + i]) * kUnitBytes;
+  if (p.issued) p.issued[u0 + i] = gtimer();
+  asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;" :: "r"(smem_u32(&full[s])), "r"(kUnitBytes) : "memory");
+  if (p.evict_first)
+    asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes.L2::cache_hint [%0], [%1], %2, [%3], %4;"
+                 :: "r"(smem_u32(ring + s * kUnitBytes)), "l"(src), "r"(kUnitBytes), "r"(smem_u32(&full[s])), "l"(pol) : "memory");
+  else
+    asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];"
+                 :: "r"(smem_u32(ring + s * kUnitBytes)), "l"(src), "r"(kUnitBytes), "r"(smem_u32(&full[s])) : "memory");
+}
+
 __global__ void __launch_bounds__(512, 1) st_replay_kernel(ReplayParams p) {
-  extern __shared__ __align__(1024) uint8_t ring[];
+  extern __shared__ __align__(1024) uint8_t ring_raw[];
+  uint8_t* ring = ring_raw + p.slot_off;
   __shared__ __align__(8) uint64_t full[kMaxDepth];
   __shared__ __align__(8) uint64_t empty[kMaxDepth];
   __shared__ int stop;
@@ -90,18 +106,9 @@ __global__ void __launch_bounds__(512, 1) st_replay_kernel(ReplayParams p) {
       uint64_t pol = 0;
       asm volatile("createpolicy.fractional.L2::evict_first.b64 %0, 1.0;" : "=l"(pol));
       if (p.polc) pol = 0x12F0000000000000ull;
-      for (int i = 0; i < n; ++i) {
-        const int s = i % D;
-        if (i >= D) mbar_wait(&empty[s], ((i / D) - 1) & 1);
-        const uint8_t* src = p.base + static_cast<size_t>(p.units[u0 + i]) * kUnitBytes;
-        if (p.issued) p.issued[u0 + i] = gtimer();
-        asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;" :: "r"(smem_u32(&full[s])), "r"(kUnitBytes) : "memory");
-        if (p.evict_first)
-          asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes.L2::cache_hint [%0], [%1], %2, [%3], %4;"
-                       :: "r"(smem_u32(ring + s * kUnitBytes)), "l"(src), "r"(kUnitBytes), "r"(smem_u32(&full[s])), "l"(pol) : "memory");
-        else
-          asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];"
-                       :: "r"(smem_u32(ring + s * kUnitBytes)), "l"(src), "r"(kUnitBytes), "r"(smem_u32(&full[s])) : "memory");
+      for (int i = 0; i < (p.inl ? min(n, D) : n); ++i) {
+        if (i >= D) mbar_wait(&empty[i % D], ((i / D) - 1) & 1);
+        issue(p, ring, full, u0, i, D, pol);
       }
     }
   } else if (warp > p.cons) {
@@ -131,7 +138,13 @@ __global__ void __launch_bounds__(512, 1) st_replay_kernel(ReplayParams p) {
       // generic reads of a TMA-filled slot are ordered before the next bulk copy into it (CL-1.1's refill race)
       asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
       __syncwarp();
-      if (lane == 0) asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_u32(&empty[s])) : "memory");
+      if (p.inl) {
+        asm volatile("bar.sync 1, %0;" :: "r"(32 * p.cons) : "memory");
+        if (warp == 1 && lane == 0 && i + D < n)
+          issue(p, ring, full, u0, i + D, D, p.polc ? 0x12F0000000000000ull : 0x12F0000000000000ull);
+      } else if (lane == 0) {
+        asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_u32(&empty[s])) : "memory");
+      }
     }
     if (lane != 0 || warp != 1) return;
     st[2] = gtimer();
@@ -145,7 +158,7 @@ __global__ void __launch_bounds__(512, 1) st_replay_kernel(ReplayParams p) {
 
 void launch(torch::Tensor base, torch::Tensor units, torch::Tensor starts, torch::Tensor stamps, torch::Tensor ready,
             torch::Tensor issued, torch::Tensor sink, int64_t depth, int64_t delay_ns, int64_t evict_first,
-            int64_t smem, int64_t burn, int64_t polc, torch::Tensor scratch, int64_t cons) {
+            int64_t smem, int64_t burn, int64_t polc, torch::Tensor scratch, int64_t cons, int64_t slot_off, int64_t coop, int64_t inl) {
   TORCH_CHECK(depth >= 1 && depth <= kMaxDepth && smem >= depth * kUnitBytes);
   ReplayParams p;
   p.base = base.data_ptr<uint8_t>();
@@ -160,14 +173,25 @@ void launch(torch::Tensor base, torch::Tensor units, torch::Tensor starts, torch
   p.evict_first = static_cast<int>(evict_first);
   p.burn = static_cast<int>(burn);
   p.cons = static_cast<int>(cons);
+  p.slot_off = static_cast<int>(slot_off);
+  p.inl = static_cast<int>(inl);
+  TORCH_CHECK(slot_off % 16 == 0 && smem >= depth * kUnitBytes + slot_off);
   p.polc = static_cast<int>(polc);
   p.stores = scratch.numel() >= 8 * 4096 ? 1 : 0;
   p.scratch = p.stores ? reinterpret_cast<unsigned short*>(scratch.data_ptr()) : nullptr;
   TORCH_CHECK(sink.numel() >= 2 * (starts.numel() - 1) && burn >= 0 && cons >= 1 && cons + burn <= 15);
   const int grid = static_cast<int>(starts.numel()) - 1;
   TORCH_CHECK(cudaFuncSetAttribute(st_replay_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, (int)smem) == cudaSuccess);
-  st_replay_kernel<<<grid, 32 * static_cast<int>(1 + cons + burn), smem, c10::cuda::getCurrentCUDAStream()>>>(p);
-  const cudaError_t e = cudaGetLastError();
+  cudaError_t e;
+  if (coop) {
+    // helper0 is launched this way (cudaLaunchCooperativeKernel)
+    void* args[] = {&p};
+    e = cudaLaunchCooperativeKernel((const void*)st_replay_kernel, dim3(grid), dim3(32 * static_cast<int>(1 + cons + burn)),
+                                    args, (size_t)smem, c10::cuda::getCurrentCUDAStream());
+  } else {
+    st_replay_kernel<<<grid, 32 * static_cast<int>(1 + cons + burn), smem, c10::cuda::getCurrentCUDAStream()>>>(p);
+    e = cudaGetLastError();
+  }
   TORCH_CHECK(e == cudaSuccess, "st_replay launch: ", cudaGetErrorString(e));
 }
 

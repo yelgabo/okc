@@ -25,7 +25,10 @@ import dl_ly_ul_patch as ul  # noqa: E402
 # p.dbg layout past the timeline's 136 x 64 stamps: 136 unused words, then per CTA REC_N records of two words
 # (issue time, PB << 31 | expert block) indexed by the CTA's sequence number q (no atomic on the issuing thread), then per CTA REC_N ready times indexed by the CTA's sequence number q, then per CTA REC_N
 # ring-slot wait durations of warp 0 (same index).
-REC_DEFS = """#ifndef ST_NOEPI
+REC_DEFS = """#ifndef ST_BARE
+#define ST_BARE 0  // diagnostic (output wrong): no partials hand-off; the helper credits doneA at once and runs no epilogue
+#endif
+#ifndef ST_NOEPI
 #define ST_NOEPI 0  // diagnostic (output wrong): the helper warp skips its phase A epilogue except the CTA's last unit
 #endif
 #define ST_REC_N 128
@@ -36,6 +39,7 @@ REC_DEFS = """#ifndef ST_NOEPI
 #if OKC_TLX
 #define ST_ISSUE(kv, blkv, pbv) do { if (TLX_ON) { \\
     const int k_ = (kv); \\
+    if (k_ == 0) { unsigned sm_; asm volatile("mov.u32 %0, %%smid;" : "=r"(sm_)); p.dbg[ST_CNT + blockIdx.x] = sm_; } \\
     if (k_ >= 0 && k_ < ST_REC_N) { p.dbg[ST_ISS + (blockIdx.x * ST_REC_N + k_) * 2] = gtimer(); \\
       p.dbg[ST_ISS + (blockIdx.x * ST_REC_N + k_) * 2 + 1] = ((unsigned long long)(pbv) << 31) | (unsigned long long)(blkv); } } } while (0)
 #else
@@ -95,11 +99,26 @@ EPI_OLD = "    if (lane == 0) mbar_arrive1(S.wsre + bb);  // buffer free again\n
 EPI_ADD = "    if (ST_NOEPI && !PB && q != nA - 1) continue;\n"
 
 
+BARE_WAIT = "    mbar_wait(S.wsre + bb, (uint32_t)(((q / NRB) & 1) ^ 1));  // the helper has consumed this buffer's previous unit\n"
+BARE_RED = "    *reinterpret_cast<float4*>(&S.red[bb][warp][lane][0]) = make_float4(acc[0], acc[1], acc[2], acc[3]);\n"
+BARE_ARR = "      if (!(OKC_WSBL && PB && i >= nU - OKC_WSBLK)) mbar_arrive1(S.wsrf + bb);   // WSBL: the last units stay with warps 0..K-1\n"
+BARE_HELPER = "  for (int q = 0; q < Nh; ++q) {\n    if (!OKC_WSRF && !OKC_WSB && lane == 0 && q + OKC_NS < N) {"
+BARE_HELPER_NEW = """  if (ST_BARE) {
+    if (lane == 0 && nA > 0) {
+      const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;
+      for (int jj = jf; jj <= jl; ++jj) atomicAdd(p.doneA + jj, min(a1, (jj - njF + 1) * RB_A) - max(a0, (jj - njF) * RB_A));
+    }
+  } else
+"""
+
+
 def apply(s, v):
     if v == "rec":
         s = ul.timeline(s)
         s = ul.edit(s, [(TLS_ANCHOR, TLS_ANCHOR + REC_DEFS), (RING_OLD, RING_NEW), (F1_OLD, F1_NEW)], v)
-        s = ul.edit(s, [(EPI_OLD, EPI_OLD + EPI_ADD)], v, sub=ul.HELPER)
+        s = ul.edit(s, [(EPI_OLD, EPI_OLD + EPI_ADD), (BARE_HELPER, BARE_HELPER_NEW + BARE_HELPER)], v, sub=ul.HELPER)
+        s = ul.edit(s, [(BARE_WAIT, "    if (!ST_BARE)\n  " + BARE_WAIT), (BARE_RED, "    if (!ST_BARE)\n  " + BARE_RED),
+                        (BARE_ARR, "      if (!ST_BARE)\n  " + BARE_ARR)], v, sub=ul.LOOP)
         s = ul.edit(s, [(RDY_OLD, RDY_NEW), (NM_START, NM_PRE + NM_START), (NM_END, "#endif\n" + NM_END)], v, sub=ul.LOOP)
         add = 'MOE_MID_DEFINES += ("@moe_helper0",)\n'
         return ul.once(s, add, add + 'MOE_MID_DEFINES += ("-DOKC_TLX=1",)\n', v)

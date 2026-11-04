@@ -1,0 +1,26 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793785655.614 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.49), ('sk2', 8.0), ('torch', 10.37)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793785675.404 release build glue_moe_56fe3b3652dcd5ca_sm90a
+BXBUILD 1793785675.405 start build glue_moe_56fe3b3652dcd5ca_sm90a
+BXBUILD 1793785712.140 end build glue_moe_56fe3b3652dcd5ca_sm90a
+BXLOCK 1793785712.140 acquire build glue_moe_56fe3b3652dcd5ca_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793785712.142 release build glue_moe_93916929e1b9d087_sm90a
+BXBUILD 1793785712.142 start build glue_moe_93916929e1b9d087_sm90a
+BXBUILD 1793785749.518 end build glue_moe_93916929e1b9d087_sm90a
+BXLOCK 1793785749.518 acquire build glue_moe_93916929e1b9d087_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+REC plain-only verify 1 sliding seed 4268629326242249078 plain_us 45.73
+REC plain-only verify 1 sliding seed 4268629326242249079 plain_us 69.15
+REC plain-only verify 1 sliding seed 4268629326242249080 plain_us 45.89
+REC plain-only verify 1 full seed 4268899743722759931 plain_us 52.19
+REC plain-only verify 1 full seed 4268899743722759932 plain_us 58.30
+REC plain-only verify 1 full seed 4268899743722759933 plain_us 64.54

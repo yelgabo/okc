@@ -12870,6 +12870,9 @@ __device__ __forceinline__ unsigned long long gtimer() {
 // without it (the timed path) every stamp is a uniform not-taken branch
 #define TLX_ON (OKC_TLX && p.dbg != nullptr)
 #define TLS(k, v) do { if (TLX_ON) p.dbg[blockIdx.x * 64 + (k)] = (v); } while (0)
+#ifndef ST_BARE
+#define ST_BARE 0  // diagnostic (output wrong): no partials hand-off; the helper credits doneA at once and runs no epilogue
+#endif
 #ifndef ST_NOEPI
 #define ST_NOEPI 0  // diagnostic (output wrong): the helper warp skips its phase A epilogue except the CTA's last unit
 #endif
@@ -12881,6 +12884,7 @@ __device__ __forceinline__ unsigned long long gtimer() {
 #if OKC_TLX
 #define ST_ISSUE(kv, blkv, pbv) do { if (TLX_ON) { \
     const int k_ = (kv); \
+    if (k_ == 0) { unsigned sm_; asm volatile("mov.u32 %0, %%smid;" : "=r"(sm_)); p.dbg[ST_CNT + blockIdx.x] = sm_; } \
     if (k_ >= 0 && k_ < ST_REC_N) { p.dbg[ST_ISS + (blockIdx.x * ST_REC_N + k_) * 2] = gtimer(); \
       p.dbg[ST_ISS + (blockIdx.x * ST_REC_N + k_) * 2 + 1] = ((unsigned long long)(pbv) << 31) | (unsigned long long)(blkv); } } } while (0)
 #else
@@ -14145,17 +14149,20 @@ __device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigne
 #if OKC_TLX
     if (tl) tl_t0 = gtimer();
 #endif
-    mbar_wait(S.wsre + bb, (uint32_t)(((q / NRB) & 1) ^ 1));  // the helper has consumed this buffer's previous unit
+    if (!ST_BARE)
+      mbar_wait(S.wsre + bb, (uint32_t)(((q / NRB) & 1) ^ 1));  // the helper has consumed this buffer's previous unit
 #if OKC_TLX
     if (tl) tl_buf += gtimer() - tl_t0;
 #endif
-    *reinterpret_cast<float4*>(&S.red[bb][warp][lane][0]) = make_float4(acc[0], acc[1], acc[2], acc[3]);
+    if (!ST_BARE)
+      *reinterpret_cast<float4*>(&S.red[bb][warp][lane][0]) = make_float4(acc[0], acc[1], acc[2], acc[3]);
     asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
     CTA_SYNC();
     if (tid == 0) {
       const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);
       if (q + OKC_NS < N) ws_issue(p, S, q + OKC_NS, nA, S.wsr[0], S.wsr[2], ring);
-      if (!(OKC_WSBL && PB && i >= nU - OKC_WSBLK)) mbar_arrive1(S.wsrf + bb);   // WSBL: the last units stay with warps 0..K-1
+      if (!ST_BARE)
+        if (!(OKC_WSBL && PB && i >= nU - OKC_WSBLK)) mbar_arrive1(S.wsrf + bb);   // WSBL: the last units stay with warps 0..K-1
     }
 #if OKC_TLX
     if (tl) {
@@ -14226,6 +14233,12 @@ __device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {
     for (int q = S.preissued; q < OKC_NS && q < N; ++q) ws_issue(p, S, q, nA, a0, b0, ring);
   const int gg = lane >> 2, tt = lane & 3;
   const int Nh = (OKC_WSB && OKC_WSBL) ? N - min(OKC_WSBLK, b1 - b0) : N;
+  if (ST_BARE) {
+    if (lane == 0 && nA > 0) {
+      const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;
+      for (int jj = jf; jj <= jl; ++jj) atomicAdd(p.doneA + jj, min(a1, (jj - njF + 1) * RB_A) - max(a0, (jj - njF) * RB_A));
+    }
+  } else
   for (int q = 0; q < Nh; ++q) {
     if (!OKC_WSRF && !OKC_WSB && lane == 0 && q + OKC_NS < N) {  // unit q + NS goes into unit q's slot once every compute warp released it
       mbar_wait(S.wse + q % OKC_NS, (uint32_t)((q / OKC_NS) & 1));

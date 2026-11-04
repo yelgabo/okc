@@ -59,7 +59,7 @@ def decode(buf, nsm):
         rdy = [(b[RDY + c * RN + q] - t0) / 1e3 if b[RDY + c * RN + q] > 0 else None for q in range(RN)]
         wt = [b[WT + c * RN + q] / 1e3 for q in range(RN)]
         ret = [(b[c * SLOTS + 18 + q] - t0) / 1e3 if b[c * SLOTS + 18 + q] > 0 else None for q in range(46)]
-        ctas.append(dict(abuf=b[c * SLOTS + 14] / 1e3, iss=iss, rdy=rdy, wt=wt, ret=ret, nA=cnt & 0xFFFF, nB=(cnt >> 16) & 0xFFFF,
+        ctas.append(dict(smid=b[CNT + c], abuf=b[c * SLOTS + 14] / 1e3, iss=iss, rdy=rdy, wt=wt, ret=ret, nA=cnt & 0xFFFF, nB=(cnt >> 16) & 0xFFFF,
                          entry=(b[c * SLOTS] - t0) / 1e3))
     return ctas
 
@@ -193,6 +193,18 @@ def main():
                 print("REC no helper0 launch recorded", case["load"], flush=True)
                 continue
             w_, scr, x, lids, wts, out, l0, l1, nsm = rec.calls[-1]
+            plain_us = []
+            for _ in range(3):
+                if a.flush == "write":
+                    flush.fill_(1.0)
+                else:
+                    flush.sum()
+                e0, e1 = torch.cuda.Event(True), torch.cuda.Event(True)
+                e0.record()
+                run_ext[key].okc_run(w_, scr, x, lids, wts, torch.empty_like(out), l0, l1, nsm)
+                e1.record()
+                torch.cuda.synchronize()
+                plain_us.append(e0.elapsed_time(e1) * 1e3)
             buf = torch.zeros(TOTAL, dtype=torch.int64, device="cuda")
             inst = torch.empty_like(out)
             if a.flush == "write":
@@ -202,10 +214,14 @@ def main():
             torch.cuda.synchronize()
             run_ext[key].okc_run(w_, list(scr) + [buf], x, lids, wts, inst, l0, l1, nsm)
             torch.cuda.synchronize()
+            if int(buf[: nsm * SLOTS].abs().sum()) == 0:
+                print(f"REC plain-only {case['load']} {case['layer']} seed {seed} plain_us {statistics.median(plain_us):.2f}",
+                      flush=True)
+                continue
             ctas = decode(buf, nsm)
             st = tl8.stats(buf[: nsm * SLOTS].view(nsm, SLOTS).cpu(), lids)
             an = analyse(ctas, f"{case['load']} {case['layer']} seed {seed}")
-            an.update(span=st["span"], A=st["A"], B=st["B"], a_wwait=st["a_wwait"], b_wwait=st["b_wwait"],
+            an.update(plain_us=statistics.median(plain_us), span=st["span"], A=st["A"], B=st["B"], a_wwait=st["a_wwait"], b_wwait=st["b_wwait"],
                       distinct=st["distinct"], units=st["units"], unit_a=st["unit_a"], unit_b=st["unit_b"])
             nA = sum(c["nA"] for c in ctas)
             an["phaseA_tbs"] = nA * UNIT / (st["A"] * 1e-6) / 1e12 / 1 if st["A"] else 0
@@ -223,6 +239,17 @@ def main():
                     print(f"REPLAY same-bytes {an['label']} delay {dl} span {med['span_us']:.2f} TB/s {med['tbs']:.3f}"
                           f" steady {med['steady_tbs']:.3f} cta_unit {med['cta_unit_us']:.3f} lat {med['lat_med_us']:.2f}"
                           f"/{med['lat_p90_us']:.2f}", flush=True)
+                d = w_[11].data_ptr() - w_[10].data_ptr()
+                if d > 0 and d % UNIT == 0:
+                    ab = [[u["blk"] if not u["pb"] else d // UNIT + u["blk"] for u in c["iss"][:c["nA"] + c["nB"]]]
+                          for c in ctas]
+                    # st_replay takes only the base pointer: B units sit d bytes past w13's start (another allocation)
+                    med, _ = rpb.run(rp, base, flush, lambda r, L=ab: L, 3, 0, 5, graph=False)
+                    print(f"REPLAY same-bytes-AB {an['label']} eager event {med['event_us']:.2f} span {med['span_us']:.2f}"
+                          f" TB/s {med['tbs']:.3f} steady {med['steady_tbs']:.3f} vs helper0 plain {an['plain_us']:.2f}"
+                          f" span {an['span']:.2f}", flush=True)
+                else:
+                    print(f"REPLAY AB skipped: w13 / w2 offset {d}", flush=True)
             res.append(an)
             if j < 2:
                 dump.append(dict(label=an["label"], ctas=ctas))

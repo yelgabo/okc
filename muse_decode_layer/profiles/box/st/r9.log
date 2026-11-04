@@ -1,0 +1,16 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FLUSH read
+LOCK acquired after 0.0 s
+READ 4 GiB sum 4.412 TB/s
+ST       h0  A k  7 D 3 delay    0 grid 132 coop 0 eager 0 off 0 cons 8 burn  0 polc 1 stores 0 ef 1 units  3584 span   30.18 [29.89-31.36] TB/s 4.378 ( 99.2%) steady 4.808 (109.0%) ramp 2.97 endspread 4.32 cta_unit 0.986 mean 0.981 lat 2.72/3.65
+ST       h0  A k  7 D 3 delay    0 grid 132 coop 1 eager 0 off 0 cons 8 burn  0 polc 1 stores 0 ef 1 units  3584 span   30.08 [29.76-31.42] TB/s 4.392 ( 99.6%) steady 4.808 (109.0%) ramp 2.91 endspread 3.84 cta_unit 0.987 mean 0.982 lat 2.69/3.62
+LOCK released
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FLUSH read
+LOCK acquired after 0.0 s
+READ 4 GiB sum 4.397 TB/s
+ST       h0  A k  7 D 3 delay    0 grid 132 coop 0 eager 1 off 0 cons 8 burn  0 polc 1 stores 0 ef 1 units  3584 span   29.95 [29.60-31.33] TB/s 4.411 (100.3%) steady 4.815 (109.5%) ramp 2.90 endspread 3.87 cta_unit 0.987 mean 0.979 lat 2.72/3.62
+ST       h0  A k  7 D 3 delay    0 grid 132 coop 1 eager 1 off 0 cons 8 burn  0 polc 1 stores 0 ef 1 units  3584 span   30.02 [29.54-31.46] TB/s 4.402 (100.1%) steady 4.808 (109.3%) ramp 2.91 endspread 4.26 cta_unit 0.988 mean 0.981 lat 2.72/3.65
+LOCK released
