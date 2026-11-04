@@ -118,13 +118,15 @@ def flat(lists):
     return units, starts
 
 
-def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record=True, burn=0, polc=0, stores=0, cons=1, slot_off=0, coop=0, graph=True, inl=0):
+def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record=True, burn=0, polc=0, stores=0, cons=1, slot_off=0, coop=0, graph=True, inl=0,
+        pro_ld=0, pro_ns=0, pro_stag=0):
     lists = lists_fn(0)
     units, starts = flat(lists)
     G, N = len(lists), len(units)
     du = torch.tensor(units, dtype=torch.int32, device="cuda")
     ds = torch.tensor(starts, dtype=torch.int32, device="cuda")
-    stamps = torch.zeros(G, 4, dtype=torch.int64, device="cuda")
+    stamps = torch.zeros(G, 8, dtype=torch.int64, device="cuda")
+    pro_src = torch.ones(1 << 20 if (pro_ld or pro_ns) else 0, dtype=torch.int32, device="cuda")
     ready = torch.zeros(N if record else 0, dtype=torch.int64, device="cuda")
     issued = torch.zeros(N if record else 0, dtype=torch.int64, device="cuda")
     sink = torch.zeros(2 * G, dtype=torch.int32, device="cuda")
@@ -132,7 +134,8 @@ def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record
     smem = max(depth * UNIT + slot_off, 118784)  # one CTA per SM, as helper0 (its smem rules out a second)
 
     def launch():
-        ext.launch(base, du, ds, stamps, ready, issued, sink, depth, delay, evict_first, smem, burn, polc, scratch, cons, slot_off, coop, inl)
+        ext.launch(base, du, ds, stamps, ready, issued, sink, depth, delay, evict_first, smem, burn, polc, scratch, cons, slot_off, coop, inl,
+                   pro_src, pro_ld, pro_ns, pro_stag)
 
     launch()
     torch.cuda.synchronize()
@@ -167,9 +170,12 @@ def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record
         t0 = min(x[0] for x in st)
         done = [x[2] for x in st]
         span = (max(done) - t0) * 1e-9
+        mhz = [(x[5] - x[4]) / (x[2] - x[1]) * 1e3 for x in st if x[2] > x[1]]
         row = dict(span_us=span * 1e6, event_us=a.elapsed_time(b) * 1e3, tbs=N * UNIT / span / 1e12,
                    end_spread_us=(max(done) - min(done)) * 1e-3,
-                   ramp_us=statistics.mean((x[1] - t0) * 1e-3 for x in st))
+                   ramp_us=statistics.mean((x[1] - t0) * 1e-3 for x in st),
+                   stream_us=(max(done) - min(x[1] for x in st)) * 1e-3,
+                   smclk_mhz=statistics.median(mhz) if mhz else 0.0)
         if record:
             rd = sorted(ready.cpu().tolist())
             i10, i90 = N // 10, (9 * N) // 10
@@ -222,6 +228,9 @@ def main():
     ap.add_argument("--stores", default="0", help="1: helper0-shaped evict_last bf16 stores per unit")
     ap.add_argument("--burn", default="0", help="extra warps running an integer + mma.sync loop (power load)")
     ap.add_argument("--flush-gib", type=int, default=1)
+    ap.add_argument("--pro-ld", default="0", help="prologue stand-in: cold ints read per CTA before streaming (helper0 reads 8 M)")
+    ap.add_argument("--pro-ns", default="0", help="prologue stand-in: ns from entry to the first issue (helper0's route: 3 to 8 us)")
+    ap.add_argument("--pro-stag", default="0", help="prologue stand-in: extra ns per (CTA mod 8), spreading the phase A entries")
     ap.add_argument("--flush", default="read", choices=("read", "write"),
                     help="1 GiB L2 flush before each replay: read (sum, as the judge) or write (fill_, leaves L2 dirty)")
     a = ap.parse_args()
@@ -267,12 +276,15 @@ def main():
                                                              for w in a.cons.split(",")]:
                               for so, coop in [(int(x), int(y)) for x in a.slot_off.split(",") for y in a.coop.split(",")]:
                                for inl in [int(x) for x in a.inl.split(",")]:
-                                fn = lambda r, n=name, ph=phase, g=G: assign(n, sets[r], ph, g)  # noqa: E731
-                                med, rows = run(ext, base, flush, fn, depth, delay, a.replays, a.evict_first,
-                                                burn=burn, polc=polc, stores=stores, cons=cons, slot_off=so, coop=coop, graph=not a.eager, inl=inl)
-                                med.update(pattern=pat, phase=phase, k=k, depth=depth, delay=delay, burn=burn,
-                                           polc=polc, stores=stores, ef=a.evict_first, cons=cons,
-                                           slot_off=so, coop=coop, eager=a.eager, inl=inl)
+                                for pld, pns, pst in [(int(x), int(y), int(z)) for x in a.pro_ld.split(",") for y in a.pro_ns.split(",")
+                                                      for z in a.pro_stag.split(",")]:
+                                  fn = lambda r, n=name, ph=phase, g=G: assign(n, sets[r], ph, g)  # noqa: E731
+                                  med, rows = run(ext, base, flush, fn, depth, delay, a.replays, a.evict_first,
+                                                  burn=burn, polc=polc, stores=stores, cons=cons, slot_off=so, coop=coop, graph=not a.eager, inl=inl,
+                                                  pro_ld=pld, pro_ns=pns, pro_stag=pst)
+                                  med.update(pattern=pat, phase=phase, k=k, depth=depth, delay=delay, burn=burn,
+                                             polc=polc, stores=stores, ef=a.evict_first, cons=cons,
+                                             slot_off=so, coop=coop, eager=a.eager, inl=inl, pro_ld=pld, pro_ns=pns, pro_stag=pst)
                                 results.append(dict(summary=med, rows=rows))
                                 pr(med, rate)
         if a.out:
@@ -281,7 +293,9 @@ def main():
 
 def pr(m, rate):
     print(f"ST {m['pattern']:>8} {m['phase']:>2} k {m['k']:2d} D {m['depth']} delay {m['delay']:4d} grid {m['grid']:3d}"
-          f" inl {m.get('inl', 0)} coop {m.get('coop', 0)} eager {m.get('eager', 0)} off {m.get('slot_off', 0)} cons {m.get('cons', 1)} burn {m.get('burn', 0):2d} polc {m.get('polc', 0)} stores {m.get('stores', 0)} ef {m.get('ef', 1)} units {m['units']:5d} span {m['span_us']:7.2f} [{m['min_span_us']:.2f}-{m['max_span_us']:.2f}]"
+          f" inl {m.get('inl', 0)} coop {m.get('coop', 0)} eager {m.get('eager', 0)} off {m.get('slot_off', 0)} cons {m.get('cons', 1)} burn {m.get('burn', 0):2d} polc {m.get('polc', 0)} stores {m.get('stores', 0)} ef {m.get('ef', 1)}"
+          f" pro {m.get('pro_ld', 0)}/{m.get('pro_ns', 0)}/{m.get('pro_stag', 0)} units {m['units']:5d} span {m['span_us']:7.2f} [{m['min_span_us']:.2f}-{m['max_span_us']:.2f}]"
+          f" stream {m.get('stream_us', 0):.2f} event {m['event_us']:.2f} MHz {m.get('smclk_mhz', 0):.0f}"
           f" TB/s {m['tbs']:.3f} ({100 * m['tbs'] * 1e12 / rate:5.1f}%) steady {m.get('steady_tbs', 0):.3f}"
           f" ({100 * m.get('steady_tbs', 0) * 1e12 / rate:5.1f}%) ramp {m['ramp_us']:.2f}"
           f" endspread {m['end_spread_us']:.2f} cta_unit {m.get('cta_unit_us', 0):.3f} mean {m.get('cta_unit_mean_us', 0):.3f}"

@@ -14,7 +14,7 @@ struct ReplayParams {
   const uint8_t* base;          // units at base + idx * kUnitBytes
   const int* units;             // concatenated per-CTA unit lists
   const int* starts;            // [grid + 1] offsets into units
-  unsigned long long* stamps;   // [grid, 4]: entry, first unit full, last unit released, smid
+  unsigned long long* stamps;   // [grid, 8]: entry, first unit full, last unit released, smid, clock64 at first full / at done
   unsigned long long* ready;    // [n_units] globaltimer when the consumer saw the unit full (or null)
   unsigned long long* issued;   // [n_units] globaltimer when the unit's copy was issued (or null)
   unsigned* sink;
@@ -28,6 +28,10 @@ struct ReplayParams {
   int stores;                   // 1: the consumer writes 64 bf16 per unit with an evict_last hint, as helper0's epilogue
   unsigned short* scratch;
   int burn;                     // extra warps that run an integer + mma.sync loop until the stream is done (power load)
+  const int* pro_src;           // prologue stand-in: pro_ld cold ints read per CTA, 6 CTA barriers over shared memory,
+  int pro_ld;                   // then a spin until pro_ns + (CTA % 8) * pro_stag ns after entry (helper0's routing
+  int pro_ns;                   // prologue is 3 to 8 us and CTAs enter phase A spread over a few us)
+  int pro_stag;
 };
 
 __device__ __forceinline__ unsigned smem_u32(const void* p) { return static_cast<unsigned>(__cvta_generic_to_shared(p)); }
@@ -93,7 +97,8 @@ __global__ void __launch_bounds__(512, 1) st_replay_kernel(ReplayParams p) {
   const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
   const int D = p.depth;
   const int u0 = p.starts[blockIdx.x], n = p.starts[blockIdx.x + 1] - u0;
-  unsigned long long* st = p.stamps + 4ull * blockIdx.x;
+  unsigned long long* st = p.stamps + 8ull * blockIdx.x;
+  __shared__ int pro_tmp[512];
   if (threadIdx.x == 0) {
     st[0] = gtimer();
     for (int s = 0; s < D; ++s) { mbar_init(&full[s], 1); mbar_init(&empty[s], p.cons); }
@@ -101,6 +106,16 @@ __global__ void __launch_bounds__(512, 1) st_replay_kernel(ReplayParams p) {
     asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
   }
   __syncthreads();
+  if (p.pro_ns > 0 || p.pro_ld > 0) {
+    int v = 0;
+    for (int i = threadIdx.x; i < p.pro_ld; i += blockDim.x) v += __ldg(p.pro_src + i);
+    pro_tmp[threadIdx.x] = v;
+    for (int k = 0; k < 6; ++k) { __syncthreads(); v += pro_tmp[(threadIdx.x + 37 * k) % blockDim.x]; }
+    if (v == 0x7fffffff) p.sink[0] = v;
+    const unsigned long long until = st[0] + (unsigned long long)p.pro_ns + (unsigned long long)(blockIdx.x % 8) * p.pro_stag;
+    while (gtimer() < until) {}
+    __syncthreads();
+  }
   if (warp == 0) {
     if (lane == 0) {
       uint64_t pol = 0;
@@ -119,7 +134,7 @@ __global__ void __launch_bounds__(512, 1) st_replay_kernel(ReplayParams p) {
       const int s = i % D;
       mbar_wait(&full[s], (i / D) & 1);
       const unsigned long long t = gtimer();
-      if (warp == 1 && lane == 0 && i == 0) st[1] = t;
+      if (warp == 1 && lane == 0 && i == 0) { st[1] = t; st[4] = clock64(); }
       if (warp == 1 && lane == 0 && p.ready) p.ready[u0 + i] = t;
       acc ^= reinterpret_cast<const unsigned*>(ring + s * kUnitBytes)[(i * 977 + lane) % (kUnitBytes / 4)];
       if (p.stores) {
@@ -148,6 +163,7 @@ __global__ void __launch_bounds__(512, 1) st_replay_kernel(ReplayParams p) {
     }
     if (lane != 0 || warp != 1) return;
     st[2] = gtimer();
+    st[5] = clock64();
     *reinterpret_cast<volatile int*>(&stop) = 1;
     unsigned smid;
     asm volatile("mov.u32 %0, %%smid;" : "=r"(smid));
@@ -158,7 +174,8 @@ __global__ void __launch_bounds__(512, 1) st_replay_kernel(ReplayParams p) {
 
 void launch(torch::Tensor base, torch::Tensor units, torch::Tensor starts, torch::Tensor stamps, torch::Tensor ready,
             torch::Tensor issued, torch::Tensor sink, int64_t depth, int64_t delay_ns, int64_t evict_first,
-            int64_t smem, int64_t burn, int64_t polc, torch::Tensor scratch, int64_t cons, int64_t slot_off, int64_t coop, int64_t inl) {
+            int64_t smem, int64_t burn, int64_t polc, torch::Tensor scratch, int64_t cons, int64_t slot_off, int64_t coop, int64_t inl,
+            torch::Tensor pro_src, int64_t pro_ld, int64_t pro_ns, int64_t pro_stag) {
   TORCH_CHECK(depth >= 1 && depth <= kMaxDepth && smem >= depth * kUnitBytes);
   ReplayParams p;
   p.base = base.data_ptr<uint8_t>();
@@ -175,6 +192,11 @@ void launch(torch::Tensor base, torch::Tensor units, torch::Tensor starts, torch
   p.cons = static_cast<int>(cons);
   p.slot_off = static_cast<int>(slot_off);
   p.inl = static_cast<int>(inl);
+  p.pro_src = pro_src.numel() ? pro_src.data_ptr<int>() : nullptr;
+  p.pro_ld = p.pro_src ? static_cast<int>(std::min<int64_t>(pro_ld, pro_src.numel())) : 0;
+  p.pro_ns = static_cast<int>(pro_ns);
+  p.pro_stag = static_cast<int>(pro_stag);
+  TORCH_CHECK(stamps.numel() >= 8 * (starts.numel() - 1));
   TORCH_CHECK(slot_off % 16 == 0 && smem >= depth * kUnitBytes + slot_off);
   p.polc = static_cast<int>(polc);
   p.stores = scratch.numel() >= 8 * 4096 ? 1 : 0;

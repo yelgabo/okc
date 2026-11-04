@@ -59,8 +59,11 @@ def decode(buf, nsm):
         rdy = [(b[RDY + c * RN + q] - t0) / 1e3 if b[RDY + c * RN + q] > 0 else None for q in range(RN)]
         wt = [b[WT + c * RN + q] / 1e3 for q in range(RN)]
         ret = [(b[c * SLOTS + 18 + q] - t0) / 1e3 if b[c * SLOTS + 18 + q] > 0 else None for q in range(46)]
+        # SM clock over phase A: clock64 and globaltimer at the first full slot (120) and at the phase A end (121)
+        g0, g1 = b[RDY + c * RN + 120], b[RDY + c * RN + 121]
+        mhz = (b[WT + c * RN + 121] - b[WT + c * RN + 120]) / (g1 - g0) * 1e3 if g1 > g0 else None
         ctas.append(dict(smid=b[CNT + c], abuf=b[c * SLOTS + 14] / 1e3, iss=iss, rdy=rdy, wt=wt, ret=ret, nA=cnt & 0xFFFF, nB=(cnt >> 16) & 0xFFFF,
-                         entry=(b[c * SLOTS] - t0) / 1e3))
+                         entry=(b[c * SLOTS] - t0) / 1e3, mhz=mhz))
     return ctas
 
 
@@ -114,7 +117,11 @@ def analyse(ctas, label):
     q = lambda xs: (statistics.median(xs), sorted(xs)[int(0.9 * (len(xs) - 1))], sum(xs)) if xs else (0, 0, 0)  # noqa: E731
     latA = [x for pb, x in lat if not pb]
     latB = [x for pb, x in lat if pb]
+    mhz = [c["mhz"] for c in ctas if c["mhz"]]
     out = dict(label=label, endA=endA, a_buf=statistics.mean(c["abuf"] for c in ctas), snaps=snaps, latA=q(latA), latB=q(latB),
+               smclk_mhz=statistics.median(mhz) if mhz else 0.0, smclk_min=min(mhz) if mhz else 0.0,
+               cta_unit_a=statistics.median((c["rdy"][c["nA"] - 1] - c["rdy"][0]) / (c["nA"] - 1) for c in ctas
+                                            if c["nA"] > 1 and c["nA"] <= RN and c["rdy"][c["nA"] - 1] and c["rdy"][0]),
                stallA_per_cta=sum(stallA) / nsm, stallB_per_cta=sum(stallB) / nsm,
                stall_at={k: (len(v), sum(v) / nsm, statistics.median(v)) for k, v in stall_at.items()})
     return out
@@ -238,16 +245,19 @@ def main():
                     med, _ = rpb.run(rp, base, flush, lambda r, L=lists: L, 3, dl, 5)
                     print(f"REPLAY same-bytes {an['label']} delay {dl} span {med['span_us']:.2f} TB/s {med['tbs']:.3f}"
                           f" steady {med['steady_tbs']:.3f} cta_unit {med['cta_unit_us']:.3f} lat {med['lat_med_us']:.2f}"
-                          f"/{med['lat_p90_us']:.2f}", flush=True)
+                          f"/{med['lat_p90_us']:.2f} MHz {med['smclk_mhz']:.0f}", flush=True)
                 d = w_[11].data_ptr() - w_[10].data_ptr()
-                if d > 0 and d % UNIT == 0:
-                    ab = [[u["blk"] if not u["pb"] else d // UNIT + u["blk"] for u in c["iss"][:c["nA"] + c["nB"]]]
+                if d != 0 and d % UNIT == 0:
+                    # st_replay takes only the base pointer: the two unit tensors are separate allocations, so index
+                    # both from the lower one (d may be negative)
+                    lo = base if d > 0 else w_[11].view(torch.uint8).reshape(-1)
+                    offA, offB = (0, d // UNIT) if d > 0 else (-d // UNIT, 0)
+                    ab = [[offA + u["blk"] if not u["pb"] else offB + u["blk"] for u in c["iss"][:c["nA"] + c["nB"]]]
                           for c in ctas]
-                    # st_replay takes only the base pointer: B units sit d bytes past w13's start (another allocation)
-                    med, _ = rpb.run(rp, base, flush, lambda r, L=ab: L, 3, 0, 5, graph=False)
+                    med, _ = rpb.run(rp, lo, flush, lambda r, L=ab: L, 3, 0, 5, graph=False)
                     print(f"REPLAY same-bytes-AB {an['label']} eager event {med['event_us']:.2f} span {med['span_us']:.2f}"
-                          f" TB/s {med['tbs']:.3f} steady {med['steady_tbs']:.3f} vs helper0 plain {an['plain_us']:.2f}"
-                          f" span {an['span']:.2f}", flush=True)
+                          f" TB/s {med['tbs']:.3f} steady {med['steady_tbs']:.3f} cta_unit {med['cta_unit_us']:.3f} MHz {med['smclk_mhz']:.0f}"
+                          f" vs helper0 plain {an['plain_us']:.2f} span {an['span']:.2f}", flush=True)
                 else:
                     print(f"REPLAY AB skipped: w13 / w2 offset {d}", flush=True)
             res.append(an)

@@ -31,6 +31,25 @@ REC_DEFS = """#ifndef ST_BARE
 #ifndef ST_NOEPI
 #define ST_NOEPI 0  // diagnostic (output wrong): the helper warp skips its phase A epilogue except the CTA's last unit
 #endif
+#ifndef ST_PLAIN
+#define ST_PLAIN 0  // diagnostic (output wrong): both phases as a plain stream loop over the CTA's ranges (st_plain), helper as ST_BARE
+#endif
+#if ST_PLAIN
+#undef ST_BARE
+#define ST_BARE 1
+#endif
+#ifndef ST_NOROUTE
+#define ST_NOROUTE 0  // diagnostic (output wrong, needs ST_PLAIN, TINY2): job table from the FAST1 warp's expert mask, no route()
+#endif
+#ifndef ST_NOX
+#define ST_NOX 0  // diagnostic: no x prefetch, no LUT fill
+#endif
+#ifndef ST_NOZERO
+#define ST_NOZERO 0  // diagnostic (breaks the next launch's ss): no ss / barrier-counter zeroing before the phases
+#endif
+#if ST_NOROUTE && (!ST_PLAIN || OKC_SPLIT)
+#error "ST_NOROUTE needs ST_PLAIN on a non-SPLIT (TINY2) build"
+#endif
 #define ST_REC_N 128
 #define ST_CNT (136 * 64)
 #define ST_ISS (ST_CNT + 136)
@@ -74,8 +93,11 @@ RDY_NEW = """    if (tl) {
       tl_wait += t1 - tl_t0;
       if (!PB && i == 0) TLW(2, t1);
       if (lane == 0 && q < ST_REC_N) { p.dbg[ST_RDY + blockIdx.x * ST_REC_N + q] = t1; p.dbg[ST_WT + blockIdx.x * ST_REC_N + q] = t1 - tl_t0; }
+      if (lane == 0 && !PB && i == 0) { p.dbg[ST_WT + blockIdx.x * ST_REC_N + 120] = clock64(); p.dbg[ST_RDY + blockIdx.x * ST_REC_N + 120] = t1; }
     }
 """
+AEND_OLD = "      if (i == nU - 1) TLW(PB ? 6 : 3, t);\n"
+AEND_NEW = AEND_OLD + "      if (i == nU - 1 && !PB && lane == 0) { p.dbg[ST_WT + blockIdx.x * ST_REC_N + 121] = clock64(); p.dbg[ST_RDY + blockIdx.x * ST_REC_N + 121] = t; }\n"
 
 
 NM_START = "#pragma unroll\n    for (int c = 0; c < NCH; ++c) {\n      const uint4 w = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);\n"
@@ -111,6 +133,83 @@ BARE_HELPER_NEW = """  if (ST_BARE) {
   } else
 """
 
+HELPER_END = "  WS_JOIN();  // every epilogue store of this CTA is done before the grid barrier\n}\n#endif\n"
+PLAIN_FN = HELPER_END + """#if ST_PLAIN
+// diagnostic (output wrong): phases A and B as one plain stream over this CTA's ranges on the same ring, with
+// skinny_ring_ws's wait, fence, CTA barrier and thread-0 refill and nothing else (st_replay.cu's loop in place)
+__device__ void st_plain(const Params& p, Smem& S, unsigned char* ring) {
+  const int tid = TIDX, lane = tid & 31, warp = WARP_IDX(tid);
+  const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);
+  const bool tl = TLX_ON && warp == 0;
+  unsigned long long tl_wait = 0ull, tl_t0 = 0ull;
+  uint32_t keep = 0u;
+  for (int q = 0; q < N; ++q) {
+    const int sl = q % OKC_NS;
+    if (tl) tl_t0 = gtimer();
+    mbar_wait(S.bars + sl, (uint32_t)((q / OKC_NS) & 1));
+    if (tl) {
+      const unsigned long long t1 = gtimer();
+      tl_wait += t1 - tl_t0;
+      if (lane == 0) {
+        if (q < ST_REC_N) { p.dbg[ST_RDY + blockIdx.x * ST_REC_N + q] = t1; p.dbg[ST_WT + blockIdx.x * ST_REC_N + q] = t1 - tl_t0; }
+        if (q == 0) { TLS(2, t1); p.dbg[ST_WT + blockIdx.x * ST_REC_N + 120] = clock64(); p.dbg[ST_RDY + blockIdx.x * ST_REC_N + 120] = t1; }
+        if (q == nA) TLS(5, t1);
+      }
+    }
+    keep ^= *reinterpret_cast<const uint32_t*>(ring + sl * UNIT_BYTES + UNIT_CODES + warp * 512 + lane * 16);
+    asm volatile("fence.proxy.async.shared::cta;\\n" ::: "memory");
+    CTA_SYNC();
+    if (tid == 0 && q + OKC_NS < N) ws_issue(p, S, q + OKC_NS, nA, S.wsr[0], S.wsr[2], ring);
+    if (tl && lane == 0) {
+      const unsigned long long t = gtimer();
+      if (q < 46) TLS(18 + q, t);
+      if (q == nA - 1) { TLS(3, t); p.dbg[ST_WT + blockIdx.x * ST_REC_N + 121] = clock64(); p.dbg[ST_RDY + blockIdx.x * ST_REC_N + 121] = t; }
+      if (q == N - 1) TLS(6, t);
+    }
+  }
+  if (tl && lane == 0) {
+    TLS(12, tl_wait); TLS(13, 0ull); TLS(14, 0ull); TLS(15, 0ull); TLS(16, 0ull);
+    TLS(17, (unsigned long long)nA | ((unsigned long long)(N - nA) << 16) | ((unsigned long long)S.preissued << 32)
+                | ((unsigned long long)S.njS << 40));
+  }
+  if (keep == 0x9E3779B9u) S.fseq = -1;  // keeps the shared read
+  if (tid == 0) S.seq += N;
+}
+#endif
+"""
+RP_OLD = """  run_phase<false, BIG>(p, S, xbuf);
+  DBG(2);
+  run_phase<true, BIG>(p, S, xbuf);
+  DBG(3);
+"""
+RP_NEW = """#if ST_PLAIN
+  st_plain(p, S, reinterpret_cast<unsigned char*>(xbuf));
+#else
+""" + RP_OLD + "#endif\n"
+MASK_OLD = "    m = __reduce_or_sync(0xffffffffu, m);\n"
+MASK_NEW = MASK_OLD + """#if ST_NOROUTE
+    if (ln == 0) {  // the skinny job table route() would build from this mask: touched experts ascending, no fat jobs
+      S.njF = 0; S.njS = __popc(m);
+      for (int k = 0; k < __popc(m); ++k) S.jE[k] = (int)__fns(m, 0, k + 1);
+    }
+#endif
+"""
+ROUTE_OLD = "  route(p, S);\n#if OKC_WGS && OKC_WGSPR\n"
+ROUTE_NEW = """#if ST_NOROUTE
+  for (int i = tid; i < EMAX; i += NT) S.pos[i] = -1;  // (the final pass reads pos)
+  CTA_SYNC();
+#else
+  route(p, S);
+#endif
+#if OKC_WGS && OKC_WGSPR
+"""
+X_OLD = "  // pull every token row of x into L2 now (one 128 B line per thread-iteration); the skinny jobs read them later\n"
+X_NEW = "#if !ST_NOX\n" + X_OLD
+X_END_OLD = "    S.lut[i] = b | (b << 16);\n  }\n"
+X_END_NEW = X_END_OLD + "#endif\n"
+Z_OLD = "    for (int i = blockIdx.x * NT + tid; i < EMAX; i += gridDim.x * NT) other[i] = 0.f;\n"
+Z_NEW = "#if !ST_NOZERO\n" + Z_OLD + "#endif\n"  # (the barrier counter's zeroing stays: the next launch's grid barrier needs it)
+
 
 def apply(s, v):
     if v == "rec":
@@ -119,7 +218,9 @@ def apply(s, v):
         s = ul.edit(s, [(EPI_OLD, EPI_OLD + EPI_ADD), (BARE_HELPER, BARE_HELPER_NEW + BARE_HELPER)], v, sub=ul.HELPER)
         s = ul.edit(s, [(BARE_WAIT, "    if (!ST_BARE)\n  " + BARE_WAIT), (BARE_RED, "    if (!ST_BARE)\n  " + BARE_RED),
                         (BARE_ARR, "      if (!ST_BARE)\n  " + BARE_ARR)], v, sub=ul.LOOP)
-        s = ul.edit(s, [(RDY_OLD, RDY_NEW), (NM_START, NM_PRE + NM_START), (NM_END, "#endif\n" + NM_END)], v, sub=ul.LOOP)
+        s = ul.edit(s, [(RDY_OLD, RDY_NEW), (AEND_OLD, AEND_NEW), (NM_START, NM_PRE + NM_START), (NM_END, "#endif\n" + NM_END)], v, sub=ul.LOOP)
+        s = ul.edit(s, [(HELPER_END, PLAIN_FN), (RP_OLD, RP_NEW), (MASK_OLD, MASK_NEW), (ROUTE_OLD, ROUTE_NEW), (X_OLD, X_NEW),
+                        (X_END_OLD, X_END_NEW), (Z_OLD, Z_NEW)], v)
         add = 'MOE_MID_DEFINES += ("@moe_helper0",)\n'
         return ul.once(s, add, add + 'MOE_MID_DEFINES += ("-DOKC_TLX=1",)\n', v)
     sys.exit(f"unknown variant {v}")
