@@ -32,10 +32,14 @@ import dl_ly_prtl_patch as tlp  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SRC = ROOT / "muse_decode_layer/cand/ly_micro2.py"
+if "--base" in sys.argv:
+    SRC = ROOT / sys.argv[sys.argv.index("--base") + 1]
 DST = ROOT / "muse_decode_layer/cand/ly_prq.py"
 if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
 PIN = "0bc2bd8bdeecd7514ab259bd8f2b5b6b66cef88734f583c5ccaf466f1075cacd"
+if "--pin" in sys.argv:
+    PIN = sys.argv[sys.argv.index("--pin") + 1]
 
 K_EDITS = [
     ("    __shared__ int s_rlast;\n    if (tid == 0) {\n      int old;\n",
