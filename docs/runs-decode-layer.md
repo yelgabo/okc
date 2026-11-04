@@ -2629,3 +2629,166 @@ every run. Timeline (`tlb4g_wpre.log`; the tool also stamps the early issues): f
 same protocol): decode 32 +0.61 / +1.04 us (thresholds 1.45 / 2.97), verify 16 +0.72 / +0.30, verify 32 +0.36 /
 +0.70, decode 1 +0.16 / -0.31, verify 1 -0.00 / +0.77 (TINY2, unchanged code, so this is the session's null). No
 gain; not kept. The ramp's lever, if any, is the 2 us wgs_ranges takes after routing, not the barrier.
+
+## 2026-11-03 - Pooler + router timeline (box, no check)
+
+bf16 lane. The question: where do the 15.7 to 18.5 us of the fused pooler + router kernel go against its byte floor?
+It is the second-largest kernel on the decode 1 critical path ("Compute-store fusion audit"). And does one mechanism
+against the largest non-floor piece shorten the layer? Base: muse_decode_layer/cand/ly_micro2.py (SHA256
+0bc2bd8bdeecd7514ab259bd8f2b5b6b66cef88734f583c5ccaf466f1075cacd), never edited. Box only (okc-h200), every run under
+gpu.lock, no judge check, nothing registered. Runs 2026-11-04 05:10 to 05:40 UTC (2026-11-03 21:10 to 21:40 PST),
+router seed 106218864389449120, f931 case seeds, local_start per input, PDL on at T = 1, 8, 16, 32 (`--pin-pdl8
+1,8,16,32 --skip-pdl8-gate`). Logs, JSONs (raw per-CTA stamps of 2 inputs per cell), kernel timelines and SASS
+reports are in `muse_decode_layer/profiles/box/prtl/`.
+
+### Kernel
+
+At T = 1 and 8 the kernel is `sk2_kernel_gle` (gle extension): the BF16 pooler on the 12-bit lossless stream plus the
+FP32 router, whose 4 router stages are interleaved into the pooler ring (GLE_ILV 1: stages 4, 9, 14, 19 of 20). At
+T = 16 and 32 it is sk2 FUSE (bf16_proj extension), with the BF16 hi / lo router as 4 stages after the 16 pooler
+stages. There are 128 CTAs of 416 threads (8 consumer warps, 1 producer warp, 4 escape warps), one per SM (about
+206 KB of shared memory), 32 pooler rows per CTA, a ring of 6 / 6 / 5 / 3 stages at T = 1 / 8 / 16 / 32, and 2 weight
+stages issued before griddepcontrol.wait (1 at T = 32). Each CTA also computes one router piece: 8 router rows (tile
+rt = cta / 4) over one K quarter (rq = cta % 4). It stores that partial, then tid 0 does `atom.add.release.gpu` on the
+tile's counter. The CTA that brings the count to 4 issues `fence.acq_rel.gpu`, reads the four partials back and writes
+the logits. The pooler epilogue (K-warp reduction through the ring, BF16 store) runs after that.
+
+### Instrument
+
+- `tools/dl_ly_prtl_patch.py` writes `ly_prtl.py` (1f2f47c9): per-CTA globaltimer stamps in bfp_SK2_SRC under
+  `if (FUSE && dbg != nullptr)`. The fused launches pass a host pointer (new export `sk2_set_tlb`, null by default) as
+  the kernel's dbg argument, which they passed as nullptr before. Stamps: entry, first pre-wait weight issue, pre-wait
+  issues done, after griddepcontrol.wait, x tiles issued, the producer's issue time of each stage, escape warp 0's
+  full-barrier return for each stage (the stage-landing clock, never earlier than the landing), each consumer warp's
+  stage-loop exit, router partial stored, counter done, last-quarter output stored, epilogue start, reduction written,
+  final store, SM id. Nothing is stamped inside the consumers' stage loop.
+- SASS (`tools/ly_prtl_sass.py`, `tools/ly_prtl_loopdiff.py`, `sass_bfp.log`): the consumer stage loop keeps its
+  instruction count at every T (gle T <= 8: 386 -> 386; T = 16: 177 -> 177 with the same opcode mix; T = 32: 203 -> 203
+  with the same mix, and the T = 32 router-stage loop 67 -> 65). At T <= 8 the 386 instructions differ in 5 integer
+  opcode choices (IADD3 / IMAD.MOV / VIADD / LEA substitutions and one MOV for an IMAD.MOV.U32) with the same
+  registers. Registers 128 -> 128 (gle), 84 -> 88 (T = 16), 126 -> 127 (T = 32), 0 local, 0 stack; this does not
+  change occupancy at one 416-thread CTA per SM.
+- `tools/ly_box_prtl.py` captures two graphs of the whole layer per cell (stamps off, stamps on) and replays 5 fresh
+  inputs through both with a cold L2. Stamped minus plain graph time, median per cell: -0.9 to +4.1 us (median +0.4;
+  single replays, so this is mostly replay noise). `tools/ly_prtl_summary.py` and `tools/ly_prtl_cta.py` read the
+  JSONs.
+
+### Floor
+
+The kernel reads the pooler stream, 50,331,648 B (4096 x 8192 at 12 bits); the escape tables, 59,392 B (pmax 58 x
+8 B x 128 CTAs); the router weights, 8,388,608 B (256 x 8192 FP32 at T <= 8, BF16 hi + lo at T >= 16, the same bytes);
+and the activations, T x 8192 x 2 B plus the FP32 copy T x 8192 x 4 B at T <= 8 (49,152 / 393,216 / 262,144 /
+524,288 B at T = 1 / 8 / 16 / 32). The totals are 58.83 / 59.17 / 59.04 / 59.30 MB, so at 4.443 TB/s the floor is
+13.24 / 13.32 / 13.29 / 13.35 us. One pooler stage on all 128 CTAs (24,576 B each) takes 0.708 us at that rate, one
+router stage (16,384 B) 0.472. The activations are counted although b1 wrote h a moment earlier (likely L2 hits), so
+the floor is slightly high.
+
+### Stamps, ly_micro2 (us; medians over 5 inputs per cell)
+
+"wait" is the first CTA's griddepcontrol.wait return, in us after the first CTA's entry; the other columns are in us
+after it. land0 is the first stage landing (escape warp 0). Loop end is the mean CTA's stage-loop exit (T <= 8:
+pooler and router stages; T >= 16: pooler stages only). Router is the partial stores, the counter and the last-quarter
+read-back (at T >= 16 also the 4 router stages). Tail is the last CTA's final store minus the latest loop end.
+Post-wait span is the last final store minus the first wait return.
+
+| cell | wait | land0 | loop end | loop-end spread | router | epilogue | tail | post-wait span | floor | excess | issue interval pool / router |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 1.54 | 0.83 | 14.41 | 1.18 | 1.79 | 0.48 | 2.02 | 17.50 | 13.24 | +4.26 | 0.58 / 0.51 |
+| decode 1 full | 1.02 | 1.20 | 13.37 | 0.77 | 1.79 | 0.47 | 1.98 | 15.94 | 13.24 | +2.70 | 0.58 / 0.54 |
+| verify 1 sliding | 1.38 | 0.84 | 15.39 | 1.09 | 1.87 | 0.47 | 1.82 | 17.86 | 13.32 | +4.54 | 0.58 / 0.54 |
+| verify 1 full | 1.38 | 0.73 | 15.33 | 1.02 | 1.75 | 0.46 | 1.92 | 17.86 | 13.32 | +4.54 | 0.58 / 0.54 |
+| decode 16 sliding | 1.18 | 1.29 | 11.51 | 4.13 | 3.64 | 0.51 | 2.88 | 16.83 | 13.29 | +3.54 | 0.48 / 0.51 |
+| decode 16 full | 0.77 | 1.49 | 11.55 | 4.06 | 3.61 | 0.51 | 2.85 | 16.45 | 13.29 | +3.16 | 0.45 / 0.51 |
+| decode 32 sliding | 1.89 | 0.65 | 12.66 | 2.88 | 3.90 | 0.72 | 4.13 | 18.05 | 13.35 | +4.70 | 0.64 / 0.54 |
+| decode 32 full | 1.54 | 0.64 | 12.78 | 3.20 | 4.38 | 0.72 | 3.90 | 18.46 | 13.35 | +5.12 | 0.67 / 0.54 |
+
+Ramp. The CTAs enter within 0.7 to 1.6 us of each other. At decode 1 sliding 4 CTAs enter about 1 us late, and 26 to
+28 at decode 32 (hypothesis: they wait for the SMs the preceding boundary kernel still holds). The two pre-wait stages
+go out 0.5 to 1.0 us after entry. The first stage lands 0.6 to 1.5 us after the wait, because its x tile is issued
+only after the wait.
+
+Loop. From the first landing the stream runs at or above the 4.443 TB/s rate. The producer's issue interval is 0.58 us
+per pooler stage at T <= 8 and 0.45 to 0.67 at T >= 16, against 0.708 at the floor rate (TMA streaming beats the `sum`
+read used for the floor), and the median CTA's 20 stages land within 11.9 and 13.6 us in the two raw decode 1 sliding
+inputs. The ring's first refills are spaced about 0.5 us apart although 4 slots are free after the wait (stages 2 to 5
+issued at 1.8, 2.4, 2.9, 3.9 us in the median CTA at decode 1), so the copies queue behind each other rather than
+behind a free slot (an observation; the queue was not traced further).
+
+Tail. At T <= 8 the last CTA spends 1.8 to 2.0 us between its stage-loop exit and its final store: 0.4 us for the
+router partial (warp butterflies, stores, the escape warps' cbar, a barrier), 0.66 to 0.93 us for the counter atom
+(the release waits for the partial stores) and its barrier, 0.25 to 0.73 us for the last quarter's acquire fence,
+read-back and logit store, then 0.47 us of pooler epilogue. In all 16 raw inputs the 6 latest-finishing CTAs are the
+last quarters of their router tile, and on average the last quarters' final store comes 0.57 to 1.32 us after the
+other CTAs'. At T = 16 / 32 the 4 router stages (1.5 / 2.2 us) come before the same counter and read-back.
+
+### Largest non-floor piece
+
+The largest non-floor piece is the tail after the stage loop at T <= 8 (1.8 to 2.0 us on the last CTA), and inside it
+the router's counter round trip plus the last quarter's read-back (1.2 to 1.5 us). At T = 16 / 32 the same counter
+and read-back sit behind the router stages, and the largest piece there is the loop-end spread across CTAs (2.9 to
+4.1 us). The ramp after the wait (0.6 to 1.5 us) comes next at every T.
+
+### Mechanism: the router's quarter sum moves into the route kernel (ly_prq, ly_prq2)
+
+`tools/dl_ly_prq_patch.py` builds both. The fused kernel skips the counter block when it is launched with
+outr == nullptr (the launchers pass nullptr for an empty outr tensor). The partial stores, the barrier after them and
+the pooler epilogue are unchanged, and the counter path stays in the code for a non-empty outr. The fused-launch
+wrappers (`_gle_frt` at T <= 8, `bfp_fused_pooler_router` at T = 16 / 32) pass an empty outr and return the partial
+buffer, tagged, as the logits. Each route kernel that reads split logits gets a `_prq_` copy whose logit load is
+((p0 + p1) + p2) + p3 of the four quarter partials, the FP32 adds in the order the last quarter used. That covers
+`_sl_tile_route_cg`, the one the layer launches at T = 1, 8, 16, 32, and `_route_split`, `_graft_route`,
+`_sl_graft_route` and `_sl_tile_route`, which prepare's composition timing reaches. A wrapper launches the copy when it
+is given the tagged buffer, and `_route` / `_gle_route` raise if they ever get it. The route's loads stay after its
+griddepcontrol.wait, and no fence, barrier or wait is removed from a kernel that still runs.
+
+BF16 and the logits stay bitwise. `tools/ly_prq_bitwise.py` (random rows, T = 1, 8, 16, 32) finds 0 differing logits
+between the counter path and the torch quarter sum, identical partials and pooled rows with and without outr, and
+bitwise-equal ids, local ids, weights and expert inputs between the old route kernel on the logits and the copy on the
+partials (`prq_bit.log`, `prq2_bit.log`).
+
+- ly_prq (5ce323a2872e318a8529f800f829b74070d511863f8347d808d4b8745f37c11d) keeps the partial layout
+  [32 tiles][4 quarters][32 tokens][8 rows], so the route reads each quarter as 32 separate 32-byte pieces.
+- ly_prq2 (80b6ab9c4982aebc7f630156648723279062244c55231ddd6b6392570170d36b, `--contig`) stores the partials as
+  [4 quarters][32 tokens][256 rows] (the last-quarter read-back follows), so each quarter of a token is one contiguous
+  1 KB row for the route.
+
+Kernel timeline (`tools/ly_tl_run.py --kernels`, 10 profiled replays, `ktl_both.txt`, `ktl_prq2.txt`). The fused
+kernel's duration falls from 17.76 to 16.91 / 16.80 us at decode 1 sliding (control to ly_prq / ly_prq2) and by 0.9 to
+1.5 us at the other short cells. With ly_prq the route ends 1.89 us after the fused kernel at decode 1 sliding
+(control 1.25) and 2.21 at verify 1 sliding (control 1.63); with ly_prq2 it ends 1.42 and 1.66 us after it. Route end
+minus boundary 1 end, control to ly_prq2 (sliding / full): decode 1 16.87 -> 16.25 / 18.08 -> 16.03, verify 1 18.70
+-> 17.44 / 18.19 -> 17.28, decode 16 18.70 -> 17.44 / 18.60 -> 17.54, decode 32 21.09 -> 19.25 / 20.51 -> 19.30. In the
+stamped ly_prq2 build (`tl_prq2.json`) the tail falls from 2.02 to 0.80 us and the post-wait span from 17.50 to 14.75
+us at decode 1 sliding; the verify 1 tail is 0.77 to 0.80 us and the decode 16 / 32 tail 1.70 to 2.94 us.
+
+Paired A/B: `tools/ly_prtl_ab.sh` runs five bx_box_run.py processes (control, candidate, control, candidate, control)
+at all six loads with `--runs 60`; `tools/ly_prtl_table.py` makes the table with threshold max(2 x control spread,
+0.5 us) at decode 1 / verify 1 and max(2 x control spread, 1% of the control mean) elsewhere. Every candidate run had
+reference check PASS at all 12 cells, G_RELEASE_STARTUP_OK (56 verified replays) in prepare, and PDL on at T = 1, 8,
+16, 32 in every timed run. Candidate minus control mean, us (sliding / full). Verify 16 / 32 (T = 128 / 256) do not
+run the changed code and are the session's null:
+
+| cell | ly_prq round 1 (`prq/`) | ly_prq round 2 (`prq2/`) | ly_prq2 round 1 (`prq2c/`) | ly_prq2 round 2 (`prq2d/`) | ly_prq2 pooled (6 controls, 4 runs) |
+|---|---|---|---|---|---|
+| decode 1 | -0.68 (win) / -0.47 | -0.43 / -0.41 | -0.94 / -0.51 | -1.07 / -1.15 (win) | -1.01 / -0.83 (win) |
+| verify 1 | -0.82 / -0.40 | -0.18 / -0.70 | -0.81 / -1.33 (win) | -0.85 (win) / -1.49 (win) | -0.83 / -1.41 |
+| decode 16 | -1.04 / -0.67 | -0.90 / +0.14 | -0.93 / -1.37 | -0.88 / -0.54 | -0.91 / -0.95 |
+| decode 32 | -0.95 / -0.84 | -1.15 / -0.22 | -1.66 (win) / -1.35 | -1.15 / -1.47 | -1.41 / -1.41 |
+| verify 16 | +0.40 / -0.45 | +1.01 / +0.26 | -0.64 / +0.26 | -0.35 / +0.27 | -0.50 / +0.27 |
+| verify 32 | -0.21 / -0.63 | -0.40 / +0.64 | -0.60 / +0.04 | -0.65 / +0.35 | -0.62 / +0.19 |
+
+The ly_prq2 pooled thresholds (sliding / full) are decode 1 1.47 / 0.83, verify 1 2.50 / 1.54, decode 16 1.29 / 3.46
+and decode 32 2.05 / 3.10, set by the spread of six controls across two sessions. Over both ly_prq2 rounds the
+candidate run is below the control run in 24 of 24 pairs at decode 1 sliding and full, decode 16 sliding, decode 32
+sliding and verify 1 full, in 23 of 24 at decode 32 full, in 20 of 24 at decode 16 full and verify 1 sliding, and in
+7 to 18 of 24 at the long cells.
+
+Reading. Removing the counter round trip shortens the fused kernel by about 1 us at every short cell, and with the
+contiguous layout the route gives none of it back. ly_prq2 is faster than ly_micro2 on all eight short cells in both
+rounds (0.5 to 1.7 us per cell, 0.8 to 1.4 pooled) and slower nowhere, and the unchanged long cells stay within -0.65
+/ +0.35. It passes the threshold on 2 of 12 cells in round 1, 3 of 12 in round 2 and 1 of 12 pooled. So the strict
+keep rule (every short cell beyond max(2 x spread, 0.5 us)) is not met on all cells: the shortfall is the threshold
+(two-session control spreads of 0.4 to 1.7 us), not a cell that moved the wrong way. ly_prq (strided partials) is
+superseded, because its route ends 0.6 us later at decode 1 / verify 1 sliding. What is left of the tail after ly_prq2
+at T <= 8 is the router partial's 0.4 us (escape-warp cbar wait and barrier) and the 0.4 us epilogue. The next pieces
+are the loop-end spread at T = 16 / 32 (2.9 to 4.3 us) and the ramp after the wait (0.6 to 1.5 us).

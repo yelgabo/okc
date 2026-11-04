@@ -1,0 +1,208 @@
+== ly_micro2 cell0
+.build/prtl/ktl_ly_micro2/cell0.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.87    9.87   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    8.16    6.90   14.96  -1.82  void (anonymous namespace)::attn_kernel<1, false, 13>((anonymous namespace)::Par
+ 2   10.26    8.21   18.67  -4.62  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   16.30    5.02   21.26  -2.37  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   19.15   17.76   36.88  -2.21  void sk2_kernel_gle36af2e9ed6da<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   33.62    4.43   38.13  -3.17  _sl_tile_route_cg
+ 6   38.18   23.06   61.28   0.06  void okc::moe_fused<false>(okc::Params)
+ 7   59.50    5.39   64.77  -1.82  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   63.71    2.58   66.29  -1.04  _sl_cluster_finish_cg
+span 66.29 us, sum of durations 83.28 us
+== ly_micro2 cell1
+.build/prtl/ktl_ly_micro2/cell1.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.95    9.95   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    7.97   13.28   21.38  -2.00  void (anonymous namespace)::attn_kernel<1, false, 11>((anonymous namespace)::Par
+ 2   10.50   14.62   25.01 -10.93  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   22.59    4.86   27.55  -2.29  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   25.42   18.24   44.35  -2.14  void sk2_kernel_gle36af2e9ed6da<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   40.58    4.77   45.63  -3.49  _sl_tile_route_cg
+ 6   45.73   22.30   68.13   0.10  void okc::moe_fused<false>(okc::Params)
+ 7   66.27    5.26   71.44  -1.89  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   70.42    2.70   73.12  -1.01  _sl_cluster_finish_cg
+span 73.12 us, sum of durations 98.05 us
+== ly_micro2 cell2
+.build/prtl/ktl_ly_micro2/cell2.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.16   10.16   0.00  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    8.42    9.65   18.05  -1.76  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Para
+ 2   10.74   10.98   21.81  -7.25  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, f
+ 3   19.22    4.82   24.05  -2.54  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+ 4   22.32   18.75   41.14  -1.70  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, t
+ 5   38.40    4.50   42.75  -2.78  _sl_tile_route_cg
+ 6   42.86   69.46  112.88   0.13  void okc::moe_fused<false>(okc::Params)
+ 7  113.06   14.11  127.22   0.22  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, f
+ 8  125.38    5.86  130.94  -2.10  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+span 130.94 us, sum of durations 149.26 us
+== ly_micro2 cell3
+.build/prtl/ktl_ly_micro2/cell3.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.43   10.43   0.00  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    9.01   84.32   93.33  -1.42  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Param
+ 2   86.21   10.90   97.26  -7.02  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, f
+ 3   95.12    4.16   99.38  -2.02  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+ 4   98.00   18.29  116.46  -1.38  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, t
+ 5  113.97    3.90  117.98  -2.34  _sl_tile_route_cg
+ 6  118.40   68.78  185.84   0.42  void okc::moe_fused<false>(okc::Params)
+ 7  186.70   14.13  201.54   0.54  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, f
+ 8  199.92    5.60  205.57  -1.86  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+span 205.57 us, sum of durations 219.34 us
+== ly_micro2 cell4
+.build/prtl/ktl_ly_micro2/cell4.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.98   10.98   0.00  void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    9.41   11.49   21.09  -1.49  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Para
+ 2   12.10   13.47   25.74  -8.82  void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, f
+ 3   23.84    4.80   28.59  -1.92  _graft_row_boundary_pre_cg
+ 4   26.40   20.86   47.79  -2.22  void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, __nv_bfloat16, false, t
+ 5   44.38    5.26   49.68  -3.18  _sl_tile_route_cg
+ 6   50.06   78.50  128.03   0.35  void okc::moe_fused<false>(okc::Params)
+ 7  128.54   14.72  143.15   0.58  void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, f
+ 8  141.23    4.83  145.94  -2.05  _graft_row_boundary_pre_cg
+span 145.94 us, sum of durations 164.29 us
+== ly_micro2 cell5
+.build/prtl/ktl_ly_micro2/cell5.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.83   10.83   0.00  void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    9.28  161.58  171.06  -1.60  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Param
+ 2  159.66   15.57  175.78 -10.91  void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, f
+ 3  173.79    4.74  178.45  -2.03  _graft_row_boundary_pre_cg
+ 4  176.40   20.64  197.04  -2.08  void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, __nv_bfloat16, false, t
+ 5  193.73    5.26  198.96  -3.18  _sl_tile_route_cg
+ 6  199.44   80.19  278.99   0.42  void okc::moe_fused<false>(okc::Params)
+ 7  279.57   14.62  294.58   0.56  void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, f
+ 8  292.56    4.90  297.42  -2.08  _graft_row_boundary_pre_cg
+span 297.42 us, sum of durations 317.09 us
+== ly_micro2 cell6
+.build/prtl/ktl_ly_micro2/cell6.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.31    9.31   0.00  void sk2_kernel_narrow_b6b6f0ca26ee<1, 8, 3, 1, 4, 2, 5, true, false, 2, 1, __nv
+ 1    7.76    8.54   16.35  -1.63  void (anonymous namespace)::attn_kernel<8, false, 15>((anonymous namespace)::Par
+ 2   10.08    9.84   20.08  -6.11  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   18.43    4.56   22.90  -1.68  void glue_cluster_boundary<4, 32, false, false, true, true>(GlueArgs)
+ 4   20.94   18.74   39.97  -1.95  void sk2_kernel_gle36af2e9ed6da<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   37.36    4.32   41.60  -2.64  _sl_tile_route_cg
+ 6   42.10   58.10  100.45   0.42  void okc::moe_fused<false>(okc::Params)
+ 7  101.02    4.45  105.50   0.61  void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 8  103.79    3.94  107.28  -1.86  _sl_cluster_finish_cg
+span 107.28 us, sum of durations 121.92 us
+== ly_micro2 cell7
+.build/prtl/ktl_ly_micro2/cell7.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.60    9.60   0.00  void sk2_kernel_narrow_b6b6f0ca26ee<1, 8, 3, 1, 4, 2, 5, true, false, 2, 1, __nv
+ 1    7.70   16.11   23.78  -1.94  void (anonymous namespace)::attn_kernel<8, false, 11>((anonymous namespace)::Par
+ 2   10.94   16.98   27.97 -12.88  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   26.22    4.45   30.66  -1.86  void glue_cluster_boundary<4, 32, false, false, true, true>(GlueArgs)
+ 4   28.77   18.38   47.20  -1.76  void sk2_kernel_gle36af2e9ed6da<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   44.59    4.38   48.85  -2.75  _sl_tile_route_cg
+ 6   49.33   63.74  113.14   0.42  void okc::moe_fused<false>(okc::Params)
+ 7  113.86    4.38  118.42   0.64  void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 8  116.61    3.82  120.48  -1.76  _sl_cluster_finish_cg
+span 120.48 us, sum of durations 141.60 us
+== ly_prq cell0
+.build/prtl/ktl_ly_prq/cell0.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.00   10.00   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    8.21    6.98   15.09  -1.90  void (anonymous namespace)::attn_kernel<1, false, 13>((anonymous namespace)::Par
+ 2   10.42    8.22   18.72  -4.64  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   16.43    4.94   21.50  -2.26  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   19.33   16.91   36.37  -2.16  void sk2_kernel_glecdb766625c83<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   34.00    4.13   38.26  -2.16  _prq_sl_tile_route_cg
+ 6   38.32   23.73   61.97   0.06  void okc::moe_fused<false>(okc::Params)
+ 7   60.14    5.34   65.50  -1.86  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   64.37    2.67   67.02  -1.12  _sl_cluster_finish_cg
+span 67.02 us, sum of durations 82.83 us
+== ly_prq cell1
+.build/prtl/ktl_ly_prq/cell1.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.92    9.92   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    7.90   13.55   21.46  -2.02  void (anonymous namespace)::attn_kernel<1, false, 11>((anonymous namespace)::Par
+ 2   10.43   14.56   25.10 -11.01  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   22.70    4.94   27.73  -2.30  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   25.54   16.78   42.34  -2.21  void sk2_kernel_glecdb766625c83<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   40.16    4.27   44.27  -2.43  _prq_sl_tile_route_cg
+ 6   44.37   22.21   67.20   0.10  void okc::moe_fused<false>(okc::Params)
+ 7   65.42    5.17   70.50  -1.82  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   69.52    2.64   72.14  -0.99  _sl_cluster_finish_cg
+span 72.14 us, sum of durations 95.14 us
+== ly_prq cell2
+.build/prtl/ktl_ly_prq/cell2.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.18   10.18   0.00  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    8.35    9.55   17.98  -1.81  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Para
+ 2   10.74   10.93   21.81  -7.20  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, f
+ 3   19.15    4.86   24.06  -2.54  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+ 4   22.35   17.68   40.03  -1.74  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, t
+ 5   38.32    3.36   41.68  -1.70  _prq_sl_tile_route_cg
+ 6   41.81   70.26  112.08   0.13  void okc::moe_fused<false>(okc::Params)
+ 7  112.30   14.14  126.62   0.22  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, f
+ 8  124.62    5.74  130.56  -1.89  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+span 130.56 us, sum of durations 146.94 us
+== ly_prq cell3
+.build/prtl/ktl_ly_prq/cell3.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.29   10.29   0.00  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    8.86   84.80   93.86  -1.58  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Param
+ 2   86.53   11.14   97.74  -7.28  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, f
+ 3   95.74    4.08   99.89  -1.94  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+ 4   98.56   17.44  115.95  -1.38  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, t
+ 5  114.50    3.02  117.62  -1.38  _prq_sl_tile_route_cg
+ 6  118.03   69.55  186.93   0.42  void okc::moe_fused<false>(okc::Params)
+ 7  187.57   14.34  201.79   0.54  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, f
+ 8  200.69    4.96  205.36  -1.28  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+span 205.36 us, sum of durations 219.15 us
+== ly_prq cell4
+.build/prtl/ktl_ly_prq/cell4.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.82   10.82   0.00  void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    9.33   11.38   20.67  -1.55  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Para
+ 2   12.13   13.23   25.23  -8.58  void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, f
+ 3   23.39    4.74   28.11  -1.89  _graft_row_boundary_pre_cg
+ 4   25.92   19.42   45.81  -2.21  void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, __nv_bfloat16, false, t
+ 5   43.81    3.94   47.70  -2.10  _prq_sl_tile_route_cg
+ 6   48.05   77.22  125.06   0.35  void okc::moe_fused<false>(okc::Params)
+ 7  125.70   14.69  140.16   0.61  void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, f
+ 8  138.13    4.98  142.96  -2.13  _graft_row_boundary_pre_cg
+span 142.96 us, sum of durations 160.14 us
+== ly_prq cell5
+.build/prtl/ktl_ly_prq/cell5.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.70   10.70   0.00  void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    9.22  161.20  170.82  -1.46  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Param
+ 2  159.84   15.28  175.47 -10.61  void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, f
+ 3  173.82    4.38  178.22  -1.65  _graft_row_boundary_pre_cg
+ 4  176.16   19.38  195.89  -2.05  void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, __nv_bfloat16, false, t
+ 5  193.76    3.92  197.78  -2.13  _prq_sl_tile_route_cg
+ 6  198.19   79.63  277.87   0.42  void okc::moe_fused<false>(okc::Params)
+ 7  278.43   14.53  292.88   0.58  void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, f
+ 8  290.88    4.88  295.70  -2.06  _graft_row_boundary_pre_cg
+span 295.70 us, sum of durations 315.39 us
+== ly_prq cell6
+.build/prtl/ktl_ly_prq/cell6.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.41    9.41   0.00  void sk2_kernel_narrow_07759e3670f1<1, 8, 3, 1, 4, 2, 5, true, false, 2, 1, __nv
+ 1    7.84    8.38   16.11  -1.54  void (anonymous namespace)::attn_kernel<8, false, 15>((anonymous namespace)::Par
+ 2   10.18    9.81   19.92  -5.98  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   18.18    4.37   22.51  -1.79  void glue_cluster_boundary<4, 32, false, false, true, true>(GlueArgs)
+ 4   20.77   17.46   38.37  -1.73  void sk2_kernel_glecdb766625c83<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   36.64    3.54   40.58  -1.71  _prq_sl_tile_route_cg
+ 6   41.07   58.51  100.02   0.42  void okc::moe_fused<false>(okc::Params)
+ 7  100.61    4.34  104.96   0.61  void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 8  103.30    3.78  106.88  -1.71  _sl_cluster_finish_cg
+span 106.88 us, sum of durations 120.13 us
+== ly_prq cell7
+.build/prtl/ktl_ly_prq/cell7.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.73    9.73   0.00  void sk2_kernel_narrow_07759e3670f1<1, 8, 3, 1, 4, 2, 5, true, false, 2, 1, __nv
+ 1    7.66   16.21   23.95  -2.06  void (anonymous namespace)::attn_kernel<8, false, 11>((anonymous namespace)::Par
+ 2   10.70   17.28   28.00 -13.06  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   26.11    4.53   30.61  -1.90  void glue_cluster_boundary<4, 32, false, false, true, true>(GlueArgs)
+ 4   28.80   17.39   46.18  -1.82  void sk2_kernel_glecdb766625c83<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   44.67    3.33   47.92  -1.55  _prq_sl_tile_route_cg
+ 6   48.38   64.27  112.80   0.42  void okc::moe_fused<false>(okc::Params)
+ 7  113.44    4.40  117.81   0.64  void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 8  115.97    3.90  119.90  -1.84  _sl_cluster_finish_cg
+span 119.90 us, sum of durations 141.06 us
