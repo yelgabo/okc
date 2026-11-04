@@ -1,0 +1,293 @@
+{
+  "observed_at": "2026-11-04T04:53:45.145911+00:00",
+  "source_commit": "3ec0376f",
+  "boards": {
+    "muse_decode_layer": {
+      "you": {
+        "rank": 368,
+        "team": "yelgabo",
+        "speedup": 2.1891,
+        "first": false,
+        "ahead": 367,
+        "to_first": 1.1523
+      },
+      "own_rows": [
+        {
+          "attempts": 62,
+          "job": "117605d07c944666",
+          "rank": 368,
+          "speedup": 2.1891,
+          "submitted_at": 1793764700.9507668,
+          "team": "yelgabo",
+          "value": 10333.381525094357
+        }
+      ]
+    },
+    "muse_moe_w4a16": {
+      "you": {
+        "rank": 306,
+        "team": "yelgabo",
+        "speedup": 2.3685,
+        "first": false,
+        "ahead": 305,
+        "to_first": 1.1671
+      },
+      "own_rows": [
+        {
+          "attempts": 37,
+          "job": "6452b9de35f24196",
+          "rank": 306,
+          "speedup": 2.3685,
+          "submitted_at": 1793763854.2786214,
+          "team": "yelgabo",
+          "value": 5678.050435147726
+        }
+      ]
+    },
+    "muse_bf16_proj": {
+      "you": {
+        "rank": 260,
+        "team": "yelgabo",
+        "speedup": 1.5321,
+        "first": false,
+        "ahead": 259,
+        "to_first": 1.1057
+      },
+      "own_rows": [
+        {
+          "attempts": 48,
+          "job": "473949f0173d4f7f",
+          "rank": 260,
+          "speedup": 1.5321,
+          "submitted_at": 1793756390.4544113,
+          "team": "yelgabo",
+          "value": 3153.1499950791595
+        }
+      ]
+    },
+    "muse_attention_decode": {
+      "you": {
+        "rank": 302,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 301,
+        "to_first": 1.2821
+      },
+      "own_rows": [
+        {
+          "attempts": 39,
+          "job": "8914751e3b9f468b",
+          "rank": 302,
+          "speedup": 2.6043,
+          "submitted_at": 1793510570.8706555,
+          "team": "yelgabo",
+          "value": 1446.1905945986007
+        }
+      ]
+    },
+    "muse_prefill_layer": {
+      "you": {
+        "rank": 665,
+        "team": "yelgabo",
+        "speedup": 1.2166,
+        "first": false,
+        "ahead": 664,
+        "to_first": 1.7059
+      },
+      "own_rows": [
+        {
+          "attempts": 3,
+          "job": "1530ec79d50a4f69",
+          "rank": 665,
+          "speedup": 1.2166,
+          "submitted_at": 1793513800.5948975,
+          "team": "yelgabo",
+          "value": 318441.9905489318
+        }
+      ]
+    }
+  },
+  "overall": {
+    "rank": 368,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 367
+  },
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 8,
+            "left": 12
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 7,
+            "left": 13
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 7,
+            "left": 13
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 10,
+            "left": 10
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 3,
+            "left": 37
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      }
+    ]
+  },
+  "micro2_public_shared_receipt": {
+    "flags": [],
+    "job_id": "7ed7424d248f4589",
+    "mode": "run",
+    "passed": true,
+    "problem": "muse_decode_layer",
+    "result_status": "ok",
+    "score": null,
+    "score_us": 10345.242793385434,
+    "status": "done",
+    "submitted_at": 1793765213.8543487
+  },
+  "live_jobs": [
+    {
+      "flags": [],
+      "job_id": "3322d057383e4202",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_decode_layer",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793767344.9839926
+    },
+    {
+      "flags": [],
+      "job_id": "6369c1153fe44be8",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_bf16_proj",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793766524.6877122
+    },
+    {
+      "flags": [],
+      "job_id": "e0f05d5c2d1b4b92",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_moe_w4a16",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "running",
+      "submitted_at": 1793766041.7935283
+    },
+    {
+      "flags": [],
+      "job_id": "3b4b87dbe1664e3c",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_attention_decode",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "running",
+      "submitted_at": 1793765979.0742235
+    }
+  ],
+  "audit": {
+    "numerical_leads": 15,
+    "missing_dispositions": [],
+    "check_exit_code": 0,
+    "scope": "Saved JSON, including archives and ignored files. CLI exports included only for clean matching jobs in the explicitly supplied 50-job index; unlisted exports excluded. This is not full historical CLI coverage. Explicit disqualifications in the supplied own-jobs index override archived passing receipts. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+    "cli_export_coverage": {
+      "own_jobs_index": ".build\\driver-monitor-0445-closing\\own-jobs.json",
+      "indexed_jobs": 50,
+      "exports_seen": 503,
+      "bound_clean_exports": 18,
+      "excluded_no_index": 0,
+      "excluded_unlisted": 484,
+      "excluded_unclean_job": 1,
+      "distinct_bound_jobs": 17
+    },
+    "disqualification_coverage": {
+      "indexed_disqualified_jobs": 2,
+      "excluded_files": 1,
+      "distinct_excluded_jobs": 1,
+      "exclusions": [
+        {
+          "job": "9d80ae2494334136",
+          "problem": "muse_decode_layer",
+          "basis": "explicit own-jobs index",
+          "reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+          "path": "muse_decode_layer\\cand\\profiles\\g1b4_rs.9d80ae2494334136.json"
+        }
+      ]
+    }
+  }
+}

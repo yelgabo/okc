@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-11-04T04:45:34.376812+00:00",
+  "page": "https://openkernelchallenge.dev/",
+  "assets": [
+    {
+      "url": "https://openkernelchallenge.dev/theme-init.js",
+      "sha256": "64d9f7767b081d8e388e4ae17f6a677a0b7d1b3bd47e88ed897534095f566dd7",
+      "deadline_matches": []
+    },
+    {
+      "url": "https://openkernelchallenge.dev/assets/index-Gf_n0dGq.js",
+      "sha256": "be69a2fc31bcefae834dbce57dc65ac9edfd98f48e1d19e710fa493e093069ff",
+      "deadline_matches": [
+        "se_moe_w4a16`,`muse_attention_decode`,`muse_decode_layer`],schedule:{launch:`2026-10-22T11:00:00-07:00`,kernels_closes:`2026-11-05T00:00:00-08:00`,serving_opens:`2026-11-10T09:00:00-08:00`,serving_closes:`2026-11-20T00:00:00-08:00`},problems:[{name:`muse_bf16_proj`,gpu:`H200`,tests:[{m:1,layer:`qkv_gate`,seed",
+        "nt),e.note&&(0,b.jsxs)(`span`,{className:`ladder__note`,children:[` `,e.note]})]})]},e.place))})})}var j=k.schedule,Fn=`America/Los_Angeles`,In=e=>new Date(e.length===10?`${e}T12:00:00-08:00`:e),Ln=e=>e.toLocaleDateString(`en-US`,{timeZone:Fn,month:`short`,day:`numeric`}),Rn=e=>e.toLocaleTimeString(`en-US`,{timeZone:F",
+        "others and ask questions to maintainers: [invite link](https://t.co/0XXSWJ7w7Q).`}],Zi=`America/Los_Angeles`;function Qi(e){let t=new Date(e),n=t.toLocaleDateString(`en-US`,{timeZone:Zi,month:`short`,day:`numeric`}),[r,i]=t.toLocaleTimeString(`en-US`,{timeZone:Zi,hour:`numeric`,minute:`"
+      ]
+    }
+  ]
+}
