@@ -1,0 +1,55 @@
+{
+  "observed_at": "2026-11-03T23:44:08.023326+00:00",
+  "public": {
+    "muse_moe_w4a16": {
+      "job": "2821fdb184d740b1",
+      "score_us": 5737.988910262929,
+      "rank": 355,
+      "speedup": 2.3438,
+      "snapshot": ".build\\driver-monitor-2343\\public-snapshots\\muse_moe_w4a16.leaderboard.json"
+    },
+    "muse_bf16_proj": {
+      "job": "9eba96894ee1402e",
+      "score_us": 3161.918773020326,
+      "rank": 256,
+      "speedup": 1.5278,
+      "snapshot": ".build\\driver-monitor-2343\\public-snapshots\\muse_bf16_proj.leaderboard.json"
+    },
+    "muse_attention_decode": {
+      "job": "8914751e3b9f468b",
+      "score_us": 1446.1905945986007,
+      "rank": 288,
+      "speedup": 2.6043,
+      "snapshot": ".build\\driver-monitor-2343\\public-snapshots\\muse_attention_decode.leaderboard.json"
+    },
+    "muse_decode_layer": {
+      "job": "9d80ae2494334136",
+      "score_us": 10343.105996394634,
+      "rank": 359,
+      "speedup": 2.187,
+      "snapshot": ".build\\driver-monitor-2343\\public-snapshots\\muse_decode_layer.leaderboard.json"
+    },
+    "muse_prefill_layer": {
+      "job": "1530ec79d50a4f69",
+      "score_us": 318441.9905489318,
+      "rank": 658,
+      "speedup": 1.2166,
+      "snapshot": ".build\\driver-monitor-2343\\public-snapshots\\muse_prefill_layer.leaderboard.json"
+    }
+  },
+  "lower_private_leads": 17,
+  "promotion_gaps": [],
+  "cli_export_coverage": {
+    "own_jobs_index": ".build\\driver-monitor-2343\\own-jobs.json",
+    "indexed_jobs": 50,
+    "exports_seen": 498,
+    "bound_clean_exports": 29,
+    "excluded_no_index": 0,
+    "excluded_unlisted": 469,
+    "excluded_unclean_job": 0,
+    "distinct_bound_jobs": 28
+  },
+  "scope": "Saved JSON, including archives and ignored files. CLI exports included only for clean matching jobs in the explicitly supplied 50-job index; unlisted exports excluded. This is not full historical CLI coverage. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+  "exit_code": 0,
+  "command": "python tools/release_audit.py --snapshots .build/driver-monitor-2343/public-snapshots --own-jobs .build/driver-monitor-2343/own-jobs.json --out .build/driver-monitor-2343/release-audit.json --ledger docs/releases/promotion-queue.json --check"
+}
