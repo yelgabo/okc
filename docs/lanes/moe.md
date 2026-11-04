@@ -1,6 +1,6 @@
 # moe lane checkpoint (round 4, decode 16 / 32 MoE prologue)
 
-Updated 2026-11-04 12:40 PT. Branch `worktree-agent-a8c676644bda35cae`. Run log section: docs/runs-decode-layer.md
+Updated 2026-11-04 12:55 PT. Round closed: no candidate. Branch `worktree-agent-a8c676644bda35cae`. Run log section: docs/runs-decode-layer.md
 "2026-11-04 - Decode 16 / 32 MoE prologue (box)".
 
 ## Base
@@ -31,10 +31,10 @@ muse_decode_layer/cand/ly_stk2.py, SHA256 4bbf4010f412b9afe8595b1a5ede517fb8aa6e
   +0.19 (5/24), full +0.45 (5/24); everything inside. NULL. Stamps: route end 3.45 -> 2.84, but the FAST1 warp's
   TMA issue 1.81 -> 2.59 (it now runs beside route()) and the x load 0.80 -> 1.79, first slot full 4.64 -> 5.04.
 - ly_m4rw.py f66973f1aba39ae4b144fc6f56528ad2f3661dd9c6c5c750d6474fd95f25a6f8 (B4, -DOKC_RWARM=1: wgs_ranges dry run
-  before routing). A/B running at the time of this checkpoint (.build/moe4/rw_run.log, .build/prtl/m4_rw*).
+  before routing). Gate pass, chk PASS 12/12. A/B: decode 32 sliding +0.22 (6/24), full -0.57 (23/24), all inside.
+  NULL. Stamps: real call 2.54 -> 1.28 us, but the dry run ends at 3.21 (after route end 2.46); WS_JOIN 5.25 -> 4.96.
 
 ## Next action
 
-Read the ly_m4rw table (`python3 tools/ly_prtl_table.py .build/prtl/m4_rw .build/prtl/m4_rw_r2` on the box) and its
-stamps (.build/moe4/pro_rw.log). Unbuilt follow-up for MID: ly_m16r's hoisted FAST1 loads together with rb7, so the
-weights copies go out before warps 0..6 start routing (rb7 alone delayed them by 0.8 us).
+None registered. Unbuilt follow-ups (each needs a new lane decision): MID rb7 together with ly_m16r's hoisted FAST1
+loads, so the weight copies go out before warps 0..6 start routing; B4 dry run that finishes before route() ends.

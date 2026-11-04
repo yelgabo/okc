@@ -7312,3 +7312,91 @@ the cut shares (+2.15 us each in phase A, moved but not removed by RFIN), the MF
 and the 4.3 us ramp. Open items: the cause of the 2.65 us MID prologue (TLB or instruction fetch, measurable with a
 cold-versus-warm microbenchmark of route() alone), and a B4 cost split that charges both shares of a cut unit (the
 regression's +2.15 us), which needs range boundaries every CTA can compute without its neighbours' adjustments.
+
+## 2026-11-04 - Decode 16 / 32 MoE prologue (box)
+
+MoE lane, round 4 (11:57 PT start). Question: what does each microsecond of the MID prologue (decode 16) and the B4
+prologue (decode 32) wait on, and does one change take at least 0.8 us at decode 16 or 32 sliding? Base:
+muse_decode_layer/cand/ly_stk2.py (SHA256 4bbf4010f412b9afe8595b1a5ede517fb8aa6e31af6efdc1e55dd34a3a335846), never
+edited. Box only, every GPU process under gpu.lock, no judge job, no routing slack. Evidence:
+`muse_decode_layer/profiles/box/moe4/` (box `.build/moe4/`, A/B runs `.build/prtl/m4_*`).
+
+### Instrument
+
+`tools/ly_moe_pro16.py` (MID) and `tools/ly_moe_prob4.py` (B4) extend the round 3 stamps to 128 slots per CTA; the
+new stamps read clock64 (the box's globaltimer advances in 256 ns steps) and are converted per CTA with its own
+clock64 / globaltimer rate (1.81 GHz). A clock read placed after `bar.sync` was hoisted above it (a helper stamp after
+WS_JOIN read 0.45 us while the barrier could not release before 3.4), so every post-barrier stamp first does a volatile
+shared load. Stamps after a load branch on the loaded value. Runner `tools/ly_box_moe_pro.py` (20 fresh inputs, cold L2,
+the layer graph; `--warm` adds a replay without the flush). The instrument adds about 0.6 us to route() against the
+round 3 stamps, so read the parts as relative sizes. Values: us after each CTA's own entry, CTA mean, median over 20
+inputs, decode 16 / 32 sliding (full within 0.1).
+
+### MID prologue (`pro_mid2.log`, `pro_midr2.log`, `pro_mid1p.log`)
+
+| part | ends at | length | what it waits on |
+|---|---:|---:|---|
+| x L2 prefetch issue, lut (thread 0) | 0.25 | 0.25 | issue only |
+| launch generation load (p.ctr[3]) | 0.64 | 0.39 | one global round trip (0.55 in the unflushed replay) |
+| route() start, its topk load back | 0.83 | 0.19 | L2 hit (the route kernel's output) |
+| barrier 1 | 2.09 | 1.26 | the FAST1 warp: four dependent topk loads (back at 0.47 / 0.70 / 0.89 / 1.08), job scan 0.45, barrier inits 0.09, two TMA issues 0.19, x prefetch and lut 0.13 |
+| count loop, barrier 2 | 2.38 | 0.29 | shared atomics |
+| warp 0 job scan, barrier 3 | 3.11 | 0.73 | warp 0 alone: three shuffle scans and the job table |
+| position loop, barrier 4 (route end) | 3.45 | 0.34 | shared stores |
+| ss zeroing, unit ranges, WS_JOIN | 3.69 | 0.24 | |
+| skinny_ring_ws setup to the first x load issue | 4.10 | 0.41 | |
+| first job's x rows back (64 KB per CTA, L2) | 4.90 | 0.80 | per-SM L2 bandwidth (first slot full at 4.64: weights are not the gate) |
+| helper: third ring unit issued | 5.12 | 1.36 after WS_JOIN | |
+
+Tests: the unflushed replay gives the same shape (route end 3.66 at a lower clock, x back 5.52), so cold DRAM data,
+code evicted from L2 and TLB refills are not the cost. A second route() call right after the first (`--r2`) takes
+1.57 us (topk 0.14, barrier 1 0.07, count 0.21, barrier 2 0.08, scan 0.63, barrier 3 0.08, positions 0.26, barrier 4
+0.07), the same as the first call's body, so route() is not waiting on instruction fetch. Probe (helper warp, before
+WS_JOIN, a phase B weight page nothing else touches): first touch 414 ns, a new line 64 KB away in the same 2 MiB 400 ns.
+
+### B4 prologue (`pro_b42.log`, `pro_b4r2.log`)
+
+| part | ends at | length | what it waits on |
+|---|---:|---:|---|
+| lut, barrier inits (thread 0) | 0.35 | 0.35 | |
+| launch generation atomic | 0.67 | 0.32 | one global atomic round trip |
+| route() (topk loads back 1.14, scan 0.39) | 2.41 | 1.56 | its own body (1.52 when repeated) |
+| parity zeroing, jrow scan and barrier | 2.95 | 0.54 | |
+| gather: x row loads and stores, proxy fence, barrier | 4.11 | 1.16 | x rows from L2 (0.98) |
+| xready releases (thread 0) | 4.56 | 0.45 | |
+| x producer wgs_ranges, from barrier 7 (2.53) | 5.07 | 2.54 | an immediate second call takes 0.90 |
+| WS_JOIN, first weight issue | 5.2 to 5.4 | | gated by wgs_ranges, not by the gather |
+
+Round 3's "WS_JOIN 3.43, first weight issue 4.32" came from a hoisted stamp; the weights producer cannot leave
+WS_JOIN before the x producer finishes wgs_ranges.
+
+### Candidates (one change each, against ly_stk2)
+
+ly_m4rb, MID only (`tools/dl_ly_m4_patch.py rb7`, `muse_decode_layer/cand/ly_m4rb.py`, SHA256
+b12e1b47688ed569d2e8202326f475f54166788495e59debbf4b2de378b740a8, `-DOKC_RB7=1` on MOE_MID_DEFINES): at E = 8 M <= 224
+the FAST1 warp holds no routing entry, so route()'s first three CTA barriers become named barrier 3 over warps 0..6,
+warp 0 zeroes the FAST1 warp's count row, and the FAST1 warp joins only route()'s last CTA barrier (bar 1, all 256
+threads), which orders every routing table before any use as before. Gate: five PDL8H guards pass; chk PASS 12/12,
+G_RELEASE_STARTUP_OK. Pooled A/B, two rounds (`table_rb_both_rounds.txt`): decode 16 sliding +0.19 us (5/24 pairs
+faster), full +0.45 (5/24), decode 32 +0.03 / -0.26, every cell inside. Stamps (`pro_rb.log`): route end 3.45 ->
+2.84, but the FAST1 warp, now running beside routing instead of alone, issues its two TMA copies at 2.59 instead of
+1.81 (its barrier-init step 0.09 -> 0.79), the x load takes 1.79 instead of 0.80 as the weight copies land at the same
+time, and the first slot fills at 5.04 instead of 4.64. Null.
+
+ly_m4rw, B4 only (`tools/dl_ly_m4_patch.py rwarm`, `muse_decode_layer/cand/ly_m4rw.py`, SHA256
+f66973f1aba39ae4b144fc6f56528ad2f3661dd9c6c5c750d6474fd95f25a6f8, `-DOKC_RWARM=1` on the b4 defines): the x producer
+runs wgs_ranges once on a fixed two-job table (no routing table read; its shared writes are rewritten by the real call
+before WS_JOIN) before it waits on barrier 7. MAIN compiles the unchanged text. Gate: five guards pass; chk PASS 12/12,
+startup OK. Pooled A/B (`table_rw_both_rounds.txt`): decode 32 sliding +0.22 us (6/24), full -0.57 (23/24, inside the
+2.94 threshold), decode 16 -0.14 / -0.32, every cell inside. Stamps (`pro_rw.log`): the real call takes 1.28 us
+(2.54 before) but the dry run itself ends at 3.21, so ranges finish at 4.49 instead of 5.07 and the weights producer
+leaves WS_JOIN at 4.96 instead of about 5.25. Null.
+
+### Decision
+
+No candidate for a judge check and no ledger registration. What the prologue waits on at both loads: route()'s own
+body (1.5 us, warm or cold), MID's barrier 1 on the FAST1 warp's serial topk loads (1.26), the first job's x rows over
+the SM's L2 bandwidth (0.8 to 1.0), and at B4 a 2.5 us cold first wgs_ranges. Moving one of these alone shifts the
+wait onto the next: in ly_m4rb onto the FAST1 copies and the x load sharing the SM's input path, in ly_m4rw onto the
+dry run. Not built: ly_m16r's hoisted FAST1 loads together with rb7 (copies out before routing starts), and the B4
+dry run placed so it ends before route() does.
