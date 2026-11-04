@@ -23,7 +23,8 @@ import sys
 import threading
 import time
 
-_T0 = time.monotonic()
+REAL_TIME, REAL_MONO = time.time, time.monotonic
+_T0 = REAL_MONO()
 import torch
 
 PH = {}
@@ -32,7 +33,7 @@ _LAST = [_T0]
 
 
 def phase(name):
-    now = time.monotonic()
+    now = REAL_MONO()
     PH[name] = PH.get(name, 0.0) + now - _LAST[0]
     _LAST[0] = now
 
@@ -194,7 +195,7 @@ class GpuLock:
         self.events = []
 
     def _log(self, what, why, waited=None):
-        t = time.time()
+        t = REAL_TIME()
         self.events.append([round(t, 3), what, why] + ([round(waited, 3)] if waited is not None else []))
         extra = f" after {waited:.1f} s" if waited is not None else ""
         print(f"BXLOCK {t:.3f} {what} {why}{extra}", flush=True)
@@ -202,10 +203,13 @@ class GpuLock:
     def acquire(self, why):
         if self.held:
             return
-        t0 = time.time()
+        t0 = REAL_TIME()
         self.fcntl.flock(self.fd, self.fcntl.LOCK_EX)
         self.held = True
-        self._log("acquire", why, time.time() - t0)
+        waited = REAL_TIME() - t0
+        self._log("acquire", why, waited)
+        if why != "start":
+            BudgetClock.add(waited)
 
     def release(self, why):
         if not self.held:
@@ -215,6 +219,32 @@ class GpuLock:
         self.fcntl.flock(self.fd, self.fcntl.LOCK_UN)
         self.held = False
         self._log("release", why)
+
+
+class BudgetClock:
+    """time.monotonic and time.time as the submission sees them, minus the seconds this process
+    spent waiting to get gpu.lock back after a build. The layer files bound prepare with
+    deadline = time.monotonic() + 295 (G startup self-test) and PDL8D_BUDGET_S from time.time();
+    on the judge nothing waits there, so a queue wait must not spend that budget (mo lane:
+    mo_midskt16 and mo_tiny2wsblk2 aborted after a 342.9 s wait). Readings never go backwards."""
+    offset = 0.0
+    last = {}
+
+    @classmethod
+    def add(cls, seconds):
+        cls.offset += seconds
+        print(f"BXCLOCK submission clocks now {cls.offset:.1f} s behind real (lock waits after builds)", flush=True)
+
+    @classmethod
+    def install(cls):
+        def clock(name, real):
+            def read():
+                v = max(real() - cls.offset, cls.last.get(name, float("-inf")))
+                cls.last[name] = v
+                return v
+            return read
+        time.monotonic = clock("monotonic", REAL_MONO)
+        time.time = clock("time", REAL_TIME)
 
 
 LOCK = None
@@ -232,11 +262,11 @@ def unlocked(why, fn, *args, **kw):
         _ACTIVE[0] += 1
         if _ACTIVE[0] == 1 and LOCK.held:
             LOCK.release(why)
-    print(f"BXBUILD {time.time():.3f} start {why}", flush=True)
+    print(f"BXBUILD {REAL_TIME():.3f} start {why}", flush=True)
     try:
         return fn(*args, **kw)
     finally:
-        print(f"BXBUILD {time.time():.3f} end {why}", flush=True)
+        print(f"BXBUILD {REAL_TIME():.3f} end {why}", flush=True)
         with _BUILDS:
             _ACTIVE[0] -= 1
             if _ACTIVE[0] == 0 and not LOCK.held:
@@ -434,6 +464,8 @@ def main():
     ap.add_argument("--lock", default="",
                     help="take this flock file in-process (e.g. /root/okc/.build/box/gpu.lock) and let it go while an "
                          "extension or Triton kernel compiles; implies --ext-cache /root/.cache/bx_ext; do not also wrap in flock(1)")
+    ap.add_argument("--no-budget-offset", action="store_true",
+                    help="with --lock: let lock waits count against the file's own prepare budget clocks")
     ap.add_argument("--ext-cache", default="",
                     help="content-addressed load_inline build root, e.g. /root/.cache/bx_ext")
     ap.add_argument("--pin-pdl8", default=None,
@@ -451,6 +483,8 @@ def main():
             ap.error(f"--lock {a.lock}: a parent flock(1) already holds it; drop the outer flock or --lock")
         a.ext_cache = a.ext_cache or "/root/.cache/bx_ext"
         release_lock_for_triton()
+        if not a.no_budget_offset:
+            BudgetClock.install()
         LOCK = GpuLock(a.lock)
         LOCK.acquire("start")
     if a.ext_cache:
@@ -483,10 +517,10 @@ def main():
         weights = ref.generate_weights(ref.WEIGHTS_SEED, router_seed=a.router_seed)
         router_used = a.router_seed
     elif targets and hasattr(ref, "_mean_busiest_load"):
-        t0 = time.monotonic()
+        t0 = REAL_MONO()
         err, rs, got = distinct_router_seed(ref, weights, cases, targets, ref.WEIGHTS_SEED, a.router_attempts)
         print(f"BOX router_distinct targets {targets}; router_seed {rs} gives {got} (max err {err:.3f},"
-              f" {time.monotonic() - t0:.0f} s)", flush=True)
+              f" {REAL_MONO() - t0:.0f} s)", flush=True)
         weights = ref.generate_weights(ref.WEIGHTS_SEED, router_seed=rs)
         router_used = rs
     torch.cuda.synchronize()
@@ -497,7 +531,7 @@ def main():
         sides.append(("baseline", os.path.join(pdir, "baseline.py")))
     impl = {}
     for side, path in sides:
-        t0 = time.monotonic()
+        t0 = REAL_MONO()
         mod = load_module(f"okc_{side}", path)
         if a.skip_pdl8_gate and hasattr(mod, "_pdl8_setup"):
             mod._pdl8_setup = lambda st: print("BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)", flush=True)
@@ -513,7 +547,7 @@ def main():
         torch.cuda.synchronize()
         impl[side] = (mod.kernel_fn, state)
         phase(f"prepare_{side}")
-        print(f"BOX {side} import+prepare {time.monotonic() - t0:.1f} s", flush=True)
+        print(f"BOX {side} import+prepare {REAL_MONO() - t0:.1f} s", flush=True)
 
     lsc = (LocalStartCache(a.ls_cache, os.path.join(pdir, "reference.py"), router_used, getattr(ref, "WEIGHTS_SEED", None))
            if a.ls_cache and hasattr(ref, "case_fields") and weights is not None else None)
@@ -635,7 +669,7 @@ def main():
     phase("json_write")
     if lsc is not None:
         print(f"BX local_start cache {a.ls_cache}: {lsc.hits} hits, {lsc.misses} computed", flush=True)
-    print("BXPHASE " + " ".join(f"{k}={v:.2f}" for k, v in PH.items()) + f" total={time.monotonic() - _T0:.2f}", flush=True)
+    print("BXPHASE " + " ".join(f"{k}={v:.2f}" for k, v in PH.items()) + f" total={REAL_MONO() - _T0:.2f}", flush=True)
 
 
 if __name__ == "__main__":
