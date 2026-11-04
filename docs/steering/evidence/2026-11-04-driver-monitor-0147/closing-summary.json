@@ -1,0 +1,243 @@
+{
+  "observed_at": "2026-11-04T01:59:19.584692+00:00",
+  "source_commit": "a46d6a51",
+  "public_layer": {
+    "attempts": 55,
+    "job": "f931abf568544018",
+    "rank": 365,
+    "speedup": 2.1804,
+    "submitted_at": 1793726515.533823,
+    "team": "yelgabo",
+    "value": 10374.616018194523
+  },
+  "overall": {
+    "rank": 365,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 364
+  },
+  "layer100": {
+    "attempts": 25,
+    "job": "7e3a336db2cc43ca",
+    "rank": 100,
+    "speedup": 2.2839,
+    "submitted_at": 1793530777.8593636,
+    "team": "zientesit",
+    "value": 9904.19643356369
+  },
+  "required_elapsed_reduction_pct": 4.534332488121329,
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 4,
+            "left": 16
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 3,
+            "left": 17
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 3,
+            "left": 17
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 4,
+            "left": 16
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 2,
+            "left": 38
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      }
+    ]
+  },
+  "live_jobs": [
+    {
+      "flags": [],
+      "job_id": "03e45b68e75d47fa",
+      "mode": "check",
+      "passed": null,
+      "problem": "muse_decode_layer",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793757246.6387122
+    },
+    {
+      "flags": [],
+      "job_id": "afbd088807fd4064",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_decode_layer",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793756501.9089289
+    },
+    {
+      "flags": [],
+      "job_id": "473949f0173d4f7f",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_bf16_proj",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793756390.4544113
+    },
+    {
+      "flags": [],
+      "job_id": "e095123329d84e30",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_decode_layer",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793755967.6263804
+    },
+    {
+      "flags": [],
+      "job_id": "fa3554394b624e0a",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_moe_w4a16",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793755175.9556127
+    },
+    {
+      "flags": [],
+      "job_id": "8c2a0710b1414a1c",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_attention_decode",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "running",
+      "submitted_at": 1793754809.8664482
+    }
+  ],
+  "combo2_terminal": {
+    "flags": [],
+    "job_id": "a88203c2400e4d56",
+    "mode": "check",
+    "passed": true,
+    "problem": "muse_decode_layer",
+    "result_status": "ok",
+    "score": null,
+    "score_us": 10288.685814772705,
+    "status": "done",
+    "submitted_at": 1793754467.1547854
+  },
+  "clean_rebuild_sources": {
+    "pdl8hn": "df5cded96b8dc18ab98e022c8a6fde9c4ea18d0d7f85a81a9adcce2b63959968",
+    "combo2n": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27"
+  },
+  "registered_keep": {
+    "valid_tests": 13,
+    "score_us_lt": 10332,
+    "all_T_on": true,
+    "guard_and_CG_GATE_clean": true,
+    "cell_max_relative_to_f931": 1.03
+  },
+  "source_bound_accepted_id": null,
+  "new_unbound_check_id": "03e45b68e75d47fa",
+  "audit": {
+    "numerical_leads": 18,
+    "promotion_gaps": [],
+    "cli_export_coverage": {
+      "own_jobs_index": ".build\\driver-monitor-0147\\closing\\own-jobs.json",
+      "indexed_jobs": 50,
+      "exports_seen": 500,
+      "bound_clean_exports": 26,
+      "excluded_no_index": 0,
+      "excluded_unlisted": 473,
+      "excluded_unclean_job": 1,
+      "distinct_bound_jobs": 25
+    },
+    "disqualification_coverage": {
+      "indexed_disqualified_jobs": 2,
+      "excluded_files": 1,
+      "distinct_excluded_jobs": 1,
+      "exclusions": [
+        {
+          "job": "9d80ae2494334136",
+          "problem": "muse_decode_layer",
+          "basis": "explicit own-jobs index",
+          "reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+          "path": "muse_decode_layer\\cand\\profiles\\g1b4_rs.9d80ae2494334136.json"
+        }
+      ]
+    },
+    "scope": "Saved JSON, including archives and ignored files. CLI exports included only for clean matching jobs in the explicitly supplied 50-job index; unlisted exports excluded. This is not full historical CLI coverage. Explicit disqualifications in the supplied own-jobs index override archived passing receipts. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+    "exit_code": 0
+  },
+  "limitations": "Check ID source binding is not inferred from timestamp; no individual status poll or duplicate POST."
+}

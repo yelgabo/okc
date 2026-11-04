@@ -692,6 +692,21 @@
       "organizer_disqualified": true,
       "organizer_disqualification_reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
       "eligible_for_release": false
+    },
+    {
+      "job": "a88203c2400e4d56",
+      "problem": "muse_decode_layer",
+      "score_us": 10288.685814772705,
+      "owner": "Existing revival implementation owner / final-day lead",
+      "judged_arm": "Single-arm combo2; RS-derived source, all T/all-six T8 enabled, unpoolerCG selected",
+      "source_identity": "rv_k_combo2.py;SHA2567f0a3e360f085c4f21c1b760d10eaf251d3d379464a1f0556d52828cf92d5f37;944035B;inherits RS substitutions",
+      "source_sha256": "7f0a3e360f085c4f21c1b760d10eaf251d3d379464a1f0556d52828cf92d5f37",
+      "release_state": "ineligible-rs-derived-diagnostic-only",
+      "reason": "VALID13/12/12 lower scalar point10288.685815us but source inherits organizer-disallowed routing slack. No claim that this private job itself has a serviceDQ flag. No submission or confirmation on these bytes; eligible clean rebase combo2n is separately registered and must qualify. One combined result does not causally establish each mechanism independently.",
+      "evidence": "muse_decode_layer/cand/profiles/rv_k_combo2.a88203c2400e4d56.json",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0147.md",
+      "eligible_for_release": false,
+      "public_submitted": false
     }
   ],
   "ineligible_source_family_checkpoint": {
@@ -700,6 +715,15 @@
     "new_base": "PDL8d7cb74240",
     "rule": "No routing slack; explicit organizer judgment overrides numerical tolerance-based eligibility assumptions.",
     "evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0147/disqualification.json",
+    "report": "docs/steering/2026-11-04-driver-monitor-0147.md"
+  },
+  "clean_rebuild_checkpoint": {
+    "evidence_commit": "a46d6a51",
+    "source_base": "PDL8d7cb74240",
+    "pdl8hn_sha256": "df5cded96b8dc18ab98e022c8a6fde9c4ea18d0d7f85a81a9adcce2b63959968",
+    "combo2n_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
+    "state": "Clean source verified; registered private check, no source-bound acceptedID published in inspected ledger",
+    "registration_commit": "f3ba55e1",
     "report": "docs/steering/2026-11-04-driver-monitor-0147.md"
   }
 }
