@@ -8171,3 +8171,57 @@ Sweep 3 (fin.sh, decode 1 / verify 1, both layers, 48 runs, all checks PASS): fi
 verify 1 -0.08 (26/48) against control +0.34. Flat.
 
 Decision: no candidate clears the bar (0.5 us on a sliding cell at 20+/24). No ledger line.
+
+## MoE grid barrier removal, MAIN (box)
+
+2026-11-04, moe-gbm lane, base muse_decode_layer/cand/ly_stk4.py (a054c8d5, judge 10,046.1 us). ly_gb4 had turned on
+MFIN (per-expert completion counters replacing the MoE grid barrier) for the B4 build only. A ruled-out row said MAIN
+could not use it because the RFIN finisher issued no release. That was wrong. Under RFIN the finisher share
+(s0 == 0) waits on the stage count, adds and zeroes the other CTAs' fixup slots, then falls through into the
+whole-unit epilogue, which pends kind 4: wgs_flush runs `bar.sync 3+wg, 128` after the stores and then one
+`red.release.gpu` per warpgroup. Non-finisher shares release only the fc stage count (kind 2) and write no y. So each
+of the 16 units of a job releases 4 whether it is whole or cut, and each job releases 64, which equals the target
+`64 * (tot > SK_T ? ceil(tot / FT_T) : 1)`. The define gate was the only thing keeping MFIN off on MAIN.
+
+Candidate muse_decode_layer/cand/ly_gbm.py, SHA256 c7c2bf55195b1aa40f647bd86d1a5cf2d8d2dd2e9b6fdee502b974d380c0f217,
+two lines against ly_stk4: line 3968 `#if OKC_WGS && !OKC_B4FIN` becomes `#if OKC_WGS && !OKC_B4FIN && !OKC_RFIN`
+(only MAIN passes -DOKC_RFIN=1, so MID, B4 and the global path are unchanged), and line 6640 replaces the 4M-bounded
+acquire poll with `while (ld_acquire(cp) < target)`.
+
+Gate (gate_gbm.log, chk_gbm.log): check PASS at all 12 cells; the five in-prepare PDL8H guards pass with 2000 replays
+per arm and 0 ids mismatches. Stress (tools/ly_gbm_stress.py, stress_gbm.log, under gpu.lock): one CUDA graph per file
+per M, new routing per replay (uniform, all-local, hot experts, skewed mix with -1 drops). Every M ran on the main
+build with 0 output mismatches against ly_stk4 (bitwise), 0 replays with a counter different from its target, 0 with a
+nonzero other parity and 0 parity repeats.
+
+| M | replays | fat jobs | skinny jobs | max jobs per expert | max tot |
+|---:|---:|---:|---:|---:|---:|
+| 33 | 600 | 4,508 | 7,774 | 1 | 33 |
+| 128 | 2000 | 33,794 | 19,986 | 2 | 128 |
+| 256 | 2000 | 59,993 | 13,628 | 4 | 256 |
+| 48 | 300 | 3,530 | 3,073 | 1 | 48 |
+| 97 | 300 | 4,824 | 3,004 | 2 | 97 |
+| 200 | 300 | 6,773 | 2,547 | 4 | 200 |
+| 255 | 300 | 8,974 | 2,039 | 4 | 255 |
+
+Paired A/B (tools/ly_gb_ab.sh, two rounds c w c w c, --runs 60, PDL pinned on at every T in every process; pooled
+table muse_decode_layer/profiles/box/moegb/gbm_table_both_rounds.txt), 24 pairs per cell, box numbers only:
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs faster |
+|---|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 63.77 | 1.28 | 63.78 | +0.01 | 2.56 | 11/24 |
+| decode 1 full | 70.33 | 1.28 | 70.56 | +0.23 | 2.56 | 8/24 |
+| decode 16 sliding | 125.00 | 0.98 | 124.96 | -0.04 | 1.95 | 11/24 |
+| decode 16 full | 197.77 | 1.74 | 197.47 | -0.29 | 3.49 | 19/24 |
+| decode 32 sliding | 140.77 | 1.18 | 140.66 | -0.11 | 2.37 | 13/24 |
+| decode 32 full | 292.71 | 1.94 | 292.58 | -0.13 | 3.87 | 12/24 |
+| verify 1 sliding | 100.52 | 1.25 | 100.35 | -0.17 | 2.50 | 15/24 |
+| verify 1 full | 108.79 | 0.88 | 108.44 | -0.36 | 1.76 | 15/24 |
+| verify 16 sliding | 242.32 | 2.24 | 241.29 | -1.03 | 4.48 | 20/24 |
+| verify 16 full | 326.21 | 1.44 | 325.17 | -1.04 | 3.26 | 23/24 |
+| verify 32 sliding | 294.00 | 1.07 | 292.41 | -1.59 | 2.94 | 24/24 |
+| verify 32 full | 459.27 | 1.55 | 457.87 | -1.40 | 4.59 | 22/24 |
+
+Only the verify cells (M = 128 / 256, the MAIN build) move, as expected; decode cells use MID / B4 and are unchanged
+code. Decision: clears the bar on verify 32 sliding (-1.59 us, 24/24) with no cell outside its threshold. Registered
+in the ledger at 13:42 PT; no judge job dispatched by this lane.
