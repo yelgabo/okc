@@ -55,6 +55,22 @@ RNG = T_RNG = ("  if (tid == 0) {  // this CTA's unit ranges for the helper warp
 F1_END = "      S.preissued = n > 0 ? n : 0;\n    }\n"
 F1 = "    const int v01 = muldiv_g(nS1, blockIdx.x, gridDim.x, rG1), v11 = muldiv_g(nS1, blockIdx.x + 1, gridDim.x, rG1);\n"
 
+X1A = (
+    "// rows 8..15 of a two-tile job into this warp's x1 rows, asynchronously (zero-filled past the job's tokens);\n"
+    "// the caller waits (cp.async.wait_all, __syncwarp) before the first MMA that reads them\n"
+    "template <bool PB>\n"
+    "__device__ __forceinline__ void load_x1_async(const Params& p, const Smem& S, int j, int lane, int warp, __nv_bfloat16* x1s) {\n"
+    "  const int cnt = S.jC[j], st = S.jS[j];\n"
+    "#pragma unroll\n"
+    "  for (int m = 0; m < 16; ++m) {\n"
+    "    const int r = m >> 1, c = 32 * (m & 1) + lane;\n"
+    "    const bool ok = 8 + r < cnt;\n"
+    "    const int rr = ok ? r : 0;   // row 8 exists: two-tile jobs have more than 8 tokens\n"
+    "    const __nv_bfloat16* row = PB ? p.inter + (size_t)(st + 8 + rr) * ID : p.x + (size_t)(S.ent[st + 8 + rr] >> 3) * HD;\n"
+    "    const uint4* src = reinterpret_cast<const uint4*>(row + warp * 512) + c;\n"
+    "    asm volatile(\"cp.async.cg.shared.global [%0], [%1], 16, %2;\\n\" ::\"r\"(smem_u32(x1s + r * X1P + c * 8)), \"l\"(src), \"r\"(ok ? 16 : 0) : \"memory\");\n"
+    "  }\n"
+    "}\n")
 ANY2 = (
     "// OKC_WS2INL 0: the two-tile functions as separate calls (kernel 160 registers, 272 B stack, local loads). Inlined\n"
     "// (166 registers) the one-tile loop has the control's instruction count (tools/ly_ws2u_sass_cmp.py).\n"
@@ -70,10 +86,10 @@ ANY2 = (
     "}\n")
 
 # closed-form cost split: one job per local expert (lane), jobs in expert order, a unit of a job of more than 8
-# tokens costs SPW2, else SPW1 (ratio 5 / 4 = ly_ws2t's 20 / 16). Costs stay below 2^24 for muldiv_g:
-# RB_A * SPW2 * 32 experts * 132 CTAs = 512 * 5 * 32 * 132 = 10.8e6.
+# tokens costs SPW2, else SPW1 (default 4 / 3; box timeline sweep of 5/4, 4/3, 7/5, 3/2, 5/3). Costs stay below 2^24 for muldiv_g:
+# RB_A * SPW2 * 32 experts * 132 CTAs <= 512 * 7 * 32 * 132 = 15.1e6.
 SPLIT = (
-    "#ifndef OKC_SPW1\n#define OKC_SPW1 4\n#endif\n#ifndef OKC_SPW2\n#define OKC_SPW2 5\n#endif\n"
+    "#ifndef OKC_SPW1\n#define OKC_SPW1 3\n#endif\n#ifndef OKC_SPW2\n#define OKC_SPW2 4\n#endif\n"
     "constexpr int SPW1 = OKC_SPW1, SPW2 = OKC_SPW2;\n"
     "template <int K0, int K1>\n"
     "__device__ __forceinline__ void ws_split(int tot, int lane, int c, int G, int (&r)[4]) {\n"
@@ -102,6 +118,15 @@ def patch_helper(h, variant):
     ht = T.patch_helper(h)
     a, b = ht.index(WS_A), ht.index(WS_B)
     ws2 = ht[a:b].replace("__device__ void skinny_ring_ws(", "__device__ WS2_FN void skinny_ring_ws2(", 1)
+    # rows 8..15 by cp.async, waited for after the unit's ring-slot wait: the blocking loader (load_x1_ws) held a
+    # two-tile CTA's first unit 3.7 us (box timeline, loads issued while the weight stream fills HBM's queue)
+    ws2 = once(ws2, "  bool two = false;\n", "  bool two = false, x1p = false;\n", "ws2 x1p")
+    ws2 = once(ws2, "      if (two) load_x1_ws<PB>(p, S, j, lane, warp, x1s);\n",
+               "      if (two) { load_x1_async<PB>(p, S, j, lane, warp, x1s); x1p = true; }\n", "ws2 x1 async")
+    ws2 = once(ws2, "    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));\n",
+               "    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));\n"
+               "    if (x1p) { asm volatile(\"cp.async.wait_all;\\n\" ::: \"memory\"); __syncwarp(); x1p = false; }\n",
+               "ws2 x1 wait")
     c = ht.index(HP_A)
     d = ht.index(HP_END, c) + len(HP_END)
     hp2 = ht[c:d]
@@ -117,7 +142,7 @@ def patch_helper(h, variant):
     x1 = ht[ht.index("#if OKC_SKT > 8\ntemplate <bool PB>\n__device__ __forceinline__ void load_x1_ws("):]
     x1 = x1[: x1.index("#else\n#endif\n") + len("#else\n#endif\n")]
     anchor = "#if OKC_WS\n// ---------------------------------------------------------------- warp-specialized skinny ring (tiny build)\n"
-    h = once(h, anchor, x1 + guard(ANY2 + SPLIT, "") + anchor, "x1ws")
+    h = once(h, anchor, x1 + guard(X1A + ANY2 + SPLIT, "") + anchor, "x1ws")
     h = once(h, "constexpr int RED_W = OKC_SKT > 8 ? 8 : 4;\n",
              "constexpr int RED_W = (OKC_SKT > 8 && !OKC_WS) ? 8 : 4;   // WS two-tile builds: tile 1 in red1\n", "RED_W")
     h = once(h, SM_END, SM_END[: -len("};\n")]
@@ -180,7 +205,7 @@ def main():
     ap.add_argument("--variant", choices=("a", "b"), default="b")
     ap.add_argument("--tl", action="store_true")
     ap.add_argument("--out", default="")
-    ap.add_argument("--spw", default="", help="W1:W2 unit costs of the variant b split (default 4:5)")
+    ap.add_argument("--spw", default="", help="W1:W2 unit costs of the variant b split (default 3:4)")
     a = ap.parse_args()
     cand = ROOT / "muse_decode_layer/cand"
     if a.tl:
