@@ -23,7 +23,8 @@ AS = 32          # attention slots per CTA (DBGSTRIDE)
 KS = 32          # sk2 slots per CTA
 NAMES = {0: "entry", 20: "prewait_done", 16: "wait_ret", 1: "idx_landed", 8: "kv_issued", 17: "q_landed",
          9: "rope", 10: "qpass", 11: "newkv", 2: "patched", 12: "tile_landed", 13: "tile_done", 3: "merge_start",
-         7: "reds_issued", 6: "reds_bar", 18: "ticket_ret", 4: "gbar_passed", 5: "fin_end"}
+         7: "reds_issued", 6: "reds_bar", 18: "ticket_ret", 4: "gbar_passed", 5: "fin_end",
+         21: "qfence_pre", 22: "pfence_pre"}
 
 
 def summarize(att, qkv, o):
