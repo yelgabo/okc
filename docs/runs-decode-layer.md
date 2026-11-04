@@ -7628,3 +7628,45 @@ File-name note: attention-d1 committed `muse_decode_layer/cand/ly_atrg.py`, `too
 `tools/dl_ly_v1sp_patch.py` and `tools/dl_ly_v1trg_patch.py`, and the box copies of attention-d1's three files (which
 this lane had overwritten at 19:19 / 19:37 UTC) were restored from origin/main (sha 1abac1d6, 5e4a3d8c, a3c7eb67).
 Attention-d1's recorded ly_atrg result (decode 1, trigger at entry) matches its own file's behaviour.
+
+## 2026-11-04 - Decode 1 TINY x at entry (box)
+
+Question: at T = 1, does the TINY MoE build (helper0 source, OKC_NW=8, FAST1=2) wait on the x load at the top of its first unit, and does loading x into registers at kernel entry shorten the ramp? Base ly_stk3.py (a1c48810...b135f6, judge 10,109.9 us); every A/B is paired against it on the RunPod H200 through the GPU lock.
+
+Legality: the MoE runs griddepcontrol.wait at entry, and its stream predecessor is the route kernel that writes xm, so a load after that wait reads finished data. The base already reads x at the same point with prefetch.global.L2.
+
+Candidate: muse_decode_layer/cand/ly_x1e.py, SHA256 c385fe76677295c38ea21337fe8466963e00676441ccf98a824fece579edf17a, written by tools/dl_ly_x1e_patch.py. Under a new OKC_X1E define (set only in MOE_TINY_DEFINES, default 0, so TINY2 and MID build the base device code): a new load_x_tok0 loads token 0's x slice (lanes with g == 0, 16 uint4) at moe_fused entry when p.M == 1; skinny_ring_ws takes those registers and skips load_x_regs for phase A jobs with jC == 1 while M == 1. Numerics unchanged (same x values, same mma order). SASS: TINY moe_fused 145 registers, 0 local, 0 stack in both files (5197 to 5296 instructions).
+
+Stamps (tools/dl_ly_mtl3x_patch.py instrument, 20 inputs, mean CTA, us, sliding / full; muse_decode_layer/profiles/box/x1e/st_summary_x1e.txt):
+
+| stamp | ly_stk3 | ly_x1e |
+|---|---|---|
+| gen stored | 0.60 / 0.58 | 0.75 / 0.71 |
+| route done | 2.11 / 2.09 | 2.21 / 2.21 |
+| WS_JOIN passed | 2.30 / 2.29 | 2.41 / 2.41 |
+| x consumed (unit 0) | 2.90 / 2.89 | 2.90 / 2.91 |
+| first ring slot ready | 3.03 / 3.01 | 3.03 / 3.02 |
+| phase A end | 12.70 / 12.50 | 13.07 / 12.46 |
+
+The first ring slot lands 0.13 us after x is consumed in both files, so the mean CTA's first unit waits on the weight copy (FAST1's warp 7 issues at about 1.1 us), not on x. The entry loads push the prologue back by 0.10 to 0.15 us and buy nothing at the slot wait. The latest CTA's slot moves 3.62 to 3.55 (sliding) and 3.58 to 3.52 (full).
+
+Gate: five PDL8H_GUARD lines pass in the file's own prepare; chk 12/12 check PASS, CG_GATE ok, G_RELEASE_STARTUP_OK.
+
+A/B (tools/ly_prtl_ab.sh, two rounds c/w/c/w/c, 24 pairs per cell, pooled; muse_decode_layer/profiles/box/x1e/x1e_table_both_rounds.txt):
+
+| cell | ly_stk3 | ly_x1e | w - c | thr | pairs < 0 |
+|---|---|---|---|---|---|
+| decode 1 sliding | 63.61 | 63.80 | +0.19 | 2.18 | 8/24 |
+| decode 1 full | 70.41 | 70.16 | -0.25 | 2.37 | 14/24 |
+| decode 16 sliding | 125.29 | 125.06 | -0.23 | 2.46 | 16/24 |
+| decode 16 full | 197.85 | 198.27 | +0.42 | 3.78 | 10/24 |
+| decode 32 sliding | 142.72 | 142.98 | +0.26 | 3.10 | 10/24 |
+| decode 32 full | 294.50 | 294.52 | +0.01 | 2.95 | 12/24 |
+| verify 1 sliding | 100.66 | 100.52 | -0.14 | 4.06 | 16/24 |
+| verify 1 full | 108.87 | 108.74 | -0.14 | 2.46 | 15/24 |
+| verify 16 sliding | 242.41 | 242.73 | +0.32 | 4.26 | 10/24 |
+| verify 16 full | 325.74 | 326.49 | +0.75 | 3.94 | 6/24 |
+| verify 32 sliding | 294.54 | 294.23 | -0.31 | 4.96 | 16/24 |
+| verify 32 full | 458.96 | 459.24 | +0.27 | 4.59 | 8/24 |
+
+Round 1 alone read decode 1 full -0.89 us (win verdict); round 2 read +0.39, so the pooled cell is noise. Decision: no registration, no judge check. The decode 1 MoE ramp is gated by the first weight unit's copy, so an x-side prologue change cannot move it; the ramp lever is the FAST1 copy issue time (about 1.1 us after entry), which sits behind route.
