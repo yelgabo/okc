@@ -4356,3 +4356,95 @@ sliding +3.27 (+3.23, +2.35, +3.39, +3.71; 2.94), verify 32 full +2.31 (+2.11, +
 cells within 0.6 us: a loss in every one of the sixteen target pairs, the phase B finisher's wait by construction that the
 order check predicted (23% of cut units with negative slack before the phase A end spread), larger at verify 16 where the
 phase B ranges are shortest.
+
+## 2026-11-04 - Pooler + router remaining gap (box)
+
+bf16 lane. Question: inside the fused pooler + FP32 router kernel (`sk2_kernel_gle<1, 8, 4, 1, 8, 1, 6, true...>`,
+decode 1 sliding 2.8% of the score) of the public file, where does the time above the byte floor go now that the
+route-side quarter sum (ly_prq2) is in, and does one candidate against the largest piece shorten the layer? Base
+`muse_decode_layer/cand/ly_fabq.py` (SHA256 3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555, never
+edited). Box only (okc-h200, no foreign GPU process at any run, every run under gpu.lock), no judge check, nothing
+registered. Timeline runs 2026-11-04 15:35 to 16:20 UTC (07:35 to 08:20 PT), router seed 106218864389449120, f931 case
+seeds, local_start per input, PDL on at T = 1, 8, 16, 32. Logs and JSONs: box `/root/okc/.build/prtl/fabq/`
+(`tl_fabq.{log,json}`, `tl_fabqc.{log,json}`, `tl_fabqc2.{log,json}`).
+
+### Instruments
+
+- `tools/dl_ly_prtl_patch.py --src muse_decode_layer/cand/ly_fabq.py --out muse_decode_layer/cand/ly_fabq_prtl.py`
+  (47966e43): the 2026-11-03 stamps (entry, pre-wait issues, wait, x issue, producer issue per stage, escape warp 0's
+  landing per stage, consumer loop exits, router partial, epilogue, final store) on ly_fabq's text; the patch applies
+  unchanged.
+- `tools/dl_ly_prtlc_patch.py` (new) writes `ly_fabq_prtlc.py` (35cc918f): the per-stage clocks taken by consumer warp 0
+  instead (slot 36 + s: its full-barrier return for stage s; slot 16 + s: done with stage s, pooler stages at the end of
+  the body and the interleaved FP32 router stages before their `continue`). Two globaltimer reads and stores per stage in
+  warp 0 sit inside the loop, so this build's loop SASS is not the base's: a diagnostic only. Back-to-back stamps
+  (done19 to the loop exit) measure 0.07 us, the stamp overhead bound. `tools/ly_prtlc_summary.py` reads it.
+- `ly_fabq_prtlc2.py` (056ce493, built inline from the same tool with three extra tail stamps: after
+  `griddepcontrol.launch_dependents`, after the router warp butterflies and partial store, after the `cbar` wait).
+- `tools/ly_box_prtl.py` as before (two graphs per cell, 5 fresh inputs, cold L2, `--raw 2 / 3`).
+
+### Post-wait span and its decomposition (measurements, us)
+
+Floor as in the 2026-11-03 section: 58.83 / 59.17 MB at 4.443 TB/s = 13.24 / 13.32 us (T = 1 / 8). Medians over 5 inputs
+per cell, ly_fabq_prtl build (escape-warp landing clocks; same columns as the 2026-11-03 table):
+
+| cell | wait | land0 | loop end | loop-end spread | router | epilogue | tail | post-wait span | floor | excess |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 1.50 | 0.77 | 13.44 | 0.77 | 0.41 | 0.40 | 0.77 | 14.75 | 13.24 | +1.51 |
+| decode 1 full | 0.99 | 1.16 | 13.37 | 0.96 | 0.41 | 0.41 | 0.80 | 14.82 | 13.24 | +1.58 |
+| verify 1 sliding | 1.28 | 0.85 | 15.28 | 0.96 | 0.40 | 0.38 | 0.74 | 16.61 | 13.32 | +3.29 |
+| verify 1 full | 1.31 | 0.76 | 14.97 | 0.93 | 0.39 | 0.39 | 0.74 | 16.58 | 13.32 | +3.26 |
+| decode 16 sliding | 1.02 | 1.46 | 11.54 | 3.81 | 1.55 | 0.42 | 2.05 | 15.71 | 13.29 | +2.42 |
+| decode 16 full | 0.83 | 1.37 | 11.55 | 3.81 | 1.56 | 0.42 | 2.08 | 15.46 | 13.29 | +2.17 |
+| decode 32 sliding | 1.79 | 0.62 | 12.68 | 2.91 | 2.20 | 0.63 | 2.75 | 17.18 | 13.35 | +3.84 |
+| decode 32 full | 1.63 | 0.63 | 12.48 | 2.69 | 2.18 | 0.63 | 2.88 | 16.74 | 13.35 | +3.39 |
+
+Against the 2026-11-03 ly_micro2 table the tail at T <= 8 fell from 1.8-2.0 to 0.74-0.80 us and the post-wait span by
+2.7 to 3.1 us at decode 1 / verify 1 (ly_prq2's counter removal, now measured in the public file). The ly_fabq_prtlc
+build (consumer clocks) gives post-wait spans of 14.14 to 14.24 (decode 1 sliding), 14.56 to 16.54 (decode 1 full, one
+input with a 0.9 us stall at stage 3), 15.5 to 16.1 (verify 1): the two instruments differ by about 0.3 to 0.5 us at
+decode 1 and the plain graph times of the two builds are inside replay noise of each other, so the spans below carry
+that uncertainty.
+
+Consumer warp 0's clocks (ly_fabq_prtlc, means over 3 inputs x 128 CTAs; wait = full-barrier return minus the previous
+stage's done, process = done minus return):
+
+| cell | first return after wait | pooler stage process (median) | router stage process | wait per stage (median / mean) | last stage process | loop exit to final store |
+|---|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 0.40 | 0.512 | 0.416 | 0.128 / 0.149 | 0.36 | 0.80 |
+| decode 1 full | 0.64 | 0.512 | 0.416 | 0.128 / 0.190 | 0.34 | 0.79 |
+| verify 1 sliding | 0.72 | 0.512 | 0.608 | 0.128 / 0.149 | 0.64 | 0.80 |
+| verify 1 full | 0.75 | 0.512 | 0.608 | 0.128 / 0.148 | 0.66 | 0.80 |
+
+Decomposition of the decode 1 sliding post-wait span (about 14.2 to 14.7 us):
+
+1. Ramp, wait to the first stage consumed: 0.40 us (sliding) / 0.64 (full). The first stage's weights were issued 0.5
+   to 1.0 us before the wait (first issue 0.32 us after entry, wait 1.0 to 1.5 us after entry) and land 1.75 us after
+   their issue in every cell; the x tile is issued 0.15 us after the wait and the stage is consumed 0.65 us after the x
+   issue when the weights are already in (sliding). Measurement: the ramp is bounded below by the x tile's TMA round
+   trip (about 0.65 us from issue to consumption) and above by the pre-wait weight latency when the predecessor ends
+   early (full). The prologue before the first weight load (0.32 us after entry) is hidden under the predecessor at
+   every short cell.
+2. Loop, 20 stages (16 pooler, 4 interleaved FP32 router): 12.9 us. Pooler stage 0.51 us of processing plus 0.13 us of
+   wait = 0.64 us per stage, which is 3.146 MB per stage on 128 CTAs at 4.9 TB/s; router stage 0.42 + 0.13 at T = 1,
+   0.61 + 0.13 at T = 8. The stream is at the DRAM rate (4.9 TB/s is above the 4.443 used for the floor, so the loop
+   beats the written floor by about 0.6 us) and the consumers process a pooler stage in 80% of its DRAM time: no
+   lever in the loop's rate at T = 1. Hypothesis for the T = 8 router stage (0.61 us): shared-memory bandwidth, since
+   every warp re-reads all 8 x32 rows (36 LDS.128 per lane per stage, 147 KB per CTA per stage at 128 B per cycle is
+   0.58 us); it is hidden under the DRAM time except on the last stage.
+3. Last stage, landing to loop exit: 0.36 us at T = 1 (a router stage), 0.65 at T = 8. Exposed, since nothing streams
+   behind it.
+4. Tail per CTA, loop exit to final store, 0.80 us at every short cell (ly_fabq_prtlc2, stamp cost 0.07 included once):
+   `launch_dependents` 0.07, router warp butterflies and partial store 0.23 (40 `shfl.xor` plus adds for all 8 token
+   slots whatever M is), `cbar` wait 0.06, named barrier 0.06, epilogue `cbar` wait and named barrier 0.10, reduction
+   buffer write and named barrier 0.10, final sum (4 escape copies + 8 K-warps, 8 threads at M = 1) and BF16 store
+   0.18. Three CTA-wide barrier rounds for 0.22 us, and 0.2 us of shuffles that reduce 7 unused tokens at T = 1.
+5. CTA spread: the last CTA's loop end is 0.4 to 0.5 us after the mean CTA's (loop-end spread 0.77 to 1.25 max minus
+   min). Weak correlation with entry, wait and first landing (r = 0.1 to 0.3); not explained.
+
+Sum: 12.0 us of bytes at the measured 4.9 TB/s + 0.4 ramp + 0.36 last stage + 0.8 tail + 0.45 spread = 14.0, against
+14.2 to 14.7 measured. The remaining gap over the written floor is 1.2 to 1.6 us at decode 1 and 2.3 to 3.3 us at
+verify 1 (where the four T = 8 router stages add 4 x 0.1 us in the loop and 0.3 more on the last stage). The x gather
+(x tiles by TMA, x32 rows by bulk copies inside the router stages) costs nothing visible beyond the ramp's 0.65 us
+round trip. The largest non-floor item inside the kernel is the tail (0.8 us on every CTA, so on the critical path in
+full), then the ramp, the last stage and the CTA spread (0.35 to 0.65 each).
