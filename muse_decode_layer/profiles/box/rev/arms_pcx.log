@@ -1,0 +1,52 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793826978.416 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.01), ('sk2', 7.94), ('torch', 10.34)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+ARMS state v16pdl_on None pdl8_on {1: True, 8: True, 16: True, 32: True}
+ARMS decode 1 sliding   base         net    64.19 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 1 sliding   qkv1         net    64.19 us  d  -0.14  neg 26/48  check PASS
+ARMS decode 1 sliding   qkv3         net    64.45 us  d  +0.26  neg 21/48  check PASS
+ARMS decode 1 sliding   qkv4         net    64.77 us  d  +0.56  neg 17/48  check PASS
+ARMS decode 1 sliding   o1           net    64.29 us  d  +0.11  neg 20/48  check PASS
+ARMS decode 1 sliding   o3           net    64.48 us  d  +0.16  neg 21/48  check PASS
+ARMS decode 1 sliding   o4           net    65.09 us  d  +0.66  neg 11/48  check PASS
+ARMS decode 1 sliding   pool1        net    64.90 us  d  +0.66  neg 15/48  check PASS
+ARMS decode 1 sliding   pool3        net    64.54 us  d  +0.03  neg 24/48  check PASS
+ARMS decode 1 sliding   pool4        net    65.30 us  d  +0.98  neg 8/48  check PASS
+ARMS decode 1 sliding   router1      net    64.26 us  d  +0.00  neg 23/48  check PASS
+ARMS decode 1 sliding   router4      net    64.85 us  d  +0.35  neg 21/48  check PASS
+ARMS decode 1 sliding   base2        net    64.58 us  d  +0.02  neg 22/48  check PASS
+ARMS decode 16 sliding  base         net   125.89 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 16 sliding  qkv1         net   125.41 us  d  -0.53  neg 36/48  check PASS
+ARMS decode 16 sliding  qkv3         net   125.92 us  d  +0.14  neg 21/48  check PASS
+ARMS decode 16 sliding  qkv4         net   126.00 us  d  +0.66  neg 12/48  check PASS
+ARMS decode 16 sliding  o1           net   126.70 us  d  +0.38  neg 17/48  check PASS
+ARMS decode 16 sliding  o3           net   126.40 us  d  +0.13  neg 20/48  check PASS
+ARMS decode 16 sliding  o4           net   126.32 us  d  +0.66  neg 14/48  check PASS
+ARMS decode 16 sliding  pool1        net   126.46 us  d  -0.24  neg 27/48  check PASS
+ARMS decode 16 sliding  pool3        net   125.44 us  d  -0.40  neg 27/48  check PASS
+ARMS decode 16 sliding  pool4        net   126.48 us  d  +0.40  neg 18/48  check PASS
+ARMS decode 16 sliding  router1      net   125.87 us  d  -0.13  neg 27/48  check PASS
+ARMS decode 16 sliding  router4      net   125.95 us  d  +0.11  neg 21/48  check PASS
+ARMS decode 16 sliding  base2        net   126.05 us  d  +0.03  neg 24/48  check PASS
+ARMS verify 1 sliding   base         net   100.78 us  d  +0.00  neg 0/48  check PASS
+ARMS verify 1 sliding   qkv1         net   100.83 us  d  +0.11  neg 23/48  check PASS
+ARMS verify 1 sliding   qkv3         net   100.08 us  d  -0.24  neg 31/48  check PASS
+ARMS verify 1 sliding   qkv4         net   100.64 us  d  +0.43  neg 15/48  check PASS
+ARMS verify 1 sliding   o1           net   101.73 us  d  +0.77  neg 17/48  check PASS
+ARMS verify 1 sliding   o3           net   100.06 us  d  -0.58  neg 40/48  check PASS
+ARMS verify 1 sliding   o4           net   100.59 us  d  -0.27  neg 29/48  check PASS
+ARMS verify 1 sliding   pool1        net   101.25 us  d  +0.40  neg 17/48  check PASS
+ARMS verify 1 sliding   pool3        net   100.56 us  d  +0.11  neg 23/48  check PASS
+ARMS verify 1 sliding   pool4        net   102.10 us  d  +0.85  neg 12/48  check PASS
+ARMS verify 1 sliding   router1      net   100.27 us  d  -0.35  neg 32/48  check PASS
+ARMS verify 1 sliding   router4      net   100.69 us  d  +0.00  neg 22/48  check PASS
+ARMS verify 1 sliding   base2        net   100.43 us  d  -0.34  neg 28/48  check PASS
+BXLOCK 1793826989.723 release end
