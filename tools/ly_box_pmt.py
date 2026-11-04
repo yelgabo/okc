@@ -53,53 +53,54 @@ def summarize(cg, moe, fin):
         moe_bar_to_exit_last8=mean(us(moe[i][5]) - us(moe[i][4]) for i in fin_ctas),
         moe_pa_end_min=min(m2), moe_pa_end=max(m2),
     )
-    # slice
-    e = [us(r[0]) for r in cg]
-    w1 = [us(r[13]) for r in cg]   # warp 1: every lane's weights landed
-    w1i = [us(r[1]) for r in cg]   # t 0: weight loads issued
-    x12 = [us(r[12]) for r in cg]  # warp 0: every lane's x landed
-    e14 = [us(r[14]) for r in cg]  # escape lane 1: entry 1's x element landed (0 when the CTA has no escape)
-    e15 = [us(r[15]) for r in cg]  # escape lane 0: after its loop
-    w2 = [us(r[2]) for r in cg]
-    x3 = [us(r[3]) for r in cg]
-    f4 = [us(r[4]) for r in cg]
-    e5 = [us(r[5]) for r in cg]
-    e6 = [us(r[6]) for r in cg]
-    e7 = [us(r[7]) for r in cg]
-    s8 = [us(r[8]) for r in cg]
-    s9 = [us(r[9]) for r in cg]
-    cnt = [int(r[11]) for r in cg]
-    late = [i for i in range(len(cg)) if e[i] > moe_exit]
-    crit = max(range(len(cg)), key=lambda i: s9[i])
-    r = cg[crit]
-    out.update(
-        sl_n=len(cg), sl_entry_min=min(e), sl_entry_p50=med(e), sl_entry_max=max(e),
-        sl_entry_after_trig=min(e) - moe_trig, sl_entry_after_pa=min(e) - max(m2), sl_n_late=len(late),
-        sl_wissued_p50=med(b - a for a, b in zip(e, w1i)),
-        sl_wready_p50=med(w1), sl_wready_max=max(w1), sl_wready_before_exit=sum(1 for v in w1 if v < moe_exit),
-        sl_wready_after_entry_p50=med(b - a for a, b in zip(e, w1)),
-        sl_xall_p50=med(b - a for a, b in zip(w2, x12)), sl_xall_p90=q([b - a for a, b in zip(w2, x12)], 0.9), sl_xall_max=max(b - a for a, b in zip(w2, x12)),
-        sl_math_p50=med(b - a for a, b in zip(x12, f4)), sl_math_max=max(b - a for a, b in zip(x12, f4)),
-        sl_esc_x_p50=med([b - a for a, b in zip(e6, e14) if b > 0] or [float('nan')]), sl_esc_x_max=max([b - a for a, b in zip(e6, e14) if b > 0] or [float('nan')]),
-        sl_esc_loop_p50=med(b - a for a, b in zip(e6, e15)), sl_esc_sums_p50=med(b - a for a, b in zip(e15, e7)),
-        sl_wait_min=min(w2), sl_wait_p50=med(w2), sl_wait_p90=q(w2, 0.9), sl_wait_max=max(w2),
-        sl_wait_lat_min=min(w2) - moe_exit, sl_wait_lat_p50=med(w2) - moe_exit, sl_wait_lat_max=max(w2) - moe_exit,
-        sl_x_p50=med(b - a for a, b in zip(w2, x3)), sl_x_p90=q([b - a for a, b in zip(w2, x3)], 0.9), sl_x_max=max(b - a for a, b in zip(w2, x3)),
-        sl_fma_p50=med(b - a for a, b in zip(x3, f4)), sl_fma_max=max(b - a for a, b in zip(x3, f4)),
-        sl_esc_cnt_p50=med(cnt), sl_esc_cnt_max=max(cnt),
-        sl_esc_ready_p50=med(e5), sl_esc_wait_lat_p50=med(e6) - moe_exit,
-        sl_esc_walk_p50=med(b - a for a, b in zip(e6, e7)), sl_esc_walk_p90=q([b - a for a, b in zip(e6, e7)], 0.9),
-        sl_esc_walk_max=max(b - a for a, b in zip(e6, e7)),
-        sl_esc_after_fma_p50=med(b - a for a, b in zip(f4, e7)),   # positive: the escape warp is the CTA's laggard
-        sl_sync_p50=med(c - max(a, b) for a, b, c in zip(f4, e7, s8)),
-        sl_store_p50=med(b - a for a, b in zip(s8, s9)),
-        sl_cta_wait_to_store_p50=med(b - a for a, b in zip(w2, s9)), sl_cta_wait_to_store_max=max(b - a for a, b in zip(w2, s9)),
-        sl_end_p50=med(s9), sl_end_p90=q(s9, 0.9), sl_end=max(s9), sl_end_after_exit=max(s9) - moe_exit,
-        crit_cta=crit, crit_entry=us(r[0]), crit_wready=us(r[1]), crit_wait=us(r[2]), crit_wait_lat=us(r[2]) - moe_exit,
-        crit_x=us(r[3]) - us(r[2]), crit_xall=us(r[12]) - us(r[2]), crit_math=us(r[4]) - us(r[12]), crit_fma=us(r[4]) - us(r[3]), crit_esc_walk=us(r[7]) - us(r[6]),
-        crit_esc_after_fma=us(r[7]) - us(r[4]), crit_sync=us(r[8]) - max(us(r[4]), us(r[7])), crit_store=us(r[9]) - us(r[8]),
-        crit_cnt=int(r[11]), crit_sm=int(r[10]),
-    )
+    # slice (absent with --moe-only)
+    if cg:
+        e = [us(r[0]) for r in cg]
+        w1 = [us(r[13]) for r in cg]   # warp 1: every lane's weights landed
+        w1i = [us(r[1]) for r in cg]   # t 0: weight loads issued
+        x12 = [us(r[12]) for r in cg]  # warp 0: every lane's x landed
+        e14 = [us(r[14]) for r in cg]  # escape lane 1: entry 1's x element landed (0 when the CTA has no escape)
+        e15 = [us(r[15]) for r in cg]  # escape lane 0: after its loop
+        w2 = [us(r[2]) for r in cg]
+        x3 = [us(r[3]) for r in cg]
+        f4 = [us(r[4]) for r in cg]
+        e5 = [us(r[5]) for r in cg]
+        e6 = [us(r[6]) for r in cg]
+        e7 = [us(r[7]) for r in cg]
+        s8 = [us(r[8]) for r in cg]
+        s9 = [us(r[9]) for r in cg]
+        cnt = [int(r[11]) for r in cg]
+        late = [i for i in range(len(cg)) if e[i] > moe_exit]
+        crit = max(range(len(cg)), key=lambda i: s9[i])
+        r = cg[crit]
+        out.update(
+            sl_n=len(cg), sl_entry_min=min(e), sl_entry_p50=med(e), sl_entry_max=max(e),
+            sl_entry_after_trig=min(e) - moe_trig, sl_entry_after_pa=min(e) - max(m2), sl_n_late=len(late),
+            sl_wissued_p50=med(b - a for a, b in zip(e, w1i)),
+            sl_wready_p50=med(w1), sl_wready_max=max(w1), sl_wready_before_exit=sum(1 for v in w1 if v < moe_exit),
+            sl_wready_after_entry_p50=med(b - a for a, b in zip(e, w1)),
+            sl_xall_p50=med(b - a for a, b in zip(w2, x12)), sl_xall_p90=q([b - a for a, b in zip(w2, x12)], 0.9), sl_xall_max=max(b - a for a, b in zip(w2, x12)),
+            sl_math_p50=med(b - a for a, b in zip(x12, f4)), sl_math_max=max(b - a for a, b in zip(x12, f4)),
+            sl_esc_x_p50=med([b - a for a, b in zip(e6, e14) if b > 0] or [float('nan')]), sl_esc_x_max=max([b - a for a, b in zip(e6, e14) if b > 0] or [float('nan')]),
+            sl_esc_loop_p50=med(b - a for a, b in zip(e6, e15)), sl_esc_sums_p50=med(b - a for a, b in zip(e15, e7)),
+            sl_wait_min=min(w2), sl_wait_p50=med(w2), sl_wait_p90=q(w2, 0.9), sl_wait_max=max(w2),
+            sl_wait_lat_min=min(w2) - moe_exit, sl_wait_lat_p50=med(w2) - moe_exit, sl_wait_lat_max=max(w2) - moe_exit,
+            sl_x_p50=med(b - a for a, b in zip(w2, x3)), sl_x_p90=q([b - a for a, b in zip(w2, x3)], 0.9), sl_x_max=max(b - a for a, b in zip(w2, x3)),
+            sl_fma_p50=med(b - a for a, b in zip(x3, f4)), sl_fma_max=max(b - a for a, b in zip(x3, f4)),
+            sl_esc_cnt_p50=med(cnt), sl_esc_cnt_max=max(cnt),
+            sl_esc_ready_p50=med(e5), sl_esc_wait_lat_p50=med(e6) - moe_exit,
+            sl_esc_walk_p50=med(b - a for a, b in zip(e6, e7)), sl_esc_walk_p90=q([b - a for a, b in zip(e6, e7)], 0.9),
+            sl_esc_walk_max=max(b - a for a, b in zip(e6, e7)),
+            sl_esc_after_fma_p50=med(b - a for a, b in zip(f4, e7)),   # positive: the escape warp is the CTA's laggard
+            sl_sync_p50=med(c - max(a, b) for a, b, c in zip(f4, e7, s8)),
+            sl_store_p50=med(b - a for a, b in zip(s8, s9)),
+            sl_cta_wait_to_store_p50=med(b - a for a, b in zip(w2, s9)), sl_cta_wait_to_store_max=max(b - a for a, b in zip(w2, s9)),
+            sl_end_p50=med(s9), sl_end_p90=q(s9, 0.9), sl_end=max(s9), sl_end_after_exit=max(s9) - moe_exit,
+            crit_cta=crit, crit_entry=us(r[0]), crit_wready=us(r[1]), crit_wait=us(r[2]), crit_wait_lat=us(r[2]) - moe_exit,
+            crit_x=us(r[3]) - us(r[2]), crit_xall=us(r[12]) - us(r[2]), crit_math=us(r[4]) - us(r[12]), crit_fma=us(r[4]) - us(r[3]), crit_esc_walk=us(r[7]) - us(r[6]),
+            crit_esc_after_fma=us(r[7]) - us(r[4]), crit_sync=us(r[8]) - max(us(r[4]), us(r[7])), crit_store=us(r[9]) - us(r[8]),
+            crit_cnt=int(r[11]), crit_sm=int(r[10]),
+        )
     # finish
     if fin:
         f0 = [us(r[0]) for r in fin]
@@ -107,7 +108,7 @@ def summarize(cg, moe, fin):
         f2 = [us(r[2]) for r in fin]
         f3 = [us(r[3]) for r in fin]
         f4_ = [us(r[4]) for r in fin]
-        sl_end = max(s9)
+        sl_end = max(us(r[9]) for r in cg) if cg else moe_exit
         out.update(
             fin_n=len(fin), fin_entry_min=min(f0), fin_entry_max=max(f0), fin_entry_after_sl_end=min(f0) - sl_end,
             fin_wait_min=min(f1) - sl_end, fin_wait_p50=med(f1) - sl_end, fin_wait_max=max(f1) - sl_end,
@@ -131,6 +132,8 @@ def main():
     ap.add_argument("--ls-cache", default="")
     ap.add_argument("--out", default="")
     ap.add_argument("--raw", type=int, default=0)
+    ap.add_argument("--moe-only", action="store_true",
+                    help="stamp the MoE and the finish only; the slice runs its plain kernel in both graphs")
     a = ap.parse_args()
     if a.lock:
         br.release_lock_for_triton()
@@ -161,7 +164,7 @@ def main():
     fin_buf = torch.zeros(64 * 8 * FIN_SLOTS, dtype=torch.int64, device="cuda")
 
     def inst(on):
-        mod._CG_EXT.cg_set_tlb(cg_buf.data_ptr() if on else 0)
+        mod._CG_EXT.cg_set_tlb(cg_buf.data_ptr() if on and not a.moe_only else 0)
         mod._PMT_MOE_DBG = moe_buf if on else None
         mod._PMT_FIN_TLB = fin_buf if on else None
 
@@ -205,10 +208,11 @@ def main():
             if j < a.raw:
                 st["raw"] = dict(cg=[r for r in cg if r[0]], moe=[r for r in moe if r[0]], fin=[r for r in fin if r[0]])
             res.append(st)
+            g = lambda k: st.get(k, float("nan"))  # noqa: E731
             print(f"PMTI {case['load']} {case['layer']} in {j} plain {tp:.2f} inst {ti:.2f} diff {diff:.2e} "
-                  f"exit {st['moe_exit']:.2f} wait_lat p50 {st['sl_wait_lat_p50']:.2f} max {st['sl_wait_lat_max']:.2f} "
-                  f"x {st['sl_x_p50']:.2f} xall {st['sl_xall_p50']:.2f} math {st['sl_math_p50']:.2f} esc_x {st['sl_esc_x_p50']:.2f} sl_end+ {st['sl_end_after_exit']:.2f} "
-                  f"fin_end+ {st.get('fin_end_after_sl_end', float('nan')):.2f} late {st['sl_n_late']}", flush=True)
+                  f"exit {st['moe_exit']:.2f} wait_lat p50 {g('sl_wait_lat_p50'):.2f} max {g('sl_wait_lat_max'):.2f} "
+                  f"x {g('sl_x_p50'):.2f} xall {g('sl_xall_p50'):.2f} math {g('sl_math_p50'):.2f} esc_x {g('sl_esc_x_p50'):.2f} sl_end+ {g('sl_end_after_exit'):.2f} "
+                  f"fin_end+ {g('fin_end_after_sl_end'):.2f} late {st.get('sl_n_late', 0)}", flush=True)
         label = f"{case['load']} {case['layer']}"
         keys = [k for k in res[0] if k not in ("raw", "seed")]
         med = {k: statistics.median(r[k] for r in res) for k in keys}
