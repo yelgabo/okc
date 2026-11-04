@@ -5461,3 +5461,183 @@ same 1 KB of shared memory) launched from an early MoE trigger, so every code by
 and only the x read and the math remain after the wait. Bound: the base's post-exit code stream at full (about 1.5
 us) and the late-CTA spread at sliding (about 0.5 us). Its first test is the residency: a stamped run showing all
 132 slice CTAs holding their codes before the MoE's exit.
+
+## 2026-11-04 - Decode 1 MoE ramp, handoff, tail (box)
+
+MoE lane, relaunched 09:17 PT. Question: of the decode 1 MoE's non-stream time (TINY build, helper0, T = 1; the
+timeline lane's ramp 3.1, handoff 2.2 and tail 2.1 us), which piece has a mechanism one edit can take? Base:
+muse_decode_layer/cand/ly_rfx.py (SHA256 60ef465d47ff76cd83e236fc8d4768bc18eda7b77e2353e32f2c36491b704fda, the public
+row caed0290397b44a7, never edited). Box only (okc-h200), every GPU process under gpu.lock, no judge check. The layer
+lane shared the box (ly_trga, ly_finb1, ly_v1un); its runs and mine queued on the lock. At decode 1 the MoE is the
+`tiny` build (M <= MOE_TINY_MAX_M = 4: OKC_NW 8, WS 1, FAST1 2, three 36,864-byte ring slots, helper warp).
+
+### Instruments (stamped copies, never candidates)
+
+All four are `tools/dl_ly_pmt_patch.py` copies (helper0's own DBG slots, written only when the launch passes the
+fourth scratch tensor, so the plain graph runs the base's code) with more stamps, run by `tools/ly_box_pmt.py --raw
+20` (plain and instrumented graph of the whole layer per fresh input, PDL pinned, router seed 106218864389449120,
+f931 case seeds, local_start per input, 20 inputs per cell), summarized by `tools/ly_mtl_summary.py` and
+`tools/ly_mtl23_summary.py`. JSONs and logs: `muse_decode_layer/profiles/box/moe/`.
+
+- ly_mtl (`tools/dl_ly_mtl_patch.py`): adds thread 0's first ring slot full (slot 6) and first phase B unit past
+  its doneA wait (slot 7).
+- ly_mtl3 (`tools/dl_ly_mtl3_patch.py`): the prologue: FAST1 copies issued, launch generation stored, route()
+  done, WS_JOIN passed, first job's x in registers (an empty asm consumes every x0 register), first slot.
+- ly_mtl2 / ly_mtl4 (`tools/dl_ly_mtl2_patch.py`, `dl_ly_mtl4_patch.py`): the helper's doneA credit for the CTA's
+  last phase A unit: partials in, epilogue issued, before and after the credit fence, atomicAdd issued.
+
+### Where the time goes (measurements, base, medians over 20 inputs, us from the first MoE CTA's entry; mean CTA, latest CTA in brackets)
+
+| stamp | sliding | full |
+|---|---:|---:|
+| launch generation stored (thread 0) | 0.60 | 0.58 |
+| FAST1 warp's two first-unit copies issued | 1.13 (1.25) | 1.10 (1.23) |
+| route() done | 2.20 (2.34) | 2.15 (2.29) |
+| WS_JOIN passed (unit ranges published) | 2.39 (2.53) | 2.35 (2.50) |
+| first job's x rows in registers | 2.99 (3.14) | 2.94 (3.09) |
+| first ring slot full (thread 0's mbar_wait returns) | 3.06 (3.65) | 3.01 (3.65) |
+| phase A end (thread 0) | 11.93 (12.51) | 11.91 (12.69) |
+| first phase B unit past its doneA wait | 14.21 (14.40) | 14.23 (14.45) |
+| phase B end | 19.15 (19.46) | 19.17 (19.50) |
+| past the grid barrier | 20.70 | 20.63 |
+| last CTA's exit | 23.20 | 21.39 |
+
+(The prologue rows come from ly_mtl3, the rest from ly_mtl; the first-slot row agrees between the two within 0.03.)
+
+Ramp. The compute warps reach their first weights at 3.0 us, and on the mean CTA the weights are not what they wait
+for: the x rows of the first job land 0.60 us after WS_JOIN, the slot is full 0.07 to 0.10 us later. The chain is
+the prologue: route() ends 1.6 us after the generation is stored, then the ranges, WS_JOIN, and an L2 round trip for
+x. Which warp route()'s CTA barriers wait on is not stamped; the FAST1 warp, which issues its copies only at 1.1 us
+and then runs the x prefetch and LUT loops before it enters route(), is the likely one (hypothesis). The weights gate
+only the latest CTAs (3.65 against a 3.06 mean).
+
+Handoff (ly_mtl4, two runs of the base; the instrumented graph is about 1.7 us slower than the plain one):
+
+| piece of the CTA's last phase A unit | sliding | full |
+|---|---:|---:|
+| thread 0's phase A end to the helper holding all eight warps' partials | 0.57 / 0.87 | 0.55 / 0.56 |
+| the helper's epilogue (sum, SwiGLU, inter stores) | 0.31 / 0.35 | 0.31 / 0.32 |
+| the credit's `__threadfence` (MEMBAR.SC.GPU), mean CTA (latest) | 0.54 (1.06) / 0.46 (0.86) | 0.66 (1.23) / 0.65 (1.10) |
+| the same fence on the CTA that credits last | 0.58 / 0.53 | 0.53 / 0.50 |
+| __syncwarp and the atomicAdd issue | 0.14 / 0.13 | 0.14 / 0.15 |
+| last credit to the first phase B start (poll detection) | 0.19 / 0.21 | 0.19 / 0.19 |
+
+So the 2.2 us is a chain of five pieces, none over 0.9 us: the warps' last unit and partial hand-off, the epilogue,
+the fence's drain of the inter stores, the atomic, the poll. Every CTA starts phase B within 0.2 us of the last
+credit.
+
+Tail. Measured by the layer lane's ly_pmt_rfx / ly_pmt_trga runs ("Decode 1 finish and slice launch"): the last 8
+CTAs' final pass takes 1.29 us after the barrier at sliding and 0.47 at full; at sliding it overlaps the slice's 6.3
+MB code stream (468 of 512 slice CTAs hold their codes before the MoE's exit), at full the code stream runs after the
+exit (0 of 512; the wait returns up to 2.5 us after the exit). With the slice's codes moved off that window (ly_trga)
+the final pass takes 0.39 us in both cells.
+
+### Candidate ly_rpf: the route kernel prefetches each MoE CTA's first unit (ramp; loss)
+
+`tools/dl_ly_rpf_patch.py` writes `muse_decode_layer/cand/ly_rpf.py` (SHA256
+6c270dcbbf9819351e17f5ed0c637501df7727fce7b07cfb53dcc47f132f489f): at T = 1 the route launch
+(`_prq_sl_tile_route_cg`) gets NSM = 132 extra programs; each runs the same sigmoid / bias / top-8 as the storing
+program, stores nothing, and issues one `cp.async.bulk.prefetch.L2.global` (36,864 B, thread 0) of the unit that MoE
+CTA c requests first under TINY's FAST1 split (no dynamic pool in TINY): v0 = floor(popc(m) x 512 x c / 132),
+expert = the (v0 >> 9)-th set bit of the local mask, address wAu + (expert x 512 + (v0 & 511)) x 36,864. The PTX of
+the compiled route kernel holds the predicated prefetch once. No value changes; ids / lids / wts stores, every wait,
+trigger and the MoE source are the base's. Built before the prologue stamps existed, on the hypothesis that the
+first wave's 9.7 MB gated the ramp.
+
+Correctness (`ly_prtl_ab.sh` chk step, `bx_box_run.py --runs 5`, six loads): reference check PASS at 12 cells,
+G_RELEASE_STARTUP_OK (56 verified replays), CG_GATE line equal to the control's. (The first build missed the T = 16
+graft path's call of the same kernel and failed there with a missing-argument TypeError; the parameters got
+defaults and the run was restarted; that file is not the one measured.)
+
+Paired A/B against ly_rfx (c/w/c/w/c, 60 runs, six loads, PDL pinned, two rounds back to back,
+`muse_decode_layer/profiles/box/rpf/`, `table_both_rounds.txt`), net us, pooled over 6 control and 4 candidate runs:
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.64 | 0.80 | 66.49 | +1.85 | 1.60 | 0/24 | loss |
+| decode 1 full | 70.95 | 0.70 | 73.06 | +2.11 | 1.41 | 0/24 | loss |
+| decode 16 sliding | 126.80 | 1.18 | 127.03 | +0.23 | 2.37 | 9/24 | inside |
+| decode 16 full | 199.32 | 2.42 | 199.08 | -0.24 | 4.83 | 12/24 | inside |
+| decode 32 sliding | 143.47 | 1.28 | 144.06 | +0.58 | 2.56 | 3/24 | inside |
+| decode 32 full | 294.88 | 0.86 | 294.64 | -0.24 | 2.95 | 18/24 | inside |
+| verify 1 sliding | 102.14 | 0.67 | 101.95 | -0.19 | 1.34 | 13/24 | inside |
+| verify 1 full | 110.38 | 0.98 | 110.34 | -0.04 | 1.95 | 12/24 | inside |
+| verify 16 sliding | 242.71 | 0.93 | 242.31 | -0.40 | 2.43 | 16/24 | inside |
+| verify 16 full | 326.47 | 1.44 | 326.70 | +0.23 | 3.26 | 5/24 | inside |
+| verify 32 sliding | 294.51 | 1.20 | 294.41 | -0.10 | 2.95 | 12/24 | inside |
+| verify 32 full | 458.23 | 1.23 | 458.21 | -0.02 | 4.58 | 12/24 | inside |
+
+Round by round: decode 1 +1.79 / +2.06 (round 1), +1.90 / +2.17 (round 2), every pair positive. Why (kernel
+timeline, `tools/ly_tl_run.py --kernels`, 10 profiled cold replays, `profiles/box/rpf/kernel_timeline.txt`): the
+route kernel's critical path (its end minus the pooler's end) grows from 1.44 to 3.90 us (sliding) and 1.43 to 3.86
+(full); the MoE is 0.21 / 0.28 us shorter; span 65.57 -> 67.54, 70.93 -> 73.42. Stamped candidate (ly_mtl_rpf): the
+mean first slot moves 3.06 -> 3.02 / 3.01 -> 2.98, the latest CTA's 3.65 -> 3.22 / 3.65 -> 3.20; phase A end
+unchanged within 0.1. The prefetch reaches L2 (the slowest CTAs' first slot is 0.4 us earlier), but the mean CTA
+was gated by the prologue (table above), so it bought 0.2 to 0.3 us and the 133-program route launch cost 2.4.
+
+### Candidate ly_cfar: the credit fence as fence.acq_rel.gpu (handoff; null)
+
+`tools/dl_ly_cfar_patch.py` writes `muse_decode_layer/cand/ly_cfar.py` (SHA256
+c7586fadec52f9d5bacce2de9cdc944c139d6a8fb75cb99bd941d651b8064a3d): in ws_helper's credit block (q == nA - 1) every
+helper lane executes `fence.acq_rel.gpu` where it executed `__threadfence()` (fence.sc.gpu), TINY only
+(`-DOKC_CFAR=1`; TINY2 and MID preprocess to the base). Ordering (PTX ISA, Memory Consistency Model, "Release and
+acquire patterns"): a release pattern is a release operation, or a strong write preceded in program order by
+fence.acq_rel or fence.sc, so lane 0's [fence; atomicAdd] stays a release pattern; the consumers' ld.acquire.gpu poll
+is unchanged; the other lanes' inter stores reach lane 0's pattern through __syncwarp exactly as in the base, whose
+argument for them never used the fence-SC total order (no reader of doneA executes fence.sc). No fence removed, no
+proxy fence, barrier, acquire, atomic, wait or trigger moved. SASS (`tools/ly_micro_sass.py` on the box, nvcc 13.0,
+tiny build, `profiles/box/moe/sass_tiny_{rfx,cfar}_report.json`): the two files' SASS differ in exactly two lines,
+MEMBAR.SC.GPU -> MEMBAR.ALL.GPU in each moe_fused instantiation; 145 registers, 0 local, same instruction count.
+
+Correctness: PASS at 12 cells, startup OK, CG_GATE equal to the control's. Paired A/B against ly_rfx, same recipe,
+two rounds (`muse_decode_layer/profiles/box/cfar/`):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.58 | 0.54 | 64.66 | +0.07 | 1.09 | 9/24 | inside |
+| decode 1 full | 70.75 | 0.38 | 70.64 | -0.11 | 0.77 | 15/24 | inside |
+| decode 16 sliding | 126.78 | 1.09 | 126.88 | +0.10 | 2.18 | 8/24 | inside |
+| decode 16 full | 199.24 | 1.31 | 199.65 | +0.41 | 2.62 | 9/24 | inside |
+| decode 32 sliding | 143.86 | 1.33 | 143.92 | +0.06 | 2.66 | 12/24 | inside |
+| decode 32 full | 295.12 | 1.23 | 295.06 | -0.06 | 2.95 | 14/24 | inside |
+| verify 1 sliding | 102.06 | 0.90 | 101.93 | -0.12 | 1.79 | 14/24 | inside |
+| verify 1 full | 110.29 | 1.12 | 110.65 | +0.36 | 2.24 | 7/24 | inside |
+| verify 16 sliding | 242.20 | 3.28 | 242.98 | +0.78 | 6.56 | 9/24 | inside |
+| verify 16 full | 326.46 | 2.16 | 325.91 | -0.54 | 4.32 | 18/24 | inside |
+| verify 32 sliding | 294.01 | 1.97 | 294.35 | +0.34 | 3.94 | 9/24 | inside |
+| verify 32 full | 458.14 | 0.83 | 458.32 | +0.18 | 4.58 | 8/24 | inside |
+
+Stamped candidate (ly_mtl4_cfar, two runs): the fence takes 0.46 to 0.48 us on the mean CTA (latest 0.93 to 0.99,
+the last-crediting CTA 0.42 to 0.56) against the base's 0.46 to 0.66 (0.86 to 1.23; 0.50 to 0.58); the other pieces
+are unchanged. MEMBAR.ALL.GPU waits for the same store drain as MEMBAR.SC.GPU, so the fence kind is not the cost.
+
+### Not run: ly_etrig
+
+`tools/dl_ly_etrig_patch.py` / `muse_decode_layer/cand/ly_etrig.py` (b01c57e7..., helper lane 0 fires
+`griddepcontrol.launch_dependents` after the CTA's doneA credit) was built at 09:25 PT, before I found the layer
+lane's ly_trga (the same mechanism, triggered at the compute warps' phase A end) running on the box. Not measured:
+ly_trga's stamps show only one slice CTA per SM fits beside the TINY CTA, so the same late-wave loss applies to any
+earlier trigger while the slice is 512 CTAs.
+
+### Decision
+
+No candidate for a judge check: ly_rpf loses (+1.85 / +2.11 us at decode 1, 0 of 24 pairs below the control in
+either cell), ly_cfar is a null (+0.07 / -0.11, 9 and 15 of 24). Measurements that carry forward: the decode 1 ramp
+is the prologue chain (route() done at 2.2 us, x for the first job 0.6 us after WS_JOIN), not the first wave of
+weights; the handoff is five pieces of 0.13 to 0.9 us each, and the credit fence costs the same in either kind.
+
+Next (hypotheses, not built):
+
+1. The MoE prefetches the slice's codes. At phase B start (past the doneA wait, when the B units are already in the
+   3-slot ring and DRAM carries only the fourth unit), each of the 132 MoE CTAs issues `cp.async.bulk.prefetch.L2`
+   for its 48 KB share of the slice's 6.3 MB of prepare-time codes. The slice keeps its launch at the phase B end
+   trigger and its 512 CTAs; their code loads then hit L2 instead of DRAM. Targets: at full the 1.5 to 1.6 us code
+   stream after the MoE's exit, at sliding the 0.8 to 0.9 us the code stream adds to the final pass. Bound about 1
+   us per decode 1 cell. Cheapest test: the stamped pair (ly_pmt) on the edited file, then the A/B. It needs no
+   slice reshaping and no trigger move, so it is an alternative to the layer lane's 132-CTA slice idea. ly_rpf
+   showed a 132-SM bulk prefetch does reach L2 (its slowest CTAs' first slot moved 0.4 us earlier).
+2. At M = 1 every job's x is token 0: the compute warps can load their x slice right after the entry wait,
+   which removes the 0.6 us x round trip after WS_JOIN from the ramp; the first slot then gates (about 0.1 to 0.6
+   us left on the mean CTA, unmeasured).
+3. The handoff's largest piece is the 0.55 to 0.87 us from warp 0's last phase A unit to the helper holding all
+   eight warps' partials (warp skew or the partial hand-off; not separated, needs per-warp stamps).
