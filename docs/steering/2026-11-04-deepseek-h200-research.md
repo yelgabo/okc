@@ -248,3 +248,9 @@ This pass read pushed source, current steering and owning archived results. It d
 [head-main]: https://github.com/yelgabo/okc/blob/f370e3aa84114ecef5d6e71a98c1c673996d3d15/docs/lanes/moe-gbm.md
 [head-mid]: https://github.com/yelgabo/okc/blob/f370e3aa84114ecef5d6e71a98c1c673996d3d15/docs/lanes/moe-gb.md
 [head-delta]: https://github.com/yelgabo/okc/commit/f370e3aa84114ecef5d6e71a98c1c673996d3d15
+
+### Publication-time addendum — whole-layer barrier lane
+
+A final read of the ledger at `2e38e17a54f2df97eecce400e46ebbb524cb3699` includes a newer **14:08 PT** entry: the user requested the barrier lesson and a whole-layer synchronization search. The existing **`barriers`** lane is now opened to inventory synchronization points, rank them by opportunity, and build at most two small repairs on **stk4**, with a **17:30 PT** stop. The layer-guide was also relaunched after compaction. This supplements section E: `barriers` and `moe-dfybf` are both existing owned work; neither is a new Research assignment. [Publication-time ledger](https://github.com/yelgabo/okc/blob/2e38e17a54f2df97eecce400e46ebbb524cb3699/docs/steering/2026-11-02-final-day-directive.md#ledger)
+
+The newly retained working lesson strengthens the research direction: audit the reason a feature was forced off, recheck exact “by construction” exclusions, and ask what each consumer actually needs before accepting an all-producer wait. Engineering scope is not the old short-load quota restriction. This does not make disabled code automatically safe, turn floor distance into exposed savings, or erase exact negative measurements. The existing owners must still establish publication, progress, lifetime and complete-call benefit for each small repair. [Retained barrier lesson](https://github.com/yelgabo/okc/blob/2e38e17a54f2df97eecce400e46ebbb524cb3699/docs/steering/2026-11-01-working-principles.md#november-4-lesson-the-moe-grid-barrier-removal)
