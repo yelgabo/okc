@@ -1,0 +1,127 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793820079.684 acquire start after 17.7 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.88), ('sk2', 7.84), ('torch', 10.24)] -> ('cg',)
+BXLOCK 1793820082.905 release build muse_acl_2566c43e11c9
+BXBUILD 1793820082.905 start build muse_acl_2566c43e11c9
+BXBUILD 1793820123.498 end build muse_acl_2566c43e11c9
+BXLOCK 1793820123.761 acquire build muse_acl_2566c43e11c9 done after 0.3 s
+BXCLOCK submission clocks now 0.3 s behind real (lock waits after builds)
+BXLOCK 1793820123.833 release triton _prq_sl_tile_route_cg
+BXBUILD 1793820123.833 start triton _prq_sl_tile_route_cg
+BXBUILD 1793820124.680 end triton _prq_sl_tile_route_cg
+BXLOCK 1793820124.680 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.3 s behind real (lock waits after builds)
+BXLOCK 1793820124.682 release triton _sl_cluster_finish_cg
+BXBUILD 1793820124.682 start triton _sl_cluster_finish_cg
+BXBUILD 1793820124.778 end triton _sl_cluster_finish_cg
+BXLOCK 1793820124.778 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.3 s behind real (lock waits after builds)
+BXLOCK 1793820124.815 release triton _prq_sl_tile_route_cg
+BXBUILD 1793820124.815 start triton _prq_sl_tile_route_cg
+BXBUILD 1793820125.582 end triton _prq_sl_tile_route_cg
+BXLOCK 1793820141.759 acquire triton _prq_sl_tile_route_cg done after 16.2 s
+BXCLOCK submission clocks now 16.4 s behind real (lock waits after builds)
+BXLOCK 1793820141.762 release triton _sl_cluster_finish_cg
+BXBUILD 1793820141.762 start triton _sl_cluster_finish_cg
+BXBUILD 1793820141.861 end triton _sl_cluster_finish_cg
+BXLOCK 1793820141.861 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 16.4 s behind real (lock waits after builds)
+BXLOCK 1793820141.914 release triton _prq_sl_tile_route
+BXBUILD 1793820141.914 start triton _prq_sl_tile_route
+BXBUILD 1793820142.755 end triton _prq_sl_tile_route
+BXLOCK 1793820142.755 acquire triton _prq_sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 16.4 s behind real (lock waits after builds)
+BXLOCK 1793820142.805 release triton _graft_row_boundary_pre
+BXBUILD 1793820142.805 start triton _graft_row_boundary_pre
+BXBUILD 1793820142.895 end triton _graft_row_boundary_pre
+BXLOCK 1793820142.896 acquire triton _graft_row_boundary_pre done after 0.0 s
+BXCLOCK submission clocks now 16.4 s behind real (lock waits after builds)
+BXLOCK 1793820142.897 release triton _graft_row_boundary_pre
+BXBUILD 1793820142.897 start triton _graft_row_boundary_pre
+BXBUILD 1793820142.987 end triton _graft_row_boundary_pre
+BXLOCK 1793820142.987 acquire triton _graft_row_boundary_pre done after 0.0 s
+BXCLOCK submission clocks now 16.4 s behind real (lock waits after builds)
+BXLOCK 1793820143.035 release triton _graft_row_boundary
+BXBUILD 1793820143.035 start triton _graft_row_boundary
+BXBUILD 1793820143.123 end triton _graft_row_boundary
+BXLOCK 1793820159.616 acquire triton _graft_row_boundary done after 16.5 s
+BXCLOCK submission clocks now 32.9 s behind real (lock waits after builds)
+BXLOCK 1793820159.621 release triton _graft_route
+BXBUILD 1793820159.621 start triton _graft_route
+BXBUILD 1793820160.498 end triton _graft_route
+BXLOCK 1793820169.407 acquire triton _graft_route done after 8.9 s
+BXCLOCK submission clocks now 41.8 s behind real (lock waits after builds)
+BXLOCK 1793820169.409 release triton _graft_row_boundary
+BXBUILD 1793820169.409 start triton _graft_row_boundary
+BXBUILD 1793820169.509 end triton _graft_row_boundary
+BXLOCK 1793820186.041 acquire triton _graft_row_boundary done after 16.5 s
+BXCLOCK submission clocks now 58.4 s behind real (lock waits after builds)
+BXLOCK 1793820186.179 release triton _graft_row_boundary
+BXBUILD 1793820186.179 start triton _graft_row_boundary
+BXBUILD 1793820186.285 end triton _graft_row_boundary
+BXLOCK 1793820202.668 acquire triton _graft_row_boundary done after 16.4 s
+BXCLOCK submission clocks now 74.8 s behind real (lock waits after builds)
+BXLOCK 1793820202.674 release triton _graft_row_boundary
+BXBUILD 1793820202.674 start triton _graft_row_boundary
+BXBUILD 1793820202.788 end triton _graft_row_boundary
+BXLOCK 1793820219.251 acquire triton _graft_row_boundary done after 16.5 s
+BXCLOCK submission clocks now 91.2 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 144.1 s
+BXLOCK 1793820224.326 release triton _prq_sl_tile_route_cg
+BXBUILD 1793820224.326 start triton _prq_sl_tile_route_cg
+BXBUILD 1793820225.093 end triton _prq_sl_tile_route_cg
+BXLOCK 1793820258.113 acquire triton _prq_sl_tile_route_cg done after 33.0 s
+BXCLOCK submission clocks now 124.2 s behind real (lock waits after builds)
+BXLOCK 1793820258.115 release triton _sl_cluster_finish_cg
+BXBUILD 1793820258.115 start triton _sl_cluster_finish_cg
+BXBUILD 1793820258.220 end triton _sl_cluster_finish_cg
+BXLOCK 1793820274.668 acquire triton _sl_cluster_finish_cg done after 16.4 s
+BXCLOCK submission clocks now 140.7 s behind real (lock waits after builds)
+BOX decode 1 sliding: raw 70.24 net 66.21 us (overhead 4.03) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.938 | check PASS
+BOX decode 1 full: raw 73.41 net 69.42 us (overhead 3.98) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.869 | check PASS
+BXLOCK 1793820275.104 release triton _prq_sl_tile_route_cg
+BXBUILD 1793820275.104 start triton _prq_sl_tile_route_cg
+BXBUILD 1793820275.916 end triton _prq_sl_tile_route_cg
+BXLOCK 1793820291.728 acquire triton _prq_sl_tile_route_cg done after 15.8 s
+BXCLOCK submission clocks now 156.5 s behind real (lock waits after builds)
+BXLOCK 1793820291.731 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793820291.731 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793820291.831 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793820310.651 acquire triton _graft_row_boundary_pre_cg done after 18.8 s
+BXCLOCK submission clocks now 175.3 s behind real (lock waits after builds)
+BOX decode 16 sliding: raw 128.06 net 123.98 us (overhead 4.08) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.969 | check PASS
+BOX decode 16 full: raw 206.66 net 202.30 us (overhead 4.35) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.961 | check PASS
+BXLOCK 1793820311.220 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793820311.220 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793820311.315 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793820345.449 acquire triton _graft_row_boundary_pre_cg done after 34.1 s
+BXCLOCK submission clocks now 209.5 s behind real (lock waits after builds)
+BOX decode 32 sliding: raw 143.52 net 139.39 us (overhead 4.13) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.927 | check PASS
+BOX decode 32 full: raw 300.00 net 296.19 us (overhead 3.81) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.973 | check PASS
+BXLOCK 1793820346.316 release triton _prq_sl_tile_route_cg
+BXBUILD 1793820346.316 start triton _prq_sl_tile_route_cg
+BXBUILD 1793820347.096 end triton _prq_sl_tile_route_cg
+BXLOCK 1793820379.915 acquire triton _prq_sl_tile_route_cg done after 32.8 s
+BXCLOCK submission clocks now 242.3 s behind real (lock waits after builds)
+BXLOCK 1793820379.916 release triton _sl_cluster_finish_cg
+BXBUILD 1793820379.916 start triton _sl_cluster_finish_cg
+BXBUILD 1793820380.018 end triton _sl_cluster_finish_cg
+BXLOCK 1793820396.838 acquire triton _sl_cluster_finish_cg done after 16.8 s
+BXCLOCK submission clocks now 259.1 s behind real (lock waits after builds)
+BOX verify 1 sliding: raw 98.59 net 94.46 us (overhead 4.13) | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.889 | check PASS
+BOX verify 1 full: raw 117.63 net 113.82 us (overhead 3.81) | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.955 | check PASS
+BOX verify 16 sliding: raw 240.54 net 236.22 us (overhead 4.32) | judge net 250.02 (n=1, 250.02-250.02) box/judge 0.945 | check PASS
+BOX verify 16 full: raw 325.57 net 321.57 us (overhead 4.00) | judge net 335.01 (n=1, 335.01-335.01) box/judge 0.960 | check PASS
+BOX verify 32 sliding: raw 300.00 net 296.13 us (overhead 3.87) | judge net 308.45 (n=1, 308.45-308.45) box/judge 0.960 | check PASS
+BOX verify 32 full: raw 460.51 net 456.48 us (overhead 4.03) | judge net 468.64 (n=1, 468.64-468.64) box/judge 0.974 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 60 hits, 0 computed
+BXPHASE import_torch=19.00 load_reference_cuda_init=0.00 weights_and_router=0.24 prepare_submission=144.13 fresh_inputs=0.90 check=172.14 capture=0.18 overhead_graphs=1.37 replays=0.04 cell_tail=0.02 json_write=0.00 total=338.03
