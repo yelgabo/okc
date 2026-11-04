@@ -13,6 +13,11 @@ Variants (docs/runs-decode-layer.md "Blueprint builds (fable lane)"):
           (POST) keeps its stream (s1) load behind the wait with .cg.
   finpre  T <= 8 boundary 2 (_sl_cluster_finish_cg): the NEXT weight load (the next input's norm weight, a prepare-time
           constant) moves before gdc_wait; carry, tail and the slice stay behind the wait with .cg.
+Diagnostics (timing only, wrong routing, run with --no-check; never candidates):
+  rtdiag_ctl  T = 1: the route kernel reads the previous call's pooled / logits (state buffers copied after the finish
+          kernel), so its routing is stale by one replay; kernel order unchanged.
+  rtdiag_var  the same stale route launched before the pooler + router, so the MoE follows the pooler directly: the
+          difference to rtdiag_ctl bounds what a route-in-MoE fusion could save at decode 1.
 No fence, barrier, mbarrier or griddepcontrol.wait removed; no new PDL edge; no launch attribute change.
 """
 import argparse
@@ -93,8 +98,101 @@ FIN_NEW = """    o = tile*BC+tl.arange(0,BC)
     outcarry = tl.load(CARRY+t*8192+o, cache_modifier='.cg')
 """
 
+RT_ANCHOR = """    if S == -1:
+        pooled, logits = P
+        _graft_al(pooled, logits, xm, ids, wts, lids)
+        _sl_tile_route_cg[(T,SL_TILE_CONFIG[T][1]+1)](pooled, logits, logits, state["bias"], state["g_preexp"], ids, wts, xm,
+                             data["local_start"], lids, SPLIT=True, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=_pdl8_edge("route"))
+"""
+RT_CTL = """    if S == -1:
+        pooled, logits = P
+        if T == 1:  # rtdiag: route from the previous call's pooled / logits (stale by one replay; timing only)
+            rb = state.setdefault("rtd", {})
+            if "p" not in rb:
+                rb["p"], rb["l"] = torch.zeros_like(pooled), torch.zeros_like(logits)
+            rtp, rtl = rb["p"], rb["l"]
+            rb["src"] = (pooled, logits)
+        else:
+            rtp, rtl = pooled, logits
+        _graft_al(rtp, rtl, xm, ids, wts, lids)
+        _sl_tile_route_cg[(T,SL_TILE_CONFIG[T][1]+1)](rtp, rtl, rtl, state["bias"], state["g_preexp"], ids, wts, xm,
+                             data["local_start"], lids, SPLIT=True, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=_pdl8_edge("route"))
+"""
+RT_VAR = """    if S == -1:
+        pooled, logits = P
+        if xm_rt is not None:
+            xm = xm_rt
+            state["rtd"]["src"] = (pooled, logits)
+        else:
+            if T == 1:
+                rb = state.setdefault("rtd", {})
+                rb["p"], rb["l"] = torch.zeros_like(pooled), torch.zeros_like(logits)
+                rb["src"] = (pooled, logits)
+            _graft_al(pooled, logits, xm, ids, wts, lids)
+            _sl_tile_route_cg[(T,SL_TILE_CONFIG[T][1]+1)](pooled, logits, logits, state["bias"], state["g_preexp"], ids, wts, xm,
+                             data["local_start"], lids, SPLIT=True, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=_pdl8_edge("route"))
+"""
+RT_POOL_OLD = """    P, S = _pool_router_fp32(h, hr, T, state, ppick)
+    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                               marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+    use_marlin = moe == "marlin"
+    use_ma = moe == "agent"
+    if not (use_marlin or use_ma):
+        raise RuntimeError("no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available")
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    if S == -1:
+        pooled, logits = P
+        if xm_rt"""
+RT_POOL_NEW = """    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)
+    wts = torch.empty((T, 8), **f32)
+    xm_rt = None
+    if T == 1 and "p" in state.get("rtd", {}):  # rtdiag: the stale route goes before the pooler, so the MoE follows the pooler directly
+        rtp, rtl = state["rtd"]["p"], state["rtd"]["l"]
+        xm_rt = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+        _graft_al(rtp, rtl, xm_rt, ids, wts, lids)
+        _sl_tile_route_cg[(T,SL_TILE_CONFIG[T][1]+1)](rtp, rtl, rtl, state["bias"], state["g_preexp"], ids, wts, xm_rt,
+                             data["local_start"], lids, SPLIT=True, EARLY=SL_ROUTE_CONFIG[T][2], MODE=SL_ROUTE_CONFIG[T][1], PARTS=SL_TILE_CONFIG[T][1], PRELOAD=SL_TILE_CONFIG[T][2], num_warps=SL_TILE_CONFIG[T][0], launch_pdl=_pdl8_edge("route"))
+    P, S = _pool_router_fp32(h, hr, T, state, ppick)
+    moe = _pick_expert_backend(state["moe_pick"].get(T, state["moe_pick"].get(_bucket(T), "agent")),
+                               marlin_available=state["bank"] is not None, agent_available=state["ma_ok"])
+    use_marlin = moe == "marlin"
+    use_ma = moe == "agent"
+    if not (use_marlin or use_ma):
+        raise RuntimeError("no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available")
+    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)
+    if S == -1:
+        pooled, logits = P
+        if xm_rt"""
+RT_RET_OLD = """    _sl_cluster_finish_cg[(T,8192//bc)](P,T,s1,tail,g['beta2'],g['post2'],g['pre2'],s2,out,BC=bc,num_warps=nw,launch_pdl=_pdl8_edge("fin"))
+    return out, s2, ids
+
+
+def _pdl8_graft_after_attention("""
+RT_RET_NEW = """    _sl_cluster_finish_cg[(T,8192//bc)](P,T,s1,tail,g['beta2'],g['post2'],g['pre2'],s2,out,BC=bc,num_warps=nw,launch_pdl=_pdl8_edge("fin"))
+    if T == 1 and state.get("rtd", {}).get("src") is not None:  # rtdiag: this call's pooled / logits feed the next call's route
+        _rp, _rl = state["rtd"].pop("src")
+        state["rtd"]["p"].copy_(_rp)
+        state["rtd"]["l"].copy_(_rl)
+    return out, s2, ids
+
+
+def _pdl8_graft_after_attention("""
+
 
 def apply(s, v):
+    if v in ("rtdiag_ctl", "rtdiag_var"):
+        i = s.index("def _pdl8_sl_tile_after_attention(")
+        j = s.index("\ndef _pdl8_graft_after_attention(", i)
+        t = s[i:j + 40]
+        t = once(t, RT_ANCHOR, RT_CTL if v == "rtdiag_ctl" else RT_VAR, v)
+        if v == "rtdiag_var":
+            t = once(t, RT_POOL_OLD, RT_POOL_NEW, v)
+        t = once(t, RT_RET_OLD, RT_RET_NEW, v)
+        return s[:i] + t + s[j + 40:]
     if v == "finpre":
         return once(s, FIN_OLD, FIN_NEW, v)
     if v == "b2pre":
