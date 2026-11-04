@@ -1,6 +1,6 @@
 # moe-gbm lane checkpoint (MoE grid barrier removal, MAIN build)
 
-Updated 2026-11-04 13:33 PT.
+Updated 2026-11-04 13:40 PT.
 
 ## Base
 
@@ -42,7 +42,18 @@ Diff against ly_stk4 (two lines, both inside MOE_CUDA_SRC):
 - Logs /root/okc/.build/moegb/gbm_gate.log, gate_gbm.log, stress_gbm.log; chk in /root/okc/.build/prtl/gb_gbm/.
 - Gate launched 21:31 UTC (13:31 PT).
 
+## Measurements
+
+- Gate (21:31-21:33 UTC, gate_gbm.log): rc 0; all five PDL8H guards pass (T=1 sliding, T=16 sliding, T=32 full,
+  T=8 full, T=8 sliding; 2000 replays per arm, ids mismatches 0 in every arm).
+- chk (.build/prtl/gb_gbm/chk.log): check PASS at all 12 cells. Single runs, not A/B numbers: verify 16 sliding net
+  236.99 us, verify 32 sliding 296.80.
+- Stress (21:33:52-21:34:36 UTC, stress_gbm.log): PASS. M=33 600 replays, M=128 2000, M=256 2000, M=48/97/200/255 300
+  each; in every replay the output equals ly_stk4 bitwise, the counters of the launch's parity equal 64 * njobs(e)
+  for all 32 local experts exactly, the other parity is all zero, and the parity alternates. Up to 4 jobs per expert
+  (max_tot 256 at M=256); fat jobs 59,993 and skinny jobs 13,628 over the M=256 replays.
+
 ## Next action
 
-Read the gate (five PDL8H guards, chk 12/12) and stress results; if both pass, launch PHASE=ab and tabulate 24 pairs
-per cell with tools/ly_prtl_table.py.
+PHASE=ab launched 21:35 UTC (gbm_ab.log; rounds in /root/okc/.build/prtl/gb_gbm/ and gb_gbm_r2/). Tabulate 24 pairs
+per cell with tools/ly_prtl_table.py, then decide against the bar.
