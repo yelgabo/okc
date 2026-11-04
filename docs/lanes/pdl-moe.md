@@ -90,6 +90,13 @@ and on = {"moe_pdl": {1,8,16,32: True}}, loads decode 1, verify 1, decode 16, de
 under timeout 3000. Outputs: /root/okc/.build/pdlmoe/ab_r1.log, ab_r1.json, ab_r2.log, ab_r2.json; progress
 lines in ab.log ("ab r1 rc=...", "all done"). Check: `ssh okc-h200 'pgrep -af ly_arms; cat /root/okc/.build/pdlmoe/ab.log'`.
 
+## A/B round 1 (done 14:46 PT, ab_r1.log): on faster at all 8 cells
+
+Paired d = on - off, median-style per ly_arms, 60 runs; native build line present, no fallback / marlin; check PASS
+on every arm. decode 1 (T=1): sliding -0.43 (neg 39/60), full -0.64 (43/60). verify 1 (T=8): sliding -0.19 (32/60),
+full -0.34 (37/60). decode 16: sliding -0.35 (39/60), full -0.93 (42/60). decode 32: sliding -0.46 (36/60), full
+-1.12 (44/60). Round 2 was running at 14:47 PT (ab_r2.log).
+
 ## Next action
 
 When ab.log says "all done": `grep ^ARMS` in ab_r1.log and ab_r2.log gives net us per cell and arm; tabulate on - off
