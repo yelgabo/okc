@@ -4682,3 +4682,88 @@ Correctness (box, `ly_prtl_ab.sh` chk step, `bx_box_run.py --runs 5`, six loads,
 `CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok`, the same line as
 the control's prepare in the same session (ab_c_a.log) and as the base's earlier box logs (the one sk2 ulp is
 input-dependent, the cgemv arm matches FP64); timed PDL set {1, 8, 16, 32} on in both arms.
+
+### Paired A/B against ly_fabq (box, 16:22 to 16:26 UTC, two rounds)
+
+`tools/ly_prtl_ab.sh` with CTL=ly_fabq.py, CAND=ly_xca.py: five bx_box_run.py processes c/w/c/w/c per round under
+gpu.lock, all six loads, `--runs 60`, `--pin-pdl8 1,8,16,32 --skip-pdl8-gate`, router seed 106218864389449120, f931
+case seeds, local_start per input; every arm's timed PDL set {1, 8, 16, 32} on, reference check PASS in every run;
+nvidia-smi showed no process outside the lock at either round's start. Round 1 (PFX xca, chk + c/w/c/w/c) was inside
+the bar, so round 2 (PFX xca_r2, c/w/c/w/c) followed at once. Logs and JSONs: `muse_decode_layer/profiles/box/xca/`
+(round1/, round2/, `table_both_rounds.txt`; box `.build/prtl/xca/` and `.build/prtl/xca_r2/`). Tables by
+`tools/ly_prtl_table.py` (threshold max(2 x control spread, 0.5 us) at decode 1 / verify 1, max(2 x spread, 1%)
+elsewhere); net us, candidate mean minus control mean, pairs w_a-c_a, w_a-c_b, w_b-c_b, w_b-c_c.
+
+Round 1:
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|
+| decode 1 sliding | 65.49 | 64.58 | 65.15 | 64.74 | 65.20 | 0.34 | -0.62 | -0.91 -0.58 -0.42 -0.46 | 0.67 | inside |
+| decode 1 full | 72.30 | 71.26 | 71.58 | 71.57 | 72.06 | 0.72 | -0.57 | -1.04 -0.32 -0.02 -0.50 | 1.44 | inside |
+| decode 16 sliding | 126.70 | 126.54 | 126.77 | 127.25 | 126.90 | 0.19 | +0.11 | -0.16 -0.22 +0.48 +0.35 | 1.27 | inside |
+| decode 16 full | 198.96 | 199.06 | 199.86 | 199.15 | 199.42 | 0.90 | -0.31 | +0.10 -0.80 -0.70 -0.27 | 1.99 | inside |
+| decode 32 sliding | 143.36 | 143.52 | 143.46 | 143.81 | 143.55 | 0.19 | +0.21 | +0.16 +0.06 +0.35 +0.26 | 1.43 | inside |
+| decode 32 full | 295.98 | 294.99 | 294.83 | 294.66 | 294.96 | 1.15 | -0.43 | -0.99 +0.16 -0.18 -0.30 | 2.95 | inside |
+| verify 1 sliding | 102.85 | 101.82 | 101.98 | 102.48 | 102.83 | 0.86 | -0.40 | -1.02 -0.16 +0.50 -0.35 | 1.73 | inside |
+| verify 1 full | 110.05 | 109.82 | 111.49 | 110.51 | 110.88 | 1.44 | -0.64 | -0.22 -1.66 -0.98 -0.37 | 2.88 | inside |
+| verify 16 sliding | 242.96 | 241.90 | 243.26 | 244.54 | 244.45 | 1.49 | -0.33 | -1.06 -1.36 +1.28 +0.10 | 2.98 | inside |
+| verify 16 full | 327.34 | 326.00 | 326.85 | 326.27 | 326.85 | 0.50 | -0.88 | -1.34 -0.85 -0.58 -0.58 | 3.27 | inside |
+| verify 32 sliding | 296.48 | 296.06 | 296.34 | 296.53 | 296.16 | 0.32 | -0.03 | -0.42 -0.27 +0.19 +0.37 | 2.96 | inside |
+| verify 32 full | 460.93 | 460.51 | 460.22 | 460.40 | 460.16 | 0.77 | +0.02 | -0.42 +0.29 +0.18 +0.24 | 4.60 | inside |
+
+Round 2:
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|
+| decode 1 sliding | 65.52 | 64.34 | 65.02 | 64.64 | 65.06 | 0.50 | -0.71 | -1.18 -0.69 -0.38 -0.42 | 0.99 | inside |
+| decode 1 full | 71.94 | 71.04 | 71.68 | 71.54 | 72.42 | 0.74 | -0.72 | -0.90 -0.64 -0.14 -0.88 | 1.47 | inside |
+| decode 16 sliding | 126.91 | 126.80 | 126.42 | 127.02 | 126.77 | 0.50 | +0.21 | -0.11 +0.38 +0.61 +0.26 | 1.27 | inside |
+| decode 16 full | 200.03 | 199.23 | 200.10 | 198.99 | 199.01 | 1.09 | -0.60 | -0.80 -0.86 -1.10 -0.02 | 2.18 | inside |
+| decode 32 sliding | 144.67 | 144.27 | 144.32 | 144.02 | 143.95 | 0.72 | -0.17 | -0.40 -0.05 -0.30 +0.06 | 1.44 | inside |
+| decode 32 full | 294.88 | 295.15 | 295.23 | 295.04 | 295.46 | 0.58 | -0.09 | +0.27 -0.08 -0.19 -0.42 | 2.95 | inside |
+| verify 1 sliding | 102.56 | 102.35 | 102.74 | 102.46 | 102.35 | 0.38 | -0.14 | -0.21 -0.38 -0.27 +0.11 | 0.77 | inside |
+| verify 1 full | 110.67 | 110.43 | 110.82 | 110.34 | 110.30 | 0.51 | -0.21 | -0.24 -0.38 -0.48 +0.03 | 1.02 | inside |
+| verify 16 sliding | 243.15 | 242.62 | 244.26 | 243.49 | 243.52 | 1.10 | -0.59 | -0.53 -1.63 -0.77 -0.03 | 2.44 | inside |
+| verify 16 full | 327.38 | 327.60 | 327.73 | 327.39 | 327.84 | 0.46 | -0.15 | +0.22 -0.13 -0.34 -0.45 | 3.28 | inside |
+| verify 32 sliding | 296.67 | 297.02 | 297.95 | 297.41 | 297.17 | 1.28 | -0.05 | +0.35 -0.93 -0.54 +0.24 | 2.97 | inside |
+| verify 32 full | 460.26 | 460.00 | 461.18 | 459.70 | 460.45 | 0.93 | -0.78 | -0.26 -1.18 -1.49 -0.75 | 4.61 | inside |
+
+Pooled over both rounds (6 control runs, 4 candidate runs, 24 pairs per cell):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 65.24 | 0.50 | 64.57 | -0.67 | 0.99 | 24/24 | inside |
+| decode 1 full | 72.00 | 0.83 | 71.35 | -0.65 | 1.66 | 24/24 | inside |
+| decode 16 sliding | 126.74 | 0.50 | 126.90 | +0.16 | 1.27 | 7/24 | inside |
+| decode 16 full | 199.56 | 1.14 | 199.11 | -0.45 | 2.27 | 17/24 | inside |
+| decode 32 sliding | 143.89 | 1.31 | 143.90 | +0.02 | 2.62 | 11/24 | inside |
+| decode 32 full | 295.22 | 1.15 | 294.96 | -0.26 | 2.95 | 15/24 | inside |
+| verify 1 sliding | 102.55 | 0.86 | 102.28 | -0.27 | 1.73 | 18/24 | inside |
+| verify 1 full | 110.70 | 1.44 | 110.28 | -0.43 | 2.88 | 18/24 | inside |
+| verify 16 sliding | 243.60 | 1.49 | 243.14 | -0.46 | 2.98 | 15/24 | inside |
+| verify 16 full | 327.33 | 0.99 | 326.82 | -0.51 | 3.27 | 16/24 | inside |
+| verify 32 sliding | 296.79 | 1.79 | 296.76 | -0.04 | 3.58 | 12/24 | inside |
+| verify 32 full | 460.53 | 1.02 | 460.15 | -0.38 | 4.61 | 17/24 | inside |
+
+Reading. The two cells that run the changed kernel (the cgemv slice is launched only at T = 1; T = 8, 16 and 32 use
+the sk2 slice) gain 0.67 / 0.65 us with every one of the 24 pairs in the candidate's favour in both, the same
+magnitude the stamps measured on the instrumented graph (0.83) and the same in both rounds (0.62 / 0.57 then 0.71 /
+0.72); the ten unchanged cells are the session's null (7 to 18 of 24 pairs, -0.51 to +0.16 us). By the table's
+2x-spread rule the cells are "inside"; by sign count a 24/24 result in two independent cells is not noise. The gain
+is 1.0 / 0.9% of the cell, about 0.14% of the board score at the directive's 0.212% per us.
+
+### Decision
+
+The post-MoE tail at decode 1 is separated: wait-return latency 0.5 to 0.6 us (sliding; at full the wait is reached
+only after the 1.63 us weight stream, which the MoE's short final pass no longer hides), x landing for every lane 1.5
+to 1.8 us (the largest part), math 0.7 to 0.9, barrier and store 0.13, end spread 0.7 to 0.9, finish 1.6 (wait 0.4, two
+serial loads 0.9). ly_xca takes the largest part: -0.67 / -0.65 us at decode 1 sliding / full, 24/24 pairs each,
+bitwise identical output, 9 SASS lines changed (cache operator of the x loads), no register or spill change, every
+fence, barrier, wait and trigger as in the base, PDL guard clean at every T, CG_GATE line equal to the control's.
+Judge check: recommended only as a stacking ingredient or as the repeat base switch's content, not for a standalone
+keep-rule decision: 0.14% of score is below one judge draw's spread (ly_rfin, 0.15%, was indistinguishable over two
+draws, ledger 07:18 PT), so one check can establish validity (13/13, guards) but cannot rank it against the row.
+Left open, each at most 1 us: the slice's launch 1.3 to 1.7 us after the MoE's trigger (PDL launch latency, the
+trigger is the MoE lane's); the remaining x tail (1.1 to 1.3 us with L1, a cluster multicast of x would cut L2
+requests further and is untested, ruled-out.md row on x staging notes it); the finish's two serial loads after its
+wait (0.9 us, hypothesis: issue carry and P together). No ruled-out row: the candidate did not lose.
