@@ -738,6 +738,28 @@
       "source_family_ineligible": true,
       "displayed_board_verified": true,
       "individual_service_DQ_flag_present": false
+    },
+    {
+      "job": "03e45b68e75d47fa",
+      "problem": "muse_decode_layer",
+      "score_us": 10262.711075916164,
+      "owner": "Existing clean layer implementation owner / final-day release lead",
+      "judged_arm": "Clean combo2n single arm; allT/all-sixT8 enabled, unpoolerCG selected",
+      "source_identity": "rv_k_combo2n.py;SHA2563ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27;939304B;cleanPDL8d routing restored",
+      "source_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
+      "evidence": "muse_decode_layer/cand/profiles/rv_k_combo2n.03e45b68e75d47fa.json",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0244.md",
+      "release_state": "clean-source-cell-gate-failed-public-submission-registered-review-open",
+      "reason": "VALID13/12/12 at10262.711076us, total<10332 and coarseguards/CG_GATE pass. Registered every-cell<=f931shown*1.03 fails verify32sliding+5.42334% andfull+3.33457%, using median_ns in both owning receipts. Verify16sliding also+1.23552%, so lead no-cell>1% claim is unsupported. 787f070a nevertheless records keep met/public submission registered; no additional user exception located. Existing release lead owns one exact condition disposition; root adds no approval chain, submission, cancellation or withdrawal. This source is free of routing substitution; distinction is failed performance condition, not organizerDQ or numerical failure.",
+      "registered_keep_passes": false,
+      "public_submission_approved": true,
+      "public_submission_approval_scope": "Conditional clean combo2n10332us/allT/clean guards/per-cell f931+3%, registeredf3ba55e1; no blanket waiver of failed cell limit.",
+      "public_submission_condition_satisfied": false,
+      "public_submission_registered_commit": "787f070a",
+      "source_eligibility_review": "Clean routing removal verified; performance condition remains unsatisfied.",
+      "eligible_for_release": false,
+      "release_review_required": true,
+      "per_cell_review_evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0244/combo2n-cell-gate-review.json"
     }
   ],
   "ineligible_source_family_checkpoint": {
@@ -753,12 +775,14 @@
     "source_base": "PDL8d7cb74240",
     "pdl8hn_sha256": "df5cded96b8dc18ab98e022c8a6fde9c4ea18d0d7f85a81a9adcce2b63959968",
     "combo2n_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
-    "state": "Source-bound clean combo2n check running in latest shared snapshot; original owner alone follows.",
+    "state": "Terminal private correctness/score pass; registered f931+3% cell guard fails, public submission registered by lead; condition disposition required",
     "registration_commit": "f3ba55e1",
     "report": "docs/steering/2026-11-04-driver-monitor-0147.md",
     "accepted_job": "03e45b68e75d47fa",
     "accepted_binding_commit": "a53db92a",
-    "latest_report": "docs/steering/2026-11-04-driver-monitor-0244.md"
+    "latest_report": "docs/steering/2026-11-04-driver-monitor-0244.md",
+    "registered_keep_passes": false,
+    "terminal_receipt": "muse_decode_layer/cand/profiles/rv_k_combo2n.03e45b68e75d47fa.json"
   },
   "current_layer_reference": {
     "observed_at": "2026-11-04T02:45:11.256775+00:00",

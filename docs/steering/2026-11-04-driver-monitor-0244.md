@@ -1,6 +1,8 @@
-# Driver monitor: old RS repeat displayed, clean combo2n running
+# Driver monitor: displayed RS repeat and the clean-candidate release gate
 
 November4,2026, **02:45:11UTC** live snapshot; source **a53db92a7012a9079b79297b4a4ce95ab42ea399**. The [current official page and referenced asset](evidence/2026-11-04-driver-monitor-0244/schedule.json), fetched first, still close kernels **November5 at00:00America/Los_Angeles**. Asset `index-Gf_n0dGq.js`, SHA256 `be69a2fc31bcefae834dbce57dc65ac9edfd98f48e1d19e710fa493e093069ff`. No campaign retirement.
+
+**Incoming787f070a supersedes the running-state checkpoint:** cleancombo2n is terminalVALID at**10262.711076us**. It passes the total-score condition but **fails both verify32 cells against the registered f931+3% guard**. The lead nevertheless records keep met/public submission registered. The final section below pins this discrepancy and the current existing-owner action.
 
 ## Displayed score is not an eligible source
 
@@ -41,3 +43,22 @@ Private/scored remaining: **layer38/15,MoE40/16,BF1640/15,attention40/16,prefill
 A separately labeled [eligible-reference numerical audit](evidence/2026-11-04-driver-monitor-0244/eligible-reference-audit.json) uses the **retained f931receipt's score** as the layer comparison input, preserving all raw API snapshots. It also passes **18leads/zero gaps**, accounting for the interval between displayed and eligible-reference scores. Its scope is derived numerical receipt inventory; the live board display remains separately recorded.
 
 Root reused one existing read-only auditor, preserved concurrent work and made no GPU/SSH probe, other-owner judge poll, new worker, timer/helper modification, cancellation, public submission or direct owner message. Repository continuity is not acknowledgment. Newer owning receipts and human directions supersede this checkpoint.
+
+## Incoming terminal receipt — total passes, registered cell limit fails
+
+**03e45b68e75d47fa**, cleancombo2n3ac83fb4/939304bytes, is **VALID13tests/12benchmarks/12profiles**, **10262.711076us/2.204125190x**, CI[2.171063312,2.237187068], startup56. It is1.07864%lower than eligiblePDL8d's historical public point **descriptively across jobs**, not a matched causal gain. AllT/all-sixT8 are enabled andCG_GATE1024/1024 is equal. All five coarse guards pass; T8sliding off326/on176ID differences are within the668limit, **not IDs-equal**. The registered coarse rule permits this; tests and coarse guards remain distinct from ordering proof.
+
+The exact [cell comparison](evidence/2026-11-04-driver-monitor-0244/combo2n-cell-gate-review.json) matches `(load,layer)` and uses **median_ns from both owning receipts**, the CLI's printed “yours” shown-time column. The registered comparison was everycell<=**f931shown*1.03**:
+
+| Cell | f931 shown/us | Combo2n shown/us | Change | 3% guard |
+|---|---:|---:|---:|---|
+| verify32 sliding |308.307110|325.027646|+5.42334%|fails|
+| verify32 full |469.237903|484.884986|+3.33457%|fails|
+
+Verify16sliding is also+1.23552%; all remaining cells are<=1%worse. Thus the lead's787f070a **“no cell worse than1%”** statement and **“keep rule met”** are unsupported against the registeredf931reference. Total<10332 and guard/numerical clauses pass, but the conjunction of frozen keep conditions **does not**. Cross-job variation may explain movement; it does not retrospectively change the chosen guard or establish a causal algorithmic regression.
+
+The same commit registers public submission of exact3ac83fb4 under conditional authority. No separate user waiver or corrected reference evidence is retained here, and no accepted publicID is source-bound in the inspected publication. Closing shared state shows queuedlayer**18291368c3fa46d6** and**6a65f70f74434492**; source identity is not assigned from timing. **Existing release lead owns one exact reconciliation** of the comparison/conditional scope and its registered submission, using the two receipts or explicit newer human disposition. This enforces the existing condition; it creates no new Driver reply gate. Root makes no public POST, cancellation or withdrawal. The central queue preserves the clean source and favorable scalar point with the failed-cell condition and open release review.
+
+**New human instruction8aa7fb2d** already opens an instruction/layout micro lane oncombo2n: phaseAepilogues first, one change at a time, SASS diff then complete-call box A/B, winners stacked inly_micro.py. MID16owner retains job sizing; micro owner has epilogues/stores/loads/math/registers across kernels. Preserve guarded-store bounds, numerical boundaries, memory ordering, lifetime and fresh-output checks. SASS changes are source/build evidence; full-layer effects still require measurement. This private work proceeds under its existing allocation while the release lead resolves the historical guard; root creates no worker or duplicate task.
+
+The **02:53:55UTC** closing snapshot still displays ineligiblee095 at10343.835136us, nowoverall/layer368. Layer private/scored remaining**38/14**; no eligible public result has changed. Closing primary promotion audit is**19numerical leads/zero gaps**, including the new clean-source point with its explicit failed-cell disposition,25bound exports/24jobs and475unlisted exports excluded. The separate eligible-reference inventory is updated with the same fresh own-job binding. [Closing evidence](evidence/2026-11-04-driver-monitor-0244/closing-summary.json) supersedes only the older live/audit counts stated above.
