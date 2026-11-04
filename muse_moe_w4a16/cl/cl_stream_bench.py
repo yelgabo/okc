@@ -147,17 +147,19 @@ def run_config(ext, W, flush, C, depth, k, S, cons_warps, mode, evict_first, pad
         t0, t1 = min(entry), max(done)
         first_done = min(done)
         late = sum(1 for e in entry if e > first_done)
-        busy = [(d - e) * 1e-9 for e, d in zip(entry, done)]
-        per_cta_bw = [n * UNIT / ((d - q) * 1e-9) for n, q, d in zip(taken, ready, done) if d > q and n]
+        act = [i for i, n in enumerate(taken) if n]
+        busy = [(done[i] - entry[i]) * 1e-9 for i in act]
+        per_cta_bw = [taken[i] * UNIT / ((done[i] - ready[i]) * 1e-9) for i in act if done[i] > ready[i]]
         rows.append({
             "event_us": a.elapsed_time(b) * 1e3,
             "span_us": (t1 - t0) * 1e-3,
             "entry_spread_us": (max(entry) - t0) * 1e-3,
-            "first_ready_us": statistics.median([(q - e) * 1e-3 for e, q in zip(entry, ready)]),
+            "first_ready_us": statistics.median([(ready[i] - entry[i]) * 1e-3 for i in act]),
+            "active_ctas": len(act),
             "end_spread_us": (t1 - first_done) * 1e-3,
             "late_ctas": late,
             "distinct_sms": len(set(smid)),
-            "units_min": min(taken), "units_max": max(taken),
+            "units_min": min(taken[i] for i in act), "units_max": max(taken),
             "cta_bw_median_gbs": statistics.median(per_cta_bw) * 1e-9,
             "cta_busy_median_us": statistics.median(busy) * 1e6,
         })
@@ -169,7 +171,9 @@ def run_config(ext, W, flush, C, depth, k, S, cons_warps, mode, evict_first, pad
         "span": span, "event": quantiles([x["event_us"] for x in rows]),
         "floor_us": floor_us, "span_over_floor": span["median"] / floor_us,
         "achieved_tbs": k * EXPERT_BYTES / (span["median"] * 1e-6) * 1e-12,
-        "per_sm_gbs": k * EXPERT_BYTES / (span["median"] * 1e-6) / grid * 1e-9,
+        "active_ctas": statistics.median([x["active_ctas"] for x in rows]),
+        "per_sm_gbs": statistics.median([k * EXPERT_BYTES / (x["span_us"] * 1e-6) / x["active_ctas"] * 1e-9
+                                         for x in rows]),
         "cta_bw_median_gbs": statistics.median([x["cta_bw_median_gbs"] for x in rows]),
         "first_ready_us": statistics.median([x["first_ready_us"] for x in rows]),
         "end_spread_us": statistics.median([x["end_spread_us"] for x in rows]),
@@ -182,7 +186,7 @@ def run_config(ext, W, flush, C, depth, k, S, cons_warps, mode, evict_first, pad
     print(f"RUN C={C:2d} D={depth} k={k:2d} S={S:3d} P={persist:2d} R={consume} mode={mode} ef={evict_first} grid={grid:4d} "
           f"span {span['median']:7.2f} [{span['min']:.2f}-{span['max']:.2f}] us  event {res['event']['median']:7.2f}  "
           f"floor {floor_us:6.2f}  ratio {res['span_over_floor']:.3f}  {res['achieved_tbs']:.2f} TB/s  "
-          f"per-SM {res['per_sm_gbs']:.1f} GB/s (CTA {res['cta_bw_median_gbs']:.1f})  ready {res['first_ready_us']:.2f}  "
+          f"per-SM {res['per_sm_gbs']:.1f} GB/s over {res['active_ctas']:.0f} (CTA {res['cta_bw_median_gbs']:.1f})  ready {res['first_ready_us']:.2f}  "
           f"end-spread {res['end_spread_us']:.2f}  late {res['late_ctas_max']}  sms {res['distinct_sms_min']}  "
           f"units {res['units_min']}-{res['units_max']}", flush=True)
     return res

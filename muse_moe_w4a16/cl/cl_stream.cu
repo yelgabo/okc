@@ -117,6 +117,7 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(512, 1) cl_stream_ke
       cur_slice = sl;
       if (sl < p.n_slices) claim_ctr = p.slice_u0[sl];
     }
+    __syncwarp();
     // The leader's counter and slice id must be set before any CTA reads or claims from them
     // and must not change until every CTA has stopped claiming (the sync at the loop's end).
     cluster.sync();
@@ -168,6 +169,10 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(512, 1) cl_stream_ke
         if (first_ready && ct == 0) st[1] = gtimer();
         first_ready = false;
         if (slot_unit[s] < 0) {
+          // The sentinel's slot is released like any other, or the producer's next wait on this
+          // slot (in the next slice) reads a stale empty phase and the persistent loop deadlocks.
+          __syncwarp();
+          if (lane == 0) mbar_arrive(&empty[s]);
           ++it;
           break;
         }
