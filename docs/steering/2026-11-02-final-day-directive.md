@@ -391,3 +391,5 @@ MoE factorized-output7479372115c64702 is terminal and archived at1454ac73: offic
 - 14:08 PT: user asked for the barrier lesson and a whole-layer barrier search: lesson written to docs/steering/2026-11-01-working-principles.md and AGENTS.md (c411ba60); lane barriers opened (inventory every sync point, rank by pool, build at most two small repairs on ly_stk4, stop 17:30 PT); layer-guide relaunched (lost at compaction).
 
 - 14:17 PT: lane moe-dfybf stopped at budget (checkpoint d3ca74ee). YBF closed on precision (extra post-gamma BF16 round). DF (MID data-flag hand-off) repaired as ly_mdf 28d4422a but unmeasured (MID build failed on the box); lead closed it on ordering grounds (mixed-size relaxed accesses, sentinel hang risk) for 0.05-0.12% of score; reopen trigger in docs/ruled-out.md.
+
+- 14:25 PT: user restarting Claude Code. Repeat-draw loop moved out of the session (.build/repeats/day3_run.sh, own process group); handoff in docs/steering/2026-11-04-top100-push.md; lane barriers ly_fw A/B on the box at restart.
