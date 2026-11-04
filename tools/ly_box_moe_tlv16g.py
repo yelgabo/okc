@@ -46,9 +46,12 @@ class Stamping:
         return getattr(self.ext, name)
 
 
+REORDER = True  # the base's OKC_WGSREORD; --no-reorder for in-order bases (ly_rfin)
+
+
 def wgs_split(pb, g0, g1):
     ue = ((g1 - 1) >> 4) << 4
-    return ue if (pb == 0 and (g1 & 15) != 0 and ue > g0) else g0
+    return ue if (REORDER and pb == 0 and (g1 & 15) != 0 and ue > g0) else g0
 
 
 def issue_order(pb, g0, g1):
@@ -178,7 +181,10 @@ def main():
     ap.add_argument("--ls-cache", default="")
     ap.add_argument("--out", default="")
     ap.add_argument("--raw", type=int, default=0)
+    ap.add_argument("--no-reorder", action="store_true", help="the base runs its phase A range in order (OKC_WGSREORD 0)")
     a = ap.parse_args()
+    global REORDER
+    REORDER = not a.no_reorder
     if a.lock:
         br.release_lock_for_triton()
         br.BudgetClock.install()

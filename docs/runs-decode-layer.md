@@ -4029,3 +4029,167 @@ token routes to one of the four widest experts, which end last, so the net is at
 the final pass's bytes but round y before the weighted sum (numerics); fewer segments per CTA belongs to the
 segment-switch lane. The ramp (option c) was not attempted: the weights producer waits for the x gather, and
 ly_b4_wpre already measured no gain from issuing weights before it.
+## 2026-11-04 - Verify segment switches (box)
+
+Task from the lead (moe lane): cut the number of segment switches each CTA of `okc::moe_fused<true>` pays at verify 16 /
+32, or the cost of each switch at its source, without changing the release path's latency (ly_pub's loss). Base
+`muse_decode_layer/cand/ly_fabq.py` (SHA256 3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555, never
+edited). Box only (okc-h200, 2026-11-04 14:20 to 15:10 UTC, every GPU run under /root/okc/.build/box/gpu.lock, `nvidia-smi`
+showed no foreign process before each launch; the verify-tail lane's runs shared the lock and interleaved with the A/B
+steps), no judge job, no routing slack. Logs: `/root/okc/.build/prtl/rfin3/`, `rfin4/`, `rfin5/` (the three A/B rounds,
+copied to `muse_decode_layer/profiles/box/rfin/round1..3/`), `/root/okc/.build/box/v16/rfin_tl/` (the candidate timeline,
+log copied to `muse_decode_layer/profiles/box/rfin/tl/`), `/root/okc/.build/box/v16/rfin_sass2/` (SASS). Tools:
+`tools/ly_seg_kind.py` (segments per CTA by kind and the switch cost after each kind, from the raw stamps of
+`tools/ly_box_moe_tlv16g.py`, which now takes `--no-reorder`), `tools/dl_ly_rfin_patch.py` (the candidate).
+
+### Segment count and switch cost by kind, before (measurement, base stamps)
+
+`tools/ly_seg_kind.py` on the previous lane's raw stamps (`.build/box/v16/tlv16g.json`, 3 inputs x 132 CTAs per cell).
+A segment is one unit's stages on one CTA; a cut unit has two shares (stream-K). The switch cost is the excess of the
+first two issue gaps of a segment over the steady gap of its n-tile class, attributed to the previous segment's kind
+(its epilogue and deferred flush run inside the next segment's first stage). Reading the base again: `OKC_WGSDFIN` is
+2, so phase A does not use a designated finisher: both shares of a cut unit `red.add` their partials into the unit's
+fixup slot and, deferred, each takes an `atom.acq_rel.gpu` round trip on its count; the last arriver reads the slot
+back, zeroes it and runs the epilogue. Phase B uses the designated finisher (the share holding stage 0, at the CTA's
+end), whose partner only counts with a fire-and-forget release.
+
+| cell | phase A segments per CTA (whole / cut shares) | after a whole unit | after the trailing share (first in order) | after the leading share | phase B segments (whole / cut) | after whole | after the leading share |
+|---|---|---:|---:|---:|---|---:|---:|
+| verify 16 sliding | 5.55 (3.83 / 1.72) | 1.01 us | 2.64 | 3.16 | 3.19 (1.49 / 1.70) | 0.91 | 0.92 |
+| verify 16 full | 5.33 (3.56 / 1.78) | 1.05 | 2.31 | 3.35 | 3.08 (1.37 / 1.71) | 0.92 | 0.99 |
+| verify 32 sliding | 5.81 (4.21 / 1.60) | 1.21 | 2.78 | 3.90 | 3.38 (1.63 / 1.75) | 1.06 | 1.11 |
+| verify 32 full | 6.28 (4.55 / 1.72) | 1.18 | 2.97 | 3.61 | 3.48 (1.93 / 1.55) | 1.07 | 1.25 |
+
+At NTT 1 the three phase A kinds cost 0.90 to 1.03 / 1.96 to 2.53 / 2.50 to 2.88 us; at NTT 8 2.1 to 2.6 / 3.0 to 5.1 /
+4.8 to 7.0. The cut cost does not depend on a job change (same job 2.53 vs job change 2.39 at verify 16 sliding) and is
+therefore the shares' own work, not the ramp. Per CTA and phase A the two cut shares cost about 3 us more than two whole
+switches (NTT 1), 6 to 9 us more at NTT 8; phase B's leading share costs the same as a whole switch (its finisher's cost
+sits in the trailing flush at the phase end, outside the gaps). The segment count itself is set by the unit size (256
+rows x 16 stages, 4.5 to 6.3 units per CTA) and the two range ends; a balance-aware snap of the range ends to unit
+boundaries was modelled and rejected: with the cut cost at 1.3 to 1.6 us per share, a snap window of that size catches
+about 11% more boundaries (the cepi window `OKC_WGSU` already snaps 14%) and leaves the slowest CTAs untouched, so the
+span would not move. The lever chosen is the cost of a cut share at its source.
+
+### Candidate ly_rfin: cut units finished in registers by the share holding stage 0
+
+`tools/dl_ly_rfin_patch.py` writes `muse_decode_layer/cand/ly_rfin.py` (SHA256
+c42c12390ce22538260ebea22820002a2e8acaa6f7526920396b86a4b94cc029) from the pinned base. The MAIN build alone gets
+`-DOKC_RFIN=1 -DOKC_RFINQ=2` (`MAIN_EXTRA_DEFINES`; every other build, B4 of decode 32 included, compiles the base's text).
+Change: ranges run in order in both phases (`OKC_WGSREORD` off), so the share holding stage 0 of a cut unit is its CTA's
+last share of that unit and the other shares, on the CTAs after it, were run first and deposited long before. A share
+that does not hold stage 0 stores its partial sums (plain float4 stores, no atomics) into its own CTA's fixup slot (a
+range holds at most one such share per phase) and releases its stage count to the finisher's counter, deferred as before
+(kind 2: `fence.proxy.async.global`, `bar.sync`, `red.release.gpu`). The share holding stage 0 (both phases,
+`OKC_WGSDFIN` 3) waits for the count at its segment end while its accumulators are live (the base's kind-3 sequence:
+`ld.acquire` loop, `bar.sync`, `fence.acq_rel.gpu`), reads the other shares' slots with `ld.global.cg` (two tiles in
+flight), zeroes each slot it read, adds the values into the accumulators and falls through to the whole-unit epilogue
+and its deferred release (kind 1 / kind 4: the same proxy fence, `bar.sync` and `red.release.gpu` as a whole unit).
+Removed per cut unit: two `atom.acq_rel.gpu` round trips and their deferred waits, one share's `red.add.v4` traffic
+and the atomics' own acknowledgement before the release membar. No fence, barrier or release is removed; the finisher
+never waits by construction (its partner ran first on the next CTA); the sum is a + b as before (the base formed
+0 + a + b by atomics). The inverse range mapping the finisher relies on (`wgs_cta_of` of stage 15 names the last
+depositor) was checked in a 32-bit Python replica of `wgs_prefix` / `wgs_stage_at` / `wgs_cta_of`: 88,884 cut units
+over 800 random job lists, 0 mismatches.
+
+Bug found on the way, in the first build (9b12447d): the finisher did not zero the slots it read, so the B4 build of
+decode 32, which shares the scratch and `red.add`s onto zeros, picked up stale deposits in its own cut units: the
+startup expert comparison failed at M = 32 (global error 0.83, 0.88, 0.69 on the three comparisons; M = 33 / 128 / 256
+bitwise equal to the base on all three route sets). The zeroing store after each read restores the invariant.
+
+Build facts (box, `tools/ly_micro_sass.py` main build, `.build/box/v16/rfin_sass2/`): 96 registers, 0 spill, 0 stack,
+stage loops 304 / 307 / 308 instructions with 16 HGMMA (the base's counts). Correctness (`.build/prtl/rfin3/chk.log`,
+`muse_decode_layer/profiles/box/rfin/round1/chk.log`): `FORK_MOE_ROUTE native repaired`, `G_RELEASE_STARTUP_OK native
+(128, 32, 33, 256, 1, 8, 16) 56 verified_replays`, check PASS at all 12 cells. Direct comparison against the base's MAIN
+build on the self-test's inputs (`.build/box/v16/rfin_diff2.log`: M = 33 / 128 / 256, route sets regular / hot (64-token
+jobs, NTT 8) / partial, two runs each): max |diff| 0 between runs, 0 bad tokens against the base in all nine cases.
+
+### Segment count and switch cost, after (measurement, candidate stamps)
+
+`tools/ly_moe_tlv16.py --base ly_rfin.py` writes `muse_decode_layer/cand/ly_rfin_tlv16.py` (b304d051); run with
+`tools/ly_box_moe_tlv16g.py ... --inputs 20 --raw 20 --no-reorder` (same f931 case seeds and router seed as the base's
+run; `.build/box/v16/rfin_tl/`). Segments per CTA are unchanged (phase A 5.49 / 5.20 / 6.08 / 6.12, phase B 3.16 / 3.03
+/ 3.49 / 3.48, cut shares 1.7 per CTA and phase); the switch after the depositing share now costs 0.92 / 0.95 / 1.04 /
+1.01 us and after a whole unit 0.98 / 1.01 / 1.13 / 1.10 (the four cells in the table's order), so every switch inside a
+phase costs the whole-unit price. The finisher's work moved to the phase end. Base -> candidate medians over the 20
+inputs (us):
+
+| cell | span | phase A | phase B | MFIN wait | final | A-end spread | B-end spread | x producer wait on doneAs | first gap A / B at NTT 1 |
+|---|---|---|---|---|---|---|---|---|---|
+| verify 16 sliding | 145.6 -> 143.2 | 86.0 -> 85.9 | 43.1 -> 42.4 | 6.6 -> 5.3 | 4.3 -> 4.4 | 12.8 -> 10.9 | 10.4 -> 8.3 | 15.2 -> 16.8 | 2.18 / 1.82 -> 1.76 / 1.79 |
+| verify 16 full | 141.2 -> 139.4 | 83.3 -> 82.7 | 41.3 -> 40.9 | 6.2 -> 5.4 | 4.1 -> 4.5 | 12.4 -> 9.9 | 9.4 -> 8.2 | 15.0 -> 16.1 | 2.30 / 1.86 -> 1.79 / 1.79 |
+| verify 32 sliding | 178.7 -> 175.0 | 103.1 -> 103.5 | 52.8 -> 51.6 | 7.2 -> 5.1 | 6.1 -> 6.2 | 15.8 -> 13.7 | 12.3 -> 9.2 | 16.7 -> 18.5 | 2.08 / 1.79 -> 1.79 / 1.76 |
+| verify 32 full | 177.7 -> 177.3 | 103.4 -> 104.8 | 53.2 -> 51.7 | 6.3 -> 5.1 | 6.0 -> 6.1 | 16.3 -> 12.4 | 11.9 -> 9.5 | 17.1 -> 18.7 | 1.95 / 1.76 -> 1.76 / 1.73 |
+
+Reading: phase B shortens by 0.4 to 1.5 us and the MFIN wait by 0.8 to 2.1 us (the phase B finisher at each CTA's end
+no longer adds its own partial through atomics before reading back; the B-end spread falls 1.2 to 3.1 us), and both end
+spreads shrink. Phase A is flat: the 3 us per CTA that left the switch gaps is paid again at the phase end, where the
+finisher's count acquire, read-back round trip and epilogue now sit, and the phase B x producer waits 1.1 to 1.8 us longer
+on doneAs because in range order each CTA's last phase A unit is its cut unit. Steady gaps are unchanged at every NTT
+(0.96 at NTT 1, 1.50 to 1.54 at NTT 8). What remains of the cut cost is one L2 round trip per cut unit per phase at the
+phase end plus the depositor's stores.
+
+### Paired A/B against ly_fabq (box, three rounds)
+
+`tools/ly_prtl_ab.sh` (CTL=ly_fabq.py, c/w/c/w/c in one session per round, `--runs 60`, PDL pinned at 1, 8, 16, 32 in
+both arms, all six loads, five `bx_box_run.py` processes under the lock), 14:52 to 15:01 UTC, no foreign GPU process; the
+verify-tail lane's steps interleaved on the lock. Threshold max(2 x control spread, 0.5 us short cells, 1% long cells);
+table `tools/ly_prtl_table.py`. Round 1 (`.build/prtl/rfin3/`):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | w_a-c_a | w_a-c_b | w_b-c_b | w_b-c_c | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 64.96 | 65.07 | 65.33 | 65.66 | 65.22 | 0.37 | +0.20 | +0.11 | -0.26 | +0.34 | +0.45 | 0.74 | inside |
+| decode 1 full | 72.19 | 71.39 | 70.75 | 71.55 | 71.09 | 1.44 | +0.13 | -0.80 | +0.64 | +0.80 | +0.46 | 2.88 | inside |
+| decode 16 sliding | 126.62 | 127.15 | 127.23 | 127.49 | 127.76 | 1.14 | +0.11 | +0.53 | -0.08 | +0.26 | -0.27 | 2.27 | inside |
+| decode 16 full | 199.04 | 198.70 | 200.88 | 200.67 | 200.56 | 1.84 | -0.47 | -0.34 | -2.18 | -0.21 | +0.11 | 3.68 | inside |
+| decode 32 sliding | 143.92 | 143.87 | 143.76 | 143.57 | 144.08 | 0.32 | -0.20 | -0.05 | +0.11 | -0.19 | -0.51 | 1.44 | inside |
+| decode 32 full | 295.18 | 295.17 | 294.59 | 294.64 | 295.57 | 0.98 | -0.21 | -0.02 | +0.58 | +0.05 | -0.93 | 2.95 | inside |
+| verify 1 sliding | 102.58 | 101.97 | 102.45 | 102.42 | 102.62 | 0.18 | -0.36 | -0.61 | -0.48 | -0.03 | -0.21 | 0.50 | inside |
+| verify 1 full | 110.16 | 109.95 | 110.22 | 111.17 | 110.64 | 0.48 | +0.22 | -0.21 | -0.27 | +0.94 | +0.53 | 0.96 | inside |
+| verify 16 sliding | 243.90 | 243.30 | 244.06 | 243.14 | 243.12 | 0.94 | -0.48 | -0.61 | -0.77 | -0.93 | +0.02 | 2.44 | inside |
+| verify 16 full | 328.13 | 326.74 | 326.85 | 325.78 | 327.10 | 1.28 | -1.10 | -1.39 | -0.11 | -1.07 | -1.33 | 3.27 | inside |
+| verify 32 sliding | 298.02 | 293.42 | 295.78 | 293.74 | 297.42 | 2.24 | -3.49 | -4.59 | -2.35 | -2.03 | -3.68 | 4.48 | inside |
+| verify 32 full | 461.10 | 459.23 | 460.69 | 459.49 | 460.26 | 0.85 | -1.32 | -1.87 | -1.46 | -1.20 | -0.77 | 4.61 | inside |
+
+Rounds 2 and 3 (`rfin4/`, `rfin5/`), the four target cells, w - c mean and the four pair differences: verify 16 sliding
+-1.12 (+0.94, -0.80, -2.35, -2.74) and +0.29 (-0.35, -1.07, +0.30, +1.60); verify 16 full -0.04 (-0.46, +0.90, -0.03,
+-0.10) and -0.99 (-2.38, -2.53, -0.29, +0.83); verify 32 sliding -1.95 (-3.65, -3.18, -1.23, -0.00) and -2.81 (-3.33,
+-2.94, -2.74, -2.26; threshold 2.97); verify 32 full -2.17 (-2.93, -2.51, -1.63, -1.50) and -0.95 (-0.74, -1.62, -1.01,
+-0.82). Pooled over the three rounds (9 controls, 6 candidate runs, 54 pairs per cell):
+
+| cell | control mean | spread | candidate mean | w - c | thr | pairs < 0 |
+|---|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 65.08 | 0.61 | 65.26 | +0.18 | 1.22 | 14/54 |
+| decode 1 full | 71.67 | 1.44 | 71.42 | -0.25 | 2.88 | 42/54 |
+| decode 16 sliding | 126.94 | 1.20 | 127.09 | +0.15 | 2.40 | 17/54 |
+| decode 16 full | 199.59 | 2.35 | 199.31 | -0.28 | 4.70 | 33/54 |
+| decode 32 sliding | 143.98 | 0.59 | 144.17 | +0.18 | 1.44 | 25/54 |
+| decode 32 full | 295.03 | 1.20 | 294.75 | -0.28 | 2.95 | 37/54 |
+| verify 1 sliding | 102.43 | 1.31 | 102.17 | -0.26 | 2.62 | 45/54 |
+| verify 1 full | 110.42 | 0.94 | 110.22 | -0.20 | 1.89 | 40/54 |
+| verify 16 sliding | 243.37 | 2.27 | 242.93 | -0.44 | 4.54 | 35/54 |
+| verify 16 full | 327.09 | 1.98 | 326.38 | -0.71 | 3.97 | 42/54 |
+| verify 32 sliding | 297.01 | 2.26 | 294.26 | -2.75 | 4.51 | 54/54 |
+| verify 32 full | 460.49 | 1.23 | 459.01 | -1.48 | 4.60 | 54/54 |
+
+The eight cells whose builds are the base's text sit within 0.3 us of the control with mixed signs. At verify 32 the
+candidate is faster in every one of the 54 pairs of both cells (-2.75 and -1.48 us mean); at verify 16 full 42 of 54
+(-0.71 us), at verify 16 sliding 35 of 54 (-0.44 us). By the table's rule every cell is inside the threshold, because
+the control spread (2.0 to 2.3 us at three of the four cells, with other lanes' runs between the steps) sets a 4 to 4.6
+us bar that a 1 to 3 us mechanism cannot clear; the sign counts and the timeline (span -2.4 / -1.8 / -3.7 / -0.4 us on
+20 paired inputs) agree on a gain of about 1 to 3 us at verify 32 and about 0.5 to 1 us at verify 16.
+
+Knob variant `ly_rfinq4.py` (f6cc316c, `OKC_RFINQ=4`, four fixup tiles in flight): SASS identical in instruction count
+(22,647) and loops to Q = 2, ptxas already hoists the constant-offset loads. Its own round (`.build/prtl/rfinq4/`,
+`muse_decode_layer/profiles/box/rfin/q4/`, check PASS 12 / 12, startup OK): verify 16 sliding -0.11 (+0.29, +0.43, -0.37,
+-0.64), verify 16 full -1.01 (-1.42, -0.99, -0.98, -0.62), verify 32 sliding -2.41 (-0.88, -1.94, -3.30, -3.74; threshold
+3.01), verify 32 full -1.95 (-0.58, -2.29, -2.51, -2.88): the same class as Q = 2, as the identical SASS predicts; the
+knob is a no-op and ly_rfin (Q = 2) stays the candidate.
+
+Decision: ly_rfin is correct (12 / 12, startup conformance, bitwise equal to the base on nine direct comparisons),
+changes no fence, barrier or release path, costs nothing at the eight untouched cells and gains 1.5 to 2.8 us at
+verify 32 and 0.4 to 0.7 us at verify 16 on the box (pooled means), below the 2 x spread bar of an interleaved session.
+Value at the judge if the box deltas carry: about 0.15% of the layer score (0.046% per us at verify 32, 0.062% at
+verify 16). Recommended to the lead as a judge-check candidate behind anything with a larger measured gain; not a
+ruled-out row. Next lever on the same evidence: the finisher's read-back round trip at the phase end (one per cut unit
+and phase) and the longer doneAs wait of the phase B x producer in range order (1.1 to 1.8 us), which a finisher that
+runs the cut unit before the CTA's last whole unit would move off the phase A end without reintroducing a wait.

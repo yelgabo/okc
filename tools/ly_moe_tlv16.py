@@ -32,6 +32,7 @@ if "--out" in sys.argv:
 SLOTS = 336
 MAIN = 'key, defines = "main", _main_defines(sfx)'
 PUBMAIN = 'tuple(_main_defines(sfx)) + ("-DOKC_PUB=1",)'
+EXTRAMAIN = 'tuple(_main_defines(sfx)) + MAIN_EXTRA_DEFINES'
 
 EXTRA = [
     ("#else\n#define DBG(k) do { if (OKC_DEBUG && threadIdx.x == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (k)] = gtimer(); } while (0)\n#endif\n",
@@ -88,6 +89,8 @@ def main():
         tail = tail.replace(MAIN, 'key, defines = "main", tuple(_main_defines(sfx)) + ("-DOKC_TLB=1",)')
     elif tail.count(PUBMAIN) == 1:  # ly_pub bases: the MAIN build already carries its own define
         tail = tail.replace(PUBMAIN, 'tuple(_main_defines(sfx)) + ("-DOKC_PUB=1", "-DOKC_TLB=1",)')
+    elif tail.count(EXTRAMAIN) == 1:  # ly_rfin bases: the MAIN build's defines are a module tuple
+        tail = tail.replace(EXTRAMAIN, EXTRAMAIN + ' + ("-DOKC_TLB=1",)')
     else:
         sys.exit("MAIN define anchor")
     out = head + tb.START + cu + tb.END + tail
