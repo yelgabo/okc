@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""ly_asp: the verify 1 sliding attention (one request, q_len 8, one KV pair) launched with N splits instead of the
+"""ly_v1sp: the verify 1 sliding attention (one request, q_len 8, one KV pair) launched with N splits instead of the
 plan's 33, through a _TUNED7 entry (nc 1, coop 1). With N < 33 every split holds more than one 64-key tile, so the host
 picks the multi-tile speculative build attn_kernel<8, false, 11> (the verify 1 full instance) instead of the one-tile
 <8, false, 15>. No CUDA source changes.
 
-    python3 tools/dl_ly_asp_patch.py --splits N --src muse_decode_layer/cand/ly_stk1.py --out muse_decode_layer/cand/X.py
+    python3 tools/dl_ly_v1sp_patch.py --splits N --src muse_decode_layer/cand/ly_stk1.py --out muse_decode_layer/cand/X.py
 """
 import hashlib
 import pathlib
@@ -26,8 +26,8 @@ def main():
     old = "_TUNED7 = {\n"
     if text.count(old) != 1:
         sys.exit(f"_TUNED7 anchor found {text.count(old)} times")
-    text = text.replace(old, old + f"    (1, 8, True, 1): dict(n_splits={n}, nc=1, coop=1),   # asp: verify 1 sliding split count\n")
-    text = f"# ly_asp: {src.name} with the verify 1 sliding attention at {n} splits (tools/dl_ly_asp_patch.py).\n" + text
+    text = text.replace(old, old + f"    (1, 8, True, 1): dict(n_splits={n}, nc=1, coop=1),   # v1sp: verify 1 sliding split count\n")
+    text = f"# ly_v1sp: {src.name} with the verify 1 sliding attention at {n} splits (tools/dl_ly_v1sp_patch.py).\n" + text
     dst.write_text(text)
     py_compile.compile(str(dst), doraise=True)
     print(dst, hashlib.sha256(text.encode()).hexdigest())

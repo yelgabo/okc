@@ -1,5 +1,4 @@
-# ly_atst: ly_v1un with per-CTA globaltimer stamps in the attention and the T = 8 qkv / o sk2 launches, off in the plain graph (tools/dl_ly_atst_patch.py). Instrument, not a candidate.
-# ly_atrg: ly_stk1 + the q_len 8 one-tile attention triggers the o projection at its merge instead of after its own griddepcontrol.wait (tools/dl_ly_atrg_patch.py).
+# ly_v1trg: ly_stk1 + the q_len 8 one-tile attention triggers the o projection at its merge instead of after its own griddepcontrol.wait (tools/dl_ly_v1trg_patch.py).
 # ly_stk1: ly_v1un + ly_v1fs (T = 8 finish one program per SM) + ly_d16un (T = 16 / 32 unpooler sk2 as a PDL secondary of the MoE).
 # ly_v1fs: ly_v1un with 118784 B of dynamic shared memory on the T = 8 finish launch, so its programs land one per SM (tools/dl_ly_v1fs_patch.py)
 # ly_v1un: ly_rfx with the T = 8 unpooler-slice sk2 as a PDL secondary of the MoE, edge in the T = 8 guard (tools/dl_ly_v1un_patch.py).
@@ -135,7 +134,7 @@ namespace {
 #define OKC_TMAPG 1     // producer mode: page indices by TMA (one copy per tile) instead of per-thread loads
 #define OKC_XHALFPV 0   // (probe) q_len 1: half the PV work, to see whether the q1 flat loop is consumer-bound
 #define OKC_XNOWAIT 0   // (probe) per-request loop: no wait for the tile's copies (garbage), the compute-bound tile time
-#define OKC_MRGDBG 1    // (debug builds) phase marks around the merge's fence (columns precl1 / cl2)
+#define OKC_MRGDBG 0    // (debug builds) phase marks around the merge's fence (columns precl1 / cl2)
 #define OKC_MERGE2 1    // last-CTA merges: one acq_rel atomic after the CTA barrier instead of per-thread fences
 #define OKC_MERGE3 1    // cooperative merges: one acq_rel barrier arrive after the CTA barrier instead of per-thread fences
 #define OKC_IDXFIRST 1  // per-request kernels: K/V issued once the page indices land (not after the q rows too)
@@ -154,7 +153,7 @@ namespace {
 #define OKC_PVW 0       // q_len 8 on sm_90: PV as an asynchronous wgmma from a double-buffered f16 V tile
 #define OKC_WGDEC 1     // q_len 8 producer mode: the two consumer warpgroups sync separately (one per head)
 #define OKC_SEGDBG 0
-#define DBGSTRIDE (OKC_SEGDBG ? 64 : 32)
+#define DBGSTRIDE (OKC_SEGDBG ? 64 : 16)
 #define OKC_PV8 1       // q_len 8 on sm_90: PV as an FP8 wgmma (P in e4m3, as SGLang's FA3 FP8 path does: pod/p16probe*.py)
 #define OKC_PROF 0      // per-warp phase profile of the main loops (diagnostic builds)
 #define OKC_PROFPV8 0   // profile builds: keep the FP8 PV path
@@ -184,7 +183,7 @@ namespace {
 #define OKC_W0FORCEBAD 0  // test only: force the W0 registration's fallback (every CTA takes the even split)
 #define OKC_W0BID 1     // rank the two CTAs of an SM by blockIdx (the lower one gets the warp schedulers' priority:
                         // it finishes first on every SM) instead of by arrival
-#define OKC_DBGON 1     // phase timestamps (diagnostic builds): compiled out, the checks cost cold instructions
+#define OKC_DBGON 0     // phase timestamps (diagnostic builds): compiled out, the checks cost cold instructions
 #define OKC_BALPART 0   // flat: balanced integer shares (one 32-bit division) instead of c*T/G
 #define OKC_CONT 0      // flat producer mode: one continuous stage pipeline across segments (no drain per segment)
 #define OKC_DYN 0       // flat producer mode: dynamic chunks claimed from a global counter (needs OKC_CONT)
@@ -1522,13 +1521,10 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
     asm volatile("mov.u32 %0, %%tid.x;" : "=r"(tidL));
     partL = tidL & 7;
   }
-  DBG(20);
 
   pdl_wait();   // qkv (q, new k / v, gate) is the preceding kernel's output; nothing above reads or writes it
   pdl_launch_dependents();
   if (tid == 0) FPRO_STAMP(44);
-  DBG(16);
-  if (OKC_DBGON && p.dbg && threadIdx.x == 0) { unsigned smid_; asm volatile("mov.u32 %0, %%smid;" : "=r"(smid_)); p.dbg[(blockIdx.x + gridDim.x * (blockIdx.y + gridDim.y * blockIdx.z)) * DBGSTRIDE + 19] = smid_; }
   // raw q rows: L*16 rows x 128 B = 8 chunks of 16 B per row
   tfor<L * 16 * 8, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
     const int rr = e >> 3, ch = e & 7;
@@ -1631,7 +1627,6 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
     cp_wait<STAGES - 1>();
     csync<WS, NT>();
   }
-  DBG(17);
   // ---- 3. while they load: RoPE table, queries, the block's new keys / values ----
   if (p.rope) {
     tfor<L * 32, NT>(tidL, [&](int e) {   // (straight-line: no loop branches on the once-path)
@@ -2811,7 +2806,6 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
       int old;
       if constexpr (OKC_MERGE3) asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\n" : "=r"(old) : "l"(c), "r"(mine) : "memory");
       else old = atomicAdd(c, mine);
-      DBG(18);
       if (old + mine == n_keys) {
         p.ws_cnt[((ep & 1) ? 8192 : 12288) + bp] = 0;
         p.ws_cnt[24576 + bp] = ep + 1;
@@ -8090,10 +8084,6 @@ bfp_SK2_SRC = r"""
 // stream serialization and issue the first N weight stages before griddepcontrol.wait (set by sk2_set_pdl)
 static int g_sk2_pdl = 0;
 void sk2_set_pdl(int64_t n) { g_sk2_pdl = (int)n; }
-static unsigned long long* g_sk2_tlu = nullptr;
-void sk2_set_tlu(int64_t p) { g_sk2_tlu = reinterpret_cast<unsigned long long*>(p); }
-#define SK2_TLU(k) do { if (dbg != nullptr) dbg[(size_t)blockIdx.x * 32 + (k)] = gtime(); } while (0)
-#define SK2_TLV(k, v) do { if (dbg != nullptr) dbg[(size_t)blockIdx.x * 32 + (k)] = (unsigned long long)(v); } while (0)
 #define SK2_DIAG 0
 // ============================================================================ sk2 (m <= 32): swapped operands
 // A = x tile (16 tokens x 16 k; ldmatrix from the TMA-loaded, 128B-swizzled tile), B = weights (8 rows x 16 k),
@@ -8115,7 +8105,6 @@ sk2_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__
   unsigned long long* tr = trace ? dbg + (blockIdx.x == 0 ? 0 : 4096) : nullptr;
   const unsigned long long t_start = (dgv & 32) ? gtime() : 0ull;
   if (trace && threadIdx.x == 0) tr[0] = t_start;
-  if (threadIdx.x == 0) { SK2_TLU(0); unsigned smid_; asm volatile("mov.u32 %0, %%smid;" : "=r"(smid_)); SK2_TLV(24, smid_); }
   constexpr int NW = NWR * WSK;
   constexpr int NC = NW * 32;
   constexpr int R = NWR * NT * 8;
@@ -8236,7 +8225,6 @@ sk2_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__
   // ranks > 0 send into it) is only arrived at here and waited on right before the remote stores
   __syncthreads();
   if (pdl) asm volatile("griddepcontrol.wait;" ::: "memory");   // every thread: x and the outputs are ours from here
-  if (pdl && tid == 0) SK2_TLU(2);
   if (pdl) asm volatile("fence.proxy.async.global;" ::: "memory");  // upstream generic x -> TMA
   if constexpr (CL == 1) {   // PCX hoist: the x tiles of the pre-issued stages, right after the wait
     if (tid == 0 && !(dgv & 4))
@@ -8622,7 +8610,6 @@ sk2_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__
       *reinterpret_cast<uint2*>(o) = pk;
     }
   }
-  if (tid == 0) SK2_TLU(23);
   if (trace && tid == 0) tr[15] = gtime();
   if ((dgv & 32) && dbg != nullptr && tid == 0) {   // every CTA: SM id, start and end time
     unsigned smid; asm volatile("mov.u32 %0, %%smid;" : "=r"(smid));
@@ -8710,8 +8697,6 @@ void sk2f(at::Tensor Ws, at::Tensor Wsr, at::Tensor x, at::Tensor out, at::Tenso
 void sk2(at::Tensor Ws, at::Tensor x, at::Tensor out, at::Tensor ptab, int64_t pmax, int64_t base4,
          int64_t M, int64_t N, int64_t K, int64_t cfg, int64_t tokr, int64_t dg, at::Tensor dbgt) {
   unsigned long long* dbg = dbgt.numel() >= 8192 + 3 * 1024 ? reinterpret_cast<unsigned long long*>(dbgt.data_ptr()) : nullptr;
-  if (g_sk2_tlu != nullptr && M == 8 && K == 8192 && N == 2304) dbg = g_sk2_tlu;
-  else if (g_sk2_tlu != nullptr && M == 8 && K == 1024) dbg = g_sk2_tlu + 1024 * 32;
   @@SK2_DISPATCH@@
   TORCH_CHECK(false, "sk2: no config");
 }
@@ -9029,7 +9014,6 @@ void sk2(torch::Tensor Ws, torch::Tensor x, torch::Tensor out, torch::Tensor pta
 void sk2f(torch::Tensor Ws, torch::Tensor Wsr, torch::Tensor x, torch::Tensor out, torch::Tensor outr, torch::Tensor ptab,
           int64_t pmax, int64_t base4, torch::Tensor part, torch::Tensor rcnt, int64_t M, int64_t tokr);
 void sk2_set_pdl(int64_t n);
-void sk2_set_tlu(int64_t p);
 """
 
 bfp_w_rows = {"qkv_gate": 2304, "o": 8192, "pooler": 4096, "unpooler": 8192, "router": 256}
@@ -9440,7 +9424,7 @@ def bfp__get_ext():
             name=f"dl_okc_bf16proj_v86y4_{arch}" + (f"_dly{bfp__SK2_DELAY}" if bfp__SK2_DELAY else ""),
             cpp_sources="#include <torch/extension.h>\n" + bfp_CPP_SRC,
             cuda_sources=cuda_src,
-            functions=["skinny_tma_a", "gemm90", "wide", "sk2", "gq", "sk2f", "sk2_set_pdl", "sk2_set_tlu"],
+            functions=["skinny_tma_a", "gemm90", "wide", "sk2", "gq", "sk2f", "sk2_set_pdl"],
             extra_cuda_cflags=["-O3", f"-gencode=arch=compute_{arch},code=sm_{arch}"] + ([f"-DSK2_DELAY_ESC={bfp__SK2_DELAY}"] if bfp__SK2_DELAY else []),
             no_implicit_headers=True,
             verbose=False,
@@ -16308,9 +16292,9 @@ def _de_ext():
  global _DE_EXT
  if _DE_EXT is None:
   import hashlib
-  source=_de_source();tag=hashlib.md5(source.encode()).hexdigest()[:12];source=source.replace('sk2_kernel','sk2_kernel_narrow_'+tag).replace('launch_sk2','launch_sk2_narrow_'+tag);cpp=bfp_CPP_SRC[bfp_CPP_SRC.index('void sk2('):bfp_CPP_SRC.index('void sk2f(')]+'void sk2_set_pdl(int64_t n);\nvoid sk2_set_tlu(int64_t p);'
+  source=_de_source();tag=hashlib.md5(source.encode()).hexdigest()[:12];source=source.replace('sk2_kernel','sk2_kernel_narrow_'+tag).replace('launch_sk2','launch_sk2_narrow_'+tag);cpp=bfp_CPP_SRC[bfp_CPP_SRC.index('void sk2('):bfp_CPP_SRC.index('void sk2f(')]+'void sk2_set_pdl(int64_t n);'
   _DE_EXT=load_inline('proj_dl_escape_'+hashlib.md5(source.encode()).hexdigest()[:12],'#include <torch/extension.h>\n'+cpp,
-    cuda_sources=source,functions=['sk2','sk2_set_pdl','sk2_set_tlu'],no_implicit_headers=True,extra_cuda_cflags=['-O3','-gencode=arch=compute_90,code=sm_90'],verbose=False)
+    cuda_sources=source,functions=['sk2','sk2_set_pdl'],no_implicit_headers=True,extra_cuda_cflags=['-O3','-gencode=arch=compute_90,code=sm_90'],verbose=False)
  return _DE_EXT
 
 def prepare(weights):
@@ -18513,9 +18497,6 @@ def _pdl8_graft_after_attention(data, state, o_in, gate, T):
     return out, s2, ids
 
 
-_ATST_DBG = None   # atst: the stamp tensor of the instrumented graph
-
-
 def _pdl8_decode_attention7(data, state, qkv):
     """The attention agent's own launcher, lifted verbatim as _launch7: plan, workspace sizes and the coop / w0
     bits always match the kernel version embedded here (v82: my hand copy had drifted -- w0 = 0, no flat coop).
@@ -18529,7 +18510,7 @@ def _pdl8_decode_attention7(data, state, qkv):
         prefetch = (_ps.data_ptr(), min(4 << 20, _ps.numel() * _ps.element_size()))
     out = _launch7({"config": cfg, "qkv": qkv, "seq_lens": data["seq_lens"], "cache_loc": data["cache_loc"],
                     "k_cache": data["k_cache"], "v_cache": data["v_cache"], "page_table": data["page_table"],
-                    "k_scale": data["k_scale"], "v_scale": data["v_scale"]}, attention_state=state, prefetch=prefetch, dbg=_ATST_DBG, **pdl)
+                    "k_scale": data["k_scale"], "v_scale": data["v_scale"]}, attention_state=state, prefetch=prefetch, **pdl)
     return out.view(cfg["batch"] * cfg["q_len"], Q_DIM)
 
 _PDL8_GLUE = None

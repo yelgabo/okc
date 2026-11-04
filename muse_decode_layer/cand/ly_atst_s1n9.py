@@ -1,4 +1,4 @@
-# ly_asp: ly_atst_s1.py with the verify 1 sliding attention at 9 splits (tools/dl_ly_asp_patch.py).
+# ly_v1sp: ly_atst_s1.py with the verify 1 sliding attention at 9 splits (tools/dl_ly_v1sp_patch.py).
 # ly_atst: ly_v1un with per-CTA globaltimer stamps in the attention and the T = 8 qkv / o sk2 launches, off in the plain graph (tools/dl_ly_atst_patch.py). Instrument, not a candidate.
 # ly_stk1: ly_v1un + ly_v1fs (T = 8 finish one program per SM) + ly_d16un (T = 16 / 32 unpooler sk2 as a PDL secondary of the MoE).
 # ly_v1fs: ly_v1un with 118784 B of dynamic shared memory on the T = 8 finish launch, so its programs land one per SM (tools/dl_ly_v1fs_patch.py)
@@ -3767,7 +3767,7 @@ def _num_sms7(device):
 
 
 _TUNED7 = {
-    (1, 8, True, 1): dict(n_splits=9, nc=1, coop=1),   # asp: verify 1 sliding split count
+    (1, 8, True, 1): dict(n_splits=9, nc=1, coop=1),   # v1sp: verify 1 sliding split count
     (32, 8, True, 1): dict(n_splits=4, nc=1, coop=1),
     (1, 1, False, 1): dict(nc=8, coop=1, n_splits=252),   # (experiment: 252 instead of 264 splits)
 }
