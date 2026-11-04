@@ -17,7 +17,8 @@ __device__ __forceinline__ unsigned long long cl_gtime() {
   return t;
 }
 
-// stamps (nullable, for the bench): [0] kernel entry, [1] after griddepcontrol.wait, [2] struct stored.
+// stamps (nullable, for the bench): [0] kernel entry, [1] after griddepcontrol.wait, [2] struct stored,
+// [4] routing loaded and counted, [5] slices built, [6] tok_list built.
 __global__ void __launch_bounds__(CL_PRO_THREADS, 1)
 cl_prologue_kernel(const int* __restrict__ topk_ids, const float* __restrict__ topk_w, int T, int first, int count,
                    int policy, int target, int n_clusters, ClSchedule* __restrict__ out,
@@ -26,7 +27,8 @@ cl_prologue_kernel(const int* __restrict__ topk_ids, const float* __restrict__ t
   // Per (chunk, warp, expert): pair count in that warp's 32 entries, then rewritten as the exclusive prefix
   // over (chunk, warp) in flat order, which is the rank base that keeps tok_list in (token, slot) order.
   __shared__ int wbase[CL_PRO_NCH][CL_PRO_WARPS][CL_MAX_EXPERTS];
-  __shared__ int eoff[CL_MAX_EXPERTS];
+  __shared__ int eoff[CL_MAX_EXPERTS], ecnt[CL_MAX_EXPERTS], eslices[CL_MAX_EXPERTS], esinc[CL_MAX_EXPERTS];
+  __shared__ int nslices;
   __shared__ int overflow;
   const int tid = threadIdx.x, lane = tid & 31, warp = tid >> 5;
   const unsigned FULL = 0xffffffffu;
@@ -66,76 +68,95 @@ cl_prologue_kernel(const int* __restrict__ topk_ids, const float* __restrict__ t
     }
   }
   __syncthreads();
+  if (stamps && tid == 0) stamps[4] = cl_gtime();
 
   if (warp == 0) {
     const int e = lane;
     int run = 0;
-    for (int c = 0; c < nch; ++c)
+    for (int c = 0; c < nch; ++c) {
+      int v[CL_PRO_WARPS];
+#pragma unroll
+      for (int w = 0; w < CL_PRO_WARPS; ++w) v[w] = wbase[c][w][e];
 #pragma unroll
       for (int w = 0; w < CL_PRO_WARPS; ++w) {
-        const int v = wbase[c][w][e];
         wbase[c][w][e] = run;
-        run += v;
+        run += v[w];
       }
+    }
     const int cnt = run;
-    int inc = cnt;
+    const bool routed = cnt > 0;
+    const unsigned rm = __ballot_sync(FULL, routed);
+    const int d = __popc(rm);
+    int S = 0;
+    if (policy == CL_POLICY_S1) {
+      S = routed ? 1 : 0;
+    } else if (policy == CL_POLICY_S2) {
+      S = routed ? 2 : 0;
+    } else if (d > 0) {
+      const int base = min(CL_N_CHUNKS, max(1, target / d));
+      const int extra = (base * d < target && base < CL_N_CHUNKS) ? target - base * d : 0;
+      // Rank by (count desc, id asc) as the number of lanes with a larger key (count << 5 | 31 - lane), one ballot
+      // per key bit; count <= CL_PRO_MAX_T * 8 = 2304 needs 12 bits. Unrouted lanes have smaller keys than every
+      // routed lane, so a routed lane's rank counts routed lanes only.
+      int rank = 0;
+      if (extra > 0) {
+        const unsigned key = ((unsigned)cnt << 5) | (31u - (unsigned)lane);
+        unsigned eq = FULL;
+#pragma unroll
+        for (int bit = 16; bit >= 0; --bit) {
+          const bool mine = (key >> bit) & 1u;
+          const unsigned bb = __ballot_sync(FULL, mine);
+          if (mine) {
+            eq &= bb;
+          } else {
+            rank += __popc(eq & bb);
+            eq &= ~bb;
+          }
+        }
+      }
+      S = routed ? base + (rank < extra ? 1 : 0) : 0;
+    }
+    // One scan for both prefixes: pair counts (at most CL_PRO_MAX_T * 8) in the low 16 bits, slices in the high.
+    int inc = (S << 16) | cnt;
 #pragma unroll
     for (int o = 1; o < 32; o <<= 1) {
       const int v = __shfl_up_sync(FULL, inc, o);
       if (lane >= o) inc += v;
     }
-    const int total = __shfl_sync(FULL, inc, 31);
-    const int off = inc - cnt;
+    const int all = __shfl_sync(FULL, inc, 31);
+    const int total = all & 0xffff, nsl = all >> 16, sinc = inc >> 16;
+    const int off = (inc & 0xffff) - cnt;
     eoff[e] = off;
-    const bool routed = cnt > 0;
-    const unsigned rm = __ballot_sync(FULL, routed);
-    const int d = __popc(rm);
-    int rank = 0;
-#pragma unroll
-    for (int j = 0; j < 32; ++j) {
-      const int cj = __shfl_sync(FULL, cnt, j);
-      if (((rm >> j) & 1u) && (cj > cnt || (cj == cnt && j < lane))) ++rank;
-    }
-    int S = 0;
-    if (routed) {
-      if (policy == CL_POLICY_S1) S = 1;
-      else if (policy == CL_POLICY_S2) S = 2;
-      else {
-        const int base = min(CL_N_CHUNKS, max(1, target / d));
-        const int extra = (base * d < target && base < CL_N_CHUNKS) ? target - base * d : 0;
-        S = base + (rank < extra ? 1 : 0);
-      }
-    }
-    int sinc = S;
-#pragma unroll
-    for (int o = 1; o < 32; o <<= 1) {
-      const int v = __shfl_up_sync(FULL, sinc, o);
-      if (lane >= o) sinc += v;
-    }
-    const int nsl = __shfl_sync(FULL, sinc, 31);
     const bool ovf = total > CL_MAX_PAIRS || nsl > CL_MAX_SLICES;
+    ecnt[e] = cnt;
+    eslices[e] = S;
+    esinc[e] = sinc;
+    if (!ovf) s.expert_nslices[e] = S;
     if (lane == 0) {
       overflow = ovf;
+      nslices = nsl;
       s.n_slices = ovf ? -1 : nsl;
+      s.next_slice = n_clusters;
     }
-    if (!ovf) {
-      s.expert_nslices[e] = S;
-      if (S > 0) {
-        const int q = CL_N_CHUNKS / S, rem = CL_N_CHUNKS % S;
-        for (int j = 0, i = sinc - S; j < S; ++j, ++i) {
-          s.slice_expert[i] = e;
-          s.slice_col0[i] = CL_COL_CHUNK * (j * q + min(j, rem));
-          s.slice_ncol[i] = CL_COL_CHUNK * (q + (j < rem ? 1 : 0));
-          s.slice_tok0[i] = off;
-          s.slice_ntok[i] = cnt;
-        }
-      }
-    }
-    if (lane == 0) s.next_slice = n_clusters;
   }
   __syncthreads();
+  if (stamps && tid == 0) stamps[5] = cl_gtime();
 
   if (!overflow) {
+    if (tid < nslices) {
+      // e = number of experts whose inclusive slice prefix is <= tid.
+      int e = 0;
+#pragma unroll
+      for (int step = 16; step > 0; step >>= 1)
+        if (esinc[e + step - 1] <= tid) e += step;
+      const int S = eslices[e], j = tid - (esinc[e] - S);
+      const int q = CL_N_CHUNKS / S, rem = CL_N_CHUNKS % S;
+      s.slice_expert[tid] = e;
+      s.slice_col0[tid] = CL_COL_CHUNK * (j * q + min(j, rem));
+      s.slice_ncol[tid] = CL_COL_CHUNK * (q + (j < rem ? 1 : 0));
+      s.slice_tok0[tid] = eoff[e];
+      s.slice_ntok[tid] = ecnt[e];
+    }
 #pragma unroll
     for (int c = 0; c < CL_PRO_NCH; ++c) {
       const int e = e_r[c];
@@ -147,6 +168,7 @@ cl_prologue_kernel(const int* __restrict__ topk_ids, const float* __restrict__ t
     }
   }
   __syncthreads();
+  if (stamps && tid == 0) stamps[6] = cl_gtime();
 
   const int2* src = reinterpret_cast<const int2*>(&s);
   int2* dst = reinterpret_cast<int2*>(out);

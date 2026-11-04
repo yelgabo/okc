@@ -177,7 +177,7 @@ def bench(ext, rounds):
         src_ids, src_w = d["topk_ids"].contiguous(), d["topk_weights"].float().contiguous()
         ids, w = torch.zeros_like(src_ids), torch.zeros_like(src_w)
         out = torch.zeros(cl_schedule.SCHED_WORDS, dtype=torch.int32, device="cuda")
-        stamps = torch.zeros(4, dtype=torch.int64, device="cuda")
+        stamps = torch.zeros(8, dtype=torch.int64, device="cuda")
         none = torch.empty(0, dtype=torch.int64, device="cuda")
         want = cl_schedule.build(src_ids.cpu(), src_w.cpu(), 0, 32, C, policy, n_clusters)
 
@@ -210,10 +210,10 @@ def bench(ext, rounds):
                 out.zero_()
                 g.replay()
                 torch.cuda.synchronize()
-                s0, s1, s2, s3 = stamps.tolist()
-                spans.append((s2 - s3, s2 - s1, s1 - s0, s0 - s3))
+                s0, s1, s2, s3, s4, s5, s6, _ = stamps.tolist()
+                spans.append((s2 - s3, s2 - s1, s1 - s0, s0 - s3, s4 - s1, s5 - s4, s6 - s5, s2 - s6))
             assert out.cpu().numpy().tobytes() == want, f"T={T} {k}: device bytes differ under the producer"
-            st_res[k] = [statistics.median(x[i] for x in spans) for i in range(4)]
+            st_res[k] = [statistics.median(x[i] for x in spans) for i in range(8)]
         med = {k: statistics.median(v) for k, v in res.items()}
         spread = {k: max(v) - min(v) for k, v in res.items()}
         print(f"BENCH T={T}: " + ", ".join(f"{k} {med[k]:.2f} (spread {spread[k]:.2f})" for k in graphs) + " us")
@@ -221,10 +221,11 @@ def bench(ext, rounds):
               f"per launch in a 20-launch graph {(med['pro x20'] - med['pro']) / 19:.2f} us; "
               f"exposed behind the producer: serial {med['prod+pro serial'] - med['prod']:.2f} us, "
               f"pdl {med['prod+pro pdl'] - med['prod']:.2f} us")
-        for k, (pub_to_end, wait_to_end, entry_to_wait, entry_minus_pub) in st_res.items():
+        for k, (pub_to_end, wait_to_end, entry_to_wait, entry_minus_pub, *parts) in st_res.items():
             print(f"BENCH T={T} stamps {k}: producer publish -> struct stored {pub_to_end / 1000:.2f} us, "
                   f"after wait -> stored {wait_to_end / 1000:.2f} us, entry -> after wait {entry_to_wait / 1000:.2f} "
-                  f"us, entry minus publish {entry_minus_pub / 1000:.2f} us")
+                  f"us, entry minus publish {entry_minus_pub / 1000:.2f} us; after wait: load+count, slices, tok_list, "
+                  f"store = {', '.join(f'{x / 1000:.2f}' for x in parts)} us")
 
 
 def main():
