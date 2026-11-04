@@ -1,0 +1,84 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793787200.935 acquire start after 4.9 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793787201.707 release build glue_moe_92c54541df9ddf9f_sm90a
+BXBUILD 1793787201.708 start build glue_moe_92c54541df9ddf9f_sm90a
+BXBUILD 1793787201.708 start build glue_moe_578f80d53dbaf7b2_sm90a
+BXBUILD 1793787201.709 start build glue_moe_9ebf4cf098ead613_sm90a
+BXBUILD 1793787239.541 end build glue_moe_92c54541df9ddf9f_sm90a
+BXBUILD 1793787240.571 end build glue_moe_578f80d53dbaf7b2_sm90a
+BXBUILD 1793787240.909 end build glue_moe_9ebf4cf098ead613_sm90a
+BXLOCK 1793787240.909 acquire build glue_moe_9ebf4cf098ead613_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.49), ('sk2', 8.03), ('torch', 10.3)] -> ('cg',)
+BXLOCK 1793787243.188 release triton _prq_sl_tile_route_cg
+BXBUILD 1793787243.188 start triton _prq_sl_tile_route_cg
+BXBUILD 1793787243.960 end triton _prq_sl_tile_route_cg
+BXLOCK 1793787243.960 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793787243.962 release triton _sl_cluster_finish_cg
+BXBUILD 1793787243.962 start triton _sl_cluster_finish_cg
+BXBUILD 1793787244.061 end triton _sl_cluster_finish_cg
+BXLOCK 1793787244.061 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793787244.099 release triton _prq_sl_tile_route_cg
+BXBUILD 1793787244.099 start triton _prq_sl_tile_route_cg
+BXBUILD 1793787244.874 end triton _prq_sl_tile_route_cg
+BXLOCK 1793787244.874 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793787244.887 release triton _sl_cluster_finish_cg
+BXBUILD 1793787244.888 start triton _sl_cluster_finish_cg
+BXBUILD 1793787244.983 end triton _sl_cluster_finish_cg
+BXLOCK 1793787244.983 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793787245.038 release triton _prq_sl_tile_route
+BXBUILD 1793787245.038 start triton _prq_sl_tile_route
+BXBUILD 1793787245.777 end triton _prq_sl_tile_route
+BXLOCK 1793787245.777 acquire triton _prq_sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793787296.988 release triton _prq_sl_tile_route_cg
+BXBUILD 1793787296.988 start triton _prq_sl_tile_route_cg
+BXBUILD 1793787297.755 end triton _prq_sl_tile_route_cg
+BXLOCK 1793787297.755 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793787297.757 release triton _sl_cluster_finish_cg
+BXBUILD 1793787297.757 start triton _sl_cluster_finish_cg
+BXBUILD 1793787297.851 end triton _sl_cluster_finish_cg
+BXLOCK 1793787297.851 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+REC {"label": "verify 1 sliding seed 4268629326242249078", "endA": 30.432, "a_buf": 1.145, "smclk_mhz": 1761.522, "smclk_min": 1742.337, "cta_unit_a": 1.235, "stallA_per_cta": 1.59, "stallB_per_cta": 0.674, "plain_us": 57.088, "span": 51.264, "A": 28.49, "B": 13.928, "a_wwait": 1.59, "b_wwait": 0.674, "distinct": 6, "units": 4608, "unit_a": 1.216, "unit_b": 1.152, "phaseA_tbs": 3.975}
+REC   snaps {"0.3": {"t": 9.1296, "inflight": 265, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}, "0.6": {"t": 18.2592, "inflight": 378, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}} latA(med,p90,sum) [2.72, 2.784, 8459.168] latB [2.72, 5.824, 5167.296]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.219, 0.064], "A_steady": [2676, 1.371, 0.064], "AtoB": [132, 0.045, 0.032], "B_first3": [264, 0.122, 0.064], "B_steady": [1140, 0.507, 0.064]}
+REPLAY same-bytes verify 1 sliding seed 4268629326242249078 delay 0 span 25.92 TB/s 4.369 steady 4.838 cta_unit 0.981 lat 2.72/3.62 MHz 1979
+REPLAY same-bytes-AB verify 1 sliding seed 4268629326242249078 eager event 42.98 span 37.92 TB/s 4.480 steady 4.810 cta_unit 0.987 MHz 1980 vs helper0 plain 57.09 span 51.26
+REC {"label": "verify 1 sliding seed 4268629326242249079", "endA": 50.08, "a_buf": 1.943, "smclk_mhz": 1769.716, "smclk_min": 1761.848, "cta_unit_a": 1.233, "stallA_per_cta": 2.996, "stallB_per_cta": 1.088, "plain_us": 84.064, "span": 80.352, "A": 47.562, "B": 23.393, "a_wwait": 2.996, "b_wwait": 1.088, "distinct": 10, "units": 7680, "unit_a": 1.184, "unit_b": 1.184, "phaseA_tbs": 3.968}
+REC   snaps {"0.3": {"t": 15.024, "inflight": 288, "ctas": 132, "experts": 10, "regions_2MB": 90, "stride_med": 39.0}, "0.6": {"t": 30.048, "inflight": 307, "ctas": 132, "experts": 10, "regions_2MB": 90, "stride_med": 39.0}} latA(med,p90,sum) [2.72, 2.944, 14193.504] latB [2.752, 5.12, 8068.0]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.208, 0.064], "A_steady": [4716, 2.784, 0.064], "AtoB": [132, 0.045, 0.032], "B_first3": [264, 0.121, 0.064], "B_steady": [2156, 0.92, 0.064], "A_jobswitch": [8, 0.003, 0.064], "B_jobswitch": [8, 0.002, 0.032]}
+REPLAY same-bytes verify 1 sliding seed 4268629326242249079 delay 0 span 43.14 TB/s 4.376 steady 4.608 cta_unit 1.025 lat 2.75/3.90 MHz 1980
+REPLAY same-bytes-AB verify 1 sliding seed 4268629326242249079 eager event 68.32 span 63.17 TB/s 4.482 steady 4.666 cta_unit 1.017 MHz 1979 vs helper0 plain 84.06 span 80.35
+REC {"label": "verify 1 sliding seed 4268629326242249080", "endA": 30.592, "a_buf": 1.174, "smclk_mhz": 1764.013, "smclk_min": 1734.865, "cta_unit_a": 1.233, "stallA_per_cta": 1.594, "stallB_per_cta": 0.663, "plain_us": 55.904, "span": 51.616, "A": 28.422, "B": 13.932, "a_wwait": 1.594, "b_wwait": 0.663, "distinct": 6, "units": 4608, "unit_a": 1.216, "unit_b": 1.152, "phaseA_tbs": 3.985}
+REC   snaps {"0.3": {"t": 9.1776, "inflight": 275, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}, "0.6": {"t": 18.3552, "inflight": 345, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}} latA(med,p90,sum) [2.72, 2.784, 8449.664] latB [2.72, 5.824, 5185.664]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.239, 0.064], "A_steady": [2676, 1.355, 0.064], "AtoB": [132, 0.042, 0.032], "B_first3": [264, 0.118, 0.064], "B_steady": [1140, 0.503, 0.064]}
+REPLAY same-bytes verify 1 sliding seed 4268629326242249080 delay 0 span 26.05 TB/s 4.348 steady 4.814 cta_unit 0.978 lat 2.75/3.55 MHz 1978
+REPLAY same-bytes-AB verify 1 sliding seed 4268629326242249080 eager event 44.22 span 39.23 TB/s 4.330 steady 4.794 cta_unit 1.023 MHz 1979 vs helper0 plain 55.90 span 51.62
+REC {"label": "verify 1 full seed 4268899743722759931", "endA": 35.264, "a_buf": 1.361, "smclk_mhz": 1766.851, "smclk_min": 1758.335, "cta_unit_a": 1.225, "stallA_per_cta": 1.879, "stallB_per_cta": 0.793, "plain_us": 62.848, "span": 58.912, "A": 33.01, "B": 16.259, "a_wwait": 1.879, "b_wwait": 0.793, "distinct": 7, "units": 5376, "unit_a": 1.184, "unit_b": 1.152, "phaseA_tbs": 4.002}
+REC   snaps {"0.3": {"t": 10.5792, "inflight": 265, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}, "0.6": {"t": 21.1584, "inflight": 284, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}} latA(med,p90,sum) [2.72, 2.784, 9844.928] latB [2.72, 5.664, 5898.688]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.269, 0.064], "A_steady": [3182, 1.608, 0.064], "AtoB": [132, 0.043, 0.032], "B_first3": [263, 0.119, 0.064], "B_steady": [1391, 0.63, 0.064], "A_jobswitch": [6, 0.002, 0.048], "B_jobswitch": [6, 0.001, 0.032]}
+REPLAY same-bytes verify 1 full seed 4268899743722759931 delay 0 span 29.82 TB/s 4.430 steady 4.815 cta_unit 0.987 lat 2.69/3.65 MHz 1980
+REPLAY same-bytes-AB verify 1 full seed 4268899743722759931 eager event 48.93 span 43.78 TB/s 4.527 steady 4.787 cta_unit 0.990 MHz 1980 vs helper0 plain 62.85 span 58.91
+REC {"label": "verify 1 full seed 4268899743722759932", "endA": 40.096, "a_buf": 1.541, "smclk_mhz": 1773.655, "smclk_min": 1765.652, "cta_unit_a": 1.218, "stallA_per_cta": 2.082, "stallB_per_cta": 0.928, "plain_us": 68.896, "span": 65.472, "A": 37.594, "B": 18.466, "a_wwait": 2.082, "b_wwait": 0.928, "distinct": 8, "units": 6144, "unit_a": 1.184, "unit_b": 1.152, "phaseA_tbs": 4.016}
+REC   snaps {"0.3": {"t": 12.028799999999999, "inflight": 266, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}, "0.6": {"t": 24.057599999999997, "inflight": 269, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}} latA(med,p90,sum) [2.72, 2.784, 11181.344] latB [2.72, 5.184, 6474.048]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.204, 0.064], "A_steady": [3696, 1.877, 0.064], "AtoB": [132, 0.044, 0.032], "B_first3": [264, 0.12, 0.064], "B_steady": [1648, 0.763, 0.064], "A_jobswitch": [4, 0.002, 0.064], "B_jobswitch": [4, 0.001, 0.032]}
+REPLAY same-bytes verify 1 full seed 4268899743722759932 delay 0 span 33.54 TB/s 4.502 steady 4.815 cta_unit 0.986 lat 2.72/3.58 MHz 1980
+REPLAY same-bytes-AB verify 1 full seed 4268899743722759932 eager event 54.85 span 49.66 TB/s 4.560 steady 4.807 cta_unit 0.991 MHz 1979 vs helper0 plain 68.90 span 65.47
+REC {"label": "verify 1 full seed 4268899743722759933", "endA": 45.152, "a_buf": 1.762, "smclk_mhz": 1754.039, "smclk_min": 1744.255, "cta_unit_a": 1.23, "stallA_per_cta": 2.367, "stallB_per_cta": 1.023, "plain_us": 76.928, "span": 72.832, "A": 42.702, "B": 21.069, "a_wwait": 2.367, "b_wwait": 1.023, "distinct": 9, "units": 6912, "unit_a": 1.216, "unit_b": 1.184, "phaseA_tbs": 3.978}
+REC   snaps {"0.3": {"t": 13.5456, "inflight": 358, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}, "0.6": {"t": 27.0912, "inflight": 341, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}} latA(med,p90,sum) [2.752, 2.816, 12724.416] latB [2.752, 5.12, 7285.696]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.215, 0.064], "A_steady": [4206, 2.149, 0.064], "AtoB": [132, 0.041, 0.032], "B_first3": [264, 0.121, 0.064], "B_steady": [1902, 0.859, 0.064], "A_jobswitch": [6, 0.003, 0.064], "B_jobswitch": [6, 0.002, 0.032]}
+REPLAY same-bytes verify 1 full seed 4268899743722759933 delay 0 span 38.98 TB/s 4.358 steady 4.592 cta_unit 1.030 lat 2.72/3.97 MHz 1979
+REPLAY same-bytes-AB verify 1 full seed 4268899743722759933 eager event 61.98 span 56.74 TB/s 4.491 steady 4.642 cta_unit 1.018 MHz 1979 vs helper0 plain 76.93 span 72.83

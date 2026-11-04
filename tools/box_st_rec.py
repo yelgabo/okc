@@ -152,12 +152,12 @@ def main():
                     "-DST_NOMATH=1,-DST_SPIN=900 (the prepared state and its checks use the file's own builds)")
     ap.add_argument("--replay", default="", help="also stream each input's recorded phase A sequence from the layer's own "
                     "w13 tensor with muse_moe_w4a16/cl/st_replay.cu: comma-separated consumer delays in ns")
-    ap.add_argument("--minb", type=int, default=1, help="CTAs per SM of the file's helper0 (ly_dual: 2); the record then"
-                    " covers minb x 136 CTAs and the launch's grid is minb x nsm")
+    ap.add_argument("--minb", type=int, default=1, help="CTAs per SM of the file's helper0 (ly_dual: 2): the launch's grid is minb x nsm")
+    ap.add_argument("--nc", type=int, default=0, help="CTAs the record covers (the file's ST_NC; default 136 x minb)")
     ap.add_argument("--flush", default="write", choices=("write", "read"),
                     help="L2 flush before the recorded launch: write (fill_, box_moe_tl8.py's) or read (sum, the judge's)")
     a = ap.parse_args()
-    layout(136 * a.minb)
+    layout(a.nc or 136 * a.minb)
     if a.lock:
         br.release_lock_for_triton()
         br.BudgetClock.install()

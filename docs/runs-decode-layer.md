@@ -3327,4 +3327,41 @@ TINY / TINY2 / MID builds get `-DOKC_NS=2 -DOKC_MINB=2` (two CTAs of 36.7 KB tab
 Every unit range, the dynamic pool, the grid barrier and the final pass already index by gridDim.x; no fence,
 barrier or arithmetic order changes, so the output is bitwise the base's.
 
-A/B: PENDING_AB
+First A/B (`.build/prtl/dual`, 10:31 UTC) was void: the launcher's residency check failed and prepare() fell back
+to the Marlin adapter in both candidate arms (+50 to +90 us; `FORK_MOE_ROUTE Marlin: FORK_MOE_RESOURCE cooperative
+residency` in chk.log), because `okc_smem_bytes()` sizes by the larger of the skinny and fat rings and the fat ring
+(3 x 36 KB + 66 KB of x stages) kept the footprint at 178 KB. Commit 237d7a97 sizes the tiny builds by the skinny
+ring alone (their fat path traps); the rebuilt candidate takes the native path (`FORK_MOE_ROUTE native repaired`)
+and passes the reference check at all 12 cells (chk.log).
+
+Paired A/B (`tools/ly_prtl_ab.sh`, CTL ly_fabq, CAND ly_dual, five bx_box_run.py processes c/w/c/w/c under the
+lock, --runs 60, PDL pinned at T = 1, 8, 16, 32, 11:12-11:13 UTC; logs `muse_decode_layer/profiles/box/st/dual/`,
+table `tools/ly_prtl_table.py`). Threshold max(2 x control spread, 0.5 us) on decode 1 / verify 1, max(2 x spread,
+1%) on decode 16. The other three loads use the big build, which the patch does not touch.
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | threshold | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.25 | 73.68 | 65.31 | 73.94 | 65.44 | 0.19 | +8.47 | 0.50 | loss |
+| decode 1 full | 72.02 | 79.68 | 71.81 | 79.65 | 71.42 | 0.59 | +7.91 | 1.18 | loss |
+| decode 16 sliding | 126.56 | 137.01 | 127.26 | 136.62 | 127.06 | 0.70 | +9.86 | 1.41 | loss |
+| decode 16 full | 199.09 | 206.82 | 198.58 | 207.12 | 199.47 | 0.90 | +7.92 | 1.99 | loss |
+| verify 1 sliding | 103.10 | 108.45 | 102.80 | 108.24 | 102.77 | 0.34 | +5.45 | 0.67 | loss |
+| verify 1 full | 110.61 | 116.83 | 110.11 | 117.47 | 110.11 | 0.50 | +6.87 | 0.99 | loss |
+
+Why it loses (record build of ly_dual, `muse_decode_layer/cand/ly_st_dualrec.py` from `dl_ly_st_patch.py --base
+ly_dual.py --nc 264`, `box_st_rec.py --minb 2 --nc 264`, `x_dual2.log`, against the base's `x_base16.log` and
+`v_base.log`): the overlap did not show. Per CTA the unit interval doubles (2.30 to 2.58 us at two CTAs per SM
+against 1.22 to 1.26 at one), so per SM the phase A throughput gains 4 to 6% (tbsA 3.85 to 4.02 at decode 16 and
+4.14 to 4.25 at verify 1 against 3.96 to 4.02), phase A is the same length (decode 16 full 34.1 to 34.3 us against
+33.3 to 33.4; sliding 37.6 against 37.9), phase B is 1 to 2 us longer (21.0 against 19.1 us at decode 16 sliding;
+latency p90 5.4 us, the 2-slot ring exposes it), the SM clock is the same 1739 to 1772 MHz, and the whole launch is
+7 to 10 us longer (79.8 against 72.0 us, 74.1 against 64.0 at decode 16; 64.6 against 55.9 at verify 1) because
+every per-CTA cost (FAST1 pre-issue, routing, x prefetch, LUT, ranges, the grid barrier, the final pass's
+per-CTA items) is paid 264 times and the 96-register builds spill (STACK 40 / 64 B). This agrees with the h-loop
+lane's finding that the unit loop sits at an SMSP issue-throughput ceiling, the same at 4 and 6 consumer warps per
+SMSP: a second CTA's warps compete for the same issue slots, so the per-unit barrier and refill stalls are not free
+to fill.
+
+Decision: ly_dual is a loss and is not a release candidate; no judge check. Nothing on the stream side is left to
+change: the stream delivers at 4.8 TB/s whenever the loop consumes faster, the loop is issue-bound at the clock the
+math sets, and more CTAs per SM do not add issue slots.

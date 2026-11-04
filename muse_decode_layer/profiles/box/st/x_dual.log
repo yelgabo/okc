@@ -1,0 +1,66 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793790801.830 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793790802.697 release build glue_moe_dd3acaca023c76af_sm90a
+BXBUILD 1793790802.697 start build glue_moe_dd3acaca023c76af_sm90a
+BXBUILD 1793790802.697 start build glue_moe_d6e1f38232ebfbcd_sm90a
+BXBUILD 1793790802.699 start build glue_moe_911e74bd3bba56dc_sm90a
+BXBUILD 1793790840.332 end build glue_moe_d6e1f38232ebfbcd_sm90a
+BXBUILD 1793790840.462 end build glue_moe_dd3acaca023c76af_sm90a
+BXBUILD 1793790841.471 end build glue_moe_911e74bd3bba56dc_sm90a
+BXLOCK 1793790841.471 acquire build glue_moe_911e74bd3bba56dc_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.46), ('sk2', 8.06), ('torch', 10.46)] -> ('cg',)
+BXLOCK 1793790843.891 release triton _prq_sl_tile_route_cg
+BXBUILD 1793790843.891 start triton _prq_sl_tile_route_cg
+BXBUILD 1793790844.662 end triton _prq_sl_tile_route_cg
+BXLOCK 1793790844.662 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793790844.664 release triton _sl_cluster_finish_cg
+BXBUILD 1793790844.664 start triton _sl_cluster_finish_cg
+BXBUILD 1793790844.761 end triton _sl_cluster_finish_cg
+BXLOCK 1793790844.761 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793790844.799 release triton _prq_sl_tile_route_cg
+BXBUILD 1793790844.800 start triton _prq_sl_tile_route_cg
+BXBUILD 1793790845.565 end triton _prq_sl_tile_route_cg
+BXLOCK 1793790845.565 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793790845.566 release triton _sl_cluster_finish_cg
+BXBUILD 1793790845.566 start triton _sl_cluster_finish_cg
+BXBUILD 1793790845.659 end triton _sl_cluster_finish_cg
+BXLOCK 1793790845.659 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793790845.715 release triton _prq_sl_tile_route
+BXBUILD 1793790845.715 start triton _prq_sl_tile_route
+BXBUILD 1793790846.458 end triton _prq_sl_tile_route
+BXLOCK 1793790846.458 acquire triton _prq_sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793790851.523 release triton _prq_sl_tile_route_cg
+BXBUILD 1793790851.523 start triton _prq_sl_tile_route_cg
+BXBUILD 1793790852.290 end triton _prq_sl_tile_route_cg
+BXLOCK 1793790852.290 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793790852.291 release triton _sl_cluster_finish_cg
+BXBUILD 1793790852.291 start triton _sl_cluster_finish_cg
+BXBUILD 1793790852.383 end triton _sl_cluster_finish_cg
+BXLOCK 1793790852.383 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+Traceback (most recent call last):
+  File "/root/okc/tools/box_st_rec.py", line 287, in <module>
+    main()
+  File "/root/okc/tools/box_st_rec.py", line 244, in main
+    an = analyse(ctas, f"{case['load']} {case['layer']} seed {seed}")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/tools/box_st_rec.py", line 107, in analyse
+    endA = statistics.median(c["rdy"][c["nA"] - 1] for c in ctas if 0 < c["nA"] <= RN and c["rdy"][c["nA"] - 1])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/statistics.py", line 617, in median
+    raise StatisticsError("no median for empty data")
+statistics.StatisticsError: no median for empty data
