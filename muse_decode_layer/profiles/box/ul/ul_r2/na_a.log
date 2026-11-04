@@ -1,0 +1,30 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793777210.287 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793777210.958 release build glue_moe_32b2d27e7b4549e2_sm90a
+BXBUILD 1793777210.960 start build glue_moe_32b2d27e7b4549e2_sm90a
+BXBUILD 1793777210.962 start build glue_moe_3c05fef7265dd453_sm90a
+BXBUILD 1793777210.963 start build glue_moe_19fc47fb249c8fff_sm90a
+BXBUILD 1793777249.610 end build glue_moe_19fc47fb249c8fff_sm90a
+BXBUILD 1793777251.351 end build glue_moe_3c05fef7265dd453_sm90a
+BXBUILD 1793777251.970 end build glue_moe_32b2d27e7b4549e2_sm90a
+BXLOCK 1793777252.799 acquire build glue_moe_32b2d27e7b4549e2_sm90a done after 0.8 s
+BXCLOCK submission clocks now 0.8 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.39), ('sk2', 8.03), ('torch', 10.24)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 49.8 s
+BOX decode 1 sliding: raw 69.36 net 65.36 us (overhead 4.00) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.926 | check PASS
+BOX decode 1 full: raw 75.55 net 71.47 us (overhead 4.08) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.894 | check PASS
+BOX decode 16 sliding: raw 131.30 net 127.14 us (overhead 4.16) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.994 | check PASS
+BOX decode 16 full: raw 203.39 net 199.01 us (overhead 4.38) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.945 | check PASS
+BOX verify 1 sliding: raw 107.15 net 103.02 us (overhead 4.13) | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.970 | check PASS
+BOX verify 1 full: raw 114.59 net 110.37 us (overhead 4.22) | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.926 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 360 hits, 0 computed
+BXPHASE import_torch=1.57 load_reference_cuda_init=0.00 weights_and_router=0.23 prepare_submission=49.76 fresh_inputs=1.06 check=0.32 capture=0.04 overhead_graphs=0.65 replays=0.19 cell_tail=0.05 json_write=0.00 total=53.87

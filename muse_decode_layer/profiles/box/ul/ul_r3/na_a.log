@@ -1,0 +1,21 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793777814.997 acquire start after 0.5 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.55), ('sk2', 8.16), ('torch', 10.34)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 19.2 s
+BOX decode 1 sliding: raw 69.42 net 65.33 us (overhead 4.10) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.926 | check PASS
+BOX decode 1 full: raw 74.96 net 70.74 us (overhead 4.22) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.885 | check PASS
+BOX decode 16 sliding: raw 131.09 net 126.90 us (overhead 4.19) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.992 | check PASS
+BOX decode 16 full: raw 202.32 net 197.84 us (overhead 4.48) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.940 | check PASS
+BOX verify 1 sliding: raw 105.44 net 101.01 us (overhead 4.43) | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.951 | check PASS
+BOX verify 1 full: raw 113.63 net 109.34 us (overhead 4.29) | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.918 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 360 hits, 0 computed
+BXPHASE import_torch=1.83 load_reference_cuda_init=0.00 weights_and_router=0.32 prepare_submission=19.21 fresh_inputs=9.53 check=1.22 capture=0.18 overhead_graphs=6.45 replays=1.92 cell_tail=0.04 json_write=0.00 total=40.71

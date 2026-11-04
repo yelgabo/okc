@@ -16,6 +16,18 @@ stack. Every variant keeps the math and its order (bitwise output), every fence 
        arrive (bar.arrive) on barrier 8 + q % NS without waiting; warp 0 waits (bar.sync, 256 threads), then thread 0
        refills and hands the partials to the helper as before. The kept last units keep the full CTA barrier. A
        warp can arrive for unit q + NS only after thread 0 refilled that slot, after its wait for unit q returned.
+  dq   the DQ7 unpack's r3 merge as an IMAD (x * one + y with an opaque 1) instead of a LOP3: one ALU-pipe op per
+       code word moves to the FMA pipe; bitwise identical (disjoint operands). Taken from task 1.3a's cl_unit_loop.cuh.
+  pr   a second helper warp (refill warp, NTL = NT + 64) takes the refill off warp 0: compute warps store partials,
+       fence and arrive on barrier 8 + q % NS (NT + 32 threads); the refill warp waits on it, refills the slot with
+       unit q + NS and arrives on wsrf for the epilogue helper, which is unchanged. Same generation argument as nb.
+  er   early slot release: each warp loads its whole 4.5 KB segment of the unit into registers right after the
+       slot wait, fences, and arrives on barrier 8 + q % NS; warp 0 waits on it and thread 0 refills the slot with
+       unit q + NS at the start of unit q instead of at its end (one more unit of lead for the stream, no extra
+       shared memory). The end-of-unit CTA barrier stays for the partials hand-off.
+  pw   per-warp ring: every unit copy is split into 8 per-warp segments (4 KB codes + 512 B scales) on per-warp
+       barriers; each warp waits only for its own segment and its lane 0 refills it and arrives on the partials
+       barrier (count NW) after a __syncwarp. No CTA barrier per unit except for the kept last units.
   pf   cross-unit software pipelining: after its last mma of unit i, each warp waits for unit i + 1's slot and
        loads that unit's scale word and first PFC code chunks into registers, so the next unit's decode starts
        right after the hand-off instead of behind the slot wait and the shared loads.
@@ -213,6 +225,100 @@ PW_ASSERT_NEW = ("#define OKC_WSRF 0\n"
                  "static_assert(!OKC_UPW || (OKC_WSB && OKC_WSBLK <= OKC_NS && OKC_NS * NW <= 64 && UNIT_CODES % NW == 0 && UNIT_SC % (16 * NW) == 0), \"OKC_UPW layout\");\n")
 
 
+ER_SC_OLD = "    const uint4 sc = *reinterpret_cast<const uint4*>(slot + UNIT_CODES + warp * 512 + lane * 16);\n"
+ER_SC_NEW = ER_SC_OLD + """#if OKC_UER
+    uint4 wv[NCH];  // the warp's whole segment in registers: the slot is released before the unit's math
+#pragma unroll
+    for (int c = 0; c < NCH; ++c) wv[c] = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);
+    asm volatile("fence.proxy.async.shared::cta;\\n" ::: "memory");
+    if (warp == 0) {
+      asm volatile("bar.sync %0, %1;\\n" ::"r"(UNB_BAR0 + sl), "n"(NT) : "memory");  // every warp has read slot sl
+      if (tid == 0) {
+        const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);
+        if (q + OKC_NS < N) ws_issue(p, S, q + OKC_NS, nA, S.wsr[0], S.wsr[2], ring);
+      }
+    } else {
+      asm volatile("bar.arrive %0, %1;\\n" ::"r"(UNB_BAR0 + sl), "n"(NT) : "memory");
+    }
+#endif
+"""
+ER_W_OLD = "      const uint4 w = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);\n"
+ER_W_NEW = ("#if OKC_UER\n      const uint4 w = wv[c];\n#else\n" + ER_W_OLD + "#endif\n")
+ER_LOOP_NEW = """#if OKC_UER
+    CTA_SYNC();  // partials visible; the slot was refilled at the unit's start
+    if (tid == 0 && !(OKC_WSBL && PB && i >= nU - OKC_WSBLK)) mbar_arrive1(S.wsrf + bb);
+#else
+""" + NB_LOOP_OLD + "#endif\n"
+ER_DEFS = (default("OKC_UER", 0, "unit loop: each warp's segment to registers first, slot released and refilled at unit start")
+           + "constexpr int UNB_BAR0 = 8;  // named barriers 8 .. 8 + OKC_NS - 1 (1, 2, 3, 4, 7 are taken)\n")
+ER_ASSERT_NEW = ("#define OKC_WSRF 0\n"
+                 "static_assert(!OKC_UER || (OKC_WSB && OKC_NS <= 4), \"OKC_UER: barrier ids 8 .. 11\");\n")
+
+
+PR_NTL_OLD = "constexpr int NTL = NT + (OKC_WGS ? 64 : OKC_WS ? 32 : 0);"
+PR_NTL_NEW = "constexpr int NTL = NT + (OKC_WGS ? 64 : OKC_WS ? (OKC_UPR ? 64 : 32) : 0);"
+PR_DISPATCH_OLD = "  if (tid >= NT) { ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }\n"
+PR_DISPATCH_NEW = """  if (tid >= NT) {
+#if OKC_UPR
+    if (tid >= NT + 32) { ws_producer(p, S, reinterpret_cast<unsigned char*>(xbuf)); return; }
+#endif
+    ws_helper(p, S, reinterpret_cast<unsigned char*>(xbuf));
+    return;
+  }
+"""
+PR_LOOP_NEW = """#if OKC_UPR
+    if (OKC_WSBL && PB && i >= nU - OKC_WSBLK) {
+      CTA_SYNC();  // kept units: every warp's partials visible to warps 0..K-1; no refill (OKC_WSBLK <= OKC_NS)
+    } else {
+      asm volatile("bar.arrive %0, %1;\\n" ::"r"(UNB_BAR0 + sl), "n"(NT + 32) : "memory");
+    }
+#else
+""" + NB_LOOP_OLD + "#endif\n"
+PR_PRODUCER = """#if OKC_UPR
+// refill warp: waits for every compute warp to be done with unit q (slot read and fenced, partials stored), refills
+// the slot with unit q + NS and hands the partials to the epilogue helper, so no compute warp carries the refill
+__device__ void ws_producer(const Params& p, Smem& S, unsigned char* ring) {
+  const int lane = TIDX & 31;
+  WS_JOIN();  // routing tables and this CTA's ranges are ready
+  const int a0 = S.wsr[0], a1 = S.wsr[1], b0 = S.wsr[2], b1 = S.wsr[3];
+  const int nA = a1 - a0, N = nA + (b1 - b0);
+  const int Nh = (OKC_WSB && OKC_WSBL) ? N - min(OKC_WSBLK, b1 - b0) : N;
+  for (int q = 0; q < Nh; ++q) {
+    asm volatile("bar.sync %0, %1;\\n" ::"r"(UNB_BAR0 + q % OKC_NS), "n"(NT + 32) : "memory");
+    if (lane == 0) {
+      if (q + OKC_NS < N) ws_issue(p, S, q + OKC_NS, nA, a0, b0, ring);
+      mbar_arrive1(S.wsrf + q % NRB);
+    }
+  }
+  WS_JOIN();
+}
+#endif
+
+"""
+PR_HELPER_ANCHOR = "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {\n"
+PR_DEFS = (default("OKC_UPR", 0, "unit loop: a refill warp waits on the per-unit named barrier; compute warps only arrive")
+           + "constexpr int UNB_BAR0 = 8;  // named barriers 8 .. 8 + OKC_NS - 1 (1, 2, 3, 4, 7 are taken)\n")
+PR_ASSERT_NEW = ("#define OKC_WSRF 0\n"
+                 "static_assert(!OKC_UPR || (OKC_WSB && OKC_WSBLK <= OKC_NS && OKC_NS <= 4), \"OKC_UPR: kept units must not need a refill\");\n")
+
+
+DQ_FN_OLD = "__device__ __forceinline__ void dq4(uint32_t q, uint32_t& r0, uint32_t& r1, uint32_t& r2, uint32_t& r3) {\n"
+DQ_FN_NEW = """// dq4 with the r3 merge as an IMAD (x * one + y, `one` an opaque runtime 1): the two masked operands are disjoint,
+// so the add is the OR, and it runs on the FMA pipe instead of the ALU pipe that the decode saturates (from task 1.3a)
+__device__ __forceinline__ void dq4o(uint32_t q, uint32_t one, uint32_t& r0, uint32_t& r1, uint32_t& r2, uint32_t& r3) {
+  constexpr uint32_t M = 0x81C081C0u;
+  r0 = q & M;
+  r1 = (q * 16u) & M;
+  r2 = __funnelshift_l(q, q, 10) & M;
+  r3 = ((q * 64u) & 0x80C080C0u) * one + (__funnelshift_l(q, q, 14) & 0x01000100u);
+}
+""" + DQ_FN_OLD
+DQ_K16_OLD = "  const uint32_t k16 = 16u + p.zero;  // opaque 16 (scale decode IMAD)\n"
+DQ_K16_NEW = DQ_K16_OLD + "  const uint32_t one = 1u + p.zero;  // opaque 1 (dq4o's r3 merge IMAD)\n"
+DQ_CALL_OLD = "        dq4(ww[st], r0, r1, r2, r3);\n"
+DQ_CALL_NEW = "        dq4o(ww[st], one, r0, r1, r2, r3);\n"
+
+
 PF_WAIT_OLD = """    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));
 """
 PF_WAIT_NEW = """#if OKC_UPF
@@ -286,6 +392,17 @@ def apply(s, v):
         s = edit(s, [(DEF_ANCHOR, DEF_ANCHOR + NA_DEFS.replace("OKC_UNA 0", "OKC_UNA 1"))], v)
         s = edit(s, [(NB_ASSERT_OLD, NA_ASSERT_NEW)], v)
         return edit(s, [(NB_LOOP_OLD, NA_LOOP_NEW)], v, sub=LOOP)
+    if v == "er":
+        s = edit(s, [(DEF_ANCHOR, DEF_ANCHOR + ER_DEFS.replace("OKC_UER 0", "OKC_UER 1")), (NB_ASSERT_OLD, ER_ASSERT_NEW)], v)
+        return edit(s, [(ER_SC_OLD, ER_SC_NEW), (ER_W_OLD, ER_W_NEW), (NB_LOOP_OLD, ER_LOOP_NEW)], v, sub=LOOP)
+    if v == "dq":
+        s = edit(s, [(DQ_FN_OLD, DQ_FN_NEW)], v)
+        return edit(s, [(DQ_K16_OLD, DQ_K16_NEW), (DQ_CALL_OLD, DQ_CALL_NEW)], v, sub=LOOP)
+    if v == "pr":
+        s = edit(s, [(DEF_ANCHOR, DEF_ANCHOR + PR_DEFS.replace("OKC_UPR 0", "OKC_UPR 1")), (NB_ASSERT_OLD, PR_ASSERT_NEW),
+                     (PR_NTL_OLD, PR_NTL_NEW), (PR_DISPATCH_OLD, PR_DISPATCH_NEW),
+                     (PR_HELPER_ANCHOR, PR_PRODUCER + PR_HELPER_ANCHOR)], v)
+        return edit(s, [(NB_LOOP_OLD, PR_LOOP_NEW)], v, sub=LOOP)
     if v == "pw":
         s = edit(s, [(DEF_ANCHOR, DEF_ANCHOR + PW_DEFS.replace("OKC_UPW 0", "OKC_UPW 1"))], v)
         s = edit(s, [(PW_SMEM_OLD, PW_SMEM_NEW), (PW_SEG_ANCHOR, PW_SEG + PW_SEG_ANCHOR), (PW_ISSUE_OLD, PW_ISSUE_NEW),

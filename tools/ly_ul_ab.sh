@@ -11,7 +11,7 @@ D=.build/box/ul${TAG:+_$TAG}
 CTL=${CTL:-ly_fabq.py}
 mkdir -p "$D"
 run() {
-  python tools/bx_box_run.py muse_decode_layer "$C/$2" \
+  timeout -s KILL ${TMO:-900} python tools/bx_box_run.py muse_decode_layer "$C/$2" \
     --judge .build/judge/g1b4_pdl8d.f931abf568544018.json --router-seed 106218864389449120 --runs 60 \
     --loads "${LOADS:-decode 1,verify 1,decode 16}" \
     --lock /root/okc/.build/box/gpu.lock --ls-cache /root/okc/.build/box/ls_cache.json --ext-cache /root/.cache/bx_ext \
