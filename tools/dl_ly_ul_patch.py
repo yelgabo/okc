@@ -55,6 +55,15 @@ def edit(s, edits, what, sub=None):
     return s[:i] + t + s[j:]
 
 
+def edit_all(s, old, new, what):
+    i = s.index(H0_START) + len(H0_START)
+    j = s.index(H0_END, i)
+    t = s[i:j]
+    if t.count(old) < 1:
+        sys.exit(f"{what}: anchor missing: {old[:80]!r}")
+    return s[:i] + t.replace(old, new) + s[j:]
+
+
 DEF_ANCHOR = "#define OKC_NOLOAD 0\n"
 
 
@@ -118,6 +127,90 @@ NA_DEFS = (default("OKC_UNA", 0, "unit loop: warps 1..NW-1 arrive on the per-uni
            + "constexpr int UNB_BAR0 = 8;  // named barriers 8 .. 8 + OKC_NS - 1 (1, 2, 3, 4, 7 are taken)\n")
 NA_ASSERT_NEW = ("#define OKC_WSRF 0\n"
                  "static_assert(!OKC_UNA || (OKC_WSB && OKC_NS <= 4), \"OKC_UNA: barrier ids 8 .. 11\");\n")
+
+
+PW_SMEM_OLD = "  uint64_t wse[8], wsrf[8], wsre[8];  // WS: ring slot released by all compute warps / partials ready / buffer free\n"
+PW_SMEM_NEW = PW_SMEM_OLD + "#if OKC_UPW\n  uint64_t pwb[8 * 8];  // per-warp ring: slot s, warp w's segment full (s * NW + w)\n#endif\n"
+PW_INIT_OLD = "for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);"
+PW_INIT_NEW = ("for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);\n"
+               "#if OKC_UPW\n      for (int k = 0; k < OKC_NS * NW; ++k) mbar_init(S.pwb + k, 1);\n#endif\n")
+PW_WSRF_OLD = "mbar_init(S.wsrf + k, OKC_WSB ? 1 : NW)"
+PW_WSRF_NEW = "mbar_init(S.wsrf + k, (OKC_WSB && !OKC_UPW) ? 1 : NW)"
+PW_ISSUE_OLD = """  const unsigned char* src = (PB ? p.wBu : p.wAu) + blk * (size_t)UNIT_BYTES;  // [32 KB codes | 4 KB scales]
+  asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n" ::"r"(smem_u32(bar)), "r"(UNIT_BYTES) : "memory");
+  asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\\n"
+               ::"r"(smem_u32(slot)), "l"(src), "r"(UNIT_BYTES), "r"(smem_u32(bar)) L2H_ARG : "memory");
+}
+"""
+PW_ISSUE_NEW = """  const unsigned char* src = (PB ? p.wBu : p.wAu) + blk * (size_t)UNIT_BYTES;  // [32 KB codes | 4 KB scales]
+#if OKC_UPW
+  const int sl = (int)(bar - S.bars);
+#pragma unroll 1
+  for (int w = 0; w < NW; ++w) pw_seg(src, slot, const_cast<uint64_t*>(S.pwb) + sl * NW + w, w);
+#else
+  asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n" ::"r"(smem_u32(bar)), "r"(UNIT_BYTES) : "memory");
+  asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\\n"
+               ::"r"(smem_u32(slot)), "l"(src), "r"(UNIT_BYTES), "r"(smem_u32(bar)) L2H_ARG : "memory");
+#endif
+}
+"""
+PW_SEG = """#if OKC_UPW
+// warp w's part of a unit: its 4 KB of codes (chunks 8w .. 8w + 7) and its 512 B of scales, on its own barrier
+__device__ __forceinline__ void pw_seg(const unsigned char* src, unsigned char* slot, uint64_t* bar, int w) {
+  constexpr uint32_t SEGC = UNIT_CODES / NW, SEGS = UNIT_SC / NW;
+  asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n" ::"r"(smem_u32(bar)), "r"(SEGC + SEGS) : "memory");
+  asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\\n"
+               ::"r"(smem_u32(slot + w * SEGC)), "l"(src + w * SEGC), "r"(SEGC), "r"(smem_u32(bar)) L2H_ARG : "memory");
+  asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\\n"
+               ::"r"(smem_u32(slot + UNIT_CODES + w * SEGS)), "l"(src + UNIT_CODES + w * SEGS), "r"(SEGS), "r"(smem_u32(bar)) L2H_ARG : "memory");
+}
+#endif
+"""
+PW_SEG_ANCHOR = "template <bool PB>\n__device__ __forceinline__ void ring_issue(const Params& p, const Smem& S, int v, unsigned char* slot, uint64_t* bar) {\n"
+PW_FAST1_OLD = """        asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\\n" ::"r"(smem_u32(S.bars + i)), "r"(UNIT_BYTES) : "memory");
+        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes" L2H_SUFFIX " [%0], [%1], %2, [%3]" L2H_OPERAND ";\\n"
+                     ::"r"(smem_u32(slot)), "l"(src), "r"(UNIT_BYTES), "r"(smem_u32(S.bars + i)) L2H_ARG : "memory");
+"""
+PW_FAST1_NEW = """#if OKC_UPW
+#pragma unroll 1
+        for (int w = 0; w < NW; ++w) pw_seg(src, slot, S.pwb + i * NW + w, w);
+#else
+""" + PW_FAST1_OLD + "#endif\n"
+PW_WAIT_OLD = "    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));\n"
+PW_WAIT_NEW = ("#if OKC_UPW\n    mbar_wait(S.pwb + sl * NW + warp, (uint32_t)((q / OKC_NS) & 1));\n#else\n"
+               + PW_WAIT_OLD + "#endif\n")
+PW_LOOP_NEW = """#if OKC_UPW
+    if (OKC_WSBL && PB && i >= nU - OKC_WSBLK) {
+      CTA_SYNC();  // kept units: every warp's partials visible to warps 0..K-1; no refill (OKC_WSBLK <= OKC_NS)
+    } else {
+      __syncwarp();  // every lane's reads of its segment and its partials precede lane 0's refill and arrival
+      if (lane == 0) {
+        const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);
+        if (q + OKC_NS < N) ws_issue_seg(p, S, q + OKC_NS, nA, S.wsr[0], S.wsr[2], ring, warp);
+        mbar_arrive1(S.wsrf + bb);
+      }
+    }
+#else
+""" + NB_LOOP_OLD + "#endif\n"
+PW_WSISSUE_OLD = "__device__ __forceinline__ void ws_issue(const Params& p, Smem& S, int q, int nA, int a0, int b0, unsigned char* ring) {\n"
+PW_WSISSUE_NEW = """#if OKC_UPW
+__device__ __forceinline__ void ws_issue_seg(const Params& p, Smem& S, int q, int nA, int a0, int b0, unsigned char* ring, int w) {
+  const int sl = q % OKC_NS;
+  const bool PB = q >= nA;
+  const int v = PB ? b0 + (q - nA) : a0 + q;
+  const int lg = PB ? RB_B_LOG : RB_A_LOG;  // v >= 0 and the block counts are powers of two: no divide
+  const int j = S.njF + (v >> lg), rb = v & ((1 << lg) - 1);
+  const size_t blk = ((size_t)S.jE[j] << lg) + rb;
+  pw_seg((PB ? p.wBu : p.wAu) + blk * (size_t)UNIT_BYTES, ring + sl * UNIT_BYTES, S.pwb + sl * NW + w, w);
+}
+#endif
+""" + PW_WSISSUE_OLD
+PW_DECL_OLD = "__device__ __forceinline__ void ws_issue(const Params& p, Smem& S, int q, int nA, int a0, int b0, unsigned char* ring);\n"
+PW_DECL_NEW = PW_DECL_OLD + ("#if OKC_UPW\n__device__ __forceinline__ void ws_issue_seg(const Params& p, Smem& S, int q, int nA, int a0, int b0, "
+                             "unsigned char* ring, int w);\n#endif\n")
+PW_DEFS = default("OKC_UPW", 0, "unit loop: per-warp ring segments, each warp refills and releases its own part")
+PW_ASSERT_NEW = ("#define OKC_WSRF 0\n"
+                 "static_assert(!OKC_UPW || (OKC_WSB && OKC_WSBLK <= OKC_NS && OKC_NS * NW <= 64 && UNIT_CODES % NW == 0 && UNIT_SC % (16 * NW) == 0), \"OKC_UPW layout\");\n")
 
 
 PF_WAIT_OLD = """    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));
@@ -193,6 +286,14 @@ def apply(s, v):
         s = edit(s, [(DEF_ANCHOR, DEF_ANCHOR + NA_DEFS.replace("OKC_UNA 0", "OKC_UNA 1"))], v)
         s = edit(s, [(NB_ASSERT_OLD, NA_ASSERT_NEW)], v)
         return edit(s, [(NB_LOOP_OLD, NA_LOOP_NEW)], v, sub=LOOP)
+    if v == "pw":
+        s = edit(s, [(DEF_ANCHOR, DEF_ANCHOR + PW_DEFS.replace("OKC_UPW 0", "OKC_UPW 1"))], v)
+        s = edit(s, [(PW_SMEM_OLD, PW_SMEM_NEW), (PW_SEG_ANCHOR, PW_SEG + PW_SEG_ANCHOR), (PW_ISSUE_OLD, PW_ISSUE_NEW),
+                     (PW_FAST1_OLD, PW_FAST1_NEW), (NB_ASSERT_OLD, PW_ASSERT_NEW), (PW_DECL_OLD, PW_DECL_NEW),
+                     (PW_WSISSUE_OLD, PW_WSISSUE_NEW)], v)
+        s = edit_all(s, PW_INIT_OLD, PW_INIT_NEW, v)
+        s = edit_all(s, PW_WSRF_OLD, PW_WSRF_NEW, v)
+        return edit(s, [(PW_WAIT_OLD, PW_WAIT_NEW), (NB_LOOP_OLD, PW_LOOP_NEW)], v, sub=LOOP)
     if v == "pf":
         s = edit(s, [(DEF_ANCHOR, DEF_ANCHOR + PF_DEFS.replace("OKC_UPF 0", "OKC_UPF 1"))], v)
         return edit(s, [(PF_DECL_OLD, PF_DECL_NEW), (PF_WAIT_OLD, PF_WAIT_NEW), (PF_SC_OLD, PF_SC_NEW), (PF_W_OLD, PF_W_NEW),
