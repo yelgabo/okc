@@ -1,6 +1,6 @@
 # Revival lane checkpoint: round 2, launch knobs on ly_stk4
 
-Updated 2026-11-04 13:50 PT. Branch worktree-agent-a4ca890a24d12b144. Round 1 (ly_stk3 sweeps) is in
+Updated 2026-11-04 13:48 PT. Branch worktree-agent-a4ca890a24d12b144. Round 1 (ly_stk3 sweeps) is in
 docs/runs-decode-layer.md, section "2026-11-04 - Per-T knob sweep on ly_stk3 (box)".
 
 Base: muse_decode_layer/cand/ly_stk4.py, SHA256 a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e
@@ -64,13 +64,31 @@ co-reside under PDL, and no arm moved.
 
 Decision: knobs 1-3 flat, no candidate.
 
-## Sweep 2 (running): MoE TINY / TINY2 define variants, decode 1 / verify 1
+## Sweep 2 (done): MoE TINY / TINY2 define variants, decode 1 / verify 1
 
-Arms (each replaces one define): TINY WSBLK 1 / 4, FINPF 1, CPF 0, L2H 1, WSBL 1, FAST1 3; TINY2 CPF 1, FINPF 0,
-WSBL 1, FAST1 3, WSBLK 4. Skipped as ruled out: TINY2 L2H 0 (row 230), NS, nw16, HALF, BCLM, TINY2 WSBLK 2.
+All checks PASS. Own cells: TINY arms at decode 1, TINY2 arms at verify 1 (the other load is untouched).
+
+| arm | d1 sliding | d1 full | v1 sliding | v1 full |
+|---|---|---|---|---|
+| t_wsblk1 | +1.31 (8) | +1.62 (3) | -0.30 (27) | +0.40 (19) |
+| t_wsblk4 | +1.12 (7) | +1.44 (5) | +0.18 (21) | +0.24 (21) |
+| t_finpf1 | -0.21 (29) | +0.35 (15) | -0.21 (27) | +0.32 (16) |
+| t_cpf0 | +1.20 (6) | +1.38 (8) | +0.14 (18) | +0.32 (14) |
+| t_l2h1 | +0.86 (9) | +1.04 (11) | +0.02 (23) | +0.10 (23) |
+| t_wsbl1 | +1.09 (8) | +0.93 (10) | +0.11 (22) | +0.67 (18) |
+| t_fast3 | +1.02 (10) | +1.50 (6) | -0.16 (26) | -0.02 (24) |
+| t2_cpf1 | -0.14 (27) | +0.03 (23) | +0.85 (11) | +1.52 (7) |
+| t2_finpf0 | -0.13 (29) | +0.21 (21) | +1.84 (3) | +2.10 (1) |
+| t2_wsbl1 | +0.21 (22) | -0.06 (24) | +0.99 (10) | +1.42 (8) |
+| t2_fast3 | +0.42 (19) | +0.13 (20) | +2.06 (4) | +2.11 (3) |
+| t2_wsblk4 | -0.64 (27) | +0.26 (20) | +0.75 (13) | +1.12 (8) |
+| base2 | +0.10 (21) | +0.11 (23) | -0.19 (26) | -0.13 (26) |
+
+Decision: knob 4 flat (every change loses on its own cell, TINY FINPF 1 inside noise). Round 2 ends with no
+candidate. Run log: docs/runs-decode-layer.md, "2026-11-04 - Launch knobs on ly_stk4, revival round 2 (box)";
+ruled-out rows appended.
 
 ## Next
 
-Read /root/okc/.build/rev2/arms_s2.log. Any arm at least 0.5 us faster on a sliding cell with a clear margin over
-base2 becomes a hardcoded candidate, run as `CTL=ly_stk4.py CANDS=file.py:tag tools/rev_ab.sh` plus a third round.
-Otherwise write the run log and ruled-out rows and report.
+None of the four knobs is left. ly_rv2s stays useful as an in-process screen for any further launch-shape or
+MoE-define idea (add an arm, no new compile of the layer).

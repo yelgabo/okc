@@ -8171,3 +8171,28 @@ Sweep 3 (fin.sh, decode 1 / verify 1, both layers, 48 runs, all checks PASS): fi
 verify 1 -0.08 (26/48) against control +0.34. Flat.
 
 Decision: no candidate clears the bar (0.5 us on a sliding cell at 20+/24). No ledger line.
+
+## 2026-11-04 - Launch knobs on ly_stk4, revival round 2 (box)
+
+Revival lane. Base muse_decode_layer/cand/ly_stk4.py (a054c8d5, judged 10,046.1 us). The four knobs round 1 could not
+reach in-process are made launch-time module globals in a screen file, muse_decode_layer/cand/ly_rv2s.py (546866a6,
+built by muse_decode_layer/profiles/box/rev2/mk_rv2s.py; empty tables run the base's launches), and swept as
+in-process arms with tools/ly_arms.py, 48 runs, every arm reference-checked (all PASS), the base arm duplicated as
+base2. Scripts muse_decode_layer/profiles/box/rev2/{s1.sh,s2.py}; logs /root/okc/.build/rev2/.
+
+Attention dynamic shared memory per (B, L, sliding) (ASMEM_CFG, read through env OKC_ASMEM in the C++ launch;
+cooperative grids keep the base value if the reservation breaks residency): 100K / 160K / 227K at decode 1 and 100K /
+160K at verify 1, both layer kinds; no arm leaves the control's spread (sliding -0.56 to +0.58 us, base2 -0.11 /
++0.10). Decode 16 / 32 full at 100K / 160K: -0.06 to +0.61. 120K at decode 16 / 32 sliding loses +2.96 / +4.86 us
+(2 / 0 of 48 faster), which shows the knob reaches the launch and confirms ly_a16o2's 81920.
+
+T = 1 cgemv threads of (1024, 4096) (CG_NTH_OVR): 64 / 256 lose +1.18 / +1.97 us at decode 1 sliding; 128 stays.
+
+T = 1 finish reservation (V1FS_T[1]) 60K / 118784 / 160K: decode 1 sliding -0.06 / +0.27 / +0.40; flat.
+
+MoE TINY / TINY2 defines (MOE_X): every variant reaches its cell; TINY WSBLK 1 / 4, CPF 0, L2H 1, WSBL 1, FAST1 3
+lose +0.86 to +1.62 us, TINY FINPF 1 is -0.21 (29/48) sliding and +0.35 full; TINY2 CPF 1, FINPF 0, WSBL 1, FAST1 3,
+WSBLK 4 lose +0.75 to +2.11 us at verify 1.
+
+Decision: no knob clears 0.5 us on a sliding cell; no candidate, no six-load A/B, no ledger line. Rows in
+docs/ruled-out.md.
