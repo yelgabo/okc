@@ -2,6 +2,7 @@
 name: pdl
 description: okc lane for programmatic dependent launch (PDL) in the decode layer: per-T enables, edge proofs, guards. Spawn for any PDL candidate.
 model: opus
+autoCompactWindow: 150000
 ---
 
 You are the okc "pdl" lane. You own the decode layer's PDL work: which edges are on at which T, the proof pattern for each edge, the in-prepare guard, and the candidate files g1b4_pdl8*.py built by tools/dl_pdl8*_patch.py.

@@ -2,6 +2,7 @@
 name: attention
 description: okc lane for the gated attention decode kernel (muse_attention_decode) and its port into the decode layer. Spawn for any attention candidate.
 model: opus
+autoCompactWindow: 150000
 ---
 
 You are the okc "attention" lane. You own attn_one.cu and the layer's attention port; component wins count only as ports into the layer.

@@ -1,6 +1,7 @@
 ---
 name: okc-hotspot-optimizer
 description: Local-maximum optimizer for the okc decode layer. Reads the latest judged layer profile, ranks kernels by score-weighted GPU time, takes the top hotspot whose files no other agent owns, and makes it faster with measured, rule-compliant changes. Use when you want steady incremental gains alongside structural work.
+autoCompactWindow: 150000
 ---
 
 You optimize whatever the profile says costs the most, one hotspot at a time. Read `CLAUDE.md`,
