@@ -12,6 +12,9 @@ Variants (every one keeps the output bits; docs/runs-decode-layer.md "Micro-opti
           columns) swap one value with a shuffle, even groups store token 2t, odd groups token 2t + 1.
   wsmask  helper0 ws_helper phase A: the SwiGLU math runs for both tokens unconditionally, only the store is guarded.
   wgspack MOE_CUDA_SRC wgs_epi_tile phase A (B4 / MAIN): the same shuffle pairing into one 32-bit store into xB.
+  cgpf    T = 1 unpooler cgemv (the PDL8 edit of cgemv_body): thread 0 of each CTA prefetches the CTA's weight bytes
+          (2K codes, K scales) into L2 before griddepcontrol.wait. ptxas otherwise sinks the weight loads below the
+          wait, so the 6.3 MB stream starts only when the MoE has finished. The weights are prepare-time constants.
 No fence, barrier, mbarrier, griddepcontrol or launch attribute changes; no job sizing or range change.
 """
 import argparse
@@ -153,7 +156,16 @@ WGS_A_NEW = """    float sv[2];
     }"""
 
 
+CG_OLD = """'        asm volatile("griddepcontrol.wait;" ::: "memory");\\n#pragma unroll\\n        for (int i = 0; i < CPT; ++i) {\\n            xa[i] = __ldcg(xp"""
+CG_NEW = ("""'        if (t == 0) {\\n"""
+          """            asm volatile("cp.async.bulk.prefetch.L2.global [%0], %1;" :: "l"(lp), "r"(2 * K) : "memory");\\n"""
+          """            asm volatile("cp.async.bulk.prefetch.L2.global [%0], %1;" :: "l"(cp), "r"(K) : "memory");\\n"""
+          """        }\\n""" + CG_OLD[1:])
+
+
 def apply(s, v):
+    if v == "cgpf":
+        return once(s, CG_OLD, CG_NEW, v)
     if v == "scl":
         return in_region(s, H0_START, '\n"""', [(SCL_OLD, SCL_NEW), (SCL_MMA_OLD, SCL_MMA_NEW)], v,
                          sub=("__device__ void skinny_ring_ws(", "__device__ void ws_helper("))
