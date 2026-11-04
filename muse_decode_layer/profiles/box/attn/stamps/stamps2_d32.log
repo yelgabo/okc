@@ -1,0 +1,48 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793793537.718 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793793538.596 release build muse_att_v298w1pf_90a
+BXBUILD 1793793538.596 start build muse_att_v298w1pf_90a
+BXBUILD 1793793588.282 end build muse_att_v298w1pf_90a
+BXLOCK 1793793588.282 acquire build muse_att_v298w1pf_90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.52), ('sk2', 8.03), ('torch', 10.43)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 57.5 s
+BOX decode 32 sliding: raw 143.04 net 138.82 us (overhead 4.22) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.923
+BOX decode 32 full: raw 300.74 net 296.59 us (overhead 4.14) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.974
+BX local_start cache /root/okc/.build/box/ls_cache.json: 10 hits, 0 computed
+BXPHASE import_torch=0.44 load_reference_cuda_init=0.00 weights_and_router=0.24 prepare_submission=57.52 fresh_inputs=0.35 capture=0.04 overhead_graphs=0.22 replays=0.01 cell_tail=0.01 json_write=0.00 total=58.83
+/root/venv/lib/python3.12/site-packages/torch/jit/_script.py:365: FutureWarning: `torch.jit.script_method` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+STAMPS 264 CTAs with an entry stamp
+per-CTA times in us from the earliest entry:
+  entry                        min     0.00  p10     0.16  med     0.74  p90     0.96  max     1.47
+  first tile consumed          min     4.22  p10     4.54  med     5.98  p90    38.24  max   145.15
+  first tile - entry           min     4.03  p10     4.35  med     5.22  p90    37.41  max   144.42
+  loop end (last segment)      min   145.25  p10   150.30  med   153.63  p90   156.64  max   160.48
+  merge done                   min   148.03  p10   151.65  med   154.83  p90   157.66  max   161.38
+  merge done - loop end        min     0.83  p10     0.93  med     1.09  p90     1.47  max     3.14
+  partition done (sync)        min -5802140.58  p10 -5802140.54  med -5802140.42  p90 -5802140.19  max -5802140.06
+  segment list done            min -5802139.58  p10 -5802139.46  med -5802139.14  p90 -5801935.87  max -5800264.32
+  producer: segment start      min -5802139.33  p10 -5802139.17  med -5802138.88  p90 -5801935.62  max -5800263.74
+  producer: tile 0 slot free   min -5802138.75  p10 -5802138.59  med -5802138.30  p90 -5801935.04  max -5800263.10
+  producer: tile 0 pages landed min -5802138.98  p10 -5802138.78  med -5802138.51  p90 -5801935.23  max -5800263.30
+  producer: tile 0 issued      min -5802138.62  p10 -5802138.43  med -5802138.05  p90 -5801934.88  max -5800262.11
+  consumer: after pdl wait     min -5803211.65  p10 -5803211.10  med -5802802.40  p90 -5802802.18  max -5802138.27
+  slot 5                       min -5802796.45  p10 -5802133.98  med -3783.46  p90   156.99  max   162.05
+  slot 14                      min -5802797.09  p10 -409923.68  med -3782.16  p90   156.48  max   161.44
+  CTAs with a second segment: 70 of 264
+  segment 0 start              min     2.72  p10     2.98  med     3.63  p90     4.16  max     4.58
+  segment 0 end                min    15.52  p10   134.46  med   154.19  p90   157.41  max   162.05
+  SMs used: 132; SMs with two CTAs: 132; with more: 0
+  pair end gap                 min     0.00  p10     0.26  med     1.65  p90     3.94  max     5.82
+  per-SM end (last CTA)        min   151.10  p10   153.50  med   155.57  p90   157.89  max   161.38
+  first tile -> merge          min     9.92  p10   119.65  med   148.64  p90   150.88  max   153.54

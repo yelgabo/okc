@@ -1,0 +1,52 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793794128.447 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.46), ('sk2', 8.03), ('torch', 10.4)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 7.8 s
+BOX decode 16 sliding: raw 126.78 net 122.56 us (overhead 4.22) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.958
+BOX decode 16 full: raw 208.03 net 203.90 us (overhead 4.13) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.969
+BX local_start cache /root/okc/.build/box/ls_cache.json: 10 hits, 0 computed
+BXPHASE import_torch=0.45 load_reference_cuda_init=0.00 weights_and_router=0.25 prepare_submission=7.83 fresh_inputs=0.25 capture=0.05 overhead_graphs=0.22 replays=0.01 cell_tail=0.00 json_write=0.00 total=9.06
+/root/venv/lib/python3.12/site-packages/torch/jit/_script.py:365: FutureWarning: `torch.jit.script_method` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+STAMPS 264 CTAs with an entry stamp
+per-CTA times in us from the earliest entry:
+  entry                        min     0.00  p10     0.10  med     0.26  p90     0.70  max     1.06
+  first tile consumed          min     3.90  p10     4.22  med     4.99  p90     6.94  max    76.42
+  first tile - entry           min     3.78  p10     4.06  med     4.70  p90     6.11  max    76.29
+  loop end (last segment)      min    72.86  p10    75.74  med    77.38  p90    78.53  max    80.67
+  merge done                   min    75.01  p10    76.80  med    78.46  p90    79.78  max    81.73
+  merge done - loop end        min     0.83  p10     0.96  med     1.09  p90     1.34  max     2.14
+  producer: entry              min     0.19  p10     0.32  med     0.45  p90     0.86  max     1.15
+  producer: after partition sync min     1.06  p10     1.09  med     1.15  p90     1.47  max     1.76
+  producer: after setmaxnreg.dec min     2.18  p10     2.24  med     2.45  p90     2.94  max     3.26
+  consumer: after setmaxnreg.inc min     2.18  p10     2.27  med     2.46  p90     2.98  max     3.30
+  partition done (sync)        min     1.09  p10     1.09  med     1.15  p90     1.47  max     1.76
+  segment list done            min     2.08  p10     2.18  med     2.37  p90     2.88  max     3.20
+  producer: segment start      min     2.50  p10     2.59  med     2.82  p90     3.30  max    73.22
+  producer: pbar init done     min     2.56  p10     2.66  med     2.88  p90     3.36  max    73.38
+  producer: page fetches issued min     2.88  p10     2.94  med     3.17  p90     3.68  max    73.86
+  producer: tile 0 slot free   min     3.07  p10     3.17  med     3.44  p90     4.29  max    74.72
+  producer: tile 0 pages landed min     2.88  p10     2.94  med     3.17  p90     3.68  max    73.86
+  producer: tile 0 issued      min     3.17  p10     3.30  med     3.55  p90     4.35  max    74.82
+  consumer: after pdl wait     min     2.56  p10     2.62  med     2.85  p90     3.36  max    73.34
+  CTAs with a second segment: 43 of 264
+  segment 0 start              min     2.46  p10     2.53  med     2.75  p90     3.17  max     3.49
+  segment 0 end                min    10.59  p10    76.42  med    78.50  p90    79.78  max    82.08
+  SMs used: 132; SMs with two CTAs: 132; with more: 0
+  pair end gap                 min     0.00  p10     0.19  med     0.96  p90     2.43  max     3.74
+  per-SM end (last CTA)        min    76.64  p10    78.18  med    78.91  p90    80.29  max    81.73
+  first tile -> merge          min     4.03  p10    71.46  med    73.23  p90    74.43  max    75.74
+  finalizer CTAs: 184
+  finalizer: ticket (14)       min -5739749.12  p10 -5739097.66  med -203355.89  p90  -655.87  max    81.76
+  finalizer: done (5)          min -5739748.42  p10 -5739097.22  med -203355.25  p90  -655.23  max    82.46
+  finalizer: done - ticket     min     0.45  p10     0.58  med     0.67  p90     0.90  max   218.08
+  kernel end (last finalizer done)    82.46

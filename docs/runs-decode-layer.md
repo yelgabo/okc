@@ -3488,3 +3488,197 @@ to fill.
 Decision: ly_dual is a loss and is not a release candidate; no judge check. Nothing on the stream side is left to
 change: the stream delivers at 4.8 TB/s whenever the loop consumes faster, the loop is issue-bound at the clock the
 math sets, and more CTAs per SM do not add issue slots.
+
+## 2026-11-04 - Full-context attention limit (box)
+
+Attention lane, worktree branch `worktree-agent-af6a22d2b2de070a8`. Target: `attn_kernel<1, true, 0>` (the flat
+q_len 1 producer-warpgroup build, 264 CTAs of 128 consumer + 128 producer threads, two per SM, three 16 KB stages)
+at decode 32 full (3.9% of the score) and decode 16 full (2.5%) in ly_fabq (3765470032deb505). Box okc-h200, every
+run under `/root/okc/.build/box/gpu.lock`; nvidia-smi showed no foreign process before the first run (0 MiB used).
+Box numbers are box-candidate against box-control only (Box rule).
+
+### Floor table (measurement)
+
+Bytes: B x seq x 2 KV heads x 64 x 1 byte x (K + V) = 256 B per token, plus the page table (4 B per token at page
+1). Lengths are uniform in ctx +/- 7.5%, so the expected total is B x 80,000 tokens (seed 1000 at batch 32 draws
+2,539,033 rows = 650.0 MB of K + V). Achieved time is the kernel's duration under torch.profiler in the layer
+(`tools/ly_tl_run.py`, 10 cold replays, PDL pinned on; `.build/box/attn/tl_fabq.log`, traces
+`.build/box/attn/tl_fabq/cell{1,3}.json`).
+
+| cell | K + V MB | + page table MB | floor at 4.45 TB/s | kernel in the layer (box) | achieved TB/s (K + V + table) | gap |
+|---|---:|---:|---:|---:|---:|---:|
+| decode 16 full | 327.7 | 5.1 | 74.8 us | 84.41 us | 3.94 | 9.6 us (11%) |
+| decode 32 full | 655.4 | 10.2 | 149.6 us | 160.93 us | 4.14 | 11.3 us (7%) |
+
+Layer timeline around the kernel (`tools/ly_tl_parse.py`, medians of 10 replays): decode 32 full qkv 0.00 to 10.83,
+attention 9.38 to 170.34 (starts 1.5 us before qkv ends, PDL), the o projection's CTAs start at 160.51, that is
+10.1 us before the attention ends (its PDL secondary occupies SMs the attention has already left); decode 16 full the
+same with 1.9 and 6.7 us. Launch shape: grid (264, 1, 1), `REG:128 STACK:0 LOCAL:0` (cuobjdump of the box build,
+`/root/.cache/bx_ext/muse_att_v298w1pf_90a-*`), 56 producer / 200 consumer registers after setmaxnreg, two CTAs per
+SM, all 264 resident on 132 SMs (the stamps below saw every SM with exactly two).
+
+### What any gather of this pattern reaches (measurement, `tools/attn_gather_bench.py`)
+
+A kernel that only reads the same K and V rows (16-byte `ld.global.cg` per thread, DEPTH rows per thread in flight,
+nothing else; cold L2 per run, 15 runs, batch 32 seed 1000, `.build/box/attn/gather32.log`):
+
+| rows | CTAs x threads x depth | median us | TB/s |
+|---|---|---:|---:|
+| page table order (as the kernel reads them) | 264 x 256 x 16 | 184.5 | 3.52 |
+| page table order | 528 x 256 x 8 | 165.9 | 3.92 |
+| page table order | 1056 x 256 x 8 | 165.7 | 3.92 |
+| sorted within each CTA's range (DRAM locality) | 528 x 256 x 8 | 158.5 | 4.10 |
+| sequential rows 0..N | 528 x 256 x 8 | 158.6 | 4.10 |
+| K only, page table order | 1056 x 256 x 16 | 91.4 | 3.56 |
+
+Plain loads of random 128-byte rows top out at 3.92 TB/s whatever the depth or CTA count (the limit is not bytes in
+flight: 64 KB to 1 MB per SM give the same rate at 528 CTAs or more); 128-byte rows in order reach 4.10. The
+kernel's cp.async producer in the layer already reads the random rows at 4.04 to 4.14 TB/s over the whole launch, so
+the gather mechanism is not the headroom.
+
+### Per-CTA stamps in the layer (measurement, `tools/attn_stamps_make.py` + `tools/attn_stamps_run.py`)
+
+Diagnostic build of ly_fabq with the kernel's OKC_DBGON / OKC_SEGDBG stamps compiled in (globaltimer stores, one per
+CTA and event; the stock FPRO stamps made unconditional because their first-launch-only form costs a global load),
+run through bx_box_run.py (5 replays, PDL pinned on, decode 16 and decode 32; the last replay's stamps,
+`.build/box/attn/stamps{,2,3,4}_d{16,32}.log`). Times in us from the earliest CTA entry, medians over the 264 CTAs
+(run 4; runs 1 to 3 agree within 0.5 us):
+
+| event | decode 16 full | decode 32 full |
+|---|---:|---:|
+| CTA entry | 0.26 (max 1.06) | 1.18 (max 1.82) |
+| partition barrier passed (seq_lens read, prefix sums) | 1.15 | 1.95 |
+| segment list done (64-bit divisions, vmap, thread 0's scan) | 2.37 | 3.49 |
+| setmaxnreg done, segment 0 starts | 2.46 / 2.75 | 3.62 / 3.84 |
+| producer: page-index ring set up, 3 TMA fetches issued | 3.17 | 4.32 |
+| producer: tile 0 copies issued | 3.55 | 4.86 |
+| consumer: first tile consumed | 4.99 | 6.00 |
+| loop end (last segment) | 77.38 | 154.74 |
+| merge done (reds, release) | 78.46 (+1.09 after the loop) | 155.78 (+1.06) |
+| per-SM end: p10 / median / max | 78.18 / 78.91 / 81.73 | 153.79 / 156.82 / 159.71 |
+| pair end gap on one SM: median / max | 0.96 / 3.74 | 1.84 / 6.02 |
+| finalize after the last merge | 0.7 | 0.7 |
+
+With PDL off (`--pin-pdl8 ""`, decode 16) the prologue has the same shape: partition 1.02, segment list 2.21,
+tile 0 issued 3.39, first tile 4.88 us. So the 2.3 us between the partition barrier and the first copy is code, not
+SM sharing with the qkv kernel's tail: the dependent latencies in it are one seq_lens read and one page-index
+fetch (the TMA page fetch returns in 0.27 us, an L2 hit), the rest is first-execution instruction fetch of a long
+once-path (every step of the prologue costs 0.3 to 0.5 us: barrier setup, three TMA issues, the index unpack).
+
+Steady state: first tile to loop end is 72.4 us at decode 16 (327.7 MB, 4.53 TB/s with the page table) and
+148.7 us at decode 32 (4.47 TB/s), that is at the 4.45 TB/s floor. The whole 9.6 / 11.3 us gap is the intercept:
+
+| piece | decode 16 full | decode 32 full |
+|---|---:|---:|
+| entry spread + prologue to the first consumed tile | 5.0 us | 6.0 us |
+| loop end to merge (per CTA, only the last ones count) | 1.1 us | 1.1 us |
+| end spread, median SM to the last SM | 2.8 us | 2.9 us |
+| finalize of the last request | 0.7 us | 0.7 us |
+
+Verdict: the cell is neither bandwidth-bound in steady state nor bound by the combine step; it is bound by the
+startup latency (code-bound prologue, 3.4 to 4.9 us from entry to the first copy, then a 1.4 us DRAM round trip)
+and the end spread. Compute is hidden (the 2026-11-03 standalone probes put it at 2.6 / 3.5 us; the per-CTA rate
+here is at the floor). The largest single measured piece is the startup, 5 to 6 us per cell, of which about 1 us is
+unavoidable dependent latency.
+
+### Candidate: ly_apre (first STAGES tiles issued right after the partition barrier)
+
+`tools/dl_ly_apre_patch.py` (base ly_fabq, pinned) -> `muse_decode_layer/cand/ly_apre.py`
+(SHA256 b8bd56f714bae9958698972df291f2e70455bc1a4279dfb4654dcd159f55bde2). In `attn_kernel<1, true, 0>` only: once
+the partition barrier has passed, the producer threads find their first segment (the scan thread 0 does for the
+list), load its first min(3, tiles) tiles' page indices with plain loads and issue exactly the loop's copies (same
+cp.async instructions, zero-fill and swizzled stage addresses) with the same arrival on the full barriers; the
+producer loop of segment 0 skips the empty wait, copies and arrival for those tiles and keeps the page-ring
+accounting. The stage barriers come from the stock EARLYBAR init before the partition barrier; no fence, barrier or
+arrival count changes; consumers untouched. Reference check PASS at all 12 cells (`.build/prtl/apre/chk.log`,
+`FORK_MOE_ROUTE native repaired`, `G_RELEASE_STARTUP_OK`).
+
+Paired A/B (`tools/ly_prtl_ab.sh`, CTL ly_fabq, CAND ly_apre, five bx_box_run.py processes c/w/c/w/c under the lock,
+`--runs 60`, PDL pinned at T = 1, 8, 16, 32, 12:16-12:17 UTC; logs `/root/okc/.build/prtl/apre/`, copied to
+`muse_decode_layer/profiles/box/attn/apre/`; table `tools/ly_prtl_table.py`). Threshold max(2 x control spread,
+0.5 us) on decode 1 / verify 1, max(2 x spread, 1%) elsewhere.
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | threshold | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.42 | 65.30 | 65.09 | 65.18 | 65.23 | 0.34 | -0.01 | 0.67 | inside |
+| decode 1 full | 71.89 | 71.86 | 71.81 | 71.97 | 71.90 | 0.10 | +0.05 | 0.50 | inside |
+| decode 16 sliding | 126.43 | 127.06 | 126.56 | 127.30 | 126.93 | 0.50 | +0.54 | 1.27 | inside |
+| decode 16 full | 199.31 | 200.48 | 198.51 | 200.02 | 198.80 | 0.80 | +1.37 | 1.99 | inside, every pair slower (+1.2 to +2.0) |
+| decode 32 sliding | 144.24 | 143.79 | 143.68 | 143.84 | 143.87 | 0.56 | -0.11 | 1.44 | inside |
+| decode 32 full | 295.18 | 296.35 | 294.56 | 295.47 | 293.97 | 1.22 | +1.34 | 2.95 | inside, every pair slower (+0.9 to +1.8) |
+| verify 1 sliding | 102.30 | 101.44 | 101.63 | 101.87 | 101.44 | 0.86 | -0.14 | 1.73 | inside |
+| verify 1 full | 110.53 | 110.75 | 109.70 | 110.18 | 110.21 | 0.83 | +0.32 | 1.66 | inside |
+| verify 16 sliding | 243.28 | 243.79 | 244.05 | 242.22 | 242.83 | 1.22 | -0.38 | 2.43 | inside |
+| verify 16 full | 327.39 | 326.30 | 327.20 | 326.83 | 326.29 | 1.10 | -0.39 | 3.27 | inside |
+| verify 32 sliding | 297.63 | 295.65 | 296.86 | 296.78 | 296.88 | 0.77 | -0.91 | 2.97 | inside |
+| verify 32 full | 460.78 | 460.85 | 459.82 | 459.70 | 460.32 | 0.96 | -0.04 | 4.60 | inside |
+
+The two target cells are slower in all four candidate-against-neighbour pairs, by about 1.3 us; the other ten cells
+(untouched kernels) sit inside the control spread.
+
+Why it loses (stamps build of ly_apre, `.build/attn/ly_apre_stamps.py` from `tools/attn_stamps_make.py --base
+ly_apre.py`, `muse_decode_layer/profiles/box/attn/stamps/stamps_apre_d{16,32}.log`; medians, us from the earliest
+entry, decode 16 / decode 32 full, base in brackets): partition barrier 1.42 / 2.05 [1.15 / 1.95], segment list done
+3.95 / 4.86 [2.37 / 3.49], setmaxnreg done 5.49 / 6.21 [2.46 / 3.62], segment 0 start 5.66 / 6.42 [2.75 / 3.84],
+first tile consumed 6.85 / 7.55 [4.99 / 6.00]. The pre-issue block itself takes about 4 us on the producer warps
+(a seq_lens read and the page-index loads as two dependent round trips, three tiles of copies, all first-execution
+code), and since the producers reach `setmaxnreg.dec` only after it, the consumers' `setmaxnreg.inc` holds the whole
+consumer side for those 3 us; the copies are in flight earlier, but nobody can consume them until 5.5 us, so the
+first tile lands 1.6 to 1.9 us later than in the base. Steady state and the end spread are unchanged
+(first tile to merge 72.7 / 146.8 us [73.2 / 147.9]; per-SM end median to max 3.5 / 5.0 us [2.8 / 2.9]).
+
+### Candidate: ly_apre2 (producers release their registers first, no seq_lens read)
+
+`tools/dl_ly_apre_patch.py` without `--v1` -> `muse_decode_layer/cand/ly_apre2.py`
+(SHA256 52fed0e84e0d790a82481156df8034c7a5512794d10ef0a3052f92810c531b74). Same mechanism, two changes from the
+stamps above: the producer warpgroup executes its `setmaxnreg.dec` at the start of the pre-issue block (the one in
+the role split is skipped under `apre`), so the consumers' `setmaxnreg.inc` no longer waits for the pre-issue; and
+the first request's length comes from the prefix sums (`S.cum[b0 + 1] - S.cum[b0] - L`, exact on the full layer,
+the flat kernel's only use; a window launch gets `npre = 0`), which removes one dependent round trip.
+
+Reference check PASS at all 12 cells (`muse_decode_layer/profiles/box/attn/apre2/chk.log`). Build: `REG:128 STACK:0
+LOCAL:0`, two CTAs per SM, as the base (cuobjdump of `/root/.cache/bx_ext/muse_att_v298w1pf_90a-536017ad614e3377`;
+the ly_apre build is `STACK:8`).
+
+Paired A/B (same recipe, CTL ly_fabq, CAND ly_apre2, 12:25-12:26 UTC; logs
+`muse_decode_layer/profiles/box/attn/apre2/`):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | threshold | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.41 | 65.26 | 65.20 | 65.20 | 65.23 | 0.21 | -0.05 | 0.50 | inside |
+| decode 1 full | 71.84 | 71.58 | 71.90 | 71.87 | 71.97 | 0.13 | -0.18 | 0.50 | inside |
+| decode 16 sliding | 127.10 | 126.99 | 126.72 | 126.35 | 127.06 | 0.38 | -0.29 | 1.27 | inside |
+| decode 16 full | 200.21 | 201.25 | 199.06 | 201.49 | 199.41 | 1.15 | +1.81 | 2.30 | inside, every pair slower (+1.0 to +2.4) |
+| decode 32 sliding | 143.63 | 143.74 | 143.57 | 143.58 | 143.89 | 0.32 | -0.03 | 1.44 | inside |
+| decode 32 full | 295.55 | 295.44 | 295.15 | 295.33 | 294.85 | 0.70 | +0.20 | 2.95 | inside (pairs -0.1 to +0.5) |
+| verify 1 sliding | 102.00 | 101.79 | 102.29 | 101.84 | 102.46 | 0.46 | -0.43 | 0.93 | inside |
+| verify 1 full | 110.37 | 109.81 | 110.16 | 110.38 | 110.98 | 0.82 | -0.41 | 1.63 | inside |
+| verify 16 sliding | 241.78 | 243.22 | 242.96 | 242.02 | 243.30 | 1.52 | -0.06 | 3.04 | inside |
+| verify 16 full | 327.18 | 326.54 | 327.07 | 326.94 | 327.06 | 0.13 | -0.36 | 3.27 | inside |
+| verify 32 sliding | 296.13 | 295.57 | 295.86 | 296.74 | 296.86 | 1.01 | -0.13 | 2.96 | inside |
+| verify 32 full | 461.15 | 461.49 | 460.94 | 460.40 | 459.92 | 1.23 | +0.27 | 4.61 | inside |
+
+Decode 32 full is neutral; decode 16 full is slower in all four pairs. Neither candidate reaches a win at the two
+target cells, and both lose at decode 16 full.
+
+ly_apre2 stamps (same diagnostic build, 5 runs, logs `muse_decode_layer/profiles/box/attn/stamps/stamps_apre2_d{16,32}.log`),
+medians in us from the earliest entry, decode 16 / decode 32: producer after partition sync 1.39 / 1.63 (base 1.15
+/ 1.95), segment list done 4.02 / 4.72 (base 2.37 / 3.49), consumer after setmaxnreg.inc 4.13 / 4.94 (base 2.46 /
+3.62), first tile consumed 6.16 / 6.59 (base 4.99 / 6.00), loop end 80.74 / 155.57 (base 77.38 / 154.74). The
+pre-issue block runs on the producer warps before the segment list and costs about 1.6 us at decode 16 (0.9 us at
+decode 32) of first-execution time, so the first copies are issued earlier but the first tile is consumed 1.2 /
+0.6 us later than in the base. That is the measured mechanism of the decode 16 full loss.
+
+### Decision
+
+The full-context q_len 1 attention cells are at the DRAM floor in steady state (4.47 to 4.53 TB/s per CTA from the
+first tile to the loop end, against a 4.45 TB/s floor and a 3.92 TB/s plain-load ceiling for the random rows). The
+11% / 7% distance to the byte floor is the launch intercept: 5 to 6 us from CTA entry to the first consumed tile
+(a code-bound once-path of about 2.5 us before the first copy, then a 1.4 us DRAM round trip; the same with PDL
+off, so not SM sharing) and about 3 us of end spread across SMs plus the last merge and finalize. Pre-issuing the
+first tiles (ly_apre, ly_apre2) does not convert the earlier copies into an earlier start: the block's own
+first-execution cost on the producer warps is as long as what it skips, and at decode 16 full both forms lose
+about 1.4 to 1.8 us. No judge check is recommended for either file. The remaining levers are (a) a shorter once-path
+before the first copy (the instruction stream, not the data dependencies, sets the 2.5 us) and (b) the end
+spread, where every static or arrival-order pair split has lost before (docs/ruled-out.md). Each is worth at most
+about 3 us per cell on these measurements, which is the 1% keep threshold itself.

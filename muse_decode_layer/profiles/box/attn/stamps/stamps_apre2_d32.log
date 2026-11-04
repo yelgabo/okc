@@ -1,0 +1,56 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793796257.103 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.39), ('sk2', 7.97), ('torch', 10.46)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 8.0 s
+BXLOCK 1793796265.683 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793796265.683 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793796265.780 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793796267.642 acquire triton _graft_row_boundary_pre_cg done after 1.9 s
+BXCLOCK submission clocks now 1.9 s behind real (lock waits after builds)
+BOX decode 32 sliding: raw 143.55 net 139.65 us (overhead 3.90) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.929
+BOX decode 32 full: raw 300.06 net 296.03 us (overhead 4.03) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.972
+BX local_start cache /root/okc/.build/box/ls_cache.json: 10 hits, 0 computed
+BXPHASE import_torch=0.16 load_reference_cuda_init=0.00 weights_and_router=0.24 prepare_submission=8.04 fresh_inputs=0.34 capture=1.99 overhead_graphs=0.22 replays=0.01 cell_tail=0.01 json_write=0.00 total=11.01
+/root/venv/lib/python3.12/site-packages/torch/jit/_script.py:365: FutureWarning: `torch.jit.script_method` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+STAMPS 264 CTAs with an entry stamp
+per-CTA times in us from the earliest entry:
+  entry                        min     0.00  p10     0.06  med     0.90  p90     1.06  max     1.41
+  first tile consumed          min     4.67  p10     4.77  med     6.59  p90    45.31  max   149.73
+  first tile - entry           min     4.35  p10     4.67  med     5.63  p90    44.54  max   148.90
+  loop end (last segment)      min   146.75  p10   151.68  med   155.57  p90   158.85  max   160.61
+  merge done                   min   148.99  p10   152.99  med   156.62  p90   159.78  max   161.57
+  merge done - loop end        min     0.83  p10     0.93  med     1.06  p90     1.44  max     2.56
+  producer: entry              min     0.26  p10     0.38  med     1.02  p90     1.25  max     1.50
+  producer: after partition sync min     1.06  p10     1.15  med     1.63  p90     1.89  max     2.08
+  consumer: after setmaxnreg.inc min     3.23  p10     3.49  med     4.94  p90     5.73  max     6.50
+  partition done (sync)        min     1.06  p10     1.15  med     1.63  p90     1.92  max     2.08
+  segment list done            min     3.10  p10     3.39  med     4.72  p90     5.60  max     6.40
+  producer: segment start      min     3.71  p10     4.26  med     5.41  p90    41.47  max   145.63
+  producer: pbar init done     min     3.87  p10     4.42  med     5.60  p90    41.92  max   146.11
+  producer: page fetches issued min     4.70  p10     4.99  med     6.02  p90    42.24  max   146.46
+  producer: tile 0 slot free   min -8015290.88  p10 -8014724.35  med -8014724.22  p90    42.72  max   147.23
+  producer: tile 0 pages landed min     4.83  p10     5.15  med     6.03  p90    42.24  max   146.46
+  producer: tile 0 issued      min -8015290.78  p10 -8014723.52  med -8014723.30  p90    42.91  max   147.46
+  consumer: after pdl wait     min     3.68  p10     3.97  med     5.47  p90    41.76  max   145.95
+  CTAs with a second segment: 70 of 264
+  segment 0 start              min     3.55  p10     3.81  med     5.20  p90     5.95  max     6.69
+  segment 0 end                min    19.58  p10   132.80  med   156.06  p90   159.62  max   162.43
+  SMs used: 132; SMs with two CTAs: 132; with more: 0
+  pair end gap                 min     0.00  p10     0.74  med     2.40  p90     4.03  max     7.74
+  per-SM end (last CTA)        min   152.64  p10   155.46  med   157.54  p90   160.26  max   161.57
+  first tile -> merge          min     7.94  p10   111.23  med   149.92  p90   153.25  max   156.67
+  finalizer CTAs: 216
+  finalizer: ticket (14)       min -8017199.84  p10 -8014912.06  med -3781.52  p90   158.94  max   161.63
+  finalizer: done (5)          min -8017199.30  p10 -8014911.46  med -3780.85  p90   159.62  max   162.40
+  finalizer: done - ticket     min     0.51  p10     0.61  med     0.70  p90     0.86  max   439.14
+  kernel end (last finalizer done)   162.40
