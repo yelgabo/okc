@@ -1,0 +1,75 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793781008.433 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793781009.181 release build glue_moe_c91de4b44c1f3c12_sm90a
+BXBUILD 1793781009.181 start build glue_moe_c91de4b44c1f3c12_sm90a
+BXBUILD 1793781009.182 start build glue_moe_c8703e4eb2e094c4_sm90a
+BXBUILD 1793781009.182 start build glue_moe_c18b53c72b4bacf0_sm90a
+BXBUILD 1793781046.203 end build glue_moe_c8703e4eb2e094c4_sm90a
+BXBUILD 1793781046.995 end build glue_moe_c18b53c72b4bacf0_sm90a
+BXBUILD 1793781049.401 end build glue_moe_c91de4b44c1f3c12_sm90a
+BXLOCK 1793781049.401 acquire build glue_moe_c91de4b44c1f3c12_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.33), ('sk2', 8.03), ('torch', 10.27)] -> ('cg',)
+BXLOCK 1793781061.302 release triton _prq_sl_tile_route_cg
+BXBUILD 1793781061.302 start triton _prq_sl_tile_route_cg
+BXBUILD 1793781062.091 end triton _prq_sl_tile_route_cg
+BXLOCK 1793781062.091 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781062.094 release triton _sl_cluster_finish_cg
+BXBUILD 1793781062.094 start triton _sl_cluster_finish_cg
+BXBUILD 1793781062.195 end triton _sl_cluster_finish_cg
+BXLOCK 1793781062.195 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781062.277 release triton _prq_sl_tile_route_cg
+BXBUILD 1793781062.277 start triton _prq_sl_tile_route_cg
+BXBUILD 1793781063.051 end triton _prq_sl_tile_route_cg
+BXLOCK 1793781063.051 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781063.054 release triton _sl_cluster_finish_cg
+BXBUILD 1793781063.054 start triton _sl_cluster_finish_cg
+BXBUILD 1793781063.149 end triton _sl_cluster_finish_cg
+BXLOCK 1793781063.149 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781063.261 release triton _prq_sl_tile_route
+BXBUILD 1793781063.261 start triton _prq_sl_tile_route
+BXBUILD 1793781064.007 end triton _prq_sl_tile_route
+BXLOCK 1793781064.007 acquire triton _prq_sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793781071.049 release triton _prq_sl_tile_route_cg
+BXBUILD 1793781071.049 start triton _prq_sl_tile_route_cg
+BXBUILD 1793781071.781 end triton _prq_sl_tile_route_cg
+BXLOCK 1793781071.781 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781071.784 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793781071.784 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793781071.875 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793781071.875 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+REC {"label": "decode 16 sliding seed 4267547656320205676", "endA": 48.72, "stallA_per_cta": 4.668, "stallB_per_cta": 6.367, "span": 78.112, "A": 43.411, "B": 21.828, "a_wwait": 1.619, "b_wwait": 0.739, "distinct": 7, "units": 6144, "unit_a": 1.344, "unit_b": 1.376, "phaseA_tbs": 3.478}
+REC   snaps {"0.3": {"t": 14.616, "inflight": 319, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}, "0.6": {"t": 29.232, "inflight": 268, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}} latA(med,p90,sum) [3.392, 4.0, 14227.968] latB [3.552, 6.912, 8446.016]
+REC   stall(count, per CTA us, median) {"first3": [264, 0.3, 0.16], "steady": [5536, 7.212, 0.16], "jobswitch": [140, 3.523, 3.424]}
+REC {"label": "decode 16 sliding seed 4267547656320205677", "endA": 52.288, "stallA_per_cta": 5.251, "stallB_per_cta": 5.505, "span": 85.92, "A": 47.857, "B": 24.614, "a_wwait": 1.643, "b_wwait": 0.832, "distinct": 8, "units": 6912, "unit_a": 1.344, "unit_b": 1.408, "phaseA_tbs": 3.55}
+REC   snaps {"0.3": {"t": 15.686399999999999, "inflight": 325, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}, "0.6": {"t": 31.372799999999998, "inflight": 355, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}} latA(med,p90,sum) [3.36, 3.488, 15573.536] latB [3.584, 6.624, 9382.336]
+REC   stall(count, per CTA us, median) {"first3": [264, 0.302, 0.16], "steady": [5535, 7.038, 0.16], "jobswitch": [141, 3.415, 2.976]}
+REC {"label": "decode 16 sliding seed 4267547656320205678", "endA": 47.984, "stallA_per_cta": 4.68, "stallB_per_cta": 6.529, "span": 77.696, "A": 42.771, "B": 21.958, "a_wwait": 1.457, "b_wwait": 0.76, "distinct": 7, "units": 6144, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.53}
+REC   snaps {"0.3": {"t": 14.3952, "inflight": 311, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}, "0.6": {"t": 28.7904, "inflight": 331, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}} latA(med,p90,sum) [3.392, 3.52, 13948.704] latB [3.584, 6.816, 8538.56]
+REC   stall(count, per CTA us, median) {"first3": [264, 0.321, 0.16], "steady": [5536, 7.324, 0.16], "jobswitch": [140, 3.562, 3.056]}
+Traceback (most recent call last):
+  File "/root/okc/tools/box_st_rec.py", line 200, in <module>
+    main()
+  File "/root/okc/tools/box_st_rec.py", line 179, in main
+    an = analyse(ctas, f"{case['load']} {case['layer']} seed {seed}")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/tools/box_st_rec.py", line 84, in analyse
+    endA = statistics.median(c["ret"][c["nA"] - 1] for c in ctas if c["nA"] and c["nA"] <= 46 and c["ret"][c["nA"] - 1])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/statistics.py", line 617, in median
+    raise StatisticsError("no median for empty data")
+statistics.StatisticsError: no median for empty data

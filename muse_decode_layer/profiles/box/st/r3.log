@@ -1,0 +1,23 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+LOCK acquired after 0.0 s
+READ 4 GiB sum 4.411 TB/s
+ST       h0  A k  7 D 3 delay    0 grid 132 burn  0 units  3584 span   29.82 [29.38-31.26] TB/s 4.430 (100.4%) steady 4.815 (109.1%) ramp 2.94 endspread 4.54 cta_unit 0.985
+ST       h0  A k  7 D 3 delay    0 grid 132 burn  8 units  3584 span   30.50 [30.08-31.90] TB/s 4.332 ( 98.2%) steady 4.818 (109.2%) ramp 3.06 endspread 3.86 cta_unit 0.993
+ST       h0  A k  7 D 3 delay    0 grid 132 burn 14 units  3584 span   30.72 [30.11-32.45] TB/s 4.301 ( 97.5%) steady 4.815 (109.1%) ramp 3.06 endspread 4.10 cta_unit 0.995
+ST       h0  A k  7 D 3 delay  800 grid 132 burn  0 units  3584 span   32.78 [31.94-34.59] TB/s 4.030 ( 91.4%) steady 4.836 (109.6%) ramp 2.91 endspread 4.29 cta_unit 1.010
+ST       h0  A k  7 D 3 delay  800 grid 132 burn  8 units  3584 span   35.86 [35.39-37.44] TB/s 3.685 ( 83.5%) steady 4.278 ( 97.0%) ramp 3.05 endspread 3.17 cta_unit 1.143
+ST       h0  A k  7 D 3 delay  800 grid 132 burn 14 units  3584 span   37.02 [36.19-38.18] TB/s 3.569 ( 80.9%) steady 4.154 ( 94.2%) ramp 3.09 endspread 3.46 cta_unit 1.175
+ST       h0  A k  7 D 3 delay  950 grid 132 burn  0 units  3584 span   35.25 [34.30-36.58] TB/s 3.748 ( 85.0%) steady 4.392 ( 99.6%) ramp 2.95 endspread 3.36 cta_unit 1.109
+ST       h0  A k  7 D 3 delay  950 grid 132 burn  8 units  3584 span   40.64 [39.97-42.18] TB/s 3.251 ( 73.7%) steady 3.711 ( 84.1%) ramp 3.04 endspread 3.70 cta_unit 1.305
+ST       h0  A k  7 D 3 delay  950 grid 132 burn 14 units  3584 span   41.04 [40.67-42.43] TB/s 3.219 ( 73.0%) steady 3.649 ( 82.7%) ramp 3.07 endspread 3.54 cta_unit 1.332
+ST       h0 AB k  7 D 3 delay    0 grid 132 burn  0 units  5376 span   44.05 [43.52-45.47] TB/s 4.499 (102.0%) steady 4.787 (108.5%) ramp 2.97 endspread 6.58 cta_unit 0.991
+ST       h0 AB k  7 D 3 delay    0 grid 132 burn  8 units  5376 span   45.02 [44.03-46.08] TB/s 4.402 ( 99.8%) steady 4.700 (106.5%) ramp 3.00 endspread 5.31 cta_unit 1.009
+ST       h0 AB k  7 D 3 delay    0 grid 132 burn 14 units  5376 span   45.22 [44.19-46.40] TB/s 4.383 ( 99.4%) steady 4.700 (106.6%) ramp 3.04 endspread 5.41 cta_unit 1.010
+ST       h0 AB k  7 D 3 delay  800 grid 132 burn  0 units  5376 span   47.78 [46.75-48.90] TB/s 4.148 ( 94.0%) steady 4.790 (108.6%) ramp 2.93 endspread 6.42 cta_unit 1.030
+ST       h0 AB k  7 D 3 delay  800 grid 132 burn  8 units  5376 span   52.14 [51.26-53.82] TB/s 3.801 ( 86.2%) steady 4.271 ( 96.8%) ramp 3.03 endspread 4.82 cta_unit 1.144
+ST       h0 AB k  7 D 3 delay  800 grid 132 burn 14 units  5376 span   53.20 [52.54-54.50] TB/s 3.725 ( 84.4%) steady 4.165 ( 94.4%) ramp 3.06 endspread 4.59 cta_unit 1.175
+ST       h0 AB k  7 D 3 delay  950 grid 132 burn  0 units  5376 span   51.14 [50.08-52.10] TB/s 3.876 ( 87.9%) steady 4.396 ( 99.7%) ramp 2.93 endspread 5.15 cta_unit 1.109
+ST       h0 AB k  7 D 3 delay  950 grid 132 burn  8 units  5376 span   58.86 [58.46-59.90] TB/s 3.367 ( 76.3%) steady 3.717 ( 84.3%) ramp 3.01 endspread 5.25 cta_unit 1.307
+ST       h0 AB k  7 D 3 delay  950 grid 132 burn 14 units  5376 span   59.81 [59.07-60.61] TB/s 3.314 ( 75.1%) steady 3.666 ( 83.1%) ramp 3.05 endspread 5.07 cta_unit 1.330
+LOCK released

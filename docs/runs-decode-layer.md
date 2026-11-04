@@ -3114,3 +3114,131 @@ Lane 1.3a's cluster loop (muse_moe_w4a16/cl/cl_unit_loop.cuh on worktree-agent-a
 08:00 UTC, no committed result yet) is a different loop: its token operand comes from shared memory and its 16
 consumer warps take setmaxnreg registers, so its limits need not match helper0's. One idea came from it (the IMAD
 r3 merge, dq above), which does not help helper0's SASS.
+
+## 2026-11-04 - Phase A stream efficiency (box)
+
+Question from the lead (stream lane): why does helper0's phase A weight stream in the public layer file run at about
+3.83 TB/s while the Family H skeleton reads the same bytes at 93 to 99%, and which change to helper0's streaming
+brings phase A to 95% or more. Base `muse_decode_layer/cand/ly_fabq.py` (SHA256 3765470032deb505...dde555, never
+edited). Box only (okc-h200, 2026-11-04 08:20-10:10 UTC, every GPU run under /root/okc/.build/box/gpu.lock), no
+judge job, no routing slack. Logs: `muse_decode_layer/profiles/box/st/`.
+
+Tools:
+
+- `muse_moe_w4a16/cl/st_replay.cu` and `st_replay_bench.py`: a weights-only kernel. Each CTA streams its own list
+  of 36,864-byte units through a cp.async.bulk ring of depth D with the L2 evict-first hint, one CTA per SM, no
+  math. Options: consumer delay per unit (a globaltimer spin), 1 or 8 consumer warps polling the full barrier,
+  helper0's refill form (consumer warp 1 lane 0 issues unit i + D after a named barrier), helper0's constant
+  policy word, helper0-shaped evict_last bf16 stores per unit, extra mma.sync + integer burn warps, the ring's
+  offset in shared memory, cooperative or eager launch, read or write flush, flush size. Patterns: h0 (helper0's
+  muldiv ranges, expert-major), rr (unit i to CTA i mod G), rrb3 (blocks of 3), em (CTAs split into k groups,
+  group g owns expert g, adjacent units to adjacent CTAs), emc (the same groups, contiguous chunks), and any
+  pattern at G = 56 or 96 CTAs (em@56 is the H skeleton's 7 x 8 geometry with a static assignment).
+- `tools/dl_ly_st_patch.py --variant rec` writes `muse_decode_layer/cand/ly_st_rec.py`: the MOE-TL-01 timeline on
+  TINY2 and MID plus, per CTA and sequence number q, the issue time and expert block of every weight copy, the time
+  warp 0 saw the slot full, warp 0's wait, and the SM id. Off-by-default diagnostic switches (wrong output, timing
+  only): `ST_NOMATH` / `ST_SPIN` (each unit's decode and mma replaced by a spin of N ns), `ST_NOEPI` (no phase A
+  epilogue in the helper warp), `ST_BARE` (no partials hand-off at all: wait, fence, CTA barrier, refill).
+- `tools/box_st_rec.py`: runs the layer once per input (f931 case seeds, router seed 106218864389449120,
+  local_start per input), records the helper0 launch, and replays it after an L2 flush: 3 plain launches (CUDA
+  events), one recorded launch, and optionally the recorded phase A sequence streamed by st_replay.cu from the
+  layer's own w13 tensor (`--replay`, same bytes, same order, same CTA lists). `--extra` builds the recorded
+  launch with extra defines while prepare() and its checks use the file's own builds.
+
+### Experiment 1: helper0's address pattern
+
+helper0 (TINY2 at verify 1, MID at decode 16) gives CTA c the phase A units [floor(N c / 132), floor(N (c + 1) /
+132)) of the expert-major list (N = 512 per distinct local expert), so each CTA streams one contiguous run of
+27 to 29 units (about 1 MB), crossing at most one expert boundary, and phase B the same with 13 to 14 units. A
+unit is one contiguous 36,864-byte copy: 8 gate rows and 8 up rows of a 16-row block with their scales, so gate
+and up are not separate streams. The record confirms it on every input. At 30% and 60% of phase A, all 132 CTAs
+have copies in flight (270 to 380 units), spread over all k experts (6 to 12) and 54 to 108 distinct 2 MB regions
+(every 2 MB page of every active expert), with neighbouring CTAs 27 to 50 units apart (the muldiv stride, 31 at
+7 experts). The H skeleton (CL-0.1) reads 7 experts with 8 CTAs per expert claiming adjacent units, so at any
+moment about 7 windows of 32 units each.
+
+### Experiment 2: replay table (TB/s, phase A, 7 distinct experts, consumer delay 0, read flush, 20 replays)
+
+"span" is units x 36,864 B over first CTA entry to last CTA done (ramp and end spread included); "steady" is the
+middle 80% of unit arrivals over their time window. The box's 4 GiB torch sum reads at 4.40 to 4.43 TB/s.
+
+| pattern | CTAs | D = 3 span / steady | D = 4 span / steady |
+|---|---:|---|---|
+| h0 (helper0's ranges) | 132 | 4.44 / 4.82 | 4.42 / 4.84 |
+| rr (round robin) | 132 | 4.44 / 4.81 | 4.42 / 4.82 |
+| rrb3 | 132 | 4.41 / 4.79 | 4.40 / 4.84 |
+| em (expert groups, adjacent units) | 132 | 4.41 / 4.80 | 4.43 / 4.83 |
+| emc (expert groups, contiguous) | 132 | 4.40 / 4.82 | 4.41 / 4.85 |
+| em@56 (H skeleton geometry) | 56 | 4.26 / 4.61 | 4.22 / 4.72 |
+| h0@56 | 56 | 4.12 / 4.55 | 4.18 / 4.71 |
+| h0@96 | 96 | 4.34 / 4.80 | 4.24 / 4.82 |
+
+h0 at D = 2: 4.41 / 4.80. Phase B (h0): 4.15 / 4.91; A then B in one ring: 4.53 / 4.80. At 14 distinct experts
+(264 MB, five times the L2) h0 steady is still 4.80, so the 4.8 TB/s is HBM, not L2 hits; with an 8 GiB flush it
+is the same. The pattern makes no difference: every 132-CTA pattern streams within 1% of the others, and fewer
+CTAs (the H geometry) is slower, not faster. With a write flush (dirty L2, as `tools/box_moe_tl8.py` uses) the
+same replay drops to 3.63 span / 4.01 steady.
+
+Replay with helper0's other traits, h0 at D = 3 (steady TB/s): 8 polling consumer warps 4.82; constant policy word
+4.82; helper0-shaped evict_last stores 4.81; no L2 hint 4.75; refill by consumer warp 1 after a named barrier
+4.84; ring at shared offsets 128 to 896 or behind 110 KB 4.81 to 4.85; cooperative launch 4.81; eager launch
+4.82; 8 or 14 burn warps (mma.sync + integer) 4.82. A consumer that holds each slot 0.3 us (helper0's measured
+hold) still reads 4.82 at a 0.99 us unit interval.
+
+Same bytes: the recorded helper0 phase A sequence of each input, streamed by st_replay.cu from the layer's own
+w13 tensor in the same process right after the recorded launch, reads 4.27 to 4.51 span and 4.80 to 4.85 steady
+(8 inputs, verify 1), per-unit latency 2.78 us at D = 3.
+
+### helper0 in place (verify 1, read flush, record build)
+
+| build | unit interval A | warp 0 weights wait A per CTA | phase A steady TB/s | issue-to-ready latency |
+|---|---:|---:|---:|---:|
+| base (with math) | 1.184 | 3.2 to 3.4 us | 3.90 | 2.72 us |
+| no math (`ST_NOMATH`, spin 0) | 1.15 | 20 to 25 us | 3.72 to 3.99 | 3.4 us |
+| no math, no helper epilogue (`ST_NOEPI`) | 1.15 to 1.17 | 21 to 25 us | 4.0 (tbsA) | 3.4 us |
+| bare loop (`ST_BARE`: wait, fence, barrier, refill) | 1.18 to 1.22 | 22 to 28 us | 3.82 | 3.5 us |
+| no math, 4 ring slots | 1.15 to 1.17 | 20 to 24 us | 3.79 to 3.97 | 4.6 us |
+| no math, 2 ring slots | 1.22 | 19 to 24 us | 4.05 (tbsA) | - |
+| no math, spin 900 / 1000 ns | 1.376 / 1.472 | 1.7 to 1.9 us | consumer-bound | 2.9 / 3.1 us |
+
+Base with a read flush against the write flush the 1.3b timeline used: phase A 36.6 / 37.3 us against 37.5 /
+36.9 (verify 1 sliding / full medians), 3.85 against 3.76-3.84 TB/s, so the flush type explains at most 1 us.
+Plain launch times (CUDA events, eager, no timeline) differ by only 3.1 to 5.1 us between the base and the no-math
+build on the same inputs (for example 53.5 against 49.95 us), so the math costs little of the kernel.
+
+### Reading
+
+1. The address pattern is not the cause. helper0's exact per-CTA sequence, on the same bytes, at the same ring
+   depth and unit size, streams at 4.8 TB/s steady (and 4.4 TB/s over the whole span, 100% of the torch read
+   rate) in a weights-only kernel, and no alternative assignment does better. No prepare-time or route-time unit
+   order can bring phase A to 95%, so experiment 3 as planned (port a winning pattern) has nothing to port.
+2. The limit is inside helper0's kernel and is not its compute loop. With the decode and mma removed, and even
+   with the partials hand-off and epilogue removed, helper0 still streams phase A at 3.8 to 4.0 TB/s, the same as
+   with math (3.90). Ring depth 2, 3 or 4 gives the same rate with latency growing in proportion (2.72 -> 3.4 ->
+   4.6 us), so it is a throughput ceiling of about 3.9 TB/s, not a latency or depth problem. The replay kernel,
+   given every helper0 trait we could isolate (polling warps, refill thread and barrier, hold time, policy word,
+   stores, shared offset, cooperative launch, compute load), keeps 4.8.
+3. This corrects lane 1.3b's reading in one point: the loop is not 5% over the bytes; the bytes in this kernel
+   are capped at about 3.9 TB/s and the loop (1.18 us per unit, 4.1 TB/s equivalent) sits just above that cap.
+   It agrees with its conclusion that a faster loop alone does not help (pr, prns4).
+4. Size of the lever (hypothesis): if helper0's phase A and B streamed at the replay's 4.8 TB/s, phase A at 7.5
+   experts would drop from about 36.5 to about 31 us with the current loop (loop-bound at 1.18 us per unit), and
+   to about 29 us with pr's 1.09 us loop; phase B by about 1 to 2 us. That is 5 to 8 us per verify 1 cell, more
+   than the 2.7 us the brief assumed, and decode 16 (MID, 1.18 to 1.38 us per unit) likewise.
+
+What is not yet isolated is which part of helper0's kernel caps the stream. Excluded so far by measurement:
+pattern, bytes, flush type (up to 1 us), ring depth, the compute loop, the helper epilogue, the partials hand-off,
+the policy word, the evict_last stores, 8 polling warps, the refill-after-barrier form, the ring's shared offset,
+cooperative launch, eager launch, power load from mma warps. The timeline instrument is unlikely: removing it
+(`-DOKC_TLX=0`) moves the bare build's plain launch time by -1.9 to +0.4 us per input (46.9 -> 45.7, 71.1 -> 69.2,
+47.5 -> 45.9, 51.8 -> 52.2, 58.5 -> 58.3, 64.6 -> 64.5 us) and the base build's by -1.6 to -5.5 us, which cannot
+hide a 20% stream gap in a kernel whose phase A alone is 27 to 37 us (inference from plain times; no counters:
+ncu returns ERR_NVGPUCTRPERM on this pod). The per-launch zeroing is 3,072 floats (EMAX), negligible. FAST1's two pre-routing copies are not it either: the bare build
+with `-DOKC_FAST1=0` streams 3.93 / 3.98 TB/s steady (2 inputs, latency 3.46 us). Not yet tested inside helper0:
+the x prefetch, the route itself, and anything else in the kernel that runs while phase A streams.
+
+Decision: no candidate, nothing to A/B, no judge check. The pattern lever is closed (rows in docs/ruled-out.md).
+The lever that exists is helper0's stream ceiling of about 3.9 TB/s against 4.8 for the same copies in a plain
+streaming kernel; the next step is to keep stripping the BARE build (the x prefetch, then the route itself with ranges
+passed in) until it reaches the replay's 4.8, which names the part
+to change. Expected value if found and removable: 5 to 8 us per verify 1 cell (hypothesis above).

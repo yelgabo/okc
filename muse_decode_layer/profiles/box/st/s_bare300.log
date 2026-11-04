@@ -1,0 +1,38 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793785314.710 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.42), ('sk2', 8.06), ('torch', 10.37)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793785334.331 release build glue_moe_4d919a884162297b_sm90a
+BXBUILD 1793785334.331 start build glue_moe_4d919a884162297b_sm90a
+BXBUILD 1793785370.561 end build glue_moe_4d919a884162297b_sm90a
+BXLOCK 1793785370.561 acquire build glue_moe_4d919a884162297b_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793785370.563 release build glue_moe_a07729238069cb83_sm90a
+BXBUILD 1793785370.563 start build glue_moe_a07729238069cb83_sm90a
+BXBUILD 1793785406.546 end build glue_moe_a07729238069cb83_sm90a
+BXLOCK 1793785406.546 acquire build glue_moe_a07729238069cb83_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+REC {"label": "verify 1 sliding seed 4268629326242249078", "endA": 31.408, "a_buf": 0.034, "stallA_per_cta": 12.645, "stallB_per_cta": 3.544, "plain_us": 48.864, "span": 49.568, "A": 28.127, "B": 11.148, "a_wwait": 12.645, "b_wwait": 3.544, "distinct": 6, "units": 4608, "unit_a": 1.152, "unit_b": 0.768, "phaseA_tbs": 4.026}
+REC   snaps {"0.3": {"t": 9.4224, "inflight": 352, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}, "0.6": {"t": 18.8448, "inflight": 336, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}} latA(med,p90,sum) [3.136, 3.808, 9705.728] latB [2.784, 3.552, 4247.04]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 1.917, 0.608], "A_steady": [2676, 10.728, 0.416], "AtoB": [132, 0.064, 0.032], "B_first3": [264, 0.364, 0.064], "B_steady": [1140, 3.116, 0.16]}
+REC {"label": "verify 1 sliding seed 4268629326242249079", "endA": 50.992, "a_buf": 0.056, "stallA_per_cta": 21.435, "stallB_per_cta": 6.051, "plain_us": 72.32, "span": 78.56, "A": 47.556, "B": 19.295, "a_wwait": 21.435, "b_wwait": 6.051, "distinct": 10, "units": 7680, "unit_a": 1.152, "unit_b": 0.832, "phaseA_tbs": 3.969}
+REC   snaps {"0.3": {"t": 15.297600000000001, "inflight": 335, "ctas": 132, "experts": 10, "regions_2MB": 90, "stride_med": 39.0}, "0.6": {"t": 30.595200000000002, "inflight": 346, "ctas": 132, "experts": 10, "regions_2MB": 90, "stride_med": 39.0}} latA(med,p90,sum) [3.104, 3.968, 16308.64] latB [2.656, 3.68, 6990.464]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 1.819, 0.576], "A_steady": [4716, 19.57, 0.448], "AtoB": [132, 0.082, 0.032], "B_first3": [264, 0.202, 0.032], "B_steady": [2156, 5.764, 0.192], "A_jobswitch": [8, 0.046, 0.784], "B_jobswitch": [8, 0.002, 0.032]}
+REC {"label": "verify 1 sliding seed 4268629326242249080", "endA": 32.64, "a_buf": 0.033, "stallA_per_cta": 13.924, "stallB_per_cta": 3.47, "plain_us": 47.552, "span": 50.784, "A": 29.414, "B": 11.066, "a_wwait": 13.924, "b_wwait": 3.47, "distinct": 6, "units": 4608, "unit_a": 1.152, "unit_b": 0.768, "phaseA_tbs": 3.85}
+REC   snaps {"0.3": {"t": 9.792, "inflight": 343, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}, "0.6": {"t": 19.584, "inflight": 342, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}} latA(med,p90,sum) [3.264, 4.256, 10205.536] latB [2.656, 3.424, 4077.184]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 1.853, 0.576], "A_steady": [2676, 12.071, 0.448], "AtoB": [132, 0.099, 0.032], "B_first3": [264, 0.445, 0.064], "B_steady": [1140, 2.927, 0.16]}
+REC {"label": "verify 1 full seed 4268899743722759931", "endA": 37.424, "a_buf": 0.042, "stallA_per_cta": 16.038, "stallB_per_cta": 4.159, "plain_us": 53.568, "span": 58.432, "A": 33.214, "B": 13.118, "a_wwait": 16.038, "b_wwait": 4.159, "distinct": 7, "units": 5376, "unit_a": 1.152, "unit_b": 0.8, "phaseA_tbs": 3.978}
+REC   snaps {"0.3": {"t": 11.2272, "inflight": 346, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}, "0.6": {"t": 22.4544, "inflight": 336, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}} latA(med,p90,sum) [3.232, 4.192, 11792.736] latB [2.656, 3.456, 4892.896]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 2.902, 0.992], "A_steady": [3182, 13.122, 0.416], "AtoB": [132, 0.09, 0.032], "B_first3": [263, 0.264, 0.064], "B_steady": [1391, 3.797, 0.256], "A_jobswitch": [6, 0.014, 0.08], "B_jobswitch": [6, 0.008, 0.048]}
+REC {"label": "verify 1 full seed 4268899743722759932", "endA": 40.592, "a_buf": 0.05, "stallA_per_cta": 16.56, "stallB_per_cta": 5.056, "plain_us": 59.424, "span": 63.008, "A": 37.382, "B": 15.356, "a_wwait": 16.56, "b_wwait": 5.056, "distinct": 8, "units": 6144, "unit_a": 1.12, "unit_b": 0.8, "phaseA_tbs": 4.039}
+REC   snaps {"0.3": {"t": 12.1776, "inflight": 328, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}, "0.6": {"t": 24.3552, "inflight": 338, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}} latA(med,p90,sum) [3.104, 3.808, 12814.56] latB [2.688, 3.552, 5587.424]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 1.722, 0.544], "A_steady": [3696, 14.815, 0.416], "AtoB": [132, 0.093, 0.032], "B_first3": [264, 0.281, 0.064], "B_steady": [1648, 4.673, 0.192], "A_jobswitch": [4, 0.022, 0.608], "B_jobswitch": [4, 0.009, 0.192]}
+REC {"label": "verify 1 full seed 4268899743722759933", "endA": 46.224, "a_buf": 0.051, "stallA_per_cta": 19.139, "stallB_per_cta": 5.363, "plain_us": 65.504, "span": 71.008, "A": 42.6, "B": 17.02, "a_wwait": 19.139, "b_wwait": 5.363, "distinct": 9, "units": 6912, "unit_a": 1.12, "unit_b": 0.864, "phaseA_tbs": 3.988}
+REC   snaps {"0.3": {"t": 13.8672, "inflight": 346, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}, "0.6": {"t": 27.7344, "inflight": 337, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}} latA(med,p90,sum) [3.136, 3.84, 14616.0] latB [2.656, 3.52, 6204.512]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 1.717, 0.576], "A_steady": [4206, 17.397, 0.416], "AtoB": [132, 0.062, 0.032], "B_first3": [264, 0.237, 0.064], "B_steady": [1902, 5.051, 0.16], "A_jobswitch": [6, 0.025, 0.448], "B_jobswitch": [6, 0.014, 0.24]}

@@ -1,0 +1,82 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793785177.635 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793785178.302 release build glue_moe_e6c1e0642b04b804_sm90a
+BXBUILD 1793785178.302 start build glue_moe_e6c1e0642b04b804_sm90a
+BXBUILD 1793785178.302 start build glue_moe_71aae9b56674c09e_sm90a
+BXBUILD 1793785178.304 start build glue_moe_06e6cd6714072d89_sm90a
+BXBUILD 1793785216.258 end build glue_moe_06e6cd6714072d89_sm90a
+BXBUILD 1793785217.076 end build glue_moe_71aae9b56674c09e_sm90a
+BXBUILD 1793785217.277 end build glue_moe_e6c1e0642b04b804_sm90a
+BXLOCK 1793785217.277 acquire build glue_moe_e6c1e0642b04b804_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.52), ('sk2', 7.94), ('torch', 10.4)] -> ('cg',)
+BXLOCK 1793785229.167 release triton _prq_sl_tile_route_cg
+BXBUILD 1793785229.168 start triton _prq_sl_tile_route_cg
+BXBUILD 1793785229.934 end triton _prq_sl_tile_route_cg
+BXLOCK 1793785229.935 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793785229.937 release triton _sl_cluster_finish_cg
+BXBUILD 1793785229.937 start triton _sl_cluster_finish_cg
+BXBUILD 1793785230.033 end triton _sl_cluster_finish_cg
+BXLOCK 1793785230.033 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793785230.115 release triton _prq_sl_tile_route_cg
+BXBUILD 1793785230.115 start triton _prq_sl_tile_route_cg
+BXBUILD 1793785230.872 end triton _prq_sl_tile_route_cg
+BXLOCK 1793785230.872 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793785230.875 release triton _sl_cluster_finish_cg
+BXBUILD 1793785230.875 start triton _sl_cluster_finish_cg
+BXBUILD 1793785230.968 end triton _sl_cluster_finish_cg
+BXLOCK 1793785230.968 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793785231.085 release triton _prq_sl_tile_route
+BXBUILD 1793785231.085 start triton _prq_sl_tile_route
+BXBUILD 1793785231.815 end triton _prq_sl_tile_route
+BXLOCK 1793785231.815 acquire triton _prq_sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793785238.639 release build glue_moe_f2e47a467f8f4fcb_sm90a
+BXBUILD 1793785238.639 start build glue_moe_f2e47a467f8f4fcb_sm90a
+BXBUILD 1793785274.813 end build glue_moe_f2e47a467f8f4fcb_sm90a
+BXLOCK 1793785274.813 acquire build glue_moe_f2e47a467f8f4fcb_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793785274.814 release build glue_moe_6c1e75f1e73250d9_sm90a
+BXBUILD 1793785274.814 start build glue_moe_6c1e75f1e73250d9_sm90a
+BXBUILD 1793785310.908 end build glue_moe_6c1e75f1e73250d9_sm90a
+BXLOCK 1793785310.908 acquire build glue_moe_6c1e75f1e73250d9_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793785311.006 release triton _prq_sl_tile_route_cg
+BXBUILD 1793785311.006 start triton _prq_sl_tile_route_cg
+BXBUILD 1793785311.777 end triton _prq_sl_tile_route_cg
+BXLOCK 1793785311.777 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793785311.780 release triton _sl_cluster_finish_cg
+BXBUILD 1793785311.780 start triton _sl_cluster_finish_cg
+BXBUILD 1793785311.872 end triton _sl_cluster_finish_cg
+BXLOCK 1793785311.872 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+REC {"label": "verify 1 sliding seed 4268629326242249078", "endA": 31.712, "a_buf": 0.023, "stallA_per_cta": 21.167, "stallB_per_cta": 6.106, "plain_us": 46.912, "span": 48.608, "A": 28.654, "B": 9.848, "a_wwait": 21.167, "b_wwait": 6.106, "distinct": 6, "units": 4608, "unit_a": 1.216, "unit_b": 0.688, "phaseA_tbs": 3.952}
+REC   snaps {"0.3": {"t": 9.5136, "inflight": 377, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}, "0.6": {"t": 19.0272, "inflight": 379, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}} latA(med,p90,sum) [3.52, 4.384, 10875.36] latB [2.688, 3.808, 4244.096]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 2.414, 0.848], "A_steady": [2676, 18.753, 0.832], "AtoB": [132, 0.296, 0.064], "B_first3": [264, 1.198, 0.384], "B_steady": [1140, 4.612, 0.384]}
+REC {"label": "verify 1 sliding seed 4268629326242249079", "endA": 52.48, "a_buf": 0.035, "stallA_per_cta": 35.273, "stallB_per_cta": 10.71, "plain_us": 71.104, "span": 76.896, "A": 48.0, "B": 17.335, "a_wwait": 35.273, "b_wwait": 10.71, "distinct": 10, "units": 7680, "unit_a": 1.12, "unit_b": 0.832, "phaseA_tbs": 3.932}
+REC   snaps {"0.3": {"t": 15.743999999999998, "inflight": 369, "ctas": 132, "experts": 10, "regions_2MB": 90, "stride_med": 39.0}, "0.6": {"t": 31.487999999999996, "inflight": 369, "ctas": 132, "experts": 10, "regions_2MB": 90, "stride_med": 39.0}} latA(med,p90,sum) [3.488, 4.608, 18187.2] latB [2.72, 3.904, 7253.728]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 2.629, 0.88], "A_steady": [4716, 32.577, 0.768], "AtoB": [132, 0.192, 0.032], "B_first3": [264, 0.654, 0.064], "B_steady": [2156, 9.86, 0.448], "A_jobswitch": [8, 0.067, 1.072], "B_jobswitch": [8, 0.003, 0.048]}
+REC {"label": "verify 1 sliding seed 4268629326242249080", "endA": 32.72, "a_buf": 0.022, "stallA_per_cta": 21.719, "stallB_per_cta": 6.518, "plain_us": 45.824, "span": 49.792, "A": 29.216, "B": 10.255, "a_wwait": 21.719, "b_wwait": 6.518, "distinct": 6, "units": 4608, "unit_a": 1.216, "unit_b": 0.736, "phaseA_tbs": 3.876}
+REC   snaps {"0.3": {"t": 9.815999999999999, "inflight": 368, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}, "0.6": {"t": 19.631999999999998, "inflight": 378, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}} latA(med,p90,sum) [3.552, 4.64, 11148.704] latB [2.816, 3.84, 4372.448]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 2.568, 0.88], "A_steady": [2676, 19.151, 0.832], "AtoB": [132, 0.376, 0.064], "B_first3": [264, 1.23, 0.448], "B_steady": [1140, 4.912, 0.416]}
+REC {"label": "verify 1 full seed 4268899743722759931", "endA": 37.824, "a_buf": 0.028, "stallA_per_cta": 25.156, "stallB_per_cta": 8.041, "plain_us": 52.672, "span": 57.056, "A": 33.867, "B": 12.509, "a_wwait": 25.156, "b_wwait": 8.041, "distinct": 7, "units": 5376, "unit_a": 1.2, "unit_b": 0.832, "phaseA_tbs": 3.901}
+REC   snaps {"0.3": {"t": 11.347199999999999, "inflight": 377, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}, "0.6": {"t": 22.694399999999998, "inflight": 377, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}} latA(med,p90,sum) [3.584, 4.512, 12897.28] latB [2.976, 3.968, 5397.248]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 2.512, 0.848], "A_steady": [3182, 22.599, 0.832], "AtoB": [132, 0.175, 0.032], "B_first3": [263, 0.97, 0.288], "B_steady": [1391, 6.892, 0.544], "A_jobswitch": [6, 0.046, 0.896], "B_jobswitch": [6, 0.004, 0.064]}
+REC {"label": "verify 1 full seed 4268899743722759932", "endA": 41.792, "a_buf": 0.031, "stallA_per_cta": 27.552, "stallB_per_cta": 9.189, "plain_us": 58.816, "span": 61.856, "A": 37.674, "B": 14.333, "a_wwait": 27.552, "b_wwait": 9.189, "distinct": 8, "units": 6144, "unit_a": 1.184, "unit_b": 0.8, "phaseA_tbs": 4.008}
+REC   snaps {"0.3": {"t": 12.5376, "inflight": 376, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}, "0.6": {"t": 25.0752, "inflight": 373, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}} latA(med,p90,sum) [3.456, 4.32, 14220.992] latB [2.88, 3.776, 5943.936]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 2.351, 0.8], "A_steady": [3696, 25.173, 0.832], "AtoB": [132, 0.341, 0.064], "B_first3": [264, 1.099, 0.416], "B_steady": [1648, 7.738, 0.48], "A_jobswitch": [4, 0.027, 0.736], "B_jobswitch": [4, 0.011, 0.352]}
+REC {"label": "verify 1 full seed 4268899743722759933", "endA": 46.48, "a_buf": 0.041, "stallA_per_cta": 32.069, "stallB_per_cta": 9.162, "plain_us": 64.64, "span": 71.296, "A": 43.458, "B": 15.0, "a_wwait": 32.069, "b_wwait": 9.162, "distinct": 9, "units": 6912, "unit_a": 1.152, "unit_b": 0.768, "phaseA_tbs": 3.909}
+REC   snaps {"0.3": {"t": 13.944, "inflight": 369, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}, "0.6": {"t": 27.888, "inflight": 379, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}} latA(med,p90,sum) [3.52, 4.576, 16413.184] latB [2.528, 3.84, 6203.68]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 2.497, 0.864], "A_steady": [4206, 29.528, 0.768], "AtoB": [132, 0.429, 0.064], "B_first3": [264, 0.991, 0.208], "B_steady": [1902, 7.719, 0.384], "A_jobswitch": [6, 0.043, 0.912], "B_jobswitch": [6, 0.023, 0.304]}

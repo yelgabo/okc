@@ -1,0 +1,160 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793781308.024 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793781308.696 release build glue_moe_173ed32f0c26fa78_sm90a
+BXBUILD 1793781308.696 start build glue_moe_173ed32f0c26fa78_sm90a
+BXBUILD 1793781308.697 start build glue_moe_744b5cd403518e18_sm90a
+BXBUILD 1793781308.697 start build glue_moe_0157437351e76fd8_sm90a
+BXBUILD 1793781346.657 end build glue_moe_0157437351e76fd8_sm90a
+BXBUILD 1793781348.120 end build glue_moe_744b5cd403518e18_sm90a
+BXBUILD 1793781348.443 end build glue_moe_173ed32f0c26fa78_sm90a
+BXLOCK 1793781348.443 acquire build glue_moe_173ed32f0c26fa78_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.3), ('sk2', 7.97), ('torch', 10.21)] -> ('cg',)
+BXLOCK 1793781360.342 release triton _prq_sl_tile_route_cg
+BXBUILD 1793781360.342 start triton _prq_sl_tile_route_cg
+BXBUILD 1793781361.115 end triton _prq_sl_tile_route_cg
+BXLOCK 1793781361.115 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781361.118 release triton _sl_cluster_finish_cg
+BXBUILD 1793781361.118 start triton _sl_cluster_finish_cg
+BXBUILD 1793781361.214 end triton _sl_cluster_finish_cg
+BXLOCK 1793781361.214 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781361.295 release triton _prq_sl_tile_route_cg
+BXBUILD 1793781361.295 start triton _prq_sl_tile_route_cg
+BXBUILD 1793781362.066 end triton _prq_sl_tile_route_cg
+BXLOCK 1793781362.066 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781362.069 release triton _sl_cluster_finish_cg
+BXBUILD 1793781362.069 start triton _sl_cluster_finish_cg
+BXBUILD 1793781362.162 end triton _sl_cluster_finish_cg
+BXLOCK 1793781362.162 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781362.277 release triton _prq_sl_tile_route
+BXBUILD 1793781362.277 start triton _prq_sl_tile_route
+BXBUILD 1793781363.014 end triton _prq_sl_tile_route
+BXLOCK 1793781363.014 acquire triton _prq_sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793781370.083 release triton _prq_sl_tile_route_cg
+BXBUILD 1793781370.083 start triton _prq_sl_tile_route_cg
+BXBUILD 1793781370.815 end triton _prq_sl_tile_route_cg
+BXLOCK 1793781370.815 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781370.818 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793781370.818 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793781370.915 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793781370.915 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+REC {"label": "decode 16 sliding seed 4267547656320205676", "endA": 48.384, "stallA_per_cta": 2.361, "stallB_per_cta": 0.757, "span": 78.336, "A": 43.344, "B": 22.018, "a_wwait": 2.361, "b_wwait": 0.757, "distinct": 7, "units": 6144, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.484}
+REC   snaps {"0.3": {"t": 14.5152, "inflight": 370, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}, "0.6": {"t": 29.0304, "inflight": 332, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}} latA(med,p90,sum) [3.424, 3.584, 14315.104] latB [3.584, 6.624, 8382.592]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 1.132, 0.064], "A_steady": [3696, 1.226, 0.032], "AtoB": [132, 0.049, 0.032], "B_first3": [264, 0.091, 0.032], "B_steady": [1648, 0.616, 0.032], "A_jobswitch": [4, 0.002, 0.064], "B_jobswitch": [4, 0.001, 0.048]}
+REC {"label": "decode 16 sliding seed 4267547656320205677", "endA": 51.68, "stallA_per_cta": 1.764, "stallB_per_cta": 0.852, "span": 86.624, "A": 48.434, "B": 24.654, "a_wwait": 1.764, "b_wwait": 0.852, "distinct": 8, "units": 6912, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.507}
+REC   snaps {"0.3": {"t": 15.504, "inflight": 289, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}, "0.6": {"t": 31.008, "inflight": 314, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}} latA(med,p90,sum) [3.392, 3.552, 15773.856] latB [3.616, 6.464, 9357.792]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.372, 0.032], "A_steady": [4206, 1.388, 0.032], "AtoB": [132, 0.052, 0.064], "B_first3": [264, 0.088, 0.032], "B_steady": [1902, 0.71, 0.032], "A_jobswitch": [6, 0.004, 0.08], "B_jobswitch": [6, 0.003, 0.064]}
+REC {"label": "decode 16 sliding seed 4267547656320205678", "endA": 47.584, "stallA_per_cta": 1.497, "stallB_per_cta": 0.756, "span": 77.216, "A": 43.426, "B": 22.044, "a_wwait": 1.497, "b_wwait": 0.756, "distinct": 7, "units": 6144, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.477}
+REC   snaps {"0.3": {"t": 14.2752, "inflight": 308, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}, "0.6": {"t": 28.5504, "inflight": 287, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}} latA(med,p90,sum) [3.424, 3.52, 14085.536] latB [3.616, 6.464, 8415.264]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.275, 0.032], "A_steady": [3696, 1.22, 0.032], "AtoB": [132, 0.048, 0.032], "B_first3": [264, 0.087, 0.032], "B_steady": [1648, 0.62, 0.032], "A_jobswitch": [4, 0.002, 0.064], "B_jobswitch": [4, 0.001, 0.048]}
+REC {"label": "decode 16 sliding seed 4267547656320205679", "endA": 74.064, "stallA_per_cta": 2.532, "stallB_per_cta": 1.201, "span": 120.544, "A": 70.517, "B": 35.728, "a_wwait": 2.532, "b_wwait": 1.201, "distinct": 12, "units": 9984, "unit_a": 1.376, "unit_b": NaN, "phaseA_tbs": 3.48}
+REC   snaps {"0.3": {"t": 22.219199999999997, "inflight": 327, "ctas": 132, "experts": 12, "regions_2MB": 108, "stride_med": 50.0}, "0.6": {"t": 44.438399999999994, "inflight": 298, "ctas": 132, "experts": 12, "regions_2MB": 108, "stride_med": 50.0}} latA(med,p90,sum) [3.392, 3.584, 22852.096] latB [3.584, 6.656, 13482.88]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.448, 0.064], "A_steady": [6249, 2.08, 0.032], "AtoB": [132, 0.052, 0.064], "B_first3": [263, 0.087, 0.032], "B_steady": [2922, 1.058, 0.032], "A_jobswitch": [11, 0.005, 0.064], "B_jobswitch": [11, 0.004, 0.032]}
+REC {"label": "decode 16 sliding seed 4267547656320205680", "endA": 41.76, "stallA_per_cta": 1.331, "stallB_per_cta": 0.659, "span": 69.28, "A": 38.032, "B": 18.876, "a_wwait": 1.331, "b_wwait": 0.659, "distinct": 6, "units": 5376, "unit_a": 1.376, "unit_b": 1.376, "phaseA_tbs": 3.474}
+REC   snaps {"0.3": {"t": 12.527999999999999, "inflight": 351, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 27.0}, "0.6": {"t": 25.055999999999997, "inflight": 330, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 27.0}} latA(med,p90,sum) [3.392, 3.552, 12340.288] latB [3.52, 6.912, 7423.84]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.269, 0.032], "A_steady": [3183, 1.06, 0.032], "AtoB": [132, 0.051, 0.064], "B_first3": [263, 0.084, 0.032], "B_steady": [1392, 0.523, 0.032], "A_jobswitch": [5, 0.002, 0.064], "B_jobswitch": [5, 0.002, 0.064]}
+REC {"label": "decode 16 sliding seed 4267547656320205681", "endA": 52.016, "stallA_per_cta": 1.733, "stallB_per_cta": 0.842, "span": 85.344, "A": 48.673, "B": 24.465, "a_wwait": 1.733, "b_wwait": 0.842, "distinct": 8, "units": 6912, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.49}
+REC   snaps {"0.3": {"t": 15.604800000000001, "inflight": 339, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}, "0.6": {"t": 31.209600000000002, "inflight": 326, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}} latA(med,p90,sum) [3.36, 3.584, 15813.44] latB [3.552, 6.08, 9165.6]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.352, 0.032], "A_steady": [4206, 1.379, 0.032], "AtoB": [132, 0.05, 0.048], "B_first3": [264, 0.088, 0.032], "B_steady": [1902, 0.701, 0.032], "A_jobswitch": [6, 0.002, 0.032], "B_jobswitch": [6, 0.002, 0.048]}
+REC {"label": "decode 16 sliding seed 4267547656320205682", "endA": 52.496, "stallA_per_cta": 1.676, "stallB_per_cta": 0.848, "span": 86.336, "A": 49.032, "B": 24.667, "a_wwait": 1.676, "b_wwait": 0.848, "distinct": 8, "units": 6912, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.464}
+REC   snaps {"0.3": {"t": 15.748799999999997, "inflight": 383, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}, "0.6": {"t": 31.497599999999995, "inflight": 326, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}} latA(med,p90,sum) [3.424, 3.616, 16001.728] latB [3.584, 6.24, 9286.144]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.286, 0.064], "A_steady": [4206, 1.387, 0.032], "AtoB": [132, 0.047, 0.032], "B_first3": [264, 0.088, 0.032], "B_steady": [1902, 0.711, 0.032], "A_jobswitch": [6, 0.003, 0.064], "B_jobswitch": [6, 0.002, 0.032]}
+REC {"label": "decode 16 sliding seed 4267547656320205683", "endA": 51.76, "stallA_per_cta": 1.625, "stallB_per_cta": 0.863, "span": 86.56, "A": 48.649, "B": 24.848, "a_wwait": 1.625, "b_wwait": 0.863, "distinct": 8, "units": 6912, "unit_a": 1.376, "unit_b": 1.44, "phaseA_tbs": 3.492}
+REC   snaps {"0.3": {"t": 15.528, "inflight": 278, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}, "0.6": {"t": 31.056, "inflight": 305, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}} latA(med,p90,sum) [3.392, 3.52, 15751.488] latB [3.648, 6.464, 9410.56]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.231, 0.032], "A_steady": [4207, 1.393, 0.032], "AtoB": [132, 0.051, 0.064], "B_first3": [264, 0.09, 0.032], "B_steady": [1903, 0.719, 0.032], "A_jobswitch": [5, 0.002, 0.032], "B_jobswitch": [5, 0.002, 0.064]}
+REC {"label": "decode 16 full seed 4267818073800716525", "endA": 41.152, "stallA_per_cta": 1.423, "stallB_per_cta": 0.663, "span": 69.408, "A": 37.701, "B": 19.07, "a_wwait": 1.423, "b_wwait": 0.663, "distinct": 6, "units": 5376, "unit_a": 1.344, "unit_b": 1.376, "phaseA_tbs": 3.504}
+REC   snaps {"0.3": {"t": 12.3456, "inflight": 355, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 27.0}, "0.6": {"t": 24.6912, "inflight": 338, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 27.0}} latA(med,p90,sum) [3.36, 3.584, 12298.528] latB [3.52, 7.552, 7694.72]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.36, 0.032], "A_steady": [3183, 1.06, 0.032], "AtoB": [132, 0.049, 0.032], "B_first3": [263, 0.089, 0.032], "B_steady": [1392, 0.523, 0.032], "A_jobswitch": [5, 0.002, 0.064], "B_jobswitch": [5, 0.002, 0.064]}
+REC {"label": "decode 16 full seed 4267818073800716526", "endA": 42.224, "stallA_per_cta": 1.403, "stallB_per_cta": 0.657, "span": 71.072, "A": 37.824, "B": 19.037, "a_wwait": 1.403, "b_wwait": 0.657, "distinct": 6, "units": 5376, "unit_a": 1.376, "unit_b": 1.376, "phaseA_tbs": 3.493}
+REC   snaps {"0.3": {"t": 12.667200000000001, "inflight": 358, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 27.0}, "0.6": {"t": 25.334400000000002, "inflight": 338, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 27.0}} latA(med,p90,sum) [3.424, 3.584, 12338.112] latB [3.584, 7.264, 7661.728]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.348, 0.064], "A_steady": [3183, 1.054, 0.032], "AtoB": [132, 0.048, 0.032], "B_first3": [263, 0.086, 0.032], "B_steady": [1392, 0.52, 0.032], "A_jobswitch": [5, 0.002, 0.032], "B_jobswitch": [5, 0.002, 0.064]}
+REC {"label": "decode 16 full seed 4267818073800716527", "endA": 51.872, "stallA_per_cta": 1.65, "stallB_per_cta": 0.851, "span": 86.368, "A": 48.547, "B": 25.122, "a_wwait": 1.65, "b_wwait": 0.851, "distinct": 8, "units": 6912, "unit_a": 1.376, "unit_b": 1.44, "phaseA_tbs": 3.499}
+REC   snaps {"0.3": {"t": 15.561599999999999, "inflight": 366, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}, "0.6": {"t": 31.123199999999997, "inflight": 352, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}} latA(med,p90,sum) [3.424, 3.552, 15782.496] latB [3.68, 6.496, 9510.848]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.266, 0.032], "A_steady": [4206, 1.381, 0.032], "AtoB": [132, 0.049, 0.032], "B_first3": [264, 0.093, 0.032], "B_steady": [1902, 0.707, 0.032], "A_jobswitch": [6, 0.003, 0.064], "B_jobswitch": [6, 0.003, 0.064]}
+REC {"label": "decode 16 full seed 4267818073800716528", "endA": 62.272, "stallA_per_cta": 1.921, "stallB_per_cta": 1.027, "span": 102.464, "A": 58.863, "B": 30.674, "a_wwait": 1.921, "b_wwait": 1.027, "distinct": 9, "units": 8448, "unit_a": 1.376, "unit_b": 1.44, "phaseA_tbs": 3.527}
+REC   snaps {"0.3": {"t": 18.6816, "inflight": 352, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 43}, "0.6": {"t": 37.3632, "inflight": 309, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 43}} latA(med,p90,sum) [3.36, 3.52, 19157.408] latB [3.648, 6.112, 11408.608]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.184, 0.032], "A_steady": [5236, 1.738, 0.032], "AtoB": [132, 0.056, 0.064], "B_first3": [264, 0.091, 0.032], "B_steady": [2420, 0.88, 0.032]}
+REC {"label": "decode 16 full seed 4267818073800716529", "endA": 63.856, "stallA_per_cta": 2.048, "stallB_per_cta": 1.034, "span": 103.872, "A": 60.057, "B": 30.157, "a_wwait": 2.048, "b_wwait": 1.034, "distinct": 11, "units": 8448, "unit_a": 1.376, "unit_b": 1.44, "phaseA_tbs": 3.457}
+REC   snaps {"0.3": {"t": 19.1568, "inflight": 314, "ctas": 132, "experts": 11, "regions_2MB": 99, "stride_med": 43}, "0.6": {"t": 38.3136, "inflight": 320, "ctas": 132, "experts": 11, "regions_2MB": 99, "stride_med": 43}} latA(med,p90,sum) [3.424, 3.68, 19492.192] latB [3.616, 6.08, 11193.856]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.27, 0.032], "A_steady": [5236, 1.778, 0.032], "AtoB": [132, 0.062, 0.064], "B_first3": [264, 0.091, 0.032], "B_steady": [2420, 0.882, 0.032]}
+REC {"label": "decode 16 full seed 4267818073800716530", "endA": 47.808, "stallA_per_cta": 1.492, "stallB_per_cta": 0.754, "span": 78.912, "A": 43.596, "B": 21.929, "a_wwait": 1.492, "b_wwait": 0.754, "distinct": 7, "units": 6144, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.464}
+REC   snaps {"0.3": {"t": 14.3424, "inflight": 335, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}, "0.6": {"t": 28.6848, "inflight": 317, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}} latA(med,p90,sum) [3.456, 3.552, 14100.608] latB [3.616, 6.688, 8539.296]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.266, 0.032], "A_steady": [3696, 1.225, 0.032], "AtoB": [132, 0.047, 0.032], "B_first3": [264, 0.087, 0.032], "B_steady": [1648, 0.618, 0.032], "A_jobswitch": [4, 0.002, 0.048], "B_jobswitch": [4, 0.001, 0.048]}
+REC {"label": "decode 16 full seed 4267818073800716531", "endA": 47.392, "stallA_per_cta": 1.452, "stallB_per_cta": 0.752, "span": 79.168, "A": 43.213, "B": 21.747, "a_wwait": 1.452, "b_wwait": 0.752, "distinct": 7, "units": 6144, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.494}
+REC   snaps {"0.3": {"t": 14.217600000000001, "inflight": 287, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}, "0.6": {"t": 28.435200000000002, "inflight": 307, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 31}} latA(med,p90,sum) [3.424, 3.552, 14134.336] latB [3.584, 6.336, 8343.04]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.237, 0.032], "A_steady": [3696, 1.212, 0.032], "AtoB": [132, 0.051, 0.064], "B_first3": [264, 0.088, 0.032], "B_steady": [1648, 0.612, 0.032], "A_jobswitch": [4, 0.002, 0.064], "B_jobswitch": [4, 0.001, 0.032]}
+REC {"label": "decode 16 full seed 4267818073800716532", "endA": 52.48, "stallA_per_cta": 1.63, "stallB_per_cta": 0.864, "span": 86.752, "A": 49.163, "B": 24.943, "a_wwait": 1.63, "b_wwait": 0.864, "distinct": 8, "units": 6912, "unit_a": 1.376, "unit_b": 1.44, "phaseA_tbs": 3.455}
+REC   snaps {"0.3": {"t": 15.743999999999998, "inflight": 298, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}, "0.6": {"t": 31.487999999999996, "inflight": 297, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 35.0}} latA(med,p90,sum) [3.424, 3.744, 16058.944] latB [3.616, 6.144, 9294.272]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.242, 0.032], "A_steady": [4207, 1.386, 0.032], "AtoB": [132, 0.051, 0.064], "B_first3": [264, 0.092, 0.032], "B_steady": [1903, 0.719, 0.064], "A_jobswitch": [5, 0.002, 0.064], "B_jobswitch": [5, 0.002, 0.064]}
+BXLOCK 1793781372.351 release triton _prq_sl_tile_route_cg
+BXBUILD 1793781372.351 start triton _prq_sl_tile_route_cg
+BXBUILD 1793781373.116 end triton _prq_sl_tile_route_cg
+BXLOCK 1793781373.116 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793781373.119 release triton _sl_cluster_finish_cg
+BXBUILD 1793781373.119 start triton _sl_cluster_finish_cg
+BXBUILD 1793781373.214 end triton _sl_cluster_finish_cg
+BXLOCK 1793781373.214 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+REC {"label": "verify 1 sliding seed 4268629326242249078", "endA": 36.192, "stallA_per_cta": 1.201, "stallB_per_cta": 0.455, "span": 59.136, "A": 32.257, "B": 15.492, "a_wwait": 1.201, "b_wwait": 0.455, "distinct": 6, "units": 4608, "unit_a": 1.376, "unit_b": 1.312, "phaseA_tbs": 3.511}
+REC   snaps {"0.3": {"t": 10.8576, "inflight": 327, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}, "0.6": {"t": 21.7152, "inflight": 280, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}} latA(med,p90,sum) [3.424, 3.552, 10588.608] latB [3.456, 6.688, 6263.072]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.168, 0.064], "A_steady": [2676, 1.033, 0.064], "AtoB": [132, 0.044, 0.032], "B_first3": [264, 0.072, 0.032], "B_steady": [1140, 0.339, 0.032]}
+REC {"label": "verify 1 sliding seed 4268629326242249079", "endA": 57.04, "stallA_per_cta": 1.971, "stallB_per_cta": 0.767, "span": 94.656, "A": 53.693, "B": 26.989, "a_wwait": 1.971, "b_wwait": 0.767, "distinct": 10, "units": 7680, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.515}
+REC   snaps {"0.3": {"t": 17.112, "inflight": 348, "ctas": 132, "experts": 10, "regions_2MB": 90, "stride_med": 39.0}, "0.6": {"t": 34.224, "inflight": 344, "ctas": 132, "experts": 10, "regions_2MB": 90, "stride_med": 39.0}} latA(med,p90,sum) [3.424, 3.744, 17859.36] latB [3.584, 5.888, 10226.976]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.157, 0.064], "A_steady": [4716, 1.811, 0.064], "AtoB": [132, 0.042, 0.032], "B_first3": [264, 0.075, 0.032], "B_steady": [2156, 0.647, 0.032], "A_jobswitch": [8, 0.003, 0.064], "B_jobswitch": [8, 0.003, 0.032]}
+REC {"label": "verify 1 sliding seed 4268629326242249080", "endA": 36.608, "stallA_per_cta": 1.657, "stallB_per_cta": 0.454, "span": 60.832, "A": 33.139, "B": 15.815, "a_wwait": 1.657, "b_wwait": 0.454, "distinct": 6, "units": 4608, "unit_a": 1.376, "unit_b": 1.312, "phaseA_tbs": 3.417}
+REC   snaps {"0.3": {"t": 10.982399999999998, "inflight": 323, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}, "0.6": {"t": 21.964799999999997, "inflight": 343, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}} latA(med,p90,sum) [3.424, 4.416, 10873.536] latB [3.52, 7.232, 6611.072]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.617, 0.064], "A_steady": [2676, 1.04, 0.064], "AtoB": [132, 0.043, 0.032], "B_first3": [264, 0.075, 0.032], "B_steady": [1140, 0.336, 0.032]}
+REC {"label": "verify 1 sliding seed 4268629326242249081", "endA": 30.72, "stallA_per_cta": 1.044, "stallB_per_cta": 0.378, "span": 51.52, "A": 26.974, "B": 12.903, "a_wwait": 1.044, "b_wwait": 0.378, "distinct": 5, "units": 3840, "unit_a": 1.376, "unit_b": 1.28, "phaseA_tbs": 3.499}
+REC   snaps {"0.3": {"t": 9.216, "inflight": 396, "ctas": 132, "experts": 5, "regions_2MB": 45, "stride_med": 19}, "0.6": {"t": 18.432, "inflight": 298, "ctas": 132, "experts": 5, "regions_2MB": 45, "stride_med": 19}} latA(med,p90,sum) [3.456, 3.712, 8983.648] latB [3.456, 7.04, 5403.424]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.203, 0.064], "A_steady": [2160, 0.839, 0.064], "AtoB": [132, 0.041, 0.032], "B_first3": [263, 0.072, 0.032], "B_steady": [881, 0.265, 0.032], "A_jobswitch": [4, 0.002, 0.064], "B_jobswitch": [4, 0.001, 0.032]}
+REC {"label": "verify 1 sliding seed 4268629326242249082", "endA": 51.68, "stallA_per_cta": 1.77, "stallB_per_cta": 0.692, "span": 85.824, "A": 48.136, "B": 24.383, "a_wwait": 1.77, "b_wwait": 0.692, "distinct": 9, "units": 6912, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.529}
+REC   snaps {"0.3": {"t": 15.504, "inflight": 345, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}, "0.6": {"t": 31.008, "inflight": 301, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}} latA(med,p90,sum) [3.424, 3.616, 15997.696] latB [3.584, 6.08, 9196.544]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.157, 0.064], "A_steady": [4206, 1.609, 0.064], "AtoB": [132, 0.042, 0.032], "B_first3": [264, 0.074, 0.032], "B_steady": [1902, 0.574, 0.032], "A_jobswitch": [6, 0.003, 0.064], "B_jobswitch": [6, 0.002, 0.032]}
+REC {"label": "verify 1 sliding seed 4268629326242249083", "endA": 47.232, "stallA_per_cta": 1.566, "stallB_per_cta": 0.604, "span": 77.408, "A": 42.829, "B": 21.13, "a_wwait": 1.566, "b_wwait": 0.604, "distinct": 8, "units": 6144, "unit_a": 1.376, "unit_b": 1.376, "phaseA_tbs": 3.526}
+REC   snaps {"0.3": {"t": 14.169599999999999, "inflight": 309, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}, "0.6": {"t": 28.339199999999998, "inflight": 320, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}} latA(med,p90,sum) [3.424, 3.584, 14292.512] latB [3.488, 6.176, 8193.504]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.153, 0.064], "A_steady": [3696, 1.411, 0.064], "AtoB": [132, 0.042, 0.032], "B_first3": [264, 0.073, 0.032], "B_steady": [1648, 0.488, 0.032], "A_jobswitch": [4, 0.002, 0.064], "B_jobswitch": [4, 0.001, 0.048]}
+REC {"label": "verify 1 sliding seed 4268629326242249084", "endA": 41.76, "stallA_per_cta": 1.404, "stallB_per_cta": 0.528, "span": 68.544, "A": 37.711, "B": 18.211, "a_wwait": 1.404, "b_wwait": 0.528, "distinct": 7, "units": 5376, "unit_a": 1.376, "unit_b": 1.312, "phaseA_tbs": 3.503}
+REC   snaps {"0.3": {"t": 12.528, "inflight": 335, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}, "0.6": {"t": 25.056, "inflight": 319, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}} latA(med,p90,sum) [3.424, 3.84, 12475.136] latB [3.456, 6.912, 7358.112]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.179, 0.064], "A_steady": [3182, 1.223, 0.064], "AtoB": [132, 0.041, 0.032], "B_first3": [263, 0.072, 0.032], "B_steady": [1391, 0.412, 0.032], "A_jobswitch": [6, 0.002, 0.064], "B_jobswitch": [6, 0.002, 0.048]}
+REC {"label": "verify 1 sliding seed 4268629326242249085", "endA": 46.464, "stallA_per_cta": 1.584, "stallB_per_cta": 0.601, "span": 76.16, "A": 42.767, "B": 20.995, "a_wwait": 1.584, "b_wwait": 0.601, "distinct": 8, "units": 6144, "unit_a": 1.376, "unit_b": 1.344, "phaseA_tbs": 3.531}
+REC   snaps {"0.3": {"t": 13.9392, "inflight": 269, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}, "0.6": {"t": 27.8784, "inflight": 328, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}} latA(med,p90,sum) [3.424, 3.552, 14091.68] latB [3.488, 6.624, 8172.544]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.164, 0.064], "A_steady": [3696, 1.419, 0.064], "AtoB": [132, 0.039, 0.032], "B_first3": [264, 0.072, 0.032], "B_steady": [1648, 0.489, 0.032], "A_jobswitch": [4, 0.002, 0.064], "B_jobswitch": [4, 0.001, 0.048]}
+REC {"label": "verify 1 full seed 4268899743722759931", "endA": 41.696, "stallA_per_cta": 1.407, "stallB_per_cta": 0.531, "span": 70.784, "A": 37.747, "B": 19.184, "a_wwait": 1.407, "b_wwait": 0.531, "distinct": 7, "units": 5376, "unit_a": 1.376, "unit_b": 1.344, "phaseA_tbs": 3.5}
+REC   snaps {"0.3": {"t": 12.508799999999999, "inflight": 338, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}, "0.6": {"t": 25.017599999999998, "inflight": 347, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}} latA(med,p90,sum) [3.424, 3.648, 12540.288] latB [3.584, 7.008, 7663.936]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.197, 0.064], "A_steady": [3182, 1.207, 0.064], "AtoB": [132, 0.039, 0.032], "B_first3": [263, 0.075, 0.032], "B_steady": [1391, 0.415, 0.032], "A_jobswitch": [6, 0.003, 0.064], "B_jobswitch": [6, 0.002, 0.032]}
+REC {"label": "verify 1 full seed 4268899743722759932", "endA": 46.56, "stallA_per_cta": 1.593, "stallB_per_cta": 0.606, "span": 76.576, "A": 42.63, "B": 21.068, "a_wwait": 1.593, "b_wwait": 0.606, "distinct": 8, "units": 6144, "unit_a": 1.376, "unit_b": 1.344, "phaseA_tbs": 3.542}
+REC   snaps {"0.3": {"t": 13.968, "inflight": 344, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}, "0.6": {"t": 27.936, "inflight": 306, "ctas": 132, "experts": 8, "regions_2MB": 72, "stride_med": 31.0}} latA(med,p90,sum) [3.392, 3.552, 14129.792] latB [3.456, 6.08, 8076.096]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.158, 0.064], "A_steady": [3696, 1.434, 0.064], "AtoB": [132, 0.041, 0.032], "B_first3": [264, 0.072, 0.032], "B_steady": [1648, 0.491, 0.032], "A_jobswitch": [4, 0.002, 0.064], "B_jobswitch": [4, 0.001, 0.048]}
+REC {"label": "verify 1 full seed 4268899743722759933", "endA": 51.424, "stallA_per_cta": 1.781, "stallB_per_cta": 0.68, "span": 84.8, "A": 48.515, "B": 23.794, "a_wwait": 1.781, "b_wwait": 0.68, "distinct": 9, "units": 6912, "unit_a": 1.376, "unit_b": 1.376, "phaseA_tbs": 3.501}
+REC   snaps {"0.3": {"t": 15.427200000000001, "inflight": 265, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}, "0.6": {"t": 30.854400000000002, "inflight": 338, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}} latA(med,p90,sum) [3.424, 3.808, 15996.992] latB [3.488, 6.528, 9150.88]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.169, 0.064], "A_steady": [4206, 1.608, 0.064], "AtoB": [132, 0.042, 0.032], "B_first3": [264, 0.074, 0.032], "B_steady": [1902, 0.562, 0.032], "A_jobswitch": [6, 0.003, 0.064], "B_jobswitch": [6, 0.002, 0.032]}
+REC {"label": "verify 1 full seed 4268899743722759934", "endA": 41.856, "stallA_per_cta": 1.413, "stallB_per_cta": 0.523, "span": 68.608, "A": 37.967, "B": 18.174, "a_wwait": 1.413, "b_wwait": 0.523, "distinct": 7, "units": 5376, "unit_a": 1.376, "unit_b": 1.312, "phaseA_tbs": 3.48}
+REC   snaps {"0.3": {"t": 12.5568, "inflight": 282, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}, "0.6": {"t": 25.1136, "inflight": 282, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}} latA(med,p90,sum) [3.424, 3.904, 12547.52] latB [3.456, 7.008, 7297.056]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.171, 0.064], "A_steady": [3182, 1.239, 0.064], "AtoB": [132, 0.042, 0.032], "B_first3": [263, 0.072, 0.032], "B_steady": [1391, 0.408, 0.032], "A_jobswitch": [6, 0.003, 0.064], "B_jobswitch": [6, 0.002, 0.032]}
+REC {"label": "verify 1 full seed 4268899743722759935", "endA": 62.8, "stallA_per_cta": 2.19, "stallB_per_cta": 0.848, "span": 102.848, "A": 59.009, "B": 29.94, "a_wwait": 2.19, "b_wwait": 0.848, "distinct": 11, "units": 8448, "unit_a": 1.376, "unit_b": 1.44, "phaseA_tbs": 3.518}
+REC   snaps {"0.3": {"t": 18.84, "inflight": 314, "ctas": 132, "experts": 11, "regions_2MB": 99, "stride_med": 43}, "0.6": {"t": 37.68, "inflight": 362, "ctas": 132, "experts": 11, "regions_2MB": 99, "stride_med": 43}} latA(med,p90,sum) [3.424, 3.648, 19539.328] latB [3.584, 5.952, 11106.112]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.177, 0.064], "A_steady": [5236, 2.013, 0.064], "AtoB": [132, 0.043, 0.032], "B_first3": [264, 0.075, 0.032], "B_steady": [2420, 0.729, 0.032]}
+REC {"label": "verify 1 full seed 4268899743722759936", "endA": 41.616, "stallA_per_cta": 1.414, "stallB_per_cta": 0.536, "span": 70.688, "A": 38.273, "B": 18.226, "a_wwait": 1.414, "b_wwait": 0.536, "distinct": 7, "units": 5376, "unit_a": 1.376, "unit_b": 1.344, "phaseA_tbs": 3.452}
+REC   snaps {"0.3": {"t": 12.4848, "inflight": 309, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}, "0.6": {"t": 24.9696, "inflight": 356, "ctas": 132, "experts": 7, "regions_2MB": 63, "stride_med": 27}} latA(med,p90,sum) [3.456, 4.064, 12755.392] latB [3.456, 7.264, 7528.064]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.16, 0.064], "A_steady": [3182, 1.251, 0.064], "AtoB": [132, 0.042, 0.032], "B_first3": [263, 0.072, 0.032], "B_steady": [1391, 0.42, 0.032], "A_jobswitch": [6, 0.003, 0.064], "B_jobswitch": [6, 0.002, 0.064]}
+REC {"label": "verify 1 full seed 4268899743722759937", "endA": 36.0, "stallA_per_cta": 1.256, "stallB_per_cta": 0.451, "span": 59.712, "A": 32.449, "B": 15.4, "a_wwait": 1.256, "b_wwait": 0.451, "distinct": 6, "units": 4608, "unit_a": 1.376, "unit_b": 1.312, "phaseA_tbs": 3.49}
+REC   snaps {"0.3": {"t": 10.799999999999999, "inflight": 363, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}, "0.6": {"t": 21.599999999999998, "inflight": 327, "ctas": 132, "experts": 6, "regions_2MB": 54, "stride_med": 23.0}} latA(med,p90,sum) [3.424, 3.616, 10592.192] latB [3.392, 7.008, 6377.28]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.207, 0.064], "A_steady": [2676, 1.049, 0.064], "AtoB": [132, 0.041, 0.032], "B_first3": [264, 0.07, 0.032], "B_steady": [1140, 0.34, 0.032]}
+REC {"label": "verify 1 full seed 4268899743722759938", "endA": 52.256, "stallA_per_cta": 1.896, "stallB_per_cta": 0.683, "span": 85.056, "A": 48.529, "B": 24.235, "a_wwait": 1.896, "b_wwait": 0.683, "distinct": 9, "units": 6912, "unit_a": 1.376, "unit_b": 1.408, "phaseA_tbs": 3.5}
+REC   snaps {"0.3": {"t": 15.6768, "inflight": 325, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}, "0.6": {"t": 31.3536, "inflight": 312, "ctas": 132, "experts": 9, "regions_2MB": 81, "stride_med": 35}} latA(med,p90,sum) [3.424, 3.776, 16017.376] latB [3.552, 6.208, 9241.792]
+REC   wait(count, per CTA us, median) {"A_first3": [396, 0.16, 0.064], "A_steady": [4206, 1.734, 0.064], "AtoB": [132, 0.042, 0.032], "B_first3": [264, 0.073, 0.032], "B_steady": [1902, 0.566, 0.032], "A_jobswitch": [6, 0.002, 0.064], "B_jobswitch": [6, 0.002, 0.032]}

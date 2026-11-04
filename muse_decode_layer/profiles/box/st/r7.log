@@ -1,0 +1,14 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FLUSH read
+LOCK acquired after 0.0 s
+READ 4 GiB sum 4.408 TB/s
+ST       h0  A k  7 D 3 delay    0 grid 132 cons 1 burn  0 polc 1 stores 0 ef 1 units  3584 span   29.82 [29.60-31.33] TB/s 4.430 (100.5%) steady 4.822 (109.4%) ramp 2.88 endspread 4.13 cta_unit 0.986 mean 0.978 lat 2.72/3.65
+ST       h0  A k  7 D 3 delay    0 grid 132 cons 8 burn  0 polc 1 stores 0 ef 1 units  3584 span   30.02 [29.63-31.33] TB/s 4.402 ( 99.9%) steady 4.815 (109.2%) ramp 2.90 endspread 4.22 cta_unit 0.989 mean 0.981 lat 2.72/3.62
+ST       h0  A k  7 D 3 delay    0 grid 132 cons 1 burn  0 polc 1 stores 1 ef 1 units  3584 span   29.79 [29.44-31.26] TB/s 4.435 (100.6%) steady 4.808 (109.1%) ramp 2.90 endspread 4.83 cta_unit 0.987 mean 0.974 lat 2.72/3.62
+ST       h0  A k  7 D 3 delay    0 grid 132 cons 8 burn  0 polc 1 stores 1 ef 1 units  3584 span   30.18 [29.86-31.30] TB/s 4.378 ( 99.3%) steady 4.808 (109.1%) ramp 2.97 endspread 4.80 cta_unit 0.987 mean 0.975 lat 2.69/3.58
+ST       h0  A k  7 D 3 delay  300 grid 132 cons 1 burn  0 polc 1 stores 0 ef 1 units  3584 span   30.78 [30.21-31.90] TB/s 4.292 ( 97.4%) steady 4.815 (109.2%) ramp 2.84 endspread 3.68 cta_unit 0.992 mean 0.989 lat 2.53/3.36
+ST       h0  A k  7 D 3 delay  300 grid 132 cons 8 burn  0 polc 1 stores 0 ef 1 units  3584 span   30.66 [30.37-32.19] TB/s 4.310 ( 97.8%) steady 4.822 (109.4%) ramp 2.91 endspread 3.87 cta_unit 0.990 mean 0.989 lat 2.50/3.36
+ST       h0  A k  7 D 3 delay  300 grid 132 cons 1 burn  0 polc 1 stores 1 ef 1 units  3584 span   30.75 [30.50-32.42] TB/s 4.296 ( 97.5%) steady 4.822 (109.4%) ramp 2.89 endspread 4.45 cta_unit 0.992 mean 0.988 lat 2.53/3.36
+ST       h0  A k  7 D 3 delay  300 grid 132 cons 8 burn  0 polc 1 stores 1 ef 1 units  3584 span   30.82 [30.56-32.45] TB/s 4.287 ( 97.3%) steady 4.808 (109.1%) ramp 2.91 endspread 4.13 cta_unit 0.994 mean 0.988 lat 2.53/3.33
+LOCK released

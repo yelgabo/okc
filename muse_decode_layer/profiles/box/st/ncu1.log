@@ -1,0 +1,8 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+==PROF== Connected to process 390494 (/usr/bin/python3.12)
+FLUSH read
+READ 4 GiB sum 4.401 TB/s
+==ERROR== ERR_NVGPUCTRPERM - The user does not have permission to access NVIDIA GPU Performance Counters on the target device 0. For instructions on enabling permissions and to get more information see https://developer.nvidia.com/ERR_NVGPUCTRPERM
+ST       h0  A k  7 D 3 delay    0 grid 132 inl 0 coop 0 eager 0 off 0 cons 1 burn  0 polc 0 stores 0 ef 1 units  3584 span   29.63 [29.63-29.63] TB/s 4.459 (101.3%) steady 4.829 (109.7%) ramp 3.09 endspread 4.26 cta_unit 0.969 mean 0.966 lat 2.72/3.58
+==PROF== Disconnected from process 390494
