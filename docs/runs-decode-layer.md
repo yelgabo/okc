@@ -3615,3 +3615,23 @@ Paired A/B (`tools/ly_prtl_ab.sh`, CTL ly_fabq, CAND ly_apre, five bx_box_run.py
 
 The two target cells are slower in all four candidate-against-neighbour pairs, by about 1.3 us; the other ten cells
 (untouched kernels) sit inside the control spread.
+
+Why it loses (stamps build of ly_apre, `.build/attn/ly_apre_stamps.py` from `tools/attn_stamps_make.py --base
+ly_apre.py`, `muse_decode_layer/profiles/box/attn/stamps/stamps_apre_d{16,32}.log`; medians, us from the earliest
+entry, decode 16 / decode 32 full, base in brackets): partition barrier 1.42 / 2.05 [1.15 / 1.95], segment list done
+3.95 / 4.86 [2.37 / 3.49], setmaxnreg done 5.49 / 6.21 [2.46 / 3.62], segment 0 start 5.66 / 6.42 [2.75 / 3.84],
+first tile consumed 6.85 / 7.55 [4.99 / 6.00]. The pre-issue block itself takes about 4 us on the producer warps
+(a seq_lens read and the page-index loads as two dependent round trips, three tiles of copies, all first-execution
+code), and since the producers reach `setmaxnreg.dec` only after it, the consumers' `setmaxnreg.inc` holds the whole
+consumer side for those 3 us; the copies are in flight earlier, but nobody can consume them until 5.5 us, so the
+first tile lands 1.6 to 1.9 us later than in the base. Steady state and the end spread are unchanged
+(first tile to merge 72.7 / 146.8 us [73.2 / 147.9]; per-SM end median to max 3.5 / 5.0 us [2.8 / 2.9]).
+
+### Candidate: ly_apre2 (producers release their registers first, no seq_lens read)
+
+`tools/dl_ly_apre_patch.py` without `--v1` -> `muse_decode_layer/cand/ly_apre2.py`
+(SHA256 52fed0e84e0d790a82481156df8034c7a5512794d10ef0a3052f92810c531b74). Same mechanism, two changes from the
+stamps above: the producer warpgroup executes its `setmaxnreg.dec` at the start of the pre-issue block (the one in
+the role split is skipped under `apre`), so the consumers' `setmaxnreg.inc` no longer waits for the pre-issue; and
+the first request's length comes from the prefix sums (`S.cum[b0 + 1] - S.cum[b0] - L`, exact on the full layer,
+the flat kernel's only use; a window launch gets `npre = 0`), which removes one dependent round trip.
