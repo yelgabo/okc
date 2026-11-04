@@ -6,14 +6,14 @@
 //   FORM 1 (B): each consumer stores its tile to global, bar.sync per warpgroup, thread 0 of the warpgroup issues
 //               red.release.gpu, as wgs_flush kind 1 does in the current kernel.
 //   FORM 2 (C): compute only, no per-tile store or release; the stall baseline.
-// Warp 9 (LOAD only) streams an unrelated 1 GiB buffer through a cp.async.bulk ring so the stores and the release
+// With nepi = 2, warps 8 and 9 are epilogue warps, each serving one slot. Warp 10 (LOAD only) streams an unrelated 1 GiB buffer through a cp.async.bulk ring so the stores and the release
 // drain under HBM load, as they do in the real kernel where TMA streams weights during the epilogue.
 #include <cuda_runtime.h>
 #include <cuda_bf16.h>
 #include <stdint.h>
 
 #define NCONS 8
-#define NTHREADS 320
+#define NTHREADS 352
 #define NT_MAX 64
 #define RING 4
 #define CHUNK 32768
@@ -29,6 +29,8 @@ struct Params {
   unsigned long long* chunks;    // [grid]: LOAD chunks completed
   int ntiles;
   int kiters;
+  int nepi;                      // FORM 0: epilogue warps (1 or 2; with 2, warp 8 + e serves slot e)
+  int inflight;                  // LOAD: bulk chunks in flight per CTA (1..RING)
 };
 
 __device__ __forceinline__ unsigned long long gtime() {
@@ -109,7 +111,7 @@ __global__ void __launch_bounds__(NTHREADS, 1) epi_kernel(Params p) {
   }
   __syncthreads();
   const int nt = p.ntiles;
-  unsigned long long* sp = p.spans + (size_t)cta * 20;
+  unsigned long long* sp = p.spans + (size_t)cta * 22;
 
   if (warp < NCONS) {
     uint32_t a[4], b[2];
@@ -167,10 +169,11 @@ __global__ void __launch_bounds__(NTHREADS, 1) epi_kernel(Params p) {
       uint32_t* g = p.stamps + ((size_t)cta * NCONS + warp) * NT_MAX * 2;
       for (int j = lane; j < NT_MAX * 2; j += 32) g[j] = my_st[j];
     }
-  } else if (warp == NCONS) {
-    if constexpr (FORM == 0) {
+  } else if (warp < NCONS + 2) {
+    const int e = warp - NCONS;
+    if (FORM == 0 && e < p.nepi) {
       const unsigned long long t0 = gtime();
-      for (int i = 0; i < nt; ++i) {
+      for (int i = e; i < nt; i += p.nepi) {
         const int s = i & 1;
         mbar_wait(&full[s], (i >> 1) & 1);
         const uint4* src = reinterpret_cast<const uint4*>(slots + s * SLOT);
@@ -184,18 +187,19 @@ __global__ void __launch_bounds__(NTHREADS, 1) epi_kernel(Params p) {
         }
       }
       if (lane == 0) {
-        sp[16] = t0;
-        sp[17] = gtime();
+        sp[warp * 2] = t0;
+        sp[warp * 2 + 1] = gtime();
       }
     }
   } else if (LOAD && lane == 0) {
     const unsigned long long t0 = gtime();
     const uint8_t* src = p.wbuf + (size_t)cta * p.region;
     const unsigned long long nreg = p.region / CHUNK;
+    const unsigned long long D = (unsigned long long)p.inflight;
     unsigned long long c = 0;
     for (;; ++c) {
-      const int r = (int)(c % RING);
-      if (c >= RING) mbar_wait(&ringb[r], (uint32_t)((c / RING - 1) & 1));
+      const int r = (int)(c % D);
+      if (c >= D) mbar_wait(&ringb[r], (uint32_t)((c / D - 1) & 1));
       if (*done >= NCONS) break;
       mbar_arrive_tx(&ringb[r], CHUNK);
       asm volatile(
@@ -205,10 +209,10 @@ __global__ void __launch_bounds__(NTHREADS, 1) epi_kernel(Params p) {
           : "memory");
     }
     // drain: chunks c-RING+1 .. c-1 are still in flight (chunk c was not issued)
-    for (unsigned long long d = (c >= RING ? c - RING + 1 : 0); d < c; ++d)
-      mbar_wait(&ringb[d % RING], (uint32_t)((d / RING) & 1));
-    sp[18] = t0;
-    sp[19] = gtime();
+    for (unsigned long long d = (c >= D ? c - D + 1 : 0); d < c; ++d)
+      mbar_wait(&ringb[d % D], (uint32_t)((d / D) & 1));
+    sp[20] = t0;
+    sp[21] = gtime();
     p.chunks[cta] = c;
   }
 }
@@ -232,12 +236,13 @@ static int launch_t(const Params& p, int grid, cudaStream_t s) {
   if (T == 8) { DISPATCH_T(F, 8) } \
   if (T == 32) { DISPATCH_T(F, 32) }
 
-extern "C" int epi_launch(int form, int T, int load, int stamps, int grid, int ntiles, int kiters, const void* seed,
+extern "C" int epi_launch(int form, int T, int load, int stamps, int grid, int ntiles, int kiters, int nepi,
+                          int inflight, const void* seed,
                           void* out, void* cnt, const void* wbuf, unsigned long long region, void* st, void* spans,
                           void* chunks, void* stream) {
-  if (ntiles > NT_MAX && stamps) return -1;
+  if ((ntiles > NT_MAX && stamps) || nepi < 1 || nepi > 2 || inflight < 1 || inflight > RING) return -1;
   Params p{(const uint32_t*)seed, (uint32_t*)out, (int*)cnt, (const uint8_t*)wbuf, region, (uint32_t*)st,
-           (unsigned long long*)spans, (unsigned long long*)chunks, ntiles, kiters};
+           (unsigned long long*)spans, (unsigned long long*)chunks, ntiles, kiters, nepi, inflight};
   if (form == 0) { DISPATCH_F(0) }
   if (form == 1) { DISPATCH_F(1) }
   if (form == 2) { DISPATCH_F(2) }

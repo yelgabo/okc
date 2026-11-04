@@ -112,7 +112,7 @@ def main():
     ap.add_argument("--grid", type=int, default=132)
     ap.add_argument("--kiters", default="4,32")
     ap.add_argument("--T", default="8,32")
-    ap.add_argument("--load", default="0,1")
+    ap.add_argument("--load", default="0,1,4")  # 32 KB bulk chunks in flight per CTA; 0 = no load
     ap.add_argument("--sass-only", action="store_true")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
@@ -134,7 +134,7 @@ def main():
     import torch
     lib = ctypes.CDLL(so)
     lib.epi_launch.restype = ctypes.c_int
-    lib.epi_launch.argtypes = [ctypes.c_int] * 7 + [ctypes.c_void_p] * 4 + [ctypes.c_ulonglong] + [ctypes.c_void_p] * 4
+    lib.epi_launch.argtypes = [ctypes.c_int] * 9 + [ctypes.c_void_p] * 4 + [ctypes.c_ulonglong] + [ctypes.c_void_p] * 4
     dev = torch.device("cuda")
     G, NT = a.grid, a.ntiles
     seed = torch.randint(0, 2**31 - 1, (64,), dtype=torch.int32, device=dev)
@@ -147,19 +147,24 @@ def main():
     flush.fill_(1)
     stream = torch.cuda.Stream()
 
+    variants = [("A", 0, 1), ("A2", 0, 2), ("B", 1, 1), ("C", 2, 1)]  # name, form, epilogue warps
+
+    def f3(t):
+        return f"{t[0]:9.1f} [{t[1]:.1f}, {t[2]:.1f}]"
+
     results = []
     for T in [int(x) for x in a.T.split(",")]:
         for load in [int(x) for x in a.load.split(",")]:
             for kit in [int(x) for x in a.kiters.split(",")]:
                 for stamps in (0, 1):
-                    graphs = {}
-                    bufs = {}
-                    for form in (0, 1, 2):
+                    graphs, bufs = {}, {}
+                    for name, form, nepi in variants:
                         st = torch.zeros(G * 8 * NT_MAX * 2, dtype=torch.int32, device=dev)
-                        sp = torch.zeros(G * 20, dtype=torch.int64, device=dev)
+                        sp = torch.zeros(G * 22, dtype=torch.int64, device=dev)
                         ch = torch.zeros(G, dtype=torch.int64, device=dev)
-                        args = (form, T, load, stamps, G, NT, kit, seed.data_ptr(), out.data_ptr(), cnt.data_ptr(),
-                                wbuf.data_ptr(), region, st.data_ptr(), sp.data_ptr(), ch.data_ptr())
+                        args = (form, T, int(load > 0), stamps, G, NT, kit, nepi, max(load, 1), seed.data_ptr(),
+                                out.data_ptr(), cnt.data_ptr(), wbuf.data_ptr(), region, st.data_ptr(), sp.data_ptr(),
+                                ch.data_ptr())
                         with Lock(a.lock):
                             with torch.cuda.stream(stream):
                                 rc = lib.epi_launch(*args, ctypes.c_void_p(stream.cuda_stream))
@@ -170,54 +175,59 @@ def main():
                                 rc = lib.epi_launch(*args, ctypes.c_void_p(torch.cuda.current_stream().cuda_stream))
                                 assert rc == 0, rc
                             torch.cuda.synchronize()
-                        graphs[form], bufs[form] = g, (st, sp, ch)
-                    rec = {f: dict(ev=[], span=[], cons=[], stall=[], epi=[], chunks=[]) for f in (0, 1, 2)}
+                        graphs[name], bufs[name] = g, (st, sp, ch, nepi)
+                    rec = {v[0]: dict(ev=[], span=[], cons=[], stall=[], epi=[], gbps=[]) for v in variants}
                     with Lock(a.lock):
                         for rep in range(a.replays + 2):
-                            for k in range(3):
-                                form = (rep + k) % 3
+                            for k in range(len(variants)):
+                                name = variants[(rep + k) % len(variants)][0]
                                 flush.add_(1)
                                 e0, e1 = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
                                 e0.record()
-                                graphs[form].replay()
+                                graphs[name].replay()
                                 e1.record()
                                 torch.cuda.synchronize()
                                 if rep < 2:
                                     continue
-                                st, sp, ch = bufs[form]
-                                spv = sp.view(G, 20).cpu()
-                                starts = spv[:, 0:16:2]
-                                ends = spv[:, 1:16:2]
-                                kend = spv[:, 17].max().item() if form == 0 else 0
-                                r = rec[form]
-                                r["ev"].append(e0.elapsed_time(e1) * 1e3)
-                                r["span"].append((max(ends.max().item(), kend) - starts.min().item()) / 1e3)
-                                r["cons"].append(float((ends - starts).double().median().item()))
+                                st, sp, ch, nepi = bufs[name]
+                                spv = sp.view(G, 22).cpu()
+                                starts, ends = spv[:, 0:16:2], spv[:, 1:16:2]
+                                r = rec[name]
+                                kend = ends.max().item()
+                                if name.startswith("A"):
+                                    es = spv[:, 16:16 + 2 * nepi:2]
+                                    ee = spv[:, 17:17 + 2 * nepi:2]
+                                    kend = max(kend, ee.max().item())
+                                    r["epi"].append(float((ee - es).double().median().item()) / (NT / nepi))
                                 if load:
-                                    r["chunks"].append(float(ch.double().mean().item()))
+                                    r["gbps"].append(float(ch.sum().item()) * 32768 /
+                                                     float((spv[:, 21] - spv[:, 20]).double().median().item()))
+                                r["ev"].append(e0.elapsed_time(e1) * 1e3)
+                                r["span"].append((kend - starts.min().item()) / 1e3)
+                                r["cons"].append(float((ends - starts).double().median().item()))
                                 if stamps:
-                                    s = st.view(G, 8, NT_MAX, 2)[:, :, :NT, :].cpu().long()
-                                    r["stall"].append(float((s[..., 1] - s[..., 0]).double().mean().item()))
-                    for form in (0, 1, 2):
-                        r = rec[form]
-                        row = dict(form=FORMS[form], T=T, load=load, kiters=kit, stamps=stamps,
-                                   ev_us=med_spread(r["ev"]), span_us=med_spread(r["span"]),
-                                   cons_ns=med_spread(r["cons"]))
-                        if r["stall"]:
-                            row["stall_ns"] = med_spread(r["stall"])
-                        if r["chunks"]:
-                            row["chunks"] = statistics.median(r["chunks"])
-                        results.append(row)
-                        def f3(t):
-                            return f"{t[0]:9.1f} [{t[1]:.1f}, {t[2]:.1f}]"
-                        line = (f"RUN T={T:>2} load={load} kit={kit:>2} stamps={stamps} form={FORMS[form]} "
+                                    s4 = st.view(G, 8, NT_MAX, 2)[:, :, :NT, :].cpu().long()
+                                    r["stall"].append(float((s4[..., 1] - s4[..., 0]).double().mean().item()))
+                    for name, form, nepi in variants:
+                        r = rec[name]
+                        row = dict(form=name, T=T, load=load, kiters=kit, stamps=stamps, ev_us=med_spread(r["ev"]),
+                                   span_us=med_spread(r["span"]), cons_ns=med_spread(r["cons"]))
+                        line = (f"RUN T={T:>2} load={load} kit={kit:>2} stamps={stamps} form={name:<2} "
                                 f"event_us {f3(row['ev_us'])} span_us {f3(row['span_us'])} "
                                 f"cons_loop_ns {f3(row['cons_ns'])}")
-                        if "stall_ns" in row:
+                        if r["stall"]:
+                            row["stall_ns"] = med_spread(r["stall"])
                             line += f" stamp_handoff_ns {f3(row['stall_ns'])}"
+                        if r["epi"]:
+                            row["epi_ns_per_tile"] = med_spread(r["epi"])
+                            line += f" epi_warp_ns_per_tile {f3(row['epi_ns_per_tile'])}"
+                        if r["gbps"]:
+                            row["load_GBps"] = med_spread(r["gbps"])
+                            line += f" load_GBps {f3(row['load_GBps'])}"
+                        results.append(row)
                         print(line, flush=True)
-    print("SUMMARY stall per tile (ns), span estimator = (cons_loop X - cons_loop C) / ntiles; stamp estimator = "
-          "handoff X - handoff C")
+    print("SUMMARY stall per tile (ns): span = (consumer loop X - consumer loop C) / ntiles from stamps-off builds; "
+          "stamp = per-tile handoff X - handoff C from stamps-on builds. load = bulk chunks of 32 KB in flight per CTA")
     key = {(r["form"], r["T"], r["load"], r["kiters"], r["stamps"]): r for r in results}
     for T in [int(x) for x in a.T.split(",")]:
         for load in [int(x) for x in a.load.split(",")]:
@@ -225,18 +235,16 @@ def main():
                 c0 = key[("C", T, load, kit, 0)]["cons_ns"][0]
                 c1 = key[("C", T, load, kit, 1)]["stall_ns"][0]
                 parts = []
-                for f in ("A", "B"):
+                for f in ("A", "A2", "B"):
                     s0 = (key[(f, T, load, kit, 0)]["cons_ns"][0] - c0) / NT
                     s1 = key[(f, T, load, kit, 1)]["stall_ns"][0] - c1
                     parts.append(f"{f}: span {s0:7.1f} stamp {s1:7.1f}")
-                ctile = c0 / NT
-                print(f"SUMMARY T={T:>2} load={load} kit={kit:>2} compute/tile(C) {ctile:7.1f}  " + "  ".join(parts) +
-                      f"  kernel span A/B/C us {key[('A', T, load, kit, 0)]['span_us'][0]:.2f} / "
-                      f"{key[('B', T, load, kit, 0)]['span_us'][0]:.2f} / {key[('C', T, load, kit, 0)]['span_us'][0]:.2f}")
+                spans = " / ".join(f"{key[(f, T, load, kit, 0)]['span_us'][0]:.2f}" for f in ("A", "A2", "B", "C"))
+                print(f"SUMMARY T={T:>2} load={load} kit={kit:>2} compute/tile(C) {c0 / NT:7.1f}  " + "  ".join(parts) +
+                      f"  kernel span A/A2/B/C us {spans}")
     if a.out:
         with open(a.out, "w") as fh:
             json.dump(dict(sass=sass, results=results), fh, indent=1)
-
 
 if __name__ == "__main__":
     sys.exit(main())
