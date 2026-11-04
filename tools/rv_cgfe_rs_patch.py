@@ -9,6 +9,7 @@ and appends cgfe's cgemv PDL block unchanged. Every split point is checked.
 
     python3 tools/rv_cgfe_rs_patch.py                      # onto g1b4_rs, writes rv_cgfe_rs.py
     python3 tools/rv_cgfe_rs_patch.py --base pdl8h         # onto g1b4_pdl8h (33c2353b), writes rv_cgfe_h.py
+    python3 tools/rv_cgfe_rs_patch.py --base pdl8hn        # onto g1b4_pdl8hn (df5cded9, no routing slack), writes rv_cgfe_hn.py
 """
 import hashlib
 import pathlib
@@ -18,7 +19,8 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 C = ROOT / "muse_decode_layer/cand"
 BASES = {"rs": ("g1b4_rs.py", "01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07", "rv_cgfe_rs.py"),
-         "pdl8h": ("g1b4_pdl8h.py", "33c2353b52de29c5", "rv_cgfe_h.py")}
+         "pdl8h": ("g1b4_pdl8h.py", "33c2353b52de29c5", "rv_cgfe_h.py"),
+         "pdl8hn": ("g1b4_pdl8hn.py", "df5cded96b8dc18a", "rv_cgfe_hn.py")}
 base = BASES[sys.argv[sys.argv.index("--base") + 1] if "--base" in sys.argv else "rs"]
 PINS = {base[0]: base[1],
         "g1b4_cgfe.py": "3785f13a5ee3",

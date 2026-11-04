@@ -9,7 +9,8 @@
 4. attention triggers its dependents at entry, after its griddepcontrol.wait (OKC_PDLTRIG 0) instead of at the merge.
 Every edit is an exact string that must occur once. docs/box-revival.md has the A/B for each step.
 
-    python3 tools/rv_combo_patch.py
+    python3 tools/rv_combo_patch.py                  # onto g1b4_pdl8h, writes rv_k_combo2.py
+    python3 tools/rv_combo_patch.py --base pdl8hn    # onto g1b4_pdl8hn (no routing slack), writes rv_k_combo2n.py
 """
 import hashlib
 import pathlib
@@ -19,7 +20,10 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 C = ROOT / "muse_decode_layer/cand"
-EXPECT = "7f0a3e360f085c4f21c1b760d10eaf251d3d379464a1f0556d52828cf92d5f37"
+BASES = {"pdl8h": ("rv_cgfe_h.py", "rv_k_combo2.py", "7f0a3e360f085c4f21c1b760d10eaf251d3d379464a1f0556d52828cf92d5f37"),
+         "pdl8hn": ("rv_cgfe_hn.py", "rv_k_combo2n.py", "")}
+BASE = sys.argv[sys.argv.index("--base") + 1] if "--base" in sys.argv else "pdl8h"
+MID, OUT, EXPECT = BASES[BASE]
 EDITS = [
     ('CG_LAYERS = ("qkv_gate", "o", "unpooler")', 'CG_LAYERS = ("unpooler",)'),
     ('            print("CG_TUNE", layer, v, "->", pick, flush=True)\n    return state',
@@ -31,14 +35,15 @@ EDITS = [
     ('#define OKC_PDLTRIG 1   // pdl8', '#define OKC_PDLTRIG 0   // pdl8'),
 ]
 
-subprocess.run([sys.executable, str(ROOT / "tools/rv_cgfe_rs_patch.py"), "--base", "pdl8h"], check=True)
-s = (C / "rv_cgfe_h.py").read_text()
+subprocess.run([sys.executable, str(ROOT / "tools/rv_cgfe_rs_patch.py"), "--base", BASE], check=True)
+s = (C / MID).read_text()
 for old, new in EDITS:
     if s.count(old) != 1:
         raise SystemExit(f"{old[:60]!r} occurs {s.count(old)} times")
     s = s.replace(old, new)
-dst = C / "rv_k_combo2.py"
+dst = C / OUT
 dst.write_text(s)
 py_compile.compile(str(dst), doraise=True)
 h = hashlib.sha256(s.encode()).hexdigest()
-print(dst.relative_to(ROOT), h, "matches the measured bytes" if h == EXPECT else "DIFFERS from the measured 7f0a3e36")
+print(dst.relative_to(ROOT), h, "" if not EXPECT else "matches the measured bytes" if h == EXPECT
+      else f"DIFFERS from the measured {EXPECT[:8]}")
