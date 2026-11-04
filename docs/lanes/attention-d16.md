@@ -9,12 +9,23 @@ Updated 2026-11-04 12:36 PT (Mac clock). Branch worktree-agent-a5dc59bb03b3b9eec
 - Ruled out at the stamp level (rows in docs/ruled-out.md, section "Decode 16 / 32 sliding attention merge (box)" in
   docs/runs-decode-layer.md): ly_aopf a7bc691a, ly_aopfl 0a58b5f6 (o stream L2 prefetch from the merge tail),
   ly_a16sp b72fc51a (8 / 4 splits), ly_a16cl e3bc81b5 and ly_a16cl2 21da0e02 (MODE 2 cluster merge).
-- Built, untested: muse_decode_layer/cand/ly_a16nc2.py, SHA256
-  dbadd5302873cea3385f497b6d24837604bc67e2118e4e1dae1f87bf456c24bb (two workspace copies, warmed finalize; expected
-  about -0.3 to -0.4 us at decode 16, below the 0.8 us bar).
-- Box paths: /root/okc/.build/a16/st_<arm>.log; logs copied to muse_decode_layer/profiles/box/a16r2/. Box was idle
-  after 20:33 UTC; nothing of this lane is running.
-- Next action: stamp ly_a16nc2 (`python3 tools/dl_ly_a16_patch.py --base muse_decode_layer/cand/ly_a16nc2.py --out
-  muse_decode_layer/cand/ly_a16nc2_st.py`, rsync both, `ARMS="ly_a16nc2_st" tools/ly_a16r2_st.sh`); if reds -> ticket
-  drops by at least 0.4 us with the finalize under +0.15, run `CAND=ly_a16nc2.py TAG=a16nc2 CTL=ly_stk3.py
-  tools/ly_a16_ab.sh` (gate, chk, two paired rounds).
+- Round 3 (relaunch, 12:36 PT, branch worktree-agent-af551e13c3c5956fd): candidate muse_decode_layer/cand/ly_a16nc2.py
+  (SHA256 dbadd5302873cea3385f497b6d24837604bc67e2118e4e1dae1f87bf456c24bb), stamp build ly_a16nc2_st.py
+  (f5a5dcc44452ee22362abd0d4cc3820b0294ef641a576a9d74cd279097eb0de7, tools/dl_ly_a16_patch.py). Base stamp build on
+  the box ly_stk3_st.py 95f41970. Stamp run launched 20:36:49 UTC on the box:
+  `ARMS="ly_stk3_st ly_a16nc2_st" tools/ly_a16r2_st.sh` -> /root/okc/.build/a16/st_<arm>.log, driver log
+  .build/a16/r3_st.log (queued behind other lanes on gpu.lock).
+- Stamps (box 20:36-20:43 UTC, 20 inputs, medians, us after qkv end; logs muse_decode_layer/profiles/box/a16r3/):
+  decode 16 base / nc2: reds 5.34 / 5.25, ticket 6.80 / 6.56 (reds->ticket 1.46 / 1.31), attention end 8.08 / 7.46
+  (finalize 1.28 / 0.90), o wait 8.59 / 8.10, o end 11.94 / 11.41. Decode 32: o end 14.21 / 14.24.
+  Literal gate (ticket -0.4) fails at -0.14, but ticket+finalize nets -0.52 us (finalize shrank instead of growing),
+  above the 0.3 bar, so the A/B runs as the decisive test.
+- A/B launched 20:44:08 UTC: `CAND=ly_a16nc2.py TAG=a16nc2 CTL=ly_stk3.py tools/ly_a16_ab.sh` -> box
+  .build/a16/a16nc2_run.log, gate_a16nc2.log, .build/prtl/a16nc2{,_r2}/.
+- Gate (20:44-20:46 UTC): check PASS at decode 16 / 32 sliding and full, five PDL8H guards pass.
+- A/B (20:47-20:52 UTC, two rounds, 24 pairs per cell, all six loads, logs muse_decode_layer/profiles/box/a16r3/ab/):
+  decode 16 sliding +0.03 us (12/24 faster), decode 32 sliding -0.01 (12/24), every cell inside noise. chk PASS 12/12.
+- Decision: null, no ledger registration. Ruled-out row in docs/ruled-out.md; run log appended ("Round 3").
+- Box: nothing of this lane is running.
+- Next action: none in this lane for ly_a16nc2. Open question (untested): why a 0.5 us earlier o end in the stamp build
+  does not reach the timed layer.
