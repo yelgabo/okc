@@ -1,0 +1,117 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793770609.353 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.49), ('sk2', 7.9), ('torch', 10.34)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 8.0 s
+USDT:2026-11-04 05:36:58 321659:321659 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 05:36:58 321659:321659 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    24.92 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    17.08 us  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfloat16, tru
+  KERNEL    10.05 us  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     8.16 us  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     6.88 us  void (anonymous namespace)::attn_kernel<1, false, 13>((anonymous namespace)::Params)
+  KERNEL     5.70 us  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, int2 const*,
+  KERNEL     4.88 us  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+  KERNEL     3.58 us  _prq_sl_tile_route_cg
+  KERNEL     2.67 us  _sl_cluster_finish_cg
+  KERNEL    83.91 us  total
+BOX decode 1 sliding: raw 68.98 net 64.78 us (overhead 4.19) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.918 | check PASS
+USDT:2026-11-04 05:36:58 321659:321659 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 05:36:58 321659:321659 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    24.89 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    16.73 us  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfloat16, tru
+  KERNEL    14.06 us  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL    13.07 us  void (anonymous namespace)::attn_kernel<1, false, 11>((anonymous namespace)::Params)
+  KERNEL     9.95 us  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     5.63 us  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, int2 const*,
+  KERNEL     4.98 us  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+  KERNEL     3.51 us  _prq_sl_tile_route_cg
+  KERNEL     2.54 us  _sl_cluster_finish_cg
+  KERNEL    95.37 us  total
+BOX decode 1 full: raw 75.41 net 71.50 us (overhead 3.90) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.895 | check PASS
+USDT:2026-11-04 05:36:58 321659:321659 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 05:36:58 321659:321659 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    70.22 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    17.68 us  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.40 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.96 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.37 us  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     9.63 us  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Params)
+  KERNEL     5.80 us  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+  KERNEL     4.77 us  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+  KERNEL     3.22 us  _prq_sl_tile_route_cg
+  KERNEL   147.06 us  total
+BOX decode 16 sliding: raw 132.77 net 128.64 us (overhead 4.13) | judge net 127.89 (n=1, 127.89-127.89) box/judge 1.006 | check PASS
+USDT:2026-11-04 05:36:59 321659:321659 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 05:36:59 321659:321659 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    84.52 us  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Params)
+  KERNEL    69.33 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    17.47 us  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.21 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.60 us  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.40 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     5.45 us  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+  KERNEL     4.10 us  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+  KERNEL     2.88 us  _prq_sl_tile_route_cg
+  KERNEL   218.96 us  total
+BOX decode 16 full: raw 209.31 net 205.54 us (overhead 3.78) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.976 | check PASS
+USDT:2026-11-04 05:36:59 321659:321659 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 05:36:59 321659:321659 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    77.92 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    19.82 us  void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.71 us  void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    13.42 us  void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    11.51 us  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Params)
+  KERNEL    11.04 us  void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     9.74 us  _graft_row_boundary_pre_cg
+  KERNEL     3.58 us  _prq_sl_tile_route_cg
+  KERNEL   161.74 us  total
+BOX decode 32 sliding: raw 148.06 net 144.35 us (overhead 3.71) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.960 | check PASS
+USDT:2026-11-04 05:37:00 321659:321659 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 05:37:00 321659:321659 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL   160.78 us  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Params)
+  KERNEL    80.16 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    19.56 us  void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.68 us  void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    14.13 us  void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.97 us  void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     9.59 us  _graft_row_boundary_pre_cg
+  KERNEL     3.82 us  _prq_sl_tile_route_cg
+  KERNEL   313.70 us  total
+BOX decode 32 full: raw 300.45 net 296.56 us (overhead 3.89) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.974 | check PASS
+USDT:2026-11-04 05:37:00 321659:321659 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 05:37:00 321659:321659 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    57.02 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    17.75 us  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfloat16, tru
+  KERNEL    10.22 us  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     9.57 us  void sk2_kernel_narrow_bdc1b8bec184<1, 8, 3, 1, 4, 2, 5, true, false, 2, 1, __nv_bfloat16,
+  KERNEL     8.74 us  void (anonymous namespace)::attn_kernel<8, false, 15>((anonymous namespace)::Params)
+  KERNEL     4.69 us  void glue_cluster_boundary<4, 32, false, false, true, true>(GlueArgs)
+  KERNEL     4.51 us  void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     3.75 us  _sl_cluster_finish_cg
+  KERNEL     3.27 us  _prq_sl_tile_route_cg
+  KERNEL   119.52 us  total
+BOX verify 1 sliding: raw 108.66 net 104.88 us (overhead 3.78) | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.987 | check PASS
+USDT:2026-11-04 05:37:00 321659:321659 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 05:37:00 321659:321659 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    63.59 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    17.43 us  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfloat16, tru
+  KERNEL    16.95 us  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL    16.11 us  void (anonymous namespace)::attn_kernel<8, false, 11>((anonymous namespace)::Params)
+  KERNEL     9.65 us  void sk2_kernel_narrow_bdc1b8bec184<1, 8, 3, 1, 4, 2, 5, true, false, 2, 1, __nv_bfloat16,
+  KERNEL     4.48 us  void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     4.44 us  void glue_cluster_boundary<4, 32, false, false, true, true>(GlueArgs)
+  KERNEL     3.94 us  _sl_cluster_finish_cg
+  KERNEL     3.35 us  _prq_sl_tile_route_cg
+  KERNEL   139.95 us  total
+BOX verify 1 full: raw 120.29 net 115.87 us (overhead 4.42) | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.972 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 160 hits, 0 computed
+BXPHASE import_torch=0.43 load_reference_cuda_init=0.00 weights_and_router=0.25 prepare_submission=8.02 fresh_inputs=1.03 check=0.64 capture=0.07 overhead_graphs=0.88 replays=0.10 kernels_profiler=0.21 cell_tail=0.04 json_write=0.00 total=11.68
