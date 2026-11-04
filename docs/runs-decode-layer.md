@@ -7454,3 +7454,177 @@ only, so it stacks with the other lanes' changes (none touches `launch<1>`'s kn[
 Left open, measured above: the merge tail (ticket 1.3 to 1.4 us, finalize 0.8 to 1.1, flush 0.5) is now the largest
 part at decode 16; the K/V issue (16 cp.async per thread, 0.8 to 1.0 us even at two CTAs per SM) still precedes the q
 side; with ly_a16o2 the CTAs that land as qkv retires enter at about 0 us and set the slowest request at decode 16.
+
+## 2026-11-04 - Verify 1 sliding attention merge (box)
+
+Attention-v1 lane, round 2. Question: round 1 ("Verify 1 sliding attention in the layer (box)") split the 6.72 us that
+`attn_kernel<8, false, 15>` holds after qkv's end into a q side (wait 0.42, q group 0.70, RoPE and q pass 1.09,
+consumer setup 0.37), the tile (0.82) and a merge tail (reds 0.85, ticket 0.87, grid barrier 0.70, finalize 0.80).
+Which of (a) fewer splits, (b) operands before the wait, (c) relief for the split that holds the new rows takes at
+least 0.5 us off verify 1 sliding? Base: `muse_decode_layer/cand/ly_stk1.py` (SHA256
+d7db12a14807eeb57df914dac468f4f2567b6bfc4e6771a549c167e92fc39878), never edited. Box only (okc-h200, 19:19 to 20:19
+UTC), every run under gpu.lock (bx_box_run `--lock`), router seed 106218864389449120, f931 case seeds, local_start per
+input, PDL pinned on at every T. No judge check. Logs, JSONs and tables: `muse_decode_layer/profiles/box/av1r2/`.
+
+### Instruments
+
+`tools/dl_ly_atst_patch.py --src` (round 1's stamps) on each file; `tools/ly_av1_stamps.sh` runs
+`tools/ly_box_atst.py` (20 fresh inputs, verify 1 sliding, one plain and one stamped capture of the whole layer, times
+in us after qkv's last output store). `tools/dl_ly_atstf_patch.py` adds slot 21 before the q pass's
+fence.proxy.async and slot 22 before the new-row patch's fence; slot 23 marks an extra q-pass call
+(`ly_atst_aqw2.py`). The per-input seeds are the same in every run, so each file is also compared input by input with
+the first ly_stk1 run (`stamp_summary.md`). Two runs of ly_stk1 differ by +0.06 us at the attention's end (6 of 20
+inputs faster) and +0.14 at o's end: that is the noise of this table.
+
+### Stamps (verify 1 sliding, medians over 20 inputs, us after qkv's end)
+
+| file | q landed | q pass end | tile landed | tile done | critical ticket | barrier passed | attention end | o end | attention end vs base (inputs faster) | o end vs base (inputs faster) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ly_stk1 | 1.06 | 2.18 | 2.62 | 3.46 | 5.71 | 5.84 | 6.66 | 10.38 |  |  |
+| ly_stk1 (repeat) | 1.12 | 2.18 | 2.62 | 3.44 | 5.74 | 5.90 | 6.72 | 10.45 | +0.06 (6/20) | +0.14 (8/20) |
+| 17 splits | 1.57 | 2.48 | 3.06 | 3.95 | 7.01 | 7.17 | 7.98 | 11.66 | +1.23 (0/20) | +1.23 (1/20) |
+| 11 splits | 1.57 | 2.50 | 3.02 | 4.03 | 8.27 | 8.43 | 9.28 | 12.91 | +2.59 (0/20) | +2.56 (0/20) |
+| 9 splits | 1.68 | 2.53 | 3.14 | 4.16 | 9.09 | 9.26 | 10.06 | 13.92 | +3.39 (0/20) | +3.57 (0/20) |
+| 5 splits | 3.92 | 4.77 | 5.34 | 6.38 | 13.65 | 13.79 | 14.66 | 18.48 | +8.03 (0/20) | +8.11 (0/20) |
+| ly_aqw | 1.12 | 2.08 | 2.54 | 3.38 | 5.63 | 5.84 | 6.66 | 10.30 | -0.06 (13/20) | -0.03 (10/20) |
+| ly_akw | 1.09 | 2.06 | 2.50 | 3.31 | 5.97 | 6.22 | 6.96 | 10.74 | +0.27 (5/20) | +0.40 (5/20) |
+| ly_anpf | 1.12 | 2.21 | 2.62 | 3.46 | 5.73 | 5.89 | 6.70 | 10.43 | +0.02 (7/20) | +0.10 (7/20) |
+| ly_apg | 1.10 | 2.19 | 2.62 | 3.46 | 5.79 | 5.95 | 6.72 | 10.48 | +0.03 (7/20) | +0.10 (5/20) |
+| ly_v1trg | 1.12 | 1.98 | 2.40 | 3.20 | 5.87 | 6.34 | 7.46 | 11.30 | +0.75 (0/20) | +0.82 (0/20) |
+| ly_aqf | 1.10 | 2.18 | 3.55 | 4.42 | 6.29 | 6.40 | 7.28 | 11.02 | +0.59 (0/20) | +0.64 (1/20) |
+| ly_aop | 1.95 | 3.07 | 3.52 | 4.34 | 6.62 | 6.88 | 7.62 | 10.99 | +0.88 (0/20) | +0.56 (1/20) |
+| **ly_aqd** | 1.09 | 2.02 | **2.18** | 2.98 | 5.15 | 5.31 | **6.14** | **10.02** | **-0.54 (19/20)** | **-0.40 (18/20)** |
+| ly_aqk (on aqd) | 1.06 | 1.98 | 2.37 | 3.20 | 5.18 | 5.33 | 6.16 | 10.08 | -0.53 (19/20) | -0.29 (18/20) |
+| ly_aqp (on aqd) | 1.09 | 2.02 | 2.18 | 2.98 | 5.14 | 5.31 | 6.08 | 10.03 | -0.58 (20/20) | -0.29 (19/20) |
+| ly_aqi (on aqd) | 1.07 | 2.05 | 2.18 | 3.01 | 5.31 | 5.44 | 6.22 | 9.95 | -0.45 (17/20) | -0.45 (18/20) |
+| ly_aq2 (on aqd) | 1.28 | 2.11 | 2.30 | 3.14 | 5.44 | 5.60 | 6.45 | 10.32 | -0.16 (19/20) | -0.05 (11/20) |
+| ly_aqd_atre (on aqd) | 1.73 | 2.35 | 2.46 | 3.26 | 5.46 | 5.62 | 6.43 | 10.46 | -0.30 (17/20) | +0.13 (9/20) |
+
+"Critical ticket" is the last CTA's ticket (always the split holding the new rows); "attention end" is the last
+finalize store; "o end" is the o projection's last output store.
+
+### (a) Fewer splits: ruled out by stamps
+
+`tools/dl_ly_v1sp_patch.py --splits N` adds one `_TUNED7` entry `(1, 8, True, 1): dict(n_splits=N, nc=1, coop=1)`; with
+N < 33 every split holds 2 to 7 tiles, so the host launches the multi-tile speculative build `<8, false, 11>` (verify
+1 full's instance). Every step down loses about 1 us per extra tile (17: +1.23, 11: +2.59, 9: +3.39, 5: +8.03 us at the
+attention's end, 0/20 inputs faster each), and the merge tail does not shrink with the split count: reds issued to
+ticket returned stays 0.85 us at 33, 17 and 5 CTAs, and the grid barrier still waits for the new-rows split. The
+ticket is a release atomic's round trip after the CTA's own reds drain, not contention between CTAs. Not built
+further.
+
+### (b) and the q pass: what the 1.0 us is
+
+- Instruction cache (ly_aqw, ly_akw): the q pass (and, ly_akw, the new k,v pass) moved out of line and called dry
+  before `griddepcontrol.wait` on shared-memory garbage, then for real after it. The dry call costs about 1 us before
+  the wait (the pre-wait-done stamp moves from -0.74 to +0.21 us) and the real call after the wait still costs
+  0.86 us; a third call (`ly_atst_aqw2.py`, slot 23) costs 0.85 us too. Warm code is not faster: not cold code. (The
+  first builds of both tools gated on `QDIR`, which the layer compiles out with `-DOKC_QDIRECT=0`, so they built the
+  base text; those stamps are kept in `qdir_noop/` and not used.) Attention-d1 found the same at decode 1 (warm replay:
+  q pass unchanged).
+- Pooler L2 prefetch (ly_anpf: off at T = 8; ly_apg: as per-thread `prefetch.global.L2` lines): unchanged.
+- K/V copies in flight (ly_aqf: the one-tile K/V issue moved after the q pass): the q pass is unchanged and the tile
+  lands 0.93 us later (K/V latency about 1.3 us from issue): loss.
+- The fence after the q pass (slot 21 before it, on ly_aqd): 2.016 against 2.032 us after it: free.
+- o's co-residency (o has 256 CTAs, two per SM on 124 SMs including all 33 attention SMs): with o's trigger at the
+  merge (ly_v1trg) the q pass is 0.23 us shorter but o's arrival lands on the merge (+0.75 us at the end); with the
+  trigger at kernel entry (ly_aqd_atre) o's pre-wait stages land on the q loads (q landed 1.73 against 1.09): both lose.
+- SASS of the q pass (ly_aqd, `QP16`): about 280 instructions per thread, no local memory (113 registers, LOCAL 0),
+  cos / sin read with LDS.128; the two passes run one after the other. Loading both passes' operands first (ly_aqi,
+  bitwise equal) or one 32-dim pass per thread (ly_aq2, bitwise equal) does not shorten it. Reading: a latency-bound
+  chain of about 0.4 us per pass with o's warps on the same SMs; not a memory wait.
+- The RoPE table (the part (b) could move before the wait) is 0.11 to 0.13 us of the 1.09; not built.
+- o's weights into L2 instead of the pooler's (ly_aop: o's whole packed stream, about 16.8 MB per the
+  2026-10-28 ruled-out row, prefetched from the attention's entry): thread 0's bulk-prefetch
+  issue and the traffic push q's arrival to 1.95 us; o after its wait shrinks only 3.28 to 2.94 us: loss.
+
+### Candidate ly_aqd: the direct e4m3 q pass for the one-tile build
+
+`tools/dl_ly_aqd_patch.py` writes `muse_decode_layer/cand/ly_aqd.py` (SHA256
+df16832ff07578e2b40131a9975113d9720b16254d9db35a2531cb5762e7e5c9). The kernel already has a q pass that writes the
+e4m3 A tile of the QK^T wgmma directly (`OKC_QDIRECT` + `OKC_QP16`: four threads per row, two passes, one fp32 ->
+e4m3 rounding) instead of the f16 staging pass (eight threads per row, four passes) plus the consumers' f16 -> e4m3
+conversion; the layer turns it off for every instance with `-DOKC_QDIRECT=0`. The change, against ly_stk1:
+
+```
++#define OKC_QDIRECT1T 1 // the one-tile q_len 8 builds take the QDIRECT q pass even when OKC_QDIRECT is 0
+-  constexpr bool QDIR = OKC_QDIRECT && L == 8 && ...
++  constexpr bool QDIR = (OKC_QDIRECT || (OKC_QDIRECT1T && ONE)) && L == 8 && ...
+```
+
+(plus the header comment line). Only the one-tile q_len 8 builds (MODE 13 / 15; verify 1 sliding in this layer)
+change; every other instance, the wait, the trigger, the fences (the direct path's own `fence.proxy.async` after the
+st.shared e4m3 tile) and the merge are the base's. Numerics: the query is rounded once (fp32 -> e4m3) instead of twice
+(fp32 -> f16 -> e4m3); the merge order is unchanged.
+
+Stamps: the q pass is 0.16 us shorter and the consumer setup (patch to tile landed) drops from 0.35 to 0.06 us
+because the consumers no longer convert the staging; the attention ends 0.54 us earlier (19/20 inputs) and o's last
+store 0.40 us earlier (18/20); the new-rows split is still the last ticket (5.15 against a median 4.67).
+
+Gate run (the file's own prepare, no pin, `gate_aqd.log`): PDL8_AB T = 8 savings 7.71 / 7.94 us (9/9), all five
+PDL8H_GUARD lines pass with every T on (T = 1 sliding, T = 16 sliding, T = 32 full, T = 8 full, T = 8 sliding; ids
+mismatches 0 everywhere; T = 8 sliding on drift 6.37e-3 / 4.72e-3 against off 3.98e-3 / 4.31e-3, bound 2e-2),
+`G_RELEASE_STARTUP_OK`, CG_GATE equal to the control's. Reference check (`aqd/chk.log`): PASS 12/12.
+
+Paired A/B against ly_stk1 (`tools/ly_av1_ab.sh` -> `tools/ly_prtl_ab.sh`, c/w/c/w/c, 60 runs, six loads, per round
+12 pairs per cell). Rounds 1 and 2 (`aqd/table_both_rounds.txt`), the two-round form the lane's rule asks for:
+
+| cell | ctl mean | spread | cand mean | w - c | pairs < 0 |
+|---|---:|---:|---:|---:|---|
+| decode 1 sliding | 64.46 | 1.04 | 64.38 | -0.08 | 14/24 |
+| decode 1 full | 70.53 | 0.91 | 70.57 | +0.04 | 11/24 |
+| decode 16 sliding | 125.45 | 1.15 | 125.76 | +0.31 | 6/24 |
+| decode 16 full | 197.81 | 1.17 | 197.85 | +0.04 | 10/24 |
+| decode 32 sliding | 143.71 | 1.74 | 143.17 | -0.53 | 20/24 |
+| decode 32 full | 294.29 | 2.19 | 294.30 | +0.01 | 10/24 |
+| verify 1 sliding | 100.46 | 2.08 | 100.20 | **-0.25** | **14/24** |
+| verify 1 full | 109.01 | 1.20 | 108.33 | -0.68 | 22/24 |
+| verify 16 sliding | 242.45 | 3.01 | 242.55 | +0.10 | 10/24 |
+| verify 16 full | 326.49 | 1.23 | 325.75 | -0.74 | 18/24 |
+| verify 32 sliding | 294.76 | 1.92 | 294.90 | +0.14 | 10/24 |
+| verify 32 full | 459.03 | 1.58 | 458.97 | -0.06 | 12/24 |
+
+Rounds 3 and 4 (`aqd/table_rounds34_and_all.txt`): verify 1 sliding -0.58 us (22/24), verify 1 full -0.02 (14/24),
+decode 1 sliding -0.31 (20/24), verify 32 sliding +1.03 (3/24), every other cell within 0.6 us. All four rounds pooled
+(96 pairs per cell): verify 1 sliding **-0.42 us, 67/96**; verify 1 full -0.35 (70/96); decode 1 sliding -0.20
+(66/96); decode 32 sliding -0.30 (62/96); verify 32 sliding +0.58 (25/96); the other seven cells -0.27 to +0.15; every
+cell inside its threshold. Only verify 1 sliding runs changed device code; the verify 32 sliding skew (+0.58, 25/96)
+is on byte-identical device code for that instance (the module is rebuilt, so code addresses move), the same kind of
+skew as ly_slpfb's verify 1 sliding. By the judge's cell values the measured verify 1 sliding part is about -0.05% of
+score.
+
+Not registered: the two-round A/B gives -0.25 us with 14/24 pairs, below the lane's bar (0.5 us, 20/24); four rounds
+give -0.42 us with 67/96. It is a small, consistent gain on the edited cell (stamps 19/20 inputs at the attention's
+end) of the size of ly_v1fs, available for a stacked file: the patch applies unchanged to ly_stk3
+(`--src muse_decode_layer/cand/ly_stk3.py`).
+
+### (c) The new-rows split, on ly_aqd (stamps only)
+
+The split that holds the block's new rows passes its q pass with the others (2.05 us) and then runs the new k,v pass
+(+0.38 us, one pass, the cache-row writes included), the patch (+0.15 to 0.18) and a masked tile (1.0 against 0.8
+us); its ticket returns 0.48 us after the median and the grid barrier waits for it in every input.
+- ly_akw (the pass warmed before the wait): no change in that split; loss overall (+0.27 / +0.40).
+- ly_aqk (the pass in the q pass's straight-line block, one fence after both, stores behind `has_new`): every split
+  now pays the pass's arithmetic (median patch 2.30 against 2.11 us) and the critical split is unchanged: null.
+- ly_aqp (new rows stored straight into the stage, no patch pass): the critical split's patch is 0.08 us shorter, its
+  ticket unchanged (5.14 against 5.15): null.
+No mechanism found that shortens the new-rows split's chain by more than 0.1 us without lengthening the others.
+
+### Decision
+
+No registration. ly_aqd (verify 1 sliding -0.25 us in the two-round A/B, -0.42 over four rounds, -0.54 us at the
+attention's end in the stamps) goes to the lead as a stack item, not as a lone check. Ruled out: fewer splits (17 / 11
+/ 9 / 5), warming the q or new k,v pass, the pooler prefetch's form, K/V after the q pass, moving o's trigger to the
+merge or to entry, o's weights into L2 from the attention, and three q-pass / new-row reorderings on ly_aqd. Reading
+for the next owner: after ly_aqd the verify 1 sliding attention is a chain of dependent latencies (q landing 0.65 us after the wait,
+q pass 0.8, tile 0.8, reds 0.85, release ticket 0.8, barrier wait for the new-rows split 0.15 to 0.5, finalize 0.67)
+with o's 58 co-resident CTAs on the same SMs; no single step is bandwidth or instruction-fetch bound. Untested
+follow-ups (hypotheses): the same direct q pass for the other q_len 8 builds (verify 1 full's `<8, false, 11>` and
+the PLAIN8 builds at verify 16 / 32, a one-token change of the gate to `MODE & 8` or to every L == 8 build; the base
+of the `-DOKC_QDIRECT=0` flag is not recorded in the repo); the RoPE table before the wait (0.11 us).
+
+File-name note: attention-d1 committed `muse_decode_layer/cand/ly_atrg.py`, `tools/dl_ly_asp_patch.py` and
+`tools/dl_ly_atrg_patch.py` while this lane used the same names for different files; this lane's are renamed ly_v1trg,
+`tools/dl_ly_v1sp_patch.py` and `tools/dl_ly_v1trg_patch.py`, and the box copies of attention-d1's three files (which
+this lane had overwritten at 19:19 / 19:37 UTC) were restored from origin/main (sha 1abac1d6, 5e4a3d8c, a3c7eb67).
+Attention-d1's recorded ly_atrg result (decode 1, trigger at entry) matches its own file's behaviour.
