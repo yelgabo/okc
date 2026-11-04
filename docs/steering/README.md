@@ -11,7 +11,7 @@
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
 
-## November 4 20:30 UTC — top 100 push
+## November 4 18:28 UTC — top 100 push
 
 [Plan](2026-11-04-top100-push.md): row ly_rfx caed0290 10,146.4 us, rank 310, rank 100 at 2.2973x (3.0% gap). Pool table from the judge's cell weights; levers: sliding attention at decode 1 / verify 1, repeat draws after 16:00 PT, a decode 16 / 32 sliding timeline lane, smaller lanes in flight.
 
