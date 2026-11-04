@@ -31,7 +31,6 @@ if "--out" in sys.argv:
 
 PRE = r"""    partL = tidL & 7;
   }
-  bool pre = false;
   if constexpr (OKC_PREKV && L == 1 && ONE && !WS && !Cfg<L, FLAT>::S2 && OKC_ONEPRED) {
     // ly_akv: page_table, seq_lens and the cached K/V rows are layer inputs (no kernel of this step writes them; the
     // new token's row is skipped here and patched in after the wait from qkv)
@@ -68,6 +67,8 @@ PRE = r"""    partL = tidL & 7;
   pdl_wait();"""
 
 EDITS = [
+    ("  constexpr bool IDXF = OKC_IDXFIRST && !WS && !Cfg<L, FLAT>::S2 && !OKC_PDLKV;\n  {\n",
+     "  constexpr bool IDXF = OKC_IDXFIRST && !WS && !Cfg<L, FLAT>::S2 && !OKC_PDLKV;\n  bool pre = false;   // (ly_akv)\n  {\n", 1),
     ("#define OKC_PDLKV 0", "#define OKC_PREKV 1     // ly_akv: q_len 1 ONE builds issue the cached K/V rows before griddepcontrol.wait\n#define OKC_PDLKV 0", 1),
     ("    partL = tidL & 7;\n  }\n\n  pdl_wait();", PRE, 1),
     ("  cp_wait<IDXF ? 1 : 0>();\n  csync<WS, NT>();\n", "  if (!pre) {\n  cp_wait<IDXF ? 1 : 0>();\n  csync<WS, NT>();\n", 1),
