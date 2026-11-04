@@ -1,0 +1,18 @@
+START 10:18:57 v3_c8 cl13a CLB_LOOP_BREG=8
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 52.0 s; defines ['CLB_LOOP_BREG=8']; sha cl_phase_b.cuh 79b3c1e8fb6fef8b cl_math.cuh 0795eb99a2e29149 cl_schedule.h 8a5714cf88767414 cl_unit_loop.cuh 358b229e5a356937 bench aa8e4b1d949b5dff
+SASS _ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6Para reg 168 stack 984 total 13496 hmma 640 per-hmma LOP3 2.2, HMUL2 1.59, IMAD 1.45, SHF 1.4, LDL 1.11, FADD 1.1, HMMA 1.0, STL 0.97, LDS 0.57, FMUL 0.57, STS 0.56, SHFL 0.34
+SASS _ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6Para reg 96 stack 80 total 5408 hmma 64 per-hmma LOP3 5.17, HMUL2 3.94, SHF 2.81, IMAD 2.42, HMMA 1.0, LDS 0.66, FADD 0.5, PRMT 0.45, ISETP 0.38, BRA 0.25, LDL 0.25, IADD3 0.25
+LOCK acquired after 5.0 s
+APPS 405055, 7778 MiB
+405386, 3020 MiB
+BENCH T=8 distinct=7 policy=fill15 ncw=16 slices=15 sc_max=256 depth=4 smem=184576 floor 14.85 us inputs [1000, 1017, 1020, 1022, 1025] synthetic=False
+RUN T= 8 compute span  28.26 [27.84-29.18] us ratio 1.903 from-slab 26.02 (1.753) event  33.63 | slab-load 2.53 cons 27.42 slab-pub 2.98 first-stage 4.29 gather-end 17.09 | cons wait on gather med 2.02 max 3.07, on weights 0.74 | end spread 8.77
+RUN T= 8 none    span  30.24 [29.70-31.87] us ratio 2.037 from-slab 28.00 (1.886) event  35.81 | slab-load 2.55 cons 29.41 slab-pub 3.06 first-stage 5.02 gather-end 18.28 | cons wait on gather med 2.11 max 4.40, on weights 1.06 | end spread 8.43
+PICK only 4 of 5 inputs with 7 distinct experts in seeds 1000..3999; scanned distribution {7: 4, 8: 12, 9: 24, 10: 54, 11: 100, 12: 157, 13: 261, 14: 326, 15: 389, 16: 399, 17: 381, 18: 359, 19: 261, 20: 145, 21: 77, 22: 33, 23: 13, 24: 3, 25: 1, 26: 1}; synthesizing
+BENCH T=32 distinct=7 policy=fill15 ncw=8 slices=15 sc_max=256 depth=4 smem=230400 floor 14.85 us inputs [1000, 1001, 1002, 1003, 1004] synthetic=True
+RUN T=32 compute span  36.64 [27.52-127.01] us ratio 2.468 from-slab 34.45 (2.321) event  42.02 | slab-load 2.56 cons 34.67 slab-pub 3.10 first-stage 4.02 gather-end 16.80 | cons wait on gather med 1.85 max 3.14, on weights 1.38 | end spread 8.91
+RUN T=32 none    span  42.72 [30.59-131.52] us ratio 2.878 from-slab 40.61 (2.735) event  48.32 | slab-load 2.53 cons 40.88 slab-pub 3.61 first-stage 5.02 gather-end 19.54 | cons wait on gather med 2.38 max 4.70, on weights 1.70 | end spread 12.14
+LOCK released
+END 10:19:59 rc 0

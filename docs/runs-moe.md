@@ -7263,3 +7263,209 @@ cannot give a hot expert with 2.75x the work enough slices. At target 30 it give
   a time.
 - Task 1.2 and the join: keep `fence.proxy.async.shared::cta` before every arrive that frees a TMA-filled slot read by
   generic loads.
+
+## CL-1.3a unit loop
+
+Task 1.3a of docs/plans/2026-11-04-moe-cluster-rewrite.md (section 9): make the phase B consumer unit loop run at
+or near issue rate. Box okc-h200, 2026-11-04 UTC, under gpu.lock, nvcc 13.0 sm_90a, no judge job. Files:
+`muse_moe_w4a16/cl/cl_unit_loop.cuh` (the loop, included by cl_phase_b.cuh and designed for phase A),
+`cl_phase_b.cuh` (loop section: `consume_block`, register split, the CL-1.1 proxy fence at the slot release),
+`cl_phase_b_bench.py` (`--defines` loop knobs, `--census` registers and opcode mix per HMMA); logs and JSON in
+`muse_moe_w4a16/cl/profiles/1.3a/`. Every number below is the 1.2 bench: 15 slices on 120 CTAs (fill rule at 15
+clusters, distinct 7), 5 judge-like inputs x 20 replays after a 1 GiB flush, in-kernel globaltimer span, medians.
+"math-only" is the bench's `compute` mode (producer skips the loads), "no exchange" its `none` mode (loads on,
+no gather). The control is the main-branch cl_phase_b.cuh b1f1894d (CL-1.2's bytes) run in the same session.
+
+### Control (main-branch loop, re-measured this session)
+
+| T, consumer warps | math-only span us (floor ratio) | no-exchange span us | per stage, math-only |
+|---|---:|---:|---:|
+| 8, 16 | 20.96 [20.58-22.30] (1.412) | 26.11 [25.54-27.23] (1.759) | (20.96 - 2.80 first stage) / 16 stages = 1.14 us |
+| 32, 8 | 27.97 [26.40-36.64] (1.884) | 29.97 [28.80-39.81] (2.019) | |
+
+CL-1.2 reported 21.18 / 26.24 and 28.29 / 30.64 for the same cells: the session-to-session spread is about 1%.
+
+### Round 1: B fragments cached per K block, r3 merge on IMAD, 112-register consumers (all losses)
+
+| variant (T = 8, 16 warps) | knobs | reg / stack | per HMMA: LOP3, IMAD, HMUL2, SHF, LDS | math-only us | no-exchange us |
+|---|---|---|---|---:|---:|
+| control | - | 96 / 0 | 5.1, 2.4, 4.0, 2.2, 1.0 | 20.96 | 26.11 |
+| v1 | BREG, DQ 1, 112 regs, acc in smem | 96 / 64 | 5.0, 3.7, 3.9, 2.4, 0.66 | 24.83 | 27.10 |
+| v1 DQ 0 | BREG, LOP3 merge | 96 / 64 | 5.1, 2.9, 3.8, 2.4, 0.66 | 24.22 | 26.74 |
+| v1 BREG 0 | per-chunk B loads, DQ 1 | 96 / 64 | 4.9, 3.5, 3.9, 2.4, 0.73 | 22.77 | 29.31 |
+| v1 104 regs | | 96 / 40 | | 26.43 | 28.32 |
+| v1 96 regs (no setmaxnreg) | | 96 / 104 | | 27.58 | 29.86 |
+
+T = 32 (8 warps, 168 registers, no spills, BREG cannot apply at NTT = 4): v1 28.85, DQ 0 29.15, BREG 0 28.77 against
+the control's 27.97 math-only: the DQ 1 form costs about 0.9 us.
+
+Two causes, both fixed in round 2:
+
+1. The r3 merge as `x * one + y` does not remove a LOP3: the original `(a & M2) | t` is one LOP3 that masks and
+   merges, so DQ 1 only adds an IMAD per word (IMAD per HMMA 1.74 to 2.02 at T = 32, LOP3 unchanged at 2.17). The
+   5 LOP3 + 2 SHF + 2 IMAD per word of the DQ7 unpack is the minimum for this fragment layout: the four A registers
+   need translates of the bit set {6, 7, 8, 15} that cannot tile Z/16 (translates by 0, 3 and 6 leave {0, 1, 3, 4},
+   which is not a translate), so one register always needs two shifted sources. DQ stays 0.
+2. ptxas raised no register budget for the consumer: `setmaxnreg` sat in a branch before the role dispatch, so the
+   consumer region was not dominated by the `inc` and was compiled at the launch count (96) with the 64-register
+   B cache spilling 40 to 104 bytes. In addition the first build asked `inc 112` on 16 warps while the 4 other warps'
+   `dec 64` released only 4,096 registers of the 640 x 96 launch allocation; `inc` draws only on registers released
+   inside the CTA, so the consumer warpgroups blocked for 2.5 hours at 100% GPU until killed. The split is now
+   computed from the launch total (112 / 32 at NCW = 16, staging warps keep 4 pieces in flight instead of 8) and
+   each role branch starts with its own `setmaxnreg`.
+
+Diagnostics in round 1 (v1 structure, spilling, T = 8 math-only): no mma 19.42 us, no E2M1 unpack 20.14, no unpack
+and no scale multiply 20.67, no B loads 23.71, against 24.83 for v1 and 20.96 for the control. Removing any one
+class of the loop's instructions leaves 19.4 to 20.7 us: the loop is not bound by the ALU, the FMA pipe or the
+tensor pipe alone. Round 2 removes what the modes share (the code loads, the per-stage barrier wait).
+
+### Round 2: setmaxnreg per role branch, instruction-class diagnostics
+
+v2 is round 1 with DQ 0, the fence, `setmaxnreg` at the start of each role branch (112 / 32 at NCW = 16). ptxas
+still compiled the consumer at 96 registers with 32 bytes of stack: once a kernel contains `setmaxnreg.dec` values,
+ptxas' budget for the whole kernel is contaminated (a no-op 96 / 96 pair spills 128 bytes, 112 / 24 spills more).
+With a 4-chunk B cache v2 is 24.16 us math-only, 26.78 no exchange; without the cache 21.98 / 28.82 (T = 32:
+27.90 / 30.51 and 28.11 / 30.26, control 27.97 / 29.97).
+
+Instruction-class diagnostics on v2 (T = 8 math-only; each removes one class, numerics discarded):
+
+| removed | us |
+|---|---:|
+| nothing (v2) | 24.16 |
+| E2M1 unpack (DIAG 2) | 20.06 |
+| unpack and scale multiply (DIAG 3) | 20.42 |
+| mma (one FADD per tile instead, DIAG 4) | 19.22 |
+| code and scale LDS (lane constants, DIAG 5) | 19.95 |
+| the per-stage full-barrier wait (DIAG 6) | 22.64 |
+
+Every class removed alone leaves 19 to 23 us against a 14.85 us floor: no single pipe is saturated. Per unit-block
+one warp issues about 554 instructions in 1.14 us (about 2,100 cycles at 1.85 GHz), 1 instruction per 3.8 cycles,
+with 4 consumer warps per SMSP sharing one issue slot per cycle: the SMSP issues on about 1 cycle in 4. The loop is
+bound by dependent-chain latency per warp with too few registers to look further ahead, which is why removing any
+class shortens the chain by a similar amount and why adding the B cache (fewer LDS, more live registers) loses.
+
+### Round 3: 18-warp roster (96 registers without setmaxnreg), B cache depth, accumulator placement
+
+At NCW = 16 the roster is now 18 warps (16 consumers, the producer warp that also runs the epilogue, 1 staging
+warp): 576 threads give the consumer 96 registers without `setmaxnreg` and ptxas reports "Used 96 registers" for
+the kernel still (no raise from the lower launch cap). v3 variants, T = 8 (NCW 16) and T = 32 (NCW 8, 168 regs):
+
+| variant | consumer reg / stack (T 8) | T 8 math-only us | T 8 no-exchange us | T 32 math-only us | T 32 no-exchange us |
+|---|---|---:|---:|---:|---:|
+| control | 96 / 0 | 20.96 | 26.11 | 27.97 | 29.97 |
+| v3 (4-chunk B cache, acc in smem) | 96 / 8 | 24.24 | 27.78 | 28.08 | 30.62 |
+| v3 BREG 0 (no cache, acc in smem) | 94 / 0 | 22.42 | 28.45 | 27.66 | 30.51 |
+| v3 BREG 0, acc in registers | 94 / 0 | 22.02 | 26.72 | 27.89 | 30.19 |
+| v3 BREG 6 | 96 / 88 (T 32: 744) | 26.82 | 29.71 | 32.74 | 35.49 |
+| v3 BREG 8 (whole K block) | 96 / 80 (T 32: 984) | 28.26 | 30.24 | 36.64 | 42.72 |
+
+The B-fragment cache loses at every depth: at 16 warps the 96-register cap leaves no room (every cached chunk
+costs 8 registers per n-tile, and the spills land in the loop), and at 8 warps NTT = 4 needs 32 registers per
+chunk. Accumulators in shared memory (float4 read-modify-write per stage instead of a register rotation) cost 0.4 us
+math-only and 1.7 us with loads on; the register form is the default now (`CLB_ACC_SMEM 0`). The remaining 1.1 us
+between the best v3 build (22.02) and the control (20.96) is the restructure itself (rolled stage loop through
+`consume_block`, the proxy fence, `__syncwarp` before the release); round 4 attributes the fence.
+
+### Round 4: two unit-blocks per warp, 8 consumer warps at T = 8, the fence
+
+`CLB_UPW 2` gives each warp two unit-blocks per stage (4 warps per stage group): each chunk's B fragments are
+loaded once for both units and the warp carries 8 independent accumulator chains, the most independent work per
+warp that fits the register cap. Register accumulators throughout.
+
+| variant | T, NCW | consumer reg / stack | math-only us | no-exchange us |
+|---|---|---|---:|---:|
+| control | 8, 16 | 96 / 0 | 20.96 | 26.11 |
+| v3 BREG 0 (one unit per warp) | 8, 16 | 94 / 0 | 22.02 | 26.72 |
+| v3 BREG 0, no proxy fence (diagnosis only) | 8, 16 | 94 / 0 | 21.97 | 26.75 |
+| v3 BREG 0 | 8, 8 | 94 / 0 | 24.64 | 27.54 |
+| UPW 2 | 8, 8 | 96 / 24 | 25.04 | 30.06 |
+| UPW 2 | 8, 16 | 96 / 24 | 23.10 | 29.17 |
+| control | 32, 8 | 168 / 0 | 27.97 | 29.97 |
+| UPW 2 | 32, 8 | 168 / 632 | 28.83 | 33.54 |
+
+Two units per warp lose at both warp counts: at 96 registers the second unit's codes, scales and chains spill
+(24 bytes of stack at T = 8, 632 at T = 32), and the saved LDS (B fragments, 0.36 against 0.6 per HMMA) were never
+the bound. 8 consumer warps at T = 8 cost 2.6 us against 16 whatever the loop: at this latency per warp the SMSP
+needs 4 resident consumer warps to fill its issue slots. The proxy fence at the slot release is free (21.97 against
+22.02, within noise), so it stays.
+
+What the 1.0 us between v3 and the control is: the v3 consumer ran one rolled stage loop per chunk-range variant
+(`consume_block<CLO, CHI>`, so the B cache could be loaded once per block) with the stage wait, the fence and the
+release inside each; the control runs a single rolled loop with the variant dispatch inside the loop body. The
+first-to-last-HMMA region holds 17.9 instructions per HMMA in v3 against 15.7 in the control (IMAD 2.56 against
+1.89, 24 ISETP and 16 BRA against 2 BRA), the per-variant loop prologues and address recomputation. Round 5 puts
+the loop back in the control's shape with `clu::unit_block` as the body.
+
+### Round 5: the control's loop shape with `clu::unit_block` as the body
+
+v5 is the consumer of the control (one rolled stage loop per K block, the chunk-range dispatch inside, register
+accumulator rotation) with the stage body from cl_unit_loop.cuh, the CL-1.1 proxy fence at the slot release and
+the 20-warp roster. The B cache and shared-memory accumulators are removed; `CLB_UPW`, `CLB_LOOP_DQ`,
+`CLB_LOOP_DIAG` and `CLB_ROSTER18` remain as knobs (all default to the control's form).
+
+| build | T, NCW | reg / stack | HMMA-region instr per HMMA | math-only us | no-exchange us |
+|---|---|---|---:|---:|---:|
+| control b1f1894d | 8, 16 | 96 / 0 | 15.7 | 20.96 | 26.11 |
+| v5 | 8, 16 | 96 / 0 | 15.7 (same opcode mix) | 21.12 [20.70-22.62] | 26.26 [25.70-27.90] |
+| v5 ROSTER18 (18 warps) | 8, 16 | 96 / 0 | 16.1 | 22.24 | 26.82 |
+| control | 32, 8 | 168 / 0 | 11.9 | 27.97 | 29.97 |
+| v5 | 32, 8 | 168 / 0 | 11.9 | 27.87 [25.89-36.26] | 30.10 [28.61-41.06] |
+
+v5 equals the control within the session spread (about 1%) in all four cells; the 18-warp roster costs 1.1 us at
+T = 8 and is ruled out. tests/test_phase_b.py on the v5 build (profiles/1.3a/v5_test.json): part A 18 / 18 pass,
+part B 64 cells with mismatch counts identical to CL-1.2's profiles/1.2/test.json cell by cell (raw sums, ybuf
+and per-unit sums of squares bitwise equal to helper0 where the slice K ranges match: 0 mismatches in every S = 1
+natural-order and S = 8 cell).
+
+### Round 6: 24 consumer warps at 72 registers (the decisive test of the latency hypothesis)
+
+Rounds 2 to 4 read as "per-warp dependent-chain latency with 4 consumer warps per SMSP". The decisive test is
+more warps per SMSP at the same loop: NCW = 24 (3 stage groups of 8 warps, 28 warps per CTA, 896 threads, 72
+registers at the launch bound). The group's stage count per K block then varies (4 stages over 3 groups), so the
+per-unit sums live in 16 KB of shared memory (float4 read-modify-write per stage) and the epilogue walks the units
+(`ACC_SMEM` in `consumer`, chosen at compile time from `SPB % NG`). The launch-bound probe first: the 16-warp
+kernel compiled at 896 threads spills 4 / 12 bytes (72 registers) and at 1,024 threads 28 / 24 bytes.
+
+| NCW (T = 8) | warps per SMSP | reg / stack | HMMA-region instr | math-only us | per stage us | no-exchange us |
+|---|---|---|---:|---:|---:|---:|
+| 16 (v6) | 4 | 96 / 0 | 1,001 | 21.25 [20.83-21.86] | (20.75 - 2.85) / 16 = 1.12 | 26.16 |
+| 24 (v6) | 6 | 72 / 16 | 1,005 | 21.92 [21.57-22.98] | (21.18 - 3.21) / 16 = 1.12 | 26.51 |
+
+Six warps per SMSP run the same loop body at the same stage rate as four: 1.12 us per stage either way, with each
+warp now taking 1.5x longer per unit-block. The SM's throughput for this instruction mix is fixed, which rules
+out the latency reading: the loop is at a throughput ceiling of the SMSP, about 0.5 warp-instructions per cycle
+(8 unit-blocks x 1,001 / 2 = 4,000 warp-instructions per stage per SM, 2,070 cycles at 1.85 GHz, 4 SMSPs). The
+0.6 us the 24-warp roster loses is the slower slab load and gather with 72-register staging warps (first stage
+3.21 against 2.85) and the shared-memory accumulator traffic.
+
+What this means for the target: at 1.12 us per stage the math-only T = 8 span is 2.85 + 16 x 1.12 = 20.8 us, and
+the 14.85 us byte floor needs 0.75 us per stage, one third fewer instructions per unit-block at the same issue
+rate. The mix is 46% E2M1 unpack (LOP3 + SHF, 9 ops per code word, minimal for this fragment layout by the
+bit-set argument in round 1), 25% scale multiply (4 HMUL2 per mma, required for bitwise identity with helper0),
+12% loads and address arithmetic, 6% mma. No scheduling of the same instructions reaches the floor; only a
+shorter decode would, and that is either a different weight layout (not available) or a non-bitwise numerics
+change (the per-row scale applied to the accumulators once per chunk instead of to the A fragments).
+
+The non-bitwise lever measured as a diagnostic (DIAG 7: unpack kept, the 4 HMUL2 per mma replaced by 2 XORs,
+numerics garbage): 19.52 us [19.10-20.67], 1.01 us per stage, 93 registers. Dropping a quarter of the loop's
+instructions buys 1.7 us (9% of the consumer span), so even a numerics change on the scale path leaves T = 8
+math-only at about 19.5 us; the floor is out of reach for the mma.sync form at T <= 8 with this decode.
+
+### Verdict
+
+The control loop stands at T <= 8: v5/v6 (the control's loop shape with `clu::unit_block` as the body, the CL-1.1
+proxy fence at the slot release, register accumulator rotation, 20-warp roster, 16 consumer warps) measures
+21.12 to 21.25 us math-only and 26.16 to 26.26 us no-exchange at T = 8 (control 20.96 / 26.11, session spread
+about 1%), 27.87 / 30.10 at T = 32 (control 27.97 / 29.97); floor ratios 1.43 and 1.76 at T = 8, 1.88 and 2.03 at
+T = 32. tests/test_phase_b.py: part A 18 / 18, part B mismatch counts identical to CL-1.2 cell by cell.
+
+The loop structure for task 1.3b (helper0 port) is the one helper0 already has: per chunk, one LDS.128 of codes
+and the two LDS.128 of B fragments, 4 k16 steps of 9-op DQ7 unpack + 4 HMUL2 + 1 mma into 4 chains, chains
+combined c0 + ((c1 + c2) + c3) per unit, one unit-block per warp per stage, the stage loop rolled with the
+chunk-range dispatch inside, 4 consumer warps per SMSP. Every departure measured here (B cache, two units per
+warp, IMAD merge, 8 or 24 consumer warps, setmaxnreg splits, 18-warp roster, per-variant loops, shared-memory
+sums) is slower or equal. The 1.3a deliverables that carry forward are the header (`cl_unit_loop.cuh`, the loop as
+a template phase A can include), the census tooling (`--census`, `--defines`), the fence at the slot release, and
+the throughput finding: T <= 8 is instruction-bound at about 0.5 warp-instructions per SMSP cycle, so the plan's
+floor for the mma.sync form is 20.8 us math-only, and the gain at T >= 16 has to come from the wgmma form that
+amortizes the decode over 4 n-tiles (11.9 instructions per HMMA at T = 32 against 15.7 at T = 8).

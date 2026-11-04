@@ -1,0 +1,13 @@
+START 10:33:07 v5_r18 cl13a CLB_ROSTER18=1
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 49.8 s; defines ['CLB_ROSTER18=1']; sha cl_phase_b.cuh 84dfa1b81222a721 cl_math.cuh 0795eb99a2e29149 cl_schedule.h 8a5714cf88767414 cl_unit_loop.cuh c5017a1adc153904 bench f2f41bdd2f6a51a9
+SASS _ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6Para reg 168 stack 0 total 10992 hmma 640 per-hmma LOP3 2.08, HMUL2 1.59, SHF 1.41, IMAD 1.07, HMMA 1.0, FADD 0.98, LDS 0.59, FMUL 0.57, STS 0.56, SHFL 0.34, F2F 0.26, MOV 0.21
+SASS _ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6Para reg 96 stack 0 total 4952 hmma 64 per-hmma LOP3 4.84, HMUL2 3.91, SHF 2.8, IMAD 1.5, HMMA 1.0, LDS 0.69, PRMT 0.47, FADD 0.42, BRA 0.03, WARPSYNC 0.03
+LOCK acquired after 0.0 s
+APPS none
+BENCH T=8 distinct=7 policy=fill15 ncw=16 slices=15 sc_max=256 depth=4 smem=168192 floor 14.85 us inputs [1000, 1017, 1020, 1022, 1025] synthetic=False
+RUN T= 8 compute span  22.24 [21.73-23.52] us ratio 1.498 from-slab 20.48 (1.380) event  27.74 | slab-load 1.89 cons 21.71 slab-pub 2.28 first-stage 2.88 gather-end 12.70 | cons wait on gather med 2.06 max 3.17, on weights 0.77 | end spread 5.70
+RUN T= 8 none    span  26.82 [26.14-29.57] us ratio 1.806 from-slab 25.09 (1.690) event  32.35 | slab-load 1.86 cons 25.26 slab-pub 2.82 first-stage 3.77 gather-end 15.11 | cons wait on gather med 2.56 max 4.43, on weights 5.77 | end spread 6.40
+LOCK released
+END 10:34:01 rc 0

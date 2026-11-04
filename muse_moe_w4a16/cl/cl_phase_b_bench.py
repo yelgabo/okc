@@ -77,10 +77,15 @@ def sha(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest()
 
 
-def build(verbose=False):
+DEPS = ("cl_phase_b.cuh", "cl_math.cuh", "cl_schedule.h", "cl_unit_loop.cuh")
+
+
+def build(verbose=False, defines=()):
+    """defines: loop knobs as NAME=VALUE strings (CLB_LOOP_DQ, CLB_LOOP_DIAG, CLB_UPW, CLB_NREG16, CLB_ROSTER18); each
+    set gets its own build directory."""
     from torch.utils.cpp_extension import load
-    deps = [os.path.join(HERE, f) for f in ("cl_phase_b.cuh", "cl_math.cuh", "cl_schedule.h")]
-    tag = hashlib.md5(b"".join(open(f, "rb").read() for f in deps)).hexdigest()[:12]
+    deps = [os.path.join(HERE, f) for f in DEPS]
+    tag = hashlib.md5(b"".join(open(f, "rb").read() for f in deps) + ",".join(defines).encode()).hexdigest()[:12]
     bdir = os.path.expanduser(f"~/.cache/clb_ext/{tag}")
     os.makedirs(bdir, exist_ok=True)
     src = os.path.join(bdir, "clb.cu")
@@ -89,7 +94,37 @@ def build(verbose=False):
     # The helper0 flags (-O3, sm_90a, no fast-math, no ftz): cl_math.cuh's bitwise claim depends on them.
     return load(name=f"clb_{tag}", sources=[src], build_directory=bdir, extra_include_paths=[HERE],
                 extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a", "-lineinfo",
-                                   "-Xptxas", "-v"], verbose=verbose)
+                                   "-Xptxas", "-v"] + [f"-D{d}" for d in defines], verbose=verbose)
+
+
+def loop_census(ext, want=("ILi8ELi16ELb0", "ILi32ELi8ELb0")):
+    """Registers, stack (spills) and the opcode mix of the plain kernels' consumer region (first to last HMMA),
+    per HMMA, so a full unit-block (32 HMMA per warp) is 32 x the per-HMMA numbers. The region holds the three
+    chunk-range variants (8, 4, 4 chunks), so the counts per HMMA are the mean over them."""
+    import re
+    import subprocess
+    from collections import Counter
+    so = ext.__file__
+    res = subprocess.run(["cuobjdump", "-res-usage", so], capture_output=True, text=True).stdout
+    sass = subprocess.run(["cuobjdump", "-sass", so], capture_output=True, text=True).stdout
+    out = {}
+    for blk in sass.split("Function : ")[1:]:
+        name = blk.split("\n")[0].strip()
+        if not any(w in name for w in want):
+            continue
+        ops = [m.group(1) for m in re.finditer(r"^\s+/\*[0-9a-f]+\*/\s+(?:@!?U?P\d\s+)?([A-Z][A-Z0-9_]*)", blk, re.M)]
+        hm = [i for i, o in enumerate(ops) if o == "HMMA"]
+        reg = re.search(re.escape(name) + r"[^\n]*\n\s*REG:(\d+) STACK:(\d+)", res)
+        row = {"reg": int(reg.group(1)) if reg else None, "stack": int(reg.group(2)) if reg else None,
+               "total": len(ops), "hmma": len(hm)}
+        if hm:
+            region = Counter(ops[hm[0]:hm[-1] + 1])
+            row["region"] = dict(region)
+            row["per_hmma"] = {k: round(v / len(hm), 2) for k, v in region.most_common(12)}
+        out[name] = row
+        print(f"SASS {name[:48]} reg {row['reg']} stack {row['stack']} total {row['total']} hmma {row['hmma']} "
+              f"per-hmma " + ", ".join(f"{k} {v}" for k, v in row.get("per_hmma", {}).items()), flush=True)
+    return out
 
 
 def sass_check():
@@ -389,6 +424,8 @@ def main():
     ap.add_argument("--ncw", default="", help="comma list of consumer warp counts (8, 16 at T <= 8); default per T")
     ap.add_argument("--max-scan", type=int, default=3000)
     ap.add_argument("--sass-check", action="store_true", help="only the consumer-path fence census")
+    ap.add_argument("--defines", default="", help="comma list of loop knobs, e.g. CLB_LOOP_DQ=0,CLB_NREG16=0")
+    ap.add_argument("--census", action="store_true", help="print registers and the consumer opcode mix per HMMA")
     a = ap.parse_args()
     if a.sass_check:
         res = sass_check()
@@ -397,12 +434,16 @@ def main():
                 json.dump(res, f, indent=1)
         return
     t = time.monotonic()
-    ext = build()
-    print(f"BUILD {time.monotonic() - t:.1f} s; sha cl_phase_b.cuh {sha(os.path.join(HERE, 'cl_phase_b.cuh'))[:16]} "
-          f"bench {sha(os.path.abspath(__file__))[:16]}", flush=True)
+    defines = tuple(x for x in a.defines.split(",") if x)
+    ext = build(defines=defines)
+    print(f"BUILD {time.monotonic() - t:.1f} s; defines {list(defines)}; sha " +
+          " ".join(f"{f} {sha(os.path.join(HERE, f))[:16]}" for f in DEPS) + f" bench {sha(os.path.abspath(__file__))[:16]}",
+          flush=True)
+    out = {"argv": sys.argv, "defines": list(defines),
+           "sha": {f: sha(os.path.join(HERE, f)) for f in DEPS + ("cl_phase_b_bench.py",)}, "runs": []}
+    if a.census:
+        out["census"] = loop_census(ext)
     import reference as ref
-    out = {"argv": sys.argv, "sha": {f: sha(os.path.join(HERE, f)) for f in ("cl_phase_b.cuh", "cl_phase_b_bench.py")},
-           "runs": []}
     with GpuLock(a.lock):
         _, _, w2u, w2gs, normw = prep_weights()
         for T in [int(x) for x in a.T.split(",")]:

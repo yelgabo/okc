@@ -1,0 +1,13 @@
+START 10:27:45 v4_upw1_n8 cl13a CLB_LOOP_BREG=0,CLB_ACC_SMEM=0
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 50.4 s; defines ['CLB_LOOP_BREG=0', 'CLB_ACC_SMEM=0']; sha cl_phase_b.cuh f885a6ebbb5314b0 cl_math.cuh 0795eb99a2e29149 cl_schedule.h 8a5714cf88767414 cl_unit_loop.cuh c5017a1adc153904 bench aa8e4b1d949b5dff
+SASS _ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6Para reg 168 stack 0 total 12384 hmma 640 per-hmma LOP3 2.16, IMAD 1.7, HMUL2 1.59, SHF 1.38, FADD 1.1, HMMA 1.0, LDS 0.6, FMUL 0.57, STS 0.56, MOV 0.52, SHFL 0.34, ISETP 0.28
+SASS _ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6Para reg 94 stack 0 total 5208 hmma 64 per-hmma LOP3 5.03, HMUL2 3.88, SHF 2.61, IMAD 2.56, HMMA 1.0, LDS 0.7, FADD 0.53, PRMT 0.45, ISETP 0.38, BRA 0.25, MOV 0.25, IADD3 0.22
+LOCK acquired after 0.0 s
+APPS none
+BENCH T=8 distinct=7 policy=fill15 ncw=8 slices=15 sc_max=256 depth=4 smem=168192 floor 14.85 us inputs [1000, 1017, 1020, 1022, 1025] synthetic=False
+RUN T= 8 compute span  24.64 [24.19-25.47] us ratio 1.660 from-slab 22.75 (1.533) event  30.14 | slab-load 1.86 cons 24.10 slab-pub 2.26 first-stage 2.82 gather-end 13.76 | cons wait on gather med 1.79 max 2.59, on weights 1.22 | end spread 6.58
+RUN T= 8 none    span  27.54 [26.75-30.37] us ratio 1.855 from-slab 25.70 (1.731) event  32.98 | slab-load 1.82 cons 26.99 slab-pub 2.40 first-stage 3.78 gather-end 14.82 | cons wait on gather med 1.92 max 3.66, on weights 2.68 | end spread 6.96
+LOCK released
+END 10:28:39 rc 0

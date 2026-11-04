@@ -1,0 +1,47 @@
+/root/okc/muse_moe_w4a16/cl13a/cl_phase_b.cuh(326): warning #177-D: variable "k16" was declared but never referenced
+    const uint32_t k16 = 16u + p.zero;
+                   ^
+          detected during:
+            instantiation of "void clb::phase_b_kernel<TM,NCW,DBG>(clb::Params) [with TM=8, NCW=16, DBG=true]" at line 623
+            instantiation of "void clb_launch_t<TM,NCW,DBG>(const clb::Params &, int, int, cudaStream_t) [with TM=8, NCW=16, DBG=true]" at line 665
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/root/okc/muse_moe_w4a16/cl13a/cl_phase_b.cuh(327): warning #177-D: variable "D" was declared but never referenced
+    const int D = p.depth;
+              ^
+          detected during:
+            instantiation of "void clb::phase_b_kernel<TM,NCW,DBG>(clb::Params) [with TM=8, NCW=16, DBG=true]" at line 623
+            instantiation of "void clb_launch_t<TM,NCW,DBG>(const clb::Params &, int, int, cudaStream_t) [with TM=8, NCW=16, DBG=true]" at line 665
+
+ptxas info    : 28 bytes gmem
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 168 registers, used 2 barriers, 2048 bytes smem
+ptxas info    : Compile time = 851.961 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi32ELi8ELb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi32ELi8ELb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 168 registers, used 2 barriers, 2048 bytes smem
+ptxas info    : Compile time = 998.456 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi8ELi8ELb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi8ELi8ELb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 168 registers, used 2 barriers, 1024 bytes smem
+ptxas info    : Compile time = 228.190 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi8ELi8ELb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi8ELi8ELb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 168 registers, used 2 barriers, 1024 bytes smem
+ptxas info    : Compile time = 233.893 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6ParamsE
+    32 bytes stack frame, 40 bytes spill stores, 96 bytes spill loads
+ptxas info    : Used 96 registers, used 2 barriers, 32 bytes cumulative stack size, 1024 bytes smem
+ptxas info    : Compile time = 192.342 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi8ELi16ELb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi8ELi16ELb1EEEvNS_6ParamsE
+    24 bytes stack frame, 36 bytes spill stores, 48 bytes spill loads
+ptxas info    : Used 96 registers, used 2 barriers, 24 bytes cumulative stack size, 1024 bytes smem
+ptxas info    : Compile time = 195.608 ms
