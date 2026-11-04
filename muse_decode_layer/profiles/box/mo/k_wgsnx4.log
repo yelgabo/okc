@@ -1,0 +1,81 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793754340.716 acquire start after 6.3 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793754341.628 release build glue_moe_a6dc157b7755773e_sm90a
+BXBUILD 1793754341.628 start build glue_moe_a6dc157b7755773e_sm90a
+BXBUILD 1793754341.629 start build glue_moe_ab42c534201c4231_sm90a
+BXBUILD 1793754341.630 start build glue_moe_68334f6c64e54607_sm90a
+BXBUILD 1793754341.630 start build glue_moe_f944e253e5739051_sm90a
+BXBUILD 1793754341.631 start build glue_moe_6a4581a6e07da552_sm90a
+BXBUILD 1793754380.259 end build glue_moe_ab42c534201c4231_sm90a
+BXBUILD 1793754381.083 end build glue_moe_6a4581a6e07da552_sm90a
+BXBUILD 1793754382.139 end build glue_moe_a6dc157b7755773e_sm90a
+BXBUILD 1793754397.218 end build glue_moe_f944e253e5739051_sm90a
+BXBUILD 1793754398.731 end build glue_moe_68334f6c64e54607_sm90a
+BXLOCK 1793754398.731 acquire build glue_moe_68334f6c64e54607_sm90a done after 0.0 s
+Traceback (most recent call last):
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 16844, in _ma_prepare
+    _fork_native_moe(m,st).okc_run(st['ma_w'],st['ma_scratch'],x,ids,tw,out,0,32,
+RuntimeError: FORK_MOE_RESOURCE dynamic shared-memory attribute
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/okc/tools/bx_box_run.py", line 642, in <module>
+    main()
+  File "/root/okc/tools/bx_box_run.py", line 504, in main
+    state = mod.prepare(weights) if hasattr(mod, "prepare") else None
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 18064, in prepare
+    st = _pdl8_prior_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 17237, in prepare
+    state = _release_normal_prepare(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 16863, in prepare
+    state=_g1a_prepare(weights)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 16735, in prepare
+    st = _pin_parent_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 16730, in prepare
+    return _gle_prior_prepare(weights)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 16204, in prepare
+    state = _router_fp32_native_parent_prepare(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 16113, in prepare
+    st = _router_fp32_parent_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 15971, in prepare
+    return _DE_PREPARE(weights)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 15736, in prepare
+    st=_sl_previous_prepare(weights)
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 15314, in prepare
+    st=_policy_parent_prepare(weights)
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 15281, in prepare
+    st = _stack_unpinned_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 12451, in prepare
+    st = _vj_prepare(weights)   # the base tuner runs first, on the base kernels (no "graft" keys yet)
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 11178, in prepare
+    _ma_prepare(weights, st)
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 16849, in _ma_prepare
+    return _fork_install_fallback(weights, st, str(exc)[-300:])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 16810, in _fork_install_fallback
+    _fork_prepare_marlin(weights, st)
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 16781, in _fork_prepare_marlin
+    st['_fork_marlin_bank']=_marlin_bank(weights)  # clones before SGLang loader mutates layouts
+                            ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_wgsnx4.py", line 10872, in _marlin_bank
+    w13_weight=weights["w13"].contiguous().clone(),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+

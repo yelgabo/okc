@@ -1,0 +1,21 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793754764.493 acquire start after 179.1 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 8.1 s
+BOX baseline import+prepare 0.0 s
+BOX decode 16 sliding: raw 135.01 net 131.33 us (overhead 3.68) | sglang raw 275.34 paired 2.116 shown 128.39 | judge net 127.89 (n=1, 127.89-127.89) box/judge 1.027 | sglang box/judge 271.66/258.48 = 1.051 | check PASS
+BOX decode 16 full: raw 211.89 net 208.11 us (overhead 3.78) | sglang raw 458.80 paired 2.183 shown 208.43 | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.989 | sglang box/judge 455.02/438.27 = 1.038 | check PASS
+BOX decode 32 sliding: raw 151.58 net 147.55 us (overhead 4.03) | sglang raw 275.81 paired 1.842 shown 147.54 | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.981 | sglang box/judge 271.78/261.58 = 1.039 | check PASS
+BOX decode 32 full: raw 302.08 net 298.14 us (overhead 3.94) | sglang raw 632.99 paired 2.106 shown 298.63 | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.979 | sglang box/judge 629.06/617.84 = 1.018 | check PASS
+BOX verify 1 sliding: raw 108.83 net 104.77 us (overhead 4.06) | sglang raw 276.42 paired 2.602 shown 104.68 | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.986 | sglang box/judge 272.35/262.96 = 1.036 | check PASS
+BOX verify 1 full: raw 121.28 net 117.41 us (overhead 3.87) | sglang raw 298.90 paired 2.489 shown 118.55 | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.985 | sglang box/judge 295.02/282.94 = 1.043 | check PASS
+BOX verify 16 sliding: raw 247.54 net 243.57 us (overhead 3.97) | sglang raw 532.74 paired 2.195 shown 240.95 | judge net 250.02 (n=1, 250.02-250.02) box/judge 0.974 | sglang box/judge 528.77/528.18 = 1.001 | check PASS
+BOX verify 16 full: raw 328.05 net 323.92 us (overhead 4.13) | sglang raw 705.97 paired 2.142 shown 327.60 | judge net 335.01 (n=1, 335.01-335.01) box/judge 0.967 | sglang box/judge 701.84/710.61 = 0.988 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 160 hits, 0 computed
+BXPHASE import_torch=180.45 load_reference_cuda_init=0.00 weights_and_router=0.24 prepare_submission=8.07 prepare_baseline=0.03 fresh_inputs=1.20 check=0.83 capture=0.26 overhead_graphs=0.87 replays=0.27 cell_tail=0.06 json_write=0.00 total=192.28

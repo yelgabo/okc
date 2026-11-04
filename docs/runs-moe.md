@@ -6031,3 +6031,89 @@ inputs: decode 1 0.72 / 0.68 skippable experts per input (43 / 60 and 41 / 60 in
 plus 1.8% (verify 1, 0.144%/us) of the layer score. It applies to the layer only: the standalone MoE problem
 receives its routes as inputs. It changes which experts the model uses, away from SGLang's exact top 8,
 so it is a rules and intent decision for the user, not a lane decision; nothing is built.
+
+## 2026-11-04 - MoE knob sweep on the box
+
+I swept the fused MoE's own knobs inside the layer file one at a time on g1b4_pdl8h (33c2353b). No knob
+beats pdl8h on any swept cell. With no winners there is nothing to stack, so I wrote no mo_combo.py and
+ran no combo A/B. No judge quota was used.
+
+Method. Each knob is one build written by `tools/dl_mo_knob.py <knob>` (muse_decode_layer/cand/mo_<knob>.py,
+pdl8h plus one textual edit; the files are not committed and the tool rebuilds them). Every run is one
+`tools/bx_box_run.py` call on okc-h200 with `--pin-pdl8 1,8,16,32 --skip-pdl8-gate --runs 20`, the f931 case
+seeds, router seed 106218864389449120, local_start per input (`--ls-cache`), `--ext-cache` and
+`--lock /root/okc/.build/box/gpu.lock`. Cells are decode 16 and 32 and verify 1 and 16; the control runs
+also covered decode 1 and verify 32. The builds that serve these cells in pdl8h are TINY2 at verify 1 (8 tokens),
+MID at decode 16, B4 at decode 32 and MAIN (WGS) at verify 16. Each knob is compared with the control run
+nearest to it in time, using `tools/mo_ab.py`. The paired delta is the median over the 20 inputs of
+(knob minus control) on the same seed. Logs are in `muse_decode_layer/profiles/box/mo/`.
+
+Threshold. Eight pdl8h control runs (ctlA to ctlF, f_ctl1, f_ctl2) give 1 to 28 control pairs per cell.
+The spread is the largest |paired delta| over those pairs. A knob wins or loses a cell when its delta
+exceeds max(2 x spread, floor), where the floor is 0.5 us at decode 1 and verify 1 and 1% of the cell at
+the long loads.
+
+| cell | control pairs | control-vs-control paired delta | spread | threshold |
+|---|---:|---|---:|---:|
+| decode 1 sliding / full | 1 | -0.18 / -0.21 | 0.18 / 0.21 | 0.50 / 0.50 |
+| decode 16 sliding / full | 15 | -0.86 to +0.40 / -0.67 to +0.45 | 0.86 / 0.67 | 1.73 / 2.08 |
+| decode 32 sliding / full | 28 | -1.41 to +1.23 / -1.52 to +0.45 | 1.41 / 1.52 | 2.82 / 3.04 |
+| verify 1 sliding / full | 15 | -1.22 to +0.88 / -0.99 to +0.61 | 1.22 / 0.99 | 2.43 / 1.98 |
+| verify 16 sliding / full | 28 | -1.38 to +1.28 / -1.74 to +1.82 | 1.38 / 1.82 | 2.75 / 3.65 |
+| verify 32 sliding / full | 6 | -0.64 to +0.14 / -1.79 to +1.33 | 0.64 / 1.79 | 2.98 / 4.63 |
+
+Control medians in us (ctlA): decode 16 131.9 / 207.8, decode 32 146.3 / 298.6, verify 1 104.6 / 117.3,
+verify 16 241.5 / 324.1 (sliding / full).
+
+Knobs. Each entry is the paired delta in us (sliding / full); L means beyond the threshold and slower,
+and no knob reached a W.
+
+| knob | setting | control | decode 16 | decode 32 | verify 1 | verify 16 | decision |
+|---|---|---|---:|---:|---:|---:|---|
+| mid8 | MOE_MID_MAX_M 16 -> 8: decode 16 on MAIN | ctlF | +2.72 L / +3.84 L | -1.31 / -0.50 | +0.32 / +0.19 | -1.14 / +0.10 | loss |
+| mid32 | MOE_MID_MAX_M 16 -> 32: decode 32 on MID | ctlF | +0.38 / +0.38 | +11.52 L / +9.20 L | -0.14 / +0.10 | -1.07 / -0.67 | loss |
+| nob4 | B4 range 16 < M <= 32 -> none: decode 32 on MAIN | ctlF | +0.75 / +0.85 | -0.32 / -0.37 | +0.26 / +0.38 | -0.61 / -0.11 | noise |
+| tiny2m4 | MOE_TINY2_MAX_M 8 -> 4: verify 1 on MID | ctlF | +0.06 / +0.06 | -0.40 / -0.30 | +1.50 / +1.55 | -1.12 / +1.54 | noise (slower, under the threshold) |
+| tiny8 | MOE_TINY_MAX_M 4 -> 8: verify 1 on TINY | ctlF | +0.46 / +0.30 | -1.18 / -0.40 | +0.16 / +0.06 | -0.45 / -0.61 | noise |
+| tiny2m16 | MOE_TINY2_MAX_M 8 -> 16: decode 16 on TINY2 | - | - | - | - | - | does not run: CUDA launch failure (TINY2 has no 16-token path) |
+| ns2 | _MA_MAIN_NS 3 -> 2 (unit ring slots, every build) | ctlF | +0.26 / -0.10 | -0.26 / +0.11 | +0.51 / +1.06 | -1.02 / +0.11 | noise |
+| ns4 | _MA_MAIN_NS 3 -> 4 | ctlF | -0.43 / +0.00 | -0.80 / +0.26 | +2.30 / +2.08 L | -0.77 / +0.72 | loss at verify 1 |
+| nsf4 | OKC_NSF 3 -> 4 (fat-unit slots) | - | - | - | - | - | does not run: FORK_MOE_RESOURCE dynamic shared memory |
+| midskt16 | MID + OKC_SKT=16 (skinny jobs up to 16 tokens) | ctlE | +0.61 / -0.10 | -1.58 / +0.53 | +0.77 / -0.05 | +0.58 / -0.58 | noise |
+| midwsblk1 | MID OKC_WSBLK 2 -> 1 | ctlD | -0.30 / -0.13 | -0.56 / +1.70 | -0.32 / +0.58 | +0.18 / +0.85 | noise |
+| midfinpf0 | MID OKC_FINPF 1 -> 0 | ctlD | +0.53 / +0.62 | -0.66 / +0.27 | -0.32 / +0.82 | -0.45 / +0.56 | noise |
+| tiny2wsblk2 | TINY2 OKC_WSBLK 1 -> 2 | ctlE | +0.42 / +0.85 | -2.21 / +1.47 | -0.00 / +0.19 | -0.14 / +0.21 | noise |
+| wgsnx4 | OKC_WGSNX 3 -> 4 (WGS x ring slots) | - | - | - | - | - | does not run: CUDA invalid argument (shared memory) |
+| gathb16 | OKC_GATHB 8 -> 16 (WGS x rows per gather batch) | ctlD | +0.51 / +0.03 | +3.86 L / +5.50 L | -0.24 / +0.53 | +11.81 L / +13.26 L | loss |
+| wgsfci3 | OKC_WGSFCI 4 -> 3 (deferred flush commit group) | ctlD | -0.38 / +0.38 | +0.06 / +1.06 | -0.51 / +0.10 | -1.10 / +1.66 | noise |
+| wgsfci5 | OKC_WGSFCI 4 -> 5 | ctlD | -0.42 / -0.46 | -0.75 / -1.12 | -0.24 / +0.69 | -1.07 / +2.34 | noise |
+| wgsub120 | OKC_WGSUB 140 -> 120 (phase B unit cost, A/B balance) | ctlE | +0.02 / +0.10 | -1.39 / -0.67 | +0.03 / -0.42 | -0.46 / -0.46 | noise |
+| wgsub160 | OKC_WGSUB 140 -> 160 | ctlE | +1.02 / +0.21 | -0.94 / +0.46 | +0.75 / -0.30 | +0.59 / -0.58 | noise |
+| wgsu140 | OKC_WGSU 160 -> 140 (phase A unit cost) | ctlE | +0.14 / +0.06 | -0.29 / -0.70 | +0.40 / -0.42 | -0.62 / +0.80 | noise |
+
+The build-pick knobs need pdl8h's prepare check, which wants exactly the five builds
+{tiny, tiny2, mid, b4, main}, relaxed to accept a subset of them. The tool adds that change to those six
+files only.
+
+Reading. The build picks in pdl8h are each at least as fast as the alternatives the file already has. The
+ring and WGS constants sit at a flat optimum: every change either does not run (the shared-memory limit)
+or moves a cell by less than the control spread. Gather batch 16 and ring slots 4 are clear losses. The
+single-knob space of these builds has nothing left above the box's noise.
+
+### Old-line MoE mode 51 on pdl8h
+
+Mode 51 ("main-lean-grp-finss64", tools/dl_moe_inline.py; layer_m1rt51.py's `final_ss` / `finss_on`) is mode 50
+switched on only from 64 tokens up. At 64 tokens or more, the phase-B epilogue writes y without its
+per-route sum-of-squares atomics, and the final pass forms each route's sum of squares from the rows
+(final_pass_ss). Below 64 tokens the old epilogue path stays, because one token per final-pass item would
+leave 100 of 132 CTAs idle at 32 tokens. pdl8h's WGS source already works this way: `OKC_WGSFINSS 1`
+("the final pass forms each route's sum of squares (the phase-B epilogue only writes y)") is on in the
+MAIN build that serves verify 16 / 32 (128 / 256 tokens). At 16 < M <= 32 (decode 32) the B4FIN build uses
+its own column-parallel final pass instead, which is the same split by token count that mode 51 makes. So
+the mechanism behind the revival lane's verify 32 gain on the old line is already in pdl8h, and
+re-expressing it would copy the file.
+
+The reverse test cannot run on this build. mo_wgsfinss0 (OKC_WGSFINSS 1 -> 0, the old mode-47 path) fails
+pdl8h's startup expert comparison ("G startup expert comparison failed (96408.25, 414519.90625)"): this
+source no longer keeps a working epilogue-sum path, so I could not measure what the final-pass sums are
+worth on pdl8h. f_ctl1 / f_ctl2 (decode 32, verify 16, verify 32) are kept as controls in the spread table.

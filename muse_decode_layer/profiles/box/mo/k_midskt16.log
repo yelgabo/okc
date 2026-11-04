@@ -1,0 +1,24 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793753950.970 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793753951.551 release build glue_moe_9993337a8d807d42_sm90a
+BXBUILD 1793753951.551 start build glue_moe_9993337a8d807d42_sm90a
+BXBUILD 1793753990.090 end build glue_moe_9993337a8d807d42_sm90a
+BXLOCK 1793754332.983 acquire build glue_moe_9993337a8d807d42_sm90a done after 342.9 s
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+Traceback (most recent call last):
+  File "/root/okc/tools/bx_box_run.py", line 642, in <module>
+    main()
+  File "/root/okc/tools/bx_box_run.py", line 504, in main
+    state = mod.prepare(weights) if hasattr(mod, "prepare") else None
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_midskt16.py", line 18064, in prepare
+    st = _pdl8_prior_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_midskt16.py", line 17238, in prepare
+    _release_expert_self_test(torch, weights, state, _moe, _fork_native_moe,
+  File "/root/okc/muse_decode_layer/cand/mo_midskt16.py", line 17169, in _release_expert_self_test
+    raise RuntimeError('G startup self-test exceeded prepare budget')
+RuntimeError: G startup self-test exceeded prepare budget
