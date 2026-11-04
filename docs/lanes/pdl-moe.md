@@ -1,0 +1,44 @@
+# Lane pdl-moe: route -> MoE as a PDL edge (checkpoint)
+
+Branch worktree-agent-a3c586c187190aa19. Last update 14:36 PT 2026-11-04.
+
+## Base
+
+muse_decode_layer/cand/ly_stk4.py, SHA256 a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e,
+19,066 lines.
+
+## Stamps read in the base
+
+- Line 102 `PDL = False`, so `_pdl(T)` is always False; every `if MOE_HAS_PDL: ext.okc_set_pdl(1 if _pdl(T) else 0)`
+  would set 0. Line 6957 `MOE_HAS_PDL = False`.
+- Both MoE sources keep `static int g_okc_pdl` and `okc_set_pdl` (main 6808-6810, alt 15291-15293), but the launch
+  ignores it: plain `cudaLaunchCooperativeKernel` (main 6905-6916, alt 15370-15373), after TORCH_CHECKs on sm_90,
+  `prop.cooperativeLaunch`, grid <= SMs, grid <= 136 and grid <= resident*SMs.
+- MoE kernel entry (main 6301-6308, alt 14889-14896): `griddepcontrol.wait` is the first statement after `DBG(0)`.
+  MoE trigger `griddepcontrol.launch_dependents` at 6525 / 15096.
+- Active layer path `_pdl8_sl_tile_after_attention` (18360-18427): route `_sl_tile_route_cg` launched with
+  `launch_pdl=_pdl8_edge("route")`; MoE call at 18403-18411. Graft path MoE call at 18485-18490.
+- Route kernel `_sl_tile_route_cg` (18147-18212): every CTA runs `_gdc_launch()` then `_gdc_wait()` at entry; only
+  optional PRELOAD constant loads come before the trigger.
+
+## Proofs
+
+1. Launch support (cooperative + programmatic attributes on one launch): PENDING standalone box test.
+2. Residency and progress: HOLDS by argument. A secondary grid is launched only after every primary CTA has executed
+   its trigger or exited, so every route CTA is already resident when the first MoE CTA can be scheduled; none is
+   pending behind a MoE CTA. Route and every earlier grid wait only on their own predecessors, never on the MoE, so
+   they finish and free their SMs; the MoE grid (state["nsm"] CTAs, one per SM by `__launch_bounds__(NTL,1)` and its
+   shared memory) then becomes fully resident before any CTA can pass the grid barrier. A MoE CTA cannot block a route
+   CTA. Open point that the box test must close: whether the driver still honours co-residency (cooperative) when
+   the launch also carries the programmatic attribute.
+3. Producer publication and consumer wait: HOLDS for the minimal patch (wait stays first). No global load precedes
+   `griddepcontrol.wait`: DBG writes p.dbg only with OKC_DEBUG and non-null dbg. Counters, parity and the
+   generation-indexed MFIN counters of B4 are read after the wait, which returns after route has completed and
+   flushed; by the chain of waits every earlier grid (previous MoE, unpooler) has completed too. Weight prefetch before
+   the wait is impossible here: the first weight units depend on topk_ids, which route writes.
+4. Route's trigger: at entry of every route CTA. It is needed (without it the MoE launches only at route's
+   completion and the edge buys only the launch latency); it is already there.
+
+## Next action
+
+Standalone test kernel on the box (eager and graph capture, cooperative-only control, watchdog).
