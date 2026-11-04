@@ -1,0 +1,29 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793778679.605 acquire start after 0.0 s
+TL8 bandwidth TB/s {'copy (read + write)': 4.275, 'sum (read)': 4.383}
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.42), ('sk2', 7.9), ('torch', 10.37)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+TL8 ma_w tensors [((134217728,), 'torch.int32'), ((67108864,), 'torch.uint8'), ((32,), 'torch.float32'), ((67108864,), 'torch.int32'), ((33554432,), 'torch.uint8'), ((32,), 'torch.float32'), ((256,), 'torch.int32'), ((4096,), 'torch.bfloat16'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((587202560,), 'torch.uint8'), ((293601280,), 'torch.uint8')] bytes 3598722304 per local expert 112460072.0
+TL8 verify 1 sliding n 20 medians plain_us 66.98 span 61.65 ramp 3.61 route 2.55 A 34.66 handoff 3.23 B 16.12 bend_spread 2.75 bend_to_bar 0.78 bar_idle 2.35 final 0.35 unit_us 1.15 unit_a 1.15 unit_b 1.15 a_wwait 3.67 b_wwait 0.60 units 5376.00 distinct 7.00 routes 13.00
+TL8 verify 1 sliding distinct  4 n  1 plain  44.86 span  39.52 units   3072 ramp 3.68 A 19.74 handoff 3.44 B  9.42 spread 2.08 tail 2.77 maxdiff 9.77e-04
+TL8 verify 1 sliding distinct  5 n  2 plain  53.49 span  47.33 units   3840 ramp 3.72 A 24.23 handoff 3.42 B 11.56 spread 3.25 tail 3.92 maxdiff 2.44e-04
+TL8 verify 1 sliding distinct  6 n  5 plain  59.55 span  53.89 units   4608 ramp 3.63 A 28.82 handoff 3.20 B 13.72 spread 2.18 tail 3.36 maxdiff 4.88e-04
+TL8 verify 1 sliding distinct  7 n  4 plain  66.98 span  61.65 units   5376 ramp 3.53 A 34.66 handoff 3.20 B 16.12 spread 2.58 tail 3.79 maxdiff 6.10e-05
+TL8 verify 1 sliding distinct  8 n  4 plain  74.43 span  70.26 units   6144 ramp 3.55 A 39.22 handoff 3.29 B 18.54 spread 4.40 tail 4.86 maxdiff 1.22e-04
+TL8 verify 1 sliding distinct  9 n  2 plain  81.54 span  75.81 units   6912 ramp 4.00 A 42.85 handoff 3.97 B 21.00 spread 2.54 tail 3.48 maxdiff 1.22e-04
+TL8 verify 1 sliding distinct 10 n  1 plain  89.34 span  81.25 units   7680 ramp 3.46 A 46.94 handoff 3.23 B 23.81 spread 2.30 tail 3.32 maxdiff 0.00e+00
+TL8 verify 1 sliding distinct 12 n  1 plain 102.24 span  96.74 units   9216 ramp 4.16 A 56.64 handoff 3.05 B 28.81 spread 2.82 tail 3.55 maxdiff 4.88e-04
+TL8 verify 1 full n 20 medians plain_us 74.42 span 69.17 ramp 3.60 route 2.60 A 38.50 handoff 3.15 B 19.11 bend_spread 3.23 bend_to_bar 0.78 bar_idle 2.87 final 0.36 unit_us 1.15 unit_a 1.15 unit_b 1.17 a_wwait 3.91 b_wwait 0.73 units 6144.00 distinct 8.00 routes 13.00
+TL8 verify 1 full distinct  6 n  3 plain  59.84 span  53.66 units   4608 ramp 3.60 A 29.14 handoff 3.15 B 13.74 spread 2.50 tail 3.69 maxdiff 9.77e-04
+TL8 verify 1 full distinct  7 n  5 plain  66.40 span  61.18 units   5376 ramp 3.59 A 34.36 handoff 3.18 B 16.11 spread 2.75 tail 4.24 maxdiff 4.88e-04
+TL8 verify 1 full distinct  8 n  3 plain  73.57 span  68.19 units   6144 ramp 3.75 A 38.42 handoff 3.10 B 18.59 spread 4.19 tail 4.11 maxdiff 7.63e-06
+TL8 verify 1 full distinct  9 n  4 plain  81.25 span  75.42 units   6912 ramp 3.63 A 42.87 handoff 3.28 B 21.04 spread 3.71 tail 3.88 maxdiff 1.95e-03
+TL8 verify 1 full distinct 10 n  1 plain  86.66 span  83.55 units   7680 ramp 3.57 A 48.23 handoff 3.24 B 23.71 spread 2.91 tail 4.22 maxdiff 3.05e-05
+TL8 verify 1 full distinct 11 n  3 plain  94.62 span  90.11 units   8448 ramp 3.62 A 52.66 handoff 3.06 B 26.23 spread 3.26 tail 4.00 maxdiff 4.88e-04
+TL8 verify 1 full distinct 14 n  1 plain 118.59 span 114.56 units  10752 ramp 3.60 A 67.07 handoff 3.38 B 33.34 spread 6.46 tail 6.46 maxdiff 0.00e+00
