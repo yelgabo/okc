@@ -907,6 +907,20 @@
       "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
       "release_review_required": false,
       "public_submission_occurred": false
+    },
+    {
+      "job": "4a2bf53969b44e2f",
+      "problem": "muse_decode_layer",
+      "score_us": 10109.934334710757,
+      "owner": "Final-day lead (Claude session)",
+      "judged_arm": "ly_stk3 check, every T PDL on, five guards pass",
+      "source_identity": "muse_decode_layer/cand/ly_stk3.py SHA256 a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6",
+      "release_state": "queued-for-public-draws",
+      "reason": "Below the public row (10,146.4 us); keep rule's six-load clause met; ly_stk3 = ly_stk2 + host-only two-CTAs-per-SM attention launch at decode 16 / 32 sliding. Public draws start at the 16:00 PT reset under the standing repeat authorization.",
+      "evidence": "muse_decode_layer/cand/profiles/ly_stk3.4a2bf53969b44e2f.json",
+      "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+      "release_review_required": false,
+      "public_submission_occurred": false
     }
   ],
   "ineligible_source_family_checkpoint": {
