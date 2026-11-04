@@ -4448,3 +4448,65 @@ verify 1 (where the four T = 8 router stages add 4 x 0.1 us in the loop and 0.3 
 (x tiles by TMA, x32 rows by bulk copies inside the router stages) costs nothing visible beyond the ramp's 0.65 us
 round trip. The largest non-floor item inside the kernel is the tail (0.8 us on every CTA, so on the critical path in
 full), then the ramp, the last stage and the CTA spread (0.35 to 0.65 each).
+
+### Candidate: ly_pepi, a shorter tail at T <= 8
+
+`tools/dl_ly_pepi_patch.py` (base ly_fabq, pinned; `--base / --pin / --out` as tools/dl_ly_prq_patch.py) ->
+`muse_decode_layer/cand/ly_pepi.py` (SHA256 dc425a65d5f912af601ea8bd2ae0f64701392bc6f2500fe5a30d7a9f622885fc). Only
+the gle fused build (sk2_kernel_gle, FUSE, T <= 8) changes, through a define the gle source transform sets
+(`SK2_REDX 1`); the bf16_proj build (T = 16 / 32) and the o kernel compile the same code as before:
+
+1. The K-warp reduction buffer `red` gets its own shared-memory region after the zero row (WSK x TOKS x RP floats,
+   20,480 B; the launch adds it to the dynamic size: 206,800 -> 227,296 B at pmax 58, under the 227,836 B the 4.6 KB of
+   static gle smem leaves). The consumers write it right after the loop without first proving the ring idle: the
+   epilogue's `cbar` wait and named barrier before the write go; the `cbar` wait (escape corrections complete) moves
+   after the write, ahead of the final sum; the named barrier after the write stays.
+2. The ilv block's `cbar` wait and named barrier after the router partial store run only when outr != nullptr (the
+   counter path, compiled but never launched by this file; there the barrier orders the partial stores before the
+   release atom).
+3. The router warp butterflies reduce tokens t < M only (5 shuffles at T = 1 instead of 40); the per-token order is
+   unchanged.
+
+Kept: every fence, every mbarrier wait and arrival, the ring protocol, the escape warps' `cbar`, the named barrier that
+publishes red, and the summation orders of the pooler output and the router partials. Expected (hypothesis from the
+tail decomposition): 0.25 to 0.3 us off every CTA's tail at decode 1, 0.1 to 0.15 at verify 1.
+
+Correctness. Box chk run (`.build/prtl/pepi/chk.log`): reference check PASS at all 12 cells, G_RELEASE_STARTUP_OK (56
+verified replays), PDL on at T = 1, 8, 16, 32; the CG_GATE line is `cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64
+1.21e-04 equal 1023/1024 ok`, which is what every box run of ly_fabq and of every earlier candidate prints
+(`.build/prtl/*/ab_c_*.log`; the judge prints 0.00e+00 and 1024/1024 for the same file), so the box line is a box
+property and the judged-log criterion can only be checked by a judge run. `tools/ly_pepi_bitwise.py` (fused kernel
+launched by each file's own gle_pr on the same seeded inputs at T = 1, 2, 3, 5, 8, with the empty outr the layer passes
+and with a real outr): pooled rows, the four quarter partials and the counter-path logits are bitwise equal between
+ly_fabq and ly_pepi in every case (`bit_cmp.log`: ALL BITWISE EQUAL). SASS (`tools/ly_prtl_sass.py`, gle build,
+`.build/prtl/sass_pepi/`): fused kernel 128 -> 128 registers, 0 stack, 0 local; the consumer stage loop 377 -> 377
+instructions with the same HMMA / LDS / FFMA / LOP3 counts and five integer opcode substitutions (IMAD 29 -> 30, SHF
+16 -> 18, VIADD 16 -> 15, IADD3 9 -> 8, LEA 6 -> 4, + 1 MOV), whole kernel 2,949 -> 3,032; the o kernels are SAME.
+
+### Paired A/B against ly_fabq (box)
+
+`tools/ly_prtl_ab.sh` (CTL=ly_fabq.py, CAND=ly_pepi.py, c/w/c/w/c in one session, five bx_box_run.py processes under
+gpu.lock, `--runs 60`, all six loads, PDL pinned at 1, 8, 16, 32, `--skip-pdl8-gate`, router seed 106218864389449120,
+f931 judge JSON), 2026-11-04 15:56 to 15:58 UTC, logs and JSONs `/root/okc/.build/prtl/pepi/` (`ab_c_a` ... `ab_c_c`),
+table by `tools/ly_prtl_table.py`. No foreign GPU process before or during the session. Net us; delta = candidate mean
+minus control mean; threshold max(2 x control spread, 0.5 us) at decode 1 / verify 1 and max(2 x spread, 1%) elsewhere;
+pairs = sign of w_a - c_a, w_a - c_b, w_b - c_b, w_b - c_c.
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs > 0 | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.07 | 65.14 | 64.93 | 65.33 | 65.33 | 0.40 | +0.12 | 3/4 | 0.80 | inside |
+| decode 1 full | 71.58 | 72.29 | 72.06 | 71.87 | 71.73 | 0.48 | +0.29 | 3/4 | 0.96 | inside |
+| decode 16 sliding | 126.53 | 126.99 | 127.09 | 126.77 | 126.98 | 0.56 | +0.02 | 1/4 | 1.27 | inside |
+| decode 16 full | 200.59 | 199.79 | 199.54 | 199.01 | 199.25 | 1.34 | -0.39 | 1/4 | 2.69 | inside |
+| decode 32 sliding | 143.62 | 144.45 | 143.82 | 144.32 | 144.70 | 1.09 | +0.34 | 3/4 | 2.18 | inside |
+| decode 32 full | 294.91 | 295.49 | 294.99 | 294.02 | 294.74 | 0.26 | -0.13 | 2/4 | 2.95 | inside |
+| verify 1 sliding | 102.22 | 103.78 | 102.35 | 102.40 | 102.66 | 0.43 | +0.68 | 3/4 | 0.86 | inside |
+| verify 1 full | 110.94 | 111.38 | 110.72 | 111.70 | 111.09 | 0.37 | +0.62 | 4/4 | 0.74 | inside |
+| verify 16 sliding | 242.35 | 242.98 | 244.38 | 243.22 | 243.79 | 2.03 | -0.41 | 1/4 | 4.06 | inside |
+| verify 16 full | 326.69 | 327.14 | 327.54 | 327.57 | 327.76 | 1.07 | +0.02 | 2/4 | 3.27 | inside |
+| verify 32 sliding | 296.99 | 297.89 | 297.86 | 297.82 | 298.91 | 1.92 | -0.06 | 2/4 | 3.84 | inside |
+| verify 32 full | 460.18 | 461.47 | 460.58 | 461.12 | 460.72 | 0.54 | +0.81 | 4/4 | 4.60 | inside |
+
+Every cell inside its threshold; the changed cells (decode 1, verify 1) lean the wrong way (+0.1 to +0.7 us, 13 of 16
+pairs positive) and the unchanged cells (T >= 16, the session's null) scatter -0.4 to +0.8. Not a win; by the sign
+counts at verify 1 a small loss.
