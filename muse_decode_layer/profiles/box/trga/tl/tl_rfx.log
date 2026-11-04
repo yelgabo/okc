@@ -1,0 +1,41 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793813942.718 acquire start after 2.9 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.98), ('sk2', 7.78), ('torch', 10.37)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 7.8 s
+USDT:2026-11-04 17:39:11 531928:531928 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 17:39:11 531928:531928 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    24.79 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    17.05 us  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfloat16, tru
+  KERNEL    10.06 us  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     8.60 us  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     7.08 us  void (anonymous namespace)::attn_kernel<1, false, 13>((anonymous namespace)::Params)
+  KERNEL     5.09 us  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, int2 const*,
+  KERNEL     5.00 us  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+  KERNEL     3.72 us  _prq_sl_tile_route_cg
+  KERNEL     2.82 us  _sl_cluster_finish_cg
+  KERNEL    84.20 us  total
+BOX decode 1 sliding: raw 68.22 net 64.06 us (overhead 4.16) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.908 | check PASS
+USDT:2026-11-04 17:39:11 531928:531928 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 17:39:11 531928:531928 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    24.27 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    17.13 us  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfloat16, tru
+  KERNEL    14.19 us  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL    13.10 us  void (anonymous namespace)::attn_kernel<1, false, 11>((anonymous namespace)::Params)
+  KERNEL    10.30 us  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, false>(CUtens
+  KERNEL     5.08 us  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, int2 const*,
+  KERNEL     4.88 us  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+  KERNEL     3.73 us  _prq_sl_tile_route_cg
+  KERNEL     2.89 us  _sl_cluster_finish_cg
+  KERNEL    95.57 us  total
+BOX decode 1 full: raw 74.90 net 70.61 us (overhead 4.29) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.884 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 40 hits, 0 computed
+BXPHASE import_torch=3.08 load_reference_cuda_init=0.00 weights_and_router=0.26 prepare_submission=7.82 fresh_inputs=0.20 check=0.05 capture=0.01 overhead_graphs=0.22 replays=0.02 kernels_profiler=0.06 cell_tail=0.00 json_write=0.00 total=11.72

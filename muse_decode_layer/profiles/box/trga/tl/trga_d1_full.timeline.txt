@@ -1,0 +1,12 @@
+.build/trga/tl_trga/cell1.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.92    9.92   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    8.13   13.68   22.03  -1.86  void (anonymous namespace)::attn_kernel<1, false, 11>((anonymous namespace)::Par
+ 2   10.45   14.90   25.52 -11.39  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   23.33    4.69   28.02  -2.16  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   26.02   16.40   42.46  -2.03  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   40.19    3.79   43.98  -2.26  _prq_sl_tile_route_cg
+ 6   44.03   22.51   67.36   0.06  void okc::moe_fused<false>(okc::Params)
+ 7   57.70   13.55   71.58  -9.50  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   70.50    2.62   73.22  -1.09  _sl_cluster_finish_cg
+span 73.22 us, sum of durations 103.65 us
