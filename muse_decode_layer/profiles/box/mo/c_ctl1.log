@@ -1,0 +1,18 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793756959.156 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.49), ('sk2', 8.13), ('torch', 10.43)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 8.0 s
+BOX baseline import+prepare 0.0 s
+BOX verify 1 sliding: raw 107.66 net 104.05 us (overhead 3.62) | sglang raw 273.87 paired 2.590 shown 104.33 | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.980 | sglang box/judge 270.26/262.96 = 1.028 | check PASS
+BOX verify 1 full: raw 116.64 net 112.85 us (overhead 3.79) | sglang raw 293.76 paired 2.506 shown 115.72 | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.947 | sglang box/judge 289.97/282.94 = 1.025 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 120 hits, 0 computed
+BXPHASE import_torch=1.64 load_reference_cuda_init=0.00 weights_and_router=0.23 prepare_submission=7.96 prepare_baseline=0.03 fresh_inputs=0.26 check=0.09 capture=0.08 overhead_graphs=0.22 replays=0.14 cell_tail=0.01 json_write=0.00 total=10.66

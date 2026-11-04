@@ -71,7 +71,7 @@ def stats(s, lids):
     nB = ((cnt >> 16) & 0xFFFF).tolist()
     entry, route, first, aend = col(0), col(1), col(2), col(3)
     dep1, bend, barr, brel, fin = col(5), col(6), col(9), col(10), col(11)
-    dts = []
+    dts, dta, dtb = [], [], []
     for c in range(n):
         prev = None
         for q in range(46):
@@ -80,6 +80,7 @@ def stats(s, lids):
                 break
             if prev is not None and q != nA[c]:
                 dts.append((v - prev) / 1e3)
+                (dta if q < nA[c] else dtb).append((v - prev) / 1e3)
             prev = v
     units = sum(nA) + sum(nB)
     loc = lids[lids >= 0]
@@ -88,9 +89,38 @@ def stats(s, lids):
         handoff=m(dep1) - m(aend), B=m(bend) - m(dep1), bend_spread=max(bend) - min(bend),
         bend_to_bar=m(barr) - m(bend), bar_idle=m([b - a for a, b in zip(barr, brel)]), final=m(fin) - m(brel),
         exit_spread=max(fin) - min(fin), unit_us=statistics.median(dts) if dts else math.nan,
+        unit_a=statistics.median(dta) if dta else math.nan, unit_b=statistics.median(dtb) if dtb else math.nan,
         a_wwait=m(dur(12)), b_wwait=m(dur(13)), units=units, units_per_cta=(min(a + b for a, b in zip(nA, nB)),
                                                                             max(a + b for a, b in zip(nA, nB))),
         distinct=int(torch.unique(loc).numel()), routes=int(loc.numel()), grid=n)
+
+
+def l2_probe(mod, state, rec, flush, n):
+    """Issue-rate probe for the unit loop: tokens 0 and 1 routed to local expert 0 only (one expert, 768 units,
+    28.3 MB, fits the 50 MB L2), a TINY2 build with normal-priority weight loads (OKC_L2H=0) so the weights stay in
+    L2, then the same instrumented launch cold (after the flush) and warm (right after). The warm per-unit interval
+    is the loop's rate with the weights near; the cold one is the HBM-fed rate on the same schedule."""
+    ext = mod._ma_ext(tuple(mod.MOE_TINY2_DEFINES) + ("-DOKC_L2H=0",) + tuple(state["ma_sfx"]))
+    out = []
+    w_, scr, x, lids, wts, o, l0, l1, nsm = rec.calls[-1]
+    pl = torch.full_like(lids, -1)
+    pl[0, 0] = 0
+    pl[1, 0] = 0
+    for i in range(n):
+        res = {}
+        for tag in ("cold", "warm", "warm2"):
+            tl = torch.zeros(136 * SLOTS, dtype=torch.int64, device="cuda")
+            if tag == "cold":
+                flush.fill_(1.0)
+            torch.cuda.synchronize()
+            ext.okc_run(w_, list(scr) + [tl], x, pl, wts, torch.empty_like(o), l0, l1, nsm)
+            torch.cuda.synchronize()
+            res[tag] = stats(tl[: nsm * SLOTS].view(nsm, SLOTS).cpu(), pl)
+        print("TL8 l2probe " + " | ".join(
+            f"{t}: span {r['span']:.2f} A {r['A']:.2f} B {r['B']:.2f} unit A {r['unit_a']:.3f} B {r['unit_b']:.3f} awwait {r['a_wwait']:.2f}"
+            f" units/cta {r['units_per_cta']}" for t, r in res.items()), flush=True)
+        out.append(res)
+    return out
 
 
 def main():
@@ -104,6 +134,8 @@ def main():
     ap.add_argument("--ext-cache", default="/root/.cache/bx_ext")
     ap.add_argument("--ls-cache", default="")
     ap.add_argument("--out", default="")
+    ap.add_argument("--l2test", type=int, default=0,
+                    help="also N issue-rate probes: one local expert, weights L2-resident (TINY2 + OKC_L2H=0, second launch)")
     a = ap.parse_args()
     if a.lock:
         br.release_lock_for_triton()
@@ -141,6 +173,7 @@ def main():
     flush = torch.empty(1 << 28, dtype=torch.float32, device="cuda")
     ev = [torch.cuda.Event(enable_timing=True) for _ in range(2)]
     rows = []
+    probes = []
     for case in cases:
         res = []
         for j in range(a.inputs):
@@ -176,7 +209,7 @@ def main():
             lsc.save()
         label = f"{case['load']} {case['layer']}"
         keys = ["plain_us", "span", "ramp", "route", "A", "handoff", "B", "bend_spread", "bend_to_bar", "bar_idle",
-                "final", "unit_us", "a_wwait", "b_wwait", "units", "distinct", "routes"]
+                "final", "unit_us", "unit_a", "unit_b", "a_wwait", "b_wwait", "units", "distinct", "routes"]
         med = {k: statistics.median(r[k] for r in res) for k in keys}
         print(f"TL8 {label} n {len(res)} medians " + " ".join(f"{k} {v:.2f}" for k, v in med.items()), flush=True)
         for d in sorted({r["distinct"] for r in res}):
@@ -189,8 +222,10 @@ def main():
                   f" tail {statistics.median(r['bend_to_bar'] + r['bar_idle'] + r['final'] for r in b):4.2f}"
                   f" maxdiff {max(r['maxdiff'] for r in b):.2e}", flush=True)
         rows.append(dict(case=case, inputs=res))
+        if a.l2test and not probes:
+            probes.extend(l2_probe(mod, state, rec, flush, a.l2test))
     if a.out:
-        json.dump(dict(bandwidth=bw, ma_w_bytes=wbytes, rows=rows), open(a.out, "w"))
+        json.dump(dict(bandwidth=bw, ma_w_bytes=wbytes, rows=rows, l2_probes=probes), open(a.out, "w"))
 
 
 if __name__ == "__main__":

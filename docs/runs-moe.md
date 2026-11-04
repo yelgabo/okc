@@ -6201,3 +6201,79 @@ latency, about 1 us per claim from L2. A second, smaller candidate: launch the M
 route kernel, so entry, barrier init and the launch gap overlap the router. That saves about 0.7-0.9 us, the
 measured PDL edge saving in this layer. The 2.4 us routing prologue cannot overlap, because it reads the route
 kernel's ids.
+
+### Phase A: bytes or issue rate (issue-rate probe)
+
+OKC_NOLOAD cannot serve as the compute-only test. In helper0 it is an unconditional `#define OKC_NOLOAD 0`,
+and its only use is the SKDYN gate, so no build reaches a compute-only path. The probe instead keeps the
+weights in L2. `tools/box_moe_tl8.py --l2test 5` routes tokens 0 and 1 to local expert 0 only: one expert,
+768 units, 28.3 MB, inside the 50 MB L2. The TINY2 build gets OKC_L2H=0, so its weight loads are not
+evict-first. Each probe runs the instrumented launch three times: cold after the flush, then warm twice. Log:
+`muse_decode_layer/profiles/box/tl8/probe.log`.
+
+| probe (5 runs, all equal within 32 ns) | span | phase A | A unit interval | B unit interval | A weights wait |
+|---|---:|---:|---:|---:|---:|
+| cold (weights from HBM) | 17.9-19.0 | 5.35-5.64 | 1.184 | 1.120 | 0.88-1.27 |
+| warm (weights in L2) | 15.2-16.0 | 4.98-5.74 | 1.184 | 1.120 | 0.30-0.35 |
+
+The per-unit retire interval is the same with the weights in L2 as with them in HBM: 1.184 us per phase A unit
+and 1.120 per phase B unit. So the unit loop is bound by its own issue rate, not by bytes. The HBM byte rate
+for one unit per CTA is 132 x 36,864 B / 4.43 TB/s = 1.098 us, so phase A's loop runs 8% slower than the bytes
+and phase B's 2% slower. That is about 0.086 us x 27 units = 2.3 us of the 4.9 us phase A excess at 7 experts.
+The other 2.5 us is weights wait, which drops from about 1 us to 0.3 us once the weights are in L2: that is
+latency at the CTA's job switches and first fills, not bandwidth. A faster phase A therefore needs a cheaper
+unit loop (dequant and MMA issue per 36 KB unit) or a shorter wait at job switches. A deeper ring does not
+help, since ring slots 4 lost +2 us at verify 1.
+
+### Run-time claim of the last phase B units (mo_claim, loss)
+
+`tools/dl_mo_claim_patch.py` builds the claim into the layer's TINY2 only (`-DOKC_CLM=1`; TINY and MID compile
+the same code, every edit under `#if OKC_CLM`).
+- Static part: the first nB - P phase B units keep the same muldiv split.
+- Pool: the last P = min(2G, nB - 4G) units, none when nB < 6G.
+- Claiming: thread 0 refills past the CTA's static sequence with a ticket from p.ctr[1]. TINY2 never used
+  that counter, and the kernel already zeroes it after its grid barrier for the next launch, so there is no
+  new reset and no host memset.
+- Ticket timing: the ticket is taken one refill before it is used, so the atomic's round trip overlaps a
+  unit's compute.
+- End: a ticket at or past P, or the 32nd claim, ends the CTA's sequence and publishes its phase B count in
+  smem.
+- Unchanged: the grid barrier, every fence, the doneA dependency and the final pass. There is no new PDL edge.
+
+Files: mo_claim.py (4c11ed4e9b60344cc6ec3447fef64b38dae068c33ebee54ef40968578756f5cc) from rv_k_combo2.py
+7f0a3e36, and mo_claim_tl.py (5de414ac...) from mo_tl8.py for the stamps. Both arms carry g1b4_rs's T = 1
+routing slack; verify 1 (8 tokens) does not run the slack program, so the paired delta does not contain it.
+
+Correctness: every launch of the timeline runs passed the startup expert comparison
+(`G_RELEASE_STARTUP_OK native ... 56 verified_replays`), every box check at verify 1 passed, and the
+instrumented launches processed exactly the unit totals of the static build (5,376 / 6,144). The 13-shape
+reference sweep was not run, because the speed bar failed first.
+
+Timeline, mean CTA, median over 20 inputs (us; sliding / full):
+
+| | combo2 (mo_tl8) | claim, ticket taken at use (v1) | claim, ticket one refill early (v2) |
+|---|---:|---:|---:|
+| span | 61.66 / 67.89 | 62.85 / 71.84 | 63.76 / 71.87 |
+| phase B | 15.82 / 18.00 | 18.66 / 21.08 | 18.53 / 21.26 |
+| B unit interval | 1.12 / 1.12 | 1.25 / 1.25 | 1.25 / 1.25 |
+| B-end spread across CTAs | 2.83 / 2.77 | 2.05 / 1.84 | 2.02 / 2.05 |
+| barrier idle | 2.56 / 2.70 | 1.93 / 1.77 | 1.89 / 2.07 |
+
+Paired box A/B at verify 1, combo2 against mo_claim (v2), 60 runs, control, candidate, control, candidate,
+pinned PDL {1, 8, 16, 32}, `--lock` runner. Logs: `muse_decode_layer/profiles/box/mo/c_*.log`.
+
+| cell | combo2 control net | control-vs-control | claim against control 1 | claim against control 2 | threshold |
+|---|---:|---:|---:|---:|---:|
+| verify 1 sliding | 104.05 | -0.43 | +2.50 / +2.38 | +3.12 / +3.04 | 0.86 |
+| verify 1 full | 112.85 | -0.67 | +2.32 / +2.32 | +2.93 / +3.20 | 1.34 |
+
+Decision: loss, +2.3 to +3.2 us per verify 1 cell. Not kept, the PDL-behind-the-route variant was not built
+(its condition was a win), and nothing goes to the judge. The claim does what it was meant to do: the B-end
+spread falls from 2.8 to 2.0 us and the barrier idle by 0.7. But every phase B unit retires 0.13 us slower
+(1.12 to 1.25 us, the median over all B intervals, not only the claimed ones), which costs about 2.7 us over
+the CTA's 13 to 14 phase B units. Taking the ticket a refill early did not change that, so the atomic's
+latency is not the cause. Neither build spills. What remains (hypothesis, untested): the unbounded phase B
+loop (its bound is a volatile shared load per iteration) loses scheduling the static `nU`-bounded loop had,
+or the claimed units, all in the last expert, add a job switch per CTA (an x reload and a doneA check). A
+claim that kept the loop's static bound would need the pool count fixed per CTA in advance, which is the
+static balancing MOE-BAL-01 already lost.
