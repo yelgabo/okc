@@ -2005,3 +2005,79 @@ job, no split) is noise at decode 16 (+0.61 / -0.10 us). The source asserts `!OK
 gives up the warp-specialized ring, which is what makes MID fast. A build that keeps the warp-specialized ring and runs the
 hot expert's 9 to 16 tokens as one two-n-tile job would remove the repeat without that trade (hypothesis; estimated -4 to
 -6 us at decode 16 and nothing at decode 32, which runs B4).
+
+## 2026-11-03 - ly_ws2t: decode 16 MID with two-n-tile skinny jobs (box, loss, no check)
+
+Hypothesis (from the floor-and-gap section above): the decode 16 MID MoE re-streams and re-decodes the busiest local
+expert's 768 units because OKC_SPLIT cuts every expert with more than 8 tokens into 8-token jobs, about 6.8 us per affected
+input. A job of up to 16 tokens that runs both n-tiles on one decode of each unit removes the repeat. Stop rule (the lead's
+bar): beat combo2n at decode 16 and decode 32 sliding by more than max(2 x control spread, 1% of the cell) and lose nowhere
+beyond it. Decode 32 runs the B4 build, which this change does not touch, so this candidate could not meet the decode 32
+half of the bar by construction; I built it because the split re-stream was the largest identified piece with a known
+cause, and the decode 32 MoE (B4) has no instrument yet.
+
+Also found on the way: the MoE lane's knob "midskt16" (docs/runs-moe.md, knob sweep) measured the control. helper0 has an
+unconditional `#define OKC_SKT 8`, so `-DOKC_SKT=16` was redefined back to 8; a correction line is under that table.
+
+Build: `python3 tools/dl_ly_ws2t_patch.py` writes `muse_decode_layer/cand/ly_ws2t.py`
+(dd413963012bee07ecb4db1494c0a36bb80cb6ddd08a8bb6da5dfe116058338b) from rv_k_combo2n.py (3ac83fb4, SHA checked). MID
+only gets `-DOKC_SKT=16`; every source edit is under `#if OKC_SKT > 8` with the original text in the `#else` arm, so
+TINY / TINY2 preprocess to the original code. The edits:
+
+- skinny_ring_ws: per job `two = cnt > 8`; tokens 8..15 staged per warp in shared memory (after the ring, the region the
+  smem size formula already reserves for OKC_SKT > 8) by a loader that issues a warp's 16 loads before its stores; per
+  unit, the second n-tile's MMA on the same dequantized fragments; tile-1 partial sums in a separate `red1` array, written
+  before the same `fence.proxy.async`, CTA barrier and mbarrier hand-over as tile 0; the WSBLK last-unit epilogue loops
+  over both tiles.
+- ws_helper: reads the tile-1 partials before it frees the buffer, then runs the epilogue for tokens 8..15.
+- Unit ranges split by cost (`ws_ranges`, one warp scan over the local experts; a two-tile unit costs 20, a one-tile unit
+  16), used by the helper's ranges, run_phase and the FAST1 preissue, so all three still agree.
+
+No fence, barrier, mbarrier protocol, griddepcontrol or launch attribute is changed. Correctness: G_RELEASE_STARTUP_OK
+(56 verified replays) in every prepare, and the reference check passed at all 12 scored cells (50 of 50 checks in the A/B
+runs plus verify 32 sliding and full in a separate run). No new PDL edge.
+
+Iterations (decode 16 only, box, in-graph `--kernels` moe_fused or the MID timeline `tools/ly_box_moe_tl16.py` on the
+instrumented copy; logs in `muse_decode_layer/profiles/box/ly/`):
+
+| version | change | units at 8 distinct | B-end spread / barrier idle | moe_fused in graph | cell net d16 sliding |
+|---|---|---:|---|---:|---:|
+| combo2n | | 6912 | 4.05 / 3.13 | 70.94 | 128.64 (same session) |
+| v1 | two-tile jobs, count split | 6144 | 16.9 / 14.0 | | 143.10 |
+| v2 | x1 loads batched | 6144 | 15.1 / 13.3 | | |
+| v3 | cost-weighted split (64-bit divide) | 6144 | 5.0 / 5.9 | | 134.54 |
+| v4 | one scan for all four range ends | 6144 | 3.8 / 4.1 | 74.67 | 132.48 |
+| v5 | tile 1 in `red1`; no run-time divides in the split | 6144 | 3.8 / 3.9 | 73.18 | 130.40 |
+
+The repeat is gone (units = 768 x distinct) and, with the cost split, the CTAs finish together again. What eats the
+saving: every unit retires slower, one-tile units included (median phase A interval 1.18 -> 1.25 us), and the routing
+prologue ends later (route stamp 2.8 -> 4.1 us, the cost scan and the FAST1 preissue's own range computation). Register
+count went from 152-159 to 164 with no spills (cuobjdump), so the slower loop is code generation in the shared unit loop
+(hypothesis, not separated). The eager instrumented span is shorter than the control's (72.29 against 74.06 at the median
+input), but the in-graph kernel is longer (73.18 against 70.94); I did not resolve that difference.
+
+Paired A/B, `tools/ly_ws2t_ab.sh` (okc-h200, 2026-11-04 02:34-02:36 UTC, `tools/bx_box_run.py --lock --ls-cache
+--ext-cache --pin-pdl8 1,8,16,32 --skip-pdl8-gate`, router seed 106218864389449120, f931 case seeds, `--runs 60`, one
+process per run: control, candidate, control, candidate, control; every run timed with PDL on at every T). Table by
+`tools/ly_ws2t_table.py muse_decode_layer/profiles/box/ly/ab`; net us:
+
+| cell | c_a | w_a | c_b | w_b | c_c | control spread | candidate - control (means) | threshold | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.82 | 66.56 | 65.55 | 65.89 | 65.92 | 0.37 | +0.46 | 0.74 | inside |
+| decode 1 full | 72.29 | 72.75 | 72.46 | 72.51 | 72.37 | 0.18 | +0.26 | 0.72 | inside |
+| decode 16 sliding | 130.11 | 131.42 | 130.05 | 131.71 | 129.54 | 0.58 | +1.67 | 1.30 | loss |
+| decode 16 full | 202.13 | 204.22 | 201.23 | 204.16 | 202.90 | 1.66 | +2.11 | 3.33 | inside (all four pairs +1.3 to +3.0) |
+| decode 32 sliding | 147.09 | 146.43 | 145.95 | 147.09 | 146.37 | 1.14 | +0.29 | 2.27 | inside |
+| decode 32 full | 297.23 | 297.28 | 296.90 | 297.34 | 297.09 | 0.34 | +0.24 | 2.97 | inside |
+| verify 1 sliding | 103.36 | 104.06 | 103.50 | 103.46 | 102.85 | 0.66 | +0.52 | 1.31 | inside |
+| verify 1 full | 111.94 | 111.65 | 112.08 | 111.17 | 111.87 | 0.21 | -0.55 | 1.12 | inside |
+| verify 16 sliding | 244.72 | 244.70 | 244.58 | 244.66 | 243.81 | 0.91 | +0.31 | 2.44 | inside |
+| verify 16 full | 327.52 | 328.75 | 327.89 | 328.26 | 327.10 | 0.78 | +1.00 | 3.28 | inside |
+
+Decision: loss at decode 16 sliding (+1.67 us against a 1.30 threshold), slower at decode 16 full in every pair, flat at
+decode 32 as expected. Not for a judge check; ruled-out row added. What it establishes: the split re-stream is real (768
+units per affected input) and a two-tile WS job removes it, but as built the two-tile path makes the shared unit loop and
+the prologue slower by more than the repeat costs. Reopen with a two-tile build whose one-tile loop compiles to the
+control's code (the two-tile loop in a separate function body that one-tile units never enter; the host cannot pick a
+build per launch, because it does not see the routing inside the graph) and a range split that costs the prologue
+nothing, or measure the loop's issue slots once Nsight counters are available on some host.
