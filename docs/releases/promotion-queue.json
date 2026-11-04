@@ -935,6 +935,48 @@
       "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
       "release_review_required": false,
       "public_submission_occurred": false
+    },
+    {
+      "job": "d947533cf0c540a2",
+      "problem": "muse_decode_layer",
+      "score_us": 10070.37937951188,
+      "owner": "Final-day lead (Claude session)",
+      "judged_arm": "ly_stk4_d1 check draw, every T PDL on, five guards pass",
+      "source_identity": "muse_decode_layer/cand/ly_stk4.py SHA256 a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e plus a trailing comment",
+      "release_state": "queued-for-public-draws",
+      "reason": "Below the public row (10,146.4 us). ly_stk4 is the 16:01 PT draw base (two-draw mean 10,058 us); ly_stk5 (two-draw mean 10,107 us, gap mostly noise on unchanged decode 32 cells) is the recorded alternative.",
+      "evidence": "muse_decode_layer/cand/profiles/ly_stk4_d1.d947533cf0c540a2.json",
+      "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+      "release_review_required": false,
+      "public_submission_occurred": false
+    },
+    {
+      "job": "1e0d522594094eef",
+      "problem": "muse_decode_layer",
+      "score_us": 10111.614939864054,
+      "owner": "Final-day lead (Claude session)",
+      "judged_arm": "ly_stk5 check draw, every T PDL on, five guards pass",
+      "source_identity": "muse_decode_layer/cand/ly_stk5.py SHA256 b89d23a6a00d5d00a48821e419135727388dcad1349e4924e9a37591f9f74654",
+      "release_state": "alternative-not-drawn",
+      "reason": "Below the public row (10,146.4 us). ly_stk4 is the 16:01 PT draw base (two-draw mean 10,058 us); ly_stk5 (two-draw mean 10,107 us, gap mostly noise on unchanged decode 32 cells) is the recorded alternative.",
+      "evidence": "muse_decode_layer/cand/profiles/ly_stk5.1e0d522594094eef.json",
+      "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+      "release_review_required": false,
+      "public_submission_occurred": false
+    },
+    {
+      "job": "c3112d526fe0489d",
+      "problem": "muse_decode_layer",
+      "score_us": 10101.491798478191,
+      "owner": "Final-day lead (Claude session)",
+      "judged_arm": "ly_stk5_d1 check draw, every T PDL on, five guards pass",
+      "source_identity": "muse_decode_layer/cand/ly_stk5.py SHA256 b89d23a6a00d5d00a48821e419135727388dcad1349e4924e9a37591f9f74654 plus a trailing comment",
+      "release_state": "alternative-not-drawn",
+      "reason": "Below the public row (10,146.4 us). ly_stk4 is the 16:01 PT draw base (two-draw mean 10,058 us); ly_stk5 (two-draw mean 10,107 us, gap mostly noise on unchanged decode 32 cells) is the recorded alternative.",
+      "evidence": "muse_decode_layer/cand/profiles/ly_stk5_d1.c3112d526fe0489d.json",
+      "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+      "release_review_required": false,
+      "public_submission_occurred": false
     }
   ],
   "ineligible_source_family_checkpoint": {
