@@ -1,0 +1,31 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 0.1 s  cl_phase_a.cuh cd96c101eb9720be defines []
+LOCK acquired after 0.0 s
+APPS 
+SMEM 196608 B  max active clusters of 8: 15
+RUN T= 8 cfg=8:7  seed=2000 distinct= 7 slices=15 span  36.24 [35.97-37.98] us floor  29.69 ratio 1.221 | event  41.66 | ramp 2.54 loop 30.97 tail 1.45 end-spread 12.99 entry-spread 0.10 sms 120 ntok [1, 2, 5]
+RUN T= 8 cfg=8:7  seed=2004 distinct= 7 slices=15 span  36.05 [35.71-37.73] us floor  29.69 ratio 1.214 | event  41.49 | ramp 2.53 loop 30.68 tail 1.57 end-spread 12.66 entry-spread 0.10 sms 120 ntok [1, 6]
+RUN T= 8 cfg=8:7  seed=2018 distinct= 7 slices=15 span  36.61 [35.78-38.08] us floor  29.69 ratio 1.233 | event  42.06 | ramp 2.50 loop 31.07 tail 1.47 end-spread 12.14 entry-spread 0.10 sms 120 ntok [1, 2, 8]
+RUN T= 8 cfg=8:7  seed=2024 distinct= 7 slices=15 span  36.56 [35.65-38.08] us floor  29.69 ratio 1.231 | event  42.08 | ramp 2.50 loop 31.29 tail 1.35 end-spread 12.35 entry-spread 0.10 sms 120 ntok [1, 2, 6]
+RUN T= 8 cfg=8:7  seed=2031 distinct= 7 slices=15 span  35.87 [35.62-37.18] us floor  29.69 ratio 1.208 | event  41.26 | ramp 2.53 loop 30.80 tail 1.47 end-spread 12.11 entry-spread 0.10 sms 120 ntok [1, 2, 6]
+SUM T=8 cfg=8:7 inputs=5 median ratio 1.221 (min 1.208, max 1.233) median span 36.24 us
+RUN T=32 cfg=32:7r seed=2000 distinct= 7 slices=15 span  50.14 [49.60-52.10] us floor  29.69 ratio 1.689 | event  55.50 | ramp 2.68 loop 31.44 tail 1.38 end-spread 17.06 entry-spread 0.06 sms 120 ntok [2, 3, 4, 13, 15]
+RUN T=32 cfg=32:7r seed=2001 distinct= 7 slices=15 span  61.63 [61.15-63.55] us floor  29.69 ratio 2.076 | event  66.98 | ramp 2.53 loop 31.58 tail 1.38 end-spread 27.20 entry-spread 0.10 sms 120 ntok [2, 3, 4, 20]
+RUN T=32 cfg=32:7r seed=2002 distinct= 7 slices=15 span  36.98 [36.58-37.57] us floor  29.69 ratio 1.245 | event  42.45 | ramp 2.54 loop 31.96 tail 1.36 end-spread 6.75 entry-spread 0.10 sms 120 ntok [3, 4, 5, 7, 9]
+RUN T=32 cfg=32:7r seed=2003 distinct= 7 slices=15 span  61.70 [61.02-63.17] us floor  29.69 ratio 2.078 | event  67.17 | ramp 2.64 loop 32.06 tail 1.41 end-spread 27.22 entry-spread 0.10 sms 120 ntok [2, 3, 4, 6, 13, 24]
+RUN T=32 cfg=32:7r seed=2004 distinct= 7 slices=15 span  36.96 [36.45-37.95] us floor  29.69 ratio 1.245 | event  42.32 | ramp 2.56 loop 31.90 tail 1.41 end-spread 6.85 entry-spread 0.06 sms 120 ntok [2, 4, 5, 9]
+SUM T=32 cfg=32:7r inputs=5 median ratio 1.689 (min 1.245, max 2.078) median span 50.14 us
+RUN T=32 cfg=32:n seed=2000 distinct=16 slices=16 span 132.50 [131.74-134.18] us floor  67.86 ratio 1.952 | event 137.74 | ramp 2.54 loop 63.18 tail 1.50 end-spread 67.70 entry-spread 66.98 sms 120 ntok [1, 2, 3, 4, 13, 15]
+RUN T=32 cfg=32:n seed=2001 distinct=15 slices=15 span 154.34 [153.09-155.01] us floor  63.62 ratio 2.426 | event 159.78 | ramp 2.53 loop 63.25 tail 1.50 end-spread 88.86 entry-spread 0.06 sms 120 ntok [1, 2, 3, 4, 20]
+RUN T=32 cfg=32:n seed=2002 distinct=16 slices=16 span 133.09 [132.61-134.72] us floor  67.86 ratio 1.961 | event 138.46 | ramp 2.48 loop 63.50 tail 1.50 end-spread 67.46 entry-spread 67.18 sms 120 ntok [1, 2, 3, 4, 5, 7, 9]
+RUN T=32 cfg=32:n seed=2003 distinct=14 slices=15 span  94.27 [92.90-96.38] us floor  59.38 ratio 1.588 | event  99.71 | ramp 2.54 loop 63.67 tail 1.57 end-spread 28.93 entry-spread 0.06 sms 120 ntok [1, 2, 3, 4, 6, 13, 24]
+RUN T=32 cfg=32:n seed=2004 distinct=18 slices=18 span 134.30 [133.73-135.39] us floor  76.35 ratio 1.759 | event 139.62 | ramp 2.43 loop 63.56 tail 1.58 end-spread 68.93 entry-spread 67.90 sms 120 ntok [1, 2, 4, 5, 9]
+SUM T=32 cfg=32:n inputs=5 median ratio 1.952 (min 1.588, max 2.426) median span 133.09 us
+RUN T= 1 cfg=1:n  seed=2000 distinct= 3 slices=15 span  19.89 [19.46-20.61] us floor  12.72 ratio 1.563 | event  25.33 | ramp 2.50 loop 12.03 tail 0.77 end-spread 5.68 entry-spread 0.06 sms 120 ntok [1]
+RUN T= 1 cfg=1:n  seed=2001 distinct= 2 slices=15 span  15.87 [15.07-17.86] us floor   8.48 ratio 1.871 | event  21.34 | ramp 2.56 loop 8.12 tail 0.61 end-spread 5.30 entry-spread 0.10 sms 120 ntok [1]
+RUN T= 1 cfg=1:n  seed=2002 distinct= 2 slices=15 span  15.65 [15.04-16.06] us floor   8.48 ratio 1.845 | event  21.07 | ramp 2.53 loop 8.10 tail 0.61 end-spread 5.33 entry-spread 0.10 sms 120 ntok [1]
+RUN T= 1 cfg=1:n  seed=2003 distinct= 2 slices=15 span  15.78 [15.17-17.38] us floor   8.48 ratio 1.860 | event  21.10 | ramp 2.53 loop 8.10 tail 0.61 end-spread 5.34 entry-spread 0.08 sms 120 ntok [1]
+RUN T= 1 cfg=1:n  seed=2004 distinct= 2 slices=15 span  15.81 [15.36-17.76] us floor   8.48 ratio 1.864 | event  21.12 | ramp 2.50 loop 8.11 tail 0.61 end-spread 5.36 entry-spread 0.10 sms 120 ntok [1]
+SUM T=1 cfg=1:n inputs=5 median ratio 1.860 (min 1.563, max 1.871) median span 15.81 us
+LOCK released

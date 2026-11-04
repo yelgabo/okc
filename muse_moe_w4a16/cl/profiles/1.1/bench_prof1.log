@@ -1,0 +1,13 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 37.4 s  cl_phase_a.cuh 1a7407d9a5724ab8 defines ['-DCLA_PROF=1']
+LOCK acquired after 0.0 s
+APPS 
+SMEM 196608 B  max active clusters of 8: 15
+RUN T= 8 cfg=8:7  seed=2000 distinct= 7 slices=15 span  36.91 [36.38-38.53] us floor  29.69 ratio 1.243 | event  42.37 | ramp 2.56 loop 32.17 tail 0.45 end-spread 12.59 entry-spread 0.10 sms 120 ntok [1, 2, 5] | prof c0 full-wait 3.31 red-wait 2.07 loop 29.89, epi busy 18.72 wait 5.03
+RUN T= 8 cfg=8:7  seed=2004 distinct= 7 slices=15 span  35.81 [35.49-37.12] us floor  29.69 ratio 1.206 | event  41.23 | ramp 2.55 loop 32.06 tail 0.35 end-spread 11.04 entry-spread 0.10 sms 120 ntok [1, 6] | prof c0 full-wait 3.28 red-wait 1.85 loop 29.57, epi busy 18.57 wait 5.43
+SUM T=8 cfg=8:7 inputs=2 median ratio 1.225 (min 1.206, max 1.243) median span 36.36 us
+RUN T=32 cfg=32:7r seed=2000 distinct= 7 slices=15 span  52.64 [51.52-53.47] us floor  29.69 ratio 1.773 | event  58.13 | ramp 2.74 loop 33.22 tail 0.99 end-spread 17.58 entry-spread 0.10 sms 120 ntok [2, 3, 4, 13, 15] | prof c0 full-wait 2.98 red-wait 3.96 loop 31.30, epi busy 23.23 wait 5.01
+RUN T=32 cfg=32:7r seed=2001 distinct= 7 slices=15 span  64.42 [63.78-65.34] us floor  29.69 ratio 2.170 | event  69.82 | ramp 2.56 loop 33.52 tail 0.99 end-spread 28.66 entry-spread 0.10 sms 120 ntok [2, 3, 4, 20] | prof c0 full-wait 2.99 red-wait 3.91 loop 31.65, epi busy 23.25 wait 5.07
+SUM T=32 cfg=32:7r inputs=2 median ratio 1.971 (min 1.773, max 2.170) median span 58.53 us
+LOCK released
