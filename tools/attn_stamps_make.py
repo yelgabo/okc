@@ -73,7 +73,10 @@ def main():
     src = (ROOT / a.base).read_text()
     print("base", a.base, hashlib.sha256(src.encode()).hexdigest())
     for old, new, n in EDITS:
-        assert src.count(old) == n, (src.count(old), old[:60])
+        c = src.count(old)
+        if c == 0 and "setmaxnreg.dec" in old:   # ly_apre2 moves the producer's dec into its pre-issue block
+            continue
+        assert c == n, (c, old[:60])
         src = src.replace(old, new)
     out = ROOT / a.out
     out.parent.mkdir(parents=True, exist_ok=True)

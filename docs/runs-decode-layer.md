@@ -3635,3 +3635,42 @@ stamps above: the producer warpgroup executes its `setmaxnreg.dec` at the start 
 the role split is skipped under `apre`), so the consumers' `setmaxnreg.inc` no longer waits for the pre-issue; and
 the first request's length comes from the prefix sums (`S.cum[b0 + 1] - S.cum[b0] - L`, exact on the full layer,
 the flat kernel's only use; a window launch gets `npre = 0`), which removes one dependent round trip.
+
+Reference check PASS at all 12 cells (`muse_decode_layer/profiles/box/attn/apre2/chk.log`). Build: `REG:128 STACK:0
+LOCAL:0`, two CTAs per SM, as the base (cuobjdump of `/root/.cache/bx_ext/muse_att_v298w1pf_90a-536017ad614e3377`;
+the ly_apre build is `STACK:8`).
+
+Paired A/B (same recipe, CTL ly_fabq, CAND ly_apre2, 12:25-12:26 UTC; logs
+`muse_decode_layer/profiles/box/attn/apre2/`):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | threshold | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.41 | 65.26 | 65.20 | 65.20 | 65.23 | 0.21 | -0.05 | 0.50 | inside |
+| decode 1 full | 71.84 | 71.58 | 71.90 | 71.87 | 71.97 | 0.13 | -0.18 | 0.50 | inside |
+| decode 16 sliding | 127.10 | 126.99 | 126.72 | 126.35 | 127.06 | 0.38 | -0.29 | 1.27 | inside |
+| decode 16 full | 200.21 | 201.25 | 199.06 | 201.49 | 199.41 | 1.15 | +1.81 | 2.30 | inside, every pair slower (+1.0 to +2.4) |
+| decode 32 sliding | 143.63 | 143.74 | 143.57 | 143.58 | 143.89 | 0.32 | -0.03 | 1.44 | inside |
+| decode 32 full | 295.55 | 295.44 | 295.15 | 295.33 | 294.85 | 0.70 | +0.20 | 2.95 | inside (pairs -0.1 to +0.5) |
+| verify 1 sliding | 102.00 | 101.79 | 102.29 | 101.84 | 102.46 | 0.46 | -0.43 | 0.93 | inside |
+| verify 1 full | 110.37 | 109.81 | 110.16 | 110.38 | 110.98 | 0.82 | -0.41 | 1.63 | inside |
+| verify 16 sliding | 241.78 | 243.22 | 242.96 | 242.02 | 243.30 | 1.52 | -0.06 | 3.04 | inside |
+| verify 16 full | 327.18 | 326.54 | 327.07 | 326.94 | 327.06 | 0.13 | -0.36 | 3.27 | inside |
+| verify 32 sliding | 296.13 | 295.57 | 295.86 | 296.74 | 296.86 | 1.01 | -0.13 | 2.96 | inside |
+| verify 32 full | 461.15 | 461.49 | 460.94 | 460.40 | 459.92 | 1.23 | +0.27 | 4.61 | inside |
+
+Decode 32 full is neutral; decode 16 full is slower in all four pairs. Neither candidate reaches a win at the two
+target cells, and both lose at decode 16 full.
+
+### Decision
+
+The full-context q_len 1 attention cells are at the DRAM floor in steady state (4.47 to 4.53 TB/s per CTA from the
+first tile to the loop end, against a 4.45 TB/s floor and a 3.92 TB/s plain-load ceiling for the random rows). The
+11% / 7% distance to the byte floor is the launch intercept: 5 to 6 us from CTA entry to the first consumed tile
+(a code-bound once-path of about 2.5 us before the first copy, then a 1.4 us DRAM round trip; the same with PDL
+off, so not SM sharing) and about 3 us of end spread across SMs plus the last merge and finalize. Pre-issuing the
+first tiles (ly_apre, ly_apre2) does not convert the earlier copies into an earlier start: the block's own
+first-execution cost on the producer warps is as long as what it skips, and at decode 16 full both forms lose
+about 1.4 to 1.8 us. No judge check is recommended for either file. The remaining levers are (a) a shorter once-path
+before the first copy (the instruction stream, not the data dependencies, sets the 2.5 us) and (b) the end
+spread, where every static or arrival-order pair split has lost before (docs/ruled-out.md). Each is worth at most
+about 3 us per cell on these measurements, which is the 1% keep threshold itself.
