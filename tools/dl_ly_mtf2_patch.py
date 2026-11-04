@@ -26,8 +26,8 @@ STAMP = "if (OKC_DEBUG && p.dbg) p.dbg[blockIdx.x * 8 + {k}] = gtimer();"
 FENCE = '      asm volatile("fence.mbarrier_init.release.cluster;\\n" ::: "memory");\n'
 MAIN_EDITS = [
     (FENCE + "    }\n    if (ln < E8)", FENCE + "      " + STAMP.format(k=5) + "\n    }\n    if (ln < E8)"),
-    ("    m = __reduce_or_sync(0xffffffffu, m);\n#endif\n",
-     "    m = __reduce_or_sync(0xffffffffu, m);\n    if (ln == 0) " + STAMP.format(k=7) + "\n#endif\n"),
+    ("    m = __reduce_or_sync(0xffffffffu, m);\n",
+     "    m = __reduce_or_sync(0xffffffffu, m);\n    if (ln == 0) " + STAMP.format(k=7) + "\n"),
     ("      const int n = min(OKC_FAST1, v1 - v0);\n#endif\n      asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");\n",
      "      const int n = min(OKC_FAST1, v1 - v0);\n#endif\n      asm volatile(\"\" ::\"r\"(v0), \"r\"(n));\n      " + STAMP.format(k=1) + "\n"
      "      asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");\n      " + STAMP.format(k=4) + "\n"),

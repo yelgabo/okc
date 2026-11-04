@@ -1,4 +1,4 @@
-# moe-t1 checkpoint (2026-11-04 12:58 PT, round 2)
+# moe-t1 checkpoint (2026-11-04 13:05 PT, round 2)
 
 Base: muse_decode_layer/cand/ly_stk3.py, SHA256 a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6 (judge 10,109.9 us).
 
@@ -21,6 +21,13 @@ Question: why the eight warps' last phase A partials reach the helper 0.55-0.87 
 - mtf1_a (box /root/okc/.build/mtf1/mtf1_a.json, 20 inputs, decode 1), mean CTA us from the first CTA's entry, sliding / full: entry 0.07 / 0.06, FAST1 top 0.14 / 0.14, inits+fence 0.40 / 0.37, mask 0.56 / 0.53, copies issued 1.05 / 1.03, route 2.10 / 2.08, first slot 2.98 / 2.97, phase A end 11.79 / 11.78. Per-CTA segments (sliding): top to mask 0.41 (topk load), mask to issued 0.50, issued to slot full 1.93, slot to phase A end 8.81.
 - The largest unexplained segment is mask to issued (0.50 us of popc, muldiv, __fns, fence.proxy.async, expect_tx and two cp.async.bulk). Instrument ly_mtf2_stk3.py, SHA256 1b9e3e3cd8d0474b286d4d25e36e73e64d552f0fc34dde429ae5517640836cad (tools/dl_ly_mtf2_patch.py, summary tools/ly_mtf2_summary.py) splits it: 1 v0/n computed, 4 past fence.proxy.async, 6 first copy issued, 3 both issued. Box run /root/okc/.build/mtf1/mtf2_a.json started 20:53 UTC.
 
+- mtf2_a (box /root/okc/.build/mtf1/mtf2_a.json), per-CTA segments, sliding / full: mask to v0,n computed 0.12 / 0.12, fence.proxy.async 0.02 / 0.02, first copy issued 0.20 / 0.20, second copy issued 0.18 / 0.18. Copies issued at 1.07 / 1.05 us mean CTA. The per-copy cost points at lane 0's __fns plus the address math; the fence is cheap.
+- Candidates (tools/dl_ly_f1f_patch.py on ly_stk3, TINY only via a new MOE_TINY_DEFINES line -DOKC_F1FAST=1): lanes precompute the unit range for every k while the topk loads fly, one shuffle picks k = popc(m), each first unit's expert is one ballot. Same addresses, fences and barriers.
+  - muse_decode_layer/cand/ly_f1f.py SHA256 a2b943dfd2deda2fc739388e0730417cf97dfd0a29456089b91fb872fcd193dd
+  - muse_decode_layer/cand/ly_f1f3.py SHA256 95c26f111105bb53f998afb8c13de04aba5887ca38e934b676d71d29604ba936 (also OKC_FAST1=3 in TINY: the third ring slot issued early too instead of by the helper after the join)
+  - instruments ly_mtf2_f1f.py 94ea6a51..., ly_mtf2_f1f3.py f51b1042... (uncommitted, regenerable)
+- Box chain /root/okc/.build/f1f/chain.sh started 20:57 UTC: gate (bx_box_run --runs 1, reference check and PDL8H guards) for both, then mtf2 stamps stk3, f1f, f1f3, stk3. Logs in /root/okc/.build/f1f/.
+
 ## Next action
 
-Read mtf2_a stamps, pick the lever from the largest FAST1 segment, build a TINY-only candidate, gate it, A/B two rounds.
+Read /root/okc/.build/f1f/chain.log, gate logs (PASS, five PDL8H_GUARD lines) and stamps; if the issue time drops, run two A/B rounds per passing candidate with tools/ly_prtl_ab.sh (CTL=ly_stk3.py).
