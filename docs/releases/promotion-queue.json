@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-04T04:46:15.951922+00:00",
+  "observed_at": "2026-11-04T17:40:00+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -865,6 +865,20 @@
       "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0445.md",
       "release_review_required": true,
       "public_submission_occurred": true
+    },
+    {
+      "job": "92543dcfd8164b3a",
+      "problem": "muse_decode_layer",
+      "score_us": 10139.25883152952,
+      "owner": "Final-day lead (Claude session)",
+      "judged_arm": "ly_rfx check draw, every T PDL on, CG_GATE 0/1024",
+      "source_identity": "muse_decode_layer/cand/ly_rfx.py SHA256 60ef465d47ff76cd83e236fc8d4768bc18eda7b77e2353e32f2c36491b704fda",
+      "release_state": "public-same-source",
+      "reason": "Private check of the file published as run caed0290397b44a7 (10,146.4 us, the current row). Checks do not enter the board; the 7 us gap between the two draws is judge noise. No further release action; repeat draws of the same source are the remaining lever.",
+      "evidence": "muse_decode_layer/cand/profiles/ly_rfx.92543dcfd8164b3a.json",
+      "disclosure_report": "docs/steering/2026-11-02-final-day-directive.md",
+      "release_review_required": false,
+      "public_submission_occurred": true
     }
   ],
   "ineligible_source_family_checkpoint": {
@@ -890,28 +904,18 @@
     "terminal_receipt": "muse_decode_layer/cand/profiles/rv_k_combo2n.03e45b68e75d47fa.json"
   },
   "current_layer_reference": {
-    "observed_at": "2026-11-04T04:46:15.951922+00:00",
-    "displayed_job": "117605d07c944666",
+    "observed_at": "2026-11-04T17:20:00+00:00",
+    "displayed_job": "caed0290397b44a7",
     "displayed_source_eligible": true,
-    "score_us": 10333.381525094357,
-    "source_binding": "Cleancombo2n source family per owning786a3f6b; exact draw upload not independently retained",
-    "frozen_prior_gate_reference": {
-      "job": "f931abf568544018",
-      "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
-      "score_us": 10374.616018194523,
-      "role": "Last known eligible published comparison control, not the currently displayed API row"
-    },
-    "prior_conditional_release_review_open": true,
-    "report": "docs/steering/2026-11-04-driver-monitor-0445.md",
-    "eligible_control": {
+    "score_us": 10146.409630196673,
+    "source_sha256": "60ef465d47ff76cd83e236fc8d4768bc18eda7b77e2353e32f2c36491b704fda",
+    "source_binding": "muse_decode_layer/cand/ly_rfx.py, slack-free (ly_fabq + ly_rfin finisher + ly_xca slice x loads)",
+    "report": "docs/steering/2026-11-02-final-day-directive.md",
+    "closing_rank": 308,
+    "previous": {
       "job": "117605d07c944666",
-      "score_us": 10333.381525094357,
-      "source_family_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
-      "exact_repeat_upload_sha256": null,
-      "role": "Current clean-source public row, with historical user-condition review separately open"
-    },
-    "closing_observed_at": "2026-11-04T04:53:45.145911+00:00",
-    "closing_rank": 368
+      "score_us": 10333.381525094357
+    }
   },
   "known_clean_public_candidate": {
     "job": "18291368c3fa46d6",

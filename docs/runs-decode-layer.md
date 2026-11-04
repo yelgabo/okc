@@ -5128,3 +5128,336 @@ single judge draw (ly_rfin's two draws, ledger 07:18 PT). The judge check of ly_
 08:28 PT) was already registered by the lead before this run; this section does not dispatch one. Decision: ly_rfx is
 correct on the box (12 / 12, startup comparison OK, CG_GATE equal to the control's), stacks the two measured gains
 without interference, and is the finalist from these two lanes; no ruled-out row.
+
+## 2026-11-04 - Verify 1 timeline (box)
+
+Verify 1 lane (T = 8, one request of 8 tokens). Question: where does the step go at verify 1, sliding and full, kernel
+by kernel against its byte floor and edge by edge, and which exposed excess can one change take? Base:
+muse_decode_layer/cand/ly_rfx.py (SHA256 60ef465d47ff76cd83e236fc8d4768bc18eda7b77e2353e32f2c36491b704fda, the
+public layer row, job caed0290397b44a7), never edited. Box only (okc-h200, 17:18 to 17:35 UTC), every run under
+gpu.lock, no judge check. Logs, traces and tables: `muse_decode_layer/profiles/box/v1tl/` (box `.build/v1tl/`,
+`.build/prtl/v1un*`). Driver for every candidate: `tools/ly_v1_ab.sh` (a gate run with the file's own in-prepare
+PDL8 guard, then `tools/ly_prtl_ab.sh` twice against ly_rfx at all six loads, then a candidate timeline).
+
+### Timeline at T = 8 (measurement)
+
+`LY_TRACE_DIR=.build/v1tl/tl_rfx tools/ly_tl_run.py muse_decode_layer muse_decode_layer/cand/ly_rfx.py --loads
+"verify 1" --runs 20 --kernels --pin-pdl8 1,8,16,32 --skip-pdl8-gate --router-seed 106218864389449120 --judge
+g1b4_pdl8d.f931abf568544018.json` (lock, ls-cache and ext-cache as in the decode 1 section); reference check PASS at
+both cells, net 101.47 / 115.07 us (sliding / full, 20 runs). Medians over the 10 profiled cold replays
+(`tools/ly_tl_parse.py`). Critical path = this kernel's end minus the previous kernel's end; gap = start minus the
+previous end (negative: PDL overlap). Floors at 4.44 TB/s as in the decode 1 section (the T = 8 x rows add under
+0.05 us anywhere; b1 at T = 8 moves about 0.8 MB, 0.2 us); the MoE floor is 6.38 us per distinct local expert at the
+box's per-input mean of 7.38 / 7.92 distinct (docs/box.md, "Routing"), so it is approximate for these 10 inputs.
+
+Verify 1 sliding (span 105.50 us, sum of durations 121.89):
+
+| # | kernel | start | dur | end | gap | critical path | floor | over floor |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| 0 | qkv sk2_kernel_narrow<1,8,3,...> (plain launch) | 0.00 | 9.52 | 9.52 | - | 9.52 | 6.39 | 3.13 |
+| 1 | attn_kernel<8,false,15> | 7.42 | 8.62 | 16.27 | -1.95 | 6.75 | 0.12 | 6.63 |
+| 2 | o sk2<1,8,4,1,4,...> | 9.94 | 10.06 | 20.02 | -6.24 | 3.75 | 2.84 | 0.91 |
+| 3 | b1 glue_cluster_boundary<4,32,...> | 17.87 | 4.86 | 22.64 | -2.24 | 2.62 | 0.2 | 2.4 |
+| 4 | pooler + router sk2_kernel_gle | 20.54 | 17.79 | 38.30 | -2.16 | 15.66 | 13.26 | 2.40 |
+| 5 | _prq_sl_tile_route_cg | 36.40 | 3.65 | 40.14 | -1.98 | 1.84 | 0 | 1.84 |
+| 6 | moe_fused<false> (TINY2, cooperative, no programmatic attribute) | 40.19 | 58.99 | 98.82 | +0.05 | 58.68 | about 47 | about 11.6 |
+| 7 | slice sk2<1,8,1,1,8,2,4> (bit 29: plain launch) | 99.04 | 4.42 | 103.42 | **+0.22** | 4.60 | 1.42 | 3.18 |
+| 8 | _sl_cluster_finish_cg | 101.01 | 4.50 | 105.50 | -2.43 | 2.08 | 0.05 | 2.03 |
+
+Verify 1 full (span 119.03 us, sum of durations 144.18):
+
+| # | kernel | start | dur | end | gap | critical path | floor | over floor |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| 0 | qkv | 0.00 | 9.73 | 9.73 | - | 9.73 | 6.39 | 3.34 |
+| 1 | attn_kernel<8,false,11> | 7.38 | 16.19 | 23.66 | -2.32 | 13.93 | 4.61 | 9.32 |
+| 2 | o sk2 | 10.46 | 17.15 | 27.62 | -13.23 | 3.96 | 2.84 | 1.12 |
+| 3 | b1 glue | 24.59 | 5.58 | 30.26 | -2.98 | 2.64 | 0.2 | 2.4 |
+| 4 | pooler + router gle | 28.10 | 17.76 | 45.92 | -2.11 | 15.66 | 13.26 | 2.40 |
+| 5 | route | 44.02 | 3.66 | 47.52 | -2.05 | 1.60 | 0 | 1.60 |
+| 6 | moe_fused<false> | 47.60 | 64.24 | 112.34 | +0.10 | 64.82 | about 50.5 | about 14.3 |
+| 7 | slice sk2 | 112.55 | 4.43 | 116.96 | **+0.26** | 4.62 | 1.42 | 3.20 |
+| 8 | finish | 114.58 | 4.45 | 119.03 | -2.40 | 2.07 | 0.05 | 2.02 |
+
+Edges. Six of the eight edges are PDL edges whose secondary starts 1.95 to 13.2 us before its producer ends (the
+T = 8 set attn, o, b1, pool, route, fin of PDL8D_EDGES). Two are serial: route -> MoE (+0.05 / +0.10 us; the
+cooperative MoE has no programmatic attribute, the MoE lane's) and MoE -> slice (+0.22 / +0.26 us). The second is
+the difference from decode 1: at T = 1 the slice is the cgemv, a PDL secondary of the same MoE (cg_set_pdl) that
+enters 1.3 us after the MoE's trigger and holds its weights before the MoE ends ("Decode 1 post-MoE tail"); at
+T = 8 the slice is sk2 and `_pdl8_bfp_pdl` sets bit 29 (no programmatic attribute) for role "un" at every T, so it
+starts after the MoE has completed and then streams all 6.3 MB of its weights. Slice + finish after the MoE's end
+is 6.68 / 6.69 us for a 1.47 us floor.
+
+Largest excesses over floor (critical path minus floor, sliding / full) and their owners: MoE 11.6 / 14.3 (ramp,
+handoff and tail, MOE-TL-01; MoE lane), attention 6.6 / 9.3 (attention lane), qkv 3.1 / 3.3 (bf16 lane; first
+kernel after the flush), slice 3.2 / 3.2 and finish 2.0 / 2.0 (this lane's scope: the edge and the tail), b1 2.4,
+pooler + router 2.4 (bf16 lane, "Pooler + router remaining gap"), route 1.8 / 1.6.
+
+### Why ly_xca and the finish loads do not move verify 1 (step 2)
+
+- ly_xca changes the cgemv source only (three `__ldcg` -> `__ldca` tokens in `_PDL8_CG_EDITS`). The cgemv runs only
+  at m = 1 (the restored `cg_pick` is keyed (layer, 1); PIN_PICK keeps (8, "un") on bfp), so at T = 8 the edited
+  kernel is never launched; ly_xca's verify 1 deltas (-0.27 / -0.43, 18/24) and ly_rfx's (+0.06 / -0.20) are the
+  session null. The T = 8 slice reads x by TMA into shared memory, every one of its 128 CTAs taking all 64 KB of x
+  across its 4 stages (8 MB of L2 traffic), after its wait; that cost is inside the slice's 4.4 us duration and was
+  not separated here (hypothesis: under 1 us, L2 delivering 8 MB).
+- The finish at T = 8 is 64 programs of 16 warps with BC = 1024 (SL_CLUSTER_CONFIG[8]; T = 1: 32 programs of 8 warps,
+  BC = 256). Its critical path after the slice is 2.08 / 2.07 us (T = 1: 1.47 / 1.94), the same serial shape after
+  the wait (carry row and slice row loads, two dependent 1024-wide reductions, the stores) with 4x the outputs per
+  program. Its one pre-wait move (finpre: the NEXT weight before gdc_wait) was already null at verify 1 (+0.19 /
+  +0.02, "finpre" row of the blueprint table). Not stamped at T = 8 in this lane.
+- So at T = 8 the slice's excess is not the x load the decode 1 lane fixed but the serial edge in front of it:
+  launch after the MoE's completion, then the full weight stream. That is the item taken below.
+
+### Candidate ly_v1un: the T = 8 slice as a PDL secondary of the MoE
+
+Evidence that reopens the edge (docs/ruled-out.md rows "M-B slice 1" and "G Tiny/Tiny2 expert->single sliced-unpool
+PDL edge"): the M-B row's revisit trigger has landed (helper0, the TINY2 build at T = 8, runs
+`griddepcontrol.launch_dependents` unconditionally at each CTA's phase B end, before its grid barrier and final
+pass), and the G row's missing budget is now measured: the slice starts 0.22 / 0.26 us after the MoE's end, and the
+MoE's CTAs retire over 52.6 to 53.5 us after a last trigger at 50.8 (MOE-TL-01 at T = 8), so a programmatic slice can
+take each SM as its MoE CTA leaves (the two CTAs cannot share an SM: >= 115,712 + 118,240 B of shared memory) and
+issue its first stages before its wait.
+
+`tools/dl_ly_v1un_patch.py` (base and pin checked) writes `muse_decode_layer/cand/ly_v1un.py` (SHA256
+88fbae8644f946af46b87ab89be17409e133ebab26d20cf61e9c3f3941788145). Two lines change, T = 8 only:
+
+- `PDL8D_EDGES = ("attn", "o", "b1", "pool", "route", "fin", "un")`: the T = 8 in-prepare guard (`_pdl8h_t8`, the
+  paired A/B and the 2000-replay stress against the PDL-off output; a FAIL turns T = 8 off) covers the new edge with
+  the other six.
+- `_pdl8_bfp_pdl`: `(1 << 29) if role == "qkv" or (role == "un" and T != 8) or not _pdl8_edge(role)`; T = 1, 16 and
+  32 keep bit 29 on "un".
+
+No kernel source changes, so there is no SASS diff: the sk2 binary is the base's and `pdl` is a kernel argument. The
+kernel's own PDL path does the ordering: weights (prepare-time constants) and the escape table issued before the
+wait, every thread's `griddepcontrol.wait`, then `fence.proxy.async.global` (upstream generic stores of x -> TMA
+reads), then the x tiles; no global write before the wait. `griddepcontrol.wait` returns only when the whole MoE grid
+has completed and its memory operations are performed and visible to the waiting grid (PTX ISA 8.7, 9.7.13.13
+griddepcontrol). The MoE stays the primary with its cooperative launch, trigger, fences and grid barrier; its CTAs
+are all resident before any secondary CTA can launch, so its progress does not depend on the slice. The finish stays
+a PDL secondary of the slice. P = BFP_PDL_N = 2 pre-wait stages (of the CTA's 4).
+
+Gate run (the file's own prepare, no pin, `gate_v1un.log`): `PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin+un:
+off 132.13 on 125.76 us, saving 6.21, wins 9/9`; sliding off 124.99 on 117.89, saving 7.17, 9/9; `PDL8H_GUARD T=8`
+full and sliding: ids mismatches 0 / 0, on drift equal to the off arm's (7.25e-03 / 6.89e-03 full, 6.33e-03 /
+6.09e-03 sliding): pass, T = 8 on; the T = 1 / 16 / 32 guards pass; reference check PASS at both verify 1 cells.
+Correctness (chk step, six loads, `--runs 5`): PASS 12/12, `G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16)
+56 verified_replays`, `CG_GATE ... equal 1023/1024 ok` (the same line as the control's).
+
+Paired A/B against ly_rfx (`tools/ly_prtl_ab.sh`, CTL=ly_rfx.py, c/w/c/w/c per round, 60 runs, PDL pinned on at
+every T, router seed 106218864389449120, f931 case seeds, local_start per input; three rounds 17:23 to 17:35 UTC).
+Per round, verify 1 sliding / full w - c: -0.99 / -1.78 us (4/4 and 4/4 pairs), -1.56 / -1.29 (3/4, 4/4), -1.74 /
+-1.13 (4/4, 4/4). Pooled over the three rounds (9 control runs, 6 candidate runs, 54 pairs per cell;
+`profiles/box/v1tl/v1un/table_three_rounds.txt`):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.60 | 0.94 | 64.59 | -0.01 | 1.89 | 26/54 | inside |
+| decode 1 full | 70.87 | 0.59 | 70.78 | -0.10 | 1.18 | 33/54 | inside |
+| decode 16 sliding | 126.86 | 1.15 | 126.67 | -0.19 | 2.30 | 36/54 | inside |
+| decode 16 full | 199.73 | 1.66 | 199.14 | -0.59 | 3.33 | 42/54 | inside |
+| decode 32 sliding | 143.98 | 1.26 | 144.01 | +0.03 | 2.53 | 32/54 | inside |
+| decode 32 full | 295.34 | 2.19 | 295.40 | +0.06 | 4.38 | 25/54 | inside |
+| verify 1 sliding | 102.31 | 2.16 | 100.89 | **-1.43** | 4.32 | **54/54** | inside |
+| verify 1 full | 110.55 | 1.38 | 109.15 | **-1.40** | 2.75 | **54/54** | inside |
+| verify 16 sliding | 242.67 | 1.79 | 242.79 | +0.12 | 3.58 | 26/54 | inside |
+| verify 16 full | 326.57 | 2.35 | 326.08 | -0.49 | 4.70 | 40/54 | inside |
+| verify 32 sliding | 294.58 | 2.08 | 294.60 | +0.01 | 4.16 | 28/54 | inside |
+| verify 32 full | 458.56 | 2.14 | 458.45 | -0.11 | 4.59 | 33/54 | inside |
+
+The first two rounds pooled (the 24-pair form) read -1.27 / -1.54 us at 24/24 and 24/24. The ten unchanged cells
+(the code differs only at T = 8) sit within 0.6 us of the control, the session null. By the 2x-spread rule verify 1
+full is a win in round 1 and verify 1 sliding a win in round 3, and the pooled cells are inside (one 103.62 control in
+round 2 sets the sliding bar); by sign count, 54 of 54 pairs in both cells across three rounds is the evidence of
+the gain.
+
+Candidate timeline (same instrument, `profiles/box/v1tl/tl_v1un/`, net 101.36 / 114.42 us): the slice now starts
+1.06 / 1.30 us before the MoE's end (base: 0.22 / 0.26 after), its end follows the MoE's by 3.36 / 3.28 us (base
+4.60 / 4.62), and the finish's critical path grows 2.08 -> 2.40 / 2.07 -> 2.48 (it waits on a slice that ends sooner
+and gives part back). Slice + finish after the MoE: 5.76 / 5.76 us against 6.68 / 6.69, -0.92 / -0.93 us on the
+kernel timeline; the rest of the A/B delta is inside the MoE's input-to-input spread.
+
+### Candidate ly_v1un4: all four slice stages before the wait (stacked on ly_v1un, no gain)
+
+`tools/dl_ly_v1un4_patch.py` (base ly_v1un, pin checked) writes `muse_decode_layer/cand/ly_v1un4.py` (SHA256
+da9e30b5275b2aca0938464245221dc53b420a6b47d4f7a7d4d0111034090aba): one line, `PCX_CFG[("un", 8)] = (4, 0, 0, 0)`, so
+the T = 8 slice issues its whole K of weights (4 x 12 KB per CTA) before the wait; it is read only on the PDL8 path
+at T = 8. Gate run: PDL8_AB T = 8 savings 6.88 / 6.72 us (9/9), PDL8H_GUARD pass at both cells, ids mismatches 0;
+the sliding on-drift 6.33e-03 / 6.09e-03 sat above that run's off-drift 3.16e-03 / 3.98e-03 and inside the guard
+bound (max(2e-2, off)); the same 6.33e-03 / 6.09e-03 was ly_v1un's off-drift, so the off arm's own drift varies by
+that much between prepares. Check PASS 12/12, startup OK, CG_GATE equal to the control's. A/B against ly_rfx, two
+rounds (`profiles/box/v1tl/v1un4/table_both_rounds.txt`): verify 1 sliding / full -0.95 (23/24) / -0.82 (24/24),
+per round -1.00 / -0.78 and -0.89 / -0.87; other cells -0.50 to +0.22. Timeline (`tl_v1un4/`): the slice starts
+1.22 / 1.51 us before the MoE's end but runs 5.15 us instead of 4.42 and ends 4.03 / 3.61 us after it (ly_v1un
+3.36 / 3.28); its producer loop is empty, so its `launch_dependents` fires at once and the finish launches earlier
+(finish critical path 1.92 / 2.13). Hypothesis for the longer slice: all 128 CTAs' 48 KB requests at once behind the
+MoE's exit, and the early finish programs sharing the SMs. Smaller than ly_v1un's gain in every round; not kept,
+ruled-out row.
+
+### Decision
+
+ly_v1un is the lane's candidate: verify 1 sliding / full -1.43 / -1.40 us on the box with 54/54 pairs in each cell
+over three rounds (24/24 and 24/24 over the first two), nothing else beyond noise, guard clean at T = 8 with the new
+edge, check PASS 12/12. Value if the box delta carries to the judge (hypothesis; the Box rule forbids reading it as a
+prediction): about 1.4 us x 0.144% per us = 0.2% of the layer score, below one draw's 1.3% spread, so one check
+establishes validity (13/13 and the PDL8H guard on the judge's prepare with seven T = 8 edges) rather than rank. It
+touches only the T = 8 path and two Python lines that the moe and layer lanes' T = 1 edits do not touch, so it stacks
+with them by construction. A ledger registration line proposing the check is written; this lane dispatched no judge
+job. Left open at T = 8: the slice's TMA x traffic (8 MB of L2 reads for 64 KB of x) and the finish's 2.1 to 2.5 us
+after the slice, both unstamped.
+
+## 2026-11-04 - Decode 1 finish and slice launch (box)
+
+Layer lane (relaunched 09:17 PT; the 08:38 launch died before writing anything). Question: two leads left by the
+post-MoE tail section at decode 1. (a) The finish kernel (1.5 to 1.6 us) shows two serial steps after its wait (P,
+then carry): can the second load be issued earlier, or b1's operands be loaded before the wait? (b) The slice cgemv
+enters 1.3 to 1.6 us after the MoE's trigger: does the trigger position or the slice's pre-wait prologue leave work
+that can move ahead of the wait? Base: `muse_decode_layer/cand/ly_rfx.py` (SHA256
+60ef465d47ff76cd83e236fc8d4768bc18eda7b77e2353e32f2c36491b704fda, the public row caed0290397b44a7, never edited).
+Box only (okc-h200, 17:24 to 17:40 UTC), every GPU process under `/root/okc/.build/box/gpu.lock` (bx_box_run.py
+`--lock`); the verify1 lane's ly_v1un A/B shared the lock. No judge check. The stamped instrument
+`muse_decode_layer/cand/ly_pmt_rfx.py` (a1b60fdb...) is `tools/dl_ly_pmt_patch.py --base ly_rfx --xld __ldca`; the
+untracked copy the dead launch left in worktree agent-aab9c6edc6da3f995 is byte-identical to it. `tools/ly_box_pmt.py`
+now also prints the last MoE CTA's phase A end (`moe_pa_end`) and the slice's first entry after it.
+
+### (a) The finish: what the SASS does (measurement)
+
+The PTX of `_sl_cluster_finish_cg` (T = 1, 8 warps) issues all five loads after `griddepcontrol.wait` back to back
+(carry v4, tail, outcarry, NEXT, P v2). ptxas does not keep that order: in the cubin the P load
+(`LDG.E.64.STRONG.GPU`) follows ACQBULK, the carry load (`LDG.E.128.STRONG.GPU`) is issued only after the second
+`SHFL.BFLY` of the first reduction (which consumes P, so after P has landed), and tail / outcarry / NEXT after that
+reduction's shared-memory store. The two loads are therefore serial in the binary even though the source issues them
+together; the 0.48 us that the stamps put between "P consumed" and "invnext formed" holds whatever of carry's L2
+latency reduction 1 does not cover, plus reduction 2. Forcing the carry load ahead of P inside the post-wait block
+would need inline assembly in Triton; loading b1's operands before the wait does not.
+
+Per-operand proof for loading b1's outputs before the finish's wait (the predecessor's output P stays behind it):
+`s1` (CARRY) and `tail` are written only by `_pdl8_b1` in `_pdl8_sl_tile_after_attention`; both are allocated at the
+call's top and live to its return, and no later kernel of the call writes them (the pooler writes pooled / logits,
+route writes xm / ids / lids / wts, the MoE writes m, the slice writes P). At T <= 8 the MoE is launched by the
+helper0 launcher with `cudaLaunchCooperativeKernel` and no programmatic attribute, so it starts only after all
+earlier work in the stream has completed; route completes only after its `gdc_wait` (every route program waits),
+so after the pooler has completed, and the pooler only after b1. The slice can launch only after the MoE's CTAs
+have triggered (after the MoE started), and the finish only after the slice's CTAs have triggered, so b1 has
+completed before any finish CTA exists; the loads stay `ld.global.cg` (L2, no L1 line). This holds at T = 8 too,
+including on ly_v1un (T = 8 slice as a PDL secondary of the MoE), since the MoE launch is unchanged there.
+
+### Candidate ly_finb1: b1's operands before the finish's wait
+
+`tools/dl_ly_finb1_patch.py` (base and pin checked) writes `muse_decode_layer/cand/ly_finb1.py` (SHA256
+dc6e2af57bb43d43d97a3d3a7e4f93ddb43d67530fbcee8a34afa0ead59e3c11): in `_sl_cluster_finish_cg` only (ly_rfx lines
+18286-18292, the T <= 8 PDL8 finish), the carry, tail and outcarry loads move above the `if USE_PDL:` wait block; P
+and NEXT stay after it. No wait, trigger, fence, launch attribute or other kernel changes; the T = 1 and T = 8
+instances both change (not T-gated; the proof above covers both). SASS (box Triton cache, cuobjdump): the T = 1
+instance has 160 instructions, 32 registers and no local memory in both builds; the carry `LDG.E.128.STRONG.GPU` and
+the two `LDG.E.STRONG.GPU` now precede ACQBULK and only P and NEXT follow it; the T = 8 instance (16 warps) moves the
+same three loads. Correctness (chk, `bx_box_run.py --runs 5`, six loads): PASS 12 / 12, `G_RELEASE_STARTUP_OK native
+(128, 32, 33, 256, 1, 8, 16) 56 verified_replays`, `CG_GATE ... equal 1023/1024 ok` (the control's line), timed PDL
+{1, 8, 16, 32} on.
+
+Paired A/B against ly_rfx (`tools/ly_prtl_ab.sh`, CTL=ly_rfx.py, c/w/c/w/c, 60 runs, six loads, PDL pinned, router
+seed 106218864389449120, f931 case seeds, local_start per input), two rounds, logs
+`muse_decode_layer/profiles/box/finb1/` (round1/, round2/, `table_both_rounds.txt`). Round 1 decode 1 sliding / full
+-0.03 / -0.07 us, round 2 -0.27 / -0.22. Pooled (6 controls, 4 candidate runs, 24 pairs):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.51 | 0.78 | 64.36 | -0.15 | 1.57 | 14/24 | inside |
+| decode 1 full | 70.78 | 0.85 | 70.64 | -0.15 | 1.70 | 17/24 | inside |
+| decode 16 sliding | 127.12 | 0.74 | 126.86 | -0.27 | 1.47 | 18/24 | inside |
+| decode 16 full | 199.22 | 1.33 | 199.08 | -0.14 | 2.66 | 17/24 | inside |
+| decode 32 sliding | 144.14 | 1.01 | 143.91 | -0.23 | 2.02 | 16/24 | inside |
+| decode 32 full | 295.24 | 1.71 | 294.86 | -0.37 | 3.42 | 16/24 | inside |
+| verify 1 sliding | 102.09 | 1.20 | 102.04 | -0.04 | 2.40 | 14/24 | inside |
+| verify 1 full | 110.50 | 0.85 | 110.14 | -0.35 | 1.70 | 19/24 | inside |
+| verify 16 sliding | 242.06 | 1.58 | 241.50 | -0.56 | 3.17 | 19/24 | inside |
+| verify 16 full | 326.21 | 3.50 | 326.07 | -0.14 | 7.01 | 13/24 | inside |
+| verify 32 sliding | 294.44 | 1.39 | 294.02 | -0.42 | 2.94 | 18/24 | inside |
+| verify 32 full | 458.26 | 2.06 | 458.64 | +0.38 | 4.58 | 8/24 | inside |
+
+Reading: a null. The changed cells (decode 1, verify 1) move by -0.04 to -0.35 us with 14 to 19 of 24 pairs, the same
+size and sign spread as the cells whose code did not change (decode 16 / 32, verify 16 / 32: -0.56 to +0.38).
+Hypothesis for why: carry's latency was already mostly hidden under reduction 1 (its load is issued two shuffles into
+that reduction), so what the finish spends after its wait is the P load and its two block reductions (6 `BAR.SYNC`
+in both builds), which no load placement removes. Not kept; ruled-out row added.
+
+### (b) The slice launch: what the stamps show (measurement, ly_pmt_rfx, 20 inputs per cell, us from the first MoE CTA's entry)
+
+| item | sliding | full |
+|---|---:|---:|
+| last MoE CTA's phase A end / trigger (phase B end) / barrier / first exit / last exit | 12.78 / 20.10 / 21.58 / 21.36 / 23.71 | 12.66 / 19.47 / 20.82 / 20.69 / 21.46 |
+| final pass after the barrier (last 8 CTAs) | 1.29 | 0.47 |
+| slice entry min / max (512 CTAs), first entry after the trigger | 21.39 / 21.49, 1.31 | 21.18 / 21.26, 1.63 |
+| slice CTAs with codes landed before the MoE's last exit | 468 | 0 |
+| slice wait return after the MoE exit, p50 / max | 0.53 / 0.56 | 1.54 / 2.50 |
+| slice end after the MoE exit; finish end after the slice end | 3.20; 1.57 | 4.30; 1.54 |
+| plain / instrumented graph | 68.53 / 70.93 | 75.46 / 76.10 |
+
+In both cells the slice's first CTA enters within 0.03 us of the first MoE CTA's exit, so this run alone cannot tell
+PDL launch latency from waiting for a free slot; the candidate below separates them. The slice's pre-wait prologue is
+its 12 KB of codes per CTA, the escape count and the escape table, all prepare-time constants; x, the only operand
+the MoE writes, is already behind the wait. Nothing else can move ahead of the wait, so the lever left is the trigger
+position.
+
+### Candidate ly_trga: the TINY MoE build triggers at its phase A end
+
+`tools/dl_ly_trga_patch.py` writes `muse_decode_layer/cand/ly_trga.py` (SHA256
+c4576e5536862bf7a84d73ff6ee1fdee29e4da1390dea6b5dd083604fd943645): in the helper0 MoE source only (ly_rfx lines
+15077-15087), the compute threads' `griddepcontrol.launch_dependents` is issued right after `run_phase<false>`
+(`DBG(2)`) under `#if OKC_TRIGA` and skipped at its old place under `#if !OKC_TRIGA`; one new line after ly_rfx line
+16262 adds `-DOKC_TRIGA=1` to `MOE_TINY_DEFINES` (T <= 4). TINY2 and MID preprocess to the base's code. The trigger
+orders no memory: the slice's `griddepcontrol.wait` still waits for the whole MoE grid. SASS (`tools/ly_micro_sass.py`,
+nvcc 13.0, sm_90a): TINY `moe_fused<false / true>` 5197 -> 5200 instructions, 145 registers, no spill, `PREEXIT`
+moved from 0xd2d0 (after phase B) to 0x8bc0 (between the phases), every other difference a shifted branch target;
+TINY2 SASS identical. Correctness (chk): PASS 12 / 12, startup OK, CG_GATE line equal to the control's, PDL {1, 8,
+16, 32} on.
+
+Paired A/B against ly_rfx, same driver and settings, logs `muse_decode_layer/profiles/box/trga/`. Round 1 decode 1
+sliding +1.78 us (pairs +1.62 +1.33 +1.54 +2.29), full +1.29 (+1.22 +1.36 +1.86 +1.04); round 2 sliding +2.13 (+2.06
++2.13 +2.21 +2.16), full +1.44 (+1.46 +1.26 +1.47 +1.49). Pooled:
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.47 | 0.93 | 66.42 | +1.95 | 1.86 | 0/24 | loss |
+| decode 1 full | 70.85 | 0.82 | 72.21 | +1.36 | 1.63 | 0/24 | inside (every pair a loss) |
+| decode 16 sliding | 126.99 | 0.80 | 126.91 | -0.08 | 1.60 | 12/24 | inside |
+| decode 16 full | 199.71 | 1.20 | 199.44 | -0.27 | 2.40 | 16/24 | inside |
+| decode 32 sliding | 144.35 | 1.07 | 144.35 | +0.00 | 2.14 | 13/24 | inside |
+| decode 32 full | 295.39 | 2.13 | 295.19 | -0.20 | 4.26 | 13/24 | inside |
+| verify 1 sliding | 102.35 | 1.02 | 102.52 | +0.16 | 2.05 | 9/24 | inside |
+| verify 1 full | 110.40 | 2.18 | 110.37 | -0.03 | 4.35 | 13/24 | inside |
+| verify 16 sliding | 242.76 | 1.31 | 242.80 | +0.04 | 2.62 | 9/24 | inside |
+| verify 16 full | 326.14 | 2.42 | 326.12 | -0.03 | 4.83 | 13/24 | inside |
+| verify 32 sliding | 294.89 | 2.05 | 294.60 | -0.28 | 4.10 | 15/24 | inside |
+| verify 32 full | 458.72 | 1.90 | 458.55 | -0.17 | 4.59 | 13/24 | inside |
+
+What the candidate's stamps (`ly_pmt_trga.py` 9814ef6c, the same 20 inputs) and kernel timeline (`tools/ly_tl_run.py`,
+10 profiled replays, `profiles/box/trga/tl/`) show:
+
+- The first slice CTA enters 1.34 / 1.57 us after the last MoE CTA's phase A end (sliding / full), with no MoE CTA
+  exiting nearby, so the PDL launch latency from the last trigger is 1.3 to 1.6 us by itself.
+- Only 132 slice CTAs, one per SM, enter beside the running MoE CTA (132 with codes landed before the exit, in both
+  cells); the other 380 enter when MoE CTAs exit (entry p50 21.26 / 21.20 us, as in the base). The register census of
+  the cg32 section allowed 3 per SM (the 145 x 288 MoE registers leave 21,760), so another resource binds
+  (hypothesis: the TINY build's dynamic shared memory leaves room for one 1 KB slice CTA). This would also explain
+  why ly_cg32 (4 per SM by registers) was null.
+- The 132 early CTAs' codes no longer stream under the MoE's final pass, which got short at sliding (0.39 us after
+  the barrier against 1.29 in the base), so the last MoE exit came earlier relative to the 380 late CTAs, whose
+  1.45 us code stream now runs after the exit: slice wait return p50 / max 1.33 / 3.33 us after the exit (base 0.53 /
+  0.56), slice end 5.22 / 5.25 us after the exit (base 3.20 / 4.30). Timeline: the slice's critical path after the
+  MoE's end is 4.19 / 4.22 us against 2.96 / 2.87 in the base. Which part of the base's final pass the slice's code
+  stream lengthens is not separated.
+
+ly_trga is a loss; ruled-out row added.
+
+### Decision
+
+No candidate for a judge check from this lane: ly_finb1 is a null (-0.15 / -0.15 us at decode 1, 14 and 17 of 24
+pairs), ly_trga a loss (+1.95 / +1.36 us, 0 of 24 pairs below the control). Two measurements carry forward: after
+its wait the finish spends its time on P and two block reductions, not on serialized loads; and only one slice CTA
+fits beside a TINY MoE CTA, so while the slice is 512 CTAs of 12 KB each no trigger move can preload more than a
+quarter of its codes. Next idea (hypothesis, not built): a 132-CTA slice (one CTA per SM, about 4 row pairs and 48 KB
+of codes per CTA held in registers, about 40 registers at 544 threads, inside the 21,760 the MoE CTA leaves, and the
+same 1 KB of shared memory) launched from an early MoE trigger, so every code byte is resident before the MoE's exit
+and only the x read and the math remain after the wait. Bound: the base's post-exit code stream at full (about 1.5
+us) and the late-CTA spread at sliding (about 0.5 us). Its first test is the residency: a stamped run showing all
+132 slice CTAs holding their codes before the MoE's exit.

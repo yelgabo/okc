@@ -45,11 +45,13 @@ def summarize(cg, moe, fin):
     m4 = [us(r[4]) for r in moe]
     m5 = [us(r[5]) for r in moe]
     moe_trig, moe_bar, moe_exit = max(m3), max(m4), max(m5)
+    m2 = [us(r[2]) for r in moe]   # phase A end (the trigger point of a TRIGA build)
     fin_ctas = sorted(range(len(moe)), key=lambda i: -moe[i][5])[:8]   # the final-pass CTAs are the last to exit
     out = dict(
         moe_n=len(moe), moe_trig_min=min(m3), moe_trig=moe_trig, moe_bar_min=min(m4), moe_bar=moe_bar,
         moe_exit_min=min(m5), moe_exit_p50=med(m5), moe_exit_last8=mean(us(moe[i][5]) for i in fin_ctas), moe_exit=moe_exit,
         moe_bar_to_exit_last8=mean(us(moe[i][5]) - us(moe[i][4]) for i in fin_ctas),
+        moe_pa_end_min=min(m2), moe_pa_end=max(m2),
     )
     # slice
     e = [us(r[0]) for r in cg]
@@ -72,7 +74,7 @@ def summarize(cg, moe, fin):
     r = cg[crit]
     out.update(
         sl_n=len(cg), sl_entry_min=min(e), sl_entry_p50=med(e), sl_entry_max=max(e),
-        sl_entry_after_trig=min(e) - moe_trig, sl_n_late=len(late),
+        sl_entry_after_trig=min(e) - moe_trig, sl_entry_after_pa=min(e) - max(m2), sl_n_late=len(late),
         sl_wissued_p50=med(b - a for a, b in zip(e, w1i)),
         sl_wready_p50=med(w1), sl_wready_max=max(w1), sl_wready_before_exit=sum(1 for v in w1 if v < moe_exit),
         sl_wready_after_entry_p50=med(b - a for a, b in zip(e, w1)),
