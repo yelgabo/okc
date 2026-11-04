@@ -19223,23 +19223,28 @@ def prepare(weights):
     return st
 
 
-# A/B arm only (ly_wsrel_ab): {"state": {"wsrel0": True}} runs TINY / TINY2 / MID on the unpatched helper source
-_WSREL_SITES = [('skinny_ring SKDYN', '    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      if (nU > 0) {\n', "    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      __threadfence();  // release after the relay: cumulative over the other threads' stores (see dl_ly_wsrel_patch)\n      if (nU > 0) {\n"), ('skinny_ring', '    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      const int jf = njF + v0 / rbs, jl = njF + (v1 - 1) / rbs;\n', "    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      __threadfence();  // release after the relay: cumulative over the other threads' stores (see dl_ly_wsrel_patch)\n      const int jf = njF + v0 / rbs, jl = njF + (v1 - 1) / rbs;\n"), ('fat_stream', '      __threadfence();\n      CTA_SYNC();\n      if (tid == 0) atomicAdd(p.doneA + j, 1);\n', "      __threadfence();\n      CTA_SYNC();\n      if (tid == 0) {\n        __threadfence();  // release after the relay: cumulative over the other threads' stores (see dl_ly_wsrel_patch)\n        atomicAdd(p.doneA + j, 1);\n      }\n"), ('ws_helper', '        __threadfence();\n        __syncwarp();\n        if (lane == 0) {\n          const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;\n', "        __threadfence();\n        __syncwarp();\n        if (lane == 0) {\n          __threadfence();  // release after the relay: cumulative over the other threads' stores (see dl_ly_wsrel_patch)\n          const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;\n")]
+# A/B only (ly_wsrel_ab): {"state": {"wsrel_h": "w0" | "ar"}} runs TINY / TINY2 / MID on another helper source
+_WSREL_SC, _WSREL_AR = [('skinny_ring SKDYN', '    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      if (nU > 0) {\n', "    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      __threadfence();  // release after the relay: cumulative over the other threads' stores (see dl_ly_wsrel_patch)\n      if (nU > 0) {\n"), ('skinny_ring', '    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      const int jf = njF + v0 / rbs, jl = njF + (v1 - 1) / rbs;\n', "    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      __threadfence();  // release after the relay: cumulative over the other threads' stores (see dl_ly_wsrel_patch)\n      const int jf = njF + v0 / rbs, jl = njF + (v1 - 1) / rbs;\n"), ('fat_stream', '      __threadfence();\n      CTA_SYNC();\n      if (tid == 0) atomicAdd(p.doneA + j, 1);\n', "      __threadfence();\n      CTA_SYNC();\n      if (tid == 0) {\n        __threadfence();  // release after the relay: cumulative over the other threads' stores (see dl_ly_wsrel_patch)\n        atomicAdd(p.doneA + j, 1);\n      }\n"), ('ws_helper', '        __threadfence();\n        __syncwarp();\n        if (lane == 0) {\n          const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;\n', "        __threadfence();\n        __syncwarp();\n        if (lane == 0) {\n          __threadfence();  // release after the relay: cumulative over the other threads' stores (see dl_ly_wsrel_patch)\n          const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;\n")], [('skinny_ring SKDYN', '    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      if (nU > 0) {\n', '    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      asm volatile("fence.acq_rel.gpu;" ::: "memory");  // release after the relay (see dl_ly_wsrel_patch)\n      if (nU > 0) {\n'), ('skinny_ring', '    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      const int jf = njF + v0 / rbs, jl = njF + (v1 - 1) / rbs;\n', '    __threadfence();\n    CTA_SYNC();\n    if (tid == 0) {\n      asm volatile("fence.acq_rel.gpu;" ::: "memory");  // release after the relay (see dl_ly_wsrel_patch)\n      const int jf = njF + v0 / rbs, jl = njF + (v1 - 1) / rbs;\n'), ('fat_stream', '      __threadfence();\n      CTA_SYNC();\n      if (tid == 0) atomicAdd(p.doneA + j, 1);\n', '      __threadfence();\n      CTA_SYNC();\n      if (tid == 0) {\n        asm volatile("fence.acq_rel.gpu;" ::: "memory");  // release after the relay (see dl_ly_wsrel_patch)\n        atomicAdd(p.doneA + j, 1);\n      }\n'), ('ws_helper', '        __threadfence();\n        __syncwarp();\n        if (lane == 0) {\n          const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;\n', '        __threadfence();\n        __syncwarp();\n        if (lane == 0) {\n          asm volatile("fence.acq_rel.gpu;" ::: "memory");  // release after the relay (see dl_ly_wsrel_patch)\n          const int jf = njF + a0 / RB_A, jl = njF + (a1 - 1) / RB_A;\n')]
 
 
 def _wsrel_unpatch(s):
-    for name, old, new in _WSREL_SITES:
+    for name, old, new in _WSREL_SC:
         assert s.count(new) == 1, (name, s.count(new))
         s = s.replace(new, old)
     return s
 
 
 _MA_ALT_SRCS['moe_helper0w0'] = _wsrel_unpatch(_MA_ALT_SRCS['moe_helper0'])
+_MA_ALT_SRCS['moe_helper0ar'] = _MA_ALT_SRCS['moe_helper0w0']
+for _n, _old, _new in _WSREL_AR:
+    assert _MA_ALT_SRCS['moe_helper0ar'].count(_old) == 1, _n
+    _MA_ALT_SRCS['moe_helper0ar'] = _MA_ALT_SRCS['moe_helper0ar'].replace(_old, _new)
 _wsrel_fork_native_moe = _fork_native_moe
 
 
 def _fork_native_moe(M=None, state=None):
-    if state is None or not state.get("wsrel0") or M is None or M > MOE_MID_MAX_M:
+    h = state.get("wsrel_h") if state is not None else None
+    if not h or M is None or M > MOE_MID_MAX_M:
         return _wsrel_fork_native_moe(M, state)
     sfx = tuple(state["ma_sfx"])
     if MOE_TINY_DEFINES and M <= MOE_TINY_MAX_M:
@@ -19248,11 +19253,12 @@ def _fork_native_moe(M=None, state=None):
         key, defines = "tiny2", MOE_TINY2_DEFINES
     else:
         key, defines = "mid", MOE_MID_DEFINES
-    defines = tuple("@moe_helper0w0" if d in ("@moe_helper0", "@moe_helper0df") else d for d in defines)
-    assert "@moe_helper0w0" in defines, defines
+    alt = "@moe_helper0" + h
+    defines = tuple(alt if d in ("@moe_helper0", "@moe_helper0df") else d for d in defines)
+    assert alt in defines, defines
     if state["ma_sc6"] and "-DOKC_WGS=1" in defines:
         defines = defines + ("-DOKC_SC6W=1",)
-    key += "_w0"
+    key += "_" + h
     ext = state["ma_ext"].get(key)
     if ext is None:
         ext = _RouterExt(_ma_ext(defines + sfx))
@@ -19267,7 +19273,8 @@ _wsrel_prepare = prepare
 
 def prepare(weights):
     st = _wsrel_prepare(weights)
-    for T in (1, 8, 16):
-        _moe(T, dict(st, wsrel0=True))
-    print("wsrel arms", sorted(k for k in st["ma_ext"] if k.endswith("_w0")), flush=True)
+    for h in ("w0", "ar"):
+        for T in (1, 8, 16):
+            _moe(T, dict(st, wsrel_h=h))
+    print("wsrel arms", sorted(k for k in st["ma_ext"] if k.endswith(("_w0", "_ar"))), flush=True)
     return st
