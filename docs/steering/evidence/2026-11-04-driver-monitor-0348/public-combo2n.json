@@ -1,0 +1,152 @@
+{
+  "job": "18291368c3fa46d6",
+  "source_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
+  "source_bytes": 939304,
+  "public_summary": {
+    "error": null,
+    "passed": true,
+    "score_us": 10348.153622784163,
+    "speedup": 2.1859261878559186,
+    "speedup_ci": [
+      2.15313729503808,
+      2.218715080673757
+    ],
+    "status": "ok",
+    "tests": 13,
+    "tests_passed": 13
+  },
+  "private_summary": {
+    "error": null,
+    "passed": true,
+    "score_us": 10262.711075916164,
+    "speedup": 2.204125189988422,
+    "speedup_ci": [
+      2.171063312138596,
+      2.2371870678382484
+    ],
+    "status": "ok",
+    "tests": 13,
+    "tests_passed": 13
+  },
+  "counts": {
+    "tests": 13,
+    "benchmarks": 12,
+    "profiles": 12
+  },
+  "evidence": {
+    "public": "muse_decode_layer\\cand\\profiles\\rv_k_combo2n.18291368c3fa46d6.json",
+    "private": "muse_decode_layer\\cand\\profiles\\rv_k_combo2n.03e45b68e75d47fa.json",
+    "control": "muse_decode_layer\\cand\\profiles\\g1b4_pdl8d.f931abf568544018.json"
+  },
+  "all_T_on": true,
+  "T8_edges": [
+    "attn",
+    "o",
+    "b1",
+    "pool",
+    "route",
+    "fin"
+  ],
+  "CG_GATE_equal": "1024/1024",
+  "coarse_guards": "All five pass; off/on IDs0/0 in this public run",
+  "public_cells_vs_f931": [
+    {
+      "load": "decode 1",
+      "layer": "sliding",
+      "f931_shown_us": 70.6933643713654,
+      "public_shown_us": 69.71369518285717,
+      "change_pct": -1.3858007710056852,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "f931_shown_us": 78.27862852972918,
+      "public_shown_us": 75.87353049271641,
+      "change_pct": -3.0724836167758673,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "f931_shown_us": 128.78755969805502,
+      "public_shown_us": 128.76690728470655,
+      "change_pct": -0.01603603127265929,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "f931_shown_us": 211.20249022862106,
+      "public_shown_us": 206.46292570206646,
+      "change_pct": -2.2440855320522757,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "f931_shown_us": 150.52805213790964,
+      "public_shown_us": 147.31542153907247,
+      "change_pct": -2.134240464291559,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "f931_shown_us": 302.3045832835725,
+      "public_shown_us": 297.87061554988725,
+      "change_pct": -1.4667219681304244,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "f931_shown_us": 105.93030292119947,
+      "public_shown_us": 113.36985060228925,
+      "change_pct": 7.023059007604271,
+      "within_f931_3pct": false
+    },
+    {
+      "load": "verify 1",
+      "layer": "full",
+      "f931_shown_us": 119.26262207850394,
+      "public_shown_us": 113.57337575615958,
+      "change_pct": -4.770351534447592,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "f931_shown_us": 248.2698145909088,
+      "public_shown_us": 244.84477153256117,
+      "change_pct": -1.3795648351336287,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "verify 16",
+      "layer": "full",
+      "f931_shown_us": 336.7907932125438,
+      "public_shown_us": 328.212254989575,
+      "change_pct": -2.5471415477664294,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "verify 32",
+      "layer": "sliding",
+      "f931_shown_us": 308.3071102970347,
+      "public_shown_us": 312.2432751155117,
+      "change_pct": 1.2767025757806305,
+      "within_f931_3pct": true
+    },
+    {
+      "load": "verify 32",
+      "layer": "full",
+      "f931_shown_us": 469.2379034543783,
+      "public_shown_us": 479.6686946966228,
+      "change_pct": 2.2229217131558343,
+      "within_f931_3pct": true
+    }
+  ],
+  "public_vs_private_elapsed_pct": 0.8325533695332066,
+  "scope": "Clean-source public numerical pass. Historical failed private-cell release condition remains unresolved; public outcome does not retroactively pass it."
+}

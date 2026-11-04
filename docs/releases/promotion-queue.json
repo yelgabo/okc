@@ -737,7 +737,14 @@
       "eligible_for_release": false,
       "source_family_ineligible": true,
       "displayed_board_verified": true,
-      "individual_service_DQ_flag_present": false
+      "individual_service_DQ_flag_present": false,
+      "withdrawal_disposition": {
+        "evidence_commit": "10cac6ac",
+        "prepared": true,
+        "executed": false,
+        "decision_owner": "User, request already raised by existing lead because withdrawal cannot be undone",
+        "report": "docs/steering/2026-11-04-driver-monitor-0348.md"
+      }
     },
     {
       "job": "03e45b68e75d47fa",
@@ -759,7 +766,30 @@
       "source_eligibility_review": "Clean routing removal verified; performance condition remains unsatisfied.",
       "eligible_for_release": false,
       "release_review_required": true,
-      "per_cell_review_evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0244/combo2n-cell-gate-review.json"
+      "per_cell_review_evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0244/combo2n-cell-gate-review.json",
+      "public_job": "18291368c3fa46d6",
+      "latest_public_report": "docs/steering/2026-11-04-driver-monitor-0348.md"
+    },
+    {
+      "job": "18291368c3fa46d6",
+      "problem": "muse_decode_layer",
+      "score_us": 10348.153622784163,
+      "owner": "Existing clean layer release/repeat lead",
+      "judged_arm": "Single-arm public clean combo2n; allT/all-sixT8 on, unpoolerCG selected",
+      "source_identity": "rv_k_combo2n.py;SHA2563ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27;939304B;cleanPDL8d routing",
+      "source_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
+      "release_state": "public-clean-source-prior-private-condition-review-open",
+      "reason": "Own public receipt VALID13/12/12 at10348.153623us/2.185926188x, below oldPDL8d point but above displayedineligiblee095. Public coarseguards/CG_GATEpass. Priorprivate03e failed registered per-cell guard; no explicit owner/human waiver found. Public result also differs from f931shown verify1sliding+7.02306%; this comparison does not retroactively change private release condition. Source is free of disallowed expert substitutions; preserve organizer eligibility separately from unresolved conditional-release review.",
+      "evidence": "muse_decode_layer\\cand\\profiles\\rv_k_combo2n.18291368c3fa46d6.json",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0348.md",
+      "competition_source_eligible": true,
+      "public_submission_occurred": true,
+      "public_submission_approved": true,
+      "public_submission_approval_scope": "Historical conditional combo2n authority; failed private-cell condition remains separately recorded",
+      "public_submission_condition_satisfied": false,
+      "release_review_required": true,
+      "private_qualification_job": "03e45b68e75d47fa",
+      "not_current_displayed_row": true
     }
   ],
   "ineligible_source_family_checkpoint": {
@@ -795,5 +825,13 @@
       "role": "Last known eligible published comparison control, not the currently displayed API row"
     },
     "report": "docs/steering/2026-11-04-driver-monitor-0244.md"
+  },
+  "known_clean_public_candidate": {
+    "job": "18291368c3fa46d6",
+    "source": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
+    "score_us": 10348.153622784163,
+    "displayed": false,
+    "prior_release_condition_review_open": true,
+    "report": "docs/steering/2026-11-04-driver-monitor-0348.md"
   }
 }

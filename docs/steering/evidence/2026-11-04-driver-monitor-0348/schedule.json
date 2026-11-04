@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-11-04T03:48:20.462721+00:00",
+  "page": "https://openkernelchallenge.dev/",
+  "assets": [
+    {
+      "asset": "https://openkernelchallenge.dev/theme-init.js",
+      "sha256": "64d9f7767b081d8e388e4ae17f6a677a0b7d1b3bd47e88ed897534095f566dd7",
+      "kernels_closes": null
+    },
+    {
+      "asset": "https://openkernelchallenge.dev/assets/index-Gf_n0dGq.js",
+      "sha256": "be69a2fc31bcefae834dbce57dc65ac9edfd98f48e1d19e710fa493e093069ff",
+      "kernels_closes": "2026-11-05T00:00:00-08:00"
+    }
+  ]
+}

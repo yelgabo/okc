@@ -4,12 +4,16 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 02:44UTC](2026-11-04-driver-monitor-0244.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 03:48UTC](2026-11-04-driver-monitor-0348.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 4 03:48 UTC — clean public receipt and pending withdrawal decision
+
+[Current monitor](2026-11-04-driver-monitor-0348.md): cleancombo2n public**18291368c3fa46d6** passed13/12/12 at**10348.153623us**. Displayedrow remains ineligible oldRSdraw**e095/10343.835136us**; lead corrected the row attribution and has prepared its irreversible withdrawal, **not executed**, awaiting the already-raised user decision. Historicalprivate-cell condition review remains separately open. Registeredmicrostack is**dc3e**; latermicro2**0bc2** has only short-cell box retest here and cannot silently replace the registered source. No localvariant clears its old per-cell bar. Incoming**5f08599e** explicitly binds queuedcheck**89257** to ly_micro and repeat**db0e** to combo2n; it also records existing new box owners for decode32 B4 timeline/one mechanism and verify1 attention comparison/port. MID16 closed after ly_ws2u's second loss. No duplicate execution; owner collectors continue asynchronously. Primaryaudit**16leads/zero gaps**, derivedf931-reference**17/zero**, are numerical/disposition coverage, not eligibility approval. MoE new5718.416776us board point is source-unbound here, not a claimed algorithmic win. Existing owners retain execution/decision responsibilities.
 
 ## November 4 02:44 UTC — ineligible old repeat displayed; clean check running
 

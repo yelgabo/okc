@@ -1,0 +1,34 @@
+{
+  "kind": "Derived eligiblePDL8d-reference inventory, not current board",
+  "source_receipt": "muse_decode_layer/cand/profiles/g1b4_pdl8d.f931abf568544018.json",
+  "audit": {
+    "promotion_gaps": [],
+    "leads": 17,
+    "scope": "Saved JSON, including archives and ignored files. CLI exports included only for clean matching jobs in the explicitly supplied 50-job index; unlisted exports excluded. This is not full historical CLI coverage. Explicit disqualifications in the supplied own-jobs index override archived passing receipts. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+    "cli_export_coverage": {
+      "own_jobs_index": ".build\\driver-monitor-0348\\own-jobs.json",
+      "indexed_jobs": 50,
+      "exports_seen": 502,
+      "bound_clean_exports": 23,
+      "excluded_no_index": 0,
+      "excluded_unlisted": 478,
+      "excluded_unclean_job": 1,
+      "distinct_bound_jobs": 22
+    },
+    "disqualification_coverage": {
+      "indexed_disqualified_jobs": 2,
+      "excluded_files": 1,
+      "distinct_excluded_jobs": 1,
+      "exclusions": [
+        {
+          "job": "9d80ae2494334136",
+          "problem": "muse_decode_layer",
+          "basis": "explicit own-jobs index",
+          "reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+          "path": "muse_decode_layer\\cand\\profiles\\g1b4_rs.9d80ae2494334136.json"
+        }
+      ]
+    }
+  },
+  "exit_code": 0
+}
