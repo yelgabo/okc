@@ -12,7 +12,12 @@ six-load sum adds the six load times.
 
 ## Finalists
 
-None clears the full bar (six-load sum, decode 1 and verify 1 each beyond twice the control spread).
+Bar (lead, 2026-11-03 16:20 PT): a combined candidate on g1b4_pdl8h (33c2353b, PDL on at every T, no gate
+randomness) that carries every mechanism that won its own A/B beats pdl8h on the six-load sum by more than
+twice the pdl8h control-vs-control spread and loses on no cell beyond that spread. The earlier bar (against
+g1b4_rs's spread, with decode 1 and verify 1 each clearing it) is kept below for the g1b4_rs-based rows.
+
+None clears either bar yet.
 
 Best candidate so far, decode 1 only, for the lead's call:
 
