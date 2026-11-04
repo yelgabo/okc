@@ -4510,3 +4510,46 @@ pairs = sign of w_a - c_a, w_a - c_b, w_b - c_b, w_b - c_c.
 Every cell inside its threshold; the changed cells (decode 1, verify 1) lean the wrong way (+0.1 to +0.7 us, 13 of 16
 pairs positive) and the unchanged cells (T >= 16, the session's null) scatter -0.4 to +0.8. Not a win; by the sign
 counts at verify 1 a small loss.
+
+Why: the stamped candidate (`ly_pepi_prtl.py` 90595351, `tl_pepi.{log,json}`) shows the tail did not move at decode 1
+(loop exit to final store 0.80 -> 0.80 us per CTA: 0.39 + 0.05 + 0.16 + 0.20 against 0.41 + 0.11 + 0.11 + 0.19, the
+removed barrier rounds reappear as a longer red write) and grew at verify 1 (0.78 -> 1.31): the per-token `if (t < M)`
+around each butterfly chain made the compiler serialize the 8 chains (40 dependent shuffles at about 30 cycles each,
+0.96 us against 0.23 for the interleaved chains). Kernel timeline (`ly_tl_run.py --kernels`, 10 replays,
+`ktl_ly_fabq` / `ktl_ly_pepi`): fused kernel 16.56 -> 16.62 (decode 1 sliding), 16.80 -> 16.78 (full), 17.79 -> 18.11
+(verify 1 sliding), 17.49 -> 18.11 (full); the route kernel after it 3.76 -> 3.70 / 3.89 -> 3.90 at decode 1 but 3.73 ->
+4.90 / 3.44 -> 4.59 at verify 1 (it starts under PDL at the same trigger and ends 0.8 us later behind the longer tail).
+
+### ly_pepi2: the same with the butterflies fixed
+
+`tools/dl_ly_pepi_patch.py` now writes `muse_decode_layer/cand/ly_pepi2.py` (SHA256
+f760505cc666eab3547c141360928a5415105d84f17dbe226da7f00211402890): changes 1 and 2 as above; change 3 becomes a single
+uniform branch, `if (M == 1)` one token's chain, else the original 8 interleaved chains. Box chk: PASS at all 12 cells,
+G_RELEASE_STARTUP_OK, PDL on at every T, the same box CG_GATE line. Stamped (`ly_pepi2_prtlc2.py` b34fa74f, consumer
+clocks plus the tail stamps, `.build/prtl/pepi2/tl_pepi2c.{log,json}`): tail per CTA 0.69 us at decode 1 and 0.75 at
+verify 1 (ly_fabq 0.80 in the same instrument class): launch_dependents 0.07, butterflies + partial store 0.20 (T = 1,
+5 shuffles) / 0.27 (T = 8), 0.05, 0.04, red write + cbar wait + named barrier 0.12, final 0.20. So the two barrier
+rounds and 35 shuffles were worth 0.1 us at decode 1 and 0.05 at verify 1, not the 0.25 to 0.3 expected: the 0.2 us
+between launch_dependents and the partial store does not depend on the shuffle count (measurement; what it is, not
+traced).
+
+Paired A/B (same recipe, CTL=ly_fabq.py, CAND=ly_pepi2.py, 16:04 to 16:06 UTC, `/root/okc/.build/prtl/pepi2/`):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs > 0 | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.02 | 65.36 | 65.30 | 65.31 | 65.07 | 0.27 | +0.21 | 4/4 | 0.54 | inside |
+| decode 1 full | 71.95 | 72.45 | 71.74 | 72.00 | 71.68 | 0.27 | +0.43 | 4/4 | 0.54 | inside |
+| decode 16 sliding | 126.98 | 126.21 | 126.38 | 126.88 | 127.07 | 0.69 | -0.27 | 1/4 | 1.38 | inside |
+| decode 16 full | 199.12 | 198.59 | 199.86 | 199.71 | 199.34 | 0.74 | -0.29 | 1/4 | 1.99 | inside |
+| decode 32 sliding | 144.82 | 144.42 | 143.57 | 143.26 | 144.05 | 1.25 | -0.30 | 1/4 | 2.50 | inside |
+| decode 32 full | 295.30 | 295.31 | 294.29 | 294.21 | 295.49 | 1.20 | -0.26 | 2/4 | 2.95 | inside |
+| verify 1 sliding | 102.37 | 102.67 | 102.19 | 102.64 | 102.61 | 0.42 | +0.27 | 4/4 | 0.83 | inside |
+| verify 1 full | 110.42 | 111.39 | 110.14 | 110.50 | 110.70 | 0.56 | +0.52 | 3/4 | 1.12 | inside |
+| verify 16 sliding | 243.31 | 243.28 | 242.54 | 241.74 | 242.19 | 1.12 | -0.17 | 1/4 | 2.43 | inside |
+| verify 16 full | 328.11 | 327.92 | 327.22 | 327.95 | 326.85 | 1.26 | +0.54 | 3/4 | 3.27 | inside |
+| verify 32 sliding | 297.33 | 297.66 | 296.83 | 296.59 | 297.07 | 0.50 | +0.05 | 2/4 | 2.97 | inside |
+| verify 32 full | 462.06 | 461.10 | 460.22 | 460.64 | 460.03 | 2.03 | +0.10 | 2/4 | 4.61 | inside |
+
+Inside everywhere again, and the four changed cells are positive in 15 of 16 pairs (+0.2 to +0.5 us) while the
+unchanged cells scatter around zero. Two candidates with a measured 0.1 us shorter kernel tail and a consistent +0.3
+us at the layer: the loss has another cause than the tail code.
