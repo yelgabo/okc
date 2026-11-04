@@ -100,9 +100,10 @@ CALL = ("newkv8_ni<NT>(S.kvst, S.cs, S.sn, S.kn, S.vn, S.cloc, const_cast<uint8_
         "{ks}, {vs}, {dry})")
 ATT_EDITS = [
     (SEG, FN + SEG),
-    ("  if constexpr (QWARM) qpass8_ni<NT>(S.qst(), S.cs, S.sn, S.q8s, tidL, p.rope);\n",
-     "  if constexpr (QWARM) qpass8_ni<NT>(S.qst(), S.cs, S.sn, S.q8s, tidL, p.rope);\n"
-     "  if constexpr (QWARM) if (end > seq) " + CALL.format(ks="1.f", vs="1.f", dry="true") + ";\n"),
+    ("                  p.rope, 1.f);\n\n  pdl_wait();",
+     "                  p.rope, 1.f);\n"
+     "  if constexpr (QWARM) if (end > seq) " + CALL.format(ks="1.f", vs="1.f", dry="true") + ";\n"
+     "\n  pdl_wait();"),
     ("  if (has_new) {\n#pragma unroll\n    for (int ps = 0; ps < KPASS; ++ps) {\n      const int rr = ps * RPP + (tidL >> 3);\n"
      "      const bool live = rr < L * 4;\n",
      "  if constexpr (QWARM) {\n    if (has_new) " + CALL.format(ks="kscale", vs="vscale", dry="false") + ";\n"

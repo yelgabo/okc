@@ -1151,50 +1151,46 @@ __device__ __noinline__ bool ws_patch_ni(SM* Sp, int i, int st, int start, int s
 // (OKC_QWARM8) the q_len 8 one-tile q pass out of line: a dry call before griddepcontrol.wait fetches the very
 // instructions the real pass runs after it, which otherwise come from a cold instruction cache
 template <int NT>
-__device__ __noinline__ void qpass8_ni(const __nv_bfloat16* qst, const float* cs, const float* sn, uint8_t* q8s,
-                                       const int tidL, const int rope) {
-  constexpr int RP4 = NT / 4;
-  constexpr int QP4 = 8 * 16 / RP4;
-  const int q4 = tidL & 3;
+__device__ __noinline__ void qpass8_ni(const __nv_bfloat16* qst, const float* cs, const float* sn, uint8_t* qk,
+                                       uint8_t* qv8, const int tidL, const int partL, const int rope, const float qsc) {
+  constexpr int RPP = NT / 8;
+  constexpr int QPASS = 8 * 16 / RPP;
 #pragma unroll
-  for (int ps = 0; ps < QP4; ++ps) {
-    const int rr = ps * RP4 + (tidL >> 2);
+  for (int ps = 0; ps < QPASS; ++ps) {
+    const int rr = ps * RPP + (tidL >> 3);
     const int j = rr >> 4, hh = rr & 15;
-    const uint4 qa = *reinterpret_cast<const uint4*>(&qst[rr * 64 + q4 * 16]);
-    const uint4 qb = *reinterpret_cast<const uint4*>(&qst[rr * 64 + q4 * 16 + 8]);
-    const __nv_bfloat162* ha = reinterpret_cast<const __nv_bfloat162*>(&qa);
-    const __nv_bfloat162* hb = reinterpret_cast<const __nv_bfloat162*>(&qb);
-    float x[16];
+    const uint4 qv = *reinterpret_cast<const uint4*>(&qst[rr * 64 + partL * 8]);
+    const __nv_bfloat162* h2 = reinterpret_cast<const __nv_bfloat162*>(&qv);
+    float x[8];
 #pragma unroll
     for (int e = 0; e < 4; ++e) {
-      const float2 fa = __bfloat1622float2(ha[e]);
-      const float2 fb = __bfloat1622float2(hb[e]);
-      x[2 * e] = fa.x; x[2 * e + 1] = fa.y;
-      x[8 + 2 * e] = fb.x; x[8 + 2 * e + 1] = fb.y;
+      const float2 f = __bfloat1622float2(h2[e]);
+      x[2 * e] = f.x;
+      x[2 * e + 1] = f.y;
     }
     float ss = 0.f;
 #pragma unroll
-    for (int e = 0; e < 16; ++e) ss += x[e] * x[e];
-    ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-    ss += __shfl_xor_sync(0xffffffffu, ss, 2);
+    for (int e = 0; e < 8; ++e) ss += x[e] * x[e];
+    ss = oct_sum(ss);
     const float r = rsqrtf(ss * (1.f / 64.f) + 1e-5f);
 #pragma unroll
-    for (int e = 0; e < 16; ++e) x[e] *= r;
+    for (int e = 0; e < 8; ++e) x[e] *= r;
     if (rope) {
 #pragma unroll
-      for (int e = 0; e < 8; ++e) {
-        const int i = q4 * 8 + e;
+      for (int e = 0; e < 4; ++e) {
+        const int i = partL * 4 + e;
         const float c = cs[j * 32 + i], s = sn[j * 32 + i];
         const float a0 = x[2 * e], a1 = x[2 * e + 1];
         x[2 * e] = a0 * c - a1 * s;
         x[2 * e + 1] = a0 * s + a1 * c;
       }
     }
-    const int hk4 = hh >> 3, gg4 = hh & 7;
-    const int r4 = j * 8 + gg4, kb = q4 * 16;
-    *reinterpret_cast<uint4*>(q8s + hk4 * 4096 + r4 * 64 + (((kb >> 4) ^ ((r4 >> 1) & 3)) << 4)) =
-        make_uint4(e4m3x4f(x[0], x[1], x[2], x[3]), e4m3x4f(x[4], x[5], x[6], x[7]),
-                   e4m3x4f(x[8], x[9], x[10], x[11]), e4m3x4f(x[12], x[13], x[14], x[15]));
+    uint4 qw;
+    uint32_t* qwp = reinterpret_cast<uint32_t*>(&qw);
+#pragma unroll
+    for (int e = 0; e < 4; ++e) qwp[e] = pack_h2(x[2 * e] * qsc, x[2 * e + 1] * qsc);
+    const int hk = hh >> 3, gg = hh & 7;
+    *reinterpret_cast<uint4*>((hk ? qv8 : qk) + (j * 8 + gg) * 128 + partL * 16) = qw;
   }
 }
 
@@ -1631,7 +1627,7 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
   constexpr bool QDIR = OKC_QDIRECT && L == 8 && !WS && !Cfg<L, FLAT>::S2 && PV8ON && OKC_QSS && OKC_SM90 && OKC_Q8RAW &&
                         (!FLAT || OKC_PV8FLAT);
   constexpr bool IDXF = OKC_IDXFIRST && !WS && !Cfg<L, FLAT>::S2 && !OKC_PDLKV;
-  constexpr bool QWARM = OKC_QWARM8 && QDIR && OKC_QP16 && ONE && L == 8;
+  constexpr bool QWARM = OKC_QWARM8 && ONE && L == 8 && !QDIR && !WS && !Cfg<L, FLAT>::S2 && OKC_SM90 && OKC_Q8RAW;
   {
   if constexpr (!WS) {
 #pragma unroll
@@ -1643,8 +1639,10 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
     asm volatile("mov.u32 %0, %%tid.x;" : "=r"(tidL));
     partL = tidL & 7;
   }
-  // (QWARM: shared memory only -- garbage in, S.q8s out, rewritten by the real call below)
-  if constexpr (QWARM) qpass8_ni<NT>(S.qst(), S.cs, S.sn, S.q8s, tidL, p.rope);
+  // (QWARM: shared memory only -- garbage in, the last stage's q staging out, rewritten by the real call below)
+  if constexpr (QWARM)
+    qpass8_ni<NT>(S.qst(), S.cs, S.sn, S.k + (STAGES - 1) * STAGE_BYTES, S.v + (STAGES - 1) * STAGE_BYTES, tidL, partL,
+                  p.rope, 1.f);
   if constexpr (QWARM) if (end > seq) newkv8_ni<NT>(S.kvst, S.cs, S.sn, S.kn, S.vn, S.cloc, const_cast<uint8_t*>(p.k_cache), const_cast<uint8_t*>(p.v_cache), p.off32, p.lrb, p.row_bytes, tidL, partL, pair, seq, start, end, p.rope, 1.f, 1.f, true);
   DBG(20);
 
@@ -1780,9 +1778,7 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
   const float kscale = S.scl[0], vscale = S.scl[1];
   const float sl2 = p.scale_log2 * kscale;
 
-  if constexpr (QWARM) {
-    qpass8_ni<NT>(S.qst(), S.cs, S.sn, S.q8s, tidL, p.rope);
-  } else if constexpr (QDIR && OKC_QP16) {
+  if constexpr (QDIR && OKC_QP16) {
     // OKC_QP16 (q_len 8, QDIRECT): four threads per query row, 16 dims each (half the passes of the 8-thread
     // layout, two shuffle levels instead of three, one 16-byte e4m3 store); same math per element
     constexpr int RP4 = NT / 4;                    // rows per pass
@@ -1828,6 +1824,9 @@ __device__ __forceinline__ bool segment(const Params& p, Smem<L, FLAT>& S, const
           make_uint4(e4m3x4f(x[0], x[1], x[2], x[3]), e4m3x4f(x[4], x[5], x[6], x[7]),
                      e4m3x4f(x[8], x[9], x[10], x[11]), e4m3x4f(x[12], x[13], x[14], x[15]));
     }
+  } else if constexpr (QWARM) {
+    qpass8_ni<NT>(S.qst(), S.cs, S.sn, S.k + (STAGES - 1) * STAGE_BYTES, S.v + (STAGES - 1) * STAGE_BYTES, tidL, partL,
+                  p.rope, 1.f);
   } else
 #pragma unroll
   for (int ps = 0; ps < QPASS; ++ps) {
