@@ -19,7 +19,7 @@ Slots (128 int64 per CTA, CTA = blockIdx.x):
   96 + e (e < 4): escape warp e arrived on cbar (all its stages walked)
   100: consumers past the cbar wait (tid 0, before the named barrier)
 
-    python3 tools/dl_ly_qtl_patch.py [--src FILE] [--out muse_decode_layer/cand/ly_qtl.py]
+    python3 tools/dl_ly_qtl_patch.py [--src FILE] [--out muse_decode_layer/cand/ly_qtl.py] [--m-any]
 """
 import hashlib
 import pathlib
@@ -35,6 +35,8 @@ if "--out" in sys.argv:
 if "--src" in sys.argv:  # instrument a candidate built on ly_v1un (its SHA is printed, not pinned)
     SRC = ROOT / sys.argv[sys.argv.index("--src") + 1]
     PIN = None
+# --m-any: stamp the qkv_gate launch at every M (T = 16 / 32 runs), not only M = 1
+HOST_M = "" if "--m-any" in sys.argv else " && M == 1"
 START = 'bfp_SK2_SRC = r"""\n'
 END = '\n"""\n'
 
@@ -85,7 +87,7 @@ K_EDITS = [
      "  if ((dgv & 32)"),
     ("  unsigned long long* dbg = dbgt.numel() >= 8192 + 3 * 1024 ? reinterpret_cast<unsigned long long*>(dbgt.data_ptr()) : nullptr;\n",
      "  unsigned long long* dbg = dbgt.numel() >= 8192 + 3 * 1024 ? reinterpret_cast<unsigned long long*>(dbgt.data_ptr()) : nullptr;\n"
-     "  if (g_sk2_qtl != nullptr && N == 2304 && M == 1) dbg = g_sk2_qtl;\n"),
+     f"  if (g_sk2_qtl != nullptr && N == 2304{HOST_M}) dbg = g_sk2_qtl;\n"),
 ]
 
 F_EDITS = [

@@ -99,6 +99,8 @@ def main():
     ap.add_argument("--bw", type=float, default=4.443)
     ap.add_argument("--out", default="")
     ap.add_argument("--raw", type=int, default=0)
+    ap.add_argument("--tokr", type=int, default=8, help="qkv config of the stamped load: 8 (T <= 8), 16, 32 "
+                    "(instrument built with dl_ly_qtl_patch.py --m-any)")
     ap.add_argument("--narrow", action="store_true", help="T = 1 qkv runs the narrow build (ly_q1n): stamp it; its "
                     "escape warps leave the ring, so the escape-landing columns are empty")
     a = ap.parse_args()
@@ -125,11 +127,13 @@ def main():
     state["pdl8_edges"] = {8: frozenset(mod.PDL8D_EDGES)}
     ext = mod._de_ext() if a.narrow else mod.bfp__get_ext()
     bst = state["bfp"]
-    ci, qstream, qtab, pmax, b4, nrows = bst["sk2"]["qkv8_r176"]
-    nring = mod.bfp__sk2_geom(next(c for c in mod.bfp_SK2_CONFIGS if c[0] == "qkv8_r176"), 8)[1]
+    qname = mod.bfp_SK2_PICK[("qkv_gate", a.tokr)]
+    ci, qstream, qtab, pmax, b4, nrows = bst["sk2"][qname]
+    nring = mod.bfp__sk2_geom(next(c for c in mod.bfp_SK2_CONFIGS if c[0] == qname), a.tokr)[1]
     if a.narrow:
-        nring = mod.bfp__sk2_geom(('qkv8n_r144', 'qkv_gate', 2304, 24, 3, 1, 4, 2, 2, 1), 8)[1]
-    w_bytes = dict(qkv=nb(qstream), qtab=nb(qtab), x=8192 * 2, out=2304 * 2)
+        ncap = {8: "qkv8n_r144", 16: "qkv16n_r176", 32: "qkv32n_r208"}[a.tokr]
+        nring = mod.bfp__sk2_geom((ncap, 'qkv_gate', 2304, 24, 3, 1, 4, 2, 2, 1), a.tokr)[1]
+    w_bytes = dict(qkv=nb(qstream), qtab=nb(qtab), x=8192 * 2 * a.tokr, out=2304 * 2 * a.tokr)
     print("QTL bytes", w_bytes, "pmax", pmax, "nstage", nring, "choice", bst["choice"].get(("qkv_gate", 1)), flush=True)
     buf = torch.zeros(96 * SLOTS, dtype=torch.int64, device="cuda")
     lsc = br.LocalStartCache(a.ls_cache, os.path.join(pdir, "reference.py"), a.router_seed, ref.WEIGHTS_SEED) \

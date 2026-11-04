@@ -6843,3 +6843,146 @@ and route geometries are at their optimum (ly_rbc), and the attention's pooler p
 docs/ruled-out.md (pool32w8, pool32n1b, rd pooler 16), and its ring depth is set by the 32-token x tile (32 KB of each
 56 KB stage, 3 stages), which only a change to the bf16 lane's sk2 kernel could move. Ruled-out rows added; no ledger
 registration line, no judge job.
+## 2026-11-04 - qkv_gate at 16 / 32 tokens in the layer (box)
+
+bf16 lane, round 2, 11:10 to 11:30 PT (Mac and box clock). Question: at decode 16 / 32 sliding, qkv sits at 10.3 /
+10.9 us on the critical path against a 6.39 us byte floor ("Decode 16 / 32 sliding timeline (box)"). Does the T = 1
+defect (escape warps on the ring refilling slots late, fixed by the narrow build in ly_q1n) exist at T = 16 / 32, and
+does the narrow build's mechanism shorten the layer there? Base `muse_decode_layer/cand/ly_stk2.py` (SHA256
+4bbf4010f412b9afe8595b1a5ede517fb8aa6e31af6efdc1e55dd34a3a335846, never edited). Box only (okc-h200), every GPU
+process under `/root/okc/.build/box/gpu.lock`, router seed 106218864389449120, f931 case seeds, local_start per
+input. No judge job. Evidence in `muse_decode_layer/profiles/box/q32/`; driver `tools/ly_q32_run.sh`, then
+`tools/ly_q32_next.sh`.
+
+### Build map at T = 16 / 32 (source, step 0)
+
+Every dense projection at T = 16 / 32 runs the wide sk2 build (`bfp__get_ext()`, the `bfp_SK2_PICK` row for the
+load's tokr). The narrow build (`_de_source`, NACC 2, escape warps off the ring) existed only for qkv_gate at tokr 8,
+reached at T = 1..8. In every wide pick the escape warps sit on the ring: each walks every stage and hands every slot
+back, so the empty barriers count consumer warps plus NESC (4, or the stage count when the ring has fewer than 4
+slots).
+
+| role | T = 16 | T = 32 |
+|---|---|---|
+| qkv_gate | `qkv16_r176`: sk2_kernel<1, 16, 3, 1, 4, 2, 5, ..., NACC 1>, 96 CTAs of 24 rows, stage 34,816 B (x 16 KB + weights 18 KB), 16 stages, 5 slots, NESC 4; plain launch (bit 29), P 2 | `qkv32_r208`: sk2_kernel<2, 32, 3, 1, 4, 2, 4, ..., NACC 1>, 96 CTAs, stage 51,200 B (x 32 KB + weights 18 KB), 4 slots (the most that fit), NESC 4; P 1 |
+| o | `o8h_r88`: sk2_kernel<1, 16, 4, 1, 4, 1, 4, ..., NACC 2>, 256 CTAs of 32 rows, 4 stages = all of K, NESC 4 | `o32h_r100`: sk2_kernel<2, 32, 2, 2, 2, 2, 3, ..., NACC 1>, 256 CTAs, 4 stages through 3 slots, NESC 3 |
+| unpooler | `unpooler16h_r100`: sk2_kernel<1, 16, 4, 1, 4, 1, 5, ..., NACC 2>, 256 CTAs of 32 rows, 16 stages, 5 slots, NESC 4; PDL secondary of the MoE (ly_d16un) | `unpooler32_r144`: sk2_kernel<2, 32, 4, 2, 2, 2, 3, ..., NACC 1>, 128 CTAs of 64 rows, 16 stages, 3 slots, NESC 3; PDL secondary |
+
+### Instrument (diagnostic only, never a candidate)
+
+The round 1 stamp instrument with one host change: `tools/dl_ly_qtl_patch.py --m-any` stamps the qkv_gate launch
+(N 2304) at every M, not only M = 1. `ly_qtl_stk2.py` (2f4fb010) and `ly_qtl_q32n.py` (ad3691ed) are the instrumented
+twins. `tools/ly_box_qtl.py --tokr 16|32` picks the config and ring depth; `tools/ly_q32_sttab.py` makes the table.
+Ten fresh inputs per cell, cold L2, in-loop stamps on in every run (they cost about 0.4 us of loop time in both arms).
+
+### Stamps (medians over 10 inputs, us from the first CTA's entry; `stamps_table.txt`)
+
+| item | base T = 16 (sliding / full) | q32n T = 16 | base T = 32 | q32n T = 32 |
+|---|---:|---:|---:|---:|
+| last CTA entry | 0.22 / 0.22 | 0.29 / 0.24 | 0.26 / 0.27 | 0.32 / 0.32 |
+| x tiles of the pre-issued stages out | 0.97 / 0.95 | 0.99 / 0.96 | 0.80 / 0.82 | 0.83 / 0.83 |
+| consumer warp 0's first stage | 2.06 / 2.05 | 2.04 / 2.03 | 1.67 / 1.66 | 1.66 / 1.64 |
+| issue to landing, first ring / later stages | 2.14 / 1.52 | - | 1.54 / 1.09 | - |
+| stream rate, 10% to 90% of stages landed | 4.30 / 4.28 TB/s | - | 3.84 / 3.81 TB/s | - |
+| stage landing interval (median) | 0.352 | - | 0.448 | - |
+| slot refill after its stage landed | 0.48 | - | 0.77 | - |
+| refill after consumer warp 0's hand-back | **0.416** | 0.000 | 0.064 | 0.032 |
+| consumer processing per stage | 0.320 | 0.288 | 0.384 | 0.384 |
+| consumer wait per stage / sum over 15 | 0.064 / 1.31 | 0.096 / 1.33 | 0.096 / 1.57 | 0.096 / 1.68 |
+| consumer loop end, mean / last CTA | 8.39 / 9.12 | 7.86 / 8.29 | 9.57 / 10.10 | 9.38 / 10.06 |
+| escape warps done, relative to loop end | +0.27 | -0.38 / -0.42 | -0.43 | -2.50 / -2.29 |
+| `cbar` passed after the loop | 0.30 | 0.12 | 0.06 | 0.08 |
+| kernel end, mean / last CTA | 9.08 / 9.81, 9.07 / 9.90 | 8.39 / 9.30, 8.41 / 8.94 | 10.18 / 10.62, 10.20 / 10.59 | 10.03 / 10.62, 10.01 / 10.45 |
+| CTA spread (last minus first end) | 1.36 / 1.42 | 1.18 / 0.78 | 0.72 / 0.59 | 0.88 / 0.72 |
+
+Reading, per load:
+
+- T = 16 has the T = 1 defect, larger. A slot is refilled 0.42 us after consumer warp 0 hands it back (T = 1: 0.26),
+  because the refill also needs all four escape warps' hand-backs, and the escape warps finish 0.27 us after the
+  consumer loop. Stage landings step by about 0.55 us once every 5 stages (2.08, 2.73 ... 4.45 ... 6.09 ... 7.73),
+  one bubble per ring turn, against 0.35 to 0.39 us elsewhere. In the narrow build the refill follows the hand-back
+  (0.000 at 32 ns resolution), consumer processing drops 0.320 -> 0.288 us per stage (NACC 2), the loop ends 0.53 us
+  earlier on the mean CTA and 0.83 us earlier on the last, and the kernel ends 0.51 / 0.96 us earlier on the last CTA.
+- T = 32 does not have it. The escape warps finish 0.43 us before the loop, refills follow the hand-back within
+  0.064 us, and the consumers set the pace: 0.384 us of processing per stage at MT 2 (twice the MMAs of T = 16 on the
+  same 4 consumer warps), landing interval 0.448 us, stream rate 3.8 TB/s, below the 4.44 TB/s floor rate. The 4-slot
+  ring holds 3 weight stages in flight per CTA (about 5.3 MB over 96 CTAs) against the about 4.9 MB that 4.44 TB/s x
+  1.1 us of loaded latency needs. The narrow build changes the T = 32 kernel end by -0.15 us on the mean CTA and 0 to
+  -0.14 us on the last.
+
+### Candidates (one change each; `tools/dl_ly_q32_patch.py`, base pinned to 4bbf4010)
+
+- `ly_q32n.py` (SHA256 e490ccae8d019c1f796b80070dd33af935cfe688caf8fc9a51af3af3a2d7310d): qkv_gate at T = 9..32 through
+  the narrow build. ly_stk2 line 16276 (`_de_source`'s single `launch_sk2<1, 8, ...>` dispatch line) becomes the same
+  line behind two new dispatch lines, `if (tokr == 16) launch_sk2<1, 16, 3, 1, 4, 2, 5, true, false, 2, 1, bf16>` and
+  `if (tokr == 32) launch_sk2<2, 32, 3, 1, 4, 2, 4, true, false, 2, 1, bf16>` (ring depths from `bfp__sk2_geom` with the
+  wide picks' caps r176 / r208, so the same 5 / 4 slots); line 16305 `not 1<=m<=8` becomes `not 1<=m<=32`. Same packed
+  streams and escape tables (`state['sk2']['qkv16_r176' / 'qkv32_r208']`). The wait, `fence.proxy.async.global`, the
+  trigger and the launch attributes are the same source lines.
+- `ly_q32u.py` (SHA256 e5a4d5c99e0717c07d47d53ae991ce535221d516a2aea09112ca9361e0a24cf8): **the unpooler** at T =
+  9..32 through the narrow build, with the wide picks' templates, rings and NACC (`launch_sk2<1, 16, 4, 1, 4, 1, 5, ...,
+  2, 1>` and `launch_sk2<2, 32, 4, 2, 2, 2, 3, ..., 1, 1>`, keyed on N 8192, K 4096); line 16305 becomes `if not
+  ((layer=='qkv_gate' and 1<=m<=8) or (layer=='unpooler' and 9<=m<=32))`. This touches the unpooler kernel build (the
+  escape protocol only); its PDL attribute, P and the MoE edge are unchanged.
+
+Numerics (`tools/ly_q32_numerics.py`, the candidate's path against the wide kernel launched directly from the same
+packed stream, 8 seeded inputs at four scales per M): q32n qkv_gate at M = 16 / 32 worst relative L2 1.13e-4 (CG_GATE_REL
+2e-3), 884,036 / 884,736 elements bitwise equal, the candidate closer to FP64 than the base on all 16 inputs
+(`num_q32n.log`); q32u unpooler at M = 16 / 32 bitwise equal, 3,145,728 / 3,145,728 (`num_q32u.log`).
+
+Gate runs (the file's own prepare, no pin; `gate_q32n.log`, `gate_q32u.log`): both files pass PDL8H_GUARD at T = 1
+sliding, 16 sliding, 32 full, 8 full and 8 sliding (ids mismatches 0 on both arms), enabled {1, 8, 16, 32}. Reference
+check (six loads, `--runs 5`): PASS 12 / 12, `G_RELEASE_STARTUP_OK native ... 56 verified_replays`, `CG_GATE unpooler ...
+equal 1023/1024 ok` (the control's line) for both.
+
+### Paired A/B against ly_stk2 (`tools/ly_d16_ab.sh` with CTL=ly_stk2.py: two rounds of c/w/c/w/c, 60 runs, six loads, PDL pinned at 1, 8, 16, 32)
+
+Pooled, 6 control runs and 4 candidate runs, 24 pairs per cell (`ab_q32n_tables.txt`, `ab_q32u_tables.txt`); w - c in
+us and pairs with the candidate below the control:
+
+| cell | ly_q32n | ly_q32u |
+|---|---|---|
+| decode 1 sliding / full | -0.32 (22/24) / -0.23 (17/24) | +0.07 (8/24) / -0.10 (14/24) |
+| decode 16 sliding / full | **+0.46 (4/24)** / -0.75 (19/24) | +0.03 (12/24) / +0.02 (13/24) |
+| decode 32 sliding / full | **+0.46 (3/24)** / +0.18 (12/24) | +0.14 (9/24) / +0.24 (8/24) |
+| verify 1 sliding / full | -0.20 (16/24) / +0.04 (10/24) | -0.06 (15/24) / +0.20 (10/24) |
+| verify 16 sliding / full | -0.44 (20/24) / +0.20 (13/24) | +0.56 (8/24) / -0.13 (13/24) |
+| verify 32 sliding / full | +0.50 (5/24) / -0.62 (19/24) | -0.81 (20/24) / +0.34 (8/24) |
+
+Every cell of both candidates is inside its threshold (max(2 x control spread, 0.5 us or 1%)). Per round, q32n decode 16
+sliding read +0.47 and +0.45 us, decode 32 sliding +0.48 and +0.45: a consistent small loss at both sliding cells.
+The cells whose code is unchanged (decode 1, verify 1 / 16 / 32) move by up to 0.8 us in both candidates, the session
+null.
+
+Kernel timelines (`tools/ly_tl_run.py --kernels`, 10 profiled cold replays per cell, decode 16 / 32, same session;
+`tl_stk2.tables.txt`, `tl_q32n.tables.txt`, `tl_q32u.tables.txt`; control first): decode 16 sliding qkv end 10.30 ->
+10.06, attention start 8.58 -> 7.30, attention end 18.62 -> 17.97, o end 22.24 -> 21.68; decode 16 full qkv 10.35 ->
+9.97; decode 32 sliding qkv 10.88 -> 10.85, attention end 20.83 -> 20.91; decode 32 full qkv 10.90 -> 11.81. For q32u the
+unpooler's critical path after the MoE reads 13.34 -> 13.06, 13.12 -> 13.07, 14.50 -> 14.59, 14.46 -> 14.96 us
+(decode 16 sliding / full, decode 32 sliding / full), inside the MoE-end spread.
+
+Where q32n's kernel gain went (hypotheses, not separated today): (1) the narrow escape warps read their x values from
+global memory, one 2-byte element per token per escape (up to 41 escapes per CTA, 16 or 32 tokens each); after the L2
+flush that is a scattered gather of up to 2.0 / 4.0 MB of 32-byte sectors (96 x 41 x 16 or 32) at T = 16 / 32 beside the 28 MB weight stream,
+where the wide build reads the same values from the x tile already in shared memory. At T = 1 the gather is one element
+per escape. (2) The escape warps now exit early, so at decode 16 the attention kernel launches 1.3 us earlier as a PDL
+secondary and its CTAs share the SMs and DRAM with the qkv tail. Neither explains why the profiled replays show a
+0.56 us earlier o end at decode 16 sliding while the paired cold replays show +0.46 us; the paired A/B decides.
+
+### What differs from the earlier T = 16 / 32 qkv rows (docs/ruled-out.md "P2" and "stream-K in one wave")
+
+Those rows changed the geometry (144 to 192 CTAs, 8 / 12 consumer warps, 16-row CTAs at 2 per SM, 2- and 4-CTA K-split
+clusters, 128-CTA stream-K with a red.add join) and were measured in the BF16 tuner with an in-process cold L2. Both
+candidates here keep the 96-CTA geometry, stream, ring depth and stage order, and change only the escape-warp protocol
+(plus NACC 2 for qkv), measured in the layer. The stamps show that this protocol mattered at T = 16 (0.42 us refill gate)
+but not at T = 32 (consumer-paced), and the layer A/B shows the kernel-level gain at T = 16 does not reach the step.
+
+### Decision
+
+Neither candidate meets the registration bar (decode 16 or 32 sliding by at least 0.8 us with 20+ of 24 pairs): ly_q32n
+loses 0.46 us at both sliding cells (4/24, 3/24) while winning decode 16 full by 0.75 (19/24); ly_q32u is null at every
+cell. Weighted by the judge's cell values, q32n is about +0.07% of score (a loss). No ledger registration, no judge job.
+Two ruled-out rows. The T = 1 narrow route (ly_stk2's q1n line) is unaffected: its stamps and A/B stand. What is left
+at T = 32 qkv is consumer pace (0.384 us per stage at MT 2 on 4 consumer warps) with a 4-slot ring that x tiles fill
+to 64%; a next step would move x out of the ring or give the consumers more warps without more CTAs, both outside the
+escape protocol and not tested here.
