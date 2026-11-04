@@ -1,0 +1,69 @@
+{
+  "observed_at": "2026-11-04T03:50:39.620320+00:00",
+  "numerical_leads": 16,
+  "promotion_gaps": [],
+  "public_rows_used": {
+    "muse_moe_w4a16": {
+      "job": "b97bffee59a54a87",
+      "score_us": 5718.416775885724,
+      "rank": 349,
+      "speedup": 2.3518,
+      "snapshot": ".build\\driver-monitor-0348\\public-snapshots\\muse_moe_w4a16.leaderboard.json"
+    },
+    "muse_bf16_proj": {
+      "job": "473949f0173d4f7f",
+      "score_us": 3153.1499950791595,
+      "rank": 255,
+      "speedup": 1.5321,
+      "snapshot": ".build\\driver-monitor-0348\\public-snapshots\\muse_bf16_proj.leaderboard.json"
+    },
+    "muse_attention_decode": {
+      "job": "8914751e3b9f468b",
+      "score_us": 1446.1905945986007,
+      "rank": 299,
+      "speedup": 2.6043,
+      "snapshot": ".build\\driver-monitor-0348\\public-snapshots\\muse_attention_decode.leaderboard.json"
+    },
+    "muse_decode_layer": {
+      "job": "e095123329d84e30",
+      "score_us": 10343.8351360107,
+      "rank": 369,
+      "speedup": 2.1868,
+      "snapshot": ".build\\driver-monitor-0348\\public-snapshots\\muse_decode_layer.leaderboard.json"
+    },
+    "muse_prefill_layer": {
+      "job": "1530ec79d50a4f69",
+      "score_us": 318441.9905489318,
+      "rank": 663,
+      "speedup": 1.2166,
+      "snapshot": ".build\\driver-monitor-0348\\public-snapshots\\muse_prefill_layer.leaderboard.json"
+    }
+  },
+  "scope": "Saved JSON, including archives and ignored files. CLI exports included only for clean matching jobs in the explicitly supplied 50-job index; unlisted exports excluded. This is not full historical CLI coverage. Explicit disqualifications in the supplied own-jobs index override archived passing receipts. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+  "cli_export_coverage": {
+    "own_jobs_index": ".build\\driver-monitor-0348\\own-jobs.json",
+    "indexed_jobs": 50,
+    "exports_seen": 502,
+    "bound_clean_exports": 23,
+    "excluded_no_index": 0,
+    "excluded_unlisted": 478,
+    "excluded_unclean_job": 1,
+    "distinct_bound_jobs": 22
+  },
+  "disqualification_coverage": {
+    "indexed_disqualified_jobs": 2,
+    "excluded_files": 1,
+    "distinct_excluded_jobs": 1,
+    "exclusions": [
+      {
+        "job": "9d80ae2494334136",
+        "problem": "muse_decode_layer",
+        "basis": "explicit own-jobs index",
+        "reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+        "path": "muse_decode_layer\\cand\\profiles\\g1b4_rs.9d80ae2494334136.json"
+      }
+    ]
+  },
+  "exit_code": 0,
+  "additional_limitation": "Displayed layer rowe095 is ineligible; inventory pass is not eligibility or release-condition approval."
+}
