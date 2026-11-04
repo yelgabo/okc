@@ -57,7 +57,7 @@ def stats(s, nring, bw):
     alll = sorted(x for row in land for x in row)
     tot = n * NSTG * STAGE_W
     t10, t90 = q(alll, 0.1), q(alll, 0.9)
-    rate = 0.8 * tot / (t90 - t10) / 1e6   # TB/s between 10% and 90% of the stages landed
+    rate = 0.8 * tot / (t90 - t10) / 1e6 if t90 > t10 else float("nan")   # TB/s between 10% and 90% of the stages landed
     per_cta_land = [statistics.mean([land[c][s] for c in range(n)]) for s in range(NSTG)]
     cret = [[us(r[64 + s]) for s in range(NSTG)] for r in v]
     cdone = [[us(r[80 + s]) for s in range(NSTG)] for r in v]
@@ -99,6 +99,8 @@ def main():
     ap.add_argument("--bw", type=float, default=4.443)
     ap.add_argument("--out", default="")
     ap.add_argument("--raw", type=int, default=0)
+    ap.add_argument("--narrow", action="store_true", help="T = 1 qkv runs the narrow build (ly_q1n): stamp it; its "
+                    "escape warps leave the ring, so the escape-landing columns are empty")
     a = ap.parse_args()
     if a.lock:
         br.release_lock_for_triton()
@@ -121,10 +123,12 @@ def main():
     state = mod.prepare(weights)
     state["pdl8_on"] = {T: True for T in getattr(mod, "PDL8_T", (1, 8, 16, 32))}
     state["pdl8_edges"] = {8: frozenset(mod.PDL8D_EDGES)}
-    ext = mod.bfp__get_ext()
+    ext = mod._de_ext() if a.narrow else mod.bfp__get_ext()
     bst = state["bfp"]
     ci, qstream, qtab, pmax, b4, nrows = bst["sk2"]["qkv8_r176"]
     nring = mod.bfp__sk2_geom(next(c for c in mod.bfp_SK2_CONFIGS if c[0] == "qkv8_r176"), 8)[1]
+    if a.narrow:
+        nring = mod.bfp__sk2_geom(('qkv8n_r144', 'qkv_gate', 2304, 24, 3, 1, 4, 2, 2, 1), 8)[1]
     w_bytes = dict(qkv=nb(qstream), qtab=nb(qtab), x=8192 * 2, out=2304 * 2)
     print("QTL bytes", w_bytes, "pmax", pmax, "nstage", nring, "choice", bst["choice"].get(("qkv_gate", 1)), flush=True)
     buf = torch.zeros(96 * SLOTS, dtype=torch.int64, device="cuda")

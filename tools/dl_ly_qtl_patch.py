@@ -16,7 +16,7 @@ Slots (128 int64 per CTA, CTA = blockIdx.x):
   48 + w (w < 4): consumer warp w left the stage loop
   64 + s (s < 16): consumer warp 0's full-barrier wait for stage s returned (inside the stage loop: diagnostic SASS)
   80 + s (s < 16): consumer warp 0 done with stage s (after its slot hand-back)
-  96 + e (e < 4): escape warp e arrives on cbar (all its stages walked)
+  96 + e (e < 4): escape warp e arrived on cbar (all its stages walked)
   100: consumers past the cbar wait (tid 0, before the named barrier)
 
     python3 tools/dl_ly_qtl_patch.py [--src FILE] [--out muse_decode_layer/cand/ly_qtl.py]
@@ -74,7 +74,7 @@ K_EDITS = [
     ("    if (trace && warp == 0 && lane == 0) tr[16 + 3 * st + 2] = gtime();\n",
      "    if (trace && warp == 0 && lane == 0) tr[16 + 3 * st + 2] = gtime();\n    if (warp == 0 && lane == 0 && st < 16) SK2_QTL(80 + st);\n"),
     ("    mbar_arrive(cbar);\n    __syncwarp();\n",
-     "    if (lane == 0) SK2_QTL(96 + (warp - (NW + 1)));\n    mbar_arrive(cbar);\n    __syncwarp();\n"),
+     "    mbar_arrive(cbar);\n    if (lane == 0) SK2_QTL(96 + (warp - (NW + 1)));\n    __syncwarp();\n"),
     ("  if constexpr (COMP) mbar_wait(cbar, 0);   // the escape warp reads the ring's x tiles until it is done\n",
      "  if constexpr (COMP) mbar_wait(cbar, 0);   // the escape warp reads the ring's x tiles until it is done\n  if (tid == 0) SK2_QTL(100);\n"),
     ("  if (trace && tid == 0) tr[9] = gtime();\n", "  if (trace && tid == 0) tr[9] = gtime();\n  if (tid == 0) SK2_QTL(6);\n"),
@@ -90,6 +90,9 @@ K_EDITS = [
 
 F_EDITS = [
     ("void sk2_set_pdl(int64_t n);\n\"\"\"\n", "void sk2_set_pdl(int64_t n);\nvoid sk2_set_qtl(int64_t p);\n\"\"\"\n", 1),
+    # the narrow build (T = 2..8, and T = 1 in ly_q1n) exports the hook too
+    ("+'void sk2_set_pdl(int64_t n);'\n", "+'void sk2_set_pdl(int64_t n);void sk2_set_qtl(int64_t p);'\n", 1),
+    ("functions=['sk2','sk2_set_pdl'],", "functions=['sk2','sk2_set_pdl','sk2_set_qtl'],", 1),
     ('functions=["skinny_tma_a", "gemm90", "wide", "sk2", "gq", "sk2f", "sk2_set_pdl"],',
      'functions=["skinny_tma_a", "gemm90", "wide", "sk2", "gq", "sk2f", "sk2_set_pdl", "sk2_set_qtl"],', 1),
 ]
