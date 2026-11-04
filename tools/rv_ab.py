@@ -20,6 +20,7 @@ import torch
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import box_run as br  # noqa: E402
+import bx_box_run as bx  # noqa: E402
 
 
 def main():
@@ -33,9 +34,17 @@ def main():
     ap.add_argument("--out", default="")
     ap.add_argument("--router-seed", type=int, required=True)
     ap.add_argument("--pdl8-tries", type=int, default=5, help="prepares per arm to reach the control's PDL8 enable set")
+    ap.add_argument("--ls-cache", default="", help="bx_box_run.py's per-input local_start cache (docs/box-audit.md)")
+    ap.add_argument("--ext-cache", default="", help="content-addressed extension builds, as bx_box_run.py")
+    ap.add_argument("--pin-pdl8", default=None, help="T values with PDL on in every arm, e.g. 1,16,32 (replaces the re-prepares)")
+    ap.add_argument("--skip-pdl8-gate", action="store_true", help="with --pin-pdl8: skip the in-prepare gate")
     ap.add_argument("--pdl8-want", default="", help="the control's PDL8 enable set as printed, e.g. "
                     "'{1: True, 8: False, 16: True, 32: True}'")
     a = ap.parse_args()
+    if a.skip_pdl8_gate and a.pin_pdl8 is None:
+        ap.error("--skip-pdl8-gate needs --pin-pdl8")
+    if a.ext_cache:
+        bx.content_addressed_extensions(a.ext_cache)
 
     arms = [s.split("=", 1) for s in a.arms]
     pdir = os.path.abspath(a.problem)
@@ -52,15 +61,30 @@ def main():
     torch.cuda.synchronize()
 
     impl, pdl = {}, {}
+    dropped = []
     for idx, (arm, path) in enumerate(arms):
         mod = br.load_module(f"okc_rv_{arm}", path)
-        for attempt in range(a.pdl8_tries):
+        if a.skip_pdl8_gate and hasattr(mod, "_pdl8_setup"):
+            mod._pdl8_setup = lambda st: print("RV in-prepare PDL8 gate skipped (--skip-pdl8-gate)", flush=True)
+        for attempt in range(1 if a.pin_pdl8 is not None else a.pdl8_tries):
             t0 = time.monotonic()
             impl.pop(arm, None)
             state = None
             torch.cuda.empty_cache()
-            state = mod.prepare(weights) if hasattr(mod, "prepare") else None
+            try:
+                state = mod.prepare(weights) if hasattr(mod, "prepare") else None
+            except Exception as e:  # a variant that fails to build drops out; the control must not
+                if idx == 0:
+                    raise
+                print(f"RV {arm} {path} prepare FAILED: {type(e).__name__}: {str(e)[:300]}", flush=True)
+                dropped.append(arm)
+                break
             torch.cuda.synchronize()
+            if a.pin_pdl8 is not None and isinstance(state, dict) and "pdl8_on" in state:
+                pins = {int(t) for t in a.pin_pdl8.split(",") if t.strip()}
+                print(f"RV {arm} gate chose {state['pdl8_on']}; pinned to {sorted(pins)}", flush=True)
+                state["pdl8_on"] = {T: T in pins for T in getattr(mod, "PDL8_T", (1, 8, 16, 32))}
+                state["pdl8_edges"] = {8: frozenset(mod.PDL8D_EDGES)} if 8 in pins else {}
             impl[arm] = (mod.kernel_fn, state)
             # the PDL8 gate picks its enable set per prepare, so two preparations of the same bytes can time
             # different paths (verify 1 and decode 16 / 32 move by 6 to 8 us); arms are compared on one set
@@ -80,14 +104,17 @@ def main():
         else:
             print(f"RV {arm}: pdl8_on {pdl[arm]} after {a.pdl8_tries} prepares does not match", flush=True)
 
+    lsc = (bx.LocalStartCache(a.ls_cache, os.path.join(pdir, "reference.py"), a.router_seed, ref.WEIGHTS_SEED)
+           if a.ls_cache else None)
     timer = br.Timer()
     rows, loads = [], {}
-    names = [n for n, _ in arms]
+    names = [n for n, _ in arms if n not in dropped]
     for case in cases:
         case = dict(case)
         case.update(ref.case_fields(case, weights))
         seeds = [case["seed"] + j for j in range(a.runs)]
-        fresh = [ref.generate_input(**{**case, "seed": s, **ref.case_fields({**case, "seed": s}, weights)})
+        fresh = [ref.generate_input(**{**case, "seed": s, **(lsc.get(ref, case, s, weights) if lsc else
+                                                              ref.case_fields({**case, "seed": s}, weights))})
                  for s in seeds]
         row = dict(case=case, check={})
         if not a.no_check:
@@ -131,6 +158,8 @@ def main():
     for load, v in loads.items():
         print(f"RVLOAD {load}: " + " ".join(f"{arm} {v[arm]:.1f}" for arm in names)
               + " | " + " ".join(f"{arm}-{names[0]} {v[arm] - v[names[0]]:+.1f}" for arm in names[1:]), flush=True)
+    if lsc:
+        lsc.save()
     for arm in names[1:]:
         tot = sum(v[arm] - v[names[0]] for v in loads.values())
         gm = math.exp(statistics.fmean(math.log(v[names[0]] / v[arm]) for v in loads.values()))
