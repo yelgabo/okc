@@ -56,7 +56,7 @@ def summarize(cg, moe, fin):
     w1 = [us(r[13]) for r in cg]   # warp 1: every lane's weights landed
     w1i = [us(r[1]) for r in cg]   # t 0: weight loads issued
     x12 = [us(r[12]) for r in cg]  # warp 0: every lane's x landed
-    e14 = [us(r[14]) for r in cg]  # escape lane 0: first x element landed (0 when it has no escape)
+    e14 = [us(r[14]) for r in cg]  # escape lane 1: entry 1's x element landed (0 when the CTA has no escape)
     e15 = [us(r[15]) for r in cg]  # escape lane 0: after its loop
     w2 = [us(r[2]) for r in cg]
     x3 = [us(r[3]) for r in cg]
@@ -78,7 +78,7 @@ def summarize(cg, moe, fin):
         sl_wready_after_entry_p50=med(b - a for a, b in zip(e, w1)),
         sl_xall_p50=med(b - a for a, b in zip(w2, x12)), sl_xall_p90=q([b - a for a, b in zip(w2, x12)], 0.9), sl_xall_max=max(b - a for a, b in zip(w2, x12)),
         sl_math_p50=med(b - a for a, b in zip(x12, f4)), sl_math_max=max(b - a for a, b in zip(x12, f4)),
-        sl_esc_x_p50=med(b - a for a, b in zip(e6, e14) if b > 0), sl_esc_x_max=max(b - a for a, b in zip(e6, e14) if b > 0),
+        sl_esc_x_p50=med([b - a for a, b in zip(e6, e14) if b > 0] or [float('nan')]), sl_esc_x_max=max([b - a for a, b in zip(e6, e14) if b > 0] or [float('nan')]),
         sl_esc_loop_p50=med(b - a for a, b in zip(e6, e15)), sl_esc_sums_p50=med(b - a for a, b in zip(e15, e7)),
         sl_wait_min=min(w2), sl_wait_p50=med(w2), sl_wait_p90=q(w2, 0.9), sl_wait_max=max(w2),
         sl_wait_lat_min=min(w2) - moe_exit, sl_wait_lat_p50=med(w2) - moe_exit, sl_wait_lat_max=max(w2) - moe_exit,

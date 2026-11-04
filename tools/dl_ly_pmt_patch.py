@@ -10,7 +10,7 @@ stamp is behind a switch that the timed graph of the plain run leaves off, so th
     0 entry (t 0)   1 weight loads issued (t 0, nothing consumed before the wait)   2 after griddepcontrol.wait (t 0)
     3 lane 0's x landed   12 warp 0: every lane's x landed   13 warp 1: every lane's weights landed (consumed, then
     __syncwarp)   4 warp 0's FMAs and warp sums done   5 escape warp: count landed (before its wait)   6 escape warp
-    after its wait   14 escape lane 0: its first x element landed   15 escape lane 0 after its loop   7 escape walk
+    after its wait   14 escape lane 1: entry 1's x element landed   15 escape lane 0 after its loop   7 escape walk
     done (after the warp sums)   8 after the CTA barrier (t 0)   9 output stored (t 0)   10 SM id   11 escape count
 - MoE TINY build (helper0): -DOKC_DEBUG=1 enables the source's own DBG(k) stamps (p.dbg, 8 per CTA: 0 entry,
   1 prologue, 7 gather, 6 WS join, 2 phase A end, 3 phase B end = launch_dependents, 4 after the grid barrier,
@@ -88,7 +88,7 @@ CG_EDITS = [
      "        float corr0 = 0.f, corr1 = 0.f;\n        asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n        if (TL && lane == 0) tl[6] = cg_gt();\n        for (int e = lane; e <= count; e += 32) {", 1),
     ("                const float xv = __uint_as_float(\n                    (unsigned)XLD(reinterpret_cast<const unsigned short*>(x) + kk) << 16);\n",
      "                const float xv = __uint_as_float(\n                    (unsigned)XLD(reinterpret_cast<const unsigned short*>(x) + kk) << 16);\n"
-     "                if (TL && lane == 0 && e == 1) { cg_use(__float_as_uint(xv)); tl[14] = cg_gt(); }\n", 1),
+     "                if (TL && lane == 1 && e == 1) { cg_use(__float_as_uint(xv)); tl[14] = cg_gt(); }\n", 1),
     ("        corr0 = warp_sum(corr0);\n        corr1 = warp_sum(corr1);\n        if (lane == 0) {\n            red[0][NW] = corr0;\n",
      "        if (TL && lane == 0) tl[15] = cg_gt();\n        corr0 = warp_sum(corr0);\n        corr1 = warp_sum(corr1);\n        if (TL && lane == 0) tl[7] = cg_gt();\n        if (lane == 0) {\n            red[0][NW] = corr0;\n", 1),
     ("    asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n    __syncthreads();\n    if (t == 0) {\n        float r0 = 0.f, r1 = 0.f;",
