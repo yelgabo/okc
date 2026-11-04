@@ -6117,3 +6117,87 @@ The reverse test cannot run on this build. mo_wgsfinss0 (OKC_WGSFINSS 1 -> 0, th
 pdl8h's startup expert comparison ("G startup expert comparison failed (96408.25, 414519.90625)"): this
 source no longer keeps a working epilogue-sum path, so I could not measure what the final-pass sums are
 worth on pdl8h. f_ctl1 / f_ctl2 (decode 32, verify 16, verify 32) are kept as controls in the spread table.
+
+## 2026-11-04 - T = 8 MoE floor and gap
+
+The question: how far is the layer's verify 1 fused MoE (the TINY2 build, 8 tokens) from its byte floor, and
+where does the rest go? The base is combo2 (`muse_decode_layer/cand/rv_k_combo2.py`, 7f0a3e36). I measured on the
+box only, with no judge quota. Instrument: `tools/dl_moe_tl.py` writes `mo_tl8.py` by applying MOE-TL-01's CUDA
+edits (`tools/moe_tiny_timeline_cta.py`) unchanged to the layer's helper0 source. Every anchor matched, so the
+layer's TINY2 is the standalone's helper0 kernel, and `-DOKC_TLX=1` is set on TINY2 only. `tools/box_moe_tl8.py`
+runs the layer eagerly once per input, records the TINY2 launch's arguments, then replays that launch twice
+after a 1 GiB L2 flush: once plain, timed with CUDA events, and once instrumented, with a fourth scratch tensor
+and 64 globaltimer stamps per CTA. The instrumented output matches the plain output within 2e-3 (the order of
+the FP32 sum-of-squares atomics). Inputs: 40 per cell, f931 case seeds, router seed 106218864389449120,
+local_start per input. Log and JSON: `muse_decode_layer/profiles/box/tl8/`.
+
+### Floor
+
+The kernel streams 36,864-byte units (32,768 bytes of 4-bit codes plus 4,096 bytes of scales). One local expert
+is 768 units (512 phase A for w13, 256 phase B for w2), 28.31 MB. The 25 MB in the brief is the codes alone:
+3 x 4096^2 / 2 = 25.2 MB, plus 3.1 MB of scales. Box bandwidth at 4 GiB: 4.45 TB/s read (`sum`), 4.27 TB/s
+for a copy counting read and write. The floor is therefore 28.31 MB / 4.45 TB/s = 6.37 us per distinct local
+expert, and 47.7 us at the judge's 7.5 experts. The weights are all the kernel needs to stream: x is 8 x 4096
+BF16 (64 KB) and h is 8 x 4096 BF16 per expert, both negligible against 28 MB per expert.
+
+### Measured
+
+The kernel span runs from the first CTA's entry to the last CTA's exit. The box's verify 1 inputs touch 4 to
+14 distinct local experts (median 7 sliding, 8 full).
+
+| cell | span fit (us) | span at 7.5 experts | floor at 7.5 | gap at 7.5 | median gap per input |
+|---|---|---:|---:|---:|---:|
+| verify 1 sliding | 12.5 + 7.06 x distinct (residual 1.05) | 65.5 | 47.7 | 17.8 | 17.4 |
+| verify 1 full | 11.1 + 7.21 x distinct (residual 0.75) | 65.2 | 47.7 | 17.5 | 17.9 |
+
+So the slope is 0.7 to 0.85 us per expert above the floor, about 6 us at 7.5 experts, and the fixed part is
+11 to 12.5 us.
+
+Mean-CTA breakdown at the median input (us; sliding 7 experts, 5,376 units / full 8 experts, 6,144 units;
+132 CTAs carrying 34-36 / 40-42 units each):
+
+| piece | sliding | full | floor for the piece | excess |
+|---|---:|---:|---:|---:|
+| ramp: entry to first ring slot full (routing and ranges done at 2.44 of it) | 3.79 | 3.71 | 0 | 3.7-3.8 |
+| phase A (w13 units, 1.26 us per unit per CTA) | 34.32 | 38.77 | 29.4 / 33.5 | 4.9 / 5.3 |
+| A-to-B handoff (doneA dependency) | 2.84 | 2.81 | 0 | 2.8 |
+| phase B (w2 units, 1.16 us per unit) | 15.82 | 18.00 | 14.8 / 17.0 | 1.0 |
+| tail: B end to barrier 0.9, barrier idle 2.6-2.7, final pass 0.34 | 3.77 | 3.88 | 0 | 3.8-3.9 |
+| (B-end spread across CTAs, inside the tail) | 2.83 | 2.77 | | |
+
+Warp 0's total wait for weights is 3.1 / 3.6 us over phase A and 0.75 us over phase B. Phase A streams at
+3.85 TB/s, 87% of the read bandwidth; phase B at 4.18 TB/s, 94%. The CUDA-event time of an isolated plain launch
+(84.1 / 88.9 us median) is 22 us longer than the span: an eager launch pays launch and host work outside the
+CTAs. That does not apply to the layer's graph, so the span is the number to use. The span agrees with the
+layer profile's moe_fused (57 to 64 us at verify 1, docs/box.md "Routing").
+
+### Reading
+
+At the judge's 7.5 experts, the kernel runs about 17.5 us (27%) above its byte floor. In order of size:
+
+1. Phase A's stream rate: about 5 us, growing about 0.65 us per expert. Phase A runs 0.17 us per unit slower
+   than the 1.09 us floor, phase B 0.07, and the gap shows up as weights wait. The obvious levers have already
+   lost: four ring slots instead of three cost +2.3 / +2.1 us at verify 1 (knob sweep above), and 16 compute
+   warps cost +4.0 us at T = 8 (MOE-NW16-BAL-01). Whether phase A is short of bytes in flight, limited by HBM
+   efficiency, or limited by its SwiGLU epilogue and issue rate is not separated yet. The decisive test is the
+   same timeline with OKC_NOLOAD (compute only), which gives phase A's issue-bound rate per unit.
+2. Tail: 3.8 us, of which the B-end spread across CTAs is 2.8 and barrier latency plus final pass about 1.
+3. Ramp: 3.8 us, of which the routing prologue is 2.4 and the first fill after routing 1.4.
+4. Handoff: 2.8 us.
+
+### Proposed mechanism (not built)
+
+Phase A is the largest piece, but it has no lever until the NOLOAD test separates its cause. The largest piece
+with a known lever is the tail's 2.8 us finish spread. The mechanism: claim the last phase B units at run time.
+The last min(2G, nB - 4G) phase B units go into a pool, and a CTA claims the next one with an atomic ticket when
+its own range runs out. Fast CTAs then absorb the slow ones' rate variance before the grid barrier, instead of
+idling at it. The existing grid barrier, every fence and the final pass stay as they are; the claim adds only an
+atomic on a counter that the kernel zeros between launches. This is rank 2 of "Open levers" above. It has not
+run on the TINY2 build: MOE-BQUEUE-01 covered B4 / MAIN only, and MOE-BAL-01 balanced the counts statically,
+not at run time. Estimated saving: the spread falls from 2.8 to about 1 unit interval (1.2 us), which is
+-1.5 us per verify 1 cell (hypothesis; it assumes the spread is rate variance, as the 34-36 unit counts per CTA
+suggest, not one slow SM). It applies to the standalone MoE's T = 8 cell as well. Its risk is the ticket
+latency, about 1 us per claim from L2. A second, smaller candidate: launch the MoE as a PDL secondary of the
+route kernel, so entry, barrier init and the launch gap overlap the router. That saves about 0.7-0.9 us, the
+measured PDL edge saving in this layer. The 2.4 us routing prologue cannot overlap, because it reads the route
+kernel's ids.
