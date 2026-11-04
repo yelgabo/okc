@@ -4553,3 +4553,49 @@ Paired A/B (same recipe, CTL=ly_fabq.py, CAND=ly_pepi2.py, 16:04 to 16:06 UTC, `
 Inside everywhere again, and the four changed cells are positive in 15 of 16 pairs (+0.2 to +0.5 us) while the
 unchanged cells scatter around zero. Two candidates with a measured 0.1 us shorter kernel tail and a consistent +0.3
 us at the layer: the loss has another cause than the tail code.
+
+### ly_pepi3: the extra shared memory alone
+
+`muse_decode_layer/cand/ly_pepi3.py` (SHA256 60d76809b1908f85a994f5bafbafe1b6756b2b3e2e0e7e17fe929947dbc54583, built
+inline from the first and third kernel edits and the first file edit of tools/dl_ly_pepi_patch.py): ly_fabq with only
+the `SK2_REDX` define and the launch's extra 20,496 B of dynamic shared memory for the gle fused kernel (206,800 ->
+227,296 B); the kernel code is the base's (red stays in the ring, every barrier as before). Box chk PASS at 12 cells.
+Paired A/B (same recipe, 16:07 to 16:09 UTC, `/root/okc/.build/prtl/pepi3/`):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs > 0 | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 64.99 | 65.47 | 64.78 | 64.38 | 64.27 | 0.72 | +0.25 | 3/4 | 1.44 | inside |
+| decode 1 full | 72.24 | 71.79 | 70.70 | 71.07 | 71.12 | 1.54 | +0.08 | 2/4 | 3.07 | inside |
+| decode 16 sliding | 126.99 | 127.01 | 126.93 | 126.66 | 127.17 | 0.24 | -0.20 | 2/4 | 1.27 | inside |
+| decode 16 full | 198.83 | 199.20 | 198.58 | 199.15 | 199.41 | 0.83 | +0.24 | 3/4 | 1.99 | inside |
+| decode 32 sliding | 144.05 | 143.94 | 144.35 | 143.84 | 144.34 | 0.30 | -0.36 | 0/4 | 1.44 | inside |
+| decode 32 full | 294.78 | 295.71 | 295.86 | 295.12 | 294.19 | 1.66 | +0.47 | 2/4 | 3.33 | inside |
+| verify 1 sliding | 102.02 | 103.73 | 102.29 | 102.35 | 102.38 | 0.37 | +0.81 | 3/4 | 0.74 | loss |
+| verify 1 full | 111.10 | 111.87 | 110.50 | 111.07 | 110.69 | 0.61 | +0.71 | 4/4 | 1.22 | inside |
+| verify 16 sliding | 245.38 | 244.13 | 242.72 | 242.74 | 242.40 | 2.98 | -0.07 | 3/4 | 5.95 | inside |
+| verify 16 full | 328.29 | 326.45 | 325.70 | 326.66 | 326.35 | 2.59 | -0.23 | 3/4 | 5.18 | inside |
+| verify 32 sliding | 297.14 | 297.12 | 298.11 | 297.07 | 297.87 | 0.98 | -0.61 | 0/4 | 2.98 | inside |
+| verify 32 full | 460.90 | 460.69 | 461.55 | 460.34 | 460.26 | 1.30 | -0.39 | 1/4 | 4.61 | inside |
+
+The shared-memory growth by itself reproduces the candidates' short-cell drift (+0.25 / +0.08 at decode 1, +0.81 /
++0.71 at verify 1, 12 of 16 pairs positive, one cell past its threshold), with the kernel code untouched. Hypothesis
+(not traced): the fused kernel at 227 KB asks for the SM's full shared-memory carveout while its PDL neighbours (the
+boundary kernel before it, the route kernel after it) run at smaller carveouts, and the reconfiguration or the lost
+co-residency costs a few tenths of a microsecond per launch; the gle fused kernel at 207 KB already sits in the
+largest carveout class on paper, so the step may be the 4.6 KB static + 227 KB dynamic sum crossing a boundary. Either
+way the dedicated red region cannot be paid for by the 0.1 us it saves in the tail.
+
+### Reading
+
+- The pooler + router kernel in the public file is 1.2 to 1.6 us over its written byte floor at decode 1 (2.3 to 3.3 at
+  verify 1), and the loop streams at 4.9 TB/s, above the 4.443 the floor assumes. The remaining excess is four pieces of
+  0.35 to 0.8 us each (ramp, last stage, tail, CTA spread), none of them a barrier or a wait that a one-line change
+  removes: the tail's three barrier rounds and 35 idle shuffles were worth 0.1 us when removed (ly_pepi2 stamps), and
+  the mechanism's shared-memory cost outweighed it.
+- No judge check recommended for ly_pepi, ly_pepi2 or ly_pepi3. Ruled-out rows added.
+- Left for a later day (hypotheses with their sizes): the T = 8 FP32 router stage is shared-memory-bandwidth bound
+  (0.61 us per stage against 0.47 of DRAM time; 0.1 us per stage hidden in the loop, 0.3 exposed on the last stage), a
+  2-row x 4-token warp mapping would cut its smem reads by a third; a red region that fits without growing the launch
+  (16 tokens x 8 warps x 40 floats could be 8 x 8 x 40 at M <= 8 if the write were guarded) would test the barrier
+  removal without the carveout cost, for at most 0.1 us; the ramp (0.4 to 0.65 us, the x tile's TMA round trip after
+  the wait) and the CTA spread (0.45 us) have no in-kernel lever identified.
