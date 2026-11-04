@@ -1,0 +1,42 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793822242.337 acquire start after 8.9 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793822243.025 release build muse_att_v298w1pf_90a
+BXBUILD 1793822243.025 start build muse_att_v298w1pf_90a
+BXBUILD 1793822292.828 end build muse_att_v298w1pf_90a
+BXLOCK 1793822302.703 acquire build muse_att_v298w1pf_90a done after 9.9 s
+BXCLOCK submission clocks now 9.9 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.94), ('sk2', 7.9), ('torch', 10.4)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+PDL8_AB T=1 sliding: off 74.66 on 68.06 us, median paired saving 6.59, wins 9/9
+PDL8H_GUARD T=1 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.74e-04', '4.81e-04', '0.00e+00'] on ['3.74e-04', '4.81e-04', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=1 full: off 81.50 on 74.14 us, median paired saving 7.23, wins 9/9
+PDL8_AB T=16 sliding: off 158.37 on 150.82 us, median paired saving 7.65, wins 9/9
+PDL8H_GUARD T=16 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.58e-03', '4.08e-03', '0.00e+00'] on ['3.58e-03', '4.08e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=16 full: off 233.79 on 224.26 us, median paired saving 9.28, wins 9/9
+PDL8_AB T=32 sliding: off 224.13 on 218.94 us, median paired saving 5.34, wins 9/9
+PDL8_AB T=32 full: off 344.64 on 338.56 us, median paired saving 6.34, wins 9/9
+PDL8H_GUARD T=32 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['5.52e-03', '6.41e-03', '0.00e+00'] on ['5.52e-03', '6.41e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin+un: off 133.38 on 124.22 us, median paired saving 9.22, wins 9/9
+PDL8H_GUARD T=8 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['7.25e-03', '6.89e-03', '0.00e+00'] on ['7.25e-03', '6.89e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin+un: off 124.67 on 116.67 us, median paired saving 7.94, wins 9/9
+PDL8H_GUARD T=8 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.16e-03', '3.98e-03', '0.00e+00'] on ['6.33e-03', '6.09e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8H T=8 on, all six edges
+PDL8 weighted paired saving T=1: 6.76 us
+PDL8 weighted paired saving T=8: 8.27 us
+PDL8 weighted paired saving T=16: 8.07 us
+PDL8 weighted paired saving T=32: 5.60 us
+PDL8 six-load estimate +3.96% (enabled loads only); enabled {1: True, 8: True, 16: True, 32: True}
+BX submission pdl8 prepare {1: True, 8: True, 16: True, 32: True} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 72.9 s
+BOX decode 16 sliding: raw 130.48 net 126.42 us (overhead 4.06) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.988 | check PASS
+BOX decode 16 full: raw 205.60 net 201.28 us (overhead 4.32) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.956 | check PASS
+BOX decode 32 sliding: raw 146.61 net 142.22 us (overhead 4.38) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.946 | check PASS
+BOX decode 32 full: raw 297.95 net 293.89 us (overhead 4.06) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.965 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 80 hits, 0 computed
+BXPHASE import_torch=10.30 load_reference_cuda_init=0.00 weights_and_router=0.25 prepare_submission=72.86 fresh_inputs=0.86 check=0.47 capture=0.05 overhead_graphs=0.43 replays=0.06 cell_tail=0.04 json_write=0.00 total=85.33

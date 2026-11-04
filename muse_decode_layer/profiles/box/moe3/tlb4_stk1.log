@@ -1,0 +1,49 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793819959.570 acquire start after 15.1 s
+TLB4 bandwidth read 4.447 TB/s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793819960.276 release build glue_moe_0a82a63c1dbbbeb6_sm90a
+BXBUILD 1793819960.276 start build glue_moe_0a82a63c1dbbbeb6_sm90a
+BXBUILD 1793819960.276 start build glue_moe_9e08b77cd6678d17_sm90a
+BXBUILD 1793820011.027 end build glue_moe_9e08b77cd6678d17_sm90a
+BXBUILD 1793820015.684 end build glue_moe_0a82a63c1dbbbeb6_sm90a
+BXLOCK 1793820025.215 acquire build glue_moe_0a82a63c1dbbbeb6_sm90a done after 9.5 s
+BXCLOCK submission clocks now 9.5 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.42), ('sk2', 7.97), ('torch', 10.37)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+TLB4 b4 attrs (regs, local, smem) x2 [96, 8, 0, 96, 8, 0]
+BXLOCK 1793820033.348 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793820033.348 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793820033.447 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793820053.860 acquire triton _graft_row_boundary_pre_cg done after 20.4 s
+BXCLOCK submission clocks now 29.9 s behind real (lock waits after builds)
+BXLOCK 1793820053.862 release triton _prq_sl_tile_route_cg
+BXBUILD 1793820053.862 start triton _prq_sl_tile_route_cg
+BXBUILD 1793820054.665 end triton _prq_sl_tile_route_cg
+BXLOCK 1793820070.225 acquire triton _prq_sl_tile_route_cg done after 15.6 s
+BXCLOCK submission clocks now 45.5 s behind real (lock waits after builds)
+BXLOCK 1793820070.227 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793820070.228 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793820070.326 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793820082.905 acquire triton _graft_row_boundary_pre_cg done after 12.6 s
+BXCLOCK submission clocks now 58.1 s behind real (lock waits after builds)
+TLB4G decode 32 sliding n 40 medians graph_plain 148.800 graph_inst 148.944 span 78.224 route 1.745 gather 3.398 join 3.427 issue0 4.316 A 45.002 aend_spread 9.264 B 22.136 bend_spread 7.232 mfin_wait 5.027 final 1.961 exit_spread 2.032 x_rdy_wait 0.311 b_dep_first 3.193 b_dep_wait 9.349 b_issue0 45.069 stages 6912.000 stages_min 6912.000 stg_cta_min 44.000 stg_cta_max 55.000 segs_a 404.000 segs_b 260.000 split_a 113.000 split_b 112.000 int_a 0.992 int_b 1.208 int_floor 1.064 distinct 9.000 routes 52.000 maxdiff nan
+TLB4G decode 32 sliding distinct  6 n  1 graph_plain 127.58 graph_inst 128.61 span 58.11 issue0 4.28 A 32.21 B 16.38 bend_spread 5.54 mfin_wait 4.59 final 1.79 int_a 0.99 int_b 1.02
+TLB4G decode 32 sliding distinct  7 n  4 graph_plain 138.13 graph_inst 140.75 span 70.34 issue0 4.41 A 37.40 B 18.94 bend_spread 10.64 mfin_wait 8.29 final 2.28 int_a 0.99 int_b 1.06
+TLB4G decode 32 sliding distinct  8 n  9 graph_plain 142.85 graph_inst 142.37 span 72.58 issue0 4.23 A 40.98 B 21.06 bend_spread 6.88 mfin_wait 4.83 final 1.86 int_a 0.99 int_b 1.12
+TLB4G decode 32 sliding distinct  9 n 12 graph_plain 148.80 graph_inst 148.94 span 78.22 issue0 4.30 A 45.00 B 22.09 bend_spread 8.32 mfin_wait 6.25 final 1.97 int_a 0.99 int_b 1.22
+TLB4G decode 32 sliding distinct 10 n 11 graph_plain 153.92 graph_inst 153.38 span 84.06 issue0 4.32 A 49.34 B 24.09 bend_spread 6.85 mfin_wait 5.01 final 1.96 int_a 0.99 int_b 1.28
+TLB4G decode 32 sliding distinct 11 n  2 graph_plain 159.38 graph_inst 161.01 span 89.82 issue0 4.47 A 52.10 B 26.89 bend_spread 6.27 mfin_wait 4.79 final 2.29 int_a 0.99 int_b 4.62
+TLB4G decode 32 sliding distinct 12 n  1 graph_plain 163.46 graph_inst 165.15 span 94.46 issue0 4.38 A 55.45 B 28.88 bend_spread 5.63 mfin_wait 4.59 final 1.81 int_a 0.99 int_b nan
+TLB4G decode 32 full n 40 medians graph_plain 300.272 graph_inst 302.784 span 80.112 route 1.706 gather 3.381 join 3.410 issue0 4.304 A 45.660 aend_spread 8.912 B 22.513 bend_spread 7.408 mfin_wait 5.670 final 1.878 exit_spread 1.984 x_rdy_wait 0.315 b_dep_first 3.118 b_dep_wait 9.440 b_issue0 45.550 stages 6912.000 stages_min 6912.000 stg_cta_min 44.000 stg_cta_max 56.000 segs_a 404.000 segs_b 260.000 split_a 115.000 split_b 112.500 int_a 0.992 int_b 1.232 int_floor 1.064 distinct 9.000 routes 51.000 maxdiff nan
+TLB4G decode 32 full distinct  7 n  2 graph_plain 286.45 graph_inst 290.72 span 69.55 issue0 4.19 A 37.83 B 19.28 bend_spread 8.90 mfin_wait 7.09 final 2.01 int_a 0.99 int_b 1.07
+TLB4G decode 32 full distinct  8 n  8 graph_plain 293.58 graph_inst 296.51 span 72.96 issue0 4.28 A 41.42 B 21.00 bend_spread 7.12 mfin_wait 5.33 final 1.88 int_a 0.99 int_b 1.15
+TLB4G decode 32 full distinct  9 n 14 graph_plain 298.61 graph_inst 302.05 span 79.46 issue0 4.28 A 45.48 B 22.34 bend_spread 8.29 mfin_wait 6.39 final 1.98 int_a 0.99 int_b 1.25
+TLB4G decode 32 full distinct 10 n  8 graph_plain 302.98 graph_inst 304.53 span 83.42 issue0 4.31 A 48.87 B 24.05 bend_spread 6.56 mfin_wait 4.77 final 1.87 int_a 0.99 int_b 1.22
+TLB4G decode 32 full distinct 11 n  6 graph_plain 310.14 graph_inst 310.86 span 89.68 issue0 4.48 A 51.93 B 26.35 bend_spread 7.04 mfin_wait 5.26 final 1.80 int_a 0.99 int_b 4.92
+TLB4G decode 32 full distinct 12 n  2 graph_plain 316.30 graph_inst 319.38 span 95.31 issue0 4.35 A 56.40 B 28.05 bend_spread 6.40 mfin_wait 5.22 final 1.82 int_a 0.99 int_b nan

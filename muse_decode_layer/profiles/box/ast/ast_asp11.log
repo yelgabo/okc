@@ -1,0 +1,120 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793819186.525 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.1), ('sk2', 7.97), ('torch', 10.34)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+ASTI decode 1 sliding in 0 plain 77.15 inst 77.54 diff 0.00e+00 n 11 entry -1.34/-1.25 wait 0.38/0.42 stage 2.34/3.68 loop 4.90 ticket 5.86 fin 5.92..6.50 o_wait 6.91/6.94
+ASTI decode 1 sliding in 1 plain 79.33 inst 76.42 diff 0.00e+00 n 11 entry -1.12/-1.02 wait 0.42/0.45 stage 2.30/3.71 loop 4.83 ticket 5.82 fin 5.89..6.43 o_wait 6.85/6.88
+ASTI decode 1 sliding in 2 plain 70.21 inst 69.54 diff 9.38e-02 n 11 entry -1.34/-1.09 wait 0.32/0.32 stage 2.24/2.78 loop 4.48 ticket 5.54 fin 5.57..6.08 o_wait 6.53/6.56
+ASTI decode 1 sliding in 3 plain 68.51 inst 70.37 diff 0.00e+00 n 11 entry -1.25/-1.18 wait 0.45/0.45 stage 2.37/2.82 loop 5.92 ticket 6.94 fin 6.98..7.49 o_wait 8.35/8.35
+ASTI decode 1 sliding in 4 plain 68.74 inst 70.82 diff 1.56e-02 n 11 entry -1.09/-1.06 wait 0.38/0.42 stage 2.40/3.36 loop 5.22 ticket 6.18 fin 6.24..6.78 o_wait 7.23/7.26
+ASTI decode 1 sliding in 5 plain 76.35 inst 76.54 diff 0.00e+00 n 11 entry -1.12/-1.06 wait 0.38/0.42 stage 2.37/3.68 loop 5.54 ticket 6.50 fin 6.56..7.10 o_wait 7.52/7.55
+ASTI decode 1 sliding in 6 plain 76.77 inst 75.36 diff 0.00e+00 n 11 entry -1.12/-0.86 wait 0.42/0.51 stage 2.40/2.75 loop 4.67 ticket 5.73 fin 5.79..6.30 o_wait 6.82/6.85
+ASTI decode 1 sliding in 7 plain 70.30 inst 68.58 diff 4.69e-02 n 11 entry -1.44/-1.22 wait 0.38/0.42 stage 2.30/2.75 loop 4.64 ticket 5.70 fin 5.73..6.24 o_wait 6.69/6.72
+ASTI decode 1 sliding in 8 plain 69.76 inst 68.16 diff 1.95e-03 n 11 entry -1.70/-1.54 wait 0.29/0.32 stage 2.11/3.10 loop 4.32 ticket 5.31 fin 5.34..5.92 o_wait 6.34/6.37
+ASTI decode 1 sliding in 9 plain 68.99 inst 70.62 diff 0.00e+00 n 11 entry -1.09/-0.90 wait 0.42/0.48 stage 2.40/2.98 loop 4.74 ticket 5.73 fin 5.76..6.34 o_wait 6.75/6.78
+ASTI decode 1 sliding in 10 plain 76.86 inst 75.74 diff 0.00e+00 n 11 entry -1.15/-1.06 wait 0.38/0.42 stage 2.43/3.74 loop 5.44 ticket 6.50 fin 6.56..7.07 o_wait 7.49/7.52
+ASTI decode 1 sliding in 11 plain 76.29 inst 75.36 diff 0.00e+00 n 11 entry -1.09/-0.99 wait 0.38/0.42 stage 2.50/3.23 loop 5.09 ticket 6.14 fin 6.21..6.72 o_wait 7.14/7.17
+ASTI decode 1 sliding in 12 plain 76.90 inst 76.74 diff 0.00e+00 n 11 entry -1.12/-1.06 wait 0.35/0.35 stage 2.24/3.62 loop 4.74 ticket 5.73 fin 5.79..6.34 o_wait 6.75/6.78
+ASTI decode 1 sliding in 13 plain 68.80 inst 68.77 diff 0.00e+00 n 11 entry -1.28/-1.06 wait 0.32/0.38 stage 2.27/2.69 loop 4.58 ticket 5.57 fin 5.63..6.21 o_wait 6.62/6.62
+ASTI decode 1 sliding in 14 plain 70.56 inst 71.04 diff 0.00e+00 n 11 entry -1.66/-1.47 wait 0.45/0.45 stage 2.34/3.90 loop 5.25 ticket 6.21 fin 6.24..6.82 o_wait 7.23/7.26
+ASTI decode 1 sliding in 15 plain 69.09 inst 70.37 diff 0.00e+00 n 11 entry -1.31/-1.18 wait 0.32/0.32 stage 2.34/2.66 loop 4.54 ticket 5.63 fin 5.66..6.21 o_wait 6.59/6.62
+ASTI decode 1 sliding in 16 plain 67.87 inst 70.82 diff 0.00e+00 n 11 entry -1.09/-1.02 wait 0.42/0.42 stage 2.50/2.85 loop 4.80 ticket 5.86 fin 5.92..6.43 o_wait 6.88/6.91
+ASTI decode 1 sliding in 17 plain 70.27 inst 69.86 diff 0.00e+00 n 11 entry -1.09/-0.99 wait 0.45/0.45 stage 2.50/2.94 loop 4.77 ticket 5.82 fin 5.89..6.40 o_wait 6.85/6.88
+ASTI decode 1 sliding in 18 plain 68.70 inst 68.32 diff 0.00e+00 n 11 entry -1.54/-1.28 wait 0.38/0.42 stage 2.21/2.56 loop 4.29 ticket 5.57 fin 5.63..6.11 o_wait 6.56/6.59
+ASTI decode 1 sliding in 19 plain 70.66 inst 68.93 diff 0.00e+00 n 11 entry -1.22/-0.99 wait 0.38/0.45 stage 2.40/2.98 loop 4.58 ticket 5.63 fin 5.70..6.21 o_wait 6.59/6.62
+AST decode 1 sliding T 1 n 20 medians
+  L_entry                     -1.104
+  L_fin0                       5.840
+  L_fin1                       6.368
+  L_idx                        0.752
+  L_kv_iss                     1.936
+  L_kv_own                       nan
+  L_loop                       4.736
+  L_math0                      3.440
+  L_newkv                      2.416
+  L_patch                      2.528
+  L_presync                    4.992
+  L_q_vis                      1.936
+  L_qpass                      2.240
+  L_reds                       4.960
+  L_rope                       2.032
+  L_stage                      2.736
+  L_ticket                     5.776
+  L_wait                       0.416
+  L_xchg                       4.864
+  a_entry_max                 -1.056
+  a_entry_min                 -1.184
+  a_entry_p50                 -1.088
+  a_fin0_max                   5.840
+  a_fin0_min                   5.840
+  a_fin0_p50                   5.840
+  a_fin1_max                   6.368
+  a_fin1_min                   6.368
+  a_fin1_p50                   6.368
+  a_idx_max                    0.816
+  a_idx_min                    0.640
+  a_idx_p50                    0.688
+  a_kv_iss_max                 2.016
+  a_kv_iss_min                 1.760
+  a_kv_iss_p50                 1.872
+  a_loop_max                   4.752
+  a_loop_min                   4.144
+  a_loop_p50                   4.480
+  a_math0_max                  3.584
+  a_math0_min                  2.944
+  a_math0_p50                  3.040
+  a_newkv_max                  2.592
+  a_newkv_min                  2.096
+  a_newkv_p50                  2.208
+  a_patch_max                  2.912
+  a_patch_min                  2.144
+  a_patch_p50                  2.256
+  a_presync_max                5.008
+  a_presync_min                4.400
+  a_presync_p50                4.752
+  a_q_vis_max                  2.016
+  a_q_vis_min                  1.792
+  a_q_vis_p50                  1.888
+  a_qpass_max                  2.304
+  a_qpass_min                  2.048
+  a_qpass_p50                  2.160
+  a_reds_max                   4.976
+  a_reds_min                   4.368
+  a_reds_p50                   4.720
+  a_rope_max                   2.096
+  a_rope_min                   1.856
+  a_rope_p50                   1.968
+  a_stage_max                  2.976
+  a_stage_min                  2.240
+  a_stage_p50                  2.352
+  a_ticket_max                 5.776
+  a_ticket_min                 5.280
+  a_ticket_p50                 5.504
+  a_wait_max                   0.416
+  a_wait_min                   0.384
+  a_wait_p50                   0.416
+  a_xchg_max                   4.880
+  a_xchg_min                   4.272
+  a_xchg_p50                   4.608
+  att_end                      6.368
+  att_n                       11.000
+  graph_inst                  70.720
+  graph_plain                 70.288
+  last_n                       1.000
+  last_sm                     62.000
+  maxdiff                      0.000
+  o_end                       10.128
+  o_entry_min                  1.136
+  o_n                        256.000
+  o_wait_max                   6.864
+  o_wait_min                   6.832
+  o_wait_p50                   6.840
+  qkv_end_min                 -1.312
+  qkv_entry                   -8.976
+  qkv_n                       96.000
