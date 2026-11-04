@@ -1,0 +1,65 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793805412.008 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.36), ('sk2', 7.94), ('torch', 10.34)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+ly_fabq done
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.49), ('sk2', 7.78), ('torch', 10.4)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+ly_rfin2 done
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793805416.959 release build glue_moe_2d78ea283fe76367_sm90a
+BXBUILD 1793805416.959 start build glue_moe_2d78ea283fe76367_sm90a
+BXBUILD 1793805467.262 end build glue_moe_2d78ea283fe76367_sm90a
+BXLOCK 1793805467.262 acquire build glue_moe_2d78ea283fe76367_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.42), ('sk2', 7.94), ('torch', 10.37)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+ly_rfin2b done
+== ly_rfin2 M 33 routes[0]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 33: []
+== ly_rfin2 M 33 routes[1]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 33: []
+== ly_rfin2 M 33 routes[2]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 33: []
+== ly_rfin2 M 128 routes[0]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 128: []
+== ly_rfin2 M 128 routes[1]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 128: []
+== ly_rfin2 M 128 routes[2]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 128: []
+== ly_rfin2 M 256 routes[0]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 256: []
+== ly_rfin2 M 256 routes[1]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 256: []
+== ly_rfin2 M 256 routes[2]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 256: []
+== ly_rfin2b M 33 routes[0]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 33: []
+== ly_rfin2b M 33 routes[1]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 33: []
+== ly_rfin2b M 33 routes[2]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 33: []
+== ly_rfin2b M 128 routes[0]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 128: []
+== ly_rfin2b M 128 routes[1]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 128: []
+== ly_rfin2b M 128 routes[2]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 128: []
+== ly_rfin2b M 256 routes[0]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 256: []
+== ly_rfin2b M 256 routes[1]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 256: []
+== ly_rfin2b M 256 routes[2]: run0 vs run1 max |diff| 0; nonfinite 0
+   vs ly_fabq: bad tokens 0 / 256: []
