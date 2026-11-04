@@ -52,7 +52,31 @@ def mtl3(path):
         print("mtl3", row["case"]["layer"], med(agg))
 
 
+def mtl4(path):
+    """ly_mtl4 slots: 1 partials in, 3 before the credit fence, 4 after it, 5 credit issued, 2 A end, 7 B start."""
+    for row in json.load(open(path))["rows"]:
+        agg = {}
+        for x in row["inputs"]:
+            moe = x["raw"]["moe"]
+            t0 = min(m[0] for m in moe)
+            aend, pin, pre, post, cred, bst = ([(m[k] - t0) / 1e3 for m in moe] for k in (2, 1, 3, 4, 5, 7))
+            last = max(range(len(moe)), key=lambda i: cred[i])
+            vals = dict(partials_after_aend=st.mean([p - a for p, a in zip(pin, aend)]),
+                        epilogue=st.mean([b - a for a, b in zip(pin, pre)]),
+                        fence=st.mean([b - a for a, b in zip(pre, post)]), fence_max=max(b - a for a, b in zip(pre, post)),
+                        red_issue=st.mean([b - a for a, b in zip(post, cred)]),
+                        last_fence=post[last] - pre[last], credit_max=max(cred), bstart_min=min(bst),
+                        detect=min(bst) - max(cred), handoff=st.mean([b - a for a, b in zip(aend, bst)]))
+            for k, v in vals.items():
+                agg.setdefault(k, []).append(v)
+        print("mtl4", row["case"]["layer"], med(agg))
+
+
 if __name__ == "__main__":
+    for i, a in enumerate(sys.argv):
+        if a == "--mtl4":
+            print(sys.argv[i + 1])
+            mtl4(sys.argv[i + 1])
     if "--mtl2" in sys.argv:
         mtl2(sys.argv[sys.argv.index("--mtl2") + 1])
     if "--mtl3" in sys.argv:
