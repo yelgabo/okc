@@ -116,6 +116,7 @@ def main():
     ap.add_argument("--ls-cache", default="")
     ap.add_argument("--out", default="")
     ap.add_argument("--raw", type=int, default=0)
+    ap.add_argument("--dg", type=int, default=0, help="sk2 diagnostic bits for the stamped slice (a --diag instrument)")
     a = ap.parse_args()
     if a.lock:
         br.release_lock_for_triton()
@@ -143,6 +144,9 @@ def main():
     moe_buf = torch.zeros(4 * grid * MOE_SLOTS, dtype=torch.int64, device="cuda")
     fin_buf = torch.zeros(64 * 8 * FIN_SLOTS, dtype=torch.int64, device="cuda")
     ext = mod.bfp__get_ext()
+
+    if a.dg:
+        ext.sk2_set_tdg(a.dg)
 
     def inst(on):
         ext.sk2_set_tlu(sl_buf.data_ptr() if on else 0)

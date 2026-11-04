@@ -22,6 +22,7 @@ Slots (32 int64 per CTA, CTA = blockIdx.x):
   14 / 15 consumer warp 0 / NW - 1 left the stage loop   16 + e escape warp e done (after its cbar arrive)
   20 epilogue: tid 0 after the cbar wait   21 after the first named barrier   22 after the second (partials in smem)
   23 tid 0's output store done   24 SM id   25 escape count   26 + s escape warp 0 saw stage s full (s < 4)
+The finish program's slot 5 (unused by ly_pmt) gets its SM id.
 No fence, barrier, wait, trigger or launch attribute moves.
 
     python3 tools/dl_ly_v1st_patch.py [--src muse_decode_layer/cand/ly_pmt_v1un.py] [--out muse_decode_layer/cand/ly_v1st.py]
@@ -40,6 +41,7 @@ if "--src" in sys.argv:
     PIN = None
 if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
+DIAG = "--diag" in sys.argv   # also honour sk2's diagnostic bits (dg) in the stamped launch only, set by sk2_set_tdg(n)
 START = 'bfp_SK2_SRC = r"""\n'
 
 TLU = "if (!FUSE && dbg != nullptr) dbg[(size_t)blockIdx.x * 32 + "
@@ -88,7 +90,23 @@ SK2_EDITS = [
      "  unsigned long long* dbg = dbgt.numel() >= 8192 + 3 * 1024 ? reinterpret_cast<unsigned long long*>(dbgt.data_ptr()) : nullptr;\n"
      "  if (g_sk2_tlu != nullptr && M == 8 && N == 1024) dbg = g_sk2_tlu;   // v1st: the T = 8 slice only\n"),
 ]
+# --diag: the stamped slice launch (and only it) passes dg = g_sk2_tdg and the kernel honours dg when dbg is set, so
+# the bits 2 (consumers skip their math) and 4 (no x: the stages carry weights only) can time parts of the slice; the
+# output is then wrong by design. The plain graph (dbg null) keeps dgv = 0.
+DIAG_EDITS = [
+    ("  const int dgv = SK2_DIAG ? dg : 0;", "  const int dgv = (SK2_DIAG || (!FUSE && dbg != nullptr)) ? (dg & ~32) : 0;"),
+    ("void sk2_set_tlu(int64_t p) { g_sk2_tlu = reinterpret_cast<unsigned long long*>(p); }\n",
+     "void sk2_set_tlu(int64_t p) { g_sk2_tlu = reinterpret_cast<unsigned long long*>(p); }\n"
+     "static int g_sk2_tdg = 0;\nvoid sk2_set_tdg(int64_t n) { g_sk2_tdg = (int)n; }\n"),
+    ("  if (g_sk2_tlu != nullptr && M == 8 && N == 1024) dbg = g_sk2_tlu;   // v1st: the T = 8 slice only\n",
+     "  if (g_sk2_tlu != nullptr && M == 8 && N == 1024) { dbg = g_sk2_tlu; dg = g_sk2_tdg; }   // v1st: the T = 8 slice only\n"),
+]
 FILE_EDITS = [
+    ('def _pmt_gt(v):\n    return tl.inline_asm_elementwise("mov.u64 $0, %globaltimer;", "=l,r", [v], dtype=tl.int64, is_pure=False, pack=1)\n',
+     'def _pmt_gt(v):\n    return tl.inline_asm_elementwise("mov.u64 $0, %globaltimer;", "=l,r", [v], dtype=tl.int64, is_pure=False, pack=1)\n\n\n'
+     '@triton.jit\ndef _v1st_smid(v):\n    return tl.inline_asm_elementwise("mov.u32 $0, %smid;", "=r,r", [v], dtype=tl.int32, is_pure=False, pack=1)\n', 1),
+    ("        tl.store(tlp + 0, _pmt_gt(t))\n",
+     "        tl.store(tlp + 0, _pmt_gt(t))\n        tl.store(tlp + 5, _v1st_smid(t).to(tl.int64))\n", 1),
     ("void sk2_set_pdl(int64_t n);\n\"\"\"\n\nbfp_w_rows", "void sk2_set_pdl(int64_t n);\nvoid sk2_set_tlu(int64_t p);\n\"\"\"\n\nbfp_w_rows", 1),
     ('"sk2", "gq", "sk2f", "sk2_set_pdl"]', '"sk2", "gq", "sk2f", "sk2_set_pdl", "sk2_set_tlu"]', 1),
     ('MOE_TINY2_DEFINES += ("@moe_helper0",)\n',
@@ -114,9 +132,15 @@ def main():
     sk = text[i:j]
     for old, new in SK2_EDITS:
         sk = sub(sk, old, new, 1, "sk2")
+    if DIAG:
+        for old, new in DIAG_EDITS:
+            sk = sub(sk, old, new, 1, "diag")
     text = text[:i] + sk + text[j:]
     for old, new, n in FILE_EDITS:
         text = sub(text, old, new, n, "file")
+    if DIAG:
+        text = sub(text, 'void sk2_set_tlu(int64_t p);\n', 'void sk2_set_tlu(int64_t p);\nvoid sk2_set_tdg(int64_t n);\n', 1, "diag decl")
+        text = sub(text, '"sk2_set_pdl", "sk2_set_tlu"]', '"sk2_set_pdl", "sk2_set_tlu", "sk2_set_tdg"]', 1, "diag fn")
     text = HEADER + text
     DST.write_text(text)
     py_compile.compile(str(DST), doraise=True)

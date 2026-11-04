@@ -18327,6 +18327,11 @@ def _pmt_gt(v):
 
 
 @triton.jit
+def _v1st_smid(v):
+    return tl.inline_asm_elementwise("mov.u32 $0, %smid;", "=r,r", [v], dtype=tl.int32, is_pure=False, pack=1)
+
+
+@triton.jit
 def _sl_cluster_finish_cg(P, T, CARRY, TAIL, BETA, POST, NEXT, SOUT, HOUT, TLB,
                        BC: tl.constexpr, USE_PDL: tl.constexpr = True, TLON: tl.constexpr = False):
     t = tl.program_id(0)
@@ -18334,6 +18339,7 @@ def _sl_cluster_finish_cg(P, T, CARRY, TAIL, BETA, POST, NEXT, SOUT, HOUT, TLB,
     tlp = TLB + (t * tl.num_programs(1) + tile) * 8
     if TLON:
         tl.store(tlp + 0, _pmt_gt(t))
+        tl.store(tlp + 5, _v1st_smid(t).to(tl.int64))
     c = tl.arange(0,1024)
     beta = tl.load(BETA+c)
     gp = tl.load(POST+c).to(tl.float32)

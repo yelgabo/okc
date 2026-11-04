@@ -1,0 +1,41 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+W1104 17:59:29.325000 544881 torch/utils/cpp_extension.py:183] No CUDA runtime is found, using CUDA_HOME='/usr/local/cuda-13.0'
+bfp      ELi16ELi1ELi1ELi8ELi1ELi6E PT10_PK4in reg 59->59 stack 0->0 local 0->0 ins 624->624 loops [50, 390]->[50, 390] SAME
+bfp      ELi16ELi1ELi1ELi8ELi1ELi6E PT10_PK4in reg 61->61 stack 0->0 local 0->0 ins 643->643 loops [54, 399]->[54, 399] SAME
+bfp      ELi16ELi3ELi1ELi4ELi2ELi5E Lb0ELb0EEv reg 71->71 stack 0->0 local 0->0 ins 1362->1362 loops [228, 1052]->[228, 1052] SAME
+bfp      ELi16ELi3ELi1ELi4ELi2ELi5E Lb1ELb0EEv reg 76->76 stack 0->0 local 0->0 ins 1393->1393 loops [252, 1079]->[252, 1079] SAME
+bfp      ELi16ELi4ELi1ELi4ELi1ELi4E Lb0ELb0EEv reg 75->75 stack 0->0 local 0->0 ins 860->860 loops [174, 545]->[174, 545] SAME
+bfp      ELi16ELi4ELi1ELi4ELi1ELi4E Lb1ELb0EEv reg 80->80 stack 0->0 local 0->0 ins 879->879 loops [178, 561]->[178, 561] SAME
+bfp      ELi16ELi4ELi1ELi4ELi1ELi5E Lb0ELb0EEv reg 78->78 stack 0->0 local 0->0 ins 872->872 loops [176, 550]->[176, 550] SAME
+bfp      ELi16ELi4ELi1ELi4ELi1ELi5E Lb1ELb0EEv reg 80->80 stack 0->0 local 0->0 ins 891->891 loops [180, 566]->[180, 566] SAME
+bfp      ELi16ELi4ELi1ELi8ELi1ELi5E Lb0ELb0EEv reg 78->78 stack 0->0 local 0->0 ins 893->893 loops [176, 571]->[176, 571] SAME
+bfp FUSE ELi16ELi4ELi1ELi8ELi1ELi5E Lb0ELb1EEv reg 84->84 stack 0->0 local 0->0 ins 1496->1496 loops [177, 1144, 957, 918, 888, 858]->[177, 1144, 957, 918, 888, 858] SAME
+bfp      ELi16ELi4ELi1ELi8ELi1ELi5E Lb1ELb0EEv reg 80->80 stack 0->0 local 0->0 ins 910->910 loops [180, 585]->[180, 585] SAME
+bfp FUSE ELi16ELi4ELi1ELi8ELi1ELi5E Lb1ELb1EEv reg 86->86 stack 0->0 local 0->0 ins 1538->1538 loops [180, 1183, 976, 931, 896, 862]->[180, 1183, 976, 931, 896, 862] SAME
+bfp      ELi8ELi1ELi1ELi8ELi1ELi6EL PT10_PK4in reg 59->59 stack 0->0 local 0->0 ins 624->624 loops [50, 390]->[50, 390] SAME
+bfp      ELi8ELi1ELi1ELi8ELi1ELi6EL PT10_PK4in reg 61->61 stack 0->0 local 0->0 ins 645->645 loops [56, 399]->[56, 399] SAME
+bfp ONLY-IN-ctl _Z10sk2_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb0EEv14CUte
+bfp ONLY-IN-ctl _Z10sk2_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb1ELb0EEv14CUte
+bfp      ELi8ELi1ELi2ELi2ELi4ELi3EL Lb0ELb0EEv reg 56->56 stack 0->0 local 0->0 ins 934->934 loops [182, 640]->[182, 640] SAME
+bfp      ELi8ELi1ELi2ELi2ELi4ELi3EL Lb1ELb0EEv reg 56->56 stack 0->0 local 0->0 ins 993->993 loops [235, 696]->[235, 696] SAME
+bfp ONLY-IN-cand _Z10sk2_kernelILi1ELi8ELi2ELi1ELi8ELi2ELi4ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb0ELb0EEv14CUte
+bfp ONLY-IN-cand _Z10sk2_kernelILi1ELi8ELi2ELi1ELi8ELi2ELi4ELb1ELb0ELi2ELi1E13__nv_bfloat16Lb1ELb0EEv14CUte
+bfp      ELi8ELi3ELi1ELi4ELi2ELi6EL Lb0ELb0EEv reg 71->71 stack 0->0 local 0->0 ins 1363->1363 loops [228, 1051]->[228, 1051] SAME
+bfp      ELi8ELi3ELi1ELi4ELi2ELi6EL Lb1ELb0EEv reg 76->76 stack 0->0 local 0->0 ins 1394->1394 loops [252, 1078]->[252, 1078] SAME
+bfp      ELi8ELi4ELi1ELi4ELi1ELi4EL Lb0ELb0EEv reg 75->75 stack 0->0 local 0->0 ins 859->859 loops [174, 544]->[174, 544] SAME
+bfp      ELi8ELi4ELi1ELi4ELi1ELi4EL Lb1ELb0EEv reg 80->80 stack 0->0 local 0->0 ins 878->878 loops [178, 560]->[178, 560] SAME
+bfp FUSE ELi8ELi4ELi1ELi8ELi1ELi6EL Lb0ELb1EEv reg 85->85 stack 0->0 local 0->0 ins 1503->1503 loops [177, 1148, 962, 921, 885, 856]->[177, 1148, 962, 921, 885, 856] SAME
+bfp FUSE ELi8ELi4ELi1ELi8ELi1ELi6EL Lb1ELb1EEv reg 87->87 stack 0->0 local 0->0 ins 1535->1535 loops [180, 1177, 971, 927, 893, 860]->[180, 1177, 971, 927, 893, 860] SAME
+bfp      ELi32ELi1ELi1ELi8ELi1ELi4E PT10_PK4in reg 91->91 stack 0->0 local 0->0 ins 682->682 loops [66, 444]->[66, 444] SAME
+bfp      ELi32ELi1ELi1ELi8ELi1ELi4E PT10_PK4in reg 94->94 stack 0->0 local 0->0 ins 704->704 loops [80, 469]->[80, 469] SAME
+bfp      ELi32ELi2ELi2ELi2ELi2ELi3E Lb0ELb0EEv reg 80->80 stack 0->0 local 0->0 ins 990->990 loops [188, 682]->[188, 682] SAME
+bfp      ELi32ELi2ELi2ELi2ELi2ELi3E Lb1ELb0EEv reg 89->89 stack 0->0 local 0->0 ins 1052->1052 loops [213, 713]->[213, 713] SAME
+bfp      ELi32ELi2ELi2ELi2ELi2ELi5E Lb0ELb0EEv reg 80->80 stack 0->0 local 0->0 ins 1297->1297 loops [188, 980]->[188, 980] SAME
+bfp      ELi32ELi2ELi2ELi2ELi2ELi5E Lb1ELb0EEv reg 89->89 stack 0->0 local 0->0 ins 1358->1358 loops [213, 1010]->[213, 1010] SAME
+bfp      ELi32ELi3ELi1ELi4ELi2ELi4E Lb0ELb0EEv reg 101->101 stack 0->0 local 0->0 ins 1424->1424 loops [254, 1109]->[254, 1109] SAME
+bfp      ELi32ELi3ELi1ELi4ELi2ELi4E Lb1ELb0EEv reg 112->112 stack 0->0 local 0->0 ins 1487->1487 loops [279, 1141]->[279, 1141] SAME
+bfp FUSE ELi32ELi4ELi1ELi8ELi1ELi3E Lb0ELb1EEv reg 126->126 stack 0->0 local 0->0 ins 1497->1497 loops [203, 67, 1149, 932]->[203, 67, 1149, 932] SAME
+bfp FUSE ELi32ELi4ELi1ELi8ELi1ELi3E Lb1ELb1EEv reg 130->130 stack 0->0 local 0->0 ins 1549->1549 loops [220, 90, 1191, 941]->[220, 90, 1191, 941] SAME
+bfp      ELi32ELi4ELi2ELi2ELi2ELi3E Lb0ELb0EEv reg 116->116 stack 0->0 local 0->0 ins 1142->1142 loops [324, 826]->[324, 826] SAME
+bfp      ELi32ELi4ELi2ELi2ELi2ELi3E Lb1ELb0EEv reg 124->124 stack 0->0 local 0->0 ins 1205->1205 loops [349, 858]->[349, 858] SAME
