@@ -1741,3 +1741,97 @@ Decision: stop. Nothing was registered or dispatched. Ruled-out row in docs/rule
 ### November 3 23:43 UTC monitor clarification: RS2 scope
 
 The retained complete-call box comparison also changed prepared state: control enabled T16/T32 PDL, while the candidate disabled both. Its full-call differences do not isolate routing cost. Independent route-kernel profiles (about 42/104 us versus 4-5 us) support stopping this exact single-program prototype. The safe-margin expert-count model gives 2.0/3.2/0.8/0.8 us before route cost; the earlier blanket free-route-below-2-us wording is too broad, especially T16 full. The alternative approximately 2-us route-overhead idea is unbuilt, not a measured rescue or family ceiling. No judge check or promotion follows. See docs/steering/2026-11-03-driver-monitor-2343.md for pins, prepared-mask confound and the existing box-revival/efficiency allocations.
+## 2026-11-03 - PDL8h: PDL on at every T at build time behind a coarse guard (check `b6c0efcd06324246`)
+
+Source `muse_decode_layer/cand/g1b4_pdl8h.py` (SHA256 33c2353b52de29c5af341609de08a7e6f021e5395fc4ef633706978fecedf7cd),
+written by `tools/dl_pdl8h_patch.py` from g1b4_rs.py (the tool checks 01426b89 first). User decision: enable PDL at build
+time at T = 1, 8 (all six edges), 16 and 32, on the source audit, the bitwise attention bench 2c84c321b3bb4dbb and the clean
+T = 8 stages of 61c00906 / 9ae1d02f, and keep the in-prepare stress only as a guard against gross errors. Changes against
+g1b4_rs: `PDL8_HARD` has T = 8 on; the T = 1 / 16 / 32 stress decision and pdl8d's T = 8 edge search are replaced by one
+guard. Every CUDA source, launch attribute, edge wiring and the T = 1 routing slack are byte-identical (83 changed diff lines, all in
+the gate code and the header comment).
+
+Guard, per T on pdl8d's existing stress inputs (T = 1 sliding, T = 8 full and sliding, T = 16 sliding, T = 32 full; 2000
+graph replays per arm, PDL-off and PDL-on, against the PDL-off arm's first replay): the T stays on when the PDL-on routing ids
+mismatch on at most 2 x (off-arm mismatches) + 16 entries and every PDL-on output is within max(2e-2, the off arm's own drift).
+Otherwise that T aborts to off; any exception turns it off, as before. Sensitivity: the stale-read faults in the PDL8f table
+move outputs by 0.18 to 1.6 and flip 19 to 1165 ids, so they fail both clauses; a single stale new K row stays under the
+bound, as it did for every earlier gate, and is covered by the attention bench.
+
+Box (okc-h200, `flock /root/okc/.build/box/gpu.lock`, router seed 106218864389449120, f931abf568544018 case seeds; logs
+`muse_decode_layer/profiles/box/pdl8h/`). The two dry runs (pdl8h, then g1b4_rs) overlapped an unlocked box_rs_check job of
+another lane, so their in-prepare timings are not used; their gate outcomes are. Guard, identical in all four pdl8h prepares
+(dry run plus three A/B runs) except where noted (out / s2):
+
+| T | layer | ids off / on (limit) | off drift | on drift | decision |
+|---|---|---|---|---|---|
+| 1 | sliding | 0 / 0 (16) | 1.99e-3 / 3.16e-3 | 1.99e-3 / 3.16e-3 | on |
+| 8 | full | 0 / 0 (16) | 7.25e-3 / 6.89e-3 | 7.25e-3 / 6.89e-3 | on |
+| 8 | sliding | 0 / 0 (16) | 3.16e-3 / 3.98e-3 | 6.33e-3 / 6.09e-3 | on (pdl8d's own-drift rule fails this row) |
+| 16 | sliding | 0 / 0 (16) | 3.58e-3 / 4.08e-3 (dry 3.98e-3 / 4.19e-3) | up to 3.98e-3 / 4.19e-3 | on |
+| 32 | full | 0 / 0 (16) | 5.52e-3 / up to 6.41e-3 | 5.52e-3 / 6.41e-3 | on |
+
+Paired box A/B (box rule: box-candidate against box-control, same session and seeds, 60 fresh inputs per cell, run order
+ctl1, cand1, ctl2, cand2, ctl3, cand3; ctl3 / cand3 added after the coordinator's note that ctl1 overlapped unlocked jobs of
+another lane). Control PDL enable sets from their logs: ctl1 {1, 16, 32 on; 8 off}, ctl2 {1, 16, 32 on; 8 off}, ctl3
+{1, 8 on; 16, 32 off}. Every candidate run had {1, 8, 16, 32} on. Net us, candidate pooled over its three runs:
+
+| cell | ctl1 | ctl2 | ctl3 | median control | candidate | cand - median ctl | cand - ctl2 (most T on, unoverlapped) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 67.28 | 67.60 | 67.62 | 67.60 | 67.95 | +0.35 | +0.35 |
+| decode 1 full | 73.98 | 74.16 | 74.03 | 74.03 | 73.82 | -0.21 | -0.34 |
+| verify 1 sliding | 112.82 | 112.94 | 105.15 | 112.82 | 105.02 | -7.80 | -7.92 |
+| verify 1 full | 120.51 | 121.07 | 111.86 | 120.51 | 112.02 | -8.49 | -9.06 |
+| decode 16 sliding | 131.68 | 131.90 | 138.06 | 131.90 | 131.57 | -0.33 | -0.34 |
+| decode 16 full | 203.33 | 202.93 | 210.45 | 203.33 | 202.89 | -0.44 | -0.04 |
+| decode 32 sliding | 147.63 | 147.87 | 153.39 | 147.87 | 147.50 | -0.37 | -0.38 |
+| decode 32 full | 298.91 | 299.39 | 305.02 | 299.39 | 298.32 | -1.07 | -1.07 |
+
+The deltas decompose by enable set: where a control run had a T on, the candidate matches it within 1.1 us (verify 1 against
+ctl3: -0.13 / +0.16; decode 16 / 32 against ctl1 and ctl2: within 1.07); where the control's gate had turned a T off, the
+candidate is 5.9 to 9.1 us faster (verify 1 against ctl1 / ctl2, decode 16 / 32 against ctl3). pdl8h does not change the
+speed of any configuration; it removes the draw that turns a T off.
+
+### Judge check `b6c0efcd06324246` (g1b4_pdl8h.py 33c2353b)
+
+**Result: VALID 13/13, 10,377.1 us, 2.180x (95% CI 2.147 to 2.213)** against g1b4_rs's check 10,297.4 (f8a55f1043804158) and
+the public run 10,340 (9d80ae2494334136). Prepare log `muse_decode_layer/cand/profiles/g1b4_pdl8h.b6c0efcd06324246.log`.
+
+Guard (out / s2, 2000 replays per arm):
+
+| T | layer | ids off / on (limit) | off drift | on drift | decision |
+|---|---|---|---|---|---|
+| 1 | sliding | 0 / 0 (16) | 7.01e-3 / 7.19e-3 | 7.01e-3 / 7.19e-3 | on |
+| 8 | full | 0 / 0 (16) | 6.37e-3 / 6.21e-3 | 6.37e-3 / 6.21e-3 | on |
+| 8 | sliding | 0 / 0 (16) | 7.02e-4 / 2.53e-4 | 4.21e-3 / 5.13e-3 | on (pdl8d's own-drift rule would have turned T = 8 off here) |
+| 16 | sliding | 0 / 0 (16) | 4.60e-3 / 5.29e-3 | 4.60e-3 / 5.29e-3 | on |
+| 32 | full | 0 / 0 (16) | 5.56e-3 / 6.08e-3 | 5.56e-3 / 6.08e-3 | on |
+
+In-prepare A/B savings: T = 1 7.01 / 6.75, T = 8 3.97 / 6.24, T = 16 5.57 / 4.93, T = 32 3.74 / 5.09 us (sliding / full).
+Enabled {1, 8, 16, 32}.
+
+| cell | g1b4_rs check f8a55f10 (yours / SGLang) | this check (yours / SGLang) | yours delta |
+|---|---:|---:|---:|
+| decode 1 sliding | 65.5 / 169.9 | 65.9 / 169.9 | +0.4 |
+| decode 1 full | 74.1 / 180.2 | 71.7 / 179.9 | -2.4 |
+| decode 16 sliding | 127.1 / 262.2 | 129.3 / 259.3 | +2.2 |
+| decode 16 full | 211.4 / 440.2 | 207.3 / 433.2 | -4.1 |
+| decode 32 sliding | 153.1 / 265.5 | 153.2 / 256.8 | +0.1 |
+| decode 32 full | 300.7 / 632.1 | 303.9 / 609.4 | +3.2 |
+| verify 1 sliding | 109.7 / 259.1 | 107.1 / 258.5 | -2.6 |
+| verify 1 full | 122.6 / 276.4 | 117.7 / 281.1 | -4.9 |
+| verify 16 sliding | 248.8 / 530.1 | 240.3 / 503.5 | -8.5 |
+| verify 16 full | 331.2 / 697.8 | 331.0 / 684.7 | -0.2 |
+| verify 32 sliding | 322.4 / 738.6 | 316.7 / 722.4 | -5.7 |
+| verify 32 full | 485.7 / 1,103.5 | 475.8 / 1,064.0 | -9.9 |
+
+Keep rule: VALID 13/13 met; every T on with the guard clean met; verify 1 below 109.7 / 122.6 met (107.1 / 117.7); routing
+margins unchanged (the T = 1 route program is byte-identical). **Not met:** six-load 10,377.1 is above 10,297.4, and decode 16
+sliding 129.3 is above 127.1 (full 207.3 is below 211.4). Not kept, not for submission.
+
+Reading (hypothesis, not separated by this one draw): our times are at or below the g1b4_rs check in 8 of 12 cells, and the
+gate now does what it was built for (every T on, including a T = 8 sliding row that pdl8d's rule fails). The score moved the
+other way because this draw's SGLang column is lower in most long cells (verify 16 sliding 503.5 against 530.1, verify 32
+full 1,064.0 against 1,103.5, decode 32 full 609.4 against 632.1), and the score is the paired ratio. The box A/B predicted
+about -8 us per verify 1 cell against a T = 8-off control; f8a55f10 had T = 8 off, and verify 1 moved -2.6 / -4.9 at the
+judge. A second draw of the same bytes would separate the draw from the file; that is the lead's quota call.
