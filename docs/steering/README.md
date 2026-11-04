@@ -4,12 +4,18 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 22:40 UTC](2026-11-03-driver-monitor-2240.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 23:43 UTC](2026-11-03-driver-monitor-2343.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 3 23:43 UTC — rental revival/efficiency scopes and RS2 correction
+
+[Current monitor](2026-11-03-driver-monitor-2343.md): new human box-revival/tuning and box-efficiency allocations already have lead-created owners; root duplicates neither. ExistingPDL8h continues its bounded gate. RS2 T16/T32 single-program routing is a measured box loss, no judge check; complete-call comparisons also changed PDL masks, and the3.2us modeled T16full potential contradicts a blanket free-route ceiling. Scoped run/ruled-out correction preserves those limits. Public scores unchanged, overall/layer359; audit17leads/zero gaps with explicit limited CLI coverage. Existing rental work is ongoing; no new user decision is needed at this checkpoint.
+
+Incoming owner branches now publish **box-audit faf8c429**, **box-revival03500a02** (no finalists; old-basecgfe signal still needs currentRSport A/B), and **PDL8h b97ff1a5** (all-T coarse-guard dry run, no accepted judgeID). The current monitor's dated addendum replaces only the older unpublished-state statements; no kernel/runner branch was merged by root and no local estimate is promoted to an official result.
 
 ## November 3 22:40 UTC — new public routing release and exact confirmation history
 

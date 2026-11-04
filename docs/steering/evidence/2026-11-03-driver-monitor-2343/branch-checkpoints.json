@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-11-03T23:48:52.097855+00:00",
+  "main_checkpoint": "63f0ce85",
+  "branches": [
+    {
+      "head": "faf8c4295754dc6ed2c90a915fc67bc14e3afe3e",
+      "path": "docs/box-audit.md",
+      "state": "audit published; optimization/input-equivalence validation incomplete",
+      "scope": "Reported sample/phase measurements, not optimized throughput or official score"
+    },
+    {
+      "head": "03500a02722a2f452a385385ea91397eabc85c6c",
+      "path": "docs/box-revival.md",
+      "state": "No finalists; cgfe old-base mechanism signal, currentRS port/A-B queued",
+      "scope": "Same-session local screens; prepared masks explicit"
+    },
+    {
+      "head": "b97ff1a5da84e631bd1fc364e59bb831a6f0d92d",
+      "path": "muse_decode_layer/profiles/box/pdl8h/dry_pdl8h.log",
+      "state": "All-four-T coarse guard passes in dry run; outer d1timings one input/cell; no accepted judgeID",
+      "scope": "Not complete all-load target measurement"
+    }
+  ],
+  "root_actions": "Read owning remote publications only; no kernel/runner merge, GPU/status poll, duplicate collector or direct message."
+}
