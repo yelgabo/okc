@@ -3993,6 +3993,9 @@ constexpr int NW = OKC_NW, NT = NW * 32;
 #ifndef OKC_PUB
 #define OKC_PUB 0      // WGS: whole-unit releases by a publisher warp (ly_pub)
 #endif
+#ifndef OKC_PUBX
+#define OKC_PUBX 1     // 0: bisect variant, the relay carries only the sentinel
+#endif
 constexpr int NTL = NT + (OKC_WGS ? (OKC_PUB ? 96 : 64) : OKC_WS ? 32 : 0);  // + helper warp (WS) | weights and x producer warps (WGS)  // launched: NT compute threads (+ helper warp | WGS producer warp + epilogue warpgroup)
 constexpr int NRB = OKC_WS ? OKC_WSNR : 2;   // cross-warp partial-sum buffers
 #if OKC_WS || OKC_WGS
@@ -4066,7 +4069,6 @@ struct Smem {
   int wglast[4];      // WGS: this warpgroup completed a split unit
   unsigned long long pubaddr[4];  // WGS publisher: the release's address per warpgroup (0: the warpgroup is done)
   int pubval[4];      // WGS publisher: the release's value
-  int pubn[4];        // WGS publisher: publishes handed over so far (thread 0 of the warpgroup only)
   int wcp[JMAX + 1];  // WGS: phase-A cost prefix per job
   int wcpB[JMAX + 1]; // WGS: phase-B cost prefix per job
   int jrow[JMAX + 1]; // WGS: first padded row of each job in xA / xB (rows padded to 8 per job)
@@ -5883,15 +5885,19 @@ static_assert(PUB_AK + 4 <= 24, "WGS publisher barriers");
 // hands a gpu-scope release to the publisher warp: every thread of the warpgroup arrives (release.cta) behind its own
 // stores and proxy fence; the publisher's test_wait (acquire.cta) and red.release.gpu complete the same causality
 // chain as bar.sync + one thread's red.release.gpu
-__device__ __forceinline__ void wgs_publish(Smem& S, int wg, int wt, int* addr, int val) {
-  if (wt == 0) {
-    const int n = S.pubn[wg];
-    mbar_wait(S.bars + PUB_AK + wg, (uint32_t)(n & 1) ^ 1u);  // the previous mailbox has been consumed
-    S.pubaddr[wg] = (unsigned long long)addr;
-    S.pubval[wg] = val;
-    S.pubn[wg] = n + 1;
+__device__ __forceinline__ void wgs_publish(Smem& S, int wg, int wt, int& npub, int* addr, int val) {
+#if !OKC_PUBX
+  // bisect variant (ly_pubx): the base release path; only the null sentinel goes through the relay
+  if (addr != nullptr) {
+    asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
+    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(addr), "r"(val) : "memory");
+    return;
   }
+#endif
+  mbar_wait(S.bars + PUB_AK + wg, (uint32_t)(npub & 1) ^ 1u);  // the previous mailbox has been consumed (uniform wait)
+  if (wt == 0) { S.pubaddr[wg] = (unsigned long long)addr; S.pubval[wg] = val; }
   mbar_arrive1(S.bars + PUB_RQ + wg);
+  ++npub;
 }
 __device__ void wgs_publisher(const Params& p, Smem& S) {
   WS_JOIN();  // (the publisher only joins once the barriers are initialized; nothing else of it is ordered here)
@@ -5920,7 +5926,8 @@ __device__ void wgs_publisher(const Params& p, Smem& S) {
 }
 #endif
 template <bool PB>
-__device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd) {
+__device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd, int& npub) {
+  (void)npub;
   if (pd.kind == 0) return;
   if constexpr (!PB) { asm volatile("fence.proxy.async.global;\n" ::: "memory"); }
   const int tid = threadIdx.x, warp = WARP_IDX(tid), wg = warp >> 2, wp = warp & 3, wt = tid & 127;
@@ -5929,13 +5936,13 @@ __device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd)
 #if OKC_PUB
 #if OKC_MFIN && (OKC_MFP & 1)
   if (pd.kind == 4) {
-    wgs_publish(S, wg, wt, p.mfl + MF_CE + ((OKC_MFP & 8) ? pd.slot : (int)(mf_gen(S) * 32 + S.jE[j])), 1);
+    wgs_publish(S, wg, wt, npub, p.mfl + MF_CE + ((OKC_MFP & 8) ? pd.slot : (int)(mf_gen(S) * 32 + S.jE[j])), 1);
     pd.kind = 0;
     return;
   }
 #endif
   if (pd.kind == 1) {
-    wgs_publish(S, wg, wt, mf_da(p, S) + j * 16 + (ub >> 1), 1);
+    wgs_publish(S, wg, wt, npub, mf_da(p, S) + j * 16 + (ub >> 1), 1);
     pd.kind = 0;
     return;
   }
@@ -5963,7 +5970,7 @@ __device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd)
   // count with a fire-and-forget release (no atomic round trip, no drain wait); the finisher waits for their counts
   if (pd.kind == 2) {
 #if OKC_PUB
-    wgs_publish(S, wg, wt, fc, pd.nst);
+    wgs_publish(S, wg, wt, npub, fc, pd.nst);
 #else
     if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(fc), "r"(pd.nst) : "memory");
 #endif
@@ -6006,7 +6013,7 @@ __device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd)
 #if OKC_MFIN && (OKC_MFP & 2)
   if (PB) {
 #if OKC_PUB
-    wgs_publish(S, wg, wt, p.mfl + MF_CE + mf_gen(S) * 32 + S.jE[j], 1);
+    wgs_publish(S, wg, wt, npub, p.mfl + MF_CE + mf_gen(S) * 32 + S.jE[j], 1);
 #else
     asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
     if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(p.mfl + MF_CE + mf_gen(S) * 32 + S.jE[j]), "r"(1) : "memory");
@@ -6016,7 +6023,7 @@ __device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd)
   if (!PB) {
     asm volatile("fence.proxy.async.global;\n" ::: "memory");
 #if OKC_PUB
-    wgs_publish(S, wg, wt, mf_da(p, S) + j * 16 + (ub >> 1), 1);
+    wgs_publish(S, wg, wt, npub, mf_da(p, S) + j * 16 + (ub >> 1), 1);
 #else
     asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
     if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(mf_da(p, S) + j * 16 + (ub >> 1)), "r"(1) : "memory");
@@ -6026,7 +6033,7 @@ __device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd)
 // one segment (stages [s0, s1) of unit u) on NTT n-tiles: accumulate, then finish (whole unit) or hand off (split)
 template <bool PB, int NTT>
 __device__ __forceinline__ void wgs_seg(const Params& p, Smem& S, unsigned char* ring, int u, int s0, int s1, int slot,
-                                        int& seq, WgsPend& pd) {
+                                        int& seq, WgsPend& pd, int& npub) {
   const int tid = threadIdx.x, lane = tid & 31;
   const int warp = WARP_IDX(tid);
   const int wg = warp >> 2, wp = warp & 3, g = lane >> 2, wt = tid & 127;
@@ -6117,7 +6124,7 @@ __device__ __forceinline__ void wgs_seg(const Params& p, Smem& S, unsigned char*
         wg_wait<1>();
         // the previous segment's deferred work, behind group OKC_WGSFCI of the first stage (scout: CI 3 lets this WG's
         // own red.adds / epilogue stores drain a little longer before the count / release atomics: +0.5-1%)
-        if (FIRST && ci == OKC_WGSFCI && pd.kind) wgs_flush<PB>(p, S, pd);
+        if (FIRST && ci == OKC_WGSFCI && pd.kind) wgs_flush<PB>(p, S, pd, npub);
       }
     }
     // All reads of this activation slot are complete before the ring can reuse it.
@@ -6151,7 +6158,7 @@ __device__ __forceinline__ void wgs_seg(const Params& p, Smem& S, unsigned char*
 #endif
 }
 template <bool PB>
-__device__ __forceinline__ void wgs_phase(const Params& p, Smem& S, unsigned char* ring, int g0, int g1, int& seq) {
+__device__ __forceinline__ void wgs_phase(const Params& p, Smem& S, unsigned char* ring, int g0, int g1, int& seq, int& npub) {
   // (__forceinline__: outlined by NVVM when it grows, a CALL that makes ptxas serialize every wgmma, C7510)
   constexpr int UBL = PB ? 4 : 5;
   WgsPend pd{0, 0, 0, 0};
@@ -6166,18 +6173,18 @@ __device__ __forceinline__ void wgs_phase(const Params& p, Smem& S, unsigned cha
     const int slot = (s1 - s0 == 16) ? -1 : (s0 == 0 ? (int)blockIdx.x : wgs_cta_of(S, PB, u << 4, gridDim.x));
     const int ntt = (S.jC[u >> UBL] + 7) >> 3;
     switch (ntt) {
-      case 1: wgs_seg<PB, 1>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 2: wgs_seg<PB, 2>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 3: wgs_seg<PB, 3>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 4: wgs_seg<PB, 4>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 5: wgs_seg<PB, 5>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 6: wgs_seg<PB, 6>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      case 7: wgs_seg<PB, 7>(p, S, ring, u, s0, s1, slot, seq, pd); break;
-      default: wgs_seg<PB, 8>(p, S, ring, u, s0, s1, slot, seq, pd); break;
+      case 1: wgs_seg<PB, 1>(p, S, ring, u, s0, s1, slot, seq, pd, npub); break;
+      case 2: wgs_seg<PB, 2>(p, S, ring, u, s0, s1, slot, seq, pd, npub); break;
+      case 3: wgs_seg<PB, 3>(p, S, ring, u, s0, s1, slot, seq, pd, npub); break;
+      case 4: wgs_seg<PB, 4>(p, S, ring, u, s0, s1, slot, seq, pd, npub); break;
+      case 5: wgs_seg<PB, 5>(p, S, ring, u, s0, s1, slot, seq, pd, npub); break;
+      case 6: wgs_seg<PB, 6>(p, S, ring, u, s0, s1, slot, seq, pd, npub); break;
+      case 7: wgs_seg<PB, 7>(p, S, ring, u, s0, s1, slot, seq, pd, npub); break;
+      default: wgs_seg<PB, 8>(p, S, ring, u, s0, s1, slot, seq, pd, npub); break;
     }
     gs += s1 - s0;
   }
-  wgs_flush<PB>(p, S, pd);
+  wgs_flush<PB>(p, S, pd, npub);
 }
 // cost-weighted stage ranges: per-stage cost by the job's n-tiles, a prefix per job and phase (S.wcp, S.wcpB)
 // all 32-bit (tot * c < 2^32: tot <= 136 jobs x 512 stages x 255 x 132): no 64-bit divide subroutine calls, which run
@@ -6444,7 +6451,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
     // partial buffer free (the epilogue warpgroup)
     for (int k = 0; k < BX_E + WGS_NX; ++k) mbar_init(S.bars + k, k < BW_E ? 1 : k < BX_F ? NT : k < BX_E ? 1 : NT);
 #if OKC_PUB
-    for (int k = 0; k < 4; ++k) { mbar_init(S.bars + PUB_RQ + k, 128); mbar_init(S.bars + PUB_AK + k, 1); S.pubn[k] = 0; }
+    for (int k = 0; k < 4; ++k) { mbar_init(S.bars + PUB_RQ + k, 128); mbar_init(S.bars + PUB_AK + k, 1); }
 #endif
 #else
     for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);
@@ -6526,12 +6533,12 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
   DBG(6);
   {
     unsigned char* ring = reinterpret_cast<unsigned char*>(xbuf);
-    int seq = 0;
-    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);
+    int seq = 0, npub = 0;
+    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq, npub);
     DBG(2);
-    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);
+    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq, npub);
 #if OKC_PUB
-    wgs_publish(S, WARP_IDX(tid) >> 2, tid & 127, nullptr, 0);  // the publisher may exit
+    wgs_publish(S, WARP_IDX(tid) >> 2, tid & 127, npub, nullptr, 0);  // the publisher may exit
 #endif
     DBG(3);
   }

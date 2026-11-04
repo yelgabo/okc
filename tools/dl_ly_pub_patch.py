@@ -39,6 +39,7 @@ if "--pin" in sys.argv:
     PIN = sys.argv[sys.argv.index("--pin") + 1]
 if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
+PUBX = "--pubx0" not in sys.argv  # --pubx0: ly_pubx, the bisect variant (base release path, relay for the sentinel only)
 START = "MOE_CUDA_SRC = r'''\n"
 END = "\n'''\nMOE_CPP_SRC"
 MAIN = 'key, defines = "main", _main_defines(sfx)'
@@ -50,15 +51,19 @@ static_assert(PUB_AK + 4 <= 24, "WGS publisher barriers");
 // hands a gpu-scope release to the publisher warp: every thread of the warpgroup arrives (release.cta) behind its own
 // stores and proxy fence; the publisher's test_wait (acquire.cta) and red.release.gpu complete the same causality
 // chain as bar.sync + one thread's red.release.gpu
-__device__ __forceinline__ void wgs_publish(Smem& S, int wg, int wt, int* addr, int val) {
-  if (wt == 0) {
-    const int n = S.pubn[wg];
-    mbar_wait(S.bars + PUB_AK + wg, (uint32_t)(n & 1) ^ 1u);  // the previous mailbox has been consumed
-    S.pubaddr[wg] = (unsigned long long)addr;
-    S.pubval[wg] = val;
-    S.pubn[wg] = n + 1;
+__device__ __forceinline__ void wgs_publish(Smem& S, int wg, int wt, int& npub, int* addr, int val) {
+#if !OKC_PUBX
+  // bisect variant (ly_pubx): the base release path; only the null sentinel goes through the relay
+  if (addr != nullptr) {
+    asm volatile("bar.sync %0, 128;\n" ::"r"(3 + wg) : "memory");
+    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\n" ::"l"(addr), "r"(val) : "memory");
+    return;
   }
+#endif
+  mbar_wait(S.bars + PUB_AK + wg, (uint32_t)(npub & 1) ^ 1u);  // the previous mailbox has been consumed (uniform wait)
+  if (wt == 0) { S.pubaddr[wg] = (unsigned long long)addr; S.pubval[wg] = val; }
   mbar_arrive1(S.bars + PUB_RQ + wg);
+  ++npub;
 }
 __device__ void wgs_publisher(const Params& p, Smem& S) {
   WS_JOIN();  // (the publisher only joins once the barriers are initialized; nothing else of it is ordered here)
@@ -92,16 +97,26 @@ EDITS = [
     # the define (off everywhere but the MAIN build) and the fifth warp
     ("constexpr int NTL = NT + (OKC_WGS ? 64 : OKC_WS ? 32 : 0);",
      "#ifndef OKC_PUB\n#define OKC_PUB 0      // WGS: whole-unit releases by a publisher warp (ly_pub)\n#endif\n"
+     "#ifndef OKC_PUBX\n#define OKC_PUBX 1     // 0: bisect variant, the relay carries only the sentinel\n#endif\n"
      "constexpr int NTL = NT + (OKC_WGS ? (OKC_PUB ? 96 : 64) : OKC_WS ? 32 : 0);"),
     # the mailbox
     ("  int wglast[4];      // WGS: this warpgroup completed a split unit\n",
      "  int wglast[4];      // WGS: this warpgroup completed a split unit\n"
      "  unsigned long long pubaddr[4];  // WGS publisher: the release's address per warpgroup (0: the warpgroup is done)\n"
-     "  int pubval[4];      // WGS publisher: the release's value\n"
-     "  int pubn[4];        // WGS publisher: publishes handed over so far (thread 0 of the warpgroup only)\n"),
+     "  int pubval[4];      // WGS publisher: the release's value\n"),
     # the helpers, after wgs_cnt / mf_da are defined and before wgs_flush
     ("template <bool PB>\n__device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd) {\n",
-     PUBLISH + "template <bool PB>\n__device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd) {\n"),
+     PUBLISH + "template <bool PB>\n__device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd, int& npub) {\n"
+     "  (void)npub;\n"),
+    # the publish count (a register of every consumer thread) threaded through the call chain like seq
+    ("int& seq, WgsPend& pd) {\n", "int& seq, WgsPend& pd, int& npub) {\n"),
+    ("wgs_flush<PB>(p, S, pd);", "wgs_flush<PB>(p, S, pd, npub);", 2),
+    ("seq, pd); break;\n", "seq, pd, npub); break;\n", 8),
+    ("int g0, int g1, int& seq) {\n", "int g0, int g1, int& seq, int& npub) {\n"),
+    ("    int seq = 0;\n    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);\n",
+     "    int seq = 0, npub = 0;\n    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq, npub);\n"),
+    ("    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);\n    DBG(3);\n",
+     "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq, npub);\n    DBG(3);\n"),
     # kinds 4 and 1: relay instead of bar.sync + red
     ("  const int j = pd.u >> UBL, ub = pd.u & ((1 << UBL) - 1);\n"
      "  asm volatile(\"bar.sync %0, 128;\\n\" ::\"r\"(3 + wg) : \"memory\");\n"
@@ -111,13 +126,13 @@ EDITS = [
      "#if OKC_PUB\n"
      "#if OKC_MFIN && (OKC_MFP & 1)\n"
      "  if (pd.kind == 4) {\n"
-     "    wgs_publish(S, wg, wt, p.mfl + MF_CE + ((OKC_MFP & 8) ? pd.slot : (int)(mf_gen(S) * 32 + S.jE[j])), 1);\n"
+     "    wgs_publish(S, wg, wt, npub, p.mfl + MF_CE + ((OKC_MFP & 8) ? pd.slot : (int)(mf_gen(S) * 32 + S.jE[j])), 1);\n"
      "    pd.kind = 0;\n"
      "    return;\n"
      "  }\n"
      "#endif\n"
      "  if (pd.kind == 1) {\n"
-     "    wgs_publish(S, wg, wt, mf_da(p, S) + j * 16 + (ub >> 1), 1);\n"
+     "    wgs_publish(S, wg, wt, npub, mf_da(p, S) + j * 16 + (ub >> 1), 1);\n"
      "    pd.kind = 0;\n"
      "    return;\n"
      "  }\n"
@@ -130,7 +145,7 @@ EDITS = [
      "    if (wt == 0) asm volatile(\"red.release.gpu.global.add.s32 [%0], %1;\\n\" ::\"l\"(fc), \"r\"(pd.nst) : \"memory\");\n",
      "  if (pd.kind == 2) {\n"
      "#if OKC_PUB\n"
-     "    wgs_publish(S, wg, wt, fc, pd.nst);\n"
+     "    wgs_publish(S, wg, wt, npub, fc, pd.nst);\n"
      "#else\n"
      "    if (wt == 0) asm volatile(\"red.release.gpu.global.add.s32 [%0], %1;\\n\" ::\"l\"(fc), \"r\"(pd.nst) : \"memory\");\n"
      "#endif\n"),
@@ -141,7 +156,7 @@ EDITS = [
      "  }\n",
      "  if (PB) {\n"
      "#if OKC_PUB\n"
-     "    wgs_publish(S, wg, wt, p.mfl + MF_CE + mf_gen(S) * 32 + S.jE[j], 1);\n"
+     "    wgs_publish(S, wg, wt, npub, p.mfl + MF_CE + mf_gen(S) * 32 + S.jE[j], 1);\n"
      "#else\n"
      "    asm volatile(\"bar.sync %0, 128;\\n\" ::\"r\"(3 + wg) : \"memory\");\n"
      "    if (wt == 0) asm volatile(\"red.release.gpu.global.add.s32 [%0], %1;\\n\" ::\"l\"(p.mfl + MF_CE + mf_gen(S) * 32 + S.jE[j]), \"r\"(1) : \"memory\");\n"
@@ -155,7 +170,7 @@ EDITS = [
      "  if (!PB) {\n"
      "    asm volatile(\"fence.proxy.async.global;\\n\" ::: \"memory\");\n"
      "#if OKC_PUB\n"
-     "    wgs_publish(S, wg, wt, mf_da(p, S) + j * 16 + (ub >> 1), 1);\n"
+     "    wgs_publish(S, wg, wt, npub, mf_da(p, S) + j * 16 + (ub >> 1), 1);\n"
      "#else\n"
      "    asm volatile(\"bar.sync %0, 128;\\n\" ::\"r\"(3 + wg) : \"memory\");\n"
      "    if (wt == 0) asm volatile(\"red.release.gpu.global.add.s32 [%0], %1;\\n\" ::\"l\"(mf_da(p, S) + j * 16 + (ub >> 1)), \"r\"(1) : \"memory\");\n"
@@ -175,13 +190,13 @@ EDITS = [
     ("    for (int k = 0; k < BX_E + WGS_NX; ++k) mbar_init(S.bars + k, k < BW_E ? 1 : k < BX_F ? NT : k < BX_E ? 1 : NT);\n",
      "    for (int k = 0; k < BX_E + WGS_NX; ++k) mbar_init(S.bars + k, k < BW_E ? 1 : k < BX_F ? NT : k < BX_E ? 1 : NT);\n"
      "#if OKC_PUB\n"
-     "    for (int k = 0; k < 4; ++k) { mbar_init(S.bars + PUB_RQ + k, 128); mbar_init(S.bars + PUB_AK + k, 1); S.pubn[k] = 0; }\n"
+     "    for (int k = 0; k < 4; ++k) { mbar_init(S.bars + PUB_RQ + k, 128); mbar_init(S.bars + PUB_AK + k, 1); }\n"
      "#endif\n"),
     # the sentinel after phase B
-    ("    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);\n    DBG(3);\n",
-     "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);\n"
+    ("    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq, npub);\n    DBG(3);\n",
+     "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq, npub);\n"
      "#if OKC_PUB\n"
-     "    wgs_publish(S, WARP_IDX(tid) >> 2, tid & 127, nullptr, 0);  // the publisher may exit\n"
+     "    wgs_publish(S, WARP_IDX(tid) >> 2, tid & 127, npub, nullptr, 0);  // the publisher may exit\n"
      "#endif\n"
      "    DBG(3);\n"),
 ]
@@ -197,14 +212,16 @@ def main():
     assert whole.count(START) == 1 and whole.count(END) == 1
     head, rest = whole.split(START)
     cu, tail = rest.split(END)
-    for old, new in EDITS:
+    for e in EDITS:
+        old, new, want = (e + (1,))[:3]
         n = cu.count(old)
-        if n != 1:
-            sys.exit(f"anchor found {n} times, 1 expected: {old[:120]!r}")
+        if n != want:
+            sys.exit(f"anchor found {n} times, {want} expected: {old[:120]!r}")
         cu = cu.replace(old, new)
     if tail.count(MAIN) != 1:
         sys.exit("MAIN define anchor")
-    tail = tail.replace(MAIN, 'key, defines = "main", tuple(_main_defines(sfx)) + ("-DOKC_PUB=1",)')
+    extra = '"-DOKC_PUB=1",' + ('' if PUBX else ' "-DOKC_PUBX=0",')
+    tail = tail.replace(MAIN, 'key, defines = "main", tuple(_main_defines(sfx)) + (' + extra + ')')
     out = head + START + cu + END + tail
     DST.write_text(out)
     py_compile.compile(str(DST), doraise=True)
