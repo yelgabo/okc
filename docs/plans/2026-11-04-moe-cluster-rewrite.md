@@ -263,3 +263,29 @@ $5.29 per hour) halves that and keeps the layer lanes' box free; the lead rents 
 
 Merge each branch as it lands, run the gate arithmetic, open the next phase's agents, keep the layer lanes (ly_fabq,
 repeat draws) going on the quota, and record every decision in docs/steering/2026-11-02-final-day-directive.md.
+
+## 9. Addendum, 2026-11-04 03:05 PT: gate G1 result and the reframe
+
+Task 1.2 (phase B) is numerically correct (18 of 18 cells, bitwise equal to helper0 where the K ranges match, no
+GPU-scope fence in the consumer loop) and the exchange decision D1 stands: the DSMEM gather hides under the stream in
+steady state and beats the global path in every cell. It misses the 1.15x gate (1.84x at T = 8, 2.29x at T = 32)
+because the consumer math alone is over the byte floor: with the loads removed the consumers take 21.2 us at T = 8
+against a 14.85 us floor. One unit-block is about 554 SASS instructions per warp (164 LOP3, 128 HMUL2, 76 IMAD,
+71 SHF, 32 HMMA, 31 LDS), which is 2.2 instructions per weight element, and the issue count alone would allow 0.56 us
+per stage; the loop runs near IPC 0.4 per SM sub-partition, so it is latency-bound, not pipe-bound. helper0 (the
+public kernel) runs the same loop at the same rate on 132 SMs, so this is the existing kernel's limit too.
+
+What this changes: the binding floor at T <= 8 is the unit loop's instruction latency, not bytes and not
+synchronization. Family H's sync removal is still worth its 5 to 9 us at decode 32, but no design beats the byte floor
+until the unit loop issues at about 0.7 IPC or more. That lever is shared by Family H and the public file, so it goes
+first and is attacked in both:
+
+| id | task | depends on | owns | done when |
+|---|---|---|---|---|
+| 1.3a | Family H unit loop at issue rate: restructure the phase B consumer loop (and the phase A loop in the same style) for latency hiding: decode of stage n + 1 overlapped with the mma of stage n, two or more independent accumulator chains, register double-buffering of decoded fragments, 16 consumer warps where shared memory allows, ldmatrix for the token operand, fewer dependent integer ops in the decode; measured with the 1.2 bench's math-only mode | 1.2 | `cl_phase_b.cuh` loop section (new header `cl_unit_loop.cuh` included by both phases), `cl/profiles/1.3a/`, docs section "CL-1.3a" | math-only T = 8 at 15 slices under 15 us (from 21.2); the no-exchange span under 1.15x of the w2 floor |
+| 1.3b | The same question on the public kernel: helper0's skinny_ring_ws unit loop, on the current layer base ly_fabq, as a candidate for the layer board; read the ruled-out rows first (NW16, BAL, HALF, scl) | none | `tools/dl_ly_ul_patch.py`, `muse_decode_layer/cand/ly_ul*.py`, `cl/profiles/1.3b/`, docs section "CL-1.3b" | paired box A/B on verify 1 and decode 1 beating ly_fabq by more than the threshold |
+
+Gate G1 is re-stated: 1.3a reaches the math-only target, then 1.1 and 1.2 are re-timed with the new loop and must be
+within 1.15x of their floors. Task 2.1 waits on that. Task 0.3's fill target changes from 128 // C to 15 (the measured
+co-resident cluster count), a one-line change assigned to 2.1. The shared-memory budget at T = 32 with S = 1 drops the
+ring to depth 3; 2.1 times it.
