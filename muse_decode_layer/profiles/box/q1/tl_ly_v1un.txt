@@ -1,0 +1,27 @@
+.build/qtl/tl_ly_v1un/cell0.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.81    9.81   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    7.94    6.77   14.69  -1.89  void (anonymous namespace)::attn_kernel<1, false, 13>((anonymous namespace)::Par
+ 2   10.21    8.05   18.24  -4.51  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   15.95    4.66   20.61  -2.24  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   18.66   16.42   35.26  -1.95  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   33.42    3.68   36.70  -2.24  _prq_sl_tile_route_cg
+ 6   37.06   23.20   60.18   0.48  void okc::moe_fused<false>(okc::Params)
+ 7   57.98    5.01   62.98  -2.18  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   61.58    2.98   64.61  -1.41  _sl_cluster_finish_cg
+span 64.61 us, sum of durations 80.80 us
+.build/qtl/tl_ly_v1un/cell1.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.05   10.05   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    8.08   13.28   21.39  -1.87  void (anonymous namespace)::attn_kernel<1, false, 11>((anonymous namespace)::Par
+ 2   10.56   14.24   24.93 -10.69  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   22.67    4.64   27.33  -2.19  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   25.39   16.58   42.08  -1.98  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   40.13    3.44   43.57  -1.95  _prq_sl_tile_route_cg
+ 6   43.65   22.13   66.43   0.06  void okc::moe_fused<false>(okc::Params)
+ 7   64.35    4.96   69.26  -2.08  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   67.90    2.96   70.85  -1.42  _sl_cluster_finish_cg
+span 70.85 us, sum of durations 94.16 us
+BOX submission import+prepare 7.8 s
+BOX decode 1 sliding: raw 68.06 net 64.13 us (overhead 3.94) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.909 | check PASS
+BOX decode 1 full: raw 74.59 net 70.66 us (overhead 3.94) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.884 | check PASS

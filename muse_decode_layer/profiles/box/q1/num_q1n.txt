@@ -1,0 +1,9 @@
+Q1NUM input 0 scale 1.0 cand_vs_base 6.42e-07 cand_vs_fp64 8.22e-05 base_vs_fp64 8.22e-05 equal 2303/2304 maxabs 3.052e-05
+Q1NUM input 1 scale 0.1 cand_vs_base 2.00e-07 cand_vs_fp64 2.05e-04 base_vs_fp64 2.05e-04 equal 2303/2304 maxabs 9.537e-07
+Q1NUM input 2 scale 3.0 cand_vs_base 7.07e-06 cand_vs_fp64 3.54e-06 base_vs_fp64 7.91e-06 equal 2303/2304 maxabs 9.766e-04
+Q1NUM input 3 scale 0.5 cand_vs_base 0.00e+00 cand_vs_fp64 8.15e-05 base_vs_fp64 8.15e-05 equal 2304/2304 maxabs 0.000e+00
+Q1NUM input 4 scale 1.0 cand_vs_base 1.65e-04 cand_vs_fp64 0.00e+00 base_vs_fp64 1.65e-04 equal 2301/2304 maxabs 7.812e-03
+Q1NUM input 5 scale 0.1 cand_vs_base 0.00e+00 cand_vs_fp64 9.94e-08 base_vs_fp64 9.94e-08 equal 2304/2304 maxabs 0.000e+00
+Q1NUM input 6 scale 3.0 cand_vs_base 1.08e-07 cand_vs_fp64 3.85e-06 base_vs_fp64 3.85e-06 equal 2303/2304 maxabs 1.526e-05
+Q1NUM input 7 scale 0.5 cand_vs_base 1.07e-05 cand_vs_fp64 4.03e-08 base_vs_fp64 1.07e-05 equal 2300/2304 maxabs 2.441e-04
+Q1NUM summary worst cand_vs_base 1.65e-04 (CG_GATE_REL 0.002) equal 18421/18432
