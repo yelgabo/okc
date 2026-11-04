@@ -7984,3 +7984,51 @@ inside. Below the 0.8 us bar.
 No candidate clears the bar; no ledger registration, no judge check. Once wgs_ranges is warm the B4 critical path moves
 to the x rows (gather, then xready), so about 0.4 us of the 0.57 us earlier weight issue reaches decode 32 sliding. The
 MID FAST1 count loop costs 0.2 us per 32 entries whether or not the loads are hoisted.
+
+
+## 2026-11-04 - Own PDL GEMMs vs cuBLASLt at verify 16 / 32 (box)
+
+Base ly_stk3 (a1c48810). At T = 128 / 256 every dense role runs a pinned cuBLASLt nvjet plan, which carries no PDL.
+
+Per-role standalone time, one kernel per CUDA graph, cold L2, 40 interleaved replays, median us
+(tools/bf16_role_times.py, /root/okc/.build/bf16r3/role_times.log). lt is the layer's Lt plan, g90 the layer's bfp
+gemm90, bsub the BF16 board submission's tuned pick (muse_bf16_proj/submission.py):
+
+| m | role | lt | torch | g90 | bsub (its pick) |
+|---|---|---|---|---|---|
+| 128 | qkv | 19.82 | 20.78 | 22.58 | 18.58 (wd b1n128c3s8h) |
+| 128 | o | 11.22 | 11.34 | 18.45 | 10.78 (cuBLAS) |
+| 128 | pr | 26.82 | - | 39.52 (+router) | pooler 24.85 (wd b1n128c2s8h), router 10.34 |
+| 128 | un | 23.33 | 24.18 | 30.78 | 23.33 (cuBLAS) |
+| 256 | qkv | 21.63 | 23.78 | 28.88 | 21.57 (cuBLAS) |
+| 256 | o | 12.93 | 13.17 | 26.43 | 12.67 (cuBLAS) |
+| 256 | pr | 31.74 | - | 51.10 (+router) | pooler 28.53 (cut128x64) |
+| 256 | un | 28.13 | 28.45 | 41.57 | 27.97 (cuBLAS) |
+
+Only qkv at m = 128 has an own kernel faster than Lt (wd b1n128c3s8h, -1.25 us). A box-only prototype that calls the
+BF16 submission for that one GEMM (tools/dl_ly_bfq_proto.py) gave verify 16 sliding -1.36 us (18/24) and full -2.27
+(22/24), one round.
+
+Candidate ly_bfq (tools/dl_ly_bfq_patch.py, muse_decode_layer/cand/ly_bfq.py, SHA256 08d31adf...): the wd kernel
+inlined from muse_decode_layer/submission.py with `griddepcontrol.launch_dependents` at entry, qkv at T = 128 routed to
+it, and the attention launched behind it as a PDL secondary (`state["bfq_attn"]`, arm bfq0 closes that edge). Self-test
+at m = 128: relative L2 to FP64 1.26e-04 (Lt 2.15e-04), wd vs Lt 1.78e-04, under SKP_TOL 5e-3. The five in-prepare
+PDL8H guards passed (0 id mismatches) and the added T = 128 sliding / full stress guards passed (on arm 0 mismatches).
+Reference check PASS on every arm and cell.
+
+Paired A/B against the Lt arm, tools/bf16_bfq_ab.sh, two rounds, 24 pairs, all cells (paired median d us, pairs
+faster; /root/okc/.build/bf16r3/bfq_r1.log, bfq_r2.log):
+
+| cell | bfq0 r1 | bfq0 r2 | bfq r1 | bfq r2 |
+|---|---|---|---|---|
+| verify 16 sliding | -0.94 (16/24) | -0.88 (21/24) | +0.72 (9/24) | +1.33 (5/24) |
+| verify 16 full | -2.00 (17/24) | -0.38 (15/24) | -2.69 (21/24) | -2.42 (18/24) |
+| verify 32 sliding | +0.29 (11/24) | +0.67 (10/24) | +0.45 (8/24) | +0.64 (8/24) |
+| verify 32 full | -0.29 (14/24) | +0.22 (10/24) | -0.38 (13/24) | -0.45 (13/24) |
+| decode 1 / 16 / 32, verify 1 | -1.01 to +0.69 | | -0.77 to +0.69 | |
+
+Neither arm clears the bar (verify 16 or 32 sliding at least 1.5 us faster with 20/24). The swap alone is worth about
+0.9 us on verify 16 sliding and 0.4 to 2.0 us on full. The early trigger costs about 2 us on sliding (bfq against
+bfq0) and helps full by 0.7 to 2.0 us. A plausible cause, not measured, is attention CTAs launched at wd entry
+contending with the wd CTAs, which matters more for the shorter sliding attention. Verify 32 has no own kernel faster
+than Lt, so nothing moves there.
