@@ -6443,3 +6443,58 @@ Hypotheses for the design (not measured in the real kernel):
   them, with the slot ring deep enough to cover one release latency (about 4 to 6 slots of 8 KB at T = 32).
 - The consumer-side cost of the handoff itself is 76 to 115 ns per tile (STS, one mbarrier arrive, one try_wait that
   succeeds) when the epilogue keeps up. That is the number to budget for rule 1 in the phase A estimate.
+## CL-0.3 schedule
+
+Task 0.3 of docs/plans/2026-11-04-moe-cluster-rewrite.md, box only, no judge check. Files: `muse_moe_w4a16/cl/cl_schedule.h`
+(struct `ClSchedule`, 3464 bytes, byte offsets documented and checked by static_assert), `cl_schedule.py` (host mirror),
+`cl_prologue.cu` (one CTA of 256 threads, load_inline), `cl/tests/test_schedule.py` (byte test and `--bench`).
+SHA256 prefixes: cl_schedule.h 8a5714cf88767414, cl_schedule.py 3aab42fee30c4637, cl_prologue.cu cb785e2df35c32b2,
+test_schedule.py a0acf78b32296246.
+
+Semantics the plan left open, fixed here: slices are ordered by ascending local expert, then ascending col0; an expert's
+4096 columns are 16 chunks of 256, and slice j of S gets 16 // S chunks plus one for the first 16 % S slices. The fill
+policy targets 128 // C slices (16 at C = 8, 8 at C = 16): S = floor(target / distinct), at least 1 and at most 16, and
+the target - S x distinct leftover slices go one each to the experts with the most pairs, ties to the lower id. Every
+unused entry is zero. More than 256 local pairs (T > 32 can reach it) or more than 64 slices is overflow: the struct is
+all zero except `n_slices = -1` and `next_slice`, and the caller takes the fallback MoE path. The prologue accepts
+T <= 288. Duplicate expert ids in one token row are kept as separate pairs, in slot order, as `reference.py` counts them.
+
+Test (okc-h200, flock on gpu.lock): 1800/1800 byte-identical (200 routings x (C in 4, 8, 16) x (s1, s2, fill)). The
+routings: the five harness tests (bs 4, 33, 257, 128 skewed, 1) at four seeds each, `generate_input` judge-like
+popularity at bs 1, 8, 16, 32 x 20 seeds, skewed at bs 8, 16, 32 x 5 seeds, 50 uniform routings over five local
+ranges (including a 7-expert range and three with duplicate ids), all-local routings at T = 1, 8, 31, 32, 33, 40
+(exactly 256 pairs at T = 32, overflow at 33 and 40), same-8-experts, no local pair, one hot expert, and random T up
+to 288. 162 of 1800 cases overflow; the largest non-overflow case has 256 pairs and 64 slices. The device output
+buffer is filled with a sentinel before each call, so a missed word fails the test.
+
+Timing, C = 8, fill policy, routing `generate_input(T, "ep8", 4242)`, median of 50 graph replays timed with CUDA
+events, 10 rounds (spread = max - min of the round medians, all at or under 0.29 us). The producer is one CTA that
+issues `griddepcontrol.launch_dependents` at entry, spins 10 us on globaltimer, then copies topk_ids / topk_weights
+into the buffers the prologue reads. The prologue zeroes its shared-memory struct before `griddepcontrol.wait` and
+reads topk only after it. The PDL arm checks the device bytes against the mirror after the producer has rewritten
+the inputs (pass at every T). SM clock during the runs is 1980 to 2070 MHz (clock64 over globaltimer).
+
+| T | 1-node graph minus empty-kernel graph | per launch, 20-launch graph | exposed behind producer, serial | exposed behind producer, PDL | device: publish -> struct stored, serial / PDL | device: after wait -> stored |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 0.14 | 2.62 | 3.06 | 1.99 | 2.85 / 1.92 | 1.54 |
+| 8 | 0.41 | 2.81 | 3.26 | 2.18 | 2.98 / 2.11 | 1.73 |
+| 32 | 0.26 | 2.90 | 3.34 | 2.25 | 3.10 / 2.18 | 1.79 |
+
+All in microseconds. "Exposed" is graph(producer + prologue) minus graph(producer alone). The 1-node column is under
+the graph launch cost (the empty-kernel graph replays in 9.3 to 9.4 us event to event), so it does not measure the
+kernel; the 20-launch column and the device stamps do. Device stamps split the 1.54 to 1.79 us after the wait into
+routing load and per-warp match counting 0.38 to 0.45, warp-0 counts, slice policy and the packed scan 0.42 (T = 1,
+no leftover slices) to 0.67 (T = 8 / 32, fill ranks), slice and tok_list writes 0.51, and the 3464-byte store 0.19.
+Under PDL the prologue enters 9.7 us before the producer publishes, so its entry and zeroing (0.38 us) are hidden.
+
+Two changes during the task, both measured with the stamps at T = 32: the first version wrote each expert's slices in
+a serial per-lane loop and ranked experts with 32 shuffles (warp-0 step 1.31 us, after wait -> stored 2.27 us); moving
+the slice writes to 64 parallel threads with a 5-step binary search and ranking by 17 ballots cut it to 0.74 / 1.89;
+preloading the per-warp counts and merging the two warp scans into one packed scan cut it to 0.64 to 0.67 / 1.79.
+
+Input to D3 (measurement, then hypothesis): a separate prologue under PDL costs 2.0 to 2.25 us of exposed time per
+call at T = 1 to 32 on this box, of which 1.5 to 1.8 us is the struct computation after the wait and the rest is the
+PDL handoff between producer and prologue. The cluster kernel would add its own handoff from the prologue. Hypothesis:
+folding the computation into cluster 0 removes one handoff (about 0.4 us here) but keeps the 1.5 to 1.8 us, so D3's
+larger lever is the computation itself, or, in the layer, writing the struct from the route kernel (rule 4) where the
+routing is already in registers.
