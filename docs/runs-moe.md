@@ -7222,3 +7222,33 @@ chunk. Accumulators in shared memory (float4 read-modify-write per stage instead
 math-only and 1.7 us with loads on; the register form is the default now (`CLB_ACC_SMEM 0`). The remaining 1.1 us
 between the best v3 build (22.02) and the control (20.96) is the restructure itself (rolled stage loop through
 `consume_block`, the proxy fence, `__syncwarp` before the release); round 4 attributes the fence.
+
+### Round 4: two unit-blocks per warp, 8 consumer warps at T = 8, the fence
+
+`CLB_UPW 2` gives each warp two unit-blocks per stage (4 warps per stage group): each chunk's B fragments are
+loaded once for both units and the warp carries 8 independent accumulator chains, the most independent work per
+warp that fits the register cap. Register accumulators throughout.
+
+| variant | T, NCW | consumer reg / stack | math-only us | no-exchange us |
+|---|---|---|---:|---:|
+| control | 8, 16 | 96 / 0 | 20.96 | 26.11 |
+| v3 BREG 0 (one unit per warp) | 8, 16 | 94 / 0 | 22.02 | 26.72 |
+| v3 BREG 0, no proxy fence (diagnosis only) | 8, 16 | 94 / 0 | 21.97 | 26.75 |
+| v3 BREG 0 | 8, 8 | 94 / 0 | 24.64 | 27.54 |
+| UPW 2 | 8, 8 | 96 / 24 | 25.04 | 30.06 |
+| UPW 2 | 8, 16 | 96 / 24 | 23.10 | 29.17 |
+| control | 32, 8 | 168 / 0 | 27.97 | 29.97 |
+| UPW 2 | 32, 8 | 168 / 632 | 28.83 | 33.54 |
+
+Two units per warp lose at both warp counts: at 96 registers the second unit's codes, scales and chains spill
+(24 bytes of stack at T = 8, 632 at T = 32), and the saved LDS (B fragments, 0.36 against 0.6 per HMMA) were never
+the bound. 8 consumer warps at T = 8 cost 2.6 us against 16 whatever the loop: at this latency per warp the SMSP
+needs 4 resident consumer warps to fill its issue slots. The proxy fence at the slot release is free (21.97 against
+22.02, within noise), so it stays.
+
+What the 1.0 us between v3 and the control is: the v3 consumer ran one rolled stage loop per chunk-range variant
+(`consume_block<CLO, CHI>`, so the B cache could be loaded once per block) with the stage wait, the fence and the
+release inside each; the control runs a single rolled loop with the variant dispatch inside the loop body. The
+first-to-last-HMMA region holds 17.9 instructions per HMMA in v3 against 15.7 in the control (IMAD 2.56 against
+1.89, 24 ISETP and 16 BRA against 2 BRA), the per-variant loop prologues and address recomputation. Round 5 puts
+the loop back in the control's shape with `clu::unit_block` as the body.
