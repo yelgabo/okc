@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-03T18:51:09.306045+00:00",
+  "observed_at": "2026-11-04T04:46:15.951922+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -728,23 +728,32 @@
       "problem": "muse_decode_layer",
       "score_us": 10343.8351360107,
       "owner": "Existing final-day release/repeat lead",
-      "judged_arm": "Historical RS repeat draw2 per dc86c3ae, now displayed by service",
+      "judged_arm": "Historical RS repeat draw2 per dc86c3ae; previously displayed, now withdrawn",
       "source_identity": "g1b4_rs.py/01426b89 family per owning loop ledger; exact trailing-comment upload hash/full receipt not retained here",
-      "release_state": "displayed-ineligible-source-individual-adjudication-pending",
-      "reason": "Board and fresh shared job show PASS10343.835136us, but lead already bound this ID to the stopped RS repeat loop. Organizer ban on that source family remains; absence of this job's own DQ flag does not establish eligibility. No claim that organizers have individually flagged this draw yet. Existing release lead owns the residual-draw disposition; no root withdrawal, cancellation, repeat or public permission inferred.",
+      "release_state": "withdrawn-by-lead-after-explicit-user-decision",
+      "reason": "Withdrawal completed by existing lead under explicit user decision; fresh own-account list confirms withdrawn:true. Numerical PASS remains historical and does not undo source-family ineligibility. No further withdrawal decision pending.",
       "evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0244/displayed-row-review.json",
-      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0244.md",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0445.md",
       "eligible_for_release": false,
       "source_family_ineligible": true,
       "displayed_board_verified": true,
       "individual_service_DQ_flag_present": false,
       "withdrawal_disposition": {
+        "prepared": true,
+        "executed": true,
+        "user_authority": "do it then, recorded414aed3a",
+        "own_list_withdrawn": true,
+        "observed_at": "2026-11-04T04:46:15.951922+00:00",
+        "report": "docs/steering/2026-11-04-driver-monitor-0445.md"
+      },
+      "prior_withdrawal_disposition": {
         "evidence_commit": "10cac6ac",
         "prepared": true,
         "executed": false,
         "decision_owner": "User, request already raised by existing lead because withdrawal cannot be undone",
         "report": "docs/steering/2026-11-04-driver-monitor-0348.md"
-      }
+      },
+      "currently_displayed": false
     },
     {
       "job": "03e45b68e75d47fa",
@@ -790,6 +799,58 @@
       "release_review_required": true,
       "private_qualification_job": "03e45b68e75d47fa",
       "not_current_displayed_row": true
+    },
+    {
+      "job": "079c4ce95b7242dd",
+      "problem": "muse_decode_layer",
+      "owner": "Existing final-day release/repeat lead",
+      "score_us": 10394.877828078468,
+      "judged_arm": "Historical RS repeat; unchanged required-work prohibition applies",
+      "source_identity": "g1b4_rs family per dc86c3ae; trailing-comment upload bytes not independently retained",
+      "evidence": "docs/steering/2026-11-02-final-day-directive.md",
+      "source_family_ineligible": true,
+      "eligible_for_release": false,
+      "release_state": "withdrawn-by-lead-after-explicit-user-decision",
+      "currently_displayed": false,
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0445.md",
+      "withdrawal_disposition": {
+        "prepared": true,
+        "executed": true,
+        "user_authority": "do it then, recorded414aed3a",
+        "own_list_withdrawn": true,
+        "observed_at": "2026-11-04T04:46:15.951922+00:00",
+        "report": "docs/steering/2026-11-04-driver-monitor-0445.md"
+      },
+      "reason": "Withdrawal completed by existing lead under explicit user decision; fresh own-account list confirms withdrawn:true. Numerical PASS remains historical and does not undo source-family ineligibility. No further withdrawal decision pending."
+    },
+    {
+      "job": "117605d07c944666",
+      "problem": "muse_decode_layer",
+      "score_us": 10333.381525094357,
+      "owner": "Existing final-day release/repeat lead",
+      "judged_arm": "Clean combo2n repeat draw1 per owning786a3f6b",
+      "source_identity": "rv_k_combo2n.py3ac83fb4 source family; exact trailing-comment upload hash/full receipt not retained in this checkout",
+      "release_state": "current-clean-source-board-row-prior-conditional-review-preserved",
+      "reason": "Fresh board and own-job list agree on10333.381525us/PASS/no flags. Lead binds ID to clean combo2n draw1. Required routing restored. Earlier03e per-cell release-condition miss remains separately open; withdrawal of oldRS does not retroactively satisfy it. Repeated-base movement is not an algorithmic improvement.",
+      "evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0445/live-summary.json",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0445.md",
+      "competition_source_eligible": true,
+      "release_review_required": true
+    },
+    {
+      "job": "89257bb0457241d0",
+      "problem": "muse_decode_layer",
+      "score_us": 10333.553922393732,
+      "owner": "Existing micro implementation owner/final-day release lead",
+      "judged_arm": "ly_micro single-arm stack, allT/all-sixT8 on, unpoolerCG",
+      "source_identity": "ly_micro.py;SHA256dc3e0d00ab5a06c42566b45b4ba48a99b061da4bfef140708f249d0b7292ef79;941514Git bytes",
+      "evidence": "muse_decode_layer/cand/profiles/ly_micro.89257bb0457241d0.json",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0445.md",
+      "release_state": "terminal-valid-preregistered-cell-comparison-not-met",
+      "reason": "VALID13/12/12; guards pass,CG_GATE1023/1024within registered tolerance. Literal cells-at-or-below privatecombo2n condition fails4cells: d1full+0.410us,d32full+0.196us,v1sliding+3.547us,v16sliding+3.885us. Separate draws do not prove causal regressions. This is dc3e, not newer0bc2 micro2. It does not qualify a changed micro2 dispatcher merely by relabeling it a repeat.",
+      "registered_cells_at_or_below_pass": false,
+      "eligible_for_release": false,
+      "release_review_required": true
     }
   ],
   "ineligible_source_family_checkpoint": {
@@ -815,16 +876,26 @@
     "terminal_receipt": "muse_decode_layer/cand/profiles/rv_k_combo2n.03e45b68e75d47fa.json"
   },
   "current_layer_reference": {
-    "observed_at": "2026-11-04T02:45:11.256775+00:00",
-    "displayed_job": "e095123329d84e30",
-    "displayed_source_eligible": false,
-    "eligible_control": {
+    "observed_at": "2026-11-04T04:46:15.951922+00:00",
+    "displayed_job": "117605d07c944666",
+    "displayed_source_eligible": true,
+    "score_us": 10333.381525094357,
+    "source_binding": "Cleancombo2n source family per owning786a3f6b; exact draw upload not independently retained",
+    "frozen_prior_gate_reference": {
       "job": "f931abf568544018",
       "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
       "score_us": 10374.616018194523,
       "role": "Last known eligible published comparison control, not the currently displayed API row"
     },
-    "report": "docs/steering/2026-11-04-driver-monitor-0244.md"
+    "prior_conditional_release_review_open": true,
+    "report": "docs/steering/2026-11-04-driver-monitor-0445.md",
+    "eligible_control": {
+      "job": "117605d07c944666",
+      "score_us": 10333.381525094357,
+      "source_family_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
+      "exact_repeat_upload_sha256": null,
+      "role": "Current clean-source public row, with historical user-condition review separately open"
+    }
   },
   "known_clean_public_candidate": {
     "job": "18291368c3fa46d6",
@@ -832,6 +903,29 @@
     "score_us": 10348.153622784163,
     "displayed": false,
     "prior_release_condition_review_open": true,
-    "report": "docs/steering/2026-11-04-driver-monitor-0348.md"
+    "report": "docs/steering/2026-11-04-driver-monitor-0348.md",
+    "superseded_board_job": "117605d07c944666"
+  },
+  "layer_reference_history": [
+    {
+      "observed_at": "2026-11-04T02:45:11.256775+00:00",
+      "displayed_job": "e095123329d84e30",
+      "displayed_source_eligible": false,
+      "eligible_control": {
+        "job": "f931abf568544018",
+        "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
+        "score_us": 10374.616018194523,
+        "role": "Last known eligible published comparison control, not the currently displayed API row"
+      },
+      "report": "docs/steering/2026-11-04-driver-monitor-0244.md"
+    }
+  ],
+  "micro2_repeat_scope_review": {
+    "source_sha256": "0bc2bd8bdeecd7514ab259bd8f2b5b6b66cef88734f583c5ccaf466f1075cacd",
+    "owning_decision_commit": "e4a77b16",
+    "owner": "Existing final-day release/repeat lead",
+    "state": "changed-source-repeat-plan-recorded-explicit-disposition-needed",
+    "reason": "Lead switched repeat file from3ac to0bc2 and said no separate submit because repeat is same run. Source/dispatcher changed and registered private receipt is dc3e. Named trailing-comment repeat permission alone does not establish authority/qualification for0bc2. Read newer actual human/source decision; no root cancellation, duplicate approval question, or block on already-permitted private work.",
+    "report": "docs/steering/2026-11-04-driver-monitor-0445.md"
   }
 }

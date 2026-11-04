@@ -4,12 +4,16 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 03:48UTC](2026-11-04-driver-monitor-0348.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 04:45UTC](2026-11-04-driver-monitor-0445.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 4 04:45 UTC — withdrawals complete; micro check terminal
+
+[Current monitor](2026-11-04-driver-monitor-0445.md): user's recorded decision was executed by the lead; fresh own-job list confirms **e095 and079c withdrawn**. Clean combo2n repeat **117605d07c944666 /10333.381525us** now holds layer/overall **367**. No withdrawal decision remains pending. Private **ly_micro89257** is valid13/12/12 at **10333.553922us**, allT/six-edge/coarse guards pass, CG_GATE1023/1024 within tolerance; literal cells-at-or-below privatecombo2n clause misses four cells. Lead switches repeats to changed **micro2/0bc2**, which is not the registered **dc3e** or a trailing-comment-only repeat; existing release owner records one exact scope/qualification disposition, with no duplicate root gate or interruption of authorized private work. Verify1 attention comparison completed below its1us port bar. Fusion audit completed; already-opened Fable owner has published boundary-preload source modes/tools without a measured winner here. Incoming1f6ab2ad closes the B4 ramp too: three scoped box non-winners, no judge check or automatic renewal. Primary promotion check **15 leads/zero gaps**, limited fresh50-job coverage. Current official clean-source row and historical conditional private-cell review remain separate.
 
 ## November 4 03:48 UTC — clean public receipt and pending withdrawal decision
 

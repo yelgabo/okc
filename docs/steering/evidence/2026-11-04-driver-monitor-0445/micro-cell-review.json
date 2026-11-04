@@ -1,0 +1,153 @@
+{
+  "files": {
+    "micro": "muse_decode_layer/cand/profiles/ly_micro.89257bb0457241d0.json",
+    "control": "muse_decode_layer/cand/profiles/rv_k_combo2n.03e45b68e75d47fa.json"
+  },
+  "micro_summary": {
+    "error": null,
+    "passed": true,
+    "score_us": 10333.553922393732,
+    "speedup": 2.1890145607098246,
+    "speedup_ci": [
+      2.1561793422991773,
+      2.221849779120472
+    ],
+    "status": "ok",
+    "tests": 13,
+    "tests_passed": 13
+  },
+  "cells": [
+    {
+      "load": "decode 1",
+      "layer": "sliding",
+      "control_us": 68.42965128281668,
+      "micro_us": 66.88876966647648,
+      "delta_us": -1.5408816163401935,
+      "pct": -2.2517747605811933
+    },
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "control_us": 74.39520895366509,
+      "micro_us": 74.8047664721207,
+      "delta_us": 0.4095575184556219,
+      "pct": 0.550515986467226
+    },
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "control_us": 129.9754252423509,
+      "micro_us": 127.68352704660009,
+      "delta_us": -2.291898195750793,
+      "pct": -1.7633319463870478
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "control_us": 204.3323196098675,
+      "micro_us": 203.59807028048098,
+      "delta_us": -0.734249329386541,
+      "pct": -0.35934076938413106
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "control_us": 149.18000449515313,
+      "micro_us": 147.28956172949674,
+      "delta_us": -1.8904427656563638,
+      "pct": -1.267222622799813
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "control_us": 302.3700684117313,
+      "micro_us": 302.5662441527966,
+      "delta_us": 0.19617574106529356,
+      "pct": 0.0648793520124924
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "control_us": 106.457304044674,
+      "micro_us": 110.00451483325615,
+      "delta_us": 3.547210788582146,
+      "pct": 3.33205017768774
+    },
+    {
+      "load": "verify 1",
+      "layer": "full",
+      "control_us": 114.95381277865357,
+      "micro_us": 114.15931443244287,
+      "delta_us": -0.7944983462107048,
+      "pct": -0.6911457106173025
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "control_us": 251.33723161588492,
+      "micro_us": 255.2222536546117,
+      "delta_us": 3.885022038726776,
+      "pct": 1.5457407618240104
+    },
+    {
+      "load": "verify 16",
+      "layer": "full",
+      "control_us": 336.76080753440084,
+      "micro_us": 332.30213820925167,
+      "delta_us": -4.4586693251491525,
+      "pct": -1.3239870036520496
+    },
+    {
+      "load": "verify 32",
+      "layer": "sliding",
+      "control_us": 325.02764576930286,
+      "micro_us": 314.629919495173,
+      "delta_us": -10.397726274129877,
+      "pct": -3.199028270201343
+    },
+    {
+      "load": "verify 32",
+      "layer": "full",
+      "control_us": 484.88498610351377,
+      "micro_us": 481.68941472334757,
+      "delta_us": -3.1955713801661623,
+      "pct": -0.6590369823255338
+    }
+  ],
+  "scope": "Separate official draws, shown median_ns matched by load/layer. Descriptive gate comparison, not matched causal micro effect.",
+  "literal_cells_at_or_below_pass": false,
+  "regressed_cells": [
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "control_us": 74.39520895366509,
+      "micro_us": 74.8047664721207,
+      "delta_us": 0.4095575184556219,
+      "pct": 0.550515986467226
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "control_us": 302.3700684117313,
+      "micro_us": 302.5662441527966,
+      "delta_us": 0.19617574106529356,
+      "pct": 0.0648793520124924
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "control_us": 106.457304044674,
+      "micro_us": 110.00451483325615,
+      "delta_us": 3.547210788582146,
+      "pct": 3.33205017768774
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "control_us": 251.33723161588492,
+      "micro_us": 255.2222536546117,
+      "delta_us": 3.885022038726776,
+      "pct": 1.5457407618240104
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "check_exit_code": 0,
+  "numerical_leads": 15,
+  "missing_dispositions": [],
+  "scope": "Saved JSON, including archives and ignored files. CLI exports included only for clean matching jobs in the explicitly supplied 50-job index; unlisted exports excluded. This is not full historical CLI coverage. Explicit disqualifications in the supplied own-jobs index override archived passing receipts. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+  "cli_export_coverage": {
+    "own_jobs_index": ".build\\driver-monitor-0445\\own-jobs.json",
+    "indexed_jobs": 50,
+    "exports_seen": 503,
+    "bound_clean_exports": 18,
+    "excluded_no_index": 0,
+    "excluded_unlisted": 484,
+    "excluded_unclean_job": 1,
+    "distinct_bound_jobs": 17
+  },
+  "disqualification_coverage": {
+    "indexed_disqualified_jobs": 2,
+    "excluded_files": 1,
+    "distinct_excluded_jobs": 1,
+    "exclusions": [
+      {
+        "job": "9d80ae2494334136",
+        "problem": "muse_decode_layer",
+        "basis": "explicit own-jobs index",
+        "reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+        "path": "muse_decode_layer\\cand\\profiles\\g1b4_rs.9d80ae2494334136.json"
+      }
+    ]
+  },
+  "limitations": "Completeness is limited to this50-job ownership index and saved supported receipts. Audit pass is not eligibility or authorization."
+}
