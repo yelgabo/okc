@@ -1,0 +1,11 @@
+ptxas info    : 28 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    136 bytes stack frame, 336 bytes spill stores, 216 bytes spill loads
+ptxas info    : Used 168 registers, used 3 barriers, 136 bytes cumulative stack size
+ptxas info    : Compile time = 337.190 ms
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+    136 bytes stack frame, 336 bytes spill stores, 216 bytes spill loads
+ptxas info    : Used 168 registers, used 3 barriers, 136 bytes cumulative stack size
+ptxas info    : Compile time = 320.671 ms

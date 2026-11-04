@@ -1,0 +1,56 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793821831.014 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793821831.612 release build glue_moe_3949b5de8e9982d1_sm90a
+BXBUILD 1793821831.613 start build glue_moe_3949b5de8e9982d1_sm90a
+BXBUILD 1793821831.613 start build glue_moe_c43c456a7ab7f9e8_sm90a
+BXBUILD 1793821831.613 start build glue_moe_9a50cd1d928917e4_sm90a
+BXBUILD 1793821869.849 end build glue_moe_9a50cd1d928917e4_sm90a
+BXBUILD 1793821870.073 end build glue_moe_3949b5de8e9982d1_sm90a
+BXBUILD 1793821870.848 end build glue_moe_c43c456a7ab7f9e8_sm90a
+BXLOCK 1793821870.848 acquire build glue_moe_c43c456a7ab7f9e8_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.94), ('sk2', 8.06), ('torch', 10.34)] -> ('cg',)
+BXLOCK 1793821873.195 release triton _prq_sl_tile_route_cg
+BXBUILD 1793821873.195 start triton _prq_sl_tile_route_cg
+BXBUILD 1793821873.978 end triton _prq_sl_tile_route_cg
+BXLOCK 1793821873.978 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793821873.981 release triton _sl_cluster_finish_cg
+BXBUILD 1793821873.981 start triton _sl_cluster_finish_cg
+BXBUILD 1793821874.081 end triton _sl_cluster_finish_cg
+BXLOCK 1793821874.081 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793821874.120 release triton _prq_sl_tile_route_cg
+BXBUILD 1793821874.120 start triton _prq_sl_tile_route_cg
+BXBUILD 1793821874.897 end triton _prq_sl_tile_route_cg
+BXLOCK 1793821874.897 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793821874.899 release triton _sl_cluster_finish_cg
+BXBUILD 1793821874.899 start triton _sl_cluster_finish_cg
+BXBUILD 1793821874.997 end triton _sl_cluster_finish_cg
+BXLOCK 1793821874.997 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793821875.052 release triton _prq_sl_tile_route
+BXBUILD 1793821875.052 start triton _prq_sl_tile_route
+BXBUILD 1793821875.792 end triton _prq_sl_tile_route
+BXLOCK 1793821875.792 acquire triton _prq_sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793821881.111 release triton _prq_sl_tile_route_cg
+BXBUILD 1793821881.111 start triton _prq_sl_tile_route_cg
+BXBUILD 1793821881.848 end triton _prq_sl_tile_route_cg
+BXLOCK 1793821881.848 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793821881.860 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793821881.860 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793821881.953 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793821881.953 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+TL16G decode 16 sliding n 40 medians graph_us 129.25 span 66.48 ramp 3.67 route 2.69 A 37.01 handoff 2.38 B 18.28 bend_spread 3.97 bend_to_bar 0.80 bar_idle 3.14 final 0.60 unit_us 1.15 unit_a 1.15 unit_b 1.12 a_wwait 2.36 b_wwait 0.90 units 6144.00 distinct 8.00 routes 27.00
+TL16G decode 16 full n 40 medians graph_us 204.48 span 67.04 ramp 3.58 route 2.64 A 36.72 handoff 2.39 B 18.31 bend_spread 3.58 bend_to_bar 0.80 bar_idle 2.98 final 0.58 unit_us 1.15 unit_a 1.15 unit_b 1.12 a_wwait 2.26 b_wwait 0.88 units 6144.00 distinct 7.00 routes 27.50

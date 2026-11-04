@@ -7162,3 +7162,153 @@ ledger registration, no judge check. What the measurements leave:
   memory system in the 3 us after qkv; a gain there needs fewer bytes or fewer dependent round trips across both
   kernels (for example q-norm / RoPE in qkv's epilogue, or the finalize inside o's prologue), which is cross-lane
   work (bf16 owns qkv and o) and not tested here.
+
+## 2026-11-04 - Decode 16 / 32 sliding MoE (box)
+
+MoE lane, round 3 (11:15 PT start). Question: of the fused MoE's excess over its byte floor at decode 16 (MID build,
+helper0's warp-specialized mma.sync ring) and decode 32 (B4 build, WGS warpgroup kernel), which part has a mechanism not
+ruled out, and does one change take at least 1 us at decode 16 or 32 sliding? Base:
+muse_decode_layer/cand/ly_stk1.py (SHA256 d7db12a14807eeb57df914dac468f4f2567b6bfc4e6771a549c167e92fc39878), never
+edited. Box only (okc-h200), every GPU process under gpu.lock (bx_box_run.py `--lock`), no judge job, no routing slack,
+no change to which experts run. Evidence: `muse_decode_layer/profiles/box/moe3/` (logs, A/B tables, SASS reports, raw
+per-CTA stamps of 6 inputs per cell as `.json.gz`). Driver: `.build/moe3/ab.sh` on the box (copied there as `ab.sh`):
+the file's own prepare at decode 16 / 32 (the five PDL8H guards), the chk step at six loads, two `tools/ly_prtl_ab.sh`
+rounds against ly_stk1 (c/w/c/w/c, 60 runs, PDL pinned at 1, 8, 16, 32), then the candidate's stamps.
+
+### Step 0: what was tried on these builds
+
+MID (decode 16): the split expert's re-stream (an expert with 9 to 16 tokens becomes two 8-token jobs, each streaming
+its 768 units; 7.3 us of span per split expert, 6.0 us per cell averaged) was attacked three times with two n-tiles per
+unit (ly_ws2t +1.7, ly_ws2u +4.1, ly_mid1 +10.6 us), plus the knob sweep's mid8 (decode 16 on MAIN, +2.7). The unit
+loop: named-barrier variants (nb, na, pr, pw), software pipelining (pf), early release (er), four ring slots (ns4,
+prns4), the DQ7 IMAD merge, two CTAs per SM (ly_dual), phase A unit order and ring depth for the 3.9 TB/s ceiling
+(replay and in-place no-math builds), the run-time claim of phase B units (mo_claim), prefetch at job switches (mo_xpf).
+At decode 1 (TINY, the same helper0 text): the route kernel prefetching each CTA's first unit (ly_rpf, loss), the credit
+fence kind (ly_cfar, null), the MoE trigger at the phase A end (ly_trga, loss), the slice prefetch from the MoE (ly_slpf /
+ly_slpfb). B4 (decode 32): the deferred flush behind commit group 6 (ly_b4_fci6, loss), the designated finisher in phase
+A (ly_b4_dfa, loss), weights issued before WS_JOIN (ly_b4_wpre, null); on MAIN at verify 16 / 32 the publisher warp
+(ly_pub, loss), the cut-unit finish in registers (ly_rfin, a gain at verify 32, MAIN only), its walk orders (ly_rfin2 /
+ly_rfin2b, losses), the final-pass row cache (ly_fin1, null), the n-tile switch charge (ly_bal, loss); knobs WGSFCI,
+WGSUB / WGSU, nob4, GATHB, NS (noise or loss). Layer edges: the MoE -> unpooler PDL edge (ly_d16un, in ly_stk1), the
+unpooler L2 prefetch from the MoE (ly_unpf, null), the route geometry (ly_rbc, null). Left at the start of this round:
+the B4 port of ly_rfin, a phase B K-stage order by readiness, the MID prologue, and the two-tile loop with x in
+registers.
+
+### Step 1: decode 16 (MID) on ly_stk1, per CTA (measurement)
+
+`tools/ly_moe_tl16.py --base ly_stk1.py` writes the stamped copy (ly_stk1_tl16.py, 6006d80a, rebuilt by the tool, not
+committed); `tools/ly_box_moe_tl16g.py --inputs 40 --raw 6` replays the whole layer graph per fresh input with a cold L2
+(`tl16_stk1.log`). Medians over 40 inputs, sliding / full, us from the first CTA's entry (the mean CTA enters 0.08 us after the first, the latest 0.19):
+
+| piece | sliding | full | reading |
+|---|---:|---:|---|
+| span (entry to last exit) | 66.43 | 67.20 | 6144 units at 8 distinct: 51.07 us of bytes at 4.435 TB/s; 47.9 at the judge's 7.5 experts |
+| ramp: first ring slot full (mean CTA; latest 5.0 to 5.3) | 3.71 | 3.70 | route() done at 2.73 / 2.72, 2.65 after each CTA's own entry |
+| first phase A unit (from slot full) | 1.60 | 1.54 | steady unit 1.15, so +0.45 |
+| phase A | 36.74 | 36.66 | unit 1.15 against 1.098 us of bytes (+4.5%, about 2.4 us per CTA); warp 0 waits 2.70 / 2.58 for weights |
+| A to B handoff (A end to the first B unit past doneA) | 2.32 | 2.31 | the first B unit retires 4.06 / 4.10 after the CTA's A end: doneA wait 2.2, then x and the unit |
+| phase B | 18.62 | 18.35 | unit 1.12 to 1.15 |
+| B end to barrier, barrier idle, final pass | 0.80, 2.75, 0.46 | 0.80, 2.76, 0.46 | B-end spread 3.41 / 3.49; the last exit comes 2.6 to 3.1 us after the latest B end (raw stamps) |
+| split re-stream | 6.0 averaged | | 768 extra units on 34 of 40 inputs (prior fit; still the largest single part) |
+
+Per CTA (`tools/ly_m3_midcta.py`, `tools/ly_m3_midgaps.py` on the raw stamps): the latest B ends belong to CTAs with the
+most units (corr(B end, nA + nB) 0.38 to 0.74) and the latest doneA (corr(B end, first B unit) 0.29 to 0.78). A combined
+A + B count split would leave the per-CTA maximum unchanged (6912 units over 132 CTAs: 52 or 53 either way), so the
+count is not a lever. Job switches are rare (37 in phase A and 20 in phase B over 6 inputs x 132 CTAs) and cost +0.55 (A)
+and +1.1 (B) each.
+
+### Step 1: decode 32 (B4) on ly_stk1, per CTA (measurement)
+
+`tools/ly_moe_tlb4.py --src ly_stk1.py` (level 1: the consumer stage loop untouched) and `tools/ly_box_moe_tlb4g.py
+--inputs 40 --raw 6` (`tlb4_stk1.log`). Medians over 40 inputs (the median input has 9 distinct experts, the judge's
+target), mean CTA, sliding / full:
+
+| piece | sliding | full | reading |
+|---|---:|---:|---|
+| span | 78.22 | 80.11 | floor 55.8 at 9 experts |
+| ramp: route, gather, WS_JOIN, first weight issue | 1.75, 3.40, 3.43, 4.32 | 1.71, 3.38, 3.41, 4.30 | 0.9 us from WS_JOIN to the first TMA issue |
+| phase A | 45.00 | 45.66 | floor 37.2; steady issue interval 0.992 against the 1.064 floor; A-end spread 9.26 / 8.91 |
+| phase B | 22.14 | 22.51 | floor 18.6; first doneAs wait 3.19 / 3.12, all doneAs waits 9.35 / 9.44 per CTA |
+| MFIN wait (B end to the first final item) | 5.03 | 5.67 | B-end spread 7.23 / 7.41 |
+| final pass | 1.96 | 1.88 | exit spread 2.03 / 1.98 |
+
+Phase A per CTA against the split's cost model (`tools/ly_m3_cost.py`, 1584 CTA-phases): least squares gives 1.135 /
+1.379 / 1.356 / 1.66 us per stage at 1 / 2 / 3 / 4 n-tiles (the OKC_WGSA table's ratios 1 : 1.21 : 1.25 : 1.41 hold)
+and +2.15 us per cut (stream-K) share, which the split does not charge; residual sd 1.08 us against 1.83 for the split's
+own cost. 85 to 113 of 132 CTAs hold two cut shares in phase A, and the latest A ends sit in that group
+(`tools/ly_m3_cuts.py`), so the cut cost is mostly a constant; what spreads the A ends inside the group is not in the
+model.
+
+### Step 2, candidate 1: ly_b4rf, ly_rfin's cut-unit finish on B4 (null)
+
+`tools/dl_ly_b4rf_patch.py` writes `muse_decode_layer/cand/ly_b4rf.py` (SHA256
+41c9a389c7d81a87e179b1abdafe14ae5aa2568c012c2840efc55a2c170f6a8a). One line (ly_stk1 line 16428, `_fork_native_moe`):
+the "b4" key's defines gain `MAIN_EXTRA_DEFINES` (`-DOKC_RFIN=1 -DOKC_RFINQ=2`). The RFIN path is MOE_CUDA_SRC's
+generic WGS text, with no OKC_B4FIN branch; the finisher zeroes the slots and the counter it reads, so the zero-slot
+invariant B4 and MAIN share holds. Every fence, barrier and release is ly_rfin's (see "Verify segment switches (box)").
+Gate: the five PDL8H guards pass (T = 1 sliding, 16 sliding, 32 full, 8 full, 8 sliding); chk PASS 12/12,
+G_RELEASE_STARTUP_OK (its M = 32 case compares B4 against the reference build).
+
+Pooled A/B against ly_stk1, two rounds (19:28 to 19:32 UTC, `table_b4rf_both_rounds.txt`), us:
+
+| cell | ctl mean | spread | cand mean | w - c | pairs < 0 |
+|---|---:|---:|---:|---:|---|
+| decode 16 sliding / full | 125.58 / 197.88 | 1.09 / 1.34 | 125.38 / 198.12 | -0.19 / +0.24 | 14 / 9 of 24 |
+| decode 32 sliding / full | 143.44 / 294.58 | 1.36 / 1.09 | 143.87 / 294.37 | +0.43 / -0.22 | 5 / 17 of 24 |
+| the other eight cells | | | | -0.15 to +1.38 | verify 16 sliding +1.38 with 0/24 on unchanged MAIN code: session drift |
+
+Stamps of the candidate (`tlb4_b4rf.log`, the same instrument, medians over 40 inputs, sliding): phase A 45.00 -> 44.16 and
+the A-end spread 9.26 -> 7.68, but the x producer's first doneAs wait 3.19 -> 5.61 and all its doneAs waits 9.35 ->
+11.51 (in range order each CTA's last phase A unit is its cut unit, finished at the phase end), MFIN wait 5.03 -> 5.80,
+span 78.22 -> 77.70. As at verify 16 / 32, the cut cost leaves phase A and returns as phase B's dependency wait; at
+decode 32 nothing is left over. Null.
+
+A phase B K-stage order by readiness (each B unit's 16 stages sorted by when the two phase A units they read complete,
+both producers walking the same permutation) was modelled before building: `tools/ly_m3_bsim.py` replays every CTA's
+phase B on the raw stamps (stage n starts at max(previous end, its A units' completion proxy + lag)). With the stage
+time and lag set so the forward order reproduces the measured B ends (1.2 us, 3.0 us), sorting moves the latest B end
+by 0.69 / 0.39 us (base walk) and 0.12 / 0.09 us (ly_b4rf's walk). Not built.
+
+### Step 2, compile-only: ly_mid2, the two-tile MID loop with tokens 8..15 in registers (rejected on SASS)
+
+`tools/dl_ly_mid2_patch.py` writes ly_mid2.py (ede3cc19, not committed): ly_mid1's single weight read at decode 16 with
+the second n-tile's B fragments loaded at the job switch like tile 0's, so the loop gains only the second mma per k16
+step. MID SASS (`sass_mid2_mid_report.json`, `sass_mid2_ptxas_v.txt`): 168 registers, a 136-byte stack frame, 336 bytes
+of spill stores and 216 of spill loads, a phase A loop of 944 instructions with 32 STL and 20 LDL (control: 144
+registers, loop 692, no stack). 168 is the cap: helper0 launches 9 warps (8 compute and the helper), so one SM
+sub-partition holds 3 warps, and 3 x 32 x R <= 16384 registers gives R <= 168. Tile 0's x fragments alone are 64
+registers per thread, so a register-resident second tile cannot fit beside the 144 the loop needs. Not run.
+
+### Step 2, candidate 2: ly_m16r, the MID prologue's global loads before their uses (null)
+
+The MID SASS of ly_stk1 shows two serialized round trips in the prologue: the FAST1 warp's OKC_SPLIT count loop issues
+one topk_ids load per 32 entries and consumes it (MATCH.ANY, ATOMS) before the next (four dependent loads at M = 16),
+and thread 0 stores S.gen / S.ssp from its volatile p.ctr[3] load before its own route() load. `tools/dl_ly_m16r_patch.py`
+writes `muse_decode_layer/cand/ly_m16r.py` (SHA256 042d104b08afaf399056fe993b262da546ad452db755919e139ee4cdb858d97b),
+MID only (`-DOKC_F1HOIST=1`): the FAST1 warp loads all four words first, then runs the same match and count steps;
+thread 0 issues the generation load at the same point, and route() stores S.gen / S.ssp right after its first CTA
+barrier, so route()'s three later CTA barriers order the stores before every reader. Counts, jobs, ranges, copies,
+fences and barriers are unchanged. SASS (`sass_m16r_mid_report.json`): the four LDG at 0x260 to 0x2c0 come before the
+first MATCH.ANY, the S.gen store after the first BAR.SYNC; 144 registers, loops 692 / 747 as in the control. Gate: the
+five guards pass; chk PASS 12/12, startup OK.
+
+Pooled A/B against ly_stk1, two rounds (19:47 to 19:50 UTC, `table_m16r_both_rounds.txt`): decode 16 sliding +0.42 us
+(3 of 24 pairs below), full +0.34 (5/24); decode 32 -0.30 / +0.20; the other cells -0.07 to +0.33, except verify 32
+sliding -0.62 (unchanged code). Stamps (`tl16_m16r.log`): route() done 2.73 -> 2.69, first slot 3.71 -> 3.67, warp 0's
+phase A weights wait 2.70 -> 2.36, span 66.43 -> 66.48. The copies land earlier, but the first unit still starts when
+route() and the first job's x are done, and route() is not shorter: per CTA it still ends 2.64 us after the CTA's own
+entry (2.67 in the base) for about one L2 round trip of loads, four CTA barriers and a few hundred instructions. What
+holds it there is not identified (the attention-d1 lane's warm-replay test found no cold instruction fetch cost in the
+attention kernel; TLB misses after the 1 GiB flush are untested). Null.
+
+### Decision
+
+No candidate for a judge check and no ledger registration: ly_b4rf +0.43 / -0.22 us at decode 32 (5 and 17 of 24 pairs
+below the control), ly_m16r +0.42 / +0.34 at decode 16 (3 and 5 of 24), ly_mid2 rejected on its SASS. Where the 21 us
+per cell sit after this round: at decode 16 the re-stream (6 us; every way to remove it adds per-unit work to an
+mma.sync loop capped at 168 registers), the handoff (2.3 us, a chain of five pieces each under 0.9 us, measured at
+decode 1), the tail after the latest B end (2.6 to 3.1 us) and a 2.65 us prologue that load order does not move; at decode 32
+the cut shares (+2.15 us each in phase A, moved but not removed by RFIN), the MFIN wait set by a 7 to 9 us end spread,
+and the 4.3 us ramp. Open items: the cause of the 2.65 us MID prologue (TLB or instruction fetch, measurable with a
+cold-versus-warm microbenchmark of route() alone), and a B4 cost split that charges both shares of a cut unit (the
+regression's +2.15 us), which needs range boundaries every CTA can compute without its neighbours' adjustments.
