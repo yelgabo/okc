@@ -6933,3 +6933,190 @@ k = 9. By the plan's own rule (C = 16 fails at k = 9 and C = 8 passes), D2 is C 
   never reuses the slot, so it did not matter there. In persistent mode, the producer's next wait on that slot
   read a stale phase, and the kernel hung at k = 3, S = 8. My own process was holding the GPU lock and was
   killed after about 10 minutes. The fix releases the sentinel slot like any other.
+
+## CL-1.2 phase B
+
+Task 1.2 of docs/plans/2026-11-04-moe-cluster-rewrite.md: phase B of the cluster kernel from a host-provided
+intermediate, C = 8, ring depth 4, slices from the fill rule at 15 clusters, D1 = (b). Box okc-h200, 2026-11-04 UTC,
+under gpu.lock, nvcc 13.0 sm_90a, torch 2.14.1+cu130, no judge job. Files: `muse_moe_w4a16/cl/cl_phase_b.cuh`
+(kernel and torch binding), `cl_phase_b_bench.py` (build, weights, schedules, timing, `--sass-check`),
+`cl/tests/test_phase_b.py`; raw logs and JSON in `muse_moe_w4a16/cl/profiles/1.2/` (`test.log` / `test.json`,
+`bench_t8.*`, `bench_t32.*`, `sass_check.json`). SHA256 of the measured bytes: cl_phase_b.cuh
+b1f1894d745cf7b913fc0cc445dbaaa314911806712a4959f330cfddcf50faf2, cl_phase_b_bench.py
+3b38f7efa072fb744b743cf1bc5afacc27068effe5cd34bd279cc925293a5c3f, test_phase_b.py
+bca8009270faac049b97a5a5d15c5c0b1011d6c147315ecb146580e4aeb5a967 (the test, the bench and the SASS check ran these
+bytes).
+
+### What runs
+
+One cluster of 8 CTAs per slice of the ClSchedule, one launch per input (grid = slices x 8). CTA c owns w2 output
+rows [512 c, 512 c + 512), 32 units of 16 rows, over the slice's K range; it writes its FP32 partial y with no
+intra-cluster reduction.
+
+- Slab layout (assumed; task 1.1's header had not landed): CTA c holds `slab[T_MAX][sc]` BF16, row-major,
+  sc = ncol / 8, row i = the expert's i-th pair in ClSchedule tok_list order, column j = intermediate column
+  col0 + c sc + j. The test kernel loads it from a global `inter[pair][4096]` (row = tok_list position) at entry.
+- K-outer loop over blocks of the slice's K range cut at multiples of 512 (one helper0 warp range; a 256-wide end
+  of a slice is a half block, chunks 0-3 or 4-7). Per block, the CTA's 32 units go through the depth-4
+  cp.async.bulk ring (the cl_stream.cu primitives, copied) as 4 stages of 8 unit-blocks. A stage keeps the helper0
+  unit layout: unit-block u codes at u x 4096 + 512 c, its 512-byte scale block at 32768 + 512 u, so
+  `clm::unit_codes` / `unit_scales` read it as "warp u". 16 bulk copies per stage, one producer lane.
+- Consumer warp w computes unit-block w of a stage with helper0's per-warp arithmetic (4 chains over the block's
+  64-K chunks, c0 + ((c1 + c2) + c3)) and adds it to a running FP32 sum in block order. In natural block order and
+  S = 1 that sum is helper0's warp-order cross-warp sum. 8 consumer warps at T_MAX = 32 (setmaxnreg 208 / 88,
+  no spills); 16 at T_MAX = 8 (two groups of 8 take alternate stages, 96 registers, no spills).
+- Gather (D1 = b): two staging warps copy each block's columns from the 8 slabs (`ld.shared::cluster.v4`, 8 loads
+  in flight per thread) into a double-buffered local block buffer [T_MAX][520] BF16, after one cluster barrier that
+  publishes the slabs. Each CTA reads the slice intermediate exactly once. Block order is rotated so CTA c starts at
+  the block holding peer c + 1's slab (`rot` 1) or its own (`rot` 0); pieces inside a block are rotated too.
+  Mode (c) writes the slabs to global, takes the same cluster barrier and reads blocks back with `ld.global.cg`.
+- Epilogue (rule 1): after the last stage the consumers write their sums to shared memory (the ring area), arrive
+  on an mbarrier and leave. One epilogue warp stores y_partial and, for S = 1, sums the per-unit sums of squares in
+  unit order, sends the CTA's per-token total to the leader over DSMEM and, after the end cluster barrier, the
+  leader sums ranks 0..7 in order and stores sumsq_partial.
+- Outputs: `y_partial[slice][T_MAX][4096]` FP32 and `sumsq_partial[slice][T_MAX]`. For an expert with S = 1, y is
+  helper0's ybuf value v = bf16(acc x gs x 2^62) x bf16(1 + w) and sumsq is the full-row sum of v^2. For S > 1, y is
+  the raw FP32 partial over the slice's K range and sumsq is 0: BF16 rounding of y and the sum of squares are
+  functions of the full-K sum, so they belong after the cross-slice sum (phase 2: sum the S partials in slice order
+  from 0.f, then gs, BF16, (1 + w), sum of squares). Rounding each partial would change the BF16 point and a sum
+  of per-slice squares is not the square of the sum.
+
+Consumer fences (`--sass-check`, the consumer body built out of line): each consumer subroutine (one per n-tile
+count) holds HMMA, SYNCS (mbarrier try_wait / arrive), one consumer-only BAR.SYNC and 4 STG.E.64 (the debug
+timestamps of warp 0), and no MEMBAR, CCTL, UCGABAR or ERRBAR. Consumers arrive on the slab barrier with
+`barrier.cluster.arrive.relaxed` and never wait on a cluster barrier. The kernel's 4 MEMBAR.ALL.GPU are the
+`arrive.release` of the staging warps (slab publish) and of the epilogue warp (leader sumsq), two call sites, each
+duplicated by the divergent-path copy.
+
+### Correctness (`test_phase_b.py`, one run)
+
+Part A, against a host copy of reference.py's math: 32 local experts with per-expert global scales
+(`run_unit_math.make_weights`), packed by the public file's prepare; inputs `generate_input(T, "ep8", seed)` for
+seeds 1000-1019 (`cl_bench.pick_inputs`, consecutive). The host computes inter = silu(x W_gate^T) (x W_up^T) in FP32,
+rounds it to BF16 (the kernel's operand) and y_ref = inter_bf16 W2^T in FP32; the kernel runs from that inter; the
+host sums slices (phase 2) and compares v with y_ref x bf16(1 + w). The element criterion is |v - v_ref| <= 2^-7
+max(|v_ref|, 2^-10 rms(row)); the strict count without the floor is given beside it. The MoE output assembled from
+the kernel's v (host route scale and weighted add) goes through `reference.check_implementation`.
+
+| T | policy | modes | elements | over 2^-7 (floor) | worst rel (floor) | strict over 2^-7 / worst | kernel sumsq tokens / worst rel vs FP64 of its v | reference check |
+|---:|---|---|---:|---:|---:|---|---|---|
+| 1 | fill15 (15 slices, S 5 to 8) | b_rot1, b_nat, c_rot1 | 212,992 | 0 | 3.89e-3 | 4 / 1.8e-2 | none (S > 1) | 20/20 PASS, rel L2 3.9e-3 |
+| 1 | s1 | same | 212,992 | 0 | 3.89e-3 | 3 / 1.8e-2 | 52 / 1.2e-7 | 20/20 |
+| 8 | fill15 | same | 1,110,016 | 0 | 3.94e-3 | 11 / 0.31 | 70 / 1.4e-7 | 20/20 |
+| 8 | s1 | same | 1,110,016 | 0 | 3.94e-3 | 10 / 0.31 | 271 / 1.8e-7 | 20/20 |
+| 32 | fill15 | same | 3,842,048 | 0 | 3.98e-3 | 51 / 0.51 | 734 / 2.1e-7 | 20/20 |
+| 32 | s1 | same | 3,842,048 | 0 | 3.98e-3 | 51 / 0.52 | 938 / 2.1e-7 | 20/20 |
+
+All 18 rows pass. The three modes give the same counts per row (b_nat differs from b_rot1 only in FP32 order). The
+strict failures are elements near zero (|v_ref| far below the row's RMS), where the FP32 order difference against
+cuBLAS is larger than 2^-7 of the element; the worst element against the floor is the BF16 rounding of y (2^-8 at
+most, 3.9e-3 measured).
+
+Part B, bitwise against the helper0 debug build (`tests/helper0_debug`, TINY at T = 1, TINY2 at T = 8, MID at
+T = 32), run_unit_math's three inputs per T (seed 505), the kernel run from helper0's own inter rows. Counts are
+summed over the inputs; "raw" is the FP32 sum before gs (for S > 1 the slices summed in slice order from 0.f), ybuf
+is v.
+
+| T | policy | order | raw sums mismatched | ybuf mismatched | per-unit sumsq mismatched | row sumsq vs helper0 (atomic order), max rel |
+|---:|---|---|---:|---:|---:|---:|
+| 1 | s1 | natural | 0 / 98,304 | 0 / 98,304 | 0 / 6,144 | 5.8e-7 |
+| 1 | s8 | natural / rotated | 0 / 98,304 | 0 / 98,304 | - | - |
+| 1 | s2 | natural / rotated | 43,286 / 51,115 | 5 / 9 | - | - |
+| 1 | s1 | rotated | 49,451 | 7 | 3 / 6,144 | 6.5e-7 |
+| 1 | fill15 | natural / rotated | 37,884 / 50,873 | 4 / 9 | 0 / 768 | 4.2e-7 |
+| 8 | s1 | natural | 0 / 372,736 | 0 / 372,736 | 0 / 23,296 | 6.6e-7 |
+| 8 | s8 (2 inputs; the third has 80 slices, over the 64 limit) | natural / rotated | 0 / 245,760 | 0 / 245,760 | - | - |
+| 8 | s2 | natural / rotated | 163,145 / 192,541 | 14 / 21 | - | - |
+| 8 | s1 | rotated | 186,948 | 11 | 4 / 23,296 | 3.5e-6 |
+| 8 | fill15 | natural / rotated | 169,936 / 200,530 | 19 / 21 | 0 / 1,280 | 4.6e-7 |
+| 32 | s1 (fill15 gives S = 1 on these inputs) | natural | 0 / 1,646,592 | 0 / 1,646,592 | 0 / 102,912 | 6.7e-7 |
+| 32 | s2 | natural / rotated | 723,538 / 852,810 | 50 / 79 | - | - |
+| 32 | s1 | rotated | 827,524 | 86 | 43 / 102,912 | 1.4e-5 |
+
+Where the K ranges match helper0's (S = 1 in natural block order; S = 8, one helper0 warp range per slice, summed in
+slice order) every raw sum, ybuf value and per-unit sum of squares is bitwise helper0's at T = 1, 8 and 32. Where
+they cannot match (S = 2 or 3 split helper0's warp-order sum into per-slice sums, or a rotated block order changes
+its order), 37 to 58% of the raw FP32 sums differ in the last bits and 0.001 to 0.009% of the ybuf values differ
+(one BF16 step). The row sum of squares agrees with helper0's atomic total within 6.7e-7 wherever ybuf matches; it
+cannot be bitwise because helper0's own order is the atomics' arrival order (CL-0.5 item 18).
+
+### Timing (`cl_phase_b_bench.py`, one session per T)
+
+Distinct = 7, fill rule at 15 clusters (6 experts S = 2, the busiest S = 3: 15 slices, 120 CTAs, depth 4, one
+wave). T = 8: judge-like seeds 1000, 1017, 1020, 1022, 1025. T = 32: only 4 of 3,000 judge-like seeds have 7 distinct
+local experts (the scan's distribution peaks at 15 to 16), so the bench kept the 7 busiest local experts of seeds
+1000-1004 and moved the other local ids off this GPU; every input has one expert at or near 32 tokens. 5 inputs x
+20 replays per mode, each replay after a 1 GiB L2 read, one CUDA graph per mode. Span = first CTA entry to last
+epilogue store (globaltimer); "from slab" starts at the first CTA's slab loaded (the slab is a global read in this
+test and phase A's output in the real kernel). Floor = 7 x 9.44 MB / 4.45 TB/s = 14.85 us. Medians; brackets are
+the min-max over 100 replays.
+
+| T, consumer warps | mode | span us | span / floor | from slab / floor | first stage ready us | consumer warp 0 wait on gather us |
+|---|---|---:|---:|---:|---:|---:|
+| 8, 16 | b, rotated from peer c + 1 | 27.26 [26.59-30.18] | 1.837 | 1.721 | 4.94 | 4.03 |
+| 8, 16 | b, rotated from own block | 27.36 | 1.843 | 1.726 | 4.96 | 4.06 |
+| 8, 16 | b, natural block order | 27.50 | 1.853 | 1.738 | 4.92 | 4.07 |
+| 8, 16 | c (global + L2) | 28.48 [27.46-31.33] | 1.918 | 1.799 | 5.67 | 4.77 |
+| 8, 16 | no exchange | 26.24 [25.66-27.52] | 1.768 | 1.650 | 3.78 | 2.05 |
+| 8, 16 | stream only (no math) | 18.13 | 1.221 | 1.105 | 3.70 | - |
+| 8, 16 | math only (no loads) | 21.18 | 1.427 | 1.303 | 2.80 | - |
+| 8, 8 | b, rotated from peer c + 1 | 29.18 | 1.966 | 1.839 | 4.93 | 3.78 |
+| 8, 8 | c | 29.87 | 2.012 | 1.880 | 5.46 | 4.26 |
+| 8, 8 | no exchange | 27.78 | 1.871 | 1.744 | 3.90 | 1.92 |
+| 8, 8 | stream only | 18.29 | 1.232 | 1.107 | 3.81 | - |
+| 8, 8 | math only | 25.06 | 1.688 | 1.561 | 2.85 | - |
+| 32, 8 | b, rotated from peer c + 1 | 34.05 [31.62-54.75] | 2.294 | 2.145 | 6.27 | 4.32 |
+| 32, 8 | b, rotated from own block | 34.05 | 2.294 | 2.137 | 6.27 | 4.37 |
+| 32, 8 | b, natural block order | 34.05 | 2.294 | 2.146 | 6.30 | 4.41 |
+| 32, 8 | c | 36.67 [31.84-58.40] | 2.470 | 2.313 | 6.43 | 4.62 |
+| 32, 8 | no exchange | 30.64 [29.82-40.22] | 2.064 | 1.910 | 4.45 | 2.22 |
+| 32, 8 | stream only | 19.81 | 1.334 | 1.186 | 4.40 | - |
+| 32, 8 | math only | 28.29 | 1.906 | 1.750 | 3.68 | - |
+
+Not done: the 1.15x criterion fails at both T, and by far: 1.84x at T = 8 and 2.29x at T = 32 for (b).
+
+### Where the time goes (measurements, then hypotheses)
+
+- The phase B math is the limit, not the exchange and not the stream. With the loads removed the consumers alone
+  take 21.2 us at T = 8 (16 warps), 25.1 us (8 warps), 28.3 us at T = 32 (8 warps). With the math removed the same
+  ring streams the 66 MB in 18.1 to 19.8 us (1.11 to 1.19x from slab ready). At T = 8 that is about 1.1 us of math
+  per 36,864-byte stage per SM with 16 warps (1.34 with 8), while the floor needs about 0.85 us on 120 SMs. One
+  unit-block is about 554 SASS instructions per warp (164 LOP3, 128 HMUL2, 76 IMAD, 71 SHF, 32 HMMA, 31 LDS): the
+  DQ7 decode and the scale multiply, not the mma. The issue count alone would allow about 0.56 us per stage, so the
+  8-warp loop runs near IPC 0.4 per SMSP; 16 warps help (1.34 to 1.1 us), which says latency, not the ALU pipe, is
+  part of it. helper0 TINY2 on 132 SMs runs at about 1.39 us per unit (56.7 us for 7 experts, CL-0.4), the same math
+  rate, so this is the existing kernel's limit too.
+- At T = 32 the busiest expert has about 32 tokens (NTT = 4): its S = 3 slices run about 2.5 us per stage and set
+  the span; the other slices (1 to 8 tokens) finish early. The fill rule balances pairs, not math.
+- Two changes measured on the way. Unrolling the 4 stages of a K block (with 3 chunk-range variants each) made a
+  120 KB hot loop: 37.3 / 50.6 us at T = 8 / 32 against 28.9 / 33.9 with the loop rolled and the accumulators rotated
+  through registers. Loading the test's slab from global after the producer has started queued it behind
+  17 MB of weight requests (5.4 us to the slab); the producer now waits for the local slab (1.8 to 2.5 us).
+- Ring depth 5 at T = 8 (205 KB) changed nothing (26.19 against 26.16 us, no exchange).
+- No-exchange span exceeds max(stream only, math only) by 5 us at T = 8 and 2.4 us at T = 32: the two limits are
+  close enough that the 4-slot ring does not decouple them (hypothesis).
+
+### D1 verdict
+
+The rotated DSMEM gather hides under the stream in steady state and costs about one block's gather at the start.
+(b) against no exchange: +1.0 us at T = 8 (16 warps), +1.4 (8 warps), +3.4 us at T = 32. Most of it is the first
+stage: first stage ready moves from 3.8 to 4.9 us at T = 8 and from 4.5 to 6.3 at T = 32, because block 0 can only be
+gathered after the slab barrier and nothing else is ready to compute. Consumer warp 0's total wait on the gather
+grows by 2.0 us at both T, of which 1.2 to 1.8 is that first block. The gather finishes 8 to 10 us before the
+consumers. CL-0.2's 0.22 us exposed figure assumed the whole read overlaps; the first block's read does not.
+(c) is slower than (b) in every cell: +1.2 us at T = 8, +2.6 us at T = 32, with the widest replay spread. Rotation
+start (peer c + 1 or own block) and natural order are within 0.25 us of each other at S = 2 / 3. D1 = (b) stands; the
+exchange is not what keeps phase B from the floor.
+
+### Consequences for the plan (hypotheses unless marked)
+
+- G1 cannot pass for phase B with the helper0 per-warp math on 120 SMs at T = 8 or 32 (measured math-only spans
+  1.43x and 1.91x of the floor). Phase A uses the same decode per byte, so the same ceiling applies to it. Moving
+  phase B toward the floor needs a cheaper decode per weight byte or more SMs per expert; at T = 32, the wgmma path
+  of the B4 build is the comparison.
+- 16 consumer warps instead of 8 cut the T = 8 math by 18% here (25.1 to 21.2 us). The public helper0 builds use
+  8 compute warps at T = 8; the same change may help TINY2 (not measured there).
+- At T = 32 a slicing rule weighted by tokens per expert (math scales with ceil(ntok / 8)) would give the hot expert
+  more slices.
+- At T = 32 with S = 1 (distinct >= 15), slab 32 KB + 2 block buffers 65 KB + ring 147 KB exceed 227 KB; the
+  bench's Runner drops to depth 3 there (smem 209,920). Not timed.

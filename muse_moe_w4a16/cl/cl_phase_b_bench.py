@@ -7,10 +7,13 @@ On the box:
 
 Builds cl_phase_b.cuh (outside the lock), then under the lock: 32 local experts of NVFP4 weights packed by the
 public file's prepare (unit order, ma_w[11]), inputs from reference.generate_input with cl_bench.pick_inputs
-(judge-like routing) at the requested distinct count, the ClSchedule from cl_schedule.build (fill policy, C = 8),
-a random BF16 intermediate. Each mode is one kernel launch captured in a CUDA graph; each replay follows a 1 GiB
-L2 read and gets its own input's schedule and intermediate copied into the graph's buffers. Span is the
-in-kernel globaltimer span (first CTA entry to last epilogue store issued).
+(judge-like routing) at the requested distinct count (when fewer than --inputs seeds in --max-scan have it, the
+busiest `distinct` local experts of judge-like inputs are kept and the rest moved off this GPU), the ClSchedule
+with the fill rule at the decided target of 15 clusters (policy fill15; cl_schedule.build's own fill uses
+128 // C = 16), a random BF16 intermediate. Each mode is one kernel launch captured in a CUDA graph; each replay
+follows a 1 GiB L2 read and gets its own input's schedule and intermediate copied into the graph's buffers. Span is
+the in-kernel globaltimer span (first CTA entry to last epilogue store issued); from-slab starts at the first CTA's
+slab loaded instead. --sass-check prints the fence census of the consumer path.
 """
 import argparse
 import fcntl
