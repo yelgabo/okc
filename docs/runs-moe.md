@@ -6443,3 +6443,180 @@ Hypotheses for the design (not measured in the real kernel):
   them, with the slot ring deep enough to cover one release latency (about 4 to 6 slots of 8 KB at T = 32).
 - The consumer-side cost of the handoff itself is 76 to 115 ns per tile (STS, one mbarrier arrive, one try_wait that
   succeeds) when the epilogue keeps up. That is the number to budget for rule 1 in the phase A estimate.
+
+## CL-0.2 exchange
+
+Task 0.2 of docs/plans/2026-11-04-moe-cluster-rewrite.md: micro-benchmarks for decision D1, the phase B exchange
+inside a cluster. Box okc-h200, 2026-11-04 UTC, under gpu.lock, nvcc 13.0 sm_90a, driver 595.91. Sources
+`muse_moe_w4a16/cl/micro/exchange.cu` (SHA256 d03f077d19d82d2841d4674d06c0bde0960fb445245929091f17dd778812b06a) and `muse_moe_w4a16/cl/micro/run.py` (SHA256 18af83c03556ec5b06421ad84da95384a60be9ea33ccfdc40caa048a8089e2b1);
+`python muse_moe_w4a16/cl/micro/run.py` builds, takes the lock only for the GPU run and prints the tables below.
+Raw output: `/root/okc/.build/cl_micro/xch_load.log` (every row, no-load and background-load arms, the numbers
+below) and `/root/okc/.build/cl_micro/xch_final.log` (an earlier run of the no-load rows, b and c within
+0.1 us, a within 0.7 us). This is a micro-benchmark: every row is its own kernel, no public file is involved,
+and no judge job was used.
+
+### What runs
+
+Every kernel is a `__cluster_dims__(C, 1, 1)` kernel of 256 exchange threads per CTA, one CTA per SM (116 KB or more
+of dynamic shared memory). "1 cluster" rows run one cluster alone; "full" rows run as many co-resident clusters as
+`cudaOccupancyMaxActiveClusters` allows, capped at 128 SMs: 15 clusters of 8 (120 SMs) and 7 clusters of 16 (112 SMs).
+Eight clusters of 16 do not co-reside on this part at one CTA per SM, which matters for D2: C = 16, S = 1 has 7
+streaming clusters, not 8. Each kernel is captured in a CUDA graph; each of 20 replays follows a 1 GiB L2 flush
+(2 warm-up replays first). Timing: thread 0 of each CTA stamps globaltimer after an alignment cluster barrier (t0),
+after the publication barrier (tm, modes b and c), and after the exchange is complete in that CTA (t1). The span of a
+cluster is max t1 minus min t0 over its CTAs; "span" is the median over clusters, "worst cluster" the slowest cluster,
+each the median over the 20 replays. CUDA events around each graph launch give the event column; "net" subtracts
+the matching empty kernel. Every mode with a checkable result was checked against the host after the last replay
+(the FP32 sums are exact small integers; the BF16 gathers carry a per-element hash and every CTA's XOR checksum
+must match): all pass.
+
+Modes (T tokens, H = 4096, C CTAs per cluster):
+
+- a_dist: split-K reduction over DSMEM, distributed. Each CTA writes its FP32 partial `[T, 4096]` into a shared
+  buffer in column chunks (32 KB or 64 KB, double-buffered), one cluster barrier per chunk, then each CTA reduces
+  1/C of the chunk's columns from all C peers (`ld.shared::cluster.v4.f32`, all C loads in flight) and stores the
+  FP32 result to global. At T = 32 the partial is 512 KB, so it cannot be held whole.
+- a_one: the same with CTA 0 reducing every column.
+- a_l2: split-K through L2: each CTA stores its whole FP32 partial to global, one cluster barrier, each CTA reduces
+  its 1/C of the columns from the C partials with `ld.global.cg`.
+- a_red: each CTA adds its partial into the result with `red.global.v4.f32.add`, then one cluster barrier.
+- b_dsmem: all-gather over DSMEM. Each CTA owns `[T, 4096/C]` BF16 of the intermediate in its own shared memory
+  (phase A's output); after the publication barrier every CTA reads the whole `[T, 4096]` in 16 KB chunks
+  (`ld.shared::cluster.v4`, 16 loads in flight per thread in the SASS) and folds it into registers, the way a unit
+  loop would read the activation operand once per CTA with a K-outer loop order. Chunks go in column order, so the
+  C readers all hit the same owner at once.
+- b_dsmem_rot: b_dsmem with each CTA's column order rotated to start at its own slab, so each owner serves one reader
+  at a time.
+- b_push_bw: a bandwidth probe of the push form: each owner sends its slab to every peer with
+  `cp.async.bulk.shared::cluster.shared::cta` and each receiver waits on one mbarrier for all bytes. No publication
+  barrier is needed. Receive slots alias, so the data is not checked and this is not a working exchange.
+- b_local: b_dsmem's read loop over the CTA's own shared memory only: the cost if the intermediate were local.
+- c_global: each CTA stores its `[T, 4096/C]` BF16 slab to global (chunk-major, so a 16 KB chunk is contiguous), one
+  cluster barrier (`barrier.cluster.arrive.release` / `wait.acquire`), then every CTA reads the whole `[T, 4096]`
+  back with `ld.global.cg.v4` in 16 KB chunks.
+- c_bulk: c_global with the read-back through a 4 x 16 KB `cp.async.bulk` ring into shared memory, issued by one
+  thread (writer side `fence.proxy.async.global` before the release).
+- background load (`load` = 1, full grid only): a ninth warp per CTA streams a private 8 MB slice of a 1 GiB buffer
+  through a 4 x 16 KB `cp.async.bulk` ring for the whole exchange (3 us of warm-up before t0), so the exchange runs
+  while HBM is busy, as it does in the real kernel. barrier.cluster counts every thread, so this warp joins each
+  barrier with a split `arrive.relaxed` / `wait`. "load GB/s" is that stream's aggregate rate.
+
+### Exchange cost, full grid (us, worst cluster, median of 20 replays)
+
+From `xch_load.log` (one binary, both arms). "pub" is the time to the end of the publication barrier, the part a
+consumer cannot overlap; the remainder of b and c is the read of the whole intermediate. The spread over replays of
+the median-cluster span is within 0.1 us for b and within 0.3 us for c without load; under load c's maximum replay
+runs up to 1.3 us above its median (T = 32), b's stays within 0.15 us. a_dist is the 64 KB chunk row; the 32 KB chunk
+is slower everywhere except T = 8, C = 16 (equal). Load GB/s is the background stream's aggregate rate over warm-up
+plus exchange; compare it only between rows with similar spans.
+
+| mode | T = 8, C = 8 | T = 8, C = 16 | T = 32, C = 8 | T = 32, C = 16 |
+|---|---:|---:|---:|---:|
+| a_dist (DSMEM split-K) | 7.38 | 9.38 | 29.12 | 35.55 |
+| a_one | 19.14 | 36.35 | 74.86 | 143.12 |
+| a_l2 | 7.65 | 8.91 | 41.10 | 35.30 |
+| a_red | 6.30 | 7.23 | 22.03 | 24.06 |
+| b_dsmem (column order) | 3.10 | 3.26 | 16.51 | 15.68 |
+| b_dsmem_rot | 2.53 (pub 0.19) | 2.56 (pub 0.19) | 9.17 (pub 0.19) | 9.28 (pub 0.19) |
+| b_push_bw (probe) | 2.05 | 2.02 | 7.94 | 8.67 |
+| b_local (no exchange) | 0.67 | 0.67 | 1.54 | 1.47 |
+| c_global | 1.79 (pub 1.12) | 1.57 (pub 0.86) | 4.32 (pub 1.79) | 3.71 (pub 1.31) |
+| c_bulk | 2.05 (pub 1.22) | 1.86 (pub 0.96) | 5.25 (pub 2.08) | 4.77 (pub 1.50) |
+| with background load: | | | | |
+| a_dist | 9.98 | 11.74 | 38.13 | 47.10 |
+| a_red | 8.40 | 9.18 | 29.94 | 29.50 |
+| a_l2 | 17.94 | 13.23 | 80.46 | 62.77 |
+| b_dsmem_rot | 2.59 (pub 0.22), 2964 GB/s | 2.72 (pub 0.22), 2938 GB/s | 9.28 (pub 0.22), 3707 GB/s | 9.34 (pub 0.22), 3765 GB/s |
+| b_push_bw | 1.89 | 1.97 | 7.62 | 8.38 |
+| c_global | 4.11 (pub 2.91), 2857 GB/s | 1.82 (pub 0.74), 2570 GB/s | 9.63 (pub 3.58), 2953 GB/s | 8.66 (pub 3.17), 3013 GB/s |
+| c_bulk | 4.29 (pub 2.91) | 3.78 (pub 2.77) | 9.84 (pub 3.44) | 9.26 (pub 3.17) |
+
+One cluster alone (no load, `xch_final.log`) is slightly faster and ranks the modes the same way: c_global 1.57 /
+1.44 / 3.09 / 3.36, b_dsmem_rot 2.16 / 2.50 / 7.36 / 9.02 in the column order above.
+
+### Latencies
+
+| measurement | median ns | p99 ns | spread of the median over 20 replays |
+|---|---:|---:|---|
+| cluster barrier round trip, all threads `arrive.release` + `wait.acquire`, C = 8 or 16, 1 cluster or full grid | 180.3-181.0 | 258-259 | under 0.2 ns |
+| same with `arrive.relaxed` | 48.1-49.1 | 57-59 | under 0.1 ns |
+| warp 0 `arrive.release`, warps 1-7 `arrive.relaxed` | 181.0-182.9 | 229-230 | under 0.1 ns |
+| mbarrier handoff, 8 producer warps (lane 0 arrives, count 8) to one waiting warp, same CTA | 46.6 | 46.6 | 46.6-46.6 |
+| same with all 256 producer threads arriving (count 256) | 60.8 | 60.8 | 60.7-60.8 |
+| mbarrier ping-pong round trip (producers to waiter and back) | 183.8 / 198.5 | | |
+
+1,000 iterations per replay, clock64 converted with each run's globaltimer-to-clock ratio (1.97-1.98 GHz). The
+SASS of `barrier.cluster.arrive.release` is `MEMBAR.ALL.GPU; ERRBAR; CGAERRBAR; UCGABAR_ARV`: a cluster-scope
+release costs a GPU-scope membar, about 130 ns when nothing is outstanding. The barrier completes behind its slowest
+arriver, so one releasing warp costs the same as all of them releasing; the 49 ns relaxed barrier is available only
+when the arriving warps publish nothing.
+
+### What the numbers say
+
+- DSMEM bandwidth is the limit for a and b, not latency. The b loop keeps 16 loads of 16 B in flight per thread
+  (64 KB per SM), yet the rotated gather reads 256 KB in about 9.1 us: 28-29 GB/s per SM. The bulk-copy push form
+  reaches the same rate (240 KB in 8.4-8.7 us), so the SM-to-SM network itself runs at about 28 GB/s per SM here.
+  The column-order gather is 1.7-1.8x slower than the rotated one at T = 32 because all C readers hit one owner at
+  a time.
+  Local shared memory reads the same 256 KB in 1.25 us (210 GB/s).
+- Split-K (a) moves twice the bytes of the gather (FP32 partials, 512 KB per CTA at T = 32) and needs a barrier
+  per chunk, so it costs 7 to 47 us. Through L2 (a_l2) the partials are 64 MB for the grid at T = 32 and spill to
+  HBM; with red.add (a_red) 22 to 30 us. Every split-K form is out at T = 32 by a factor of 3 or more against b or c.
+- Without background load, c_global is the cheapest at every cell (1.6 to 4.3 us); its L2 read-back runs at about
+  108 GB/s per SM (256 KB in 2.4 us after the barrier).
+- With the HBM stream running, c changes and b does not. c_global's publication barrier grows from 1.3-1.8 us to
+  3.2-3.6 us at T = 32 (the release membar waits behind the CTA's outstanding bulk loads, as CL-0.6 found for
+  `red.release.gpu`), its read-back competes with the weight stream in L2, and its total doubles to 8.7-9.6 us. The
+  stream itself ran at 2953-3013 GB/s during c_global against 3707-3765 GB/s during b_dsmem_rot over a similar
+  window: c takes about 20% of the HBM stream while it runs; b takes none, because DSMEM traffic never leaves the
+  GPC. b_dsmem_rot's publication barrier stays at 0.22 us under load.
+
+### D1 recommendation: (b), the BF16 all-gather over DSMEM, rotated, read by a staging warp
+
+Gate arithmetic. The w2 stream of one expert is 4096 x 4096 x (0.5 + 1/16) B = 9.44 MB, 2.121 us at 4.45 TB/s;
+a slice of S is 2.121 / S us. Two readings of "the slice's w2 stream time":
+
+1. Literal (whole-GPU rate): 2.121 us at S = 1 (C = 16), 1.060 us at S = 2 (C = 8). 15% is 0.318 / 0.159 us.
+2. Per cluster: every co-resident cluster streams its own slice at the same time, so each gets 1 / (clusters) of HBM:
+   2.121 x 7 = 14.85 us for C = 16 (7 clusters, S = 1) and 1.060 x 15 = 15.91 us for C = 8 (15 clusters, S = 2).
+   15% is 2.23 / 2.39 us. This is the time the cluster spends streaming its w2 bytes, which is what an unhidden
+   exchange delays.
+
+At T = 32 under load:
+
+| choice | serialized cost | exposed if the read overlaps the w2 stream | literal ratio (serialized / exposed) | per-cluster ratio (serialized / exposed) |
+|---|---:|---:|---:|---:|
+| b_dsmem_rot, C = 16, S = 1 | 9.34 | 0.22 | 4.41 / 0.11 | 0.629 / 0.015 |
+| b_dsmem_rot, C = 8, S = 2 | 9.28 | 0.22 | 8.75 / 0.21 | 0.583 / 0.014 |
+| c_global, C = 16, S = 1 | 8.66 | 3.17 | 4.08 / 1.49 | 0.583 / 0.213 |
+| c_global, C = 8, S = 2 | 9.63 | 3.58 | 9.08 / 3.38 | 0.606 / 0.225 |
+| a_red (best split-K), C = 16 | 29.50 | 28.3 (no overlap: the reduction follows the stream) | 13.9 | 1.99 |
+
+At T = 8 under load: b_dsmem_rot 2.72 us serialized, 0.22 exposed (C = 16: 0.183 / 0.015 per cluster; literal 1.28 /
+0.11); c_global 1.82 serialized, 0.74 exposed (0.123 / 0.050 per cluster; literal 0.86 / 0.35).
+
+Choice: (b) with the rotated order. If its read overlaps the w2 stream, it is the only option whose exposed part,
+the one publication barrier at 0.22 us, passes the gate at T = 32 under both readings at S = 1 (0.224 / 2.121 =
+10.6% literal, 1.5% per cluster); at S = 2 it passes the per-cluster reading (1.4%) and misses the literal one
+(21%). Serialized, nothing passes: every option is above 15% under both readings at T = 32. Its read phase does not touch L2 or
+HBM, so it can run beside the w2 stream without slowing it (measured: the stream kept 3.7 TB/s). (c) loses because
+its exposed part is a GPU-scope release behind the CTA's own bulk loads (3.2-3.6 us at T = 32, 15-21% per cluster,
+over 100% literal) and its read-back takes 20% of the stream's bandwidth. (a) is out by every measure.
+
+The condition (b) needs, not yet measured: the DSMEM read of 256 KB per CTA at T = 32 (9.1 us at 28 GB/s per SM)
+must hide under the cluster's w2 stream of 14.85 us, and the 64 KB at T = 8 (2.5 us) likewise. That needs the
+activation chunks staged into a local shared-memory ring by a dedicated warp (as the background warp here ran beside
+the gather), with the K-outer loop order so each CTA reads the intermediate once (16 w2 units per CTA at C = 16 is
+256 outputs x 32 tokens = 32 FP32 accumulators per thread at 256 threads). If the gather is serialized instead, (b)
+costs 9.3 us at T = 32, 63% of the per-cluster stream, and fails. The decisive test is task 1.2's phase B kernel
+with that staging warp: w2 span against its floor at T = 32, distinct = 7. Fallback if it fails: (c) at T = 8 with
+C = 16, where c_global measured 1.82 us serialized and 0.74 exposed.
+
+Other facts for the phase 1 design (measurements):
+
+- 8 clusters of 16 do not co-reside at one CTA per SM (`cudaOccupancyMaxActiveClusters` = 7 at 116 KB and at the
+  load rows' 196 KB); C = 8 gives 15. This is an input to D2.
+- A consumer warp that hands a tile to the epilogue warp through an mbarrier waits 47 ns (lane-0 arrive) or 61 ns
+  (all threads arrive) for the handoff; a cluster barrier with release costs 181 ns idle and 0.22 us under load.
+- Keep the column rotation in any DSMEM read pattern: without it the gather costs 1.7-1.8x at T = 32 and 1.2-1.3x
+  at T = 8.
