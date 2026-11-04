@@ -56,6 +56,46 @@ def loop_of(ins):
     return s, e + 1, sum(1 for i in hm if first <= i <= last)
 
 
+def clusters(ins):
+    """[start, end) of every HMMA cluster (HMMAs within 64 instructions of each other), widened to the ring-slot
+    wait before it and the CTA barrier after it, with its HMMA count."""
+    hm = [i for i, t in enumerate(ins) if "HMMA" in t]
+    out, cur = [], []
+    for i in hm:
+        if cur and i - cur[-1] > 64:
+            out.append(cur)
+            cur = []
+        cur.append(i)
+    if cur:
+        out.append(cur)
+    res = []
+    for c in out:
+        w = [i for i in range(c[0]) if "SYNCS.PHASECHK" in ins[i]]
+        s = w[-1] if w else c[0]
+        e = next((i for i in range(c[-1], len(ins)) if ins[i].startswith("BAR.SYNC")), c[-1])
+        res.append((s, e + 1, len(c)))
+    return res
+
+
+def canon(seq):
+    """Rename registers, uniform registers and predicates by first appearance: the same code under another
+    allocation compares equal."""
+    maps = {}
+    out = []
+    for t in seq:
+        def sub(m):
+            k = m.group(1)
+            d = maps.setdefault(k[0] if k[0] != "U" else k[:2], {})
+            return d.setdefault(m.group(0), f"{k}#{len(d)}")
+        out.append(re.sub(r"\b(UR|UP|R|P)(\d+)\b", lambda m: sub(type("M", (), {"group": lambda self, i=0: m.group(1) if i == 1 else m.group(0)})()), t))
+    return out
+
+
+def opcodes(seq):
+    from collections import Counter
+    return Counter(t.split()[0] if not t.startswith("@") else t.split()[1] for t in seq)
+
+
 def main():
     c, k = kernels(sys.argv[1]), kernels(sys.argv[2])
     sub = sys.argv[3] if len(sys.argv) > 3 else ""
@@ -72,7 +112,18 @@ def main():
         best = max(sm.get_matching_blocks(), key=lambda b: b.size)
         print(f"{name}: control {len(ci)} instr, candidate {len(ki)}; control loop [{s}, {e}) {len(loop)} instr, "
               f"{nh} HMMA; verbatim in candidate: {verb}; longest match {best.size} instr")
-        if not verb:
+        cl = clusters(ki)
+        lc = canon(loop)
+        for (a, b, n) in cl:
+            if n != nh:
+                continue
+            kc = canon(ki[a:b])
+            same = kc == lc
+            oc, ok = opcodes(loop), opcodes(ki[a:b])
+            diff = {k: ok.get(k, 0) - oc.get(k, 0) for k in set(oc) | set(ok) if ok.get(k, 0) != oc.get(k, 0)}
+            print(f"  candidate HMMA cluster [{a}, {b}) {b - a} instr: same code up to register names: {same}; "
+                  f"opcode count differences (candidate - control): {diff}")
+        if False:
             ops = sm.get_opcodes()
             shown = 0
             for tag, i1, i2, j1, j2 in ops:

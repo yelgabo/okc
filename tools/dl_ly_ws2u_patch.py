@@ -52,12 +52,13 @@ RNG = T_RNG = ("  if (tid == 0) {  // this CTA's unit ranges for the helper warp
                "    S.wsr[0] = muldiv_g(nA, c, G, rG); S.wsr[1] = muldiv_g(nA, c + 1, G, rG);\n"
                "    S.wsr[2] = muldiv_g(nB, c, G, rG); S.wsr[3] = muldiv_g(nB, c + 1, G, rG);\n"
                "  }\n")
+F1_END = "      S.preissued = n > 0 ? n : 0;\n    }\n"
 F1 = "    const int v01 = muldiv_g(nS1, blockIdx.x, gridDim.x, rG1), v11 = muldiv_g(nS1, blockIdx.x + 1, gridDim.x, rG1);\n"
 
 ANY2 = (
-    "// the two-tile functions are separate calls so the kernel's own register allocation, and with it the one-tile\n"
-    "// loop, stays the control's (ly_ws2t: one shared body, 152 -> 164 registers, every unit slower)\n"
-    "#ifndef OKC_WS2INL\n#define OKC_WS2INL 0\n#endif\n"
+    "// OKC_WS2INL 0: the two-tile functions as separate calls (kernel 160 registers, 272 B stack, local loads). Inlined\n"
+    "// (166 registers) the one-tile loop has the control's instruction count (tools/ly_ws2u_sass_cmp.py).\n"
+    "#ifndef OKC_WS2INL\n#define OKC_WS2INL 1\n#endif\n"
     "#if OKC_WS2INL\n#define WS2_FN\n#else\n#define WS2_FN __noinline__\n#endif\n"
     "// a CTA-uniform choice: does unit range [v0, v1) of one phase (rbs units per job) hold a two-tile job?\n"
     "__device__ __forceinline__ bool ws_any2(const Smem& S, int v0, int v1, int rbs) {\n"
@@ -72,8 +73,9 @@ ANY2 = (
 # tokens costs SPW2, else SPW1 (ratio 5 / 4 = ly_ws2t's 20 / 16). Costs stay below 2^24 for muldiv_g:
 # RB_A * SPW2 * 32 experts * 132 CTAs = 512 * 5 * 32 * 132 = 10.8e6.
 SPLIT = (
-    "constexpr int SPW1 = 4, SPW2 = 5;\n"
-    "template <int K>\n"
+    "#ifndef OKC_SPW1\n#define OKC_SPW1 4\n#endif\n#ifndef OKC_SPW2\n#define OKC_SPW2 5\n#endif\n"
+    "constexpr int SPW1 = OKC_SPW1, SPW2 = OKC_SPW2;\n"
+    "template <int K0, int K1>\n"
     "__device__ __forceinline__ void ws_split(int tot, int lane, int c, int G, int (&r)[4]) {\n"
     "  const unsigned mT = __ballot_sync(0xffffffffu, tot > 0), m2 = __ballot_sync(0xffffffffu, tot > 8);\n"
     "  const unsigned lt = (1u << lane) - 1u;\n"
@@ -82,7 +84,7 @@ SPLIT = (
     "  const int cw = SPW1 * J + (SPW2 - SPW1) * N2;\n"
     "  const float rG = __fdividef(1.f, (float)G);\n"
     "#pragma unroll\n"
-    "  for (int k = 0; k < K; ++k) {\n"
+    "  for (int k = K0; k < K1; ++k) {\n"
     "    const int rbs = k < 2 ? RB_A : RB_B;\n"
     "    const int t = muldiv_g(rbs * cw, c + (k & 1), G, rG);\n"
     "    const int P = rbs * pw;\n"
@@ -119,7 +121,7 @@ def patch_helper(h, variant):
     h = once(h, "constexpr int RED_W = OKC_SKT > 8 ? 8 : 4;\n",
              "constexpr int RED_W = (OKC_SKT > 8 && !OKC_WS) ? 8 : 4;   // WS two-tile builds: tile 1 in red1\n", "RED_W")
     h = once(h, SM_END, SM_END[: -len("};\n")]
-             + "#if OKC_WS && OKC_SKT > 8\n  float red1[NRB][NW][32][4];      // tile 1 (tokens 8..15) of two-tile units (ws2 only)\n#endif\n};\n",
+             + "#if OKC_WS && OKC_SKT > 8\n  alignas(16) float red1[NRB][NW][32][4];  // tile 1 (tokens 8..15) of two-tile units (ws2 only; float4 access)\n#endif\n};\n",
              "red1")
 
     # two-tile copies beside the control's functions
@@ -163,9 +165,13 @@ def patch_helper(h, variant):
         h = once(h, F1, guard(
             "    (void)nS1; (void)rG1;\n"
             "    int wr[4];\n"
-            "    ws_split<4>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);\n"
-            "    if (ln == 0) { S.wsr[0] = wr[0]; S.wsr[1] = wr[1]; S.wsr[2] = wr[2]; S.wsr[3] = wr[3]; }\n"
+            "    ws_split<0, 2>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);\n"
             "    const int v01 = wr[0], v11 = wr[1];\n", F1), "FAST1 ranges")
+        # phase B ranges after the preissue, so the first units go out as early as in the control
+        h = once(h, F1_END, F1_END + guard(
+            "    ws_split<2, 4>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);\n"
+            "    if (ln == 0) { S.wsr[0] = wr[0]; S.wsr[1] = wr[1]; S.wsr[2] = wr[2]; S.wsr[3] = wr[3]; }\n", ""),
+            "FAST1 B ranges")
     return h
 
 
@@ -174,6 +180,7 @@ def main():
     ap.add_argument("--variant", choices=("a", "b"), default="b")
     ap.add_argument("--tl", action="store_true")
     ap.add_argument("--out", default="")
+    ap.add_argument("--spw", default="", help="W1:W2 unit costs of the variant b split (default 4:5)")
     a = ap.parse_args()
     cand = ROOT / "muse_decode_layer/cand"
     if a.tl:
@@ -193,7 +200,12 @@ def main():
     end = rest.index('\n"""')
     helper, tail = rest[:end], rest[end:]
     helper = patch_helper(helper, a.variant)
-    tail = once(tail, MID_ADD, MID_ADD + 'MOE_MID_DEFINES += ("-DOKC_SKT=16",)\n', "MID define")
+    extra = ""
+    if a.spw:
+        w1, w2 = a.spw.split(":")
+        extra = f', "-DOKC_SPW1={w1}", "-DOKC_SPW2={w2}"'
+        dst = dst.with_name(dst.stem + f"_s{w1}{w2}.py")
+    tail = once(tail, MID_ADD, MID_ADD + f'MOE_MID_DEFINES += ("-DOKC_SKT=16"{extra},)\n', "MID define")
     out = head + MARK + helper + tail
     dst.write_text(out)
     py_compile.compile(str(dst), doraise=True)
