@@ -35,11 +35,23 @@ programs per row with a cluster reduction is not supported; (4) b2's stream (s1,
 before the non-programmatic MoE launched) is loaded after the first reduction, while b2's programs idle about
 0.6 us at the wait with their constants landed.
 
-## Step 2: candidates (next)
+## Step 2: candidates (built, bitwise, A/B running 12:38 PT)
 
-1. ly_b1g32: b1 at T = 32 on the PDL8 graft glue b1 (8-CTA clusters of 128 threads, stream and constants before
-   the wait, as b1 at T = 16 already runs). Needs bitwise check against the Gluon b1 at T = 32.
-2. ly_b2sp: b2 Gluon loads the Stream row (s1) before gdc_wait (legal: not the unpooler's output; b1 completed
-   before the MoE's non-programmatic launch, the ly_finb1 / b2pre argument).
+`tools/dl_ly_b2_patch.py --mode g32|sp` (base pinned to a1c48810):
 
-Next action: build both patches, bitwise check, gate + two-round A/B vs ly_stk3.
+1. ly_b2g32 (`muse_decode_layer/cand/ly_b2g32.py`, SHA256
+   c5d276b13adcdd1d2b649efeaf6ece0a725d5104c5fddd3279f34c324567fd86): b1 at T = 32 on the PDL8 graft glue b1
+   (8-CTA clusters of 128 threads, stream and constants before the wait, as b1 at T = 16 runs); glue host row
+   limit 16 -> 32 in `_GRAFT_GLUE_CUDA` b1(). Bitwise equal to the Gluon b1 at T = 32 (8 seeds x 4 scales,
+   NewStream and Out, `tools/ly_b2_bitwise.py`, `profiles/box/rbst/bitwise.log`).
+2. ly_b2sp (`muse_decode_layer/cand/ly_b2sp.py`, SHA256
+   c97fe37063504a951ad304ce273392302e273308d1070b15899f1cd23944f4b5): b2 (POST) loads the Stream row s1 before
+   gdc_wait (s1 is b1's output; b1 completed before the MoE's non-programmatic launch). Moving the load changed
+   LLVM's FMA contraction (first build: 15% of NewStream elements differ, `bitwise_first_sp_contraction.log`), so
+   ns is spelled out as the base contracts it: `where(c < 4096, fma(a, s, beta*b), fma(beta, b, a*s))`; now
+   bitwise equal at T = 16 / 32. SASS (POST): stream LDG.E.128.STRONG.GPU at 0x190 / 0x1a0 before ACQBULK 0x1b0
+   (base: 0x6d0 / 0x710 after the first BAR.SYNC), 51 registers (base 44); `profiles/box/rbst/sass_*.txt`.
+
+Gate (b2sp, own prepare): five PDL8H guards pass, check PASS at decode 16 / 32.
+Box runs: `tools/ly_d16_ab.sh` CTL=ly_stk3.py, tags b2sp then b2g32 (`.build/d16tl/`, `.build/prtl/b2sp*`,
+`.build/prtl/b2g32*`). Next action: tables with `python3 tools/ly_prtl_table.py DIR1 DIR2`.
