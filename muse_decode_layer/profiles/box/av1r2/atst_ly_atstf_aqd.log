@@ -1,0 +1,134 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793823140.639 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793823141.214 release build muse_att_v298w1pf_90a
+BXBUILD 1793823141.214 start build muse_att_v298w1pf_90a
+BXBUILD 1793823190.457 end build muse_att_v298w1pf_90a
+BXLOCK 1793823190.457 acquire build muse_att_v298w1pf_90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.14), ('sk2', 7.97), ('torch', 10.46)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+ATSTI verify 1 sliding in 0 plain 98.18 inst 95.87 diff 0.00e+00 n 33 wait 0.38/0.42 kv_iss 1.06 tile 2.18 merge 3.04 ticket 5.79 gbar 5.95 end 6.66 o_wait 7.04
+ATSTI verify 1 sliding in 1 plain 123.42 inst 122.21 diff 0.00e+00 n 33 wait 0.38/0.42 kv_iss 1.02 tile 2.14 merge 3.01 ticket 5.15 gbar 5.41 end 6.11 o_wait 6.53
+ATSTI verify 1 sliding in 2 plain 97.22 inst 96.80 diff 6.25e-02 n 33 wait 0.42/0.45 kv_iss 0.99 tile 2.21 merge 3.04 ticket 5.28 gbar 5.63 end 6.34 o_wait 6.72
+ATSTI verify 1 sliding in 3 plain 91.49 inst 92.19 diff 3.12e-02 n 33 wait 0.38/0.38 kv_iss 0.99 tile 2.11 merge 2.94 ticket 5.50 gbar 5.82 end 6.56 o_wait 6.98
+ATSTI verify 1 sliding in 4 plain 117.18 inst 114.85 diff 0.00e+00 n 33 wait 0.38/0.42 kv_iss 1.02 tile 2.27 merge 3.14 ticket 5.18 gbar 5.44 end 6.11 o_wait 6.53
+ATSTI verify 1 sliding in 5 plain 108.10 inst 110.46 diff 1.56e-02 n 33 wait 0.42/0.42 kv_iss 0.99 tile 2.11 merge 2.94 ticket 5.15 gbar 5.47 end 6.08 o_wait 6.46
+ATSTI verify 1 sliding in 6 plain 102.69 inst 101.31 diff 0.00e+00 n 33 wait 0.42/0.45 kv_iss 1.02 tile 2.18 merge 3.01 ticket 5.15 gbar 5.38 end 6.05 o_wait 6.46
+ATSTI verify 1 sliding in 7 plain 108.74 inst 108.10 diff 0.00e+00 n 33 wait 0.38/0.38 kv_iss 0.99 tile 2.11 merge 2.98 ticket 5.09 gbar 5.34 end 6.05 o_wait 6.43
+ATSTI verify 1 sliding in 8 plain 95.26 inst 95.20 diff 0.00e+00 n 33 wait 0.42/0.45 kv_iss 0.99 tile 2.14 merge 3.01 ticket 5.15 gbar 5.34 end 6.05 o_wait 6.43
+ATSTI verify 1 sliding in 9 plain 108.80 inst 109.50 diff 4.69e-02 n 33 wait 0.38/0.42 kv_iss 0.99 tile 2.14 merge 2.98 ticket 5.44 gbar 5.73 end 6.46 o_wait 6.88
+ATSTI verify 1 sliding in 10 plain 109.09 inst 109.50 diff 3.12e-02 n 33 wait 0.38/0.42 kv_iss 0.96 tile 2.11 merge 2.98 ticket 5.18 gbar 5.41 end 6.11 o_wait 6.50
+ATSTI verify 1 sliding in 11 plain 97.06 inst 96.61 diff 0.00e+00 n 33 wait 0.38/0.42 kv_iss 0.99 tile 2.18 merge 3.01 ticket 5.25 gbar 5.50 end 6.18 o_wait 6.56
+ATSTI verify 1 sliding in 12 plain 115.20 inst 115.23 diff 0.00e+00 n 33 wait 0.42/0.42 kv_iss 1.02 tile 2.21 merge 3.04 ticket 5.12 gbar 5.44 end 6.14 o_wait 6.53
+ATSTI verify 1 sliding in 13 plain 137.54 inst 135.62 diff 6.25e-02 n 33 wait 0.42/0.45 kv_iss 0.99 tile 2.18 merge 3.04 ticket 5.47 gbar 5.70 end 6.40 o_wait 6.78
+ATSTI verify 1 sliding in 14 plain 103.58 inst 102.24 diff 4.15e-03 n 33 wait 0.38/0.42 kv_iss 0.99 tile 2.11 merge 2.98 ticket 5.12 gbar 5.41 end 6.08 o_wait 6.46
+ATSTI verify 1 sliding in 15 plain 83.10 inst 82.66 diff 1.56e-02 n 33 wait 0.42/0.42 kv_iss 0.99 tile 2.11 merge 2.94 ticket 5.38 gbar 5.70 end 6.37 o_wait 6.78
+ATSTI verify 1 sliding in 16 plain 97.09 inst 95.71 diff 0.00e+00 n 33 wait 0.42/0.45 kv_iss 1.02 tile 2.18 merge 3.04 ticket 5.15 gbar 5.34 end 6.05 o_wait 6.43
+ATSTI verify 1 sliding in 17 plain 90.88 inst 91.71 diff 0.00e+00 n 33 wait 0.38/0.42 kv_iss 0.99 tile 2.14 merge 3.01 ticket 5.25 gbar 5.50 end 6.21 o_wait 6.59
+ATSTI verify 1 sliding in 18 plain 102.75 inst 103.74 diff 3.12e-02 n 33 wait 0.38/0.38 kv_iss 0.99 tile 2.21 merge 3.04 ticket 5.22 gbar 5.50 end 6.18 o_wait 6.59
+ATSTI verify 1 sliding in 19 plain 102.72 inst 103.46 diff 1.56e-02 n 33 wait 0.42/0.45 kv_iss 1.02 tile 2.18 merge 3.01 ticket 5.15 gbar 5.41 end 6.08 o_wait 6.46
+ATST verify 1 sliding T 8 n 20 medians
+  n_att                             33.000
+  n_qkv                             96.000
+  n_o                              256.000
+  qkv_end_p50                       -0.400
+  qkv_entry_min                     -8.496
+  a_entry_min                       -1.264
+  a_entry_p50                       -1.184
+  a_entry_max                       -1.104
+  a_prewait_done_min                -0.736
+  a_prewait_done_p50                -0.608
+  a_prewait_done_max                -0.448
+  a_wait_ret_min                     0.384
+  a_wait_ret_p50                     0.416
+  a_wait_ret_max                     0.416
+  a_idx_landed_min                   0.768
+  a_idx_landed_p50                   0.800
+  a_idx_landed_max                   0.832
+  a_kv_issued_min                    0.960
+  a_kv_issued_p50                    0.992
+  a_kv_issued_max                    1.280
+  a_q_landed_min                     1.024
+  a_q_landed_p50                     1.056
+  a_q_landed_max                     1.296
+  a_rope_min                         1.120
+  a_rope_p50                         1.152
+  a_rope_max                         1.488
+  a_qpass_min                        1.920
+  a_qpass_p50                        2.032
+  a_qpass_max                        2.208
+  a_newkv_min                        1.984
+  a_newkv_p50                        2.080
+  a_newkv_max                        2.432
+  a_patched_min                      2.016
+  a_patched_p50                      2.112
+  a_patched_max                      2.592
+  a_tile_landed_min                  2.080
+  a_tile_landed_p50                  2.160
+  a_tile_landed_max                  2.656
+  a_tile_done_min                    2.880
+  a_tile_done_p50                    2.976
+  a_tile_done_max                    3.616
+  a_merge_start_min                  2.912
+  a_merge_start_p50                  3.008
+  a_merge_start_max                  3.632
+  a_reds_issued_min                  3.696
+  a_reds_issued_p50                  3.840
+  a_reds_issued_max                  4.416
+  a_reds_bar_min                     3.712
+  a_reds_bar_p50                     3.872
+  a_reds_bar_max                     4.448
+  a_ticket_ret_min                   4.608
+  a_ticket_ret_p50                   4.704
+  a_ticket_ret_max                   5.184
+  a_gbar_passed_min                  5.264
+  a_gbar_passed_p50                  5.360
+  a_gbar_passed_max                  5.456
+  a_fin_end_min                      5.360
+  a_fin_end_p50                      6.016
+  a_fin_end_max                      6.128
+  a_qfence_pre_min                   1.920
+  a_qfence_pre_p50                   2.016
+  a_qfence_pre_max                   2.208
+  a_pfence_pre_min                   2.480
+  a_pfence_pre_p50                   2.528
+  a_pfence_pre_max                   2.576
+  att_end                            6.128
+  c_entry                           -1.200
+  c_prewait_done                    -0.640
+  c_wait_ret                         0.416
+  c_idx_landed                       0.832
+  c_kv_issued                        1.072
+  c_q_landed                         1.168
+  c_rope                             1.248
+  c_qpass                            2.048
+  c_newkv                            2.400
+  c_patched                          2.560
+  c_tile_landed                      2.608
+  c_tile_done                        3.616
+  c_merge_start                      3.632
+  c_reds_issued                      4.416
+  c_reds_bar                         4.448
+  c_ticket_ret                       5.184
+  c_gbar_passed                      5.280
+  c_fin_end                          5.360
+  c_qfence_pre                       2.016
+  c_pfence_pre                       2.560
+  c_qpass_extra                        nan
+  crit_sm                          108.000
+  n_kv_issued_before_wait            0.000
+  o_entry_min                        1.184
+  o_wait_min                         6.528
+  o_wait_p50                         6.560
+  o_wait_max                         6.976
+  o_wait_after_att_end               0.384
+  o_end                              9.872
+  graph_plain                      102.736
+  graph_inst                       102.848
+  maxdiff                            0.002
