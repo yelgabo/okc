@@ -15,12 +15,14 @@ SK2_REDX 0 and compile the same code as before):
      the write (the final sum reads the escape corrections), and the one named barrier after the write stays.
   2. The ilv block's cbar wait + named barrier after the router partial store run only when outr != nullptr (the
      counter path, never launched by this file; the barrier orders the partial stores before its release atom).
-  3. The router warp butterflies run for tokens t < M only; the per-token shuffle order is unchanged, so the partials
-     the route kernel sums are bitwise the same.
+  3. At M == 1 the router warp butterflies reduce token 0 only (5 shuffles instead of 40); at M > 1 the original 8
+     interleaved chains stay. The per-token shuffle order is unchanged, so the partials the route kernel sums are
+     bitwise the same. (ly_pepi, dc425a65, guarded each token's chain with `if (t < M)`, which serialized the chains:
+     0.96 us at T = 8.)
 Kept: every fence, every mbarrier wait, the ring protocol, the escape warps' cbar, the named barrier that publishes
 red, the summation orders of the pooler output and the router partials.
 
-    python3 tools/dl_ly_pepi_patch.py [--base F] [--pin SHA] [--out muse_decode_layer/cand/ly_pepi.py]
+    python3 tools/dl_ly_pepi_patch.py [--base F] [--pin SHA] [--out muse_decode_layer/cand/ly_pepi2.py]
 """
 import hashlib
 import pathlib
@@ -34,7 +36,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 SRC = ROOT / "muse_decode_layer/cand/ly_fabq.py"
 if "--base" in sys.argv:
     SRC = ROOT / sys.argv[sys.argv.index("--base") + 1]
-DST = ROOT / "muse_decode_layer/cand/ly_pepi.py"
+DST = ROOT / "muse_decode_layer/cand/ly_pepi2.py"
 if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
 PIN = "3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555"
@@ -69,10 +71,18 @@ K_EDITS = [
 F_EDITS = [
     ('    s = s.replace("#define SK2_DIAG 0", "#define SK2_DIAG 0\\n"\n',
      '    s = s.replace("#define SK2_DIAG 0", "#define SK2_DIAG 0\\n#define SK2_REDX 1\\n"\n', 1),
-    ('         "      for (int t = 0; t < 8; ++t)\\n"\n'
+    ('         "#pragma unroll\\n"\n'
+     '         "      for (int t = 0; t < 8; ++t)\\n"\n'
      '         "#pragma unroll\\n"\n'
      '         "        for (int d = 16; d; d >>= 1) afi[t] += __shfl_xor_sync(0xffffffffu, afi[t], d);\\n"\n',
-     '         "      for (int t = 0; t < 8; ++t) if (t < M) {   // pepi: live tokens only, same per-token order\\n"\n'
+     # M == 1: one token's chain; else all 8 chains as before, interleaved by the compiler (a per-token `if (t < M)`
+     # serialized the 8 chains: 0.96 us at T = 8 against 0.23, run-log "Pooler + router remaining gap")
+     '         "      if (M == 1) {   // pepi: one live token\\n"\n'
+     '         "#pragma unroll\\n"\n'
+     '         "        for (int d = 16; d; d >>= 1) afi[0] += __shfl_xor_sync(0xffffffffu, afi[0], d);\\n"\n'
+     '         "      } else {\\n"\n'
+     '         "#pragma unroll\\n"\n'
+     '         "      for (int t = 0; t < 8; ++t)\\n"\n'
      '         "#pragma unroll\\n"\n'
      '         "        for (int d = 16; d; d >>= 1) afi[t] += __shfl_xor_sync(0xffffffffu, afi[t], d);\\n"\n'
      '         "      }\\n"\n', 1),
