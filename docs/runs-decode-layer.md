@@ -2465,3 +2465,19 @@ release (bar.sync plus MEMBAR, 0.9 us of each publish) off the consumer warpgrou
 mbarrier after their proxy fence and a spare lane would wait on it and issue the `red.release.gpu`. That keeps every
 fence and release but needs a mailbox of pending publishes with back-pressure, and it was not built in this round.
 Estimated at most 1 to 3 us per CTA in phase A before the other CTAs absorb the freed bandwidth (hypothesis).
+
+### The ramp (ly_b4_wpre, no gain)
+
+ly_b4_wpre.py (`tools/dl_ly_b4_wpre_patch.py`, SHA256 f5bbb64f6065e904a5fed63723d713e2bdb6958c4a6b4e3425a583e7716993b5)
+targets the third piece: the weights producer waits at WS_JOIN, which also waits for the consumers' x gather, though
+the weight stream needs only the stage ranges. The x producer now arrives on a new named barrier 8 (the two producer
+warps, 64 threads) after wgs_ranges; the weights producer, after bar.sync 8, issues the first min(2, phase A stages)
+stages and then joins WS_JOIN as before (every thread still passes it; no fence, barrier or wait removed). SASS
+(`sass/wpre.diff.txt`): BAR.ARV / BAR.SYNC 0x8, 0x40 once each per kernel, B4 25,528 -> 25,585 instructions, 96
+registers, 0 local, 8 B stack, stage loops unchanged. Reference check PASS at all 12 cells, G_RELEASE_STARTUP_OK in
+every run. Timeline (`tlb4g_wpre.log`; the tool also stamps the early issues): first weight issue 4.34 -> 4.02 us
+(sliding) and 4.25 -> 4.02 (full), so the ranges finish close to the gather (routing done at 1.75 us, ranges about
+2 us later); phases A, B and the tail are unchanged (span 78.59 -> 79.02 sliding). A/B (`wpre/`, 04:40-04:42 UTC,
+same protocol): decode 32 +0.61 / +1.04 us (thresholds 1.45 / 2.97), verify 16 +0.72 / +0.30, verify 32 +0.36 /
++0.70, decode 1 +0.16 / -0.31, verify 1 -0.00 / +0.77 (TINY2, unchanged code, so this is the session's null). No
+gain; not kept. The ramp's lever, if any, is the 2 us wgs_ranges takes after routing, not the barrier.

@@ -281,6 +281,11 @@ def main():
         if n != 1:
             sys.exit(f"anchor found {n} times, 1 expected: {old[:100]!r}")
         cu = cu.replace(old, new)
+    # ly_b4_wpre issues its first stages through wgs_wissue before WS_JOIN: stamp those issues too
+    wi = "  uint64_t* bar = S.bars + BW_F + ws;\n  const unsigned char* src = (pb ? p.wBs : p.wAs)"
+    if cu.count(wi) == 1:
+        cu = cu.replace(wi, "#if OKC_TLB\n  if (TLB_ON && pb == 0) { if (ws == 0) TLS(8, gtimer());"
+                        " if (OKC_TLB == 1) TLS(24 + ws, gtimer()); }\n#endif\n" + wi)
     if tail.count(B4) != 1:
         sys.exit("B4 define anchor")
     lvl = int(sys.argv[sys.argv.index("--level") + 1]) if "--level" in sys.argv else 1
