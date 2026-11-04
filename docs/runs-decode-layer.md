@@ -7945,3 +7945,42 @@ Decision: null, no registration (bar 0.3 us at decode 16 sliding with 20+/24 pai
 row added. The instrument build moved o's end 0.53 us earlier at decode 16, yet the timed layer did not change.
 Two hypotheses, both untested: the stamp build's extra stores change the merge tail's timing so that its gain does
 not carry into the plain build, or a later boundary absorbs an earlier o end.
+## 2026-11-04 - Decode 16 / 32 MoE prologue round 5 (box)
+
+MoE lane, round 5 (12:40 PT start). The two candidates round 4 left unbuilt, one change each, on
+muse_decode_layer/cand/ly_stk3.py (SHA256 a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6), built by
+`tools/dl_ly_m5_patch.py mid|b4` and run by `tools/ly_m5_ab.sh` (stamps, then the gate with the five in-prepare PDL8H
+guards, chk, two paired rounds c/w/c/w/c against ly_stk3). Box only, every GPU process under gpu.lock, no judge job,
+no routing slack. Evidence: `muse_decode_layer/profiles/box/moe5/` (box `.build/moe5/`, A/B runs `.build/prtl/m5_*`).
+Stamps are us after each CTA's own entry, CTA mean, median of 20 cold inputs, sliding.
+
+### MID: ly_m5mh and ly_m5mh2 (decode 16)
+
+ly_m5mh (d5fbbb08) is round 4's rb7 plus the FAST1 warp's four topk loads issued before its count loop
+(-DOKC_RB7=1 -DOKC_F1HOIST=1). Ordering: S.eid and the S.wc zeroing by named barrier 3 #1, the S.wc counts by #2, the
+scan tables by #3, S.ent / S.pos and everything read after route() by the final CTA_SYNC that the FAST1 warp joins;
+FAST1's S.fcnt is warp-private behind __syncwarp. Stamps (`pro_mh.log`): F1 topk back 0.56 / 0.75 / 0.97 / 1.16, F1 TMA
+issued 2.64, bar 4 2.89, first slot full 5.07 and w0 x load back 5.33 against ly_stk3's 4.64 / 4.90. The four loads
+still come back 0.2 us apart. ly_m5mh2 (b953f364) adds an empty asm register barrier after the loads so they cannot be
+sunk into the loop; its stamps (`pro_mh2.log`) are the same (0.57 / 0.75 / 0.97 / 1.17, F1 scan done 1.70 against
+1.69), so the count loop's pace is set by its own body, and ly_m5mh2 was not A/B'd. ly_m5mh gate: five guards pass,
+chk rc=0. Pooled A/B (`table_mh_both_rounds.txt`, w - c, pairs faster of 24): decode 16 sliding +0.21 (8), decode 16
+full +0.71 (1), decode 32 sliding +0.32 (9), decode 1 full -0.57 (21, thr 1.18); every cell inside. Null.
+
+### B4: ly_m5ww (decode 32)
+
+ly_m5ww (b05a19a2, -DOKC_RWARM=1) moves round 4's dry wgs_ranges from the x producer to the weights producer warp,
+which idles from entry (0.64) to WS_JOIN. The dry call stores nothing (`!RW_DRY` guards on the S.wcp, S.wgr stores);
+the real tables (wcp, wcpB, wtot, wtotB, wgr) are written only by the x producer's real call and reach the weights
+producer through WS_JOIN, unchanged. Stamps (`pro_ww.log` against `pro_b4base.log`): xprod ranges 3.71 (5.12), first
+weight issue (gt) 4.78 (5.35), wprod after WS_JOIN 4.94 (5.30), but gather done (gt) 4.35 (4.22), WS_JOIN (gt) 4.39
+(4.23) and xprod first xready (gt) 5.78 (5.55). The weights start 0.57 us earlier and the first x rows land 0.23 us
+later. Gate: five guards pass, chk rc=0. Pooled A/B (`table_ww_both_rounds.txt`): decode 32 sliding -0.43 (17/24),
+decode 32 full +0.50 (10/24), decode 16 sliding +0.08 (9/24), decode 1 full -0.68 (23/24, thr 1.82); every cell
+inside. Below the 0.8 us bar.
+
+### Decision
+
+No candidate clears the bar; no ledger registration, no judge check. Once wgs_ranges is warm the B4 critical path moves
+to the x rows (gather, then xready), so about 0.4 us of the 0.57 us earlier weight issue reaches decode 32 sliding. The
+MID FAST1 count loop costs 0.2 us per 32 entries whether or not the loads are hoisted.
