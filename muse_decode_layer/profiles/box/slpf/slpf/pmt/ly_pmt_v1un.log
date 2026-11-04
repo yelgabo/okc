@@ -1,0 +1,239 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793816010.930 acquire start after 24.1 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.91), ('sk2', 7.97), ('torch', 10.34)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+PMT slice cgemv n 1024 nth 128 pmax 6 escapes None
+PMTI decode 1 sliding in 0 plain 77.34 inst 76.16 diff 4.69e-02 exit 29.34 wait_lat p50 0.38 max 0.42 x 0.58 xall 1.28 math 0.74 esc_x 0.35 sl_end+ 3.26 fin_end+ 1.63 late 0
+PMTI decode 1 sliding in 1 plain 76.00 inst 75.62 diff 0.00e+00 exit 28.45 wait_lat p50 0.93 max 1.38 x 0.64 xall 1.31 math 0.77 esc_x 0.64 sl_end+ 3.71 fin_end+ 1.57 late 0
+PMTI decode 1 sliding in 2 plain 67.74 inst 69.41 diff 0.00e+00 exit 23.07 wait_lat p50 0.42 max 0.42 x 0.58 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 3.04 fin_end+ 1.44 late 0
+PMTI decode 1 sliding in 3 plain 68.86 inst 69.47 diff 0.00e+00 exit 22.94 wait_lat p50 0.70 max 0.74 x 0.58 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 3.36 fin_end+ 1.41 late 0
+PMTI decode 1 sliding in 4 plain 68.03 inst 71.17 diff 0.00e+00 exit 22.62 wait_lat p50 0.64 max 0.67 x 0.58 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 3.30 fin_end+ 1.60 late 0
+PMTI decode 1 sliding in 5 plain 75.20 inst 76.10 diff 0.00e+00 exit 29.63 wait_lat p50 0.80 max 1.06 x 0.54 xall 1.28 math 0.77 esc_x 0.38 sl_end+ 3.46 fin_end+ 1.54 late 0
+PMTI decode 1 sliding in 6 plain 74.53 inst 77.06 diff 0.00e+00 exit 30.62 wait_lat p50 0.42 max 0.42 x 0.58 xall 1.30 math 0.77 esc_x 0.35 sl_end+ 3.04 fin_end+ 1.63 late 0
+PMTI decode 1 sliding in 7 plain 68.77 inst 69.89 diff 0.00e+00 exit 22.91 wait_lat p50 0.70 max 0.70 x 0.58 xall 1.28 math 0.74 esc_x 0.38 sl_end+ 3.30 fin_end+ 1.63 late 0
+PMTI decode 1 sliding in 8 plain 67.26 inst 69.76 diff 0.00e+00 exit 22.85 wait_lat p50 0.67 max 0.70 x 0.58 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 3.33 fin_end+ 1.63 late 0
+PMTI decode 1 sliding in 9 plain 68.70 inst 70.94 diff 0.00e+00 exit 22.88 wait_lat p50 0.51 max 0.51 x 0.58 xall 1.31 math 0.77 esc_x 0.35 sl_end+ 3.23 fin_end+ 1.60 late 0
+PMTI decode 1 sliding in 10 plain 73.31 inst 75.20 diff 0.00e+00 exit 28.45 wait_lat p50 0.77 max 0.86 x 0.54 xall 1.28 math 0.74 esc_x 0.38 sl_end+ 3.42 fin_end+ 1.57 late 0
+PMTI decode 1 sliding in 11 plain 74.56 inst 76.96 diff 0.00e+00 exit 30.30 wait_lat p50 0.64 max 0.64 x 0.58 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 3.33 fin_end+ 1.66 late 0
+PMTI decode 1 sliding in 12 plain 75.07 inst 77.60 diff 3.91e-03 exit 30.69 wait_lat p50 0.42 max 0.42 x 0.58 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 3.14 fin_end+ 1.63 late 0
+PMTI decode 1 sliding in 13 plain 68.19 inst 70.91 diff 0.00e+00 exit 24.45 wait_lat p50 0.45 max 0.48 x 0.58 xall 1.31 math 0.77 esc_x 0.35 sl_end+ 3.04 fin_end+ 1.54 late 0
+PMTI decode 1 sliding in 14 plain 68.06 inst 71.62 diff 0.00e+00 exit 22.88 wait_lat p50 0.80 max 0.83 x 0.58 xall 1.31 math 0.77 esc_x 0.35 sl_end+ 3.49 fin_end+ 1.54 late 0
+PMTI decode 1 sliding in 15 plain 66.88 inst 69.86 diff 0.00e+00 exit 22.91 wait_lat p50 0.42 max 0.45 x 0.58 xall 1.28 math 0.77 esc_x 0.38 sl_end+ 3.07 fin_end+ 1.63 late 0
+PMTI decode 1 sliding in 16 plain 68.38 inst 70.94 diff 4.69e-02 exit 22.85 wait_lat p50 0.42 max 0.45 x 0.58 xall 1.28 math 0.75 esc_x 0.38 sl_end+ 3.04 fin_end+ 1.70 late 0
+PMTI decode 1 sliding in 17 plain 67.26 inst 69.50 diff 1.56e-02 exit 23.01 wait_lat p50 0.42 max 0.42 x 0.54 xall 1.31 math 0.77 esc_x 0.35 sl_end+ 3.14 fin_end+ 1.60 late 0
+PMTI decode 1 sliding in 18 plain 68.74 inst 70.85 diff 0.00e+00 exit 23.17 wait_lat p50 0.42 max 0.42 x 0.58 xall 1.28 math 0.77 esc_x 0.38 sl_end+ 3.20 fin_end+ 1.54 late 0
+PMTI decode 1 sliding in 19 plain 68.58 inst 69.95 diff 0.00e+00 exit 22.98 wait_lat p50 0.48 max 0.51 x 0.58 xall 1.31 math 0.77 esc_x 0.35 sl_end+ 3.26 fin_end+ 1.63 late 0
+PMT decode 1 sliding T 1 n 20 medians
+  moe_n                          132.000
+  moe_trig_min                    17.968
+  moe_trig                        19.376
+  moe_bar_min                     20.448
+  moe_bar                         20.832
+  moe_exit_min                    20.624
+  moe_exit_p50                    20.752
+  moe_exit_last8                  22.012
+  moe_exit                        23.040
+  moe_bar_to_exit_last8            1.266
+  moe_pa_end_min                  10.576
+  moe_pa_end                      12.448
+  sl_n                           512.000
+  sl_entry_min                    20.720
+  sl_entry_p50                    20.752
+  sl_entry_max                    20.816
+  sl_entry_after_trig              1.312
+  sl_entry_after_pa                8.384
+  sl_n_late                        0.000
+  sl_wissued_p50                   1.632
+  sl_wready_p50                   22.368
+  sl_wready_max                   23.184
+  sl_wready_before_exit          477.000
+  sl_wready_after_entry_p50        1.632
+  sl_xall_p50                      1.280
+  sl_xall_p90                      1.472
+  sl_xall_max                      1.728
+  sl_math_p50                      0.768
+  sl_math_max                      1.056
+  sl_esc_x_p50                     0.352
+  sl_esc_x_max                     0.736
+  sl_esc_loop_p50                  0.384
+  sl_esc_sums_p50                  0.128
+  sl_wait_min                     23.616
+  sl_wait_p50                     23.632
+  sl_wait_p90                     23.648
+  sl_wait_max                     23.648
+  sl_wait_lat_min                  0.480
+  sl_wait_lat_p50                  0.496
+  sl_wait_lat_max                  0.512
+  sl_x_p50                         0.576
+  sl_x_p90                         0.704
+  sl_x_max                         0.768
+  sl_fma_p50                       1.472
+  sl_fma_max                       2.048
+  sl_esc_cnt_p50                   1.000
+  sl_esc_cnt_max                   4.000
+  sl_esc_ready_p50                21.656
+  sl_esc_wait_lat_p50              0.496
+  sl_esc_walk_p50                  0.512
+  sl_esc_walk_p90                  0.832
+  sl_esc_walk_max                  0.960
+  sl_esc_after_fma_p50            -1.480
+  sl_sync_p50                      0.064
+  sl_store_p50                     0.064
+  sl_cta_wait_to_store_p50         2.176
+  sl_cta_wait_to_store_max         2.656
+  sl_end_p50                      25.792
+  sl_end_p90                      25.984
+  sl_end                          26.336
+  sl_end_after_exit                3.264
+  crit_cta                       277.000
+  crit_entry                      20.752
+  crit_wready                     22.544
+  crit_wait                       23.632
+  crit_wait_lat                    0.496
+  crit_x                           0.608
+  crit_xall                        1.712
+  crit_math                        0.896
+  crit_fma                         1.968
+  crit_esc_walk                    0.496
+  crit_esc_after_fma              -2.064
+  crit_sync                        0.064
+  crit_store                       0.064
+  crit_cnt                         1.000
+  crit_sm                         44.500
+  fin_n                           32.000
+  fin_entry_min                   25.280
+  fin_entry_max                   25.376
+  fin_entry_after_sl_end          -1.024
+  fin_wait_min                     0.384
+  fin_wait_p50                     0.416
+  fin_wait_max                     0.416
+  fin_p_p50                        0.384
+  fin_p_max                        0.448
+  fin_carry_p50                    0.488
+  fin_store_p50                    0.064
+  fin_end                         27.888
+  fin_end_after_sl_end             1.600
+  fin_end_after_exit               4.864
+  graph_plain                     68.720
+  graph_inst                      70.944
+  maxdiff                          0.000
+PMTI decode 1 full in 0 plain 82.43 inst 83.46 diff 0.00e+00 exit 29.28 wait_lat p50 1.76 max 2.34 x 0.58 xall 1.28 math 0.74 esc_x 0.35 sl_end+ 4.45 fin_end+ 1.57 late 0
+PMTI decode 1 full in 1 plain 78.53 inst 76.32 diff 0.00e+00 exit 21.09 wait_lat p50 1.90 max 2.72 x 0.58 xall 1.28 math 0.77 esc_x 0.74 sl_end+ 4.99 fin_end+ 1.60 late 512
+PMTI decode 1 full in 2 plain 76.13 inst 76.48 diff 0.00e+00 exit 21.12 wait_lat p50 1.70 max 2.40 x 0.54 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 4.38 fin_end+ 1.66 late 0
+PMTI decode 1 full in 3 plain 74.56 inst 76.58 diff 4.69e-02 exit 21.73 wait_lat p50 1.25 max 1.92 x 0.54 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 3.97 fin_end+ 1.57 late 0
+PMTI decode 1 full in 4 plain 74.56 inst 76.93 diff 0.00e+00 exit 21.50 wait_lat p50 1.60 max 2.02 x 0.58 xall 1.28 math 0.77 esc_x 0.38 sl_end+ 4.35 fin_end+ 1.41 late 0
+PMTI decode 1 full in 5 plain 73.79 inst 75.39 diff 0.00e+00 exit 21.15 wait_lat p50 1.57 max 2.34 x 0.54 xall 1.25 math 0.74 esc_x 0.35 sl_end+ 4.29 fin_end+ 1.63 late 0
+PMTI decode 1 full in 6 plain 76.19 inst 76.54 diff 0.00e+00 exit 22.62 wait_lat p50 1.60 max 2.27 x 0.54 xall 1.25 math 0.75 esc_x 0.32 sl_end+ 4.42 fin_end+ 1.54 late 0
+PMTI decode 1 full in 7 plain 74.62 inst 76.96 diff 0.00e+00 exit 21.47 wait_lat p50 1.60 max 2.05 x 0.58 xall 1.28 math 0.74 esc_x 0.38 sl_end+ 4.48 fin_end+ 1.63 late 0
+PMTI decode 1 full in 8 plain 81.57 inst 81.31 diff 0.00e+00 exit 27.39 wait_lat p50 1.60 max 2.30 x 0.58 xall 1.25 math 0.74 esc_x 0.35 sl_end+ 4.22 fin_end+ 1.57 late 0
+PMTI decode 1 full in 9 plain 80.77 inst 80.64 diff 0.00e+00 exit 27.84 wait_lat p50 1.50 max 2.11 x 0.56 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 4.06 fin_end+ 1.50 late 0
+PMTI decode 1 full in 10 plain 81.50 inst 83.33 diff 0.00e+00 exit 27.74 wait_lat p50 1.50 max 2.30 x 0.54 xall 1.22 math 0.74 esc_x 0.38 sl_end+ 4.22 fin_end+ 1.50 late 0
+PMTI decode 1 full in 11 plain 74.50 inst 76.22 diff 0.00e+00 exit 22.27 wait_lat p50 1.44 max 2.24 x 0.51 xall 1.25 math 0.74 esc_x 0.42 sl_end+ 4.29 fin_end+ 1.60 late 0
+PMTI decode 1 full in 12 plain 74.21 inst 77.06 diff 0.00e+00 exit 20.99 wait_lat p50 1.76 max 2.75 x 0.35 xall 1.02 math 0.77 esc_x 0.48 sl_end+ 4.54 fin_end+ 1.66 late 505
+PMTI decode 1 full in 13 plain 73.63 inst 74.85 diff 0.00e+00 exit 20.99 wait_lat p50 1.60 max 2.27 x 0.58 xall 1.25 math 0.77 esc_x 0.35 sl_end+ 4.42 fin_end+ 1.60 late 0
+PMTI decode 1 full in 14 plain 75.46 inst 76.48 diff 0.00e+00 exit 22.59 wait_lat p50 1.92 max 2.37 x 0.54 xall 1.25 math 0.77 esc_x 0.35 sl_end+ 4.54 fin_end+ 1.54 late 0
+PMTI decode 1 full in 15 plain 74.46 inst 75.81 diff 0.00e+00 exit 21.15 wait_lat p50 1.57 max 2.69 x 0.35 xall 1.02 math 0.77 esc_x 0.48 sl_end+ 4.45 fin_end+ 1.60 late 0
+PMTI decode 1 full in 16 plain 74.78 inst 77.12 diff 0.00e+00 exit 21.86 wait_lat p50 1.38 max 2.08 x 0.54 xall 1.25 math 0.74 esc_x 0.35 sl_end+ 4.13 fin_end+ 1.50 late 0
+PMTI decode 1 full in 17 plain 74.11 inst 75.07 diff 0.00e+00 exit 21.47 wait_lat p50 1.41 max 1.89 x 0.58 xall 1.28 math 0.77 esc_x 0.38 sl_end+ 4.10 fin_end+ 1.50 late 0
+PMTI decode 1 full in 18 plain 80.86 inst 81.25 diff 0.00e+00 exit 28.06 wait_lat p50 1.28 max 1.89 x 0.58 xall 1.28 math 0.77 esc_x 0.35 sl_end+ 4.00 fin_end+ 1.47 late 0
+PMTI decode 1 full in 19 plain 75.42 inst 76.61 diff 0.00e+00 exit 20.93 wait_lat p50 1.50 max 2.30 x 0.51 xall 1.22 math 0.75 esc_x 0.38 sl_end+ 4.42 fin_end+ 1.66 late 0
+PMT decode 1 full T 1 n 20 medians
+  moe_n                          132.000
+  moe_trig_min                    17.984
+  moe_trig                        19.424
+  moe_bar_min                     20.464
+  moe_bar                         20.832
+  moe_exit_min                    20.656
+  moe_exit_p50                    20.864
+  moe_exit_last8                  21.164
+  moe_exit                        21.616
+  moe_bar_to_exit_last8            0.480
+  moe_pa_end_min                  10.592
+  moe_pa_end                      12.720
+  sl_n                           512.000
+  sl_entry_min                    21.120
+  sl_entry_p50                    21.168
+  sl_entry_max                    21.232
+  sl_entry_after_trig              1.568
+  sl_entry_after_pa                8.416
+  sl_n_late                        0.000
+  sl_wissued_p50                   1.632
+  sl_wready_p50                   22.800
+  sl_wready_max                   23.760
+  sl_wready_before_exit            0.000
+  sl_wready_after_entry_p50        1.600
+  sl_xall_p50                      1.248
+  sl_xall_p90                      1.472
+  sl_xall_max                      1.776
+  sl_math_p50                      0.768
+  sl_math_max                      1.120
+  sl_esc_x_p50                     0.352
+  sl_esc_x_max                     0.768
+  sl_esc_loop_p50                  0.384
+  sl_esc_sums_p50                  0.128
+  sl_wait_min                     23.056
+  sl_wait_p50                     23.088
+  sl_wait_p90                     23.440
+  sl_wait_max                     23.824
+  sl_wait_lat_min                  1.472
+  sl_wait_lat_p50                  1.584
+  sl_wait_lat_max                  2.288
+  sl_x_p50                         0.544
+  sl_x_p90                         0.704
+  sl_x_max                         0.784
+  sl_fma_p50                       1.472
+  sl_fma_max                       2.048
+  sl_esc_cnt_p50                   1.000
+  sl_esc_cnt_max                   4.000
+  sl_esc_ready_p50                22.096
+  sl_esc_wait_lat_p50              1.504
+  sl_esc_walk_p50                  0.544
+  sl_esc_walk_p90                  0.864
+  sl_esc_walk_max                  0.992
+  sl_esc_after_fma_p50            -1.536
+  sl_sync_p50                      0.064
+  sl_store_p50                     0.064
+  sl_cta_wait_to_store_p50         2.144
+  sl_cta_wait_to_store_max         2.736
+  sl_end_p50                      25.336
+  sl_end_p90                      25.536
+  sl_end                          25.968
+  sl_end_after_exit                4.368
+  crit_cta                       205.500
+  crit_entry                      21.200
+  crit_wready                     23.344
+  crit_wait                       23.408
+  crit_wait_lat                    1.584
+  crit_x                           0.608
+  crit_xall                        1.600
+  crit_math                        0.960
+  crit_fma                         1.984
+  crit_esc_walk                    0.464
+  crit_esc_after_fma              -2.128
+  crit_sync                        0.064
+  crit_store                       0.064
+  crit_cnt                         0.000
+  crit_sm                         43.500
+  fin_n                           32.000
+  fin_entry_min                   25.184
+  fin_entry_max                   25.280
+  fin_entry_after_sl_end          -0.704
+  fin_wait_min                     0.400
+  fin_wait_p50                     0.416
+  fin_wait_max                     0.416
+  fin_p_p50                        0.376
+  fin_p_max                        0.480
+  fin_carry_p50                    0.480
+  fin_store_p50                    0.064
+  fin_end                         27.536
+  fin_end_after_sl_end             1.568
+  fin_end_after_exit               5.936
+  graph_plain                     75.104
+  graph_inst                      76.592
+  maxdiff                          0.000
