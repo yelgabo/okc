@@ -2498,3 +2498,134 @@ producer's epilogue needs a cross-SM exchange, and three earlier builds measured
 launch it removes. The fusion with the best expected value that no evidence rules out is route into the MoE prologue at
 decode 1 (rank 1), and it sits inside the MoE lanes' kernel. Rank 2 is a load-ordering fix rather than a fusion. Every
 expected saving here is a hypothesis from the timeline and the source; none was measured as a change.
+## 2026-11-03 - Decode 32: B4 MoE timeline (box, no check)
+
+The decode 32 fused MoE runs the B4 build (WGS warpgroup kernel, jobs of up to 64 tokens, the B4FIN final pass). Its
+excess over the byte floor was 23.9 us at decode 32 sliding, the largest non-floor piece of the two weakest cells,
+with no timeline behind it ("Decode 16 / 32 sliding: floor and gap"). Base: muse_decode_layer/cand/ly_micro2.py
+(SHA256 0bc2bd8bdeecd7514ab259bd8f2b5b6b66cef88734f583c5ccaf466f1075cacd). Box only, no judge check, nothing
+registered. Runs 2026-11-04 04:07 to 04:33 UTC (2026-11-03 20:07 to 20:33 PST), router seed 106218864389449120, f931
+case seeds, local_start per input, PDL on at T = 1, 8, 16, 32. Logs, JSON (raw per-CTA stamps of 3 inputs per cell)
+and SASS reports: `muse_decode_layer/profiles/box/lyb4/`.
+
+### Instrument
+
+- `tools/ly_moe_tlb4.py` writes `ly_tlb4.py` (rebuilt by the tool, not committed): per-CTA globaltimer stamps in
+  MOE_CUDA_SRC under `-DOKC_TLB=<level>`, added to the B4 build only (MAIN compiles the same text with OKC_TLB 0). The
+  existing DBG points give entry, routing done, x gather done, producers released (WS_JOIN), phase A end, phase B end
+  and exit; the weights producer stamps its first issue and, for its first 40 stages, the time it issues stage n,
+  which it does once the consumers released stage n - 3's slot and stage n - 2 has landed (the M <= 64 pacing); the x
+  producer stamps and sums its waits (phase A xready, phase B doneAs); the B4FIN loop stamps the first final item
+  after its MFIN wait. Stamps run only when the launch passes a fourth scratch tensor.
+- Level 1 leaves the consumers' stage loop untouched: `tools/ly_tlb4_sass.py` (tools/ly_micro_sass.py plus a TLB build
+  and nvcc warnings) gives the control's 304-instruction stage loop with the same opcode mix, 96 registers, 0 local, 8 B
+  stack (`sass/sass_tl5.report.json`). Two first attempts did not: a per-thread branch anywhere in wgs_phase's segment
+  loop, or a stamp inside the stage body even as a warp-uniform branch with predicated stores, moves the stage's
+  descriptor arithmetic from the uniform datapath into regular registers (32 R2UR per stage, IMAD 36 -> 80 or more,
+  304 -> 386 to 436 instructions; `sass/sass_tl3.report.json`). So level 1 has no consumer-side stage stamps; the
+  producer's issue times are the stage clock, and segment counts come from each CTA's stage ranges on the host.
+- `tools/ly_box_moe_tlb4g.py` captures two graphs of the whole layer per cell (plain, and one whose 32-token B4 launch
+  passes the stamp buffer) and replays each fresh input through both with a cold L2. The paired graph time difference
+  (instrumented minus plain, median per input) is +1.89 / +3.65 us (sliding / full); the stage loop is the control's,
+  so the cost sits in the stamp stores or in replay order, not separated. `tools/ly_tlb4_cta.py` reads the raw stamps.
+
+### Floor
+
+One stage is 256 rows x 256 K of 4-bit codes plus SC6 scales, 35,840 B; one local expert is 512 phase A plus 256 phase
+B stages, 27.53 MB. Box read bandwidth 4.443 TB/s (`sum` over 4 GiB, this run). The minimum stage count is 768 x
+distinct, and the floor is 6.20 us per distinct expert: 55.76 us at the judge's 9.0 experts (6,912 stages, 52.4 per
+CTA). One stage on every CTA at once is 132 x 35,840 B / 4.443 TB/s = 1.065 us, the per-stage floor interval.
+
+### Measured, 40 inputs per cell (6 to 12 distinct, median 9)
+
+Span fit: 32.13 + 5.18 x distinct (residual 2.00) sliding, 32.55 + 5.21 x distinct (1.92) full. Every input of both
+cells processed exactly 768 x distinct stages: B4 never re-streams an expert at decode 32 (52 / 51 routes on 9
+experts, so every job holds at most 64 tokens). Medians over the 12 / 14 inputs with 9 distinct experts, mean CTA,
+sliding / full, us from the first CTA's entry:
+
+| piece | sliding | full | floor | excess (sliding) | what it is |
+|---|---:|---:|---:|---:|---|
+| ramp: entry to first weight issue | 4.34 | 4.25 | 0 | 4.34 | routing done 1.75 / 1.70, x gather done 3.39 / 3.33, producers released 3.42 / 3.36, then 0.9 us to the first TMA issue |
+| phase A: first issue to A end | 44.22 | 44.32 | 37.18 (34.9 stages) | 7.04 | A-end spread across CTAs 8.58 / 8.72 |
+| phase B: A end to B end | 22.21 | 22.32 | 18.59 (17.5 stages) | 3.62 | handoff inside it: the x producer's first doneAs wait 3.23 / 3.19, all its doneAs waits 9.20 / 9.26 per CTA |
+| MFIN wait: B end to first final item ready | 5.78 | 6.91 | 0 | 5.78 | B-end spread 7.70 / 8.83 |
+| final pass | 1.97 | 2.00 | 0 | 1.97 | exit spread 2.10 / 2.13 |
+| span | 78.59 | 79.87 | 55.76 | 22.83 | |
+
+Stages per CTA 44 to 55 (cost-weighted stream-K ranges); per cell 404 phase A and 260 phase B segments (one CTA's
+contiguous stages of one unit), 116 / 116 units cut between two CTAs. The weights producer's median issue interval is
+0.99 us in phase A and 1.20 / 1.23 in phase B against the 1.065 floor, but the mean per-stage time over phase A is 1.24
+(median CTA, raw inputs): the stream runs at the floor rate between segment switches and stalls at them.
+Registers: 96 at 544 threads (the launch bound), 0 spill, 8 B stack (control and level 1 alike, `okc_attrs` on the box
+96 / 8 / 0).
+
+Issue gaps by where the released stage sits in its segment (`tools/ly_tlb4_cta.py`, 6 raw inputs, issue n waits for the
+release of stage n - 3):
+
+| released stage | gaps, median | excess over the median gap, per CTA, phase A |
+|---|---:|---:|
+| first stage of a segment | 2.21 to 2.69 us | 4.87 to 6.28 us |
+| second stage | 1.02 to 1.06 | 0.13 to 0.82 |
+| any later stage | 0.96 to 0.99 | -0.79 to +0.19 |
+
+### Largest non-floor piece
+
+Phase A's 7.0 us, and inside it the segment switch: the issue after each segment's first stage waits 2.2 to 2.7 us
+against 1.0 for every other stage, 4.9 to 6.3 us per CTA over its three phase A segments. Cause, from the source and
+SASS: the consumers run the previous segment's deferred `wgs_flush` behind commit group OKC_WGSFCI = 4 of the first
+stage, before load group 3 arrives on that stage's weights-empty barrier. The flush is a proxy fence, a warpgroup
+bar.sync and a release (`red.release.gpu` is MEMBAR.ALL.GPU + REDG in SASS; a cut unit's share takes
+`atom.acq_rel.gpu`, MEMBAR + ATOMG with a returned value, and the last one reads the partials back). A diagnostic build
+that times the flush (`--flush`, `ly_tlb4f.py`; its stage loop is perturbed to 386 instructions, so only the flush
+times count) gives, per whole-unit doneA publish: proxy fence 0.004 us, bar.sync 0.25, release 0.66 to 0.69. The next
+pieces are the MFIN wait (5.8 us, set by the 7.7 us B-end spread) and the ramp (4.3 us).
+
+### Mechanisms on the segment switch (both losses)
+
+Paired A/B against ly_micro2 (`tools/ly_b4_ab.sh`: five bx_box_run.py processes c, w, c, w, c, `--runs 60`, `--lock
+--ls-cache --ext-cache --pin-pdl8 1,8,16,32 --skip-pdl8-gate`, every run timed with PDL on at every T; table
+`tools/ly_ws2t_table.py`, threshold max(2 x control spread, 1% of the control mean)). Each candidate first ran all six
+loads once (`chk`, `--runs 5`): reference check PASS at all 12 scored cells, G_RELEASE_STARTUP_OK (56 verified replays)
+in every prepare.
+
+1. ly_b4_fci6.py (`tools/dl_ly_b4_fci6_patch.py`, SHA256 12a0c52bb32ec0cef6a5ac5063b87f9d3614121839cdf7f00c30366f4706717a):
+   OKC_WGSFCI 4 -> 6, the flush behind the weight-slot release (B4 and MAIN). SASS (`sass/fci6.diff.txt`): stage loops
+   unchanged in count (304 / 307), B4 25,528 -> 25,390 instructions, stack 8 -> 0, and in the first stage the
+   SYNCS.ARRIVE on the weights-empty barrier now precedes the FENCE.VIEW.ASYNC.G / BAR.SYNC / MEMBAR.ALL.GPU group. The
+   timeline moves the stall instead of removing it: first-stage gaps fall to 1.50 to 1.60 us, second-stage gaps rise to
+   2.46 to 2.96 (the consumers are still held about 1.5 us, now while the next stage's slot is theirs), phase A 45.14 ->
+   46.45 us. A/B (`fci6/`, 04:16-04:18 UTC), candidate minus control mean, us: decode 32 +1.66 / +0.65, verify 16 +3.37 /
+   +2.15, verify 32 +2.37 / +2.99, decode 1 +0.02 / -0.20, verify 1 -0.19 / -0.56. All inside the thresholds (decode 32
+   2.59 / 4.67, verify 16 3.49 / 3.28, verify 32 3.20 / 4.60), but slower in all four pairs at decode 32 sliding and at
+   all four verify 16 / 32 cells. Not kept.
+2. ly_b4_dfa.py (`tools/dl_ly_b4_dfa_patch.py`, SHA256 47ac5034965b0c69d915f4894c5f83ffcc0d613099dc2413c7d320a0e638a621):
+   OKC_WGSDFIN 2 -> 3, phase A cut units finished by the share holding stage 15 (phase B's existing path), so the other
+   share counts with a fire-and-forget release instead of an atom.acq_rel round trip. SASS (`sass/dfa.diff.txt`): ATOMG
+   20 -> 2, REDG 56 -> 74, MEMBAR.ALL.GPU 112 unchanged, stage loops unchanged in count. Timeline: A-end spread 8.58 ->
+   17.87 us, B-end spread 7.70 -> 13.71, MFIN wait 5.78 -> 10.64, span 78.6 -> 83.9 (sliding medians); the changed code
+   is the finisher's spin on its partner's count, but which partners arrive late was not traced CTA by CTA. A/B (`dfa/`, 04:28-04:30 UTC): decode 32 +5.27 / +3.28 (thresholds
+   1.44 / 2.96), verify 16 +7.59 / +7.10, verify 32 +6.74 / +5.03, every pair positive; decode 1 and verify 1 inside.
+   Loss.
+
+Reading: the switch costs the consumers about 1.5 us per segment wherever the flush sits, and at M <= 64 the producer
+keeps two stages in flight, so a held consumer stops its CTA's stream. What remains for this piece is to take the
+release (bar.sync plus MEMBAR, 0.9 us of each publish) off the consumer warpgroups: the consumers would arrive on an
+mbarrier after their proxy fence and a spare lane would wait on it and issue the `red.release.gpu`. That keeps every
+fence and release but needs a mailbox of pending publishes with back-pressure, and it was not built in this round.
+Estimated at most 1 to 3 us per CTA in phase A before the other CTAs absorb the freed bandwidth (hypothesis).
+
+### The ramp (ly_b4_wpre, no gain)
+
+ly_b4_wpre.py (`tools/dl_ly_b4_wpre_patch.py`, SHA256 f5bbb64f6065e904a5fed63723d713e2bdb6958c4a6b4e3425a583e7716993b5)
+targets the third piece: the weights producer waits at WS_JOIN, which also waits for the consumers' x gather, though
+the weight stream needs only the stage ranges. The x producer now arrives on a new named barrier 8 (the two producer
+warps, 64 threads) after wgs_ranges; the weights producer, after bar.sync 8, issues the first min(2, phase A stages)
+stages and then joins WS_JOIN as before (every thread still passes it; no fence, barrier or wait removed). SASS
+(`sass/wpre.diff.txt`): BAR.ARV / BAR.SYNC 0x8, 0x40 once each per kernel, B4 25,528 -> 25,585 instructions, 96
+registers, 0 local, 8 B stack, stage loops unchanged. Reference check PASS at all 12 cells, G_RELEASE_STARTUP_OK in
+every run. Timeline (`tlb4g_wpre.log`; the tool also stamps the early issues): first weight issue 4.34 -> 4.02 us
+(sliding) and 4.25 -> 4.02 (full), so the ranges finish close to the gather (routing done at 1.75 us, ranges about
+2 us later); phases A, B and the tail are unchanged (span 78.59 -> 79.02 sliding). A/B (`wpre/`, 04:40-04:42 UTC,
+same protocol): decode 32 +0.61 / +1.04 us (thresholds 1.45 / 2.97), verify 16 +0.72 / +0.30, verify 32 +0.36 /
++0.70, decode 1 +0.16 / -0.31, verify 1 -0.00 / +0.77 (TINY2, unchanged code, so this is the session's null). No
+gain; not kept. The ramp's lever, if any, is the 2 us wgs_ranges takes after routing, not the barrier.
