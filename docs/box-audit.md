@@ -347,18 +347,20 @@ ssh okc-h200 'cd /root/okc && . tools/box_env.sh && nohup flock /root/okc/.build
   --judge .build/judge/g1b4_pdl8d.f931abf568544018.json --router-seed 106218864389449120 \
   --loads "decode 1,verify 1" --runs 60 \
   --ls-cache /root/okc/.build/box/ls_cache.json --ext-cache /root/.cache/bx_ext \
-  --pin-pdl8 1,8,16,32 --skip-pdl8-gate \
+  --pin-pdl8 1,16,32 --skip-pdl8-gate \
   --out .build/box/<tag>.json > .build/box/<tag>.log 2>&1 &'
 ```
 
-- Pin the same set on every arm of one comparison. `1,8,16,32` is pdl8h's build-time set; use
-  `1,16,32` to match the file's most common gate outcome. Omit both PDL flags only when the
+- Pin the same set on every arm of one comparison. `1,16,32` is the file's most common gate
+  outcome and the set validated above. `1,8,16,32` (pdl8h's build-time set; T = 8 then gets all
+  six PDL8D edges, the set its gate picks when the stress is clean) was not run under the pin in
+  this audit. Omit both PDL flags only when the
   question is the gate itself (pdl8h's own dry runs).
 - `--ext-cache` and `--ls-cache` are safe for every layer file; `--ls-cache` keys on the judge
   file's case seeds and the router seed, so a different `--judge` or `--router-seed` just fills new
   entries.
 - For tools/rv_ab.py (rv lane): it calls `br.capture` and its own fresh-input loop, so the flags
-  do not reach it. The equivalent change there is three lines: call
+  do not reach it. The equivalent change there is small: call
   `bx_box_run.content_addressed_extensions("/root/.cache/bx_ext")` before loading arms, set each
   arm's `state["pdl8_on"]` after prepare instead of re-preparing until the gate agrees ("attempt
   N"), and take local_start from `bx_box_run.LocalStartCache`.
