@@ -851,6 +851,20 @@
       "registered_cells_at_or_below_pass": false,
       "eligible_for_release": false,
       "release_review_required": true
+    },
+    {
+      "job": "7ed7424d248f4589",
+      "problem": "muse_decode_layer",
+      "score_us": 10345.242793385434,
+      "owner": "Existing final-day release/repeat lead",
+      "judged_arm": "ly_micro2 repeat draw0 per owning3ec0376f; actual prepared mask/full profiles not retained here",
+      "source_identity": "ly_micro2.py0bc2bd8b source family; exact trailing-comment upload hash not independently retained",
+      "release_state": "public-changed-source-repeat-completed-scope-review-open",
+      "reason": "Fresh own-account list confirms done/PASS/no flags at10345.242793us, above currentcombo2n11760510333.381525us. Source is0bc2, not private-qualifieddc3e or prior named repeat base. Existing lead owns exact source/qualification/authority disposition; no inferred masks/extra trial/root cancellation.",
+      "evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0445/closing-summary.json",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0445.md",
+      "release_review_required": true,
+      "public_submission_occurred": true
     }
   ],
   "ineligible_source_family_checkpoint": {
@@ -895,7 +909,9 @@
       "source_family_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
       "exact_repeat_upload_sha256": null,
       "role": "Current clean-source public row, with historical user-condition review separately open"
-    }
+    },
+    "closing_observed_at": "2026-11-04T04:53:45.145911+00:00",
+    "closing_rank": 368
   },
   "known_clean_public_candidate": {
     "job": "18291368c3fa46d6",
@@ -924,8 +940,9 @@
     "source_sha256": "0bc2bd8bdeecd7514ab259bd8f2b5b6b66cef88734f583c5ccaf466f1075cacd",
     "owning_decision_commit": "e4a77b16",
     "owner": "Existing final-day release/repeat lead",
-    "state": "changed-source-repeat-plan-recorded-explicit-disposition-needed",
+    "state": "changed-source-public-repeat-completed-disposition-open",
     "reason": "Lead switched repeat file from3ac to0bc2 and said no separate submit because repeat is same run. Source/dispatcher changed and registered private receipt is dc3e. Named trailing-comment repeat permission alone does not establish authority/qualification for0bc2. Read newer actual human/source decision; no root cancellation, duplicate approval question, or block on already-permitted private work.",
-    "report": "docs/steering/2026-11-04-driver-monitor-0445.md"
+    "report": "docs/steering/2026-11-04-driver-monitor-0445.md",
+    "public_job": "7ed7424d248f4589"
   }
 }
