@@ -1,4 +1,6 @@
-# MoE cluster rewrite: one expert slice per thread-block cluster
+# Family H: MoE cluster rewrite, one expert slice per thread-block cluster
+
+Family letter: H (A to G are the earlier layer and kernel families in docs/; G is the keell0renz-based layer line the public files descend from). Every file, section and ledger line of this rewrite carries the H prefix or the CL task id.
 
 Status: plan, 2026-11-04 00:10 PT. Owner: lead session. Implementers: Opus 5.5 agents, one per task, each in its own
 worktree. Deadline context: kernel submissions close 2026-11-04 23:59 PT. Phase 0 is worth running whatever the clock
