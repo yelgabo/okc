@@ -8084,3 +8084,38 @@ A/B f1f against stk3, tools/ly_prtl_ab.sh, two rounds (/root/okc/.build/prtl/f1f
 Round 1 alone showed decode 1 sliding -0.36 (5/6) and decode 1 full -0.51 (6/6, a win at thr 0.50). Round 2 reversed decode 1 full to +0.43, so the round 1 win was noise. The bar (decode 1 sliding at least 0.4 us faster with 20/24 pairs) is not met. f1f3 and f1fe were not A/B'd because their stamps did not beat f1f.
 
 Conclusion. The first weight copy is already issued about 1 us after entry and gates the first unit only through DRAM latency (issue to slot full 1.93 us). Moving the issue 0.15 us earlier does not reach phase A end, so the decode 1 MoE prologue is not issue-bound at this depth.
+
+## 2026-11-04 - Per-T knob sweep on ly_stk3 (box)
+
+Revival lane. Base muse_decode_layer/cand/ly_stk3.py (a1c48810). Static per-T launch knobs that the in-prepare tuner
+does not pick, swept as in-process arms with tools/ly_arms.py (one prepare, one graph per arm, rotated replay, every
+arm reference-checked, duplicated control), then two-round paired A/B through tools/rev_ab.sh (gate with the five
+PDL8H guards, then tools/ly_prtl_ab.sh against ly_stk3). Logs and tables in muse_decode_layer/profiles/box/rev/.
+
+Skipped as already swept on a recent base (docs/ruled-out.md): unpooler P at T = 8 / 16 / 32, o P = 1 at T = 1,
+attention splits at every load, pooler L2 prefetch, RT_CFG, MoE ring depth and two CTAs per SM, verify 16 / 32 edges.
+
+Sweep 1 (pcx.sh, sliding, 48 runs): sk2 pre-wait stages P in {1, 3, 4} for qkv / o / pool and {1, 4} for router at
+T = 1 / 8 / 16 together. Control-control was +0.02 / -0.34 / +0.03 us at decode 1 / verify 1 / decode 16. P = 4 lost
+for every role (up to +0.98). Leads: o P = 3 at verify 1 (-0.58, 40/48) and qkv P = 1 at decode 16 (-0.53, 36/48).
+
+Sweep 2 (pcx2.sh, single-T arms, both layers, 96 runs): qkv P = 1 at T = 16 did not repeat (decode 16 sliding
++0.06). o P = 3 at T = 8 repeated at verify 1 sliding (-0.59, 63/96; control -0.19). T = 32 at P = 2 (default 1):
+o -0.75 (60/96) and pool -0.59 (60/96) at decode 32 full, sliding -0.27 / -0.05.
+
+Paired A/B, pooled 24 pairs per cell:
+
+- ly_rvo38.py (`PCX_CFG[("o", 8)] = (3, 0, 0, 0)`, 2f00aeb8): verify 1 sliding -0.12 (15/24), verify 1 full +0.61
+  (1/24). Rejected.
+- ly_rvo232.py (`PCX_CFG[("o", 32)] = (2, 0, 0, 0)`, 069a1a14): decode 32 full -0.81 (21/24), decode 32 sliding
+  -0.03 (11/24). No sliding cell moves, so it misses the bar; the full-cell gain is within the 3.17 us threshold.
+
+Both A/Bs show cells the change cannot touch at 1/24 or 2/24 (rvo38 verify 32 sliding +1.51, rvo232 verify 1
+sliding +0.39), so the process-level pairs count swings by about 1.5 us on its own.
+
+Sweep 3 (fin.sh, decode 1 / verify 1, both layers, 48 runs, all checks PASS): finish shape SL_CLUSTER_CONFIG at T = 1
+(4 / 16 warps, 128 / 512 columns) and T = 8 (512 / 2048 columns), boundary/route tile SL_TILE_CONFIG at T = 1 (8 warps,
+2 parts) and T = 8 (8 warps, 2 / 8 parts). Sliding cells: best decode 1 -0.26 (29/48) against control -0.19, best
+verify 1 -0.08 (26/48) against control +0.34. Flat.
+
+Decision: no candidate clears the bar (0.5 us on a sliding cell at 20+/24). No ledger line.

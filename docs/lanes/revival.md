@@ -59,12 +59,22 @@ pairs: verify 1 sliding -0.12 (15/24), verify 1 full +0.61 (1/24), decode 1 slid
 verify 32 sliding +1.51 (1/24, untouched). Rejected. The untouched cells show the process-level pairs count carries
 systematic swings of about 1.5 us. Box dirs /root/okc/.build/prtl/rvo38{,_r2}.
 
-## In flight
+ly_rvo232.py (`PCX_CFG[("o", 32)] = (2, 0, 0, 0)`), SHA256 069a1a14c15a139b9331fdf51f5326761cbf6aa429b79cd28da2ecae7ab6ae72.
+Gate pass, chk 12/12 PASS. Pooled 24 pairs: decode 32 full -0.81 (21/24), decode 32 sliding -0.03 (11/24), verify 1
+sliding +0.39 (2/24, untouched). Misses the bar (no sliding cell). Tables: profiles/box/rev/ab_rvo38.txt, ab_rvo232.txt.
 
-ly_rvo232.py (`PCX_CFG[("o", 32)] = (2, 0, 0, 0)`), SHA256 069a1a14c15a139b9331fdf51f5326761cbf6aa429b79cd28da2ecae7ab6ae72,
-same A/B (box .build/rev/ab_run.log). Sweep 3 queued on the lock (fin.sh, .build/rev/arms_fin.log): SL_CLUSTER_CONFIG
-and SL_TILE_CONFIG shapes at T = 1 / 8, decode 1 / verify 1.
+## Sweep 3: finish and tile shapes at T = 1 / 8 (fin.sh, arms_fin.{log,json}, 48 runs, all checks PASS)
 
-## Next
+Sliding: decode 1 best f1nw4 -0.26 (29/48), control -0.19; verify 1 best t1p2 -0.08 (26/48), control +0.34. Flat.
 
-Read sweep 3; CG_LAYER_THREADS is consumed in prepare (line 18045), so it needs a file.
+## State at 13:30 PT
+
+No candidate clears the bar; no ledger line written. Run log "Per-T knob sweep on ly_stk3 (box)" and three ruled-out
+rows written.
+
+## Next (for a relaunched lane)
+
+Not yet swept: OKC_A16SM reservation at decode 1 / verify 1 (compile-time define, line 171, needs files),
+CG_LAYER_THREADS for the T = 1 slice (1024, 4096) at 64 / 256 (consumed in prepare at line 18045, needs files), a
+T = 1 finish smem reservation (`_v1fs_reserve` filters on the T = 8 warp count; needs a file), MoE TINY defines
+(lines 6935-6941). For in-process screening, ly_arms "glob" arms only reach values read at launch.
