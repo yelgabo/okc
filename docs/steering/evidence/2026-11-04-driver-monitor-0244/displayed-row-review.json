@@ -1,0 +1,64 @@
+{
+  "observed_at": "2026-11-04T02:45:11.256775+00:00",
+  "displayed_layer_row": {
+    "attempts": 57,
+    "job": "e095123329d84e30",
+    "rank": 364,
+    "speedup": 2.1868,
+    "submitted_at": 1793755967.6263804,
+    "team": "yelgabo",
+    "value": 10343.8351360107
+  },
+  "own_shared_job": {
+    "flags": [],
+    "job_id": "e095123329d84e30",
+    "mode": "run",
+    "passed": true,
+    "problem": "muse_decode_layer",
+    "result_status": "ok",
+    "score": null,
+    "score_us": 10343.8351360107,
+    "status": "done",
+    "submitted_at": 1793755967.6263804
+  },
+  "source_binding": "dc86c3ae explicitly records e095123329d84e30 as queued draw2 of the stopped g1b4_rs repeat loop",
+  "source_family_eligible": false,
+  "individual_service_DQ_flag_present": false,
+  "existing_service_DQ_jobs": [
+    {
+      "disqualified": true,
+      "disqualified_reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+      "flags": [],
+      "job_id": "86ed5dd3bbcb48a8",
+      "mode": "run",
+      "passed": true,
+      "problem": "muse_decode_layer",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 10243.868562697944,
+      "status": "done",
+      "submitted_at": 1793750870.070175
+    },
+    {
+      "disqualified": true,
+      "disqualified_reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+      "flags": [],
+      "job_id": "9d80ae2494334136",
+      "mode": "run",
+      "passed": true,
+      "problem": "muse_decode_layer",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 10343.105996394634,
+      "status": "done",
+      "submitted_at": 1793745035.8547375
+    }
+  ],
+  "eligible_comparison_control": {
+    "job": "f931abf568544018",
+    "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
+    "score_us": 10374.616018194523,
+    "role": "Last known eligible published comparison control, not the currently displayed API row"
+  },
+  "next_action": "Existing release/repeat lead reconciles residual old-source draw; root does not withdraw/cancel/resubmit or create a new timer."
+}

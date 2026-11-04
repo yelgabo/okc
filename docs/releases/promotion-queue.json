@@ -508,10 +508,17 @@
       "superseded_public_job": "9d80ae2494334136",
       "supersession_report": "docs/steering/2026-11-03-driver-monitor-2240.md",
       "historical_review_preserved": true,
-      "current_public_board_verified": true,
+      "current_public_board_verified": false,
       "current_public_reinstated_after_disqualification": "9d80ae2494334136",
       "supersession_active": false,
-      "reinstatement_evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0147/disqualification.json"
+      "reinstatement_evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0147/disqualification.json",
+      "eligible_fallback_control": true,
+      "displayed_row_checkpoint": {
+        "observed_at": "2026-11-04T02:45:11.256775+00:00",
+        "job": "e095123329d84e30",
+        "source_family_eligible": false,
+        "report": "docs/steering/2026-11-04-driver-monitor-0244.md"
+      }
     },
     {
       "job": "00005928fed6437b",
@@ -588,6 +595,14 @@
         "ledger_entry": "November3 16:10Pacific: lead did not open new BF16/attention lanes after quota reset; judge checks reserved for layer finalists.",
         "disposition": "Numerical selected-twin lead/source-cleanup requirements preserved. No automatic standalone GPU allocation or public permission; fixed-floor rationale is not a hardware bound.",
         "report": "docs/steering/2026-11-04-driver-monitor-0048.md"
+      },
+      "latest_public_comparison": {
+        "observed_at": "2026-11-04T02:45:11.256775+00:00",
+        "job": "473949f0173d4f7f",
+        "score_us": 3153.1499950791595,
+        "elapsed_lead_pct": 0.7661159586404231,
+        "attribution": "Board score verified; exact repeat upload/source binding remains with original lead. No causal algorithmic gain claimed.",
+        "report": "docs/steering/2026-11-04-driver-monitor-0244.md"
       }
     },
     {
@@ -707,6 +722,22 @@
       "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0147.md",
       "eligible_for_release": false,
       "public_submitted": false
+    },
+    {
+      "job": "e095123329d84e30",
+      "problem": "muse_decode_layer",
+      "score_us": 10343.8351360107,
+      "owner": "Existing final-day release/repeat lead",
+      "judged_arm": "Historical RS repeat draw2 per dc86c3ae, now displayed by service",
+      "source_identity": "g1b4_rs.py/01426b89 family per owning loop ledger; exact trailing-comment upload hash/full receipt not retained here",
+      "release_state": "displayed-ineligible-source-individual-adjudication-pending",
+      "reason": "Board and fresh shared job show PASS10343.835136us, but lead already bound this ID to the stopped RS repeat loop. Organizer ban on that source family remains; absence of this job's own DQ flag does not establish eligibility. No claim that organizers have individually flagged this draw yet. Existing release lead owns the residual-draw disposition; no root withdrawal, cancellation, repeat or public permission inferred.",
+      "evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0244/displayed-row-review.json",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0244.md",
+      "eligible_for_release": false,
+      "source_family_ineligible": true,
+      "displayed_board_verified": true,
+      "individual_service_DQ_flag_present": false
     }
   ],
   "ineligible_source_family_checkpoint": {
@@ -722,8 +753,23 @@
     "source_base": "PDL8d7cb74240",
     "pdl8hn_sha256": "df5cded96b8dc18ab98e022c8a6fde9c4ea18d0d7f85a81a9adcce2b63959968",
     "combo2n_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
-    "state": "Clean source verified; registered private check, no source-bound acceptedID published in inspected ledger",
+    "state": "Source-bound clean combo2n check running in latest shared snapshot; original owner alone follows.",
     "registration_commit": "f3ba55e1",
-    "report": "docs/steering/2026-11-04-driver-monitor-0147.md"
+    "report": "docs/steering/2026-11-04-driver-monitor-0147.md",
+    "accepted_job": "03e45b68e75d47fa",
+    "accepted_binding_commit": "a53db92a",
+    "latest_report": "docs/steering/2026-11-04-driver-monitor-0244.md"
+  },
+  "current_layer_reference": {
+    "observed_at": "2026-11-04T02:45:11.256775+00:00",
+    "displayed_job": "e095123329d84e30",
+    "displayed_source_eligible": false,
+    "eligible_control": {
+      "job": "f931abf568544018",
+      "source_sha256": "7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904",
+      "score_us": 10374.616018194523,
+      "role": "Last known eligible published comparison control, not the currently displayed API row"
+    },
+    "report": "docs/steering/2026-11-04-driver-monitor-0244.md"
   }
 }

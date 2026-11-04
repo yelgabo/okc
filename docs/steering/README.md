@@ -4,12 +4,16 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 01:47UTC](2026-11-04-driver-monitor-0147.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 02:44UTC](2026-11-04-driver-monitor-0244.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 4 02:44 UTC — ineligible old repeat displayed; clean check running
+
+[Current monitor](2026-11-04-driver-monitor-0244.md): board displays oldRSdraw2 **e095/10343.835136us**, but its source family remains prohibited despite no individualDQ flag yet. **Eligible control staysPDL8d f931/10374.616018us**; displayed score is not eligible progress. Existing release/repeat lead owns the residual-draw disposition; root does not withdraw/cancel/resubmit or infer a new prohibited launch. Lead now explicitly binds cleancombo2n **03e45b68e75d47fa**, RUNNING with its frozen10332us/allT/clean-guard/3%cell gate; no duplicate poller. LocalMIDtwo-tilely_ws2t lost, midskt16 earlier knob was a no-op, and floor/codegen claims remain scoped. MoE lane closed. Fresh audit18leads/zero gaps is a numerical inventory against the actual displayed API row, not eligibility approval. BF16new3153.149995us board point is source-unbound here, not an algorithmic-gain claim.
 
 ## November 4 01:47 UTC — organizer disqualification supersedes RS-derived eligibility
 
