@@ -4096,7 +4096,11 @@ decode 32, which shares the scratch and `red.add`s onto zeros, picked up stale d
 startup expert comparison failed at M = 32 (global error 0.83, 0.88, 0.69 on the three comparisons; M = 33 / 128 / 256
 bitwise equal to the base on all three route sets). The zeroing store after each read restores the invariant.
 
-Build facts (box, `tools/ly_micro_sass.py` main build, `.build/box/v16/rfin_sass2/`): 96 registers, 0 spill, 0 stack,
+Build facts (box, `tools/ly_micro_sass.py` main build, `.build/box/v16/rfin_sass2/`) [correction 2026-11-04 15:30 UTC, cut-unit-order
+lane: the box copy of the tool lacked the `MAIN_EXTRA_DEFINES` hook, so this report and the ly_rfinq4 one compiled the base's text
+(main.sass md5 equal to the base's); rebuilt with the defines in `.build/box/v16/rfin_sassx/`: 96 registers, 0 spill, 22,867
+instructions, stage loops 305 (x 7) / 307 (x 8) / 311 against the base's 304 / 307 / 308, so one instruction more in nine of the
+sixteen loops (LEA / R2UR replacing ULEA / UIMAD address arithmetic, see "Verify cut unit order (box)")]: 96 registers, 0 spill, 0 stack,
 stage loops 304 / 307 / 308 instructions with 16 HGMMA (the base's counts). Correctness (`.build/prtl/rfin3/chk.log`,
 `muse_decode_layer/profiles/box/rfin/round1/chk.log`): `FORK_MOE_ROUTE native repaired`, `G_RELEASE_STARTUP_OK native
 (128, 32, 33, 256, 1, 8, 16) 56 verified_replays`, check PASS at all 12 cells. Direct comparison against the base's MAIN
@@ -4178,7 +4182,7 @@ the control spread (2.0 to 2.3 us at three of the four cells, with other lanes' 
 us bar that a 1 to 3 us mechanism cannot clear; the sign counts and the timeline (span -2.4 / -1.8 / -3.7 / -0.4 us on
 20 paired inputs) agree on a gain of about 1 to 3 us at verify 32 and about 0.5 to 1 us at verify 16.
 
-Knob variant `ly_rfinq4.py` (f6cc316c, `OKC_RFINQ=4`, four fixup tiles in flight): SASS identical in instruction count
+Knob variant `ly_rfinq4.py` (f6cc316c, `OKC_RFINQ=4`, four fixup tiles in flight): SASS identical in instruction count [same correction: measured on the base's text]
 (22,647) and loops to Q = 2, ptxas already hoists the constant-offset loads. Its own round (`.build/prtl/rfinq4/`,
 `muse_decode_layer/profiles/box/rfin/q4/`, check PASS 12 / 12, startup OK): verify 16 sliding -0.11 (+0.29, +0.43, -0.37,
 -0.64), verify 16 full -1.01 (-1.42, -0.99, -0.98, -0.62), verify 32 sliding -2.41 (-0.88, -1.94, -3.30, -3.74; threshold
@@ -4193,3 +4197,162 @@ verify 16). Recommended to the lead as a judge-check candidate behind anything w
 ruled-out row. Next lever on the same evidence: the finisher's read-back round trip at the phase end (one per cut unit
 and phase) and the longer doneAs wait of the phase B x producer in range order (1.1 to 1.8 us), which a finisher that
 runs the cut unit before the CTA's last whole unit would move off the phase A end without reintroducing a wait.
+
+## 2026-11-04 - Verify cut unit order (box)
+
+Task from the lead (moe lane, continuing "Verify segment switches"): run each CTA's cut unit before its last whole unit, so
+that the finisher's L2 round trip and the phase B x producer's longer doneAs wait leave the phase A end. Base
+`muse_decode_layer/cand/ly_rfin.py` (SHA256 c42c12390ce22538260ebea22820002a2e8acaa6f7526920396b86a4b94cc029, under a
+judge check, never edited); the control of every A/B is ly_rfin, not ly_fabq. Box only (okc-h200, 2026-11-04 15:14 to
+15:35 UTC, every GPU run under `/root/okc/.build/box/gpu.lock`, `nvidia-smi` showed no foreign process before each launch;
+this lane was alone on the box), no judge job, no routing slack. Logs: `/root/okc/.build/prtl/rfin2/` (check and round 1),
+`rfin2r2/` (round 2), `rfin2b/` (the phase B variant), `/root/okc/.build/box/v16/rfin2_tl/` (candidate timeline, the 45 MB
+raw stamps stay on the box), `rfin2_sassx/`, `rfin_sassx/`, `rfin2b_sassx/` (SASS), `rfin2_diff.log` (direct comparison);
+the logs are copied to `muse_decode_layer/profiles/box/rfin2/`. Tools: `tools/dl_ly_rfin2_patch.py` (the candidate),
+`tools/ly_rfin2_order_check.py` (the ordering replica), `tools/ly_box_moe_tlv16g.py --rfin2 MASK` and
+`tools/ly_seg_kind.py --rfin2 MASK` (the timeline decoders now know the new walk).
+
+### Candidate ly_rfin2: the cut share before the CTA's last whole unit
+
+`tools/dl_ly_rfin2_patch.py` writes `muse_decode_layer/cand/ly_rfin2.py` (SHA256
+6c960ac6c06b4fdc771c064a6aee7d76d5662b9e196833a6cbe1b156dba13083) from the pinned ly_rfin; `--mask 3` writes
+`ly_rfin2b.py` (e1a0f65d026e062cf51b49741d32b3911d253cde043249b6001d6fe6bb49aada), the same walk in phase B too. The MAIN
+build alone gets `-DOKC_RFIN2=1` (`MAIN_EXTRA_DEFINES`; every other build compiles the base's text). A range [g0, g1) whose
+last stage is inside a unit (g1 & 15 != 0) and that holds the whole unit before that cut share ([uw, ue), ue = first stage
+of the unit holding g1 - 1, uw = ue - 16 >= g0) is walked as [g0, uw), [ue, g1), [uw, ue) by the weights producer, the x
+producer and the consumers (one function, `wgs_rf2`, for all three: the ring is matched by issue count). A range without a
+whole unit before its cut share keeps the stage order. The first segment, a depositing share when g0 is inside a unit,
+stays first, so a range still holds at most one depositing share per phase and it still deposits before anything else.
+Nothing else changes: the finisher's count acquire (`ld.acquire` loop, `bar.sync`, `fence.acq_rel.gpu`), the slot reads
+and zeroing, the whole-unit epilogue, the deferred releases (kind 1 / 2 at commit group OKC_WGSFCI of the next segment's
+first stage, the phase's end flush) and every fence and barrier are ly_rfin's text.
+
+Ordering constraints (`tools/ly_rfin2_order_check.py`: a 32-bit replica of `wgs_prefix` / `wgs_stage_at` / `wgs_range` /
+`wgs_cta_of` on 800 random job lists of 14 to 26 jobs, 1 to 64 tokens each, G = 132; per phase about 91,000 cut units,
+none with three shares). Every CTA walks exactly its range once; `wgs_cta_of` of stage 0 names the finisher and of stage
+15 the last depositor in every case. The finisher reaches its cut share after (range - 16 - share) stages, the depositor
+on the next CTA releases its count (16 - share) + 1 stages after its phase start, so the slack is range - 33 stages when
+both start together. Phase A: slack min -1 (14 of 91,154 units, two-unit ranges in 64-token regions), p1 4, p10 17,
+median 43 stages, against min 15 / median 59 for ly_rfin's in-order walk; phase A starts are grid-synchronous (gather,
+xready), so the finisher's wait is a wait by construction in 0.015% of cut units and the acquire loop covers it. Phase B:
+slack min -16, p10 -4, median 6, 23% of cut units negative before the phase A end spread (10 to 14 us) is added: a wait
+by construction, so the phase B walk (mask 3) was built and checked for correctness but predicted to lose.
+
+Correctness (`muse_decode_layer/profiles/box/rfin2/round1/chk.log`): `FORK_MOE_ROUTE native repaired`,
+`G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays`, check PASS at all 12 cells. Direct
+comparison of the MAIN build against ly_fabq's on the self-test's inputs (`profiles/box/rfin2/diff/rfin2_diff.log`:
+M = 33 / 128 / 256, route sets regular / hot (64-token jobs, NTT 8) / partial, two runs each, ly_rfin2 and ly_rfin2b): max
+|diff| 0 between runs in all 18 cases, 0 bad tokens against ly_fabq in all 18.
+
+SASS (`tools/ly_micro_sass.py` main build, box CPU). Finding first: the box copy of the tool lacked the `MAIN_EXTRA_DEFINES`
+hook (the merge kept it in the worktree only), so the ly_rfin and ly_rfinq4 reports in the previous section compiled the
+base's text (main.sass md5 equal to the base's `sass/`); the previous section carries a dated correction. Rebuilt with the
+hook (`rfin_sassx/`, `rfin2_sassx/`, `rfin2b_sassx/`), moe_fused<true>:
+
+| build | instructions | registers | local | stage loops (16, instructions each, 16 HGMMA) |
+|---|---:|---:|---:|---|
+| ly_fabq (base) | 22,647 | 96 | 0 | 304 x 7, 307 x 8, 308 |
+| ly_rfin | 22,867 | 96 | 0 | 305 x 7, 307 x 8, 311 |
+| ly_rfin2 | 22,893 | 96 | 0 | 307 x 8, 308 x 7, 314 |
+| ly_rfin2b | 22,924 | 96 | 0 | 307 x 8, 308 x 7, 314 |
+
+So 96 registers and 0 spill hold, but the stage loops are not the base's text: ly_rfin added one instruction to nine
+loops (LEA x 3 and R2UR x 2 replacing ULEA x 3 and UIMAD x 2, UIADD3 17 -> 15: address arithmetic moved off the uniform
+datapath) and ly_rfin2 adds two to three more (IMAD 39 -> 42, SHF + 1), the compiler's allocation, not code of the patch
+(the walk runs outside the stage loop). The steady issue gaps below show no per-stage cost from it.
+
+### Paired A/B against ly_rfin (box, two rounds)
+
+`tools/ly_prtl_ab.sh` (CTL=ly_rfin.py, c/w/c/w/c in one session per round, `--runs 60`, PDL pinned at 1, 8, 16, 32 in
+both arms, all six loads, 15:15 to 15:17 and 15:19 to 15:20 UTC, nothing else on the lock; table `tools/ly_prtl_table.py`,
+threshold max(2 x control spread, 0.5 us short cells, 1% long cells)). Round 1 (`.build/prtl/rfin2/`):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | w_a-c_a | w_a-c_b | w_b-c_b | w_b-c_c | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.18 | 65.26 | 64.42 | 64.82 | 64.77 | 0.77 | +0.25 | +0.08 | +0.85 | +0.40 | +0.05 | 1.54 | inside |
+| decode 1 full | 70.99 | 71.62 | 71.31 | 71.06 | 71.39 | 0.40 | +0.10 | +0.62 | +0.30 | -0.26 | -0.34 | 0.80 | inside |
+| decode 16 sliding | 126.43 | 126.43 | 127.28 | 126.74 | 126.88 | 0.85 | -0.28 | +0.00 | -0.85 | -0.54 | -0.14 | 1.70 | inside |
+| decode 16 full | 199.22 | 197.92 | 199.14 | 198.59 | 199.74 | 0.61 | -1.11 | -1.30 | -1.22 | -0.54 | -1.15 | 1.99 | inside |
+| decode 32 sliding | 143.60 | 143.58 | 144.46 | 143.12 | 143.44 | 1.02 | -0.48 | -0.02 | -0.88 | -1.34 | -0.32 | 2.05 | inside |
+| decode 32 full | 294.82 | 295.62 | 294.72 | 295.39 | 294.27 | 0.54 | +0.90 | +0.80 | +0.90 | +0.67 | +1.12 | 2.95 | inside |
+| verify 1 sliding | 101.55 | 101.71 | 101.31 | 102.14 | 102.40 | 1.09 | +0.17 | +0.16 | +0.40 | +0.83 | -0.26 | 2.18 | inside |
+| verify 1 full | 109.44 | 109.95 | 109.94 | 109.79 | 109.92 | 0.50 | +0.11 | +0.51 | +0.02 | -0.14 | -0.13 | 0.99 | inside |
+| verify 16 sliding | 242.18 | 243.15 | 242.43 | 241.65 | 242.91 | 0.74 | -0.11 | +0.98 | +0.72 | -0.78 | -1.26 | 2.43 | inside |
+| verify 16 full | 326.21 | 325.86 | 325.65 | 325.94 | 326.66 | 1.01 | -0.27 | -0.35 | +0.21 | +0.29 | -0.72 | 3.26 | inside |
+| verify 32 sliding | 294.77 | 294.86 | 294.53 | 293.42 | 293.81 | 0.96 | -0.22 | +0.10 | +0.34 | -1.10 | -0.38 | 2.94 | inside |
+| verify 32 full | 457.98 | 457.89 | 458.74 | 459.28 | 458.30 | 0.75 | +0.24 | -0.10 | -0.85 | +0.54 | +0.98 | 4.58 | inside |
+
+Round 2 (`rfin2r2/`), the four target cells, w - c mean and the four pair differences: verify 16 sliding +0.93 (+0.90,
++2.11, +1.41, +0.14), verify 16 full +0.80 (-0.05, +0.46, +1.44, +1.49), verify 32 sliding +1.22 (+1.09, +0.91, +1.34,
++1.46; spread 0.18), verify 32 full +0.45 (+0.62, +0.75, +0.19, +0.24; spread 0.18). Pooled (6 controls, 4 candidate runs,
+24 pairs per cell):
+
+| cell | control mean | spread | candidate mean | w - c | thr | pairs < 0 |
+|---|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 64.90 | 0.85 | 65.08 | +0.17 | 1.70 | 7/24 |
+| decode 1 full | 71.26 | 0.45 | 71.34 | +0.08 | 0.90 | 10/24 |
+| decode 16 sliding | 126.89 | 0.85 | 126.71 | -0.18 | 1.70 | 17/24 |
+| decode 16 full | 199.31 | 0.86 | 198.76 | -0.55 | 1.99 | 18/24 |
+| decode 32 sliding | 144.01 | 1.09 | 143.86 | -0.15 | 2.18 | 16/24 |
+| decode 32 full | 294.91 | 1.14 | 294.82 | -0.08 | 2.95 | 12/24 |
+| verify 1 sliding | 102.10 | 1.26 | 102.35 | +0.25 | 2.53 | 8/24 |
+| verify 1 full | 110.10 | 1.15 | 110.15 | +0.05 | 2.30 | 12/24 |
+| verify 16 sliding | 242.63 | 1.26 | 243.05 | +0.41 | 2.53 | 7/24 |
+| verify 16 full | 326.23 | 1.01 | 326.49 | +0.26 | 3.26 | 12/24 |
+| verify 32 sliding | 294.38 | 0.96 | 294.88 | +0.50 | 2.94 | 6/24 |
+| verify 32 full | 458.30 | 0.75 | 458.65 | +0.34 | 4.58 | 7/24 |
+
+The eight untouched cells sit within 0.6 us of the control with mixed signs. At the four target cells the candidate is
+slower by 0.3 to 0.5 us pooled, inside the threshold but with only 6 to 12 of 24 pairs negative and a clean +0.8 to +1.2
+us second round: a small loss, not a win.
+
+### Timeline: where the phase A end moved (candidate stamps, the same 20 inputs per cell as ly_rfin's run)
+
+`tools/ly_moe_tlv16.py --base ly_rfin2.py` writes `ly_rfin2_tlv16.py` (bcb7a288); `tools/ly_box_moe_tlv16g.py ... --inputs
+20 --raw 20 --rfin2 1` (`.build/box/v16/rfin2_tl/`, log in `profiles/box/rfin2/tl/`). ly_rfin -> ly_rfin2 medians (us):
+
+| cell | span | phase A | phase B | MFIN wait | A-end spread | B-end spread | x producer wait on doneAs | first gap A at NTT 1 | steady gap A at NTT 1 / 8 |
+|---|---|---|---|---|---|---|---|---|---|
+| verify 16 sliding | 143.2 -> 144.0 | 85.9 -> 86.8 | 42.4 -> 42.0 | 5.3 -> 4.9 | 10.9 -> 11.7 | 8.3 -> 8.4 | 16.8 -> 14.0 | 1.76 -> 1.89 | 0.96 / 1.50 -> 0.96 / 1.50 |
+| verify 16 full | 139.4 -> 140.0 | 82.7 -> 84.0 | 40.9 -> 40.3 | 5.4 -> 5.2 | 9.9 -> 10.9 | 8.2 -> 8.1 | 16.1 -> 12.9 | 1.79 -> 1.89 | 0.96 / 1.50 -> 0.96 / 1.50 |
+| verify 32 sliding | 175.0 -> 176.9 | 103.5 -> 104.6 | 51.6 -> 51.2 | 5.1 -> 5.5 | 13.7 -> 14.4 | 9.2 -> 10.5 | 18.5 -> 15.5 | 1.79 -> 1.89 | 0.96 / 1.54 -> 0.99 / 1.54 |
+| verify 32 full | 177.3 -> 177.2 | 104.8 -> 105.3 | 51.7 -> 51.2 | 5.1 -> 5.1 | 12.4 -> 14.4 | 9.5 -> 9.7 | 18.7 -> 15.4 | 1.76 -> 1.82 | 0.96 / 1.54 -> 0.96 / 1.54 |
+
+Switch cost by the kind of the previous segment (`tools/ly_seg_kind.py --rfin2 1`, the excess of a segment's first two
+issue gaps over the steady gap of its n-tile class, `profiles/box/rfin2/tl/seg_kind.txt`; in phase A the tool's k2 is the
+share holding stage 0, the finisher, and k3 the depositor): phase A after a whole unit 1.02 / 1.02 / 1.12 / 1.04 us mean,
+after the depositor 0.90 / 0.88 / 1.06 / 1.00, after the finisher 4.38 / 4.41 / 4.27 / 4.40 us (median 4.3; by the
+finisher's job 4.2 at NTT 1 to 5.4 at NTT 8; n = 2,260 to 2,313 per cell). In ly_rfin the finisher was the last segment,
+so its cost sat in the phase end and in no gap. Phase B is unchanged (after whole 0.89 to 1.12, after the depositor 0.83
+to 0.96 in both files). Segments per CTA and cut shares per CTA are identical to ly_rfin's (the walk only permutes).
+
+Reading: the mechanism did what it was built for on the dependency side. The cut unit's doneAs release now comes one unit
+before the phase end and the phase B x producer's doneAs wait fell 2.8 to 3.3 us per CTA (below ly_fabq's 15.2 / 15.0 /
+16.7 / 17.1); phase B shortened 0.4 to 0.6 us and the MFIN wait held or fell at verify 16. But the finisher's segment end,
+no longer at the phase end, is a 4.3 us stall of the stream in the middle of the phase: the count acquire (no wait by
+construction), `bar.sync`, `fence.acq_rel.gpu` under full HBM load, the slot read-back round trip, the zeroing stores and
+the whole-unit epilogue, during which the 3-deep ring fills and the weights producer stops, and the loop then catches up
+only at its 0.1 us per stage margin. Phase A grew 0.5 to 1.3 us and its end spread 0.8 to 2.0 us, more than phase B gave
+back; the spans moved +0.8 / +0.6 / +1.9 / -0.1 us, the same picture as the A/B. At the phase end (ly_rfin) the same work
+was hidden behind the phase B dependency wait that every CTA pays anyway; moving it earlier exposed it. The steady gaps
+are the same at every n-tile count, so the extra loop instructions did not cost per-stage time.
+
+### Decision
+
+ly_rfin2 is a loss (+0.3 to +0.5 us pooled at the four target cells, +0.8 to +1.2 in a clean round) and ly_rfin2b has a
+finisher wait by construction in phase B (its one round is recorded below); no judge check for either, ruled-out rows for
+both. What the lane establishes: the finisher's cost (about 4.3 us at NTT 1, mostly the GPU-scope acquire fence and one L2
+round trip under load) is paid wherever the cut share sits, and the phase end is the one place where it overlaps with a
+wait the CTA takes anyway, so the in-order walk of ly_rfin is the right order for a finisher that reads back. The 3 us of
+doneAs wait this lane removed from the phase B x producer is real but is not on the critical path once the finisher's
+stall sits upstream of it; a version that keeps the cut share last and still releases the unit's doneAs earlier would need
+the epilogue before the read-back, which the sum a + b forbids. The correction of the SASS claims (ly_rfin's stage loops
+carry one more instruction, not zero) does not change ly_rfin's A/B reading: its steady gaps were measured unchanged on the
+stamps.
+
+ly_rfin2b, one round (`rfin2b/`, `profiles/box/rfin2/b_round1/`, 15:29 to 15:30 UTC, same protocol): verify 16 sliding
++6.63 us (+6.11, +7.38, +7.07, +6.54; threshold 2.53), verify 16 full +8.48 (+8.78, +8.88, +8.91, +7.76; 3.26), verify 32
+sliding +3.27 (+3.23, +2.35, +3.39, +3.71; 2.94), verify 32 full +2.31 (+2.11, +1.31, +2.22, +3.06; 4.58), the eight other
+cells within 0.6 us: a loss in every one of the sixteen target pairs, the phase B finisher's wait by construction that the
+order check predicted (23% of cut units with negative slack before the phase A end spread), larger at verify 16 where the
+phase B ranges are shortest.

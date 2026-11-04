@@ -1,0 +1,59 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793805249.056 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793805249.865 release build glue_moe_88b769fff44c0d5d_sm90a
+BXBUILD 1793805249.865 start build glue_moe_88b769fff44c0d5d_sm90a
+BXBUILD 1793805249.865 start build glue_moe_eb07fcac320115be_sm90a
+BXBUILD 1793805302.612 end build glue_moe_eb07fcac320115be_sm90a
+BXBUILD 1793805304.374 end build glue_moe_88b769fff44c0d5d_sm90a
+BXLOCK 1793805304.375 acquire build glue_moe_88b769fff44c0d5d_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.49), ('sk2', 8.1), ('torch', 10.46)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 62.9 s
+BXLOCK 1793805312.729 release triton _prq_sl_tile_route_cg
+BXBUILD 1793805312.729 start triton _prq_sl_tile_route_cg
+BXBUILD 1793805313.502 end triton _prq_sl_tile_route_cg
+BXLOCK 1793805313.502 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793805313.503 release triton _sl_cluster_finish_cg
+BXBUILD 1793805313.503 start triton _sl_cluster_finish_cg
+BXBUILD 1793805313.599 end triton _sl_cluster_finish_cg
+BXLOCK 1793805313.599 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BOX decode 1 sliding: raw 68.90 net 64.64 us (overhead 4.26) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.916 | check PASS
+BOX decode 1 full: raw 74.75 net 70.53 us (overhead 4.22) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.883 | check PASS
+BXLOCK 1793805313.957 release triton _prq_sl_tile_route_cg
+BXBUILD 1793805313.957 start triton _prq_sl_tile_route_cg
+BXBUILD 1793805314.694 end triton _prq_sl_tile_route_cg
+BXLOCK 1793805314.694 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793805314.696 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793805314.696 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793805314.792 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793805314.792 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BOX decode 16 sliding: raw 126.66 net 122.62 us (overhead 4.03) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.959 | check PASS
+BOX decode 16 full: raw 210.98 net 206.62 us (overhead 4.35) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.982 | check PASS
+BXLOCK 1793805315.358 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793805315.358 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793805315.456 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793805315.456 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BOX decode 32 sliding: raw 143.52 net 139.42 us (overhead 4.10) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.927 | check PASS
+BOX decode 32 full: raw 300.10 net 296.03 us (overhead 4.06) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.972 | check PASS
+BOX verify 1 sliding: raw 103.01 net 98.91 us (overhead 4.10) | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.931 | check PASS
+BOX verify 1 full: raw 119.55 net 115.55 us (overhead 4.00) | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.970 | check PASS
+BOX verify 16 sliding: raw 240.64 net 236.58 us (overhead 4.06) | judge net 250.02 (n=1, 250.02-250.02) box/judge 0.946 | check PASS
+BOX verify 16 full: raw 323.78 net 319.52 us (overhead 4.26) | judge net 335.01 (n=1, 335.01-335.01) box/judge 0.954 | check PASS
+BOX verify 32 sliding: raw 302.14 net 298.02 us (overhead 4.13) | judge net 308.45 (n=1, 308.45-308.45) box/judge 0.966 | check PASS
+BOX verify 32 full: raw 462.88 net 458.88 us (overhead 4.00) | judge net 468.64 (n=1, 468.64-468.64) box/judge 0.979 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 60 hits, 0 computed
+BXPHASE import_torch=1.65 load_reference_cuda_init=0.00 weights_and_router=0.24 prepare_submission=62.90 fresh_inputs=0.89 check=3.06 capture=0.12 overhead_graphs=1.30 replays=0.04 cell_tail=0.02 json_write=0.00 total=70.22

@@ -1,0 +1,96 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+== verify 16 sliding: CTAs x inputs 2640
+  phase A: segments per CTA median 6.0 mean 5.49 (whole 3.77 k2 0.86 k3 0.86 per CTA); cuts per CTA mean 1.71
+    after whole: n 7324 excess mean 1.02 med 0.90 us
+    after k2   : n 2260 excess mean 4.38 med 4.32 us
+    after k3   : n 2260 excess mean 0.90 med 0.80 us
+    prev NTT 1: whole 0.91 (n 5263); k2 4.35 (n 1377); k3 0.82 (n 1377)
+    prev NTT 2: whole 1.05 (n 1175); k2 4.09 (n 413); k3 0.94 (n 413)
+    prev NTT 3: whole 1.20 (n 425); k2 4.21 (n 162); k3 0.95 (n 162)
+    prev NTT 4: whole 1.40 (n 255); k2 4.25 (n 120); k3 1.00 (n 120)
+    prev NTT 5: whole 2.08 (n 13); k2 4.60 (n 9); k3 0.84 (n 9)
+    prev NTT 7: whole 2.26 (n 47); k2 5.13 (n 40); k3 1.31 (n 40)
+    prev NTT 8: whole 2.84 (n 146); k2 5.58 (n 139); k3 1.35 (n 139)
+  phase B: segments per CTA median 3.0 mean 3.16 (whole 1.47 k2 0.84 k3 0.84 per CTA); cuts per CTA mean 1.69
+    after whole: n 2862 excess mean 0.89 med 0.74 us
+    after k2   : n 2227 excess mean 0.84 med 0.77 us
+    prev NTT 1: whole 0.71 (n 2064); k2 0.78 (n 1381)
+    prev NTT 2: whole 1.11 (n 492); k2 0.84 (n 401)
+    prev NTT 3: whole 1.39 (n 169); k2 0.81 (n 148)
+    prev NTT 4: whole 1.71 (n 97); k2 1.01 (n 105)
+    prev NTT 5: whole 2.13 (n 4); k2 1.04 (n 8)
+    prev NTT 7: whole 2.72 (n 17); k2 1.39 (n 34)
+    prev NTT 8: whole 4.17 (n 19); k2 1.22 (n 150)
+== verify 16 full: CTAs x inputs 2640
+  phase A: segments per CTA median 5.0 mean 5.20 (whole 3.45 k2 0.88 k3 0.88 per CTA); cuts per CTA mean 1.75
+    after whole: n 6471 excess mean 1.02 med 0.90 us
+    after k2   : n 2313 excess mean 4.41 med 4.32 us
+    after k3   : n 2313 excess mean 0.88 med 0.80 us
+    prev NTT 1: whole 0.92 (n 4438); k2 4.37 (n 1312); k3 0.79 (n 1312)
+    prev NTT 2: whole 1.05 (n 1107); k2 4.19 (n 451); k3 0.89 (n 451)
+    prev NTT 3: whole 1.15 (n 579); k2 4.20 (n 254); k3 0.89 (n 254)
+    prev NTT 4: whole 1.53 (n 174); k2 4.74 (n 101); k3 1.04 (n 101)
+    prev NTT 5: whole 1.58 (n 11); k2 4.42 (n 10); k3 0.82 (n 10)
+    prev NTT 6: whole 2.10 (n 25); k2 4.88 (n 19); k3 1.32 (n 19)
+    prev NTT 7: whole 2.70 (n 43); k2 5.24 (n 57); k3 1.35 (n 57)
+    prev NTT 8: whole 2.73 (n 94); k2 5.54 (n 109); k3 1.45 (n 109)
+  phase B: segments per CTA median 3.0 mean 3.03 (whole 1.30 k2 0.86 k3 0.86 per CTA); cuts per CTA mean 1.73
+    after whole: n 2463 excess mean 0.92 med 0.77 us
+    after k2   : n 2276 excess mean 0.83 med 0.74 us
+    prev NTT 1: whole 0.71 (n 1699); k2 0.77 (n 1357)
+    prev NTT 2: whole 1.13 (n 446); k2 0.85 (n 410)
+    prev NTT 3: whole 1.37 (n 215); k2 0.79 (n 233)
+    prev NTT 4: whole 1.84 (n 65); k2 0.88 (n 91)
+    prev NTT 5: whole 1.78 (n 4); k2 1.02 (n 8)
+    prev NTT 6: whole 2.40 (n 9); k2 1.16 (n 17)
+    prev NTT 7: whole 4.11 (n 9); k2 1.20 (n 52)
+    prev NTT 8: whole 4.06 (n 16); k2 1.29 (n 108)
+== verify 32 sliding: CTAs x inputs 2640
+  phase A: segments per CTA median 6.0 mean 6.08 (whole 4.36 k2 0.86 k3 0.86 per CTA); cuts per CTA mean 1.72
+    after whole: n 8882 excess mean 1.12 med 0.93 us
+    after k2   : n 2270 excess mean 4.27 med 4.16 us
+    after k3   : n 2270 excess mean 1.06 med 0.93 us
+    prev NTT 1: whole 0.87 (n 5095); k2 4.00 (n 974); k3 0.88 (n 974)
+    prev NTT 2: whole 1.00 (n 1312); k2 3.81 (n 325); k3 0.97 (n 325)
+    prev NTT 3: whole 1.18 (n 578); k2 3.90 (n 161); k3 1.02 (n 161)
+    prev NTT 4: whole 1.43 (n 642); k2 4.16 (n 207); k3 1.14 (n 207)
+    prev NTT 5: whole 1.71 (n 356); k2 4.58 (n 132); k3 1.21 (n 132)
+    prev NTT 6: whole 1.98 (n 206); k2 4.91 (n 86); k3 1.24 (n 86)
+    prev NTT 7: whole 2.18 (n 235); k2 5.09 (n 115); k3 1.32 (n 115)
+    prev NTT 8: whole 2.31 (n 458); k2 5.38 (n 270); k3 1.54 (n 270)
+  phase B: segments per CTA median 4.0 mean 3.49 (whole 1.74 k2 0.88 k3 0.88 per CTA); cuts per CTA mean 1.75
+    after whole: n 3657 excess mean 1.12 med 0.86 us
+    after k2   : n 2313 excess mean 0.96 med 0.86 us
+    prev NTT 1: whole 0.72 (n 2103); k2 0.86 (n 1060)
+    prev NTT 2: whole 1.11 (n 575); k2 0.88 (n 315)
+    prev NTT 3: whole 1.38 (n 246); k2 0.87 (n 156)
+    prev NTT 4: whole 1.70 (n 275); k2 0.98 (n 196)
+    prev NTT 5: whole 2.09 (n 150); k2 1.12 (n 122)
+    prev NTT 6: whole 2.26 (n 75); k2 1.11 (n 84)
+    prev NTT 7: whole 2.64 (n 85); k2 1.19 (n 108)
+    prev NTT 8: whole 3.03 (n 148); k2 1.23 (n 272)
+== verify 32 full: CTAs x inputs 2640
+  phase A: segments per CTA median 6.0 mean 6.12 (whole 4.40 k2 0.86 k3 0.86 per CTA); cuts per CTA mean 1.72
+    after whole: n 8978 excess mean 1.04 med 0.90 us
+    after k2   : n 2270 excess mean 4.40 med 4.29 us
+    after k3   : n 2270 excess mean 1.00 med 0.90 us
+    prev NTT 1: whole 0.80 (n 5254); k2 4.21 (n 1009); k3 0.86 (n 1009)
+    prev NTT 2: whole 0.93 (n 1122); k2 3.80 (n 281); k3 0.92 (n 281)
+    prev NTT 3: whole 1.08 (n 684); k2 4.02 (n 192); k3 0.98 (n 192)
+    prev NTT 4: whole 1.31 (n 569); k2 4.43 (n 184); k3 1.06 (n 184)
+    prev NTT 5: whole 1.53 (n 380); k2 4.62 (n 134); k3 1.04 (n 134)
+    prev NTT 6: whole 1.76 (n 211); k2 5.01 (n 94); k3 1.14 (n 94)
+    prev NTT 7: whole 2.03 (n 257); k2 5.06 (n 119); k3 1.16 (n 119)
+    prev NTT 8: whole 2.22 (n 501); k2 5.38 (n 257); k3 1.44 (n 257)
+  phase B: segments per CTA median 4.0 mean 3.48 (whole 1.78 k2 0.85 k3 0.85 per CTA); cuts per CTA mean 1.71
+    after whole: n 3683 excess mean 1.07 med 0.83 us
+    after k2   : n 2255 excess mean 0.95 med 0.86 us
+    prev NTT 1: whole 0.70 (n 2181); k2 0.87 (n 1039)
+    prev NTT 2: whole 1.04 (n 486); k2 0.88 (n 268)
+    prev NTT 3: whole 1.33 (n 291); k2 0.85 (n 181)
+    prev NTT 4: whole 1.62 (n 240); k2 0.94 (n 170)
+    prev NTT 5: whole 1.84 (n 158); k2 1.07 (n 121)
+    prev NTT 6: whole 2.11 (n 87); k2 1.09 (n 90)
+    prev NTT 7: whole 2.71 (n 85); k2 1.29 (n 116)
+    prev NTT 8: whole 2.89 (n 155); k2 1.19 (n 270)

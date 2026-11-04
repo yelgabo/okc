@@ -6,7 +6,7 @@ the previous segment's kind. Kinds: whole unit; k2 = cut share that does not hol
 (ly_rfin bases) phase A runs in order and the finisher is the share holding stage 0, so the phase A labels read
 k2 = finisher (the CTA's last segment, its cost at the phase end) and k3 = depositor (its first).
 
-    python3 tools/ly_seg_kind.py tlv16g.json [--no-reorder]
+    python3 tools/ly_seg_kind.py tlv16g.json [--no-reorder] [--rfin2 MASK]
 """
 import json
 import os
@@ -16,6 +16,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ly_box_moe_tlv16g as T
 if "--no-reorder" in sys.argv:
     T.REORDER = False
+if "--rfin2" in sys.argv:
+    T.REORDER = False
+    T.RFIN2 = int(sys.argv[sys.argv.index("--rfin2") + 1])
 issue_order = T.issue_order
 d = json.load(open(sys.argv[1]))
 for row in d["rows"]:

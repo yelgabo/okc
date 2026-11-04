@@ -1,0 +1,71 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793805629.314 acquire start after 0.0 s
+TLV16 bandwidth read 4.429 TB/s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793805630.147 release build glue_moe_f858331b75d2d0c2_sm90a
+BXBUILD 1793805630.147 start build glue_moe_f858331b75d2d0c2_sm90a
+BXBUILD 1793805630.148 start build glue_moe_79619969ab650197_sm90a
+BXBUILD 1793805680.534 end build glue_moe_79619969ab650197_sm90a
+BXBUILD 1793805683.844 end build glue_moe_f858331b75d2d0c2_sm90a
+BXLOCK 1793805683.844 acquire build glue_moe_f858331b75d2d0c2_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.39), ('sk2', 7.71), ('torch', 10.4)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+TLV16 main attrs (regs, local, smem) x2 [96, 0, 0, 96, 0, 0]
+TLV16G verify 16 sliding n 20 medians graph_plain 245.312 graph_inst 245.824 span 144.016 route 2.173 gather 5.281 join 5.308 issue0 5.598 A 86.797 aend_spread 11.696 B 41.984 bend_spread 8.368 mfin_wait 4.894 final 4.430 exit_spread 4.080 x_rdy_wait 1.376 b_dep_wait 14.019 stages 14208.000 stages_min 14208.000 stg_cta_min 68.500 stg_cta_max 120.000 tbs_a 0.032 tbs_b 0.033 tbs_a_agg 3.926 int_floor 1.068 distinct 18.500 routes 182.500 nj 18.500 njf 6.500 restream 0.000 hot 0.000 max_tokens 59.500 smclk 1768.897 switch_gap 1.024 maxdiff nan
+TLV16G verify 16 sliding stages by n-tiles (1..8) A [132096, 33280, 12288, 8192, 512, 0, 2048, 7168] B [66048, 16640, 6144, 4096, 256, 0, 1024, 3584]
+TLV16G verify 16 sliding fit A us per stage by n-tiles 1.023 1.154 1.191 1.344 1.445 nan 1.644 1.788 + 7.02 (resid sd 1.81)
+TLV16G verify 16 sliding fit B us per stage by n-tiles 0.953 1.097 1.164 1.295 1.343 nan 1.616 1.698 + 4.50 (resid sd 1.88)
+TLV16G verify 16 sliding issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsA 1:0:1.89(9633) 1:1:0.99(9458) 1:2:0.96(108157) 2:0:2.21(2493) 2:1:1.09(2438) 2:2:1.06(26873) 3:0:2.40(930) 3:1:1.15(904) 3:2:1.12(9911) 4:0:2.78(632) 4:1:1.28(615) 4:2:1.22(6534) 5:0:4.32(41) 5:1:1.39(40) 5:2:1.28(401) 7:0:4.61(168) 7:1:1.60(161) 7:2:1.44(1596) 8:0:5.44(587) 8:1:1.70(571) 8:2:1.54(5521)
+TLV16G verify 16 sliding issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsB 1:0:1.73(5225) 1:1:0.99(5050) 1:2:0.96(50709) 2:0:2.18(1375) 2:1:1.12(1299) 2:2:1.06(12629) 3:0:2.53(501) 3:1:1.15(479) 3:2:1.12(4647) 4:0:2.88(338) 4:1:1.28(323) 4:2:1.22(3063) 5:0:3.30(23) 5:1:1.38(20) 5:2:1.28(186) 7:0:3.84(90) 7:1:1.57(87) 7:2:1.44(733) 8:0:4.96(346) 8:1:1.70(321) 8:2:1.54(2428)
+TLV16G verify 16 sliding distinct 16 n  3 graph_plain 230.66 graph_inst 232.06 span 128.93 issue0 5.42 A 77.35 B 37.25 bend_spread 8.19 final 4.50 nj 16.00 restream 0.00 routes 188.00
+TLV16G verify 16 sliding distinct 17 n  3 graph_plain 237.76 graph_inst 239.42 span 137.06 issue0 5.51 A 81.21 B 38.93 bend_spread 9.63 final 4.30 nj 17.00 restream 0.00 routes 179.00
+TLV16G verify 16 sliding distinct 18 n  4 graph_plain 241.57 graph_inst 241.18 span 140.00 issue0 5.66 A 84.22 B 41.22 bend_spread 7.62 final 4.36 nj 18.00 restream 0.00 routes 180.00
+TLV16G verify 16 sliding distinct 19 n  4 graph_plain 252.24 graph_inst 252.21 span 149.76 issue0 5.57 A 90.34 B 43.54 bend_spread 8.82 final 4.45 nj 19.50 restream 0.50 routes 183.50
+TLV16G verify 16 sliding distinct 20 n  1 graph_plain 252.32 graph_inst 252.35 span 151.90 issue0 5.61 A 91.47 B 45.18 bend_spread 7.74 final 4.47 nj 20.00 restream 0.00 routes 189.00
+TLV16G verify 16 sliding distinct 21 n  3 graph_plain 261.86 graph_inst 260.38 span 158.78 issue0 5.61 A 96.53 B 47.37 bend_spread 7.20 final 4.13 nj 21.00 restream 0.00 routes 186.00
+TLV16G verify 16 sliding distinct 24 n  1 graph_plain 275.26 graph_inst 273.12 span 171.81 issue0 5.57 A 107.14 B 50.36 bend_spread 8.19 final 4.43 nj 24.00 restream 0.00 routes 181.00
+TLV16G verify 16 sliding distinct 25 n  1 graph_plain 282.72 graph_inst 281.79 span 181.73 issue0 5.71 A 112.34 B 54.03 bend_spread 8.74 final 4.78 nj 25.00 restream 0.00 routes 183.00
+TLV16G verify 16 full n 20 medians graph_plain 326.880 graph_inst 328.320 span 139.984 route 2.149 gather 5.151 join 5.179 issue0 5.492 A 84.000 aend_spread 10.944 B 40.328 bend_spread 8.112 mfin_wait 5.244 final 4.399 exit_spread 4.144 x_rdy_wait 1.393 b_dep_wait 12.862 stages 13824.000 stages_min 13824.000 stg_cta_min 66.000 stg_cta_max 116.000 tbs_a 0.032 tbs_b 0.033 tbs_a_agg 3.932 int_floor 1.068 distinct 18.000 routes 175.000 nj 18.000 njf 6.000 restream 0.000 hot 0.000 max_tokens 56.000 smclk 1786.593 switch_gap 0.992 maxdiff nan
+TLV16G verify 16 full stages by n-tiles (1..8) A [116224, 33280, 17920, 6144, 512, 1024, 2560, 5120] B [58112, 16640, 8960, 3072, 256, 512, 1280, 2560]
+TLV16G verify 16 full fit A us per stage by n-tiles 1.040 1.179 1.211 1.392 1.464 1.574 1.702 1.812 + 5.27 (resid sd 1.69)
+TLV16G verify 16 full fit B us per stage by n-tiles 0.897 1.033 1.096 1.227 1.283 1.419 1.534 1.620 + 6.29 (resid sd 1.72)
+TLV16G verify 16 full issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsA 1:0:1.89(8576) 1:1:0.99(8391) 1:2:0.96(94715) 2:0:2.24(2531) 2:1:1.06(2471) 2:2:1.06(26712) 3:0:2.40(1374) 3:1:1.15(1341) 3:2:1.12(14344) 4:0:3.33(485) 4:1:1.28(470) 4:2:1.18(4862) 5:0:4.03(42) 5:1:1.34(42) 5:2:1.25(395) 6:0:5.25(83) 6:1:1.47(79) 6:2:1.34(802) 7:0:5.44(217) 7:1:1.60(206) 7:2:1.44(1957) 8:0:5.34(429) 8:1:1.70(410) 8:2:1.54(3930)
+TLV16G verify 16 full issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsB 1:0:1.73(4718) 1:1:0.99(4550) 1:2:0.96(44083) 2:0:2.21(1367) 2:1:1.12(1308) 2:2:1.06(12532) 3:0:2.53(738) 3:1:1.15(717) 3:2:1.12(6682) 4:0:2.85(260) 4:1:1.28(253) 4:2:1.22(2259) 5:0:3.07(22) 5:1:1.38(22) 5:2:1.31(182) 6:0:3.46(45) 6:1:1.44(44) 6:2:1.38(366) 7:0:4.14(122) 7:1:1.60(114) 7:2:1.44(875) 8:0:4.70(243) 8:1:1.70(233) 8:2:1.54(1737)
+TLV16G verify 16 full distinct 14 n  1 graph_plain 303.84 graph_inst 308.13 span 117.70 issue0 5.40 A 68.37 B 34.73 bend_spread 7.30 final 4.23 nj 14.00 restream 0.00 routes 173.00
+TLV16G verify 16 full distinct 16 n  2 graph_plain 317.42 graph_inst 320.00 span 131.01 issue0 5.55 A 76.69 B 37.95 bend_spread 9.09 final 4.61 nj 16.00 restream 0.00 routes 186.50
+TLV16G verify 16 full distinct 17 n  5 graph_plain 321.60 graph_inst 323.20 span 133.95 issue0 5.58 A 79.82 B 38.64 bend_spread 8.13 final 4.27 nj 17.00 restream 0.00 routes 173.00
+TLV16G verify 16 full distinct 18 n  5 graph_plain 327.23 graph_inst 329.34 span 140.03 issue0 5.46 A 84.01 B 40.38 bend_spread 8.61 final 4.35 nj 18.00 restream 0.00 routes 173.00
+TLV16G verify 16 full distinct 19 n  5 graph_plain 334.98 graph_inst 335.20 span 145.70 issue0 5.49 A 88.21 B 43.16 bend_spread 7.62 final 4.45 nj 19.00 restream 0.00 routes 175.00
+TLV16G verify 16 full distinct 20 n  2 graph_plain 336.06 graph_inst 339.70 span 150.98 issue0 5.54 A 91.11 B 44.25 bend_spread 8.06 final 4.35 nj 20.00 restream 0.00 routes 180.50
+TLV16G verify 32 sliding n 20 medians graph_plain 299.936 graph_inst 300.496 span 176.864 route 2.719 gather 7.098 join 7.125 issue0 7.359 A 104.649 aend_spread 14.352 B 51.221 bend_spread 10.480 mfin_wait 5.514 final 6.224 exit_spread 3.360 x_rdy_wait 1.322 b_dep_wait 15.525 stages 16128.000 stages_min 15360.000 stg_cta_min 81.000 stg_cta_max 146.500 tbs_a 0.029 tbs_b 0.030 tbs_a_agg 3.712 int_floor 1.068 distinct 20.000 routes 353.500 nj 21.000 njf 10.000 restream 1.000 hot 1.000 max_tokens 118.000 smclk 1738.044 switch_gap 1.024 maxdiff nan
+TLV16G verify 32 sliding stages by n-tiles (1..8) A [115712, 32256, 14848, 17408, 10240, 6144, 7680, 16384] B [57856, 16128, 7424, 8704, 5120, 3072, 3840, 8192]
+TLV16G verify 32 sliding fit A us per stage by n-tiles 1.015 1.140 1.186 1.316 1.406 1.520 1.631 1.727 + 8.33 (resid sd 1.91)
+TLV16G verify 32 sliding fit B us per stage by n-tiles 0.992 1.118 1.191 1.309 1.410 1.518 1.608 1.729 + 3.22 (resid sd 2.02)
+TLV16G verify 32 sliding issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsA 1:0:1.89(8206) 1:1:1.02(8078) 1:2:0.99(95939) 2:0:2.14(2341) 2:1:1.09(2285) 2:2:1.09(26493) 3:0:2.40(1089) 3:1:1.18(1072) 3:2:1.12(12120) 4:0:2.69(1295) 4:1:1.28(1261) 4:2:1.22(14135) 5:0:3.01(772) 5:1:1.38(754) 5:2:1.28(8258) 6:0:3.34(470) 6:1:1.50(459) 6:2:1.38(4939) 7:0:3.68(595) 7:1:1.63(574) 7:2:1.47(6121) 8:0:4.00(1294) 8:1:1.73(1257) 8:2:1.57(12945)
+TLV16G verify 32 sliding issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsB 1:0:1.73(4466) 1:1:0.99(4333) 1:2:0.96(45339) 2:0:2.14(1274) 2:1:1.09(1227) 2:2:1.06(12568) 3:0:2.40(594) 3:1:1.15(572) 3:2:1.12(5703) 4:0:2.78(696) 4:1:1.25(675) 4:2:1.22(6679) 5:0:3.02(418) 5:1:1.38(401) 5:2:1.28(3894) 6:0:3.36(258) 6:1:1.44(241) 6:2:1.38(2302) 7:0:3.71(329) 7:1:1.54(308) 7:2:1.44(2838) 8:0:4.06(736) 8:1:1.66(694) 8:2:1.54(5871)
+TLV16G verify 32 sliding distinct 17 n  1 graph_plain 279.78 graph_inst 280.35 span 157.18 issue0 7.45 A 92.62 B 44.68 bend_spread 8.42 final 5.85 nj 18.00 restream 1.00 routes 359.00
+TLV16G verify 32 sliding distinct 19 n  5 graph_plain 296.93 graph_inst 296.74 span 173.98 issue0 7.28 A 101.65 B 49.26 bend_spread 10.21 final 6.34 nj 20.00 restream 1.00 routes 343.00
+TLV16G verify 32 sliding distinct 20 n  6 graph_plain 298.48 graph_inst 300.30 span 176.40 issue0 7.36 A 104.53 B 50.89 bend_spread 11.47 final 6.16 nj 21.00 restream 1.00 routes 356.50
+TLV16G verify 32 sliding distinct 21 n  2 graph_plain 304.40 graph_inst 305.62 span 181.73 issue0 7.38 A 108.76 B 52.60 bend_spread 9.42 final 6.45 nj 22.00 restream 1.00 routes 349.50
+TLV16G verify 32 sliding distinct 22 n  2 graph_plain 309.78 graph_inst 310.02 span 186.78 issue0 7.33 A 111.96 B 54.42 bend_spread 11.12 final 6.16 nj 23.00 restream 1.00 routes 359.00
+TLV16G verify 32 sliding distinct 23 n  3 graph_plain 315.97 graph_inst 315.71 span 192.93 issue0 7.33 A 115.98 B 56.59 bend_spread 12.58 final 6.32 nj 24.00 restream 1.00 routes 353.00
+TLV16G verify 32 sliding distinct 24 n  1 graph_plain 316.61 graph_inst 317.73 span 193.28 issue0 7.29 A 117.22 B 56.22 bend_spread 7.30 final 6.19 nj 24.00 restream 0.00 routes 349.00
+TLV16G verify 32 full n 20 medians graph_plain 464.272 graph_inst 473.232 span 177.232 route 2.711 gather 7.078 join 7.106 issue0 7.327 A 105.293 aend_spread 14.416 B 51.190 bend_spread 9.744 mfin_wait 5.117 final 6.198 exit_spread 3.456 x_rdy_wait 1.310 b_dep_wait 15.437 stages 16512.000 stages_min 15360.000 stg_cta_min 83.500 stg_cta_max 148.500 tbs_a 0.029 tbs_b 0.031 tbs_a_agg 3.743 int_floor 1.068 distinct 20.000 routes 358.000 nj 21.500 njf 10.000 restream 1.000 hot 1.000 max_tokens 116.000 smclk 1749.491 switch_gap 1.024 maxdiff nan
+TLV16G verify 32 full stages by n-tiles (1..8) A [119296, 27648, 17408, 15360, 10752, 6656, 8192, 16896] B [59648, 13824, 8704, 7680, 5376, 3328, 4096, 8448]
+TLV16G verify 32 full fit A us per stage by n-tiles 1.030 1.161 1.207 1.345 1.429 1.553 1.661 1.762 + 5.54 (resid sd 1.81)
+TLV16G verify 32 full fit B us per stage by n-tiles 0.985 1.111 1.184 1.291 1.391 1.522 1.617 1.714 + 3.01 (resid sd 2.03)
+TLV16G verify 32 full issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsA 1:0:1.82(8465) 1:1:0.99(8338) 1:2:0.96(98914) 2:0:2.08(2009) 2:1:1.09(1972) 2:2:1.06(22692) 3:0:2.30(1280) 3:1:1.15(1258) 3:2:1.12(14234) 4:0:2.62(1144) 4:1:1.28(1113) 4:2:1.22(12482) 5:0:2.88(806) 5:1:1.34(791) 5:2:1.28(8681) 6:0:3.22(510) 6:1:1.50(499) 6:2:1.38(5314) 7:0:3.58(631) 7:1:1.60(617) 7:2:1.47(6536) 8:0:3.84(1313) 8:1:1.70(1276) 8:2:1.54(13413)
+TLV16G verify 32 full issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsB 1:0:1.73(4545) 1:1:0.99(4414) 1:2:0.96(46895) 2:0:2.11(1081) 2:1:1.09(1037) 2:2:1.06(10784) 3:0:2.40(687) 3:1:1.15(666) 3:2:1.12(6731) 4:0:2.72(614) 4:1:1.25(591) 4:2:1.22(5900) 5:0:3.07(430) 5:1:1.34(417) 5:2:1.28(4111) 6:0:3.42(283) 6:1:1.44(270) 6:2:1.38(2478) 7:0:3.78(339) 7:1:1.54(323) 7:2:1.44(3047) 8:0:4.13(748) 8:1:1.66(708) 8:2:1.54(6085)
+TLV16G verify 32 full distinct 18 n  1 graph_plain 444.61 graph_inst 453.76 span 158.14 issue0 7.12 A 93.32 B 45.21 bend_spread 10.21 final 6.12 nj 19.00 restream 1.00 routes 335.00
+TLV16G verify 32 full distinct 19 n  5 graph_plain 461.38 graph_inst 470.91 span 174.78 issue0 7.45 A 103.56 B 49.99 bend_spread 9.02 final 6.35 nj 21.00 restream 2.00 routes 379.00
+TLV16G verify 32 full distinct 20 n  5 graph_plain 461.66 graph_inst 472.03 span 173.09 issue0 7.20 A 103.56 B 49.85 bend_spread 8.32 final 6.07 nj 21.00 restream 1.00 routes 357.00
+TLV16G verify 32 full distinct 21 n  5 graph_plain 467.87 graph_inst 476.70 span 179.68 issue0 7.35 A 107.57 B 51.94 bend_spread 10.02 final 6.11 nj 22.00 restream 1.00 routes 369.00
+TLV16G verify 32 full distinct 22 n  2 graph_plain 468.11 graph_inst 476.98 span 181.79 issue0 7.28 A 108.25 B 52.79 bend_spread 10.74 final 6.21 nj 22.50 restream 0.50 routes 348.00
+TLV16G verify 32 full distinct 25 n  1 graph_plain 482.46 graph_inst 494.72 span 197.82 issue0 7.27 A 119.06 B 57.35 bend_spread 12.45 final 6.19 nj 25.00 restream 0.00 routes 344.00
+TLV16G verify 32 full distinct 26 n  1 graph_plain 490.21 graph_inst 499.30 span 205.63 issue0 7.54 A 124.09 B 60.08 bend_spread 11.81 final 6.30 nj 26.00 restream 0.00 routes 381.00
