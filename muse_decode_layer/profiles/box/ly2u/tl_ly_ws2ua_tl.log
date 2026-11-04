@@ -1,0 +1,43 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793762053.693 acquire start after 0.0 s
+TL16 bandwidth TB/s {'copy (read + write)': 4.269, 'sum (read)': 4.432}
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793762054.610 release build glue_moe_65e811461204199c_sm90a
+BXBUILD 1793762054.610 start build glue_moe_65e811461204199c_sm90a
+BXBUILD 1793762054.611 start build glue_moe_8b491429ee961a59_sm90a
+BXBUILD 1793762054.611 start build glue_moe_a1c3723a0411adc5_sm90a
+BXBUILD 1793762092.109 end build glue_moe_65e811461204199c_sm90a
+BXBUILD 1793762092.291 end build glue_moe_a1c3723a0411adc5_sm90a
+BXBUILD 1793762095.297 end build glue_moe_8b491429ee961a59_sm90a
+BXLOCK 1793762095.297 acquire build glue_moe_8b491429ee961a59_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.52), ('sk2', 8.0), ('torch', 10.43)] -> ('cg',)
+BXLOCK 1793762097.584 release triton _sl_tile_route_cg
+BXBUILD 1793762097.584 start triton _sl_tile_route_cg
+BXBUILD 1793762098.325 end triton _sl_tile_route_cg
+BXLOCK 1793762098.325 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793762098.328 release triton _sl_cluster_finish_cg
+BXBUILD 1793762098.328 start triton _sl_cluster_finish_cg
+BXBUILD 1793762098.425 end triton _sl_cluster_finish_cg
+BXLOCK 1793762098.425 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793762098.463 release triton _sl_tile_route_cg
+BXBUILD 1793762098.463 start triton _sl_tile_route_cg
+BXBUILD 1793762099.189 end triton _sl_tile_route_cg
+BXLOCK 1793762099.189 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793762099.190 release triton _sl_cluster_finish_cg
+BXBUILD 1793762099.190 start triton _sl_cluster_finish_cg
+BXBUILD 1793762099.282 end triton _sl_cluster_finish_cg
+BXLOCK 1793762099.282 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793762099.333 release triton _sl_tile_route
+BXBUILD 1793762099.333 start triton _sl_tile_route
+BXBUILD 1793762100.042 end triton _sl_tile_route
+BXLOCK 1793762100.042 acquire triton _sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]

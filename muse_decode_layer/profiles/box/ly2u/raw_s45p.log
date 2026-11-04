@@ -1,0 +1,62 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793761840.223 acquire start after 0.0 s
+TL16 bandwidth TB/s {'copy (read + write)': 4.269, 'sum (read)': 4.444}
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793761840.851 release build glue_moe_0674d869b0815aca_sm90a
+BXBUILD 1793761840.852 start build glue_moe_0674d869b0815aca_sm90a
+BXBUILD 1793761840.853 start build glue_moe_1cbb4bf0491fb455_sm90a
+BXBUILD 1793761840.853 start build glue_moe_eda5724873a15a5f_sm90a
+BXBUILD 1793761879.181 end build glue_moe_1cbb4bf0491fb455_sm90a
+BXBUILD 1793761880.843 end build glue_moe_eda5724873a15a5f_sm90a
+BXBUILD 1793761880.879 end build glue_moe_0674d869b0815aca_sm90a
+BXLOCK 1793761880.879 acquire build glue_moe_0674d869b0815aca_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.36), ('sk2', 8.0), ('torch', 10.62)] -> ('cg',)
+BXLOCK 1793761883.277 release triton _sl_tile_route_cg
+BXBUILD 1793761883.277 start triton _sl_tile_route_cg
+BXBUILD 1793761884.016 end triton _sl_tile_route_cg
+BXLOCK 1793761884.016 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793761884.019 release triton _sl_cluster_finish_cg
+BXBUILD 1793761884.019 start triton _sl_cluster_finish_cg
+BXBUILD 1793761884.116 end triton _sl_cluster_finish_cg
+BXLOCK 1793761884.116 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793761884.154 release triton _sl_tile_route_cg
+BXBUILD 1793761884.154 start triton _sl_tile_route_cg
+BXBUILD 1793761884.886 end triton _sl_tile_route_cg
+BXLOCK 1793761884.886 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793761884.887 release triton _sl_cluster_finish_cg
+BXBUILD 1793761884.887 start triton _sl_cluster_finish_cg
+BXBUILD 1793761884.980 end triton _sl_cluster_finish_cg
+BXLOCK 1793761884.980 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793761885.032 release triton _sl_tile_route
+BXBUILD 1793761885.032 start triton _sl_tile_route
+BXBUILD 1793761885.732 end triton _sl_tile_route
+BXLOCK 1793761885.732 acquire triton _sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+TL16 ma_w tensors [((134217728,), 'torch.int32'), ((67108864,), 'torch.uint8'), ((32,), 'torch.float32'), ((67108864,), 'torch.int32'), ((33554432,), 'torch.uint8'), ((32,), 'torch.float32'), ((256,), 'torch.int32'), ((4096,), 'torch.bfloat16'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((587202560,), 'torch.uint8'), ((293601280,), 'torch.uint8')] bytes 3598722304 per local expert 112460072.0
+BXLOCK 1793761890.915 release triton _sl_tile_route_cg
+BXBUILD 1793761890.915 start triton _sl_tile_route_cg
+BXBUILD 1793761891.616 end triton _sl_tile_route_cg
+BXLOCK 1793761892.915 acquire triton _sl_tile_route_cg done after 1.3 s
+BXCLOCK submission clocks now 1.3 s behind real (lock waits after builds)
+TL16 decode 16 sliding n 6 medians plain_us 100.10 span 76.11 ramp 4.78 route 3.00 A 35.70 handoff 3.46 B 19.46 bend_spread 11.33 bend_to_bar 1.21 bar_idle 9.65 final 0.88 unit_us 1.15 unit_a 1.15 unit_b 1.18 a_wwait 2.35 b_wwait 0.79 units 5760.00 distinct 7.50 routes 27.00
+TL16 decode 16 sliding distinct  6 n  1 plain  87.84 span  67.36 units   4608 ramp 4.78 A 28.88 handoff 3.34 B 16.48 spread 11.97 tail 12.45 maxdiff 7.63e-06
+TL16 decode 16 sliding distinct  7 n  2 plain 104.91 span  73.54 units   5376 ramp 5.09 A 33.39 handoff 4.17 B 18.12 spread 11.33 tail 11.87 maxdiff 9.77e-04
+TL16 decode 16 sliding distinct  8 n  2 plain 100.10 span  77.57 units   6144 ramp 4.74 A 38.59 handoff 2.55 B 20.58 spread 7.49 tail 10.05 maxdiff 3.05e-05
+TL16 decode 16 sliding distinct 12 n  1 plain 132.77 span 108.93 units   9216 ramp 4.92 A 57.73 handoff 3.58 B 30.10 spread 11.68 tail 11.50 maxdiff 3.05e-05
+TL16 decode 16 full n 6 medians plain_us 98.16 span 76.78 ramp 4.95 route 2.99 A 35.87 handoff 3.60 B 19.76 bend_spread 9.95 bend_to_bar 1.17 bar_idle 8.45 final 0.81 unit_us 1.15 unit_a 1.15 unit_b 1.18 a_wwait 3.02 b_wwait 0.79 units 5760.00 distinct 7.50 routes 28.00
+TL16 decode 16 full distinct  6 n  2 plain  87.15 span  66.02 units   4608 ramp 5.20 A 30.31 handoff 3.55 B 15.94 spread 9.95 tail 10.03 maxdiff 9.77e-04
+TL16 decode 16 full distinct  7 n  1 plain  95.10 span  73.76 units   5376 ramp 4.68 A 33.44 handoff 3.56 B 18.88 spread 12.77 tail 12.15 maxdiff 1.95e-03
+TL16 decode 16 full distinct  8 n  1 plain 101.22 span  79.81 units   6144 ramp 4.80 A 38.31 handoff 3.87 B 20.64 spread 7.84 tail 11.02 maxdiff 4.88e-04
+TL16 decode 16 full distinct  9 n  1 plain 114.18 span  89.63 units   6912 ramp 5.14 A 44.61 handoff 4.40 B 23.73 spread 13.41 tail 11.02 maxdiff 1.22e-04
+TL16 decode 16 full distinct 11 n  1 plain 113.22 span  91.84 units   8448 ramp 4.29 A 51.86 handoff 2.92 B 27.16 spread 4.00 tail 4.63 maxdiff 2.38e-07

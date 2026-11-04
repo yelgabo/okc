@@ -1,0 +1,27 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793760986.725 acquire start after 0.0 s
+TL16 bandwidth TB/s {'copy (read + write)': 4.269, 'sum (read)': 4.439}
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.52), ('sk2', 7.74), ('torch', 10.46)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+TL16 ma_w tensors [((134217728,), 'torch.int32'), ((67108864,), 'torch.uint8'), ((32,), 'torch.float32'), ((67108864,), 'torch.int32'), ((33554432,), 'torch.uint8'), ((32,), 'torch.float32'), ((256,), 'torch.int32'), ((4096,), 'torch.bfloat16'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((587202560,), 'torch.uint8'), ((293601280,), 'torch.uint8')] bytes 3598722304 per local expert 112460072.0
+TL16 decode 16 sliding n 40 medians plain_us 94.53 span 72.22 ramp 4.72 route 2.83 A 40.26 handoff 3.10 B 18.61 bend_spread 4.13 bend_to_bar 0.81 bar_idle 3.43 final 0.48 unit_us 1.15 unit_a 1.18 unit_b 1.15 a_wwait 4.02 b_wwait 0.90 units 6144.00 distinct 8.00 routes 27.00
+TL16 decode 16 sliding distinct  6 n  8 plain  83.14 span  62.82 units   5376 ramp 4.80 A 33.78 handoff 3.01 B 16.23 spread 3.10 tail 3.71 maxdiff 4.88e-04
+TL16 decode 16 sliding distinct  7 n 11 plain  90.72 span  71.36 units   6144 ramp 4.87 A 39.45 handoff 2.94 B 18.48 spread 4.58 tail 4.97 maxdiff 9.77e-04
+TL16 decode 16 sliding distinct  8 n 13 plain  99.23 span  77.95 units   6912 ramp 4.65 A 43.15 handoff 3.23 B 20.95 spread 4.48 tail 5.09 maxdiff 9.77e-04
+TL16 decode 16 sliding distinct  9 n  7 plain 105.22 span  84.19 units   7680 ramp 4.52 A 47.16 handoff 3.10 B 23.12 spread 3.84 tail 4.24 maxdiff 4.88e-04
+TL16 decode 16 sliding distinct 12 n  1 plain 128.35 span 107.20 units   9984 ramp 4.91 A 62.29 handoff 3.38 B 31.13 spread 4.13 tail 4.92 maxdiff 1.95e-03
+TL16 decode 16 full n 40 medians plain_us 93.92 span 72.13 ramp 4.62 route 2.78 A 39.64 handoff 3.27 B 19.01 bend_spread 4.40 bend_to_bar 0.81 bar_idle 3.30 final 0.47 unit_us 1.15 unit_a 1.18 unit_b 1.15 a_wwait 3.80 b_wwait 1.01 units 6144.00 distinct 7.00 routes 27.50
+TL16 decode 16 full distinct  5 n  1 plain  75.52 span  53.31 units   4608 ramp 5.03 A 28.06 handoff 2.32 B 14.10 spread 3.04 tail 3.31 maxdiff 1.95e-03
+TL16 decode 16 full distinct  6 n  7 plain  83.62 span  62.98 units   5376 ramp 4.77 A 33.52 handoff 2.95 B 16.33 spread 4.32 tail 4.18 maxdiff 9.77e-04
+TL16 decode 16 full distinct  7 n 14 plain  92.32 span  71.66 units   6144 ramp 4.62 A 38.66 handoff 3.63 B 18.54 spread 4.99 tail 5.27 maxdiff 4.88e-04
+TL16 decode 16 full distinct  8 n  5 plain  97.82 span  78.14 units   6912 ramp 4.54 A 44.12 handoff 3.15 B 20.80 spread 4.58 tail 4.91 maxdiff 1.95e-03
+TL16 decode 16 full distinct  9 n  8 plain 106.16 span  85.66 units   7680 ramp 4.61 A 48.26 handoff 3.33 B 23.33 spread 4.56 tail 4.97 maxdiff 1.95e-03
+TL16 decode 16 full distinct 10 n  3 plain 109.86 span  88.70 units   8448 ramp 4.36 A 51.78 handoff 2.68 B 25.45 spread 3.46 tail 4.09 maxdiff 1.22e-04
+TL16 decode 16 full distinct 11 n  1 plain 110.62 span  90.62 units   8448 ramp 4.85 A 53.04 handoff 2.69 B 25.62 spread 2.85 tail 4.01 maxdiff 9.77e-04
+TL16 decode 16 full distinct 12 n  1 plain 118.27 span  98.21 units   9216 ramp 4.08 A 58.38 handoff 2.94 B 28.27 spread 3.52 tail 3.99 maxdiff 2.38e-07

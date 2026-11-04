@@ -1,0 +1,12 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793763567.127 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.62), ('sk2', 7.87), ('torch', 10.4)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+TL16G decode 16 sliding n 20 medians graph_us 145.17 span 79.34 ramp 4.06 route 2.89 A 37.45 handoff 3.33 B 21.78 bend_spread 10.77 bend_to_bar 1.38 bar_idle 9.83 final 1.46 unit_us 1.15 unit_a 1.15 unit_b 1.18 a_wwait 2.42 b_wwait 0.89 units 6144.00 distinct 8.00 routes 27.00
+TL16G decode 16 full n 20 medians graph_us 218.66 span 79.36 ramp 4.01 route 2.86 A 37.42 handoff 3.31 B 21.76 bend_spread 9.71 bend_to_bar 1.37 bar_idle 8.37 final 1.38 unit_us 1.15 unit_a 1.15 unit_b 1.18 a_wwait 2.58 b_wwait 0.93 units 6144.00 distinct 8.00 routes 28.50

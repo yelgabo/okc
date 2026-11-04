@@ -136,6 +136,7 @@ def main():
     ap.add_argument("--ext-cache", default="/root/.cache/bx_ext")
     ap.add_argument("--ls-cache", default="")
     ap.add_argument("--out", default="")
+    ap.add_argument("--raw", type=int, default=0, help="keep the raw per-CTA stamps of the first N inputs per cell")
     ap.add_argument("--l2test", type=int, default=0,
                     help="also N issue-rate probes: one local expert, weights L2-resident (TINY2 + OKC_L2H=0, second launch)")
     a = ap.parse_args()
@@ -206,6 +207,9 @@ def main():
             torch.cuda.synchronize()
             st = stats(tl[: nsm * SLOTS].view(nsm, SLOTS).cpu(), lids)
             st.update(plain_us=t_plain, maxdiff=float((inst.float() - plain.float()).abs().max()), seed=seed)
+            if j < a.raw:
+                st["raw"] = tl[: nsm * SLOTS].view(nsm, SLOTS).cpu().tolist()
+                st["lids"] = lids.cpu().tolist()
             res.append(st)
         if lsc:
             lsc.save()
