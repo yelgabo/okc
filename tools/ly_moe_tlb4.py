@@ -38,6 +38,9 @@ DST = ROOT / "muse_decode_layer/cand/ly_tlb4.py"
 if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
 PIN = "0bc2bd8bdeecd7514ab259bd8f2b5b6b66cef88734f583c5ccaf466f1075cacd"
+if "--src" in sys.argv:  # instrument another file built on ly_micro2 (its own SHA is printed, not pinned)
+    SRC = ROOT / sys.argv[sys.argv.index("--src") + 1]
+    PIN = None
 START = "MOE_CUDA_SRC = r'''\n"
 END = "\n'''\nMOE_CPP_SRC"
 B4 = 'key, defines = "b4", tuple(MOE_DEFINES) + ("-DOKC_B4FIN=1",)'
@@ -206,17 +209,74 @@ __device__ __forceinline__ void tlb_red(unsigned long long* a, unsigned long lon
 ]
 
 
+# --flush (diagnostic, -DOKC_TLBF=1 with level 1): thread 0 times the parts of wgs_flush kinds 1 and 4 into slots 15 to
+# 20: 15 entry to after the proxy fence (phase A), 16 the warpgroup bar.sync, 17 the kind 1 doneA release (phase A),
+# 18 the kind 4 MFIN count release (phase B), 19 / 20 the kind 1 / kind 4 counts. Its branches sit in the stage body,
+# so this build's stage loop is not the control's code (see its SASS report); it times the flush, not the phases.
+EDITS_F = [
+    ('''  if (pd.kind == 0) return;
+  if constexpr (!PB) { asm volatile("fence.proxy.async.global;\\n" ::: "memory"); }
+  const int tid = threadIdx.x, warp = WARP_IDX(tid), wg = warp >> 2, wp = warp & 3, wt = tid & 127;
+  constexpr int UBL = PB ? 4 : 5;
+  const int j = pd.u >> UBL, ub = pd.u & ((1 << UBL) - 1);
+  asm volatile("bar.sync %0, 128;\\n" ::"r"(3 + wg) : "memory");
+#if OKC_MFIN && (OKC_MFP & 1)
+  if (pd.kind == 4) {
+    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\\n" ::"l"(p.mfl + MF_CE + ((OKC_MFP & 8) ? pd.slot : (int)(mf_gen(S) * 32 + S.jE[j]))), "r"(1) : "memory");
+    pd.kind = 0;
+    return;
+  }
+#endif
+  if (pd.kind == 1) {
+    // release (cumulative over the warpgroup's epilogue stores ordered by the barrier); pairs with the producer's
+    // acquire. Unit ub wrote inter columns ub*128 .. +127: half of phase B stage ub / 2
+    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\\n" ::"l"(mf_da(p, S) + j * 16 + (ub >> 1)), "r"(1) : "memory");
+    pd.kind = 0;
+    return;
+  }
+''', '''  if (pd.kind == 0) return;
+  const bool tf = TLB_ON && threadIdx.x == 0;
+  const unsigned long long tfa = tf ? gtimer() : 0ull;
+  if constexpr (!PB) { asm volatile("fence.proxy.async.global;\\n" ::: "memory"); }
+  const unsigned long long tfb = tf ? gtimer() : 0ull;
+  const int tid = threadIdx.x, warp = WARP_IDX(tid), wg = warp >> 2, wp = warp & 3, wt = tid & 127;
+  constexpr int UBL = PB ? 4 : 5;
+  const int j = pd.u >> UBL, ub = pd.u & ((1 << UBL) - 1);
+  asm volatile("bar.sync %0, 128;\\n" ::"r"(3 + wg) : "memory");
+  const unsigned long long tfc = tf ? gtimer() : 0ull;
+  if (tf) { S.tlb[0] += tfb - tfa; S.tlb[1] += tfc - tfb; }
+#if OKC_MFIN && (OKC_MFP & 1)
+  if (pd.kind == 4) {
+    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\\n" ::"l"(p.mfl + MF_CE + ((OKC_MFP & 8) ? pd.slot : (int)(mf_gen(S) * 32 + S.jE[j]))), "r"(1) : "memory");
+    if (tf) { S.tlb[3] += gtimer() - tfc; S.tlb[5] += 1; }
+    pd.kind = 0;
+    return;
+  }
+#endif
+  if (pd.kind == 1) {
+    // release (cumulative over the warpgroup's epilogue stores ordered by the barrier); pairs with the producer's
+    // acquire. Unit ub wrote inter columns ub*128 .. +127: half of phase B stage ub / 2
+    if (wt == 0) asm volatile("red.release.gpu.global.add.s32 [%0], %1;\\n" ::"l"(mf_da(p, S) + j * 16 + (ub >> 1)), "r"(1) : "memory");
+    if (tf) { S.tlb[2] += gtimer() - tfc; S.tlb[4] += 1; }
+    pd.kind = 0;
+    return;
+  }
+'''),
+]
+
+
 def main():
     raw = SRC.read_bytes()
     sha = hashlib.sha256(raw).hexdigest()
-    if sha != PIN:
+    if PIN and sha != PIN:
         sys.exit(f"ly_micro2.py is {sha}, not {PIN}")
     print("base", SRC.name, sha)
     whole = raw.decode()
     assert whole.count(START) == 1 and whole.count(END) == 1
     head, rest = whole.split(START)
     cu, tail = rest.split(END)
-    for old, new in EDITS:
+    flush = [(o, "#if OKC_TLBF\n" + n + "#else\n" + o + "#endif\n") for o, n in EDITS_F] if "--flush" in sys.argv else []
+    for old, new in EDITS + flush:
         n = cu.count(old)
         if n != 1:
             sys.exit(f"anchor found {n} times, 1 expected: {old[:100]!r}")
@@ -224,7 +284,7 @@ def main():
     if tail.count(B4) != 1:
         sys.exit("B4 define anchor")
     lvl = int(sys.argv[sys.argv.index("--level") + 1]) if "--level" in sys.argv else 1
-    tail = tail.replace(B4, B4[:-2] + f', "-DOKC_TLB={lvl}")')
+    tail = tail.replace(B4, B4[:-2] + f', "-DOKC_TLB={lvl}"' + (', "-DOKC_TLBF=1")' if "--flush" in sys.argv else ")"))
     out = head + START + cu + END + tail
     DST.write_text(out)
     py_compile.compile(str(DST), doraise=True)

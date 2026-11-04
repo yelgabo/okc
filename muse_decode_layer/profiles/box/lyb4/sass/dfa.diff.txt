@@ -1,0 +1,28 @@
+b4    reg 96->96 local 0->0 ins 25528->25644 ops {'BSSY': -18}
+      loop 0x9060 n 304->304 mma 16 {'MOV': -1, 'SHF': 1}
+      loop 0xd270 n 304->304 mma 16 {'MOV': 1, 'SHF': -1}
+      loop 0x10eb0 n 304->304 mma 16 {'IMAD': 1, 'VIADD': -1, 'MOV': -1, 'IADD3': 1}
+      loop 0x14fb0 n 304->304 mma 16 {'IMAD': 1, 'VIADD': -1, 'MOV': -1, 'IADD3': 1}
+      loop 0x19780 n 304->304 mma 16 {'IMAD': 1, 'VIADD': 1, 'MOV': 1, 'IADD3': -1, 'SHF': -2}
+      loop 0x1ddf0 n 304->304 mma 16 {'IMAD': 1, 'MOV': -1}
+      loop 0x22e80 n 308->308 mma 16 {'MOV': -1, 'IMAD': 1}
+      loop 0x282a0 n 304->304 mma 16 {'VIADD': -1, 'IADD3': 1}
+      loop 0x2ee10 n 307->307 mma 16 {'MOV': 1, 'SHF': 1, 'LEA': -1, 'IMAD': -1, 'VIADD': 1, 'IADD3': -1}
+      loop 0x33f90 n 307->307 mma 16 {'SHF': 1, 'LEA': 1, 'VIADD': -1, 'IADD3': -1}
+      loop 0x385b0 n 307->307 mma 16 {'SHF': -1, 'IADD3': 1}
+      loop 0x3d200 n 307->307 mma 16 {'SHF': 1, 'LEA': 1, 'VIADD': -1, 'IADD3': -1}
+      loop 0x43430 n 307->307 mma 16 {'SHF': 1, 'LEA': 1, 'VIADD': -1, 'IADD3': -1}
+      loop 0x48fd0 n 307->307 mma 16 {'SHF': 1, 'LEA': 1, 'VIADD': -1, 'IADD3': -1}
+      loop 0x50080 n 308->308 mma 16 {'SHF': -1, 'IADD3': 1}
+      loop 0x57870 n 307->307 mma 16 {'MOV': 1, 'SHF': 1, 'IMAD': -1, 'IADD3': -1}
+main  reg 96->96 local 0->0 ins 22647->22738 ops {'BSSY': -18}
+      loop 0x9130 n 304->304 mma 16 {'IMAD': 1, 'MOV': -1}
+      loop 0xd380 n 304->304 mma 16 {'VIADD': 1, 'IADD3': -1}
+      loop 0x11000 n 304->304 mma 16 {'IMAD': 1, 'SHF': -1}
+      loop 0x2ea40 n 307->309 mma 16 {'UMOV': 2}
+      loop 0x32bd0 n 307->307 mma 16 {'IMAD': 1, 'VIADD': -1}
+      loop 0x36760 n 307->307 mma 16 {'IADD3': 1, 'SHF': -1}
+      loop 0x3ee50 n 307->309 mma 16 {'UMOV': 2, 'IMAD': -1, 'IADD3': 1}
+      loop 0x43370 n 307->309 mma 16 {'UMOV': 2, 'IMAD': -1, 'VIADD': 1}
+      loop 0x48170 n 307->309 mma 16 {'UMOV': 2, 'MOV': 1, 'SHF': -1}
+      loop 0x4d2b0 n 307->309 mma 16 {'UMOV': 2, 'IMAD': 1, 'IADD3': -1}
