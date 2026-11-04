@@ -2957,3 +2957,160 @@ keep rule (every short cell beyond max(2 x spread, 0.5 us)) is not met on all ce
 superseded, because its route ends 0.6 us later at decode 1 / verify 1 sliding. What is left of the tail after ly_prq2
 at T <= 8 is the router partial's 0.4 us (escape-warp cbar wait and barrier) and the 0.4 us epilogue. The next pieces
 are the loop-end spread at T = 16 / 32 (2.9 to 4.3 us) and the ramp after the wait (0.6 to 1.5 us).
+
+## 2026-11-04 - Unit loop at issue rate (box)
+
+Task 1.3b of docs/plans/2026-11-04-moe-cluster-rewrite.md (section 9): restructure the fused MoE's skinny_ring_ws unit
+loop (helper0, the TINY / TINY2 / MID builds: decode 1, verify 1, decode 16) for latency hiding, on the public layer
+base `muse_decode_layer/cand/ly_fabq.py` (SHA256 3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555,
+never edited). Box only (okc-h200, 2026-11-04 07:14-08:14 UTC), no judge job, no routing slack.
+
+Tools: `tools/dl_ly_ul_patch.py --variant V [...] --out muse_decode_layer/cand/ly_ul_<v>.py` (SHA-pinned base, one
+mechanism per variant, variants stack, output SHA printed); `tools/ly_ul_ab.sh` (ly_micro_ab.sh with ly_fabq as the
+control: one `bx_box_run.py --lock --ls-cache --ext-cache --pin-pdl8 1,8,16,32 --skip-pdl8-gate --runs 60` process per
+run, router seed 106218864389449120, f931 case seeds, rounds of control then variants, a final control, a kill
+timeout); `tools/ly_micro_table.py` for the tables (threshold max(2 x control spread, 0.5 us at decode 1 / verify 1,
+1% elsewhere)); `tools/ly_micro_sass.py` for SASS (the five builds' exact sources and flags, compiled on the box CPU
+with nvcc 13.0); the variant `tl` adds the MOE-TL-01 timeline (`tools/moe_tiny_timeline_cta.py` edits, as
+`tools/dl_moe_tl.py` applies them) to TINY2 for `tools/box_moe_tl8.py` (20 verify 1 inputs per cell, local_start per
+input). Every A/B run printed `G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays` with PDL
+pinned on at T = 1, 8, 16, 32, and passed the reference check at every cell it ran. Every variant keeps the unit math
+and its order (four chains combined c0 + ((c1 + c2) + c3), warp-order cross-warp sums in the helper), so the BF16
+points are bitwise the base's; no fence and no griddepcontrol.wait is removed. Logs, JSONs, timelines and SASS
+reports: `muse_decode_layer/profiles/box/ul/`.
+
+### What the base loop is
+
+Per unit (36,864 bytes: 32 KB of codes, 4 KB of scales) each of the 8 compute warps decodes its 512-wide K range: 32
+code words, each 9 integer ops (5 LOP3, 2 SHF, 2 IMAD.SHL: the DQ7 unpack) and 4 HMUL2 (scale), then one HMMA, in
+four accumulator chains. The token operand stays in 64 registers for the whole job (16 LDG.128 per lane at a job
+switch), so the loop has 9 LDS.128 per warp per unit and no shared-memory B loads. At the end of every unit each warp
+waits for its partial buffer, stores its partials, runs `fence.proxy.async`, and the 8 warps meet at a CTA barrier;
+then thread 0 refills the slot with unit q + 3 and hands the partials to the helper warp. SASS per warp per unit
+(phase A / phase B loop bodies, including the job-switch branch and thread 0's refill branch): TINY 702 / 754, TINY2
+690 / 741, MID 692 / 747; 141 to 145 registers, no local memory.
+
+The pipe count per SM sub-partition (2 compute warps each) is about 1,060 ALU-pipe cycles (LOP3 / SHF / PRMT at 16
+lanes) and about 1,200 issue slots per unit, which is 0.6 to 0.65 us at 1.8 to 1.9 GHz; the loop retires a unit every
+1.15 us (timeline below), against 1.098 us for the unit's bytes on 132 SMs at 4.44 TB/s. So the loop is about 5%
+over the byte rate, not 2x: it runs at about half its issue rate, but the stream is the next limit.
+
+### Variants (SASS: TINY / TINY2 / MID loop bodies, phase A / phase B; registers; local 0 everywhere)
+
+| variant | mechanism | loop instructions | registers |
+|---|---|---|---|
+| base | ly_fabq | 702/754, 690/741, 692/747 | 145, 141, 144 |
+| nb (d75f37ca) | compute warps arrive on a named barrier (8 + q % 3, 288 threads) instead of the CTA barrier; the helper warp waits on it, refills, reads the partials | 612/673, 596/656, 590/654 | 143, 140, 144 |
+| na (46c6512b) | the CTA barrier split: warps 1-7 arrive, warp 0 waits (named barrier, 256 threads) and thread 0 refills as before | 715/769, 703/756, 699/757 | 151, 142, 146 |
+| pf (c02b7841) | software pipelining across units: after its last mma each warp waits for unit i + 1's slot and loads its scale word and first 2 code chunks | 725/776, 713/763, 717/771 | 154, 149, 157 |
+| napf (8d34a394) | na + pf | 743/-, 731/-, 727/- | 152, 152, 161 |
+| nbpf (be1847c8) | nb + pf | 644/693, 630/679, 622/674 | 151, 153, 157 |
+| er (e7d3ec55) | early slot release: each warp loads its whole 4.5 KB segment into registers after the slot wait, fences and arrives; thread 0 refills at the unit's start (one more unit of stream lead with no extra shared memory); the end barrier stays for the partials | 715/764, 703/751, 705/757 | 159, 162, 163 |
+| pw (fb9392c6) | per-warp ring: each unit copy split into 8 per-warp segments (4 KB codes + 512 B scales) on per-warp barriers; each warp waits for, refills and releases only its own segment (fence, `__syncwarp`, lane 0 issues and arrives on the partials barrier, count 8) | 712/761, 700/749, 701/749 | 145, 142, 146 |
+| pr (217cc386) | a refill warp (NTL 288 -> 320): compute warps store partials, fence and arrive on a named barrier (8 + q % 3, 288 threads); the refill warp waits on it, refills the slot and arrives on the helper's partials barrier; the epilogue helper is unchanged | 612/673, 596/656, 590/654 | 143, 140, 144 |
+| ns4 (3a008642) | four ring slots on TINY / TINY2 / MID (`-DOKC_NS=4`) | 699/751, 687/738, 689/744 | 148, 142, 148 |
+| prns4 (cfe2758e) | pr + ns4 | 608/669, 592/652, 586/650 | 146, 142, 146 |
+| dq (f3960a7d) | task 1.3a's r3 merge as an IMAD (x * one + y) instead of a LOP3 | 735/786, 723/773, 725/779 | 137, 140, 146 |
+
+Ordering for the barrier variants. nb, na and pr keep every compute thread's `fence.proxy.async` after its last read of
+the slot and before its arrival, and the refilling thread issues only after the barrier wait returns, the same
+pattern as the base's barrier followed by thread 0's issue; the partials reach the helper through the barrier wait
+followed by an mbarrier arrive (release) and the helper's wait (acquire), as in the base. A warp can arrive for unit
+q + 3 only after the slot for q + 3 was refilled, which happens after the wait for unit q returned, so three barrier
+ids never hold two generations. The WSBL-kept last units keep the CTA barrier (their epilogues read every warp's
+partials). pw replaces the CTA barrier by `__syncwarp` before lane 0's refill and arrival; each warp reads only its own
+segment (codes [4096 w, 4096 w + 4096), scales [32768 + 512 w, + 512)).
+
+Not built, with the reason:
+
+- ldmatrix for the token operand: there is no shared-memory token load in this loop (x stays in registers per job);
+  CL-1.2's 31 LDS per unit came from its smem token slab.
+- More accumulator chains: the four chains run 8 dependent HMMA per unit, about 260 cycles of chain latency against
+  about 2,100 cycles per unit, and more chains change the FP32 order.
+- A bit-permuted repack that cuts the DQ7 unpack: no layout gives four single-rotation groups. A search over every
+  triple of rotations of the 8-bit field mask 0x81C081C0 (bits 6, 7, 8, 15 and their +16 copies) finds no partition
+  of the 32 bits, so one group needs two pieces and 7 ALU ops plus 2 IMAD per 8 weights is the minimum for a
+  rotate-and-mask decode with this BF16 field placement (`tools/dq7_rotation_search.py`, an exhaustive search, not a proof for
+  other decodes). A BF16-scale repack would add bytes.
+- dq was compiled but not run: ptxas already merges r3 with a three-input LOP3, so the IMAD form keeps 169 LOP3 and
+  adds 28 to 33 IMAD per unit.
+- Scheduling hints on the rolled loop: CL-1.2 measured an unrolled 120 KB hot loop losing; nothing else to hint.
+
+### Paired box A/B against ly_fabq (net us; delta = variant mean minus control mean; per-run deltas in the logs)
+
+| variant (round, runs) | decode 1 s / f | decode 16 s / f | verify 1 s / f | control spread (d1 s / f, d16 s / f, v1 s / f) | verdict |
+|---|---|---|---|---|---|
+| nb (r1, 2) | +1.39 / +1.51 | +0.81 / +0.19 | +2.30 / +1.49 | 0.67 / 0.37, 0.38 / 0.32, 0.66 / 0.35 | loss at decode 1 and verify 1 |
+| nbpf (r1, 2) | +1.78 / +1.99 | +2.12 / +0.36 | +3.15 / +2.89 | same controls | loss |
+| na (r3, 4) | +0.29 / -0.68 | +0.51 / +0.31 | +0.21 / +0.69 | 1.42 / 1.23, 0.56 / 0.56, 0.77 / 0.64 | inside everywhere |
+| pf (r3, 4) | +1.75 / +1.16 | +2.29 / +2.29 | +0.51 / +0.39 | same controls | loss at decode 16 |
+| napf (r3, 4) | +0.13 / +0.45 | +2.31 / +2.19 | +2.06 / +2.28 | same controls | loss at decode 16 and verify 1 |
+| er (r4, 3) | +2.67 / +3.03 | +6.17 / +5.47 | +4.45 / +4.84 | 0.40 / 0.40, 0.67 / 0.51, 0.43 / 0.69 | loss everywhere |
+| pr (r5, 3) | +0.31 / +0.25 | -0.21 / -0.14 | +0.41 / +1.31 | 0.24 / 0.37, 0.21 / 0.78, 0.24 / 0.51 | loss at verify 1 full, inside elsewhere |
+| pw (smoke, 20 runs, no paired control) | 66.38 / 72.64 | 135.36 / 210.19 | 106.72 / 121.42 | (same-day controls 65.1-65.5 / 71.6-72.2, 126.6-127.2 / 197.6-198.6, 100.9-101.7 / 109.0-109.7) | loss, +8 to +12 us at decode 16 and verify 1 |
+| ns4 (r6, 3) | +2.02 / +2.24 | +0.16 / +0.06 | +2.72 / +2.53 | 0.48 / 0.34, 0.54 / 1.30, 0.67 / 0.59 | loss at decode 1 and verify 1 (the knob sweep's ns4 result, again on ly_fabq) |
+| prns4 (r6, 3) | +0.54 / +0.89 | +0.47 / +0.69 | +1.41 / +0.93 | same controls | loss at decode 1 full and verify 1 sliding, positive in every run of every cell |
+
+Round 2 (na, three rounds) ran while another lane's jobs shared the box and its control spread reached 2.3 us; it is
+in the logs but not used. Every run of every round passed the reference check at all six cells.
+
+### Timeline: where the loop's time goes (TINY2, verify 1, 20 inputs, median of the per-input mean CTA, us)
+
+| build | span s / f | phase A s / f | phase B s / f | unit interval (warp 0, A / B) | warp 0 weights wait A / B (s) | B-end spread s |
+|---|---|---|---|---|---|---|
+| base (run 1 / run 2) | 62.00 / 70.19; 61.65 / 69.17 | 34.49 / 40.16; 34.66 / 38.50 | 15.92 / 18.22; 16.12 / 19.11 | 1.15 / 1.12-1.17 | 3.87 / 0.60; 3.67 / 0.60 | 2.96; 2.75 |
+| nb | 65.01 / 70.90 | 36.50 / 40.14 | 16.13 / 18.66 | 1.12 / 1.06 | 9.96 / 2.21 | 3.54 |
+| na | 62.06 / 67.87 | 33.37 / 38.43 | 16.29 / 18.75 | 1.22 / 1.18 | 4.13 / 0.63 | 3.04 |
+| pf | 61.87 / 68.48 | 34.60 / 38.68 | 16.52 / 19.06 | 1.18 / 1.18 | 1.76 / 0.39 (first unit only) | 3.74 |
+| er | 63.65 / 71.15 | 35.56 / 39.98 | 17.91 / 20.71 | 1.25 / 1.28 | 2.40 / 0.45 | 2.80 |
+| pw | 63.62 / 71.17 | 33.42 / 38.04 | 17.48 / 20.29 | 1.25 / 1.20 | 2.10 / 0.68 | 3.20 |
+| pr | 62.83 / 70.67 | 33.47 / 39.18 | 15.86 / 17.84 | 1.09 / 1.02 | 6.98 / 1.54 | 4.21 |
+| prns4 (pr + 4 ring slots) | 64.10 / 70.42 | 34.37 / 38.80 | 14.96 / 17.40 | 1.06 / 0.99 | 7.21 / 1.04 | 4.62 |
+
+prns4's A-to-B handoff is 4.2 / 4.3 us (base 3.1 to 3.2) and its barrier idle 3.5 (base 2.4 to 2.5).
+
+Two base runs differ by up to 1.7 us in phase A and 1 us in span, so a single timeline run resolves only changes
+larger than that.
+
+### Reading
+
+1. The loop can run below the byte rate. With the refill taken off warp 0 and no barrier wait in the compute warps
+   (pr), warp 0 retires a unit every 1.09 us in phase A and 1.02 to 1.04 us in phase B, under the 1.098 us the bytes
+   need on 132 SMs; in the lockstep base it is 1.15. The difference (0.06 to 0.1 us per unit) is the refill on warp 0
+   plus the per-unit barrier, not the dequant chain: the decode itself has room.
+2. The time does not come back, because the stream is the limit once the loop is faster. pr's phase A is the base's
+   within the run-to-run band (33.5 / 39.2 against 34.5-34.7 / 38.5-40.2) and warp 0's weights wait grows by the time
+   the loop saved (3.7 to 7.0 us sliding, 3.9 to 8.7 full). Phase A streams 3,584 x 36,864 bytes in about 34.5 us at
+   7 experts, 3.83 TB/s, 87% of the box's 4.44 TB/s read rate, in every variant. Phase B gains at most 0.3 to 0.8 us,
+   and the faster loop leaves a larger B-end spread (2.9 to 4.2 us) and barrier idle, which the grid barrier pays.
+3. Moving the refill later costs the stream: nb's helper warp refills only after its own epilogue of the previous
+   unit, its weights wait rises to 10 us and phase A grows 2 us. Splitting the copy into per-warp segments (pw) costs
+   2 us of span (16 bulk copies per unit and per-warp refill code: unit interval 1.25) and much more in the layer.
+   Releasing the slot a unit early through registers (er) cuts the weights wait by 1.3 us but slows the loop to 1.25
+   us per unit (162 registers, a second barrier per unit).
+4. Shared loads are not the latency either: pf moves the next unit's slot wait and first loads ahead of the hand-off
+   and the unit interval stays at 1.18; at decode 16 it costs 2.3 us.
+5. With the loop's slack (pr) a fourth ring slot changes sign in phase B only. ns4 alone still loses 2 to 2.7 us at
+   decode 1 and verify 1, as in the knob sweep. prns4's phase B runs 0.99 us per unit and finishes in 14.96 / 17.40 us
+   (base 15.9-16.1 / 18.2-19.1), which is 66 MB in 15 us, 4.4 TB/s, the box's read rate; but phase A stays at
+   34.4 / 38.8 and the A-to-B handoff (+1.1 us), the B-end spread (+1.7) and the barrier idle (+1.0) take the gain
+   back: a faster loop on uneven per-CTA weight arrival widens the finish spread that the doneA waits and the grid
+   barrier pay for.
+6. So the binding limit at verify 1 is the weight stream in phase A (3.83 TB/s, 87% of the read rate, the same in
+   every variant, including the job-switch waits inside it) and the per-CTA spread of its delivery, not the unit
+   loop's instruction latency. The plan's premise (loop latency-bound at 2x its issue rate) holds for the loop in
+   isolation, but in the layer the lockstep loop runs about 5% over the bytes, so a loop at issue rate could save at
+   most about 0.05 us x 27 units = 1.4 us of phase A and 0.5 us of phase B per verify 1 cell, and only if the stream
+   kept up; pr and prns4 show that it does not.
+
+Decision: no winner, and no judge check recommended. The nearest arms are pr (inside the threshold at five of six
+cells, verify 1 full +1.31 against 1.02) and prns4 (+0.5 to +1.4 us, positive in every run of every cell). Rows added
+to docs/ruled-out.md. What would move phase A is the stream itself: the 13% of read bandwidth phase A does not reach
+with 132 x 3 bulk copies of 36 KB in flight, and the job-switch waits (the L2 probe in "T = 8 MoE floor and gap"
+drops them from about 1 us to 0.3 us when the weights are in L2). That is a memory-system question (request size,
+DRAM page locality across 7 to 8 expert regions, the evict-first policy), with pr as the loop to pair it with: once
+phase A streams above about 4.1 TB/s, pr's slack is worth up to about 1.4 us per verify 1 cell (hypothesis).
+Lane 1.3a's cluster loop (muse_moe_w4a16/cl/cl_unit_loop.cuh on worktree-agent-a1596f680f085e146, read 2026-11-04
+08:00 UTC, no committed result yet) is a different loop: its token operand comes from shared memory and its 16
+consumer warps take setmaxnreg registers, so its limits need not match helper0's. One idea came from it (the IMAD
+r3 merge, dq above), which does not help helper0's SASS.

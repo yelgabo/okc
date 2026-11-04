@@ -18,6 +18,8 @@ stack. Every variant keeps the math and its order (bitwise output), every fence 
        warp can arrive for unit q + NS only after thread 0 refilled that slot, after its wait for unit q returned.
   dq   the DQ7 unpack's r3 merge as an IMAD (x * one + y with an opaque 1) instead of a LOP3: one ALU-pipe op per
        code word moves to the FMA pipe; bitwise identical (disjoint operands). Taken from task 1.3a's cl_unit_loop.cuh.
+  ns4  four ring slots instead of three on the TINY / TINY2 / MID builds (-DOKC_NS=4; the knob sweep's ns4 on this
+       base, and the partner of pr once the loop has slack)
   pr   a second helper warp (refill warp, NTL = NT + 64) takes the refill off warp 0: compute warps store partials,
        fence and arrive on barrier 8 + q % NS (NT + 32 threads); the refill warp waits on it, refills the slot with
        unit q + NS and arrives on wsrf for the epilogue helper, which is unchanged. Same generation argument as nb.
@@ -395,6 +397,10 @@ def apply(s, v):
     if v == "er":
         s = edit(s, [(DEF_ANCHOR, DEF_ANCHOR + ER_DEFS.replace("OKC_UER 0", "OKC_UER 1")), (NB_ASSERT_OLD, ER_ASSERT_NEW)], v)
         return edit(s, [(ER_SC_OLD, ER_SC_NEW), (ER_W_OLD, ER_W_NEW), (NB_LOOP_OLD, ER_LOOP_NEW)], v, sub=LOOP)
+    if v == "ns4":
+        add = 'MOE_TINY_DEFINES += ("@moe_helper0", "-DOKC_FINPF=1", "-DOKC_NOSCL=1")\n'
+        return once(s, add, add + "".join(f'{b} += ("-DOKC_NS=4",)\n' for b in
+                                          ("MOE_TINY_DEFINES", "MOE_TINY2_DEFINES", "MOE_MID_DEFINES")), v)
     if v == "dq":
         s = edit(s, [(DQ_FN_OLD, DQ_FN_NEW)], v)
         return edit(s, [(DQ_K16_OLD, DQ_K16_NEW), (DQ_CALL_OLD, DQ_CALL_NEW)], v, sub=LOOP)
