@@ -31,6 +31,7 @@ if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
 SLOTS = 336
 MAIN = 'key, defines = "main", _main_defines(sfx)'
+PUBMAIN = 'tuple(_main_defines(sfx)) + ("-DOKC_PUB=1",)'
 
 EXTRA = [
     ("#else\n#define DBG(k) do { if (OKC_DEBUG && threadIdx.x == 0 && p.dbg) p.dbg[blockIdx.x * 8 + (k)] = gtimer(); } while (0)\n#endif\n",
@@ -67,14 +68,28 @@ def main():
     head, rest = whole.split(tb.START)
     cu, tail = rest.split(tb.END)
     edits = [(o, n.replace("blockIdx.x * 64", f"blockIdx.x * {SLOTS}").replace("n < 40", "n < 296")) for o, n in tb.EDITS]
-    for old, new in edits + EXTRA:
+    # ly_pub bases: the phase calls carry the publish count and the sentinel sits before DBG(3)
+    PHA = "    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);\n"
+    PHB = "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);\n    DBG(3);\n"
+    PHA_PUB = "    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq, npub);\n"
+    PHB_PUB = ("    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq, npub);\n#if OKC_PUB\n"
+               "    wgs_publish(S, WARP_IDX(tid) >> 2, tid & 127, npub, nullptr, 0);  // the publisher may exit\n#endif\n    DBG(3);\n")
+    if PHB_PUB in cu:
+        edits = [(o.replace(PHA, PHA_PUB).replace(PHB, PHB_PUB), n.replace(PHA, PHA_PUB).replace(PHB, PHB_PUB)) for o, n in edits]
+        extra = [(o.replace(PHA, PHA_PUB).replace(PHB, PHB_PUB), n.replace(PHA, PHA_PUB).replace(PHB, PHB_PUB)) for o, n in EXTRA]
+    else:
+        extra = EXTRA
+    for old, new in edits + extra:
         n = cu.count(old)
         if n != 1:
             sys.exit(f"anchor found {n} times, 1 expected: {old[:100]!r}")
         cu = cu.replace(old, new)
-    if tail.count(MAIN) != 1:
+    if tail.count(MAIN) == 1:
+        tail = tail.replace(MAIN, 'key, defines = "main", tuple(_main_defines(sfx)) + ("-DOKC_TLB=1",)')
+    elif tail.count(PUBMAIN) == 1:  # ly_pub bases: the MAIN build already carries its own define
+        tail = tail.replace(PUBMAIN, 'tuple(_main_defines(sfx)) + ("-DOKC_PUB=1", "-DOKC_TLB=1",)')
+    else:
         sys.exit("MAIN define anchor")
-    tail = tail.replace(MAIN, 'key, defines = "main", tuple(_main_defines(sfx)) + ("-DOKC_TLB=1",)')
     out = head + tb.START + cu + tb.END + tail
     DST.write_text(out)
     py_compile.compile(str(DST), doraise=True)
