@@ -1888,7 +1888,7 @@ Weighted six-load sum (46 x sliding + 16 x full per load, summed over six loads)
 - pdl8d: 70102.3 ({1, 8} on), 69833.7 ({1, 16, 32} on); +711.2 / +442.6 against the pdl8hn mean. Where pdl8d's gate left a T
   on it matches pdl8hn within the pdl8hn range (d_a verify 1 103.90 / 112.21, d_b decode 16 130.88 / 203.23); every larger
   difference sits on a T its gate turned off (decode 16 / 32 +6.0 to +7.1 in d_a, verify 1 +5.7 / +7.8 in d_b).
-- combo2n against pdl8d: -986 / -718 per run, mean -852; most of it is the gate, as above.
+- combo2n against pdl8d: -1093.6 / -749.9 per interleaved pair (rounds a, b), -851.9 mean against mean; most of it is the gate, as above.
 
 Reading. The slack-free pair reproduces the slack-carrying one: combo2 beat pdl8h by -182 (in-process) and -322 (separate
 processes); combo2n beats pdl8hn by -275 on the mean of five pairs, with the same cell pattern (decode 1 -1.0 / -1.4,
