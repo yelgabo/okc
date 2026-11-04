@@ -1,0 +1,56 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793764710.347 acquire start after 0.0 s
+BXLOCK 1793764713.684 release build okc_attn_prep_v1
+BXBUILD 1793764713.684 start build okc_attn_prep_v1
+BXBUILD 1793764754.433 end build okc_attn_prep_v1
+BXLOCK 1793764754.433 acquire build okc_attn_prep_v1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+attn prep kernels: loaded
+BXLOCK 1793764754.434 release build okc_attn_fused_v1
+BXBUILD 1793764754.434 start build okc_attn_fused_v1
+BXBUILD 1793764798.584 end build okc_attn_fused_v1
+BXLOCK 1793764798.584 acquire build okc_attn_fused_v1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+attn fused kernel: loaded
+BXLOCK 1793764798.585 release build okc_attn_ws_v2
+BXBUILD 1793764798.585 start build okc_attn_ws_v2
+BXBUILD 1793764841.824 end build okc_attn_ws_v2
+BXLOCK 1793764841.824 acquire build okc_attn_ws_v2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+attn ws kernel: loaded
+BXLOCK 1793764841.825 release build okc_attn_one_v1
+BXBUILD 1793764841.825 start build okc_attn_one_v1
+BXBUILD 1793764888.159 end build okc_attn_one_v1
+BXLOCK 1793764888.159 acquire build okc_attn_one_v1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+attn one kernel: loaded
+OVH {'one_ns': 5152.000114321709, 'two_ns': 6399.999838322401, 'overhead_ns': 3904.0003903210163}
+PLAN sliding:soft std (n_splits, nc, mode) = (33, 1, 15)
+PLAN sliding:soft lay _plan7 = {'n_splits': 33, 'flat': 0, 'cs': 0, 'ncl': 1, 'nc': 1, 'coop': 1} tuned None
+CHECK sliding:soft std PASS relative L2 error 6.329e-02 (worst row 8.973e-02) [bound 0.150: 2.5 x the reference's 0.063 with FP8 E4M3 queries + 0.015]
+CHECK sliding:soft lay PASS relative L2 error 6.365e-02 (worst row 8.762e-02) [bound 0.150: 2.5 x the reference's 0.063 with FP8 E4M3 queries + 0.015]
+CHECK sliding:soft lay_pf PASS relative L2 error 6.365e-02 (worst row 8.762e-02) [bound 0.150: 2.5 x the reference's 0.063 with FP8 E4M3 queries + 0.015]
+RCHECK sliding:soft std FAIL new key cache entries: relative L2 error 1.458e+00 > 0.08
+RCHECK sliding:soft lay FAIL new key cache entries: relative L2 error 1.458e+00 > 0.08
+RCHECK sliding:soft lay_pf FAIL new key cache entries: relative L2 error 1.458e+00 > 0.08
+CELL verify1 sliding:soft std 6.928 lay 7.584 lay_pf 7.808 | lay-std +0.656 | lay_pf-std +0.848
+PLAN full:soft std (n_splits, nc, mode) = (252, 8, 11)
+PLAN full:soft lay _plan7 = {'n_splits': 252, 'flat': 0, 'cs': 0, 'ncl': 1, 'nc': 8} tuned None
+CHECK full:soft std PASS relative L2 error 7.480e-02 (worst row 9.600e-02) [bound 0.150: 2.5 x the reference's 0.073 with FP8 E4M3 queries + 0.015]
+CHECK full:soft lay PASS relative L2 error 7.379e-02 (worst row 9.608e-02) [bound 0.150: 2.5 x the reference's 0.073 with FP8 E4M3 queries + 0.015]
+CHECK full:soft lay_pf PASS relative L2 error 7.379e-02 (worst row 9.608e-02) [bound 0.150: 2.5 x the reference's 0.073 with FP8 E4M3 queries + 0.015]
+RCHECK full:soft std FAIL new key cache entries: relative L2 error 1.436e+00 > 0.08
+RCHECK full:soft lay FAIL new key cache entries: relative L2 error 1.436e+00 > 0.08
+RCHECK full:soft lay_pf FAIL new key cache entries: relative L2 error 1.436e+00 > 0.08
+CELL verify1 full:soft std 14.944 lay 15.040 lay_pf 15.264 | lay-std +0.080 | lay_pf-std +0.320
+PLAN full:coherent std (n_splits, nc, mode) = (252, 8, 11)
+PLAN full:coherent lay _plan7 = {'n_splits': 252, 'flat': 0, 'cs': 0, 'ncl': 1, 'nc': 8} tuned None
+CHECK full:coherent std PASS relative L2 error 2.301e-02 (worst row 3.100e-02) [bound 0.071: 2.5 x the reference's 0.022 with FP8 E4M3 queries + 0.015]
+CHECK full:coherent lay PASS relative L2 error 2.248e-02 (worst row 2.892e-02) [bound 0.071: 2.5 x the reference's 0.022 with FP8 E4M3 queries + 0.015]
+CHECK full:coherent lay_pf PASS relative L2 error 2.248e-02 (worst row 2.892e-02) [bound 0.071: 2.5 x the reference's 0.022 with FP8 E4M3 queries + 0.015]
+RCHECK full:coherent std FAIL new key cache entries: relative L2 error 1.436e+00 > 0.08
+RCHECK full:coherent lay FAIL new key cache entries: relative L2 error 1.436e+00 > 0.08
+RCHECK full:coherent lay_pf FAIL new key cache entries: relative L2 error 1.436e+00 > 0.08
+CELL verify1 full:coherent std 15.120 lay 15.152 lay_pf 15.392 | lay-std +0.000 | lay_pf-std +0.288
+BXLOCK 1793764889.770 release end

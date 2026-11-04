@@ -1,0 +1,30 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793764924.994 acquire start after 0.0 s
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+OVH {'one_ns': 5152.000114321709, 'two_ns': 6399.999838322401, 'overhead_ns': 3904.0003903210163}
+CHECK sliding:soft std PASS relative L2 error 6.419e-02 (worst row 7.531e-02) [bound 0.150: 2.5 x the reference's 0.064 with FP8 E4M3 queries + 0.015]
+CHECK sliding:soft lay PASS relative L2 error 6.440e-02 (worst row 7.552e-02) [bound 0.150: 2.5 x the reference's 0.064 with FP8 E4M3 queries + 0.015]
+CHECK sliding:soft lay_pf PASS relative L2 error 6.440e-02 (worst row 7.552e-02) [bound 0.150: 2.5 x the reference's 0.064 with FP8 E4M3 queries + 0.015]
+RCHECK sliding:soft std PASS relative L2 error 6.725e-02 (worst row 8.424e-02) [bound 0.150: 2.5 x the reference's 0.067 with FP8 E4M3 queries + 0.015]
+RCHECK sliding:soft lay PASS relative L2 error 6.768e-02 (worst row 8.275e-02) [bound 0.150: 2.5 x the reference's 0.067 with FP8 E4M3 queries + 0.015]
+RCHECK sliding:soft lay_pf PASS relative L2 error 6.768e-02 (worst row 8.275e-02) [bound 0.150: 2.5 x the reference's 0.067 with FP8 E4M3 queries + 0.015]
+CELL verify1 sliding:soft std 6.896 lay 7.552 lay_pf 7.776 | lay-std +0.656 | lay_pf-std +0.896
+CHECK full:soft std PASS relative L2 error 7.272e-02 (worst row 7.980e-02) [bound 0.150: 2.5 x the reference's 0.072 with FP8 E4M3 queries + 0.015]
+CHECK full:soft lay PASS relative L2 error 7.147e-02 (worst row 7.895e-02) [bound 0.150: 2.5 x the reference's 0.072 with FP8 E4M3 queries + 0.015]
+CHECK full:soft lay_pf PASS relative L2 error 7.147e-02 (worst row 7.895e-02) [bound 0.150: 2.5 x the reference's 0.072 with FP8 E4M3 queries + 0.015]
+RCHECK full:soft std PASS relative L2 error 7.956e-02 (worst row 1.027e-01) [bound 0.150: 2.5 x the reference's 0.079 with FP8 E4M3 queries + 0.015]
+RCHECK full:soft lay PASS relative L2 error 7.953e-02 (worst row 9.865e-02) [bound 0.150: 2.5 x the reference's 0.079 with FP8 E4M3 queries + 0.015]
+RCHECK full:soft lay_pf PASS relative L2 error 7.953e-02 (worst row 9.865e-02) [bound 0.150: 2.5 x the reference's 0.079 with FP8 E4M3 queries + 0.015]
+CELL verify1 full:soft std 15.008 lay 15.168 lay_pf 15.456 | lay-std +0.160 | lay_pf-std +0.400
+CHECK full:coherent std PASS relative L2 error 3.070e-02 (worst row 4.797e-02) [bound 0.092: 2.5 x the reference's 0.031 with FP8 E4M3 queries + 0.015]
+CHECK full:coherent lay PASS relative L2 error 2.860e-02 (worst row 4.769e-02) [bound 0.092: 2.5 x the reference's 0.031 with FP8 E4M3 queries + 0.015]
+CHECK full:coherent lay_pf PASS relative L2 error 2.860e-02 (worst row 4.769e-02) [bound 0.092: 2.5 x the reference's 0.031 with FP8 E4M3 queries + 0.015]
+RCHECK full:coherent std PASS relative L2 error 2.954e-02 (worst row 4.193e-02) [bound 0.088: 2.5 x the reference's 0.029 with FP8 E4M3 queries + 0.015]
+RCHECK full:coherent lay PASS relative L2 error 2.982e-02 (worst row 4.104e-02) [bound 0.088: 2.5 x the reference's 0.029 with FP8 E4M3 queries + 0.015]
+RCHECK full:coherent lay_pf PASS relative L2 error 2.982e-02 (worst row 4.104e-02) [bound 0.088: 2.5 x the reference's 0.029 with FP8 E4M3 queries + 0.015]
+CELL verify1 full:coherent std 15.072 lay 15.200 lay_pf 15.392 | lay-std +0.144 | lay_pf-std +0.352
+BXLOCK 1793764930.407 release end
