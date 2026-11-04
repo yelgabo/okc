@@ -6328,3 +6328,118 @@ compete with the ring's own TMA reads at an HBM queue that is already full, or t
 before the ring's evict-first TMA read reaches them, so those bytes are read twice. Either way, more depth in
 flight costs time on this stream. The 2.5 us of waits looks like latency variance under a full HBM queue,
 not a missing prefetch, which leaves the unit loop's own issue rate (2.3 us) as phase A's other piece.
+
+## CL-0.6 epilogue warp
+
+Task 0.6 of docs/plans/2026-11-04-moe-cluster-rewrite.md (rule 1 of 2.3). Box okc-h200, 2026-11-04 UTC, under
+gpu.lock, nvcc 13.0 sm_90a, torch 2.14.1+cu130. Sources `muse_moe_w4a16/cl/micro/epilogue_warp.cu` (SHA256
+010e6988578acc99f3f24a7f876a1d99e548c19bb43f7f1b007cd75487dec516) and `muse_moe_w4a16/cl/micro/epilogue_bench.py`
+(SHA256 e693429617255a1971aa32f47f9f3eeaf5f55ffc92161466c40e7c078b2a283a); raw output
+`/root/okc/.build/box/cl06_epi2.log` and `.json`. This is a micro-benchmark, so the pairing is form A against form B
+against the compute-only form C in one session with forms interleaved per replay; no public file is involved.
+
+### What runs
+
+132 CTAs of 352 threads, one per SM. Warps 0-7 are consumers. Each consumer produces one 16 x T BF16 tile per step
+(T = 8 or 32) from a chain of `kiters` mma.sync m16n8k16 per 8 columns, 64 steps per warp. The CTA's step is 8 such
+tiles (128 rows x T, 2 KB at T = 8, 8 KB at T = 32).
+
+- A: the tile goes to a double-buffered shared slot, the warp arrives on the slot's full mbarrier and moves on; it
+  waits on the slot's empty mbarrier only before reusing it (both slots full). Warp 8 waits on full, stores the slot
+  to global, `__syncwarp`, `red.release.gpu.global.add.s32` on the CTA counter, then arrives on empty.
+- A2: A with two epilogue warps (warps 8 and 9, one per slot). Added because A turned out to be bounded by the single
+  epilogue warp's per-tile release latency.
+- B: each consumer stores its tile to global, `bar.sync` per warpgroup (128 threads), thread 0 of the warpgroup issues
+  the same `red.release.gpu`, as wgs_flush kind 1 does today.
+- C: compute only (no store, no release), the baseline.
+
+Every release in A and A2 is the same instruction as in B, one per tile step; only the executing warp changes.
+Load: an optional warp 10 streams an unrelated 1 GiB buffer through a cp.async.bulk ring with `load` chunks of
+32 KB in flight per CTA (0 = no load), so the stores and the release drain under HBM traffic as they do while the
+real kernel's TMA ring streams weights. Each config is one kernel in a CUDA graph, each replay follows a 1 GiB L2
+flush, 20 timed replays per form after 2 warm-up rounds.
+
+Stall per tile, two estimators: span = (median consumer-warp loop time of X minus that of C) / 64, from builds
+without per-tile stamps; stamp = mean of (globaltimer after the handoff minus globaltimer after the mma chain) of X
+minus the same for C, from builds with per-tile stamps kept in shared memory. The two agree within about 10% in most
+cells. The C stamp handoff is 12 ns, the cost of the stamp itself. Brackets are the range over the 20 replays
+(span estimator, worst-case pairing of X and C ranges).
+
+### Consumer stall per tile (ns) and kernel span (us)
+
+Compute per tile is the C loop time / 64. "epi" is the epilogue warp's loop time per tile it serves in A; when A is
+epilogue-bound it is the per-tile service time (store plus release latency). Load GB/s is the background stream's
+achieved rate in form A.
+
+| T | load | kiters | compute/tile | A stall | A2 stall | B stall | A epi | span A / A2 / B / C us | load GB/s |
+|---:|---:|---:|---:|---|---|---|---:|---|---:|
+| 8 | 0 | 4 | 193 | 247 (240-252) | 76 | 362 (353-365) | 459 | 31.0 / 18.0 / 37.9 / 12.6 | - |
+| 8 | 0 | 16 | 362 | 87 (58-92) | 72 | 358 (327-364) | 466 | 31.6 / 28.6 / 48.4 / 23.4 | - |
+| 8 | 0 | 64 | 1003 | 82 (77-83) | 84 | 362 (354-368) | 1108 | 70.9 / 70.6 / 89.8 / 64.8 | - |
+| 8 | 1 | 16 | 356 | 1010 (978-1022) | 406 | 1037 (1002-1049) | 1396 | 92.2 / 52.0 / 93.2 / 23.6 | 3066 |
+| 8 | 1 | 64 | 1010 | 363 (324-380) | 109 | 905 (878-936) | 1401 | 92.2 / 74.1 / 129.8 / 67.3 | 3059 |
+| 8 | 2 | 16 | 357 | 1784 (1760-1824) | 910 | 1938 (1894-1976) | 2176 | 142.8 / 85.7 / 153.6 / 23.9 | 4100 |
+| 8 | 2 | 64 | 1014 | 1121 (1084-1160) | 332 | 1769 (1704-1822) | 2169 | 143.1 / 91.6 / 188.1 / 68.1 | 4097 |
+| 8 | 4 | 16 | 356 | 5130 (5089-5167) | 2775 | 5641 (5584-5676) | 5529 | 358.0 / 205.0 / 392.0 / 24.0 | 4350 |
+| 8 | 4 | 64 | 1008 | 4530 (4420-4587) | 2148 | 5713 (5674-5742) | 5578 | 361.2 / 207.5 / 440.7 / 68.4 | 4351 |
+| 32 | 0 | 4 | 210 | 554 (540-596) | 212 | 378 (369-396) | 790 | 52.0 / 28.9 / 38.8 / 13.6 | - |
+| 32 | 0 | 16 | 555 | 249 (214-268) | 105 | 421 (362-426) | 829 | 54.9 / 43.4 / 63.3 / 35.7 | - |
+| 32 | 0 | 64 | 1894 | 95 (84-108) | 82 | 432 (416-442) | 2050 | 131.4 / 129.2 / 149.6 / 121.7 | - |
+| 32 | 1 | 16 | 558 | 1032 (1008-1046) | 400 | 990 (966-1004) | 1626 | 107.2 / 65.5 / 103.7 / 37.5 | 2646 |
+| 32 | 1 | 64 | 2001 | 116 (75-157) | 111 | 800 (752-829) | 2159 | 139.0 / 139.0 / 185.3 / 135.6 | 2871 |
+| 32 | 2 | 16 | 557 | 2006 (1944-2033) | 1072 | 2347 (2294-2376) | 2604 | 173.1 / 109.2 / 193.1 / 38.0 | 3914 |
+| 32 | 2 | 64 | 2048 | 457 (390-542) | 167 | 1593 (1499-1698) | 2542 | 172.6 / 146.5 / 244.4 / 141.2 | 3930 |
+| 32 | 4 | 16 | 557 | 5738 (5664-5796) | 2962 | 6130 (6060-6166) | 6340 | 410.5 / 230.3 / 437.9 / 38.4 | 4208 |
+| 32 | 4 | 64 | 2055 | 4266 (4196-4326) | 1490 | 5413 (5335-5454) | 6367 | 413.1 / 234.2 / 489.1 / 143.9 | 4213 |
+
+The full grid (kiters 4 too, both estimators, every range) is in the log's RUN and SUMMARY lines.
+
+### SASS of the consumer tile loop (cuobjdump on the box, builds without stamps or load)
+
+| build | loop instructions | HMMA | STS | STG | MEMBAR | BAR | SYNCS | RED |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| A, T = 8 | 138 | 31 | 1 | 0 | 0 | 0 | 2 | 0 |
+| A, T = 32 | 150 | 28 | 4 | 0 | 0 | 0 | 2 | 0 |
+| B, T = 8 | 124 | 31 | 0 | 2 | 2 | 1 | 0 | 1 |
+| B, T = 32 | 147 | 28 | 0 | 4 | 2 | 1 | 0 | 1 |
+| C, T = 8 / 32 | 109 / 122 | 31 / 28 | 0 | 0 | 0 | 0 | 0 | 0 |
+| A epilogue warp loop, T = 8 (unrolled 4x) | 118 | 0 | 0 | 16 | 8 | 0 | 8 | 4 |
+
+The A consumer loop holds no MEMBAR and no BAR: its only synchronization is `SYNCS.PHASECHK.TRANS64.TRYWAIT` on the
+empty barrier (spin slow path placed out of line) and `SYNCS.ARRIVE.TRANS64.A1T0` on the full barrier. The B loop
+holds `BAR.SYNC.DEFER_BLOCKING R, 0x80` followed by `MEMBAR.ALL.CTA; MEMBAR.ALL.GPU; ERRBAR; CGAERRBAR;
+REDG.E.ADD.S32.STRONG.GPU`, which is what `red.release.gpu` lowers to. The A epilogue warp's loop holds the same
+MEMBAR / ERRBAR / CGAERRBAR / REDG sequence once per tile, so every fence and release is still executed; ptxas
+turns the lane-0 red into an elected-lane REDG.
+
+### What the numbers say
+
+Measured:
+
+- With idle HBM, B costs the consumers 358 to 432 ns per tile at every compute length. A costs 76 to 95 ns where
+  the epilogue warp keeps up, that is where compute per tile plus the handoff reaches its service time (about 450 ns
+  per tile at T = 8 and 800 ns at T = 32 with no load); below that A is epilogue-bound and loses to B at T = 32 (554 against 378 ns at 210 ns of compute). Two
+  epilogue warps bring the short-compute cells to 76 ns (T = 8) and 105 to 212 ns (T = 32).
+- Under load the release latency, not the store, sets everything. The epilogue warp's per-tile time grows with the
+  bytes in flight ahead of the release: 1.4 to 1.65 us at one 32 KB chunk per SM (2.6 to 3.1 TB/s), 2.2 to 2.6 us at
+  two (3.9 to 4.1 TB/s), 5.5 to 6.4 us at four (4.2 to 4.35 TB/s). B's stall tracks the same latency (0.8 to 6.2 us
+  per tile) because each warpgroup's MEMBAR.ALL.GPU waits for it once per tile.
+- A removes the stall under load only where compute per tile exceeds that latency: T = 32, kiters 64, load 1
+  (2.0 us of compute against 1.6 us of release) gives 116 ns for A against 800 ns for B and a kernel span of 139.0
+  against 185.3 us (C 135.6). Where compute per tile is shorter than the latency, A is bounded by one release per
+  latency and lands between 4% worse and 37% better than B (T = 32, load 1, kiters 16: A 1032, B 990 ns;
+  T = 8, load 2, kiters 64: A 1121, B 1769 ns); A2 halves that bound (same T = 8 cell: A2 332 ns).
+
+Hypotheses for the design (not measured in the real kernel):
+
+- Rule 1 holds only with an epilogue path whose throughput is at least the tile rate: (epilogue warps) x (consumer
+  time per tile) above the release latency under the kernel's own HBM load. The real kernel's unit period is about
+  1.1 us per SM at the 4.45 TB/s floor and its TMA ring keeps well over 32 KB in flight per SM, which puts the
+  release latency in the 2 to 6 us range of this table. One GPU-scope release per 16-row tile cannot keep up even
+  off the consumer warps.
+- So the phase A handoff in 1.1 should not publish to global per tile. Either the tile lands in shared memory or
+  DSMEM and is covered by one cluster-scope release per stage (rule 2; a cluster release does not wait for the HBM
+  queue), or the epilogue warp batches: stores for several tiles, then one fence and one counter add covering all of
+  them, with the slot ring deep enough to cover one release latency (about 4 to 6 slots of 8 KB at T = 32).
+- The consumer-side cost of the handoff itself is 76 to 115 ns per tile (STS, one mbarrier arrive, one try_wait that
+  succeeds) when the epilogue keeps up. That is the number to budget for rule 1 in the phase A estimate.
