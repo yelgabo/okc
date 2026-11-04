@@ -1,0 +1,27 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793754763.591 acquire start after 202.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793754764.493 release build glue_moe_0652e25c80621e26_sm90a
+BXBUILD 1793754764.493 start build glue_moe_0652e25c80621e26_sm90a
+BXBUILD 1793754764.493 start build glue_moe_623246ca8c531086_sm90a
+BXBUILD 1793754818.345 end build glue_moe_623246ca8c531086_sm90a
+BXBUILD 1793754822.519 end build glue_moe_0652e25c80621e26_sm90a
+BXLOCK 1793754867.575 acquire build glue_moe_0652e25c80621e26_sm90a done after 45.1 s
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 111.0 s
+BOX baseline import+prepare 0.0 s
+BOX decode 16 sliding: raw 135.66 net 131.54 us (overhead 4.13) | sglang raw 275.20 paired 2.092 shown 129.55 | judge net 127.89 (n=1, 127.89-127.89) box/judge 1.029 | sglang box/judge 271.07/258.48 = 1.049 | check PASS
+BOX decode 16 full: raw 211.81 net 207.65 us (overhead 4.16) | sglang raw 458.38 paired 2.174 shown 208.98 | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.986 | sglang box/judge 454.22/438.27 = 1.036 | check PASS
+BOX decode 32 sliding: raw 149.63 net 146.05 us (overhead 3.58) | sglang raw 274.54 paired 1.851 shown 146.35 | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.971 | sglang box/judge 270.96/261.58 = 1.036 | check PASS
+BOX decode 32 full: raw 301.09 net 297.17 us (overhead 3.92) | sglang raw 630.86 paired 2.109 shown 297.30 | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.976 | sglang box/judge 626.94/617.84 = 1.015 | check PASS
+BOX verify 1 sliding: raw 109.14 net 105.14 us (overhead 4.00) | sglang raw 270.94 paired 2.544 shown 104.93 | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.990 | sglang box/judge 266.94/262.96 = 1.015 | check PASS
+BOX verify 1 full: raw 122.06 net 118.24 us (overhead 3.82) | sglang raw 302.94 paired 2.473 shown 120.94 | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.992 | sglang box/judge 299.12/282.94 = 1.057 | check PASS
+BOX verify 16 sliding: raw 245.73 net 241.63 us (overhead 4.10) | sglang raw 532.14 paired 2.192 shown 240.91 | judge net 250.02 (n=1, 250.02-250.02) box/judge 0.966 | sglang box/judge 528.05/528.18 = 1.000 | check PASS
+BOX verify 16 full: raw 327.74 net 324.03 us (overhead 3.71) | sglang raw 702.19 paired 2.144 shown 325.74 | judge net 335.01 (n=1, 335.01-335.01) box/judge 0.967 | sglang box/judge 698.48/710.61 = 0.983 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 160 hits, 0 computed
+BXPHASE import_torch=203.66 load_reference_cuda_init=0.00 weights_and_router=0.33 prepare_submission=111.00 prepare_baseline=0.03 fresh_inputs=1.16 check=0.82 capture=0.25 overhead_graphs=0.86 replays=0.26 cell_tail=0.05 json_write=0.00 total=318.44

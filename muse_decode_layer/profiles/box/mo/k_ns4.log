@@ -1,0 +1,33 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793753425.718 acquire start after 69.4 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793753426.589 release build glue_moe_219374a83690e522_sm90a
+BXBUILD 1793753426.589 start build glue_moe_219374a83690e522_sm90a
+BXBUILD 1793753426.589 start build glue_moe_3de5229e096e3836_sm90a
+BXBUILD 1793753426.589 start build glue_moe_5bf9c6e92900e386_sm90a
+BXBUILD 1793753426.589 start build glue_moe_09dbe700da5a4f6f_sm90a
+BXBUILD 1793753426.589 start build glue_moe_e17fe9ba74357539_sm90a
+BXBUILD 1793753465.001 end build glue_moe_3de5229e096e3836_sm90a
+BXBUILD 1793753465.078 end build glue_moe_5bf9c6e92900e386_sm90a
+BXBUILD 1793753467.255 end build glue_moe_219374a83690e522_sm90a
+BXBUILD 1793753478.749 end build glue_moe_09dbe700da5a4f6f_sm90a
+BXBUILD 1793753482.739 end build glue_moe_e17fe9ba74357539_sm90a
+BXLOCK 1793753669.043 acquire build glue_moe_e17fe9ba74357539_sm90a done after 186.3 s
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 250.4 s
+BOX baseline import+prepare 0.0 s
+BOX decode 16 sliding: raw 135.71 net 131.74 us (overhead 3.97) | sglang raw 273.78 paired 2.093 shown 128.93 | judge net 127.89 (n=1, 127.89-127.89) box/judge 1.030 | sglang box/judge 269.81/258.48 = 1.044 | check PASS
+BOX decode 16 full: raw 211.65 net 207.71 us (overhead 3.94) | sglang raw 458.08 paired 2.181 shown 208.22 | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.987 | sglang box/judge 454.14/438.27 = 1.036 | check PASS
+BOX decode 32 sliding: raw 150.00 net 146.32 us (overhead 3.68) | sglang raw 274.29 paired 1.842 shown 146.91 | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.973 | sglang box/judge 270.61/261.58 = 1.034 | check PASS
+BOX decode 32 full: raw 303.44 net 299.38 us (overhead 4.06) | sglang raw 631.97 paired 2.099 shown 299.10 | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.983 | sglang box/judge 627.90/617.84 = 1.016 | check PASS
+BOX verify 1 sliding: raw 111.86 net 107.86 us (overhead 4.00) | sglang raw 274.35 paired 2.513 shown 107.58 | judge net 106.22 (n=1, 106.22-106.22) box/judge 1.015 | sglang box/judge 270.35/262.96 = 1.028 | check PASS
+BOX verify 1 full: raw 122.66 net 118.85 us (overhead 3.81) | sglang raw 298.77 paired 2.444 shown 120.67 | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.997 | sglang box/judge 294.96/282.94 = 1.042 | check PASS
+BOX verify 16 sliding: raw 247.34 net 243.25 us (overhead 4.10) | sglang raw 532.85 paired 2.202 shown 240.18 | judge net 250.02 (n=1, 250.02-250.02) box/judge 0.973 | sglang box/judge 528.75/528.18 = 1.001 | check PASS
+BOX verify 16 full: raw 326.59 net 323.04 us (overhead 3.55) | sglang raw 705.74 paired 2.149 shown 326.70 | judge net 335.01 (n=1, 335.01-335.01) box/judge 0.964 | sglang box/judge 702.19/710.61 = 0.988 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 160 hits, 0 computed
+BXPHASE import_torch=71.05 load_reference_cuda_init=0.00 weights_and_router=0.30 prepare_submission=250.44 prepare_baseline=0.03 fresh_inputs=1.17 check=0.83 capture=0.26 overhead_graphs=0.86 replays=0.27 cell_tail=0.06 json_write=0.00 total=325.28

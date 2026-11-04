@@ -1,0 +1,50 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+Traceback (most recent call last):
+  File "/root/okc/tools/bx_box_run.py", line 629, in <module>
+    main()
+  File "/root/okc/tools/bx_box_run.py", line 491, in main
+    state = mod.prepare(weights) if hasattr(mod, "prepare") else None
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 18064, in prepare
+    st = _pdl8_prior_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 17237, in prepare
+    state = _release_normal_prepare(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 16863, in prepare
+    state=_g1a_prepare(weights)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 16735, in prepare
+    st = _pin_parent_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 16730, in prepare
+    return _gle_prior_prepare(weights)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 16204, in prepare
+    state = _router_fp32_native_parent_prepare(weights)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 16113, in prepare
+    st = _router_fp32_parent_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 15971, in prepare
+    return _DE_PREPARE(weights)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 15736, in prepare
+    st=_sl_previous_prepare(weights)
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 15314, in prepare
+    st=_policy_parent_prepare(weights)
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 15281, in prepare
+    st = _stack_unpinned_prepare(weights)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 12451, in prepare
+    st = _vj_prepare(weights)   # the base tuner runs first, on the base kernels (no "graft" keys yet)
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 11178, in prepare
+    _ma_prepare(weights, st)
+  File "/root/okc/muse_decode_layer/cand/mo_tiny2m4.py", line 16832, in _ma_prepare
+    raise RuntimeError('unexpected native module keys: '+str(sorted(st['ma_ext'])))
+RuntimeError: unexpected native module keys: ['b4', 'main', 'mid', 'tiny']
