@@ -1,40 +1,37 @@
-# moe lane checkpoint (round 4, decode 16 / 32 MoE prologue)
+# moe lane checkpoint (round 5, decode 16 / 32 MoE prologue)
 
-Updated 2026-11-04 12:55 PT. Round closed: no candidate. Branch `worktree-agent-a8c676644bda35cae`. Run log section: docs/runs-decode-layer.md
-"2026-11-04 - Decode 16 / 32 MoE prologue (box)".
+Updated 2026-11-04 13:00 PT. Branch `worktree-agent-aac86ce8ff3fa9576`. Round 4's checkpoint is in git history
+(commit 040d9eb4).
 
 ## Base
 
-muse_decode_layer/cand/ly_stk2.py, SHA256 4bbf4010f412b9afe8595b1a5ede517fb8aa6e31af6efdc1e55dd34a3a335846.
+muse_decode_layer/cand/ly_stk3.py, SHA256 a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6 (MoE
+device code as ly_stk2). Every A/B is paired against it.
 
-## Instruments (box only, never candidates)
+## Candidates (tools/dl_ly_m5_patch.py mid|b4)
 
-- tools/ly_moe_pro16.py (MID) and tools/ly_moe_prob4.py (B4): 128 stamps per CTA, new stamps on clock64 (the box's
-  globaltimer ticks every 256 ns), post-barrier stamps behind a volatile shared load (a bare clock read was hoisted
-  above bar.sync). Options `--probe` (first-touch vs same-page load latency) and `--r2` (route() / wgs_ranges() run a
-  second time). Runner tools/ly_box_moe_pro.py (`--warm` adds an unflushed replay). Box logs .build/moe4/pro_*.log,
-  copies in muse_decode_layer/profiles/box/moe4/.
+| file | SHA256 | change |
+|---|---|---|
+| muse_decode_layer/cand/ly_m5mh.py | d5fbbb083f92060f293972966135691347eec31bffb64d5359ce014a6a41b295 | MID: rb7 (round 4) plus the FAST1 warp's four topk loads issued before its count loop (-DOKC_RB7=1 -DOKC_F1HOIST=1) |
+| muse_decode_layer/cand/ly_m5ww.py | b05a19a2977c3f6b7a935a6e016e07384fca0302ec6174d909b89346755a9e93 | B4: dry wgs_ranges on the weights producer warp at its entry, storing nothing; the x producer's real call unchanged (-DOKC_RWARM=1) |
 
-## Measurements (us after each CTA's own entry, CTA mean, median of 20 inputs, sliding)
+Stamp copies (box only): ly_m5mh_pro16.py 5ec5ab7a, ly_m5ww_prob4.py 6162950b, ly_stk3_prob4.py 41cf47c4 (B4 base).
 
-- MID route() ends 3.45; 1.26 of it is barrier 1 waiting for the FAST1 warp (four dependent topk loads 1.0, job scan
-  0.45, TMA issue 0.19). route() body 1.5 us, the same when run a second time (not instruction fetch). Warp 0 scan 0.65.
-  x load for the first job 0.80 (64 KB per CTA from L2). Warm (no L2 flush) replay identical: not DRAM, TLB or cold
-  data. Probe: first touch 414 ns vs same 2 MiB new line 400 ns (TLB not a cost).
-- B4 route() ends 2.41 (body 1.56, same when repeated); x producer's wgs_ranges 2.53 -> 5.07 (2.54 us; an immediate
-  second call takes 0.90); consumers' gather and xready releases end 4.56; WS_JOIN and first weight issue about 5.2.
+## Measured (box, own time in us after each CTA's entry, median of 20 inputs, decode 16 / 32 sliding cold)
 
-## Candidates
+MID ly_m5mh: F1 topk back 0.56 / 0.75 / 0.97 / 1.16 (still about 0.2 us apart, so the hoist did not shorten the
+FAST1 count loop), F1 TMA issued 2.64, bar 4 2.89, first slot full 5.07, w0 x load back 5.33 (base 4.64 / 4.90, so
+0.43 later). Gate: five PDL8H guards pass; chk rc=0.
 
-- ly_m4rb.py b12e1b47688ed569d2e8202326f475f54166788495e59debbf4b2de378b740a8 (MID, -DOKC_RB7=1: routing's first
-  three barriers without the FAST1 warp). Gate pass, chk PASS 12/12. A/B vs ly_stk2, two rounds: decode 16 sliding
-  +0.19 (5/24), full +0.45 (5/24); everything inside. NULL. Stamps: route end 3.45 -> 2.84, but the FAST1 warp's
-  TMA issue 1.81 -> 2.59 (it now runs beside route()) and the x load 0.80 -> 1.79, first slot full 4.64 -> 5.04.
-- ly_m4rw.py f66973f1aba39ae4b144fc6f56528ad2f3661dd9c6c5c750d6474fd95f25a6f8 (B4, -DOKC_RWARM=1: wgs_ranges dry run
-  before routing). Gate pass, chk PASS 12/12. A/B: decode 32 sliding +0.22 (6/24), full -0.57 (23/24), all inside.
-  NULL. Stamps: real call 2.54 -> 1.28 us, but the dry run ends at 3.21 (after route end 2.46); WS_JOIN 5.25 -> 4.96.
+B4 base ly_stk3: route end 2.42, xprod bar 7 2.54, xprod ranges 5.12 (wgs_ranges cold 2.58 us), consumers' WS_JOIN
+(gt) 4.23, wprod after WS_JOIN 5.30, first weight issue (gt) 5.35.
 
-## Next action
+## Box
 
-None registered. Unbuilt follow-ups (each needs a new lane decision): MID rb7 together with ly_m16r's hoisted FAST1
-loads, so the weight copies go out before warps 0..6 start routing; B4 dry run that finishes before route() ends.
+Driver tools/ly_m5_ab.sh (stamps first, then gate, chk, two paired rounds vs ly_stk3). Logs in /root/okc/.build/moe5/
+(mh_run.log, ww_run.log, pro_*.log, gate_*.log) and /root/okc/.build/prtl/m5_{mh,ww}{,_r2}/.
+
+## Next
+
+Read the mh and ww A/B (tools/ly_ab_table.py), check ww stamps (xprod ranges should fall from 5.12 toward 3.6), write
+the run-log section and ruled-out rows.
