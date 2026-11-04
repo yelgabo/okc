@@ -1,0 +1,352 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793821936.333 acquire start after 0.0 s
+BXLOCK 1793821937.159 release build proj_dl_escape_9f59f99459c9
+BXBUILD 1793821937.159 start build proj_dl_escape_9f59f99459c9
+BXBUILD 1793821949.366 end build proj_dl_escape_9f59f99459c9
+BXLOCK 1793821949.366 acquire build proj_dl_escape_9f59f99459c9 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793821949.455 release build dl_okc_bf16proj_v86y4_90a
+BXBUILD 1793821949.456 start build dl_okc_bf16proj_v86y4_90a
+BXBUILD 1793821949.456 start build muse_att_v298w1pf_90a
+BXBUILD 1793821973.341 end build dl_okc_bf16proj_v86y4_90a
+BXBUILD 1793821999.665 end build muse_att_v298w1pf_90a
+BXLOCK 1793821999.665 acquire build muse_att_v298w1pf_90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.23), ('sk2', 8.1), ('torch', 10.4)] -> ('cg',)
+BXLOCK 1793822001.638 release build gle_o_b322c8c62ab1
+BXBUILD 1793822001.638 start build gle_o_b322c8c62ab1
+BXBUILD 1793822014.154 end build gle_o_b322c8c62ab1
+BXLOCK 1793822014.154 acquire build gle_o_b322c8c62ab1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822014.491 release triton _sl_cluster_finish_cg
+BXBUILD 1793822014.491 start triton _sl_cluster_finish_cg
+BXBUILD 1793822014.597 end triton _sl_cluster_finish_cg
+BXLOCK 1793822014.597 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822014.634 release triton _sl_cluster_finish_cg
+BXBUILD 1793822014.634 start triton _sl_cluster_finish_cg
+BXBUILD 1793822014.729 end triton _sl_cluster_finish_cg
+BXLOCK 1793822014.730 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822014.834 release triton _graft_row_boundary_pre
+BXBUILD 1793822014.834 start triton _graft_row_boundary_pre
+BXBUILD 1793822014.925 end triton _graft_row_boundary_pre
+BXLOCK 1793822014.925 acquire triton _graft_row_boundary_pre done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822014.926 release triton _graft_row_boundary_pre
+BXBUILD 1793822014.926 start triton _graft_row_boundary_pre
+BXBUILD 1793822015.017 end triton _graft_row_boundary_pre
+BXLOCK 1793822015.017 acquire triton _graft_row_boundary_pre done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822015.065 release triton _graft_row_boundary
+BXBUILD 1793822015.065 start triton _graft_row_boundary
+BXBUILD 1793822015.153 end triton _graft_row_boundary
+BXLOCK 1793822015.153 acquire triton _graft_row_boundary done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822015.157 release triton _graft_route
+BXBUILD 1793822015.157 start triton _graft_route
+BXBUILD 1793822015.904 end triton _graft_route
+BXLOCK 1793822015.904 acquire triton _graft_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822015.905 release triton _graft_row_boundary
+BXBUILD 1793822015.905 start triton _graft_row_boundary
+BXBUILD 1793822015.996 end triton _graft_row_boundary
+BXLOCK 1793822015.996 acquire triton _graft_row_boundary done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822016.056 release triton _graft_row_boundary
+BXBUILD 1793822016.056 start triton _graft_row_boundary
+BXBUILD 1793822016.158 end triton _graft_row_boundary
+BXLOCK 1793822016.158 acquire triton _graft_row_boundary done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822016.163 release triton _graft_row_boundary
+BXBUILD 1793822016.163 start triton _graft_row_boundary
+BXBUILD 1793822016.268 end triton _graft_row_boundary
+BXLOCK 1793822016.268 acquire triton _graft_row_boundary done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793822021.355 release triton _prq_sl_tile_route_cg
+BXBUILD 1793822021.355 start triton _prq_sl_tile_route_cg
+BXBUILD 1793822022.093 end triton _prq_sl_tile_route_cg
+BXLOCK 1793822022.093 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793822022.096 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793822022.096 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793822022.189 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793822022.189 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+A16I decode 16 sliding in 0 plain 127.81 inst 125.66 diff 9.77e-03 n 256 ns 16 wait 0.45/0.48 q 1.89 st0 2.78 loop 4.83/5.60 ticket 6.59/7.36 end 8.48 o_wait 8.99 o_end 12.22
+A16I decode 16 sliding in 1 plain 133.06 inst 131.87 diff 3.12e-02 n 256 ns 16 wait 0.99/1.34 q 2.53 st0 3.42 loop 5.44/6.30 ticket 7.20/7.87 end 8.83 o_wait 9.31 o_end 12.67
+A16I decode 16 sliding in 2 plain 125.09 inst 124.74 diff 1.95e-03 n 256 ns 16 wait 0.45/0.48 q 1.92 st0 2.78 loop 4.82/5.98 ticket 6.53/7.23 end 8.29 o_wait 8.80 o_end 12.06
+A16I decode 16 sliding in 3 plain 157.57 inst 156.99 diff 7.81e-03 n 256 ns 16 wait 0.48/0.51 q 1.92 st0 2.83 loop 4.85/5.89 ticket 6.62/7.14 end 8.00 o_wait 8.51 o_end 11.71
+A16I decode 16 sliding in 4 plain 119.10 inst 118.66 diff 3.12e-02 n 256 ns 16 wait 0.38/0.45 q 1.79 st0 2.74 loop 4.74/5.25 ticket 6.56/7.10 end 8.16 o_wait 8.64 o_end 11.97
+A16I decode 16 sliding in 5 plain 131.30 inst 131.68 diff 2.20e-03 n 256 ns 16 wait 0.42/0.45 q 1.89 st0 2.82 loop 4.86/5.66 ticket 6.69/7.20 end 8.22 o_wait 8.74 o_end 12.10
+A16I decode 16 sliding in 6 plain 131.17 inst 131.01 diff 7.81e-03 n 256 ns 16 wait 0.42/0.45 q 1.76 st0 2.78 loop 4.74/5.66 ticket 6.53/7.30 end 8.45 o_wait 8.96 o_end 12.22
+A16I decode 16 sliding in 7 plain 130.75 inst 131.74 diff 1.56e-02 n 256 ns 16 wait 0.42/0.45 q 1.86 st0 2.78 loop 4.77/5.79 ticket 6.53/7.10 end 8.16 o_wait 8.67 o_end 12.29
+A16I decode 16 sliding in 8 plain 139.74 inst 139.36 diff 7.81e-03 n 256 ns 16 wait 0.42/0.45 q 1.82 st0 2.72 loop 4.74/5.50 ticket 6.56/7.07 end 8.32 o_wait 8.83 o_end 12.06
+A16I decode 16 sliding in 9 plain 126.02 inst 123.78 diff 1.17e-02 n 256 ns 16 wait 0.48/0.51 q 1.92 st0 2.83 loop 4.86/5.50 ticket 6.59/7.04 end 7.90 o_wait 8.45 o_end 11.65
+A16I decode 16 sliding in 10 plain 127.23 inst 124.42 diff 0.00e+00 n 256 ns 16 wait 0.45/0.45 q 1.86 st0 2.78 loop 4.80/5.76 ticket 6.54/7.14 end 8.03 o_wait 8.51 o_end 11.78
+A16I decode 16 sliding in 11 plain 137.57 inst 138.78 diff 7.81e-03 n 256 ns 16 wait 0.42/0.45 q 1.86 st0 2.75 loop 4.74/5.34 ticket 6.56/7.23 end 8.32 o_wait 8.80 o_end 12.10
+A16I decode 16 sliding in 12 plain 130.43 inst 132.06 diff 3.12e-02 n 256 ns 16 wait 0.42/0.42 q 1.79 st0 2.72 loop 4.77/5.47 ticket 6.56/7.20 end 8.19 o_wait 8.67 o_end 11.97
+A16I decode 16 sliding in 13 plain 139.04 inst 140.22 diff 3.12e-02 n 256 ns 16 wait 0.48/0.51 q 1.95 st0 2.85 loop 4.86/5.63 ticket 6.69/7.42 end 8.38 o_wait 8.86 o_end 12.22
+A16I decode 16 sliding in 14 plain 117.73 inst 119.71 diff 0.00e+00 n 256 ns 16 wait 0.38/0.42 q 1.82 st0 2.75 loop 4.74/5.86 ticket 6.50/7.23 end 8.19 o_wait 8.70 o_end 12.06
+A16I decode 16 sliding in 15 plain 130.62 inst 129.09 diff 3.12e-02 n 256 ns 16 wait 0.42/0.48 q 1.89 st0 2.82 loop 4.83/5.98 ticket 6.53/7.33 end 8.26 o_wait 8.77 o_end 12.13
+A16I decode 16 sliding in 16 plain 124.48 inst 124.77 diff 0.00e+00 n 256 ns 16 wait 0.45/0.48 q 1.86 st0 2.78 loop 4.77/5.54 ticket 6.72/7.30 end 8.32 o_wait 8.83 o_end 12.16
+A16I decode 16 sliding in 17 plain 139.78 inst 138.37 diff 3.12e-02 n 256 ns 16 wait 0.45/0.45 q 1.82 st0 2.82 loop 5.92/6.53 ticket 7.39/8.16 end 9.12 o_wait 9.63 o_end 12.96
+A16I decode 16 sliding in 18 plain 116.64 inst 119.26 diff 3.12e-02 n 256 ns 16 wait 0.45/0.48 q 1.82 st0 2.82 loop 4.77/5.50 ticket 6.59/7.17 end 8.13 o_wait 8.61 o_end 11.81
+A16I decode 16 sliding in 19 plain 137.41 inst 137.06 diff 1.56e-02 n 256 ns 16 wait 0.48/0.51 q 1.92 st0 2.85 loop 4.86/5.38 ticket 6.66/7.49 end 8.58 o_wait 9.09 o_end 12.38
+A16 decode 16 sliding T 16 n 20 medians
+  C_entry                     -0.704
+  C_fin0                       7.312
+  C_fin1                       8.272
+  C_idx                        0.880
+  C_kv_iss                     1.984
+  C_last_loop                  5.248
+  C_loop                       5.264
+  C_m0                         4.320
+  C_m1                         5.184
+  C_newkv                      2.688
+  C_patch                      3.344
+  C_presync                    5.952
+  C_q_vis                      2.064
+  C_qpass                      2.464
+  C_reds                       5.920
+  C_rope                       2.176
+  C_st0                        3.552
+  C_st1                        4.512
+  C_ticket                     7.216
+  C_wait                       0.464
+  C_xchg                       5.488
+  R_fin1_min                   7.552
+  R_fin1_p50                   7.904
+  R_loop_min                   4.992
+  R_loop_p50                   5.192
+  R_n                         16.000
+  R_ticket_min                 6.752
+  R_ticket_p50                 7.040
+  a_entry_max                 -0.512
+  a_entry_min                 -0.976
+  a_entry_p50                 -0.800
+  a_fin0_max                   7.328
+  a_fin0_min                   6.848
+  a_fin0_p50                   7.136
+  a_fin1_max                   8.272
+  a_fin1_min                   7.552
+  a_fin1_p50                   7.904
+  a_idx_max                    0.896
+  a_idx_min                    0.800
+  a_idx_p50                    0.832
+  a_kv_iss_max                 2.112
+  a_kv_iss_min                 1.616
+  a_kv_iss_p50                 1.792
+  a_loop_max                   5.648
+  a_loop_min                   4.128
+  a_loop_p50                   4.808
+  a_m0_max                     4.752
+  a_m0_min                     3.072
+  a_m0_p50                     3.680
+  a_m1_max                     5.584
+  a_m1_min                     4.032
+  a_m1_p50                     4.704
+  a_newkv_max                  3.136
+  a_newkv_min                  2.112
+  a_newkv_p50                  2.336
+  a_patch_max                  3.776
+  a_patch_min                  2.192
+  a_patch_p50                  2.416
+  a_presync_max                6.208
+  a_presync_min                4.640
+  a_presync_p50                5.376
+  a_q_vis_max                  2.160
+  a_q_vis_min                  1.664
+  a_q_vis_p50                  1.856
+  a_qpass_max                  2.592
+  a_qpass_min                  2.032
+  a_qpass_p50                  2.240
+  a_reds_max                   6.144
+  a_reds_min                   4.576
+  a_reds_p50                   5.296
+  a_rope_max                   2.304
+  a_rope_min                   1.792
+  a_rope_p50                   1.984
+  a_st0_max                    4.016
+  a_st0_min                    2.368
+  a_st0_p50                    2.784
+  a_st1_max                    4.928
+  a_st1_min                    3.360
+  a_st1_p50                    3.936
+  a_ticket_max                 7.232
+  a_ticket_min                 5.440
+  a_ticket_p50                 6.576
+  a_wait_max                   0.464
+  a_wait_min                   0.448
+  a_wait_p50                   0.448
+  a_xchg_max                   5.872
+  a_xchg_min                   4.368
+  a_xchg_p50                   5.024
+  att_end                      8.272
+  att_n                      256.000
+  graph_inst                 131.344
+  graph_plain                130.688
+  maxdiff                      0.011
+  ns                          16.000
+  o_end                       12.096
+  o_entry_min                  1.312
+  o_wait_max                   8.832
+  o_wait_min                   8.784
+  o_wait_p50                   8.784
+  qkv_end_min                 -1.424
+  qkv_entry                   -9.376
+  sm_max_ctas                  3.000
+  sm_used                     87.000
+BXLOCK 1793822022.498 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793822022.498 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793822022.586 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793822022.586 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+A16I decode 32 sliding in 0 plain 142.08 inst 142.91 diff 0.00e+00 n 256 ns 8 wait 0.38/0.58 q 2.21 st0 3.04 loop 7.30/8.90 ticket 8.67/10.27 end 10.94 o_wait 11.62 o_end 15.84
+A16I decode 32 sliding in 1 plain 145.28 inst 143.52 diff 3.12e-02 n 256 ns 8 wait 0.42/0.77 q 2.18 st0 3.04 loop 7.20/8.77 ticket 8.70/10.21 end 10.98 o_wait 11.46 o_end 15.62
+A16I decode 32 sliding in 2 plain 140.83 inst 141.98 diff 3.12e-02 n 256 ns 8 wait 0.45/0.77 q 2.34 st0 3.17 loop 7.33/9.09 ticket 8.90/10.53 end 11.52 o_wait 12.00 o_end 16.29
+A16I decode 32 sliding in 3 plain 140.99 inst 143.33 diff 0.00e+00 n 256 ns 8 wait 0.51/0.80 q 2.21 st0 3.01 loop 7.23/8.77 ticket 8.80/9.82 end 10.88 o_wait 11.36 o_end 15.71
+A16I decode 32 sliding in 4 plain 143.65 inst 144.29 diff 3.12e-02 n 256 ns 8 wait 0.51/0.99 q 2.27 st0 3.07 loop 7.23/8.54 ticket 8.80/10.30 end 11.07 o_wait 11.58 o_end 15.68
+A16I decode 32 sliding in 5 plain 154.27 inst 152.77 diff 0.00e+00 n 256 ns 8 wait 0.45/0.74 q 2.08 st0 2.94 loop 7.10/8.77 ticket 8.59/9.79 end 10.53 o_wait 11.04 o_end 15.30
+A16I decode 32 sliding in 6 plain 152.19 inst 150.18 diff 0.00e+00 n 256 ns 8 wait 0.54/0.99 q 2.27 st0 3.07 loop 7.33/9.15 ticket 8.80/10.53 end 11.23 o_wait 11.74 o_end 15.81
+A16I decode 32 sliding in 7 plain 147.42 inst 148.38 diff 0.00e+00 n 256 ns 8 wait 0.42/0.64 q 2.11 st0 2.98 loop 7.14/9.02 ticket 8.58/10.14 end 10.98 o_wait 11.49 o_end 15.62
+A16I decode 32 sliding in 8 plain 152.80 inst 152.16 diff 0.00e+00 n 256 ns 8 wait 0.51/0.77 q 2.24 st0 3.06 loop 7.26/8.67 ticket 8.80/9.89 end 10.66 o_wait 11.17 o_end 15.36
+A16I decode 32 sliding in 9 plain 150.69 inst 148.67 diff 3.12e-02 n 256 ns 8 wait 0.38/0.86 q 2.14 st0 3.01 loop 7.20/8.96 ticket 8.64/10.46 end 11.26 o_wait 11.78 o_end 15.97
+A16I decode 32 sliding in 10 plain 146.94 inst 147.14 diff 0.00e+00 n 256 ns 8 wait 0.45/0.70 q 3.10 st0 4.08 loop 8.10/9.34 ticket 9.38/10.91 end 11.62 o_wait 12.10 o_end 16.19
+A16I decode 32 sliding in 11 plain 160.58 inst 163.10 diff 3.12e-02 n 256 ns 8 wait 0.45/0.77 q 2.14 st0 2.91 loop 7.14/8.70 ticket 8.62/10.21 end 11.10 o_wait 11.62 o_end 15.78
+A16I decode 32 sliding in 12 plain 146.94 inst 150.69 diff 3.12e-02 n 256 ns 8 wait 0.38/0.67 q 2.18 st0 3.04 loop 7.23/8.61 ticket 8.64/9.92 end 10.88 o_wait 11.39 o_end 15.58
+A16I decode 32 sliding in 13 plain 153.18 inst 155.01 diff 0.00e+00 n 256 ns 8 wait 0.42/0.70 q 2.11 st0 2.98 loop 7.23/8.48 ticket 8.70/9.76 end 10.82 o_wait 11.30 o_end 15.58
+A16I decode 32 sliding in 14 plain 147.42 inst 147.90 diff 3.12e-02 n 256 ns 8 wait 0.42/0.64 q 2.11 st0 3.01 loop 7.18/9.02 ticket 8.64/10.46 end 11.23 o_wait 11.74 o_end 15.97
+A16I decode 32 sliding in 15 plain 148.90 inst 150.69 diff 2.34e-02 n 256 ns 8 wait 0.38/0.42 q 2.27 st0 3.15 loop 7.34/8.70 ticket 8.74/10.08 end 10.91 o_wait 11.42 o_end 15.97
+A16I decode 32 sliding in 16 plain 141.98 inst 143.07 diff 0.00e+00 n 256 ns 8 wait 0.42/0.58 q 2.21 st0 3.04 loop 7.17/8.64 ticket 8.54/10.05 end 10.82 o_wait 11.33 o_end 15.71
+A16I decode 32 sliding in 17 plain 142.56 inst 144.67 diff 0.00e+00 n 256 ns 8 wait 0.42/0.45 q 2.21 st0 3.01 loop 7.17/8.70 ticket 8.62/10.02 end 10.91 o_wait 11.42 o_end 15.52
+A16I decode 32 sliding in 18 plain 153.06 inst 154.72 diff 3.12e-02 n 256 ns 8 wait 0.58/0.86 q 3.01 st0 3.90 loop 8.02/9.66 ticket 9.41/10.82 end 11.68 o_wait 12.19 o_end 16.35
+A16I decode 32 sliding in 19 plain 136.99 inst 136.61 diff 1.56e-02 n 256 ns 8 wait 0.42/0.51 q 2.24 st0 3.04 loop 7.26/8.58 ticket 8.69/10.08 end 10.85 o_wait 11.36 o_end 15.62
+A16 decode 32 sliding T 32 n 20 medians
+  C_entry                     -0.160
+  C_fin0                      10.272
+  C_fin1                      10.960
+  C_idx                        1.056
+  C_kv_iss                     2.624
+  C_last_loop                  8.608
+  C_loop                       8.608
+  C_m0                         5.600
+  C_m1                         7.104
+  C_m2                         7.904
+  C_m3                         8.544
+  C_newkv                      3.648
+  C_patch                      4.304
+  C_presync                    9.072
+  C_q_vis                      2.688
+  C_qpass                      3.168
+  C_reds                       9.008
+  C_rope                       2.832
+  C_st0                        4.464
+  C_st1                        5.776
+  C_st2                        7.264
+  C_st3                        8.032
+  C_ticket                    10.176
+  C_wait                       0.624
+  C_xchg                       8.768
+  R_fin1_min                   9.488
+  R_fin1_p50                  10.248
+  R_loop_min                   7.376
+  R_loop_p50                   8.056
+  R_n                         32.000
+  R_ticket_min                 8.672
+  R_ticket_p50                 9.400
+  a_entry_max                  0.016
+  a_entry_min                 -0.832
+  a_entry_p50                 -0.336
+  a_fin0_max                  10.272
+  a_fin0_min                   8.768
+  a_fin0_p50                   9.488
+  a_fin1_max                  10.960
+  a_fin1_min                   9.488
+  a_fin1_p50                  10.248
+  a_idx_max                    1.232
+  a_idx_min                    0.800
+  a_idx_p50                    0.896
+  a_kv_iss_max                 2.784
+  a_kv_iss_min                 1.664
+  a_kv_iss_p50                 2.144
+  a_loop_max                   8.768
+  a_loop_min                   6.048
+  a_loop_p50                   7.232
+  a_m0_max                     5.728
+  a_m0_min                     3.328
+  a_m0_p50                     4.152
+  a_m1_max                     7.232
+  a_m1_min                     4.384
+  a_m1_p50                     5.312
+  a_m2_max                     8.048
+  a_m2_min                     5.184
+  a_m2_p50                     6.232
+  a_m3_max                     8.688
+  a_m3_min                     5.968
+  a_m3_p50                     7.136
+  a_newkv_max                  3.696
+  a_newkv_min                  2.176
+  a_newkv_p50                  2.712
+  a_patch_max                  4.352
+  a_patch_min                  2.256
+  a_patch_p50                  2.832
+  a_presync_max                9.168
+  a_presync_min                6.480
+  a_presync_p50                7.776
+  a_q_vis_max                  2.816
+  a_q_vis_min                  1.728
+  a_q_vis_p50                  2.208
+  a_qpass_max                  3.296
+  a_qpass_min                  2.112
+  a_qpass_p50                  2.592
+  a_reds_max                   9.104
+  a_reds_min                   6.416
+  a_reds_p50                   7.712
+  a_rope_max                   2.976
+  a_rope_min                   1.856
+  a_rope_p50                   2.336
+  a_st0_max                    4.544
+  a_st0_min                    2.400
+  a_st0_p50                    3.040
+  a_st1_max                    5.888
+  a_st1_min                    3.488
+  a_st1_p50                    4.312
+  a_st2_max                    7.376
+  a_st2_min                    4.512
+  a_st2_p50                    5.472
+  a_st3_max                    8.176
+  a_st3_min                    5.312
+  a_st3_p50                    6.384
+  a_ticket_max                10.176
+  a_ticket_min                 7.392
+  a_ticket_p50                 8.696
+  a_wait_max                   0.720
+  a_wait_min                   0.416
+  a_wait_p50                   0.480
+  a_xchg_max                   8.944
+  a_xchg_min                   6.224
+  a_xchg_p50                   7.440
+  att_end                     10.960
+  att_n                      256.000
+  graph_inst                 148.144
+  graph_plain                147.184
+  maxdiff                      0.008
+  ns                           8.000
+  o_end                       15.712
+  o_entry_min                  1.888
+  o_wait_max                  11.488
+  o_wait_min                  11.472
+  o_wait_p50                  11.488
+  qkv_end_min                 -0.784
+  qkv_entry                   -9.968
+  sm_max_ctas                  3.000
+  sm_used                     87.000
+BXLOCK 1793822022.768 release done
