@@ -1,0 +1,326 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793802554.306 acquire start after 0.0 s
+TLV16 bandwidth read 4.433 TB/s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793802555.262 release build glue_moe_6d7a0f8a046f3d7b_sm90a
+BXBUILD 1793802555.262 start build glue_moe_6d7a0f8a046f3d7b_sm90a
+BXBUILD 1793802555.262 start build glue_moe_769ae5eb81b33546_sm90a
+BXBUILD 1793802607.152 end build glue_moe_769ae5eb81b33546_sm90a
+BXBUILD 1793802610.436 end build glue_moe_6d7a0f8a046f3d7b_sm90a
+BXLOCK 1793802610.436 acquire build glue_moe_6d7a0f8a046f3d7b_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.36), ('sk2', 7.9), ('torch', 10.3)] -> ('cg',)
+BXLOCK 1793802612.353 release triton _gemm_splitk
+BXBUILD 1793802612.353 start triton _gemm_splitk
+BXBUILD 1793802612.510 end triton _gemm_splitk
+BXLOCK 1793802612.510 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802612.514 release triton _boundary1
+BXBUILD 1793802612.514 start triton _boundary1
+BXBUILD 1793802612.703 end triton _boundary1
+BXLOCK 1793802612.703 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802612.785 release triton _route_split
+BXBUILD 1793802612.785 start triton _route_split
+BXBUILD 1793802613.032 end triton _route_split
+BXLOCK 1793802613.032 acquire triton _route_split done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802613.034 release triton _boundary2
+BXBUILD 1793802613.034 start triton _boundary2
+BXBUILD 1793802613.237 end triton _boundary2
+BXLOCK 1793802613.237 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802613.243 release triton _gemm_splitk
+BXBUILD 1793802613.243 start triton _gemm_splitk
+BXBUILD 1793802613.403 end triton _gemm_splitk
+BXLOCK 1793802613.403 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802613.415 release triton _gemm_splitk
+BXBUILD 1793802613.415 start triton _gemm_splitk
+BXBUILD 1793802613.585 end triton _gemm_splitk
+BXLOCK 1793802613.585 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802613.597 release triton _boundary1
+BXBUILD 1793802613.597 start triton _boundary1
+BXBUILD 1793802613.774 end triton _boundary1
+BXLOCK 1793802613.774 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802613.791 release triton _prq_route_split
+BXBUILD 1793802613.791 start triton _prq_route_split
+BXBUILD 1793802614.053 end triton _prq_route_split
+BXLOCK 1793802614.053 acquire triton _prq_route_split done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802614.057 release triton _gemm_splitk
+BXBUILD 1793802614.057 start triton _gemm_splitk
+BXBUILD 1793802614.212 end triton _gemm_splitk
+BXLOCK 1793802614.212 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802614.212 release triton _boundary1
+BXBUILD 1793802614.212 start triton _boundary1
+BXBUILD 1793802614.400 end triton _boundary1
+BXLOCK 1793802614.400 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802614.401 release triton _boundary2
+BXBUILD 1793802614.401 start triton _boundary2
+BXBUILD 1793802614.602 end triton _boundary2
+BXLOCK 1793802614.602 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802614.606 release triton _gemm_splitk
+BXBUILD 1793802614.606 start triton _gemm_splitk
+BXBUILD 1793802614.764 end triton _gemm_splitk
+BXLOCK 1793802614.764 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802614.772 release triton _gemm_splitk
+BXBUILD 1793802614.772 start triton _gemm_splitk
+BXBUILD 1793802614.943 end triton _gemm_splitk
+BXLOCK 1793802614.943 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802614.951 release triton _boundary1
+BXBUILD 1793802614.951 start triton _boundary1
+BXBUILD 1793802615.121 end triton _boundary1
+BXLOCK 1793802615.121 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802615.172 release triton _gemm_splitk
+BXBUILD 1793802615.172 start triton _gemm_splitk
+BXBUILD 1793802615.329 end triton _gemm_splitk
+BXLOCK 1793802615.329 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802615.335 release triton _gemm_splitk
+BXBUILD 1793802615.335 start triton _gemm_splitk
+BXBUILD 1793802615.483 end triton _gemm_splitk
+BXLOCK 1793802615.483 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802615.489 release triton _gemm_splitk
+BXBUILD 1793802615.489 start triton _gemm_splitk
+BXBUILD 1793802615.673 end triton _gemm_splitk
+BXLOCK 1793802615.673 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802615.683 release triton _boundary1
+BXBUILD 1793802615.683 start triton _boundary1
+BXBUILD 1793802615.852 end triton _boundary1
+BXLOCK 1793802615.852 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802615.853 release triton _boundary2
+BXBUILD 1793802615.853 start triton _boundary2
+BXBUILD 1793802616.024 end triton _boundary2
+BXLOCK 1793802616.024 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802616.029 release triton _gemm_splitk
+BXBUILD 1793802616.029 start triton _gemm_splitk
+BXBUILD 1793802616.207 end triton _gemm_splitk
+BXLOCK 1793802616.207 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802616.213 release triton _gemm_splitk
+BXBUILD 1793802616.213 start triton _gemm_splitk
+BXBUILD 1793802616.382 end triton _gemm_splitk
+BXLOCK 1793802616.382 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802616.388 release triton _gemm_splitk
+BXBUILD 1793802616.388 start triton _gemm_splitk
+BXBUILD 1793802616.612 end triton _gemm_splitk
+BXLOCK 1793802616.612 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802616.655 release triton _boundary1
+BXBUILD 1793802616.655 start triton _boundary1
+BXBUILD 1793802616.823 end triton _boundary1
+BXLOCK 1793802616.823 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802616.825 release triton _route
+BXBUILD 1793802616.825 start triton _route
+BXBUILD 1793802617.093 end triton _route
+BXLOCK 1793802617.093 acquire triton _route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802617.094 release triton _boundary2
+BXBUILD 1793802617.094 start triton _boundary2
+BXBUILD 1793802617.272 end triton _boundary2
+BXLOCK 1793802617.272 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802617.359 release triton _prq_sl_tile_route_cg
+BXBUILD 1793802617.359 start triton _prq_sl_tile_route_cg
+BXBUILD 1793802618.163 end triton _prq_sl_tile_route_cg
+BXLOCK 1793802618.163 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802618.165 release triton _sl_cluster_finish_cg
+BXBUILD 1793802618.165 start triton _sl_cluster_finish_cg
+BXBUILD 1793802618.261 end triton _sl_cluster_finish_cg
+BXLOCK 1793802618.261 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802618.265 release triton _boundary2
+BXBUILD 1793802618.265 start triton _boundary2
+BXBUILD 1793802618.438 end triton _boundary2
+BXLOCK 1793802618.438 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802618.440 release triton _boundary1
+BXBUILD 1793802618.440 start triton _boundary1
+BXBUILD 1793802618.702 end triton _boundary1
+BXLOCK 1793802618.702 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802618.703 release triton _boundary2
+BXBUILD 1793802618.703 start triton _boundary2
+BXBUILD 1793802618.967 end triton _boundary2
+BXLOCK 1793802618.967 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802618.969 release triton _boundary1
+BXBUILD 1793802618.969 start triton _boundary1
+BXBUILD 1793802619.484 end triton _boundary1
+BXLOCK 1793802619.484 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802619.485 release triton _boundary2
+BXBUILD 1793802619.485 start triton _boundary2
+BXBUILD 1793802620.044 end triton _boundary2
+BXLOCK 1793802620.044 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802620.069 release triton _prq_sl_tile_route_cg
+BXBUILD 1793802620.069 start triton _prq_sl_tile_route_cg
+BXBUILD 1793802620.865 end triton _prq_sl_tile_route_cg
+BXLOCK 1793802620.865 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802620.866 release triton _sl_cluster_finish_cg
+BXBUILD 1793802620.866 start triton _sl_cluster_finish_cg
+BXBUILD 1793802620.963 end triton _sl_cluster_finish_cg
+BXLOCK 1793802620.963 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802620.969 release triton _boundary2
+BXBUILD 1793802620.969 start triton _boundary2
+BXBUILD 1793802621.140 end triton _boundary2
+BXLOCK 1793802621.140 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802621.142 release triton _boundary1
+BXBUILD 1793802621.142 start triton _boundary1
+BXBUILD 1793802621.404 end triton _boundary1
+BXLOCK 1793802621.404 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802621.405 release triton _boundary2
+BXBUILD 1793802621.405 start triton _boundary2
+BXBUILD 1793802621.673 end triton _boundary2
+BXLOCK 1793802621.673 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802621.675 release triton _boundary1
+BXBUILD 1793802621.675 start triton _boundary1
+BXBUILD 1793802622.191 end triton _boundary1
+BXLOCK 1793802622.191 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802622.192 release triton _boundary2
+BXBUILD 1793802622.192 start triton _boundary2
+BXBUILD 1793802622.745 end triton _boundary2
+BXLOCK 1793802622.745 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802622.791 release triton _prq_sl_tile_route
+BXBUILD 1793802622.791 start triton _prq_sl_tile_route
+BXBUILD 1793802623.560 end triton _prq_sl_tile_route
+BXLOCK 1793802623.560 acquire triton _prq_sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802623.563 release triton _boundary1
+BXBUILD 1793802623.563 start triton _boundary1
+BXBUILD 1793802623.812 end triton _boundary1
+BXLOCK 1793802623.812 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802623.813 release triton _boundary2
+BXBUILD 1793802623.813 start triton _boundary2
+BXBUILD 1793802624.079 end triton _boundary2
+BXLOCK 1793802624.079 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802624.081 release triton _boundary1
+BXBUILD 1793802624.081 start triton _boundary1
+BXBUILD 1793802624.565 end triton _boundary1
+BXLOCK 1793802624.565 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802624.566 release triton _boundary2
+BXBUILD 1793802624.566 start triton _boundary2
+BXBUILD 1793802625.132 end triton _boundary2
+BXLOCK 1793802625.132 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802625.173 release triton _graft_row_boundary_pre
+BXBUILD 1793802625.173 start triton _graft_row_boundary_pre
+BXBUILD 1793802625.265 end triton _graft_row_boundary_pre
+BXLOCK 1793802625.265 acquire triton _graft_row_boundary_pre done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802625.267 release triton _graft_row_boundary_pre
+BXBUILD 1793802625.267 start triton _graft_row_boundary_pre
+BXBUILD 1793802625.361 end triton _graft_row_boundary_pre
+BXLOCK 1793802625.361 acquire triton _graft_row_boundary_pre done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802625.409 release triton _graft_row_boundary
+BXBUILD 1793802625.409 start triton _graft_row_boundary
+BXBUILD 1793802625.498 end triton _graft_row_boundary
+BXLOCK 1793802625.498 acquire triton _graft_row_boundary done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802625.502 release triton _graft_route
+BXBUILD 1793802625.502 start triton _graft_route
+BXBUILD 1793802626.280 end triton _graft_route
+BXLOCK 1793802626.280 acquire triton _graft_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802626.281 release triton _graft_row_boundary
+BXBUILD 1793802626.281 start triton _graft_row_boundary
+BXBUILD 1793802626.373 end triton _graft_row_boundary
+BXLOCK 1793802626.373 acquire triton _graft_row_boundary done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802626.433 release triton _graft_row_boundary
+BXBUILD 1793802626.433 start triton _graft_row_boundary
+BXBUILD 1793802626.533 end triton _graft_row_boundary
+BXLOCK 1793802626.533 acquire triton _graft_row_boundary done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793802626.538 release triton _graft_row_boundary
+BXBUILD 1793802626.538 start triton _graft_row_boundary
+BXBUILD 1793802626.645 end triton _graft_row_boundary
+BXLOCK 1793802626.645 acquire triton _graft_row_boundary done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+TLV16 main attrs (regs, local, smem) x2 [96, 8, 0, 96, 8, 0]
+TLV16G verify 16 sliding n 20 medians graph_plain 246.416 graph_inst 247.888 span 146.768 route 2.152 gather 5.128 join 5.159 issue0 5.471 A 85.416 aend_spread 12.992 B 43.181 bend_spread 10.064 mfin_wait 6.492 final 4.583 exit_spread 3.904 x_rdy_wait 1.450 b_dep_wait 14.425 stages 14208.000 stages_min 14208.000 stg_cta_min 68.500 stg_cta_max 120.000 tbs_a 0.033 tbs_b 0.032 tbs_a_agg 3.989 int_floor 1.067 distinct 18.500 routes 182.500 nj 18.500 njf 6.500 restream 0.000 hot 0.000 max_tokens 59.500 smclk 1782.942 switch_gap 0.960 maxdiff nan
+TLV16G verify 16 sliding stages by n-tiles (1..8) A [132096, 33280, 12288, 8192, 512, 0, 2048, 7168] B [66048, 16640, 6144, 4096, 256, 0, 1024, 3584]
+TLV16G verify 16 sliding fit A us per stage by n-tiles 1.005 1.140 1.179 1.338 1.485 nan 1.678 1.798 + 6.50 (resid sd 1.86)
+TLV16G verify 16 sliding fit B us per stage by n-tiles 0.930 1.068 1.138 1.236 1.407 nan 1.538 1.701 + 6.49 (resid sd 2.08)
+TLV16G verify 16 sliding issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsA 1:0:2.18(9633) 1:1:0.96(9458) 1:2:0.96(108157) 2:0:2.56(2493) 2:1:1.09(2438) 2:2:1.02(26873) 3:0:2.69(930) 3:1:1.12(904) 3:2:1.09(9911) 4:0:3.34(632) 4:1:1.22(615) 4:2:1.15(6534) 5:0:4.10(41) 5:1:1.31(40) 5:2:1.22(401) 7:0:4.96(168) 7:1:1.54(161) 7:2:1.38(1596) 8:0:5.60(587) 8:1:1.63(571) 8:2:1.47(5521)
+TLV16G verify 16 sliding issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsB 1:0:1.82(5225) 1:1:1.02(5050) 1:2:0.99(50709) 2:0:2.24(1375) 2:1:1.15(1299) 2:2:1.09(12629) 3:0:2.53(501) 3:1:1.18(479) 3:2:1.12(4647) 4:0:2.75(338) 4:1:1.28(323) 4:2:1.18(3063) 5:0:3.46(23) 5:1:1.38(20) 5:2:1.28(186) 7:0:3.97(90) 7:1:1.60(87) 7:2:1.44(733) 8:0:4.72(346) 8:1:1.70(321) 8:2:1.54(2428)
+TLV16G verify 16 sliding distinct 16 n  3 graph_plain 238.21 graph_inst 235.39 span 132.74 issue0 5.34 A 76.22 B 39.12 bend_spread 10.91 final 4.38 nj 16.00 restream 0.00 routes 188.00
+TLV16G verify 16 sliding distinct 17 n  3 graph_plain 239.55 graph_inst 239.49 span 137.76 issue0 5.33 A 79.76 B 39.78 bend_spread 10.88 final 4.54 nj 17.00 restream 0.00 routes 179.00
+TLV16G verify 16 sliding distinct 18 n  4 graph_plain 243.20 graph_inst 243.54 span 142.56 issue0 5.46 A 83.09 B 42.04 bend_spread 10.06 final 4.54 nj 18.00 restream 0.00 routes 180.00
+TLV16G verify 16 sliding distinct 19 n  4 graph_plain 252.42 graph_inst 250.74 span 150.03 issue0 5.54 A 88.69 B 45.12 bend_spread 8.42 final 4.57 nj 19.50 restream 0.50 routes 183.50
+TLV16G verify 16 sliding distinct 20 n  1 graph_plain 255.23 graph_inst 253.34 span 153.02 issue0 5.47 A 88.66 B 46.12 bend_spread 10.08 final 4.95 nj 20.00 restream 0.00 routes 189.00
+TLV16G verify 16 sliding distinct 21 n  3 graph_plain 260.83 graph_inst 262.02 span 159.68 issue0 5.48 A 94.42 B 47.67 bend_spread 8.77 final 4.63 nj 21.00 restream 0.00 routes 186.00
+TLV16G verify 16 sliding distinct 24 n  1 graph_plain 274.18 graph_inst 274.34 span 174.56 issue0 5.55 A 105.38 B 52.61 bend_spread 11.20 final 4.57 nj 24.00 restream 0.00 routes 181.00
+TLV16G verify 16 sliding distinct 25 n  1 graph_plain 282.69 graph_inst 282.75 span 179.81 issue0 5.81 A 110.01 B 54.02 bend_spread 9.28 final 4.65 nj 25.00 restream 0.00 routes 183.00
+TLV16G verify 16 full n 20 medians graph_plain 329.120 graph_inst 330.448 span 140.400 route 2.132 gather 5.032 join 5.062 issue0 5.326 A 83.011 aend_spread 12.128 B 40.811 bend_spread 10.448 mfin_wait 7.058 final 4.608 exit_spread 3.984 x_rdy_wait 1.440 b_dep_wait 13.563 stages 13824.000 stages_min 13824.000 stg_cta_min 66.000 stg_cta_max 116.000 tbs_a 0.032 tbs_b 0.032 tbs_a_agg 3.979 int_floor 1.067 distinct 18.000 routes 175.000 nj 18.000 njf 6.000 restream 0.000 hot 0.000 max_tokens 56.000 smclk 1795.967 switch_gap 0.960 maxdiff nan
+TLV16G verify 16 full stages by n-tiles (1..8) A [116224, 33280, 17920, 6144, 512, 1024, 2560, 5120] B [58112, 16640, 8960, 3072, 256, 512, 1280, 2560]
+TLV16G verify 16 full fit A us per stage by n-tiles 0.974 1.107 1.145 1.307 1.413 1.503 1.682 1.753 + 8.66 (resid sd 1.80)
+TLV16G verify 16 full fit B us per stage by n-tiles 1.012 1.148 1.228 1.355 1.454 1.599 1.699 1.834 + 3.08 (resid sd 2.07)
+TLV16G verify 16 full issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsA 1:0:2.24(8576) 1:1:0.96(8391) 1:2:0.93(94715) 2:0:2.78(2531) 2:1:1.09(2471) 2:2:1.02(26712) 3:0:2.86(1374) 3:1:1.12(1341) 3:2:1.09(14344) 4:0:3.78(485) 4:1:1.22(470) 4:2:1.15(4862) 5:0:4.27(42) 5:1:1.31(42) 5:2:1.22(395) 6:0:5.15(83) 6:1:1.38(79) 6:2:1.28(802) 7:0:5.98(217) 7:1:1.52(206) 7:2:1.38(1957) 8:0:5.60(429) 8:1:1.66(410) 8:2:1.47(3930)
+TLV16G verify 16 full issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsB 1:0:1.82(4718) 1:1:1.02(4550) 1:2:0.96(44083) 2:0:2.21(1367) 2:1:1.15(1308) 2:2:1.06(12532) 3:0:2.46(738) 3:1:1.18(717) 3:2:1.12(6682) 4:0:2.94(260) 4:1:1.25(253) 4:2:1.18(2259) 5:0:3.12(22) 5:1:1.42(22) 5:2:1.28(182) 6:0:4.06(45) 6:1:1.47(44) 6:2:1.34(366) 7:0:4.18(122) 7:1:1.57(114) 7:2:1.44(875) 8:0:4.96(243) 8:1:1.70(233) 8:2:1.50(1737)
+TLV16G verify 16 full distinct 14 n  1 graph_plain 308.58 graph_inst 313.98 span 123.26 issue0 5.28 A 69.03 B 34.41 bend_spread 12.61 final 4.55 nj 14.00 restream 0.00 routes 173.00
+TLV16G verify 16 full distinct 16 n  2 graph_plain 322.62 graph_inst 322.74 span 133.63 issue0 5.45 A 75.67 B 38.38 bend_spread 13.10 final 4.57 nj 16.00 restream 0.00 routes 186.50
+TLV16G verify 16 full distinct 17 n  5 graph_plain 322.30 graph_inst 328.67 span 138.21 issue0 5.28 A 79.26 B 39.87 bend_spread 11.14 final 4.65 nj 17.00 restream 0.00 routes 173.00
+TLV16G verify 16 full distinct 18 n  5 graph_plain 330.24 graph_inst 330.59 span 140.90 issue0 5.28 A 83.09 B 40.89 bend_spread 9.02 final 4.79 nj 18.00 restream 0.00 routes 173.00
+TLV16G verify 16 full distinct 19 n  5 graph_plain 334.72 graph_inst 334.40 span 145.50 issue0 5.44 A 86.33 B 43.41 bend_spread 8.16 final 4.45 nj 19.00 restream 0.00 routes 175.00
+TLV16G verify 16 full distinct 20 n  2 graph_plain 339.50 graph_inst 339.73 span 153.58 issue0 5.45 A 89.32 B 46.27 bend_spread 9.86 final 4.62 nj 20.00 restream 0.00 routes 180.50
+TLV16G verify 32 sliding n 20 medians graph_plain 302.096 graph_inst 303.024 span 178.656 route 2.713 gather 6.996 join 7.027 issue0 7.244 A 102.221 aend_spread 15.056 B 52.727 bend_spread 11.344 mfin_wait 6.610 final 6.646 exit_spread 3.392 x_rdy_wait 1.304 b_dep_wait 16.260 stages 16128.000 stages_min 15360.000 stg_cta_min 81.000 stg_cta_max 146.500 tbs_a 0.030 tbs_b 0.030 tbs_a_agg 3.784 int_floor 1.067 distinct 20.000 routes 353.500 nj 21.000 njf 10.000 restream 1.000 hot 1.000 max_tokens 118.000 smclk 1754.820 switch_gap 0.992 maxdiff nan
+TLV16G verify 32 sliding stages by n-tiles (1..8) A [115712, 32256, 14848, 17408, 10240, 6144, 7680, 16384] B [57856, 16128, 7424, 8704, 5120, 3072, 3840, 8192]
+TLV16G verify 32 sliding fit A us per stage by n-tiles 0.980 1.100 1.155 1.283 1.380 1.489 1.595 1.710 + 9.05 (resid sd 2.39)
+TLV16G verify 32 sliding fit B us per stage by n-tiles 0.970 1.097 1.168 1.260 1.381 1.482 1.628 1.765 + 5.45 (resid sd 2.58)
+TLV16G verify 32 sliding issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsA 1:0:2.02(8206) 1:1:0.99(8078) 1:2:0.96(95939) 2:0:2.40(2341) 2:1:1.09(2285) 2:2:1.02(26493) 3:0:2.56(1089) 3:1:1.15(1072) 3:2:1.09(12120) 4:0:2.98(1295) 4:1:1.22(1261) 4:2:1.18(14135) 5:0:3.39(772) 5:1:1.33(754) 5:2:1.22(8258) 6:0:3.81(470) 6:1:1.41(459) 6:2:1.31(4939) 7:0:4.26(595) 7:1:1.54(574) 7:2:1.41(6121) 8:0:4.43(1294) 8:1:1.63(1257) 8:2:1.50(12945)
+TLV16G verify 32 sliding issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsB 1:0:1.76(4466) 1:1:1.02(4333) 1:2:0.96(45339) 2:0:2.14(1274) 2:1:1.15(1227) 2:2:1.06(12568) 3:0:2.43(594) 3:1:1.18(572) 3:2:1.12(5703) 4:0:2.72(696) 4:1:1.25(675) 4:2:1.18(6679) 5:0:3.07(418) 5:1:1.38(401) 5:2:1.28(3894) 6:0:3.49(258) 6:1:1.47(241) 6:2:1.34(2302) 7:0:3.78(329) 7:1:1.60(308) 7:2:1.44(2838) 8:0:4.10(736) 8:1:1.66(694) 8:2:1.50(5871)
+TLV16G verify 32 sliding distinct 17 n  1 graph_plain 283.49 graph_inst 288.00 span 162.85 issue0 7.31 A 92.26 B 46.84 bend_spread 11.68 final 6.51 nj 18.00 restream 1.00 routes 359.00
+TLV16G verify 32 sliding distinct 19 n  5 graph_plain 297.98 graph_inst 297.09 span 173.63 issue0 7.11 A 99.59 B 49.85 bend_spread 11.49 final 6.69 nj 20.00 restream 1.00 routes 343.00
+TLV16G verify 32 sliding distinct 20 n  6 graph_plain 301.25 graph_inst 301.98 span 177.97 issue0 7.34 A 102.09 B 52.27 bend_spread 11.33 final 6.74 nj 21.00 restream 1.00 routes 356.50
+TLV16G verify 32 sliding distinct 21 n  2 graph_plain 307.01 graph_inst 305.94 span 182.30 issue0 7.17 A 106.33 B 54.76 bend_spread 10.56 final 6.78 nj 22.00 restream 1.00 routes 349.50
+TLV16G verify 32 sliding distinct 22 n  2 graph_plain 312.35 graph_inst 312.43 span 187.36 issue0 7.24 A 110.01 B 56.12 bend_spread 11.97 final 6.62 nj 23.00 restream 1.00 routes 359.00
+TLV16G verify 32 sliding distinct 23 n  3 graph_plain 315.52 graph_inst 317.79 span 193.95 issue0 7.23 A 114.51 B 57.45 bend_spread 11.26 final 6.40 nj 24.00 restream 1.00 routes 353.00
+TLV16G verify 32 sliding distinct 24 n  1 graph_plain 313.92 graph_inst 314.56 span 191.36 issue0 7.22 A 113.98 B 56.70 bend_spread 9.50 final 6.43 nj 24.00 restream 0.00 routes 349.00
+TLV16G verify 32 full n 20 medians graph_plain 464.864 graph_inst 474.272 span 177.952 route 2.690 gather 6.931 join 6.961 issue0 7.191 A 103.053 aend_spread 15.376 B 52.909 bend_spread 12.048 mfin_wait 6.475 final 6.549 exit_spread 3.488 x_rdy_wait 1.346 b_dep_wait 16.471 stages 16512.000 stages_min 15360.000 stg_cta_min 83.500 stg_cta_max 148.500 tbs_a 0.030 tbs_b 0.030 tbs_a_agg 3.812 int_floor 1.067 distinct 20.000 routes 358.000 nj 21.500 njf 10.000 restream 1.000 hot 1.000 max_tokens 116.000 smclk 1764.750 switch_gap 0.992 maxdiff nan
+TLV16G verify 32 full stages by n-tiles (1..8) A [119296, 27648, 17408, 15360, 10752, 6656, 8192, 16896] B [59648, 13824, 8704, 7680, 5376, 3328, 4096, 8448]
+TLV16G verify 32 full fit A us per stage by n-tiles 1.015 1.140 1.197 1.328 1.424 1.541 1.648 1.763 + 4.84 (resid sd 2.44)
+TLV16G verify 32 full fit B us per stage by n-tiles 1.010 1.136 1.214 1.314 1.419 1.537 1.684 1.800 + 3.86 (resid sd 2.68)
+TLV16G verify 32 full issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsA 1:0:1.98(8465) 1:1:0.96(8338) 1:2:0.96(98914) 2:0:2.37(2009) 2:1:1.09(1972) 2:2:1.02(22692) 3:0:2.56(1280) 3:1:1.12(1258) 3:2:1.09(14234) 4:0:2.85(1144) 4:1:1.22(1113) 4:2:1.15(12482) 5:0:3.23(806) 5:1:1.31(791) 5:2:1.22(8681) 6:0:3.76(510) 6:1:1.38(499) 6:2:1.31(5314) 7:0:4.00(631) 7:1:1.50(617) 7:2:1.41(6536) 8:0:4.32(1313) 8:1:1.63(1276) 8:2:1.47(13413)
+TLV16G verify 32 full issue gaps us by released stage n-tiles:pos(0 first,1 second,2 later) gapsB 1:0:1.79(4545) 1:1:1.02(4414) 1:2:0.99(46895) 2:0:2.14(1081) 2:1:1.12(1037) 2:2:1.06(10784) 3:0:2.43(687) 3:1:1.18(666) 3:2:1.12(6731) 4:0:2.72(614) 4:1:1.25(591) 4:2:1.18(5900) 5:0:3.10(430) 5:1:1.34(417) 5:2:1.28(4111) 6:0:3.46(283) 6:1:1.50(270) 6:2:1.38(2478) 7:0:3.81(339) 7:1:1.60(323) 7:2:1.44(3047) 8:0:4.22(748) 8:1:1.70(708) 8:2:1.50(6085)
+TLV16G verify 32 full distinct 18 n  1 graph_plain 443.71 graph_inst 455.90 span 159.71 issue0 7.01 A 91.92 B 46.91 bend_spread 9.95 final 6.32 nj 19.00 restream 1.00 routes 335.00
+TLV16G verify 32 full distinct 19 n  5 graph_plain 461.50 graph_inst 473.22 span 176.70 issue0 7.47 A 101.92 B 52.36 bend_spread 12.61 final 6.63 nj 21.00 restream 2.00 routes 379.00
+TLV16G verify 32 full distinct 20 n  5 graph_plain 461.98 graph_inst 473.76 span 177.28 issue0 7.19 A 102.47 B 52.67 bend_spread 8.96 final 6.47 nj 21.00 restream 1.00 routes 357.00
+TLV16G verify 32 full distinct 21 n  5 graph_plain 468.93 graph_inst 476.26 span 182.56 issue0 7.26 A 105.87 B 54.25 bend_spread 12.54 final 6.59 nj 22.00 restream 1.00 routes 369.00
+TLV16G verify 32 full distinct 22 n  2 graph_plain 472.69 graph_inst 477.58 span 183.07 issue0 7.14 A 107.18 B 54.76 bend_spread 10.64 final 6.85 nj 22.50 restream 0.50 routes 348.00
+TLV16G verify 32 full distinct 25 n  1 graph_plain 488.99 graph_inst 490.56 span 198.18 issue0 7.15 A 116.07 B 60.04 bend_spread 12.26 final 6.35 nj 25.00 restream 0.00 routes 344.00
+TLV16G verify 32 full distinct 26 n  1 graph_plain 493.82 graph_inst 500.51 span 208.38 issue0 7.43 A 121.75 B 62.36 bend_spread 18.37 final 6.78 nj 26.00 restream 0.00 routes 381.00

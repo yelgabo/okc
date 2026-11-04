@@ -36,7 +36,7 @@ def builds(m):
         "tiny2": tuple(m.MOE_TINY2_DEFINES) + sfx,
         "mid": tuple(m.MOE_MID_DEFINES) + sfx,
         "b4": tuple(m.MOE_DEFINES) + ("-DOKC_B4FIN=1",) + wgs + sfx,
-        "main": tuple(m._main_defines(sfx)) + wgs + sfx,
+        "main": tuple(m._main_defines(sfx)) + wgs + sfx + tuple(os.environ.get("LY_SASS_MAIN_EXTRA", "").split()),
     }
 
 
