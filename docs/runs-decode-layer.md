@@ -1835,3 +1835,64 @@ other way because this draw's SGLang column is lower in most long cells (verify 
 full 1,064.0 against 1,103.5, decode 32 full 609.4 against 632.1), and the score is the paired ratio. The box A/B predicted
 about -8 us per verify 1 cell against a T = 8-off control; f8a55f10 had T = 8 off, and verify 1 moved -2.6 / -4.9 at the
 judge. A second draw of the same bytes would separate the draw from the file; that is the lead's quota call.
+
+## 2026-11-03 - Slack-free rebuild: pdl8hn and combo2n on pdl8d (box only, no check)
+
+The organizers disqualified the routing-slack file g1b4_rs (final-day ledger, 17:45 PT), so pdl8h and combo2, which
+were built on it, are rebuilt on g1b4_pdl8d (7cb74240d6ab5edd1c72e869777637157d17c67b615d508565a6084496028904).
+
+| file | SHA256 | built by | diff |
+|---|---|---|---|
+| muse_decode_layer/cand/g1b4_pdl8hn.py | df5cded96b8dc18ab98e022c8a6fde9c4ea18d0d7f85a81a9adcce2b63959968 | `python3 tools/dl_pdl8h_patch.py --base pdl8d` (checks the pdl8d SHA) | against pdl8d: the PDL block header line, PDL8_HARD (T = 8 True), the guard functions and the two gate call sites; against pdl8h: exactly tools/dl_rs_patch.py's two hunks reversed (applying them to pdl8hn gives pdl8h byte for byte) |
+| muse_decode_layer/cand/rv_k_combo2n.py | 3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27 | `python3 tools/rv_combo_patch.py --base pdl8hn` (runs `tools/rv_cgfe_rs_patch.py --base pdl8hn`, which writes rv_cgfe_hn.py 0b315b61) | against pdl8hn: the same 582 changed lines as combo2 against pdl8h; the only differing line is the generated header (`rv_cgfe_hn ... g1b4_pdl8hn's PDL tail` for `rv_cgfe_h ... g1b4_pdl8h's PDL tail`). The rs hunks applied to combo2n, plus that header name, give combo2 byte for byte |
+
+Checks (Mac): `grep -c _rs_tile_route1` is 0 in both files, and no RS_* margin or `_rs_route_launch` remains; a second build
+gives the same two SHAs; the release prefix up to the PDL block (with `_release_expert_self_test` / `_release_routes`) is
+byte-identical to pdl8d in pdl8hn, and the T = 1 route call is pdl8d's `_sl_tile_route_cg` line in both. pyflakes: pdl8hn
+reports pdl8d's 17 messages plus two `undefined name 'data'` in `_pdl8h_t8` (the lambda-after-`del` pattern pdl8d's own
+stress has, and pdl8h reports the same 19); combo2n reports the same 20 messages as combo2. The default builds still give
+pdl8h 33c2353b and combo2 7f0a3e36.
+
+Box (okc-h200, 2026-11-04 01:44-01:51 UTC, `tools/bx_box_run.py` with `--lock`, `--ls-cache`, `--ext-cache`, router seed
+106218864389449120, f931 case seeds, `--runs 60`, all six loads, no PDL pin, every reference check PASS, G_RELEASE_STARTUP_OK
+in all 13 prepares). One process per run, interleaved by `tools/ly_slackfree_ab.sh`: dry run of pdl8hn, then hn, c2n, d,
+hn, c2n, d, then hn, c2n three more times. `tools/ly_ab_table.py` prints the tables.
+
+Guard: in all 11 pdl8hn / combo2n prepares every T stayed on (55 PDL8H_GUARD lines, 55 pass, ids mismatches 0 on every
+line, largest on drift 7.25e-3); CG_GATE passed and the unpooler pick was cg in all five combo2n prepares. pdl8d's own gate
+turned T off in both of its runs: {1, 8} on (16 and 32 off) in d_a, {1, 16, 32} on (T = 8 off, final stress DRIFT) in d_b.
+
+Box net us, mean per cell (pdl8hn n = 6, combo2n n = 5, pdl8d n = 2):
+
+| cell | pdl8hn (range) | combo2n | combo2n - pdl8hn, mean | paired per round a..e | pdl8d | pdl8d - pdl8hn |
+|---|---:|---:|---:|---|---:|---:|
+| decode 1 sliding | 68.30 (67.50-68.82) | 67.33 | -0.97 | -1.66 -0.19 -1.68 -0.77 -0.02 | 67.98 | -0.31 |
+| decode 1 full | 74.22 (74.00-74.32) | 72.80 | -1.42 | -1.73 -1.58 -1.22 -1.09 -1.46 | 74.29 | +0.07 |
+| decode 16 sliding | 131.53 (131.18-131.90) | 131.03 | -0.49 | -0.82 +0.14 -0.58 -0.66 -0.29 | 134.50 | +2.97 |
+| decode 16 full | 203.40 (202.69-204.16) | 202.53 | -0.87 | +0.02 -1.82 -0.10 -1.02 -1.86 | 206.62 | +3.21 |
+| decode 32 sliding | 147.54 (146.70-148.70) | 145.91 | -1.63 | -1.86 -1.47 -0.94 -1.17 -3.12 | 150.64 | +3.10 |
+| decode 32 full | 298.22 (297.54-299.09) | 297.21 | -1.01 | -1.84 -0.38 -1.95 -1.02 -0.22 | 301.46 | +3.25 |
+| verify 1 sliding | 104.73 (103.92-105.20) | 103.87 | -0.86 | -1.14 -0.06 -1.23 -0.77 -0.62 | 107.31 | +2.58 |
+| verify 1 full | 112.05 (111.65-112.51) | 111.96 | -0.09 | -0.99 -0.24 +0.03 +0.27 +0.06 | 116.28 | +4.23 |
+| verify 16 sliding | 244.89 (243.84-245.63) | 244.38 | -0.52 | -1.65 -0.64 -0.93 -1.02 +1.71 | 244.76 | -0.13 |
+| verify 16 full | 326.74 (325.92-327.36) | 327.55 | +0.81 | +0.90 -0.34 +0.51 +2.24 -0.10 | 327.89 | +1.15 |
+| verify 32 sliding | 297.84 (297.34-298.56) | 297.45 | -0.39 | -0.38 -0.27 -0.51 -0.05 -0.78 | 298.08 | +0.24 |
+| verify 32 full | 462.18 (461.68-463.06) | 461.55 | -0.63 | +0.75 -0.40 +0.05 -1.39 -1.94 | 462.06 | -0.12 |
+
+Weighted six-load sum (46 x sliding + 16 x full per load, summed over six loads):
+
+- pdl8hn: 69403.1 (dry), 69400.2, 69274.9, 69441.9, 69463.4, 69363.1; mean 69391.1, control-vs-control spread (max - min)
+  188.5.
+- combo2n: 69008.7, 69083.8, 69129.1, 69227.3, 69131.5; mean 69116.1, spread 218.6. Against pdl8hn: mean -275.0; per
+  interleaved pair -391.5, -191.1, -312.8, -236.1, -231.6 (all five below zero).
+- pdl8d: 70102.3 ({1, 8} on), 69833.7 ({1, 16, 32} on); +711.2 / +442.6 against the pdl8hn mean. Where pdl8d's gate left a T
+  on it matches pdl8hn within the pdl8hn range (d_a verify 1 103.90 / 112.21, d_b decode 16 130.88 / 203.23); every larger
+  difference sits on a T its gate turned off (decode 16 / 32 +6.0 to +7.1 in d_a, verify 1 +5.7 / +7.8 in d_b).
+- combo2n against pdl8d: -986 / -718 per run, mean -852; most of it is the gate, as above.
+
+Reading. The slack-free pair reproduces the slack-carrying one: combo2 beat pdl8h by -182 (in-process) and -322 (separate
+processes); combo2n beats pdl8hn by -275 on the mean of five pairs, with the same cell pattern (decode 1 -1.0 / -1.4,
+decode 32 -1.6 / -1.0, verify 1 sliding -0.9; verify 1 full -0.1). The mean is below one control spread (188.5) but not
+below two (377). The one cell above the control range is verify 16 full (+0.81 mean, +2.24 in round d), which the revival
+lane also saw on combo2 (+1.42, with pdl8h's own repeat at +1.44 there). The judge check and submission are the lead's call;
+nothing was registered or dispatched by this lane.
