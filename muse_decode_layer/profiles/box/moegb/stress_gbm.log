@@ -1,0 +1,26 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.78), ('sk2', 7.71), ('torch', 10.27)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+STRESS prepare muse_decode_layer/cand/ly_stk4.py 8 s, moe status native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.04), ('sk2', 7.97), ('torch', 10.3)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+STRESS prepare muse_decode_layer/cand/ly_gbm.py 26 s, moe status native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+STRESS M=33 build ['main'] replays 600 (1 s): output mismatches 0, counter != target 0, other parity nonzero 0, parity repeats 0; {'fat_jobs': 4508, 'skinny_jobs': 7774, 'max_jobs_per_expert': 1, 'max_tot': 33}; PASS
+STRESS M=128 build ['main'] replays 2000 (2 s): output mismatches 0, counter != target 0, other parity nonzero 0, parity repeats 0; {'fat_jobs': 33794, 'skinny_jobs': 19986, 'max_jobs_per_expert': 2, 'max_tot': 128}; PASS
+STRESS M=256 build ['main'] replays 2000 (3 s): output mismatches 0, counter != target 0, other parity nonzero 0, parity repeats 0; {'fat_jobs': 59993, 'skinny_jobs': 13628, 'max_jobs_per_expert': 4, 'max_tot': 256}; PASS
+STRESS M=48 build ['main'] replays 300 (0 s): output mismatches 0, counter != target 0, other parity nonzero 0, parity repeats 0; {'fat_jobs': 3530, 'skinny_jobs': 3073, 'max_jobs_per_expert': 1, 'max_tot': 48}; PASS
+STRESS M=97 build ['main'] replays 300 (0 s): output mismatches 0, counter != target 0, other parity nonzero 0, parity repeats 0; {'fat_jobs': 4824, 'skinny_jobs': 3004, 'max_jobs_per_expert': 2, 'max_tot': 97}; PASS
+STRESS M=200 build ['main'] replays 300 (0 s): output mismatches 0, counter != target 0, other parity nonzero 0, parity repeats 0; {'fat_jobs': 6773, 'skinny_jobs': 2547, 'max_jobs_per_expert': 4, 'max_tot': 200}; PASS
+STRESS M=255 build ['main'] replays 300 (0 s): output mismatches 0, counter != target 0, other parity nonzero 0, parity repeats 0; {'fat_jobs': 8974, 'skinny_jobs': 2039, 'max_jobs_per_expert': 4, 'max_tot': 255}; PASS
+STRESS PASS
