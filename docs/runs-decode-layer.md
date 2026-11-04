@@ -2394,3 +2394,107 @@ attention; it buys the pooler's weight stream, so it is a layer trade, not an at
 o-projection reading at verify 1 full is not explained by a slower attention kernel: kernel-alone, ATT7 and attn_one
 are within 0.13 us there. A sliding port could at best save 0.66 us of attention time at one cell (0.66 x 46 weight),
 less any part already hidden under PDL. Logs and JSONs: `muse_decode_layer/profiles/box/attv1/`.
+
+## 2026-11-03 - Compute-store fusion audit (layer lane, box timeline only, no check)
+
+Question (docs/micro-optimization-rule.md, pattern 0): at which kernel boundaries of muse_decode_layer/cand/ly_micro2.py
+(SHA256 0bc2bd8bdeecd7514ab259bd8f2b5b6b66cef88734f583c5ccaf466f1075cacd) can the consumer's math move into the
+producer's epilogue (or the producer's output be recomputed by the consumer), and what would that save per cell? Audit
+only; nothing was built.
+
+Measurements (okc-h200, 2026-11-03 20:13 PST): `LY_TRACE_DIR=.build/box/fu/tl_m2 tools/ly_tl_run.py` on ly_micro2,
+all 12 cells, `--runs 20 --kernels --lock --ls-cache --ext-cache --pin-pdl8 1,8,16,32 --skip-pdl8-gate`, router seed
+106218864389449120, f931 case seeds, every reference check PASS. Net cell times in that run: decode 1 65.74 / 72.59,
+decode 16 130.14 / 205.65, decode 32 144.77 / 297.42, verify 1 104.93 / 116.64, verify 16 241.86 / 324.48, verify 32
+297.30 / 462.26 us (sliding / full). Per-kernel timelines over 10 cold replays: `muse_decode_layer/profiles/box/fu/`
+(`tl_m2.timeline.txt`, `tl_m2.log`, `tl_m2.json`). Cluster occupancy: `tools/fu_occ.cu` (cudaOccupancyMaxActiveClusters
+for a 416-thread, one-CTA-per-SM kernel, run under gpu.lock, 20:27 PST).
+
+### Chains per T (kernel names from the timeline)
+
+| T (cells) | qkv | attention | o | boundary 1 | pooler + router | route | MoE | unpooler | boundary 2 |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 (decode 1) | sk2 | attn_kernel | sk2 o8h | glue_cluster_boundary (8-CTA cluster, router copy) | sk2_kernel_gle (BF16 pooler + FP32 router, one launch) | _sl_tile_route_cg | moe_fused TINY | cgemv40 slice (1024 rows), PDL secondary | _sl_cluster_finish_cg |
+| 8 (verify 1) | sk2_kernel_narrow | attn_kernel | sk2 o8h | glue_cluster_boundary (preloaded base) | sk2_kernel_gle | _sl_tile_route_cg | moe_fused TINY2 | sk2 slice (bit 29: no PDL attribute) | _sl_cluster_finish_cg |
+| 16 (decode 16) | sk2 | attn_kernel | sk2 o8h | glue_cluster_boundary | sk2 FUSE (BF16 hi / lo router) | _sl_tile_route_cg | moe_fused MID | sk2 unpooler (8192 rows) | glue_cluster_boundary POST |
+| 32 (decode 32) | sk2 | attn_kernel | sk2 o32h | _graft_row_boundary_pre_cg (Gluon, one program per row) | sk2 FUSE | _sl_tile_route_cg | moe_fused B4 | sk2 unpooler | _graft_row_boundary_pre_cg |
+| 128 / 256 (verify 16 / 32) | nvjet | attn_kernel | nvjet | _graft_row_boundary | nvjet (pooler + router) | _graft_route | moe_fused MAIN | nvjet | _graft_row_boundary |
+
+### Critical-path share per kernel (end minus the previous kernel's end, us)
+
+| cell | qkv | attn | o | b1 | pool + rt | route | MoE | unpool | b2 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 9.94 | 5.29 | 3.59 | 2.57 | 15.68 | 1.27 | 23.10 | 3.73 | 1.61 |
+| decode 1 full | 9.94 | 11.32 | 3.64 | 2.51 | 15.66 | 1.30 | 24.14 | 3.36 | 1.62 |
+| decode 16 sliding | 10.40 | 7.63 | 3.89 | 2.21 | 17.10 | 1.68 | 69.19 | 14.25 | 3.81 |
+| decode 16 full | 10.59 | 82.64 | 4.16 | 2.13 | 17.02 | 1.56 | 69.76 | 15.26 | 3.78 |
+| decode 32 sliding | 10.94 | 9.75 | 4.70 | 2.88 | 18.53 | 2.10 | 77.13 | 15.23 | 2.85 |
+| decode 32 full | 10.75 | 159.91 | 4.75 | 2.72 | 18.69 | 2.13 | 80.24 | 15.05 | 3.06 |
+| verify 1 sliding | 9.33 | 6.83 | 3.74 | 2.61 | 17.11 | 1.64 | 58.37 | 5.28 | 2.10 |
+| verify 1 full | 9.66 | 14.00 | 3.92 | 2.69 | 16.98 | 1.61 | 64.60 | 5.00 | 2.07 |
+| verify 16 sliding | 16.19 | 12.07 | 8.30 | 4.86 | 25.54 | 2.83 | 141.09 | 21.81 | 5.42 |
+| verify 16 full | 16.22 | 98.24 | 7.92 | 4.80 | 26.00 | 2.98 | 139.22 | 22.73 | 5.99 |
+| verify 32 sliding | 18.19 | 15.39 | 9.67 | 7.01 | 31.76 | 3.60 | 177.43 | 26.74 | 7.23 |
+| verify 32 full | 18.40 | 177.98 | 9.48 | 6.96 | 32.09 | 3.67 | 179.40 | 26.77 | 7.43 |
+
+Edges at T <= 32 overlap under PDL (start gaps -1.1 to -12.9 us) except route -> MoE (+0.06 to +0.42, cooperative MoE,
+PDL off) and MoE -> unpooler at T >= 8 (+0.13 to +0.80). At T = 128 / 256 every edge is serial (+0.22 to +0.96 us; nvjet
+has no PDL), about 3.5 to 4.5 us of gaps per cell.
+
+Cell weights, from d(ln load time) = w x dt with load time = 46 x sliding + 16 x full (the cells measured above),
+relative to decode 1 sliding (0.0110 per us): decode 1 1.00 / 0.35, verify 1 0.63 / 0.22, decode 16 0.45 / 0.16,
+decode 32 0.37 / 0.13, verify 16 0.26 / 0.09, verify 32 0.20 / 0.07 (sliding / full). One us at decode 1 sliding is worth
+five at verify 32 sliding.
+
+### Boundary table
+
+Bytes at T = 1 / 8 / 16 / 32. Every intermediate here is small (a [T, 8192] FP32 row is 32 KB per token): the consumer's
+own byte floor is 0.01 to 0.7 us at T <= 32, so what a fusion can recover is launch and dependency latency, not
+bandwidth.
+
+| # | boundary | producer stores, consumer reads back | consumer floor / critical path (us) | reduction the consumer needs | tried before and what it showed | expected saving, us per cell (hypothesis) |
+|---|---|---|---|---|---|---|
+| 1 | qkv -> attention | qkv BF16 [T, 2304] (q 1024, k 128, v 128, gate 1024): 4.6 / 37 / 74 / 147 KB | ~0 / attention is a large kernel either way (5.3 to 9.8 us at sliding) | per head, not row-wide: q / k RMSNorm over each 64-column head (reference line 364) and RoPE; the new k / v go to the paged cache. The qkv sk2 CTA owns 24 rows, so a 64-column head spans three CTAs | no | under 0.3: no launch is removed (attention stays); only the per-head norm / RoPE prologue could move, and only after re-tiling qkv into head-aligned CTAs |
+| 2 | attention -> o | attention output BF16 [T, 1024]: 2 / 16 / 32 / 64 KB; the gate rows come from qkv | ~0 / 3.6 to 4.8 | element-wise: o's input is attn x sigmoid(gate). Already fused: `dense_ng` applies the gate in o's x path | the only element-wise boundary in the chain, already done | 0 |
+| 3 | o -> boundary 1 | P BF16 [T, 8192] 16 KB / token (16 / 128 / 256 / 512 KB); b1 also reads the stream FP32 32 KB / token and writes s1 FP32 32 KB, h BF16 16 KB, the FP32 router copy 32 KB (T <= 8) and tail | 0.05 / 0.25 / 0.35 / 0.71 floor; 2.57, 2.51 (d1), 2.61, 2.69 (v1), 2.21, 2.13 (d16), 2.88, 2.72 (d32) | two dependent row-wide reductions over all 8192 columns: the sum of bf16(P)^2 for the post norm, then the sum of ns^2 of the new stream ns = alpha s + beta bf16(P r1) for the pre-FFN norm. o's 8192 output columns are spread over 256 CTAs, so either reduction needs a cross-SM exchange | yes, three forms. M-C C-1 (o + boundary, cooperative, two grid barriers; check 5ae9ce318e014edf): 1.16 us slower in 9 of 9 rounds. F3 (o + boundary + pooler, completion counters; c9240b8205904baf): 0.45 to 1.28 us in process, no short load better at the judge. GLE (deferred-norm algebra in o's epilogue, `_gle_after_attention`, still in the file but gated off): ineligible, it moves the BF16 rounding of bf16(P r1) (ruled-out.md, 2026-11-01 G boundary row) | at most 0.5 producer-side: each exchange through global memory or a grid barrier costs about what a kernel boundary costs (~0.7 us, ruled-out.md PDL row). Today b1 runs both reductions on DSMEM inside one 8-CTA cluster, so a fused form has more global round trips, not fewer |
+| 4 | boundary 1 -> pooler + router | h BF16 16 KB / token and (T <= 8) the FP32 router copy; every pooler CTA reads the whole h row (it is the K operand) | pooler floor 13.26 / 15.66 to 18.69 after b1 | the same two reductions, seen from the consumer: recompute b1 in each pooler CTA | consumer-side recompute: not tried. Ruled out here by arithmetic: each pooler CTA would read P, stream, alpha, beta and pre for all 8192 columns, 128 KB per CTA, 16 MB of L2 reads over 128 CTAs at T = 1 (about 3 us at an L2 rate near 5.5 TB/s, assumed, not measured), against b1's 2.57 us; the pooler (about 206 KB of shared memory) cannot share an SM with o's CTAs, so none of that work can start before o ends. Cluster form (F3's open condition: b1 run per 8-CTA pooler cluster on DSMEM): measured infeasible, `tools/fu_occ.cu` gives at most 15 active clusters of 8 (120 CTAs) and 30 of 4 (120 CTAs) at one CTA per SM, for 128 pooler CTAs | none at T = 1; worse at T = 8 (8x the per-CTA reads) |
+| 5 | pooler + router -> route | pooled BF16 [T, 4096] 8 KB / token, logits FP32 [T, 256] 1 KB / token (9 / 72 / 144 / 288 KB) | ~0 / 1.27, 1.30 (d1), 1.64, 1.61 (v1), 1.68, 1.56 (d16), 2.10, 2.13 (d32) | row-wide: the pre-expert RMSNorm over all 4096 pooled values (128 pooler CTAs own 32 rows each) and top-8 over all 256 logits (32 router tiles, each finished by its own last-arriving quarter) | the pooler + router fusion exists (`sk2_kernel_gle` at T <= 8, sk2 FUSE at 16 / 32). Route in a last-arriver tail of the pooler: not tried; F3's counters recovered about 0.3 us per removed launch | 0.2 to 0.4 at T = 1 / 8 (one counter round trip replaces one kernel boundary); negative at 16 / 32, where one CTA would read 144 to 288 KB that route now spreads over 2T programs |
+| 6 | route -> MoE | xm BF16 [T, 4096] 8 KB / token, ids / lids / weights | ~0 / route above; MoE start gap +0.06 to +0.42 (cooperative launch, PDL off) | consumer-side: each MoE CTA could redo top-8 (256 logits) and the pooled norm for its tokens: 9 KB per CTA at T = 1 (1.2 MB over 132 CTAs), 72 KB at T = 8 (9.5 MB) | no. It needs the MoE prologue to stop reading `topk_ids` / `p.x` (FAST1 pre-issue, `load_x_regs`) and read logits / pooled instead, which is the MoE's x staging, owned by the MoE lanes; bitwise-equal ids need Triton's sigmoid and reduction order replicated | 0.5 to 1.0 at decode 1 (route's 1.27 / 1.30 less the added prologue), ~0 at T = 8 (L2 reads), none above |
+| 7 | MoE -> unpooler | m BF16 [T, 4096] 8 KB / token | 1.42 (1024-row slice, T <= 8) / 3.73, 3.36 (d1), 5.28, 5.00 (v1); 11.36 / 14.25 to 15.26 (T = 16 / 32) | a contraction over all 4096 inputs of every routed expert, after the MoE's final pass: not element-wise | yes: the expert-to-unpooler slice (`g1b4_unp_release.py`; checks 4c2d5e3a8e1147bf, 0c35e5f5cc614806, c77b95102baf4232): the counter-chained tail costs five dependent global round trips, d1 80.67 / 85.35 against 76.75 / 83.73. Its reopen condition (at most one round trip after the barrier) is inside the MoE | ruled out as built; the reopen is MoE-internal |
+| 8 | unpooler -> boundary 2 | T <= 8: slice BF16 [T, 1024] 2 KB / token; T >= 16: [T, 8192] 16 KB / token. b2 also reads s1 FP32 32 KB / token and writes s2 32 KB and the next input BF16 16 KB per token | ~0 to 0.7 / 1.61, 1.62 (d1), 2.10, 2.07 (v1), 3.81, 3.78 (d16), 2.85, 3.06 (d32) | two dependent row-wide reductions: over the 1024 slice values plus the carried tail (T <= 8), over 8192 at T >= 16; every one of the 8192 next-input values needs the second norm | the slice tail of row 7 included this boundary (lost). Producer-side last-arriver: one CTA would write 48 KB per token after the counter, about as long as b2 takes now | under 0.2 at T = 1, negative at T = 8 |
+| 9 | store-side only: s2 columns >= 1024 at T <= 8 | b2 writes s2[:, 1024:] = s1[:, 1024:] (28 KB / token), a copy that needs no norm | - | element-wise copy; b1 could write it into s2 directly | no | under 0.1: b2 is latency-bound, not store-bound |
+| 10 | T = 128 / 256 boundaries | nvjet GEMMs feed _graft_row_boundary and _graft_route | 4.8 to 7.4 per boundary, +0.2 to +1.0 us start gaps per edge | the same row-wide reductions as rows 3, 5, 8 | cuBLAS has no epilogue hook for a row norm | not a fusion target; the serial gaps are a PDL / kernel-choice question at weights 0.07 to 0.26 |
+
+### A boundary cost the audit found that is not a fusion
+
+At decode 16, b2 (glue_cluster_boundary POST) costs 3.81 / 3.78 us of critical path against 2.21 / 2.13 for b1, the same
+template. The PDL8 edit `if constexpr (SLICED || POST) griddepcontrol.wait` puts the POST build's whole preload loop
+(stream s1 and the alpha, beta, alpha2, pre and post weights) behind the entry wait, and the following `cluster.sync`
+waits for those loads, so their latency is on the critical path (the weights are cold after the 1 GiB flush; inferred
+from source, not separated). b1 issues the same loads before its wait. The decode 32 Gluon boundaries load their weights
+before the wait and the stream after it, and there b1 and b2 cost the same (2.88 / 2.85). Hypothesis: issuing b2's weight
+loads before the entry wait (no proof needed: they are weights) and an L2 prefetch of the s1 rows (a prefetch returns no
+data, so it cannot break ordering) saves about 1 us at decode 16 sliding and full. The same applies to the stream load
+after the wait in the decode 32 Gluon b1 (data['stream'] is the harness input; nothing in the call writes it) and to the
+`NEXT` weights in `_sl_cluster_finish_cg`. Loading s1 itself before the wait would rest on a transitive argument
+(route -> MoE and MoE -> unpooler are serialized launches, so b1 completed and was flushed before b2 can launch); that
+moves a read across a griddepcontrol.wait and is the lead's call.
+
+### Ranking (expected saving x cell weight, decode 1 sliding = 1.00)
+
+| rank | candidate | cells | expected us per cell (hypothesis) | weighted | status |
+|---|---|---|---|---:|---|
+| 1 | route into the MoE prologue (consumer-side recompute, row 6) | d1 s / f | 0.5 to 1.0 | 0.7 to 1.35 | not ruled out by evidence; needs the MoE lanes (x staging) and a bitwise top-8 replica |
+| 2 | b2 weight loads before the entry wait + s1 L2 prefetch (row 8; not a fusion) | d16 s / f; d32 b1 stream load | ~1.0 at d16; 0.3 to 0.6 at d32 | 0.75 to 0.9 | not tried; no fence, barrier or wait removed |
+| 3 | route into a last-arriver tail of the pooler + router kernel (row 5) | d1 and v1, four cells | 0.2 to 0.4 | 0.45 to 0.9 | not tried; F3's counter result predicts the low end, below the 0.5 us short-cell bar |
+| 4 | per-head q / k norm and RoPE in a head-aligned qkv epilogue (row 1) | T <= 32 | under 0.3 | under 1.0 (upper bound) | not tried; needs a qkv re-tile |
+| 5 | b2 producer-side (row 8), s2 copy in b1 (row 9) | d1, v1 | under 0.2 | under 0.3 | not worth a build |
+| - | b1 into o (row 3), b1 into the pooler (row 4), MoE -> unpooler (row 7) | | | | ruled out: M-C, F3, GLE (BF16 rounding), the unpooler slice checks; the consumer-side form by L2 arithmetic; the cluster form by the 15-cluster occupancy limit |
+
+Reading: at T <= 32 exactly one boundary is element-wise (the output gate between attention and o), and it is already in
+o's x path. Every other boundary needs a row-wide reduction (an RMSNorm over 4096 or 8192 values, or top-8 over 256
+logits) over a producer whose output columns are spread across 128 to 256 CTAs, so moving the consumer into the
+producer's epilogue needs a cross-SM exchange, and three earlier builds measured that exchange at about the cost of the
+launch it removes. The fusion with the best expected value that no evidence rules out is route into the MoE prologue at
+decode 1 (rank 1), and it sits inside the MoE lanes' kernel. Rank 2 is a load-ordering fix rather than a fusion. Every
+expected saving here is a hypothesis from the timeline and the source; none was measured as a change.
