@@ -6498,3 +6498,109 @@ PDL handoff between producer and prologue. The cluster kernel would add its own 
 folding the computation into cluster 0 removes one handoff (about 0.4 us here) but keeps the 1.5 to 1.8 us, so D3's
 larger lever is the computation itself, or, in the layer, writing the struct from the route kernel (rule 4) where the
 routing is already in registers.
+## 2026-11-04 - CL-0.5 math
+
+Task 0.5 of docs/plans/2026-11-04-moe-cluster-rewrite.md. The unit loop's device math of the public MoE file's
+helper0 kernel (`muse_moe_w4a16/cand/current_control_release.py`, SHA256 5df257af, `_MA_ALT_SRCS['moe_helper0']`)
+now lives in `muse_moe_w4a16/cl/cl_math.cuh` (0795eb99), with no ring, mbarrier, Params or Smem dependence.
+It holds the DQ7 E2M1 unpack (LOP3 / SHF / IMAD.SHL: the code unpack has no PRMT), the PRMT e4m3 scale decode
+(`-DOKC_PRMTSC=1`, the path prepare() takes when every scale byte is in 0x08..0x7E), the LUT fallback, the
+BF16 weight multiply, the `mma.sync.m16n8k16` fragment layout for one 16-row unit over n-tiles of 8 tokens, the
+per-warp and cross-warp FP32 sums, SwiGLU, the phase B norm-weight epilogue, the unit's sum of squares, and the
+final route scale and weighted add. The test files are `cl/tests/test_unit_math.cu` (5412ed3d),
+`cl/tests/run_unit_math.py` (8e60e1e2), `cl/tests/helper0_debug/build_debug.py` (3e159dda), and the generated
+debug source `helper0_debug.cu` (c9904421). The log is `cl/tests/helper0_debug/run2.log`.
+
+### Method
+
+The reference is a debug variant of the public file's helper0 extension, not a standalone recompute.
+`build_debug.py` reads the public file and takes the helper0 source string. It adds three dumps through
+`Params::dbg`, the scratch[3] pointer that the plain builds leave unused: each unit's raw FP32 cross-warp sums
+before the epilogue (phase A and phase B), each phase B unit's partial sum of squares next to its `atomicAdd`,
+and the routing tables. It then compiles the result with the public `_ma_ext` flags (-O3, sm_90a, -lineinfo,
+OKC_NS=3, OKC_FNST=4, OKC_NSF=3, DQ7, PRMTSC, and no fast-math or ftz flag). T = 1 runs the TINY defines,
+T = 8 runs TINY2, and T = 32 runs the MID defines: helper0 with OKC_SPLIT=1, where an expert with more than
+8 tokens becomes jobs of at most 8 tokens. The public file itself runs B4, the wgmma source, at T = 32, so the
+T = 32 rows below cover the helper0 math only. The plain public build runs on the same inputs, and its inter and
+ybuf agree bitwise with the debug build's on every input, so the dumps do not change the math.
+
+The candidate is a one-CTA-per-unit kernel built from cl_math.cuh alone. It reads the weights from the unit-order
+global copy, computes the unit over all of the expert's tokens (ceil(n / 8) n-tiles, decoding the A fragment once
+and reusing it across tiles), and writes the raw sums, the inter columns (phase A) or the y rows and sum of squares
+(phase B). Phase B takes helper0's own inter rows as input. The final pass is recomputed from helper0's ss and
+ybuf and compared with helper0's output.
+
+The weights come from `nvfp4.random_weights` at real shape for 32 experts (w13 [32, 8192, 2048], w2 [32, 4096, 2048]),
+with per-expert global scales (the reference value times 2^u, u in [-1, 1]) so that a wrong expert index would
+show. post_norm_w = 0.1 randn. There are three inputs per T, with randn x; the third input adds `outlier_channels`.
+Routing: at T = 1, eight random local experts. At T = 8 and 32, three local experts take every token, one local
+expert takes a random subset, and the other slots are random experts out of 256 (some local) in a shuffled slot order.
+
+### Result (box H200, 2026-11-04, one run, GPU lock held)
+
+| T | build | phase A units (with n = T) | phase B units (with n = T) | raw FP32 sums mismatched | inter / y / unit sum-of-squares mismatched | final-pass elements mismatched | reference check |
+|---:|---|---:|---:|---:|---:|---:|---|
+| 1 | TINY | 12,288 (12,288) | 6,144 (6,144) | 0 / 0 | 0 / 0 / 0 | 0 | PASS 3/3, rel L2 4.4e-3 to 4.6e-3 |
+| 8 | TINY2 | 11,776 (4,608) | 5,888 (2,304) | 0 / 0 | 0 / 0 / 0 | 0 | PASS 3/3, rel L2 4.6e-3, worst row 4.8e-3 |
+| 32 | MID | 25,088 (4,608) | 12,544 (2,304) | 0 / 0 | 0 / 0 / 0 | 0 | PASS 3/3, rel L2 4.5e-3 to 4.6e-3, worst row 4.9e-3 |
+
+Every unit is bitwise equal at every observable point: 49,152 phase A units and 24,576 phase B units, of which
+21,504 and 10,752 have exactly T tokens. That is at least 1,000 per T.
+
+Negative control (`--negctl`): I reversed the cross-warp sum order in the test kernel and ran T = 8 on one input.
+All 3,584 phase A units and all 1,792 phase B units then mismatch in the raw FP32 sums, but only 4 phase A units,
+4 phase B y units and 1 sum-of-squares unit mismatch after the epilogue. The BF16 rounding of h and y hides most
+FP32 last-bit differences. So a check on the BF16 outputs alone would miss most reduction-order errors, which is
+why the raw-sum dump is part of the test.
+
+Two numbers vary from run to run. Up to 13 output elements per input differ between the plain run and the debug
+run, while inter and ybuf are bitwise equal. The cause is the order of the ss row totals: each unit adds its
+partial with an `atomicAdd` in arrival order. The per-unit partials summed in rb order differ from helper0's
+totals by at most 7.1e-7 relative.
+
+### Rounding points and accumulation orders
+
+The kernel computes in this order. A 2^k scaling marks a place where the exponent is shifted and reapplied.
+
+| # | value | precision and rounding | order, as cl_math.cuh fixes it |
+|---:|---|---|---|
+| 1 | E2M1 code to bf16 (`dq4`) | e2m1 x 2^-126 placed by bit moves; exact | - |
+| 2 | e4m3 scale to bf16x2 (`scd`) | scale x 2^64; exact for bytes 0x08..0x7E (prepare() checks; the LUT is used otherwise) | - |
+| 3 | dequantized weight (`bmul2`, HMUL2.BF16) | BF16 multiply. The product has at most 6 significant bits and lies in 2^-60..2^-50.6, so it is exact. The inputs at code 0.5 are BF16 subnormals (2^-127); the 4.4e-3 error says they are not flushed (an inference, not a separate test) | - |
+| 4 | x (phase A) / inter (phase B) operand | BF16 as stored, unrounded | B fragment: lane (g, t) gives token g, K [512 w + 64 c + 16 t, +16); step st takes words 2 st, 2 st + 1 |
+| 5 | mma m16n8k16 | FP32 accumulate, with the hardware's fixed internal order over the 16 k positions | the real K to mma-k map is fixed by the packer (`_pack_codes` with `_REG_HJ`) and item 4 |
+| 6 | per-warp sum | FP32 | 4 chains (one per step index st), each over chunks c = 0..7 in order; combined as c0 + ((c1 + c2) + c3) |
+| 7 | cross-warp sum | FP32 | 8 warps (K split into 512-wide ranges) summed in warp order starting from 0.f |
+| 8 | x global scale | acc x (gs x 2^62), FP32, one rounding (gs x 2^62 itself is exact) | - |
+| 9 | gate, up (h) | rounded to BF16 (rn) | - |
+| 10 | SiLU | FP32: `__expf(-gt)` (MUFU.EX2 after the non-ftz range fix, no ftz flag), 1 + e, `__fdividef` (MUFU.RCP, FMUL), then x up | - |
+| 11 | inter | rounded to BF16 (rn) once; this is the phase B operand | - |
+| 12 | phase B acc x (gs2 x 2^62) | FP32, one rounding | items 5 to 7 again |
+| 13 | y | rounded to BF16 (rn) | - |
+| 14 | 1 + post_norm_w | FP32 add, rounded to BF16 (the reference keeps it in FP32) | - |
+| 15 | y x (1 + w) | FP32 product of two BF16 values, exact; stored to ybuf as FP32 (no rounding after the norm weight) | - |
+| 16 | lane sum of squares | `v0 * v0 + v8 * v8`, FP32, the same source expression as helper0, so nvcc's default contraction applies to both | - |
+| 17 | unit sum of squares | FP32 | xor shuffles 4, 8, 16 over the 8 g-lanes (16 rows) |
+| 18 | row sum of squares ss | FP32 | one `atomicAdd` per unit, in arrival order: not deterministic, and not bitwise reproducible by any kernel |
+| 19 | route scale | `topk_w * rsqrtf(ss * (1/4096) + 1e-8f)`, FP32, rsqrtf approximate | - |
+| 20 | weighted add | FP32 | over slots s = 0..7 in slot order, `acc += r_s * y_s`, starting from 0.f, skipping non-local slots |
+| 21 | out | rounded to BF16 (rn) | - |
+
+What the 1.5% bound and the layer rely on:
+
+- The BF16 tensors are items 9 (h), 11 (inter), 13 (y) and 21 (out). These are the four places where an
+  SGLang-style pipeline holds BF16 tensors. That mapping is my reading, not checked against SGLang source. The
+  plan's rule "BF16 bitwise at every point where SGLang keeps BF16" means these four. Item 14 is a BF16 rounding
+  that the kernel adds and the reference does not.
+- The measured error against the FP32 reference is 4.4e-3 to 4.6e-3 overall, with a worst row of 4.9e-3, which is
+  about 30% of the 1.5% bound and 7% of the 5x per-row bound. How much of it each rounding point contributes is
+  not measured.
+- Bitwise equality with helper0 needs items 4 to 7 exactly: K split over 8 warps of 512, 4 chains by step index,
+  the c0 + ((c1 + c2) + c3) combine, warp-order cross-warp sums, and the packer's K permutation. A cluster kernel
+  that splits K over a different number of warps or CTAs (the phase B split-K of design D1 (a)) changes the FP32
+  sums. It then matches helper0 only through the BF16 points, where the negative control shows about 0.1% of units
+  still differ. The plan's bitwise rule therefore holds for phase B split-K only if the split keeps helper0's
+  per-unit K ranges and reduces them in the same order.
+- Item 18 is the one order that helper0 does not fix. Any check that compares the layer's MoE output bitwise between
+  two runs already sees up to 13 differing elements per input at T = 32 from it, so such checks have to use a
+  tolerance, as the pdl8h guard does (output within max(2e-2, off drift)).
