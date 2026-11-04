@@ -17,7 +17,7 @@ randomness) that carries every mechanism that won its own A/B beats pdl8h on the
 twice the pdl8h control-vs-control spread and loses on no cell beyond that spread. The earlier bar (against
 g1b4_rs's spread, with decode 1 and verify 1 each clearing it) is kept below for the g1b4_rs-based rows.
 
-Finalist at the bar: **muse_decode_layer/cand/rv_k_combo2.py**. It clears the in-process bar on the mean of five prepares and misses the separate-process bar by 26 us on the mean of two processes (details under the table).
+Finalist at the bar: **muse_decode_layer/cand/rv_k_combo2.py** (at the judge as check a88203c2400e4d56, lead, 2026-11-03). It clears the in-process bar on the mean of five prepares and misses the separate-process bar by 26 us on the mean of two processes (details under the table).
 
 | file | SHA256 | mechanisms | six-load sum against pdl8h (bar 146) | decode 1 load | verify 1 load | against g1b4_rs | to prove at the judge |
 |---|---|---|---|---|---|---|---|
