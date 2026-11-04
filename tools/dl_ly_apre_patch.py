@@ -30,7 +30,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 SRC = ROOT / "muse_decode_layer/cand/ly_fabq.py"
 if "--base" in sys.argv:
     SRC = ROOT / sys.argv[sys.argv.index("--base") + 1]
-DST = ROOT / "muse_decode_layer/cand/ly_apre.py"
+V1 = "--v1" in sys.argv
+DST = ROOT / ("muse_decode_layer/cand/ly_apre.py" if V1 else "muse_decode_layer/cand/ly_apre2.py")
 if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
 PIN = "3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555"
@@ -45,13 +46,12 @@ PRE_BLOCK = r"""  // apre: the producer warps issue the first segment's first ST
     if (threadIdx.x >= Cfg<L, FLAT>::NT) {
       constexpr int NP = Cfg<L, FLAT>::NP, PR = NP / 8, PK = TILE / PR, STG = Cfg<L, FLAT>::STAGES;
       const int q = threadIdx.x - Cfg<L, FLAT>::NT, ch = q & 7, r0 = q >> 3;
-      int b0 = 0;   // the first segment: the same scan as the segment list below
+@@V2DEC@@      int b0 = 0;   // the first segment: the same scan as the segment list below
       while (S.cum[b0 + 1] <= cs) ++b0;
-      const int seq0 = __ldg(p.seq_lens + b0);
-      const int lo0 = p.window ? max(0, seq0 + 1 - p.window) : 0;
+@@SEQ0@@      const int lo0 = p.window ? max(0, seq0 + 1 - p.window) : 0;
       const int s0 = max(cs, S.cum[b0]) - S.cum[b0] + lo0, s1 = min(ce, S.cum[b0 + 1]) - S.cum[b0] + lo0;
       const int cend = min(s1, seq0);
-      const int pre = min(STG, (s1 - s0 + TILE - 1) / TILE);
+      const int pre = @@PREGUARD@@min(STG, (s1 - s0 + TILE - 1) / TILE);
       const int* ptr = p.page_table + (ix_t)b0 * p.max_pages;
       const bool pfast = OKC_OFF32 && p.off32 && p.lp == 0;
       const uint32_t pcol = (uint32_t)(pair * 128 + ch * 16);
@@ -134,7 +134,26 @@ EDITS = [
 ]
 
 
+V2DEC = ("      if constexpr (OKC_SETMAXNREG)   // apre: registers handed to the consumers before the pre-issue, not after\n"
+         "        asm volatile(\"setmaxnreg.dec.sync.aligned.u32 %0;\\n\" ::\"n\"(Cfg<L, FLAT>::PREGS));\n")
+SEQ0_V1 = "      const int seq0 = __ldg(p.seq_lens + b0);\n"
+SEQ0_V2 = ("      // full layer (the flat kernel's only use): n = seq + L, so seq comes from the prefix sums, no seq_lens read\n"
+           "      const int seq0 = S.cum[b0 + 1] - S.cum[b0] - L;\n")
+DEC_OLD = ("    if (threadIdx.x >= Cfg<L, FLAT>::NT) {\n"
+           "      if constexpr (OKC_SETMAXNREG) asm volatile(\"setmaxnreg.dec.sync.aligned.u32 %0;\\n\" ::\"n\"(Cfg<L, FLAT>::PREGS));\n"
+           "      run_segments(std::integral_constant<int, 1>());\n")
+DEC_NEW = ("    if (threadIdx.x >= Cfg<L, FLAT>::NT) {\n"
+           "      if constexpr (OKC_SETMAXNREG && !apre) asm volatile(\"setmaxnreg.dec.sync.aligned.u32 %0;\\n\" ::\"n\"(Cfg<L, FLAT>::PREGS));\n"
+           "      run_segments(std::integral_constant<int, 1>());\n")
+
+
 def build(src):
+    global EDITS
+    block = PRE_BLOCK.replace("@@V2DEC@@", "" if V1 else V2DEC).replace("@@SEQ0@@", SEQ0_V1 if V1 else SEQ0_V2)
+    block = block.replace("@@PREGUARD@@", "" if V1 else "p.window ? 0 : ")
+    EDITS = [(o, n.replace(PRE_BLOCK, block) if PRE_BLOCK in n else n, c) for o, n, c in EDITS]
+    if not V1:
+        EDITS = EDITS + [(DEC_OLD, DEC_NEW, 1)]
     out = src
     for old, new, n in EDITS:
         c = out.count(old)
