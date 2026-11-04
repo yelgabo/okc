@@ -507,7 +507,11 @@
       },
       "superseded_public_job": "9d80ae2494334136",
       "supersession_report": "docs/steering/2026-11-03-driver-monitor-2240.md",
-      "historical_review_preserved": true
+      "historical_review_preserved": true,
+      "current_public_board_verified": true,
+      "current_public_reinstated_after_disqualification": "9d80ae2494334136",
+      "supersession_active": false,
+      "reinstatement_evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0147/disqualification.json"
     },
     {
       "job": "00005928fed6437b",
@@ -592,7 +596,7 @@
       "source_identity": "muse_decode_layer/cand/g1b4_rs.py;canonical Git SHA256 01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07;912377B",
       "source_sha256": "01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07",
       "artifact": "muse_decode_layer/cand/g1b4_rs.py",
-      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-2240.md",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0147.md",
       "public_submission_approved": true,
       "public_submission_approval_scope": "Conditional permission recorded at7799e111: valid private check, score below public-file check, every PDL stress clean, routing margins satisfied. Additional waiver of failed private condition not located.",
       "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
@@ -600,8 +604,8 @@
       "score_us": 10297.394859538828,
       "judged_arm": "routing-slack T1 candidate; prepared PDL on T1/T16/T32, off T8 after final full stress drift",
       "evidence": "muse_decode_layer/cand/profiles/g1b4_rs.f8a55f1043804158.json",
-      "release_state": "same-source-public-release-private-keep-failed",
-      "reason": "Valid13/12/12 at10297.394860us, below current public10343.105996us descriptively. T1 routing changed, private T8PDL disabled after final drift. Frozen every-PDL-stress-clean and verify1full<118.7us conditions failed. Same physical source later publicly submitted by lead; public selected a different T8mask. Not a qualified private keep or separate automatically releasable candidate; no retry/confirmation allocated.",
+      "release_state": "ineligible-routing-slack-source-family",
+      "reason": "Valid historical private point10297.394860us with failed original keep, now additionally ineligible for release because its routing-slack source family was organizer-disqualified. No claim that this private job itself carries a service disqualification flag. Preserve mechanism/numerical history; no confirmation or promotion on this source.",
       "private_keep_gate_passed": false,
       "public_submission_condition_satisfied": false,
       "public_job": "9d80ae2494334136",
@@ -621,7 +625,9 @@
         ],
         "ids_mismatches": 0
       },
-      "review_required": true
+      "review_required": true,
+      "source_family_eligibility": "Ineligible; clean PDL8d rebuild and new qualification required.",
+      "eligible_for_release": false
     },
     {
       "problem": "muse_decode_layer",
@@ -629,7 +635,7 @@
       "source_identity": "muse_decode_layer/cand/g1b4_rs.py;canonical Git SHA256 01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07;912377B",
       "source_sha256": "01426b891ea12af13e8f713c9ca3a9f47900a07798212e53f583ed0005ff7f07",
       "artifact": "muse_decode_layer/cand/g1b4_rs.py",
-      "disclosure_report": "docs/steering/2026-11-03-driver-monitor-2240.md",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0147.md",
       "public_submission_approved": true,
       "public_submission_approval_scope": "Conditional permission recorded at7799e111: valid private check, score below public-file check, every PDL stress clean, routing margins satisfied. Additional waiver of failed private condition not located.",
       "public_submission_approval_evidence": "docs/steering/2026-11-02-final-day-directive.md#ledger",
@@ -637,8 +643,8 @@
       "score_us": 10343.105996394634,
       "judged_arm": "single-arm public routing-slack T1 source; prepared PDL on T1/T8/T16/T32, all six T8edges",
       "evidence": "muse_decode_layer/cand/profiles/g1b4_rs.9d80ae2494334136.json",
-      "release_state": "public-release-confirmation-review-open",
-      "reason": "Public own receipt and board verify13/12/12 at10343.105996us,0.30372%below prior public descriptively. Public all-six T8stress passed inherited relative-off gate. Conditional private confirmation had failed every-PDL-stress-clean and verify1full clauses. Lead3c5b677e recorded submission despite misses using safe fallback/unchanged-other-T/best-run reasoning; no additional user exception is retained. Public success does not retroactively pass private condition. Existing release lead owns one explicit permission/qualification disposition. No observed judged wrong-output failure, root withdrawal, resubmission or new approval chain is inferred.",
+      "release_state": "organizer-disqualified-routing-slack",
+      "reason": "Fresh own-account jobs explicitly marks this run disqualified for routing substitutions that avoid other GPUs' expert weight reads; board falls back to PDL8d. Prior numerical/conditional-approval history is retained but does not confer future eligibility. No routing slack in eligible files; RS descendants must be rebuilt on PDL8d and newly qualified. Existing lead stopped RS repeats and existing layer owner rebuilds; no root withdrawal or duplicate dispatch.",
       "public_submission_condition_satisfied": null,
       "private_confirmation_conditions_satisfied": false,
       "private_qualification_job": "f8a55f1043804158",
@@ -665,7 +671,59 @@
         "commit": "1c332a23",
         "scope": "User yes to option2: PDL8h on RS with build-time enable/coarse guard, box A/B then one private check; lead submits on its newly registered keep. Does not retroactively pass prior private confirmation.",
         "keep": "six-load<10297.4us;allT on;verify1<109.7/122.6;decode16<127.1/211.4"
-      }
+      },
+      "organizer_disqualified": true,
+      "organizer_disqualification_reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+      "current_public_board_verified": false,
+      "disqualification_evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0147/disqualification.json",
+      "eligible_for_release": false
+    },
+    {
+      "job": "86ed5dd3bbcb48a8",
+      "problem": "muse_decode_layer",
+      "score_us": 10243.868562697944,
+      "owner": "Existing final-day release/repeat lead",
+      "judged_arm": "RS routing-slack repeat per owning dc86c3ae; later disqualified",
+      "source_identity": "g1b4_rs.py/01426b89 family; exact trailing-comment repeat upload hash not retained in this checkout",
+      "release_state": "organizer-disqualified-routing-slack-repeat",
+      "reason": "Fresh shared-job list independently confirms explicit organizer disqualification despite passed numerical result. Not an eligible public winner; full per-draw upload/profile binding remains with original repeat owner. No resubmission/withdrawal/timer by root.",
+      "evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0147/disqualification.json",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0147.md",
+      "organizer_disqualified": true,
+      "organizer_disqualification_reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+      "eligible_for_release": false
+    },
+    {
+      "job": "a88203c2400e4d56",
+      "problem": "muse_decode_layer",
+      "score_us": 10288.685814772705,
+      "owner": "Existing revival implementation owner / final-day lead",
+      "judged_arm": "Single-arm combo2; RS-derived source, all T/all-six T8 enabled, unpoolerCG selected",
+      "source_identity": "rv_k_combo2.py;SHA2567f0a3e360f085c4f21c1b760d10eaf251d3d379464a1f0556d52828cf92d5f37;944035B;inherits RS substitutions",
+      "source_sha256": "7f0a3e360f085c4f21c1b760d10eaf251d3d379464a1f0556d52828cf92d5f37",
+      "release_state": "ineligible-rs-derived-diagnostic-only",
+      "reason": "VALID13/12/12 lower scalar point10288.685815us but source inherits organizer-disallowed routing slack. No claim that this private job itself has a serviceDQ flag. No submission or confirmation on these bytes; eligible clean rebase combo2n is separately registered and must qualify. One combined result does not causally establish each mechanism independently.",
+      "evidence": "muse_decode_layer/cand/profiles/rv_k_combo2.a88203c2400e4d56.json",
+      "disclosure_report": "docs/steering/2026-11-04-driver-monitor-0147.md",
+      "eligible_for_release": false,
+      "public_submitted": false
     }
-  ]
+  ],
+  "ineligible_source_family_checkpoint": {
+    "commit": "dc86c3ae",
+    "source_family": "RS01426b89 and descendants including PDL8h33c2353b/combo27f0a3e36",
+    "new_base": "PDL8d7cb74240",
+    "rule": "No routing slack; explicit organizer judgment overrides numerical tolerance-based eligibility assumptions.",
+    "evidence": "docs/steering/evidence/2026-11-04-driver-monitor-0147/disqualification.json",
+    "report": "docs/steering/2026-11-04-driver-monitor-0147.md"
+  },
+  "clean_rebuild_checkpoint": {
+    "evidence_commit": "a46d6a51",
+    "source_base": "PDL8d7cb74240",
+    "pdl8hn_sha256": "df5cded96b8dc18ab98e022c8a6fde9c4ea18d0d7f85a81a9adcce2b63959968",
+    "combo2n_sha256": "3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27",
+    "state": "Clean source verified; registered private check, no source-bound acceptedID published in inspected ledger",
+    "registration_commit": "f3ba55e1",
+    "report": "docs/steering/2026-11-04-driver-monitor-0147.md"
+  }
 }

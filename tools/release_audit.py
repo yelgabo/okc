@@ -44,10 +44,39 @@ def own_jobs_index(data):
     return jobs
 
 
+def explicitly_disqualified(data):
+    return isinstance(data, dict) and (data.get('disqualified') is True or any(
+        isinstance(data.get(field), dict) and data[field].get('disqualified') is True
+        for field in ('result', 'summary')))
+
+
+def disqualification(data, own_jobs=None):
+    """A fresh own listing can revoke an archived passing receipt without rewriting it."""
+    if not isinstance(data, dict):
+        return None
+    is_cli = cli_export(data)
+    identity = data.get('job_id') if is_cli else data.get('id')
+    problem = data.get('problem') if is_cli else data.get('board')
+    job = (own_jobs or {}).get(identity)
+    if (job is not None and (explicitly_disqualified(job) or explicitly_disqualified(data))
+            and problem != job['problem']):
+        raise ValueError('Conflicting own receipt: '+identity+' problem')
+    if job is not None and explicitly_disqualified(job):
+        return dict(job=identity, problem=problem, basis='explicit own-jobs index',
+                    reason=job.get('disqualified_reason'))
+    if explicitly_disqualified(data) and (data.get('team') == 'yelgabo' or job is not None):
+        reason = data.get('disqualified_reason')
+        for field in ('result', 'summary'):
+            if reason is None and isinstance(data.get(field), dict):
+                reason = data[field].get('disqualified_reason')
+        return dict(job=identity, problem=problem, basis='receipt', reason=reason)
+    return None
+
+
 def clean_own_job(row):
     return (row.get('problem') in PROBLEMS and row.get('status') == 'done'
             and row.get('result_status') == 'ok' and row.get('passed') is True
-            and row.get('flags') == [] and not row.get('error'))
+            and row.get('flags') == [] and not row.get('error') and not explicitly_disqualified(row))
 
 
 def cli_export(data):
@@ -105,6 +134,8 @@ def cli_receipt_row(data, jobs):
 
 
 def receipt_row(data, own_jobs=None):
+    if disqualification(data, own_jobs) is not None or explicitly_disqualified(data):
+        return None
     if cli_export(data):
         return cli_receipt_row(data, own_jobs or {})
     if not isinstance(data, dict) or data.get('team') != 'yelgabo':
@@ -165,7 +196,7 @@ def inventory(root, snapshots, tracked_only=False, own_jobs_path=None):
     command = (['git','ls-files','--','*.json'] if tracked_only else
                ['rg','--files','--hidden','--no-ignore','-g','!.git','-g','*.json'])
     files = subprocess.check_output(command,cwd=root).decode().splitlines()
-    receipts, failures = {}, []
+    receipts, failures, disqualified = {}, [], []
     for name in files:
         path = root / name
         try:
@@ -187,6 +218,9 @@ def inventory(root, snapshots, tracked_only=False, own_jobs_path=None):
                 cli_coverage['excluded_unlisted'] += 1
             elif not clean_own_job(own_jobs[data['job_id']]):
                 cli_coverage['excluded_unclean_job'] += 1
+        excluded = disqualification(data, own_jobs)
+        if excluded is not None:
+            disqualified.append(dict(excluded, path=name))
         row = receipt_row(data, own_jobs)
         if row is None:
             continue
@@ -207,11 +241,17 @@ def inventory(root, snapshots, tracked_only=False, own_jobs_path=None):
     cli_scope = ('CLI exports excluded: no --own-jobs index supplied.' if own_jobs is None else
                  'CLI exports included only for clean matching jobs in the explicitly supplied '
                  +str(len(own_jobs))+'-job index; unlisted exports excluded. This is not full historical CLI coverage.')
+    dq_scope = (' Archived receipts have no fresh post-adjudication check without --own-jobs.' if own_jobs is None else
+                ' Explicit disqualifications in the supplied own-jobs index override archived passing receipts.')
     return dict(observed_at=datetime.now(timezone.utc).isoformat(),public=public,
                 json_files_scanned=len(files),distinct_clean_passing_own_receipts=len(receipts),
                 unreadable_json=failures,leads=leads,cli_export_coverage=cli_coverage,
+                disqualification_coverage=dict(
+                    indexed_disqualified_jobs=sum(explicitly_disqualified(row) for row in (own_jobs or {}).values()),
+                    excluded_files=len(disqualified), distinct_excluded_jobs=len({row['job'] for row in disqualified}),
+                    exclusions=disqualified),
                 scope=('Tracked JSON only. ' if tracked_only else 'Saved JSON, including archives and ignored files. ')
-                      +cli_scope+' Lower elapsed is a numerical lead, not release eligibility or matched gain.')
+                      +cli_scope+dq_scope+' Lower elapsed is a numerical lead, not release eligibility or matched gain.')
 
 
 def ledger_gaps(audit, ledger, root=None):
@@ -251,9 +291,11 @@ if __name__=='__main__':
         if args.ledger is None:parser.error('--check requires --ledger')
         gaps=ledger_gaps(data,json.loads(args.ledger.read_text()),args.root)
         print(json.dumps(dict(promotion_gaps=gaps,leads=len(data['leads']),
-                              scope=data['scope'],cli_export_coverage=data['cli_export_coverage']),indent=2))
+                              scope=data['scope'],cli_export_coverage=data['cli_export_coverage'],
+                              disqualification_coverage=data['disqualification_coverage']),indent=2))
         raise SystemExit(bool(gaps))
     print(json.dumps(dict(json_files=data['json_files_scanned'],receipts=data['distinct_clean_passing_own_receipts'],
                          scope=data['scope'],cli_export_coverage=data['cli_export_coverage'],
+                         disqualification_coverage=data['disqualification_coverage'],
                          better_runs=len(data['leads']),best={p:next((x for x in data['leads'] if x['problem']==p),None)
                                                           for p in PROBLEMS}),indent=2))

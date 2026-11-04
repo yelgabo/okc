@@ -1,0 +1,88 @@
+{
+  "observed_at": "2026-11-04T01:54:34.911105+00:00",
+  "command": [
+    "python",
+    "tools/release_audit.py",
+    "--snapshots",
+    ".build\\driver-monitor-0147\\public-snapshots",
+    "--own-jobs",
+    ".build\\driver-monitor-0147\\own-jobs.json",
+    "--out",
+    ".build\\driver-monitor-0147\\release-audit-dq.json",
+    "--ledger",
+    "docs/releases/promotion-queue.json",
+    "--check"
+  ],
+  "exit_code": 0,
+  "initial_audit": {
+    "numerical_leads": 18,
+    "promotion_gaps": [],
+    "limitation": "Separate service disqualified fields were not considered by the earlier reader."
+  },
+  "corrected_audit": {
+    "promotion_gaps": [],
+    "leads": 17,
+    "scope": "Saved JSON, including archives and ignored files. CLI exports included only for clean matching jobs in the explicitly supplied 50-job index; unlisted exports excluded. This is not full historical CLI coverage. Explicit disqualifications in the supplied own-jobs index override archived passing receipts. Lower elapsed is a numerical lead, not release eligibility or matched gain.",
+    "cli_export_coverage": {
+      "own_jobs_index": ".build\\driver-monitor-0147\\own-jobs.json",
+      "indexed_jobs": 50,
+      "exports_seen": 499,
+      "bound_clean_exports": 25,
+      "excluded_no_index": 0,
+      "excluded_unlisted": 473,
+      "excluded_unclean_job": 1,
+      "distinct_bound_jobs": 24
+    },
+    "disqualification_coverage": {
+      "indexed_disqualified_jobs": 2,
+      "excluded_files": 1,
+      "distinct_excluded_jobs": 1,
+      "exclusions": [
+        {
+          "job": "9d80ae2494334136",
+          "problem": "muse_decode_layer",
+          "basis": "explicit own-jobs index",
+          "reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+          "path": "muse_decode_layer\\cand\\profiles\\g1b4_rs.9d80ae2494334136.json"
+        }
+      ]
+    }
+  },
+  "public": {
+    "muse_moe_w4a16": {
+      "job": "2821fdb184d740b1",
+      "score_us": 5737.988910262929,
+      "rank": 357,
+      "speedup": 2.3438,
+      "snapshot": ".build\\driver-monitor-0147\\public-snapshots\\muse_moe_w4a16.leaderboard.json"
+    },
+    "muse_bf16_proj": {
+      "job": "9eba96894ee1402e",
+      "score_us": 3161.918773020326,
+      "rank": 262,
+      "speedup": 1.5278,
+      "snapshot": ".build\\driver-monitor-0147\\public-snapshots\\muse_bf16_proj.leaderboard.json"
+    },
+    "muse_attention_decode": {
+      "job": "8914751e3b9f468b",
+      "score_us": 1446.1905945986007,
+      "rank": 291,
+      "speedup": 2.6043,
+      "snapshot": ".build\\driver-monitor-0147\\public-snapshots\\muse_attention_decode.leaderboard.json"
+    },
+    "muse_decode_layer": {
+      "job": "f931abf568544018",
+      "score_us": 10374.616018194523,
+      "rank": 364,
+      "speedup": 2.1804,
+      "snapshot": ".build\\driver-monitor-0147\\public-snapshots\\muse_decode_layer.leaderboard.json"
+    },
+    "muse_prefill_layer": {
+      "job": "1530ec79d50a4f69",
+      "score_us": 318441.9905489318,
+      "rank": 660,
+      "speedup": 1.2166,
+      "snapshot": ".build\\driver-monitor-0147\\public-snapshots\\muse_prefill_layer.leaderboard.json"
+    }
+  }
+}

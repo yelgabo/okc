@@ -4,12 +4,18 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 00:48UTC](2026-11-04-driver-monitor-0048.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 01:47UTC](2026-11-04-driver-monitor-0147.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 4 01:47 UTC — organizer disqualification supersedes RS-derived eligibility
+
+[Current monitor](2026-11-04-driver-monitor-0147.md): fresh own-account service flags independently confirm organizerDQ for **RS9d80/86ed**; board falls back to **PDL8d f931/10374.616018us**, overall/layer364. **No routing slack in eligible sources**, regardless of TASK numerical tolerance. OldRS-derived8h/combo2/MoE files require cleanPDL8d rebuild/new qualification; an existing layer owner is already rebuilding. Runningcombo2**a88203c2400e4d56** is diagnostic-only; root does not cancel/poll/duplicate it. Lead stopped RS layer repeats and reverted reported repeat base; queued old draws do not confer eligibility. Central history and AGENTS now record source-family ineligibility. Audit reader must honor separate serviceDQ fields and fresh-index overrides of old numericalPASS receipts. This dated entry supersedes every older RS/8h build-base or public-winner pointer below.
+
+Incoming**a46d6a51** now publishes clean**PDL8hn df5cded9/combo2n3ac83fb4**, independently verified to restorePDL8d routing. Lead registers combo2n total<10332us/allT/clean guards/no cell>f931+3%; no owning acceptedID binding yet, so do not duplicate. Olda882 finishedVALID10288.685815us but remains source-ineligible. Closing01:59snapshot public unchanged, overall/layer365,layer38private/16scored. The current monitor's incoming addendum preserves both the rebuilt-source progress and the historical disqualification.
 
 ## November 4 00:48 UTC — PDL8h terminal and the next build base
 
