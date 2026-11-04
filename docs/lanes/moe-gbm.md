@@ -66,5 +66,5 @@ docs/runs-decode-layer.md; docs/ruled-out.md line 835 corrected.
 
 ## Next action
 
-The lead decides whether to dispatch a judge check of ly_gbm.py (c7c2bf55). The change composes with moe-gb round 2
-(MID build) since the two touch different define gates; a merged file needs its own gate and stress.
+The lead decides whether to dispatch a judge check of ly_gbm.py (c7c2bf55). Whether it composes with moe-gb round 2 (MID build)
+is unchecked; I have not read that diff. A merged file needs its own gate and stress.
