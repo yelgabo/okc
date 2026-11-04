@@ -107,6 +107,17 @@ struct Params {
 #ifndef CLB_ACC_SMEM
 #define CLB_ACC_SMEM 1
 #endif
+#ifndef CLB_UPW
+#define CLB_UPW 1          // unit-blocks per warp per stage at T_MAX = 8 (1 or 2)
+#endif
+#ifndef CLB_UPW32
+#define CLB_UPW32 1        // the same at T_MAX = 32
+#endif
+#ifndef CLB_LOOP_FENCE
+#define CLB_LOOP_FENCE 1   // 0 (diagnosis only) drops the proxy fence at the slot release
+#endif
+__host__ __device__ constexpr int upw(int tmax) { return tmax == 8 ? CLB_UPW : CLB_UPW32; }
+__host__ __device__ constexpr int wpg(int tmax) { return UPS / upw(tmax); }   // warps per stage group
 #ifndef CLB_NREG8
 #define CLB_NREG8 208      // NCW = 8 consumer registers (0: no setmaxnreg)
 #endif
@@ -197,9 +208,10 @@ __device__ __forceinline__ void cl_arrive_release() { asm volatile("barrier.clus
 __device__ __forceinline__ void cl_arrive_relaxed() { asm volatile("barrier.cluster.arrive.relaxed;" ::: "memory"); }
 __device__ __forceinline__ void cl_wait() { asm volatile("barrier.cluster.wait.acquire;" ::: "memory"); }
 
-template <int NTT, int NCHB>
+template <int NTT, int NCHB, int UPW>
 __host__ __device__ constexpr int n_cache() {
-  return CLB_LOOP_BREG == -1 ? (NTT == 1 ? (NCHB < 4 ? NCHB : 4) : 0) : (CLB_LOOP_BREG < NCHB ? CLB_LOOP_BREG : NCHB);
+  return CLB_LOOP_BREG == -1 ? (NTT == 1 && UPW == 1 ? (NCHB < 4 ? NCHB : 4) : 0)
+                             : (CLB_LOOP_BREG < NCHB ? CLB_LOOP_BREG : NCHB);
 }
 
 // Per-slice geometry, computed identically by every thread of the cluster.
@@ -257,10 +269,10 @@ struct Smem {
 template <int NTT, int TM, int NCW, int CLO, int CHI>
 __device__ __forceinline__ void consume_block(const Params& p, const Smem& sm, const Slice& q, int bi, int grp, int u8,
                                               int lane, clu::Opaque op, const __nv_bfloat16* buf,
-                                              float (&accr)[SPB / (NCW / UPS)][NTT][4], bool stamp,
+                                              float (&accr)[SPB / (NCW / wpg(TM))][upw(TM)][NTT][4], bool stamp,
                                               unsigned long long* st, unsigned long long& wait_f) {
-  constexpr int NG = NCW / UPS, R = SPB / NG;
-  constexpr int NCACHE = n_cache<NTT, CHI - CLO>();
+  constexpr int UPW = upw(TM), WPG = wpg(TM), NG = NCW / WPG, R = SPB / NG;
+  constexpr int NCACHE = n_cache<NTT, CHI - CLO, UPW>();
   const int D = p.depth;
   clu::BFrag<NTT, NCACHE> bf;
   if (NCACHE > 0 && CLB_LOOP_DIAG != 1) clu::load_bfrag<NTT, CLO, NCACHE>(buf, BROW, lane, bf);
@@ -279,35 +291,42 @@ __device__ __forceinline__ void consume_block(const Params& p, const Smem& sm, c
       mbar_wait(&sm.full[s], (it / D) & 1);
     }
     const unsigned char* slot = sm.ring + s * SLOT;
-    float a[NTT][4];
+    float a[UPW][NTT][4];
     if (p.diag & 1) {
 #pragma unroll
-      for (int n = 0; n < NTT; ++n)
+      for (int k = 0; k < UPW; ++k)
 #pragma unroll
-        for (int k = 0; k < 4; ++k) a[n][k] = 0.f;
+        for (int n = 0; n < NTT; ++n)
+#pragma unroll
+          for (int i = 0; i < 4; ++i) a[k][n][i] = 0.f;
     } else {
-      clu::unit_block<NTT, CLO, CHI, NCACHE, CLB_LOOP_DQ, CLB_LOOP_DIAG>(slot, u8, lane, op, buf, BROW, &bf, a);
+      clu::unit_block<NTT, CLO, CHI, NCACHE, UPW, CLB_LOOP_DQ, CLB_LOOP_DIAG>(slot, u8, WPG, lane, op, buf, BROW, &bf, a);
     }
     __syncwarp();
     // The warp's generic-proxy reads of the slot must be complete before the TMA refill lands in it (CL-1.1 saw the
     // refill overtake outstanding LDS on 9 of 12 two-pass runs): CTA-scope proxy fence before the release.
-    asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
+    if (CLB_LOOP_FENCE) asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
     if (lane == 0) mbar_arrive(&sm.empty[s]);
     if (acc_smem(TM)) {
-      float4* ac = reinterpret_cast<float4*>(sm.accs) + (UPS * (jj * NG + grp) + u8) * 32 + lane;
-      float4 v = *ac;
-      v.x += a[0][0]; v.y += a[0][1]; v.z += a[0][2]; v.w += a[0][3];
-      *ac = v;
+#pragma unroll
+      for (int k = 0; k < UPW; ++k) {
+        float4* ac = reinterpret_cast<float4*>(sm.accs) + (UPS * (jj * NG + grp) + u8 + WPG * k) * 32 + lane;
+        float4 v = *ac;
+        v.x += a[k][0][0]; v.y += a[k][0][1]; v.z += a[k][0][2]; v.w += a[k][0][3];
+        *ac = v;
+      }
     } else {
 #pragma unroll
-      for (int n = 0; n < NTT; ++n)
+      for (int k = 0; k < UPW; ++k)
 #pragma unroll
-        for (int k = 0; k < 4; ++k) {
-          const float t0 = accr[0][n][k] + a[n][k];
+        for (int n = 0; n < NTT; ++n)
 #pragma unroll
-          for (int r = 0; r + 1 < R; ++r) accr[r][n][k] = accr[r + 1][n][k];
-          accr[R - 1][n][k] = t0;
-        }
+          for (int i = 0; i < 4; ++i) {
+            const float t0 = accr[0][k][n][i] + a[k][n][i];
+#pragma unroll
+            for (int r = 0; r + 1 < R; ++r) accr[r][k][n][i] = accr[r + 1][k][n][i];
+            accr[R - 1][k][n][i] = t0;
+          }
     }
   }
 }
@@ -315,22 +334,25 @@ __device__ __forceinline__ void consume_block(const Params& p, const Smem& sm, c
 template <int NTT, int TM, int NCW, bool DBG>
 __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Slice& q, int rank, int warp, int lane,
                                          unsigned long long* st) {
-  constexpr int NG = NCW / UPS, R = SPB / NG;
-  const int grp = warp / UPS, u8 = warp % UPS;
-  float accr[R][NTT][4];
+  constexpr int UPW = upw(TM), WPG = wpg(TM), NG = NCW / WPG, R = SPB / NG;
+  static_assert(NCW % WPG == 0 && SPB % NG == 0, "consumer warps must form whole stage groups");
+  const int grp = warp / WPG, u8 = warp % WPG;
+  float accr[R][UPW][NTT][4];
 #pragma unroll
   for (int j = 0; j < R; ++j)
 #pragma unroll
-    for (int n = 0; n < NTT; ++n)
+    for (int k = 0; k < UPW; ++k)
 #pragma unroll
-      for (int k = 0; k < 4; ++k) accr[j][n][k] = 0.f;
+      for (int n = 0; n < NTT; ++n)
+#pragma unroll
+        for (int i = 0; i < 4; ++i) accr[j][k][n][i] = 0.f;
   if (acc_smem(TM)) {
 #pragma unroll
     for (int j = 0; j < R; ++j)
-      reinterpret_cast<float4*>(sm.accs)[(UPS * (j * NG + grp) + u8) * 32 + lane] = make_float4(0.f, 0.f, 0.f, 0.f);
+#pragma unroll
+      for (int k = 0; k < UPW; ++k)
+        reinterpret_cast<float4*>(sm.accs)[(UPS * (j * NG + grp) + u8 + WPG * k) * 32 + lane] = make_float4(0.f, 0.f, 0.f, 0.f);
   }
-  const uint32_t k16 = 16u + p.zero;
-  const int D = p.depth;
   const bool stamp = warp == 0 && lane == 0;
   unsigned long long wait_b = 0, wait_f = 0;
   const clu::Opaque op{16u + p.zero, 1u + p.zero};
@@ -363,9 +385,11 @@ __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Sl
   const int g = lane >> 2, t = lane & 3;
   const float gsc = clm::gscale(p.w2_gs[q.e]);
 #pragma unroll
-  for (int jj = 0; jj < R; ++jj) {
+  for (int jj = 0; jj < R; ++jj)
+#pragma unroll
+  for (int k = 0; k < UPW; ++k) {
     const int j = jj * NG + grp;
-    const int ul = UPS * j + u8;                 // unit inside the CTA
+    const int ul = UPS * j + u8 + WPG * k;       // unit inside the CTA
     const int rl = 16 * ul + g;                  // local output row
     const int n0 = ROWS * rank + rl;             // global output row
     const float nw0 = clm::norm_mul(p.normw[n0]), nw8 = clm::norm_mul(p.normw[n0 + 8]);
@@ -374,7 +398,7 @@ __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Sl
 #pragma unroll
       for (int h = 0; h < 2; ++h) {
         const int tk = 8 * n + 2 * t + h;
-        float a0 = accr[jj][n][h], a8 = accr[jj][n][2 + h];
+        float a0 = accr[jj][k][n][h], a8 = accr[jj][k][n][2 + h];
         if (acc_smem(TM)) {
           const float4 v = reinterpret_cast<const float4*>(sm.accs)[ul * 32 + lane];
           a0 = h ? v.y : v.x;
@@ -472,7 +496,7 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(n_threads(NCW), 1) p
     st[0] = gtimer();
     for (int s = 0; s < D; ++s) {
       mbar_init(&sm.full[s], 1);
-      mbar_init(&sm.empty[s], UPS);
+      mbar_init(&sm.empty[s], wpg(TM));
     }
     for (int b = 0; b < 2; ++b) {
       mbar_init(&sm.bfull[b], NSW);

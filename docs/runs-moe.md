@@ -7175,3 +7175,50 @@ Diagnostics in round 1 (v1 structure, spilling, T = 8 math-only): no mma 19.42 u
 and no scale multiply 20.67, no B loads 23.71, against 24.83 for v1 and 20.96 for the control. Removing any one
 class of the loop's instructions leaves 19.4 to 20.7 us: the loop is not bound by the ALU, the FMA pipe or the
 tensor pipe alone. Round 2 removes what the modes share (the code loads, the per-stage barrier wait).
+
+### Round 2: setmaxnreg per role branch, instruction-class diagnostics
+
+v2 is round 1 with DQ 0, the fence, `setmaxnreg` at the start of each role branch (112 / 32 at NCW = 16). ptxas
+still compiled the consumer at 96 registers with 32 bytes of stack: once a kernel contains `setmaxnreg.dec` values,
+ptxas' budget for the whole kernel is contaminated (a no-op 96 / 96 pair spills 128 bytes, 112 / 24 spills more).
+With a 4-chunk B cache v2 is 24.16 us math-only, 26.78 no exchange; without the cache 21.98 / 28.82 (T = 32:
+27.90 / 30.51 and 28.11 / 30.26, control 27.97 / 29.97).
+
+Instruction-class diagnostics on v2 (T = 8 math-only; each removes one class, numerics discarded):
+
+| removed | us |
+|---|---:|
+| nothing (v2) | 24.16 |
+| E2M1 unpack (DIAG 2) | 20.06 |
+| unpack and scale multiply (DIAG 3) | 20.42 |
+| mma (one FADD per tile instead, DIAG 4) | 19.22 |
+| code and scale LDS (lane constants, DIAG 5) | 19.95 |
+| the per-stage full-barrier wait (DIAG 6) | 22.64 |
+
+Every class removed alone leaves 19 to 23 us against a 14.85 us floor: no single pipe is saturated. Per unit-block
+one warp issues about 554 instructions in 1.14 us (about 2,100 cycles at 1.85 GHz), 1 instruction per 3.8 cycles,
+with 4 consumer warps per SMSP sharing one issue slot per cycle: the SMSP issues on about 1 cycle in 4. The loop is
+bound by dependent-chain latency per warp with too few registers to look further ahead, which is why removing any
+class shortens the chain by a similar amount and why adding the B cache (fewer LDS, more live registers) loses.
+
+### Round 3: 18-warp roster (96 registers without setmaxnreg), B cache depth, accumulator placement
+
+At NCW = 16 the roster is now 18 warps (16 consumers, the producer warp that also runs the epilogue, 1 staging
+warp): 576 threads give the consumer 96 registers without `setmaxnreg` and ptxas reports "Used 96 registers" for
+the kernel still (no raise from the lower launch cap). v3 variants, T = 8 (NCW 16) and T = 32 (NCW 8, 168 regs):
+
+| variant | consumer reg / stack (T 8) | T 8 math-only us | T 8 no-exchange us | T 32 math-only us | T 32 no-exchange us |
+|---|---|---:|---:|---:|---:|
+| control | 96 / 0 | 20.96 | 26.11 | 27.97 | 29.97 |
+| v3 (4-chunk B cache, acc in smem) | 96 / 8 | 24.24 | 27.78 | 28.08 | 30.62 |
+| v3 BREG 0 (no cache, acc in smem) | 94 / 0 | 22.42 | 28.45 | 27.66 | 30.51 |
+| v3 BREG 0, acc in registers | 94 / 0 | 22.02 | 26.72 | 27.89 | 30.19 |
+| v3 BREG 6 | 96 / 88 (T 32: 744) | 26.82 | 29.71 | 32.74 | 35.49 |
+| v3 BREG 8 (whole K block) | 96 / 80 (T 32: 984) | 28.26 | 30.24 | 36.64 | 42.72 |
+
+The B-fragment cache loses at every depth: at 16 warps the 96-register cap leaves no room (every cached chunk
+costs 8 registers per n-tile, and the spills land in the loop), and at 8 warps NTT = 4 needs 32 registers per
+chunk. Accumulators in shared memory (float4 read-modify-write per stage instead of a register rotation) cost 0.4 us
+math-only and 1.7 us with loads on; the register form is the default now (`CLB_ACC_SMEM 0`). The remaining 1.1 us
+between the best v3 build (22.02) and the control (20.96) is the restructure itself (rolled stage loop through
+`consume_block`, the proxy fence, `__syncwarp` before the release); round 4 attributes the fence.

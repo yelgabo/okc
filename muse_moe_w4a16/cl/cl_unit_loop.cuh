@@ -15,6 +15,8 @@
 //   DIAG (bench only, numerics garbage): 1 B fragments are lane constants (no B loads), 2 no E2M1 unpack
 //     (a = word, scale multiply kept), 3 no unpack and no scale multiply, 4 no mma (one FADD per step per tile),
 //     5 no code and scale loads (lane constants), 6 (cl_phase_b.cuh) consumers do not wait on the stage barrier.
+//   UPW: unit-blocks per warp per stage. With 2, a stage's 8 unit-blocks go to 4 warps; each chunk's B fragments
+//     (two LDS.128) are loaded once for both units, and the warp carries 8 independent accumulator chains.
 #pragma once
 #include <cuda_bf16.h>
 #include <stdint.h>
@@ -75,20 +77,28 @@ __device__ __forceinline__ void decode_step(uint32_t word, uint32_t sg, uint32_t
   }
 }
 
-// slot: the ring stage; u8: the unit-block inside it (clm::unit_codes / unit_scales index it as warp u8).
-// Chunks [CLO, CLO + NCACHE) read their B fragments from `bf`, the others per chunk from `buf` (stride `brow`).
-template <int NTT, int CLO, int CHI, int NCACHE, int DQ, int DIAG>
-__device__ __forceinline__ void unit_block(const unsigned char* slot, int u8, int lane, Opaque op,
+// slot: the ring stage; the warp's UPW unit-blocks inside it are u8 + ustride * k (clm::unit_codes /
+// unit_scales index them as warp u8 + ustride * k). Chunks [CLO, CLO + NCACHE) read their B fragments from `bf`,
+// the others per chunk from `buf` (stride `brow`); with UPW > 1 each chunk's B fragments are loaded once and feed
+// every unit's mma, and the UPW x 4 accumulator chains are independent. acc[k] is unit k's partial, numerically
+// clm::unit_warp_mma's restricted to [CLO, CHI).
+template <int NTT, int CLO, int CHI, int NCACHE, int UPW, int DQ, int DIAG>
+__device__ __forceinline__ void unit_block(const unsigned char* slot, int u8, int ustride, int lane, Opaque op,
                                            const __nv_bfloat16* buf, int brow, const BFrag<NTT, NCACHE>* bf,
-                                           float (&acc)[NTT][4]) {
+                                           float (&acc)[UPW][NTT][4]) {
   static_assert(NCACHE >= 0 && NCACHE <= CHI - CLO, "NCACHE");
-  float c1[NTT][4], c2[NTT][4], c3[NTT][4];
+  float c1[UPW][NTT][4], c2[UPW][NTT][4], c3[UPW][NTT][4];
 #pragma unroll
-  for (int n = 0; n < NTT; ++n)
+  for (int k = 0; k < UPW; ++k)
 #pragma unroll
-    for (int k = 0; k < 4; ++k) { acc[n][k] = 0.f; c1[n][k] = 0.f; c2[n][k] = 0.f; c3[n][k] = 0.f; }
-  const uint4 sc = DIAG == 5 ? make_uint4(0x3E3E3E3Eu + lane, 0x3F3F3F3Fu, 0x40404040u, 0x41414141u)
-                             : clm::unit_scales(slot, u8, lane);
+    for (int n = 0; n < NTT; ++n)
+#pragma unroll
+      for (int i = 0; i < 4; ++i) { acc[k][n][i] = 0.f; c1[k][n][i] = 0.f; c2[k][n][i] = 0.f; c3[k][n][i] = 0.f; }
+  uint4 sc[UPW];
+#pragma unroll
+  for (int k = 0; k < UPW; ++k)
+    sc[k] = DIAG == 5 ? make_uint4(0x3E3E3E3Eu + lane + k, 0x3F3F3F3Fu, 0x40404040u, 0x41414141u)
+                      : clm::unit_scales(slot, u8 + ustride * k, lane);
   const uint4* base[NTT];
   if (NCACHE < CHI - CLO) {
 #pragma unroll
@@ -97,11 +107,14 @@ __device__ __forceinline__ void unit_block(const unsigned char* slot, int u8, in
   }
 #pragma unroll
   for (int c = CLO; c < CHI; ++c) {
-    const uint4 w = DIAG == 5 ? make_uint4(0x12345678u * (c + 1) + lane, 0x9ABCDEF0u + c, 0x0F0F0F0Fu + lane, 0xF0F0F0F0u + c)
-                              : clm::unit_codes(slot, u8, c, lane);
-    uint32_t sg, sg8;
-    clm::scale_pair(sc, c, op.k16, sg, sg8);
-    const uint32_t ww[4] = {w.x, w.y, w.z, w.w};
+    uint32_t ww[UPW][4], sg[UPW], sg8[UPW];
+#pragma unroll
+    for (int k = 0; k < UPW; ++k) {
+      const uint4 w = DIAG == 5 ? make_uint4(0x12345678u * (c + 1) + lane + k, 0x9ABCDEF0u + c, 0x0F0F0F0Fu + lane, 0xF0F0F0F0u + c)
+                                : clm::unit_codes(slot, u8 + ustride * k, c, lane);
+      ww[k][0] = w.x; ww[k][1] = w.y; ww[k][2] = w.z; ww[k][3] = w.w;
+      clm::scale_pair(sc[k], c, op.k16, sg[k], sg8[k]);
+    }
     uint32_t b[NTT][8];
 #pragma unroll
     for (int n = 0; n < NTT; ++n) {
@@ -119,20 +132,25 @@ __device__ __forceinline__ void unit_block(const unsigned char* slot, int u8, in
     }
 #pragma unroll
     for (int st = 0; st < 4; ++st) {
-      uint32_t a[4];
-      decode_step<DQ, DIAG>(ww[st], sg, sg8, op.one, a);
 #pragma unroll
-      for (int n = 0; n < NTT; ++n) {
-        float* ch = st == 0 ? acc[n] : st == 1 ? c1[n] : st == 2 ? c2[n] : c3[n];
-        if (DIAG == 4) ch[0] += __uint_as_float(a[0] ^ b[n][2 * st]) + __uint_as_float(a[1] ^ b[n][2 * st + 1]);
-        else clm::mma_bf16(ch, a[0], a[1], a[2], a[3], b[n][2 * st], b[n][2 * st + 1]);
+      for (int k = 0; k < UPW; ++k) {
+        uint32_t a[4];
+        decode_step<DQ, DIAG>(ww[k][st], sg[k], sg8[k], op.one, a);
+#pragma unroll
+        for (int n = 0; n < NTT; ++n) {
+          float* ch = st == 0 ? acc[k][n] : st == 1 ? c1[k][n] : st == 2 ? c2[k][n] : c3[k][n];
+          if (DIAG == 4) ch[0] += __uint_as_float(a[0] ^ b[n][2 * st]) + __uint_as_float(a[1] ^ b[n][2 * st + 1]);
+          else clm::mma_bf16(ch, a[0], a[1], a[2], a[3], b[n][2 * st], b[n][2 * st + 1]);
+        }
       }
     }
   }
 #pragma unroll
-  for (int n = 0; n < NTT; ++n)
+  for (int k = 0; k < UPW; ++k)
 #pragma unroll
-    for (int k = 0; k < 4; ++k) acc[n][k] += c1[n][k] + c2[n][k] + c3[n][k];
+    for (int n = 0; n < NTT; ++n)
+#pragma unroll
+      for (int i = 0; i < 4; ++i) acc[k][n][i] += c1[k][n][i] + c2[k][n][i] + c3[k][n][i];
 }
 
 }  // namespace clu
