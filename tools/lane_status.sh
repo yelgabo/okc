@@ -4,11 +4,13 @@
 mins=${1:-40}
 echo "== $(TZ=America/Los_Angeles date '+%H:%M PT')  box okc-h200"
 ssh -o ConnectTimeout=20 -o BatchMode=yes okc-h200 "
-  echo '-- GPU processes (pid, elapsed, memory, command; HUNG? = older than 30 min with no log written in the last 20)'
+  echo '-- GPU processes (pid, elapsed, memory, command; HUNG? = older than 30 min with no log written in the last 20; NOLOCK = no flock gpu.lock ancestor, its timings and everyone else'"'"'s are suspect)'
   nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader | while IFS=, read pid mem; do
     et=\$(ps -o etimes= -p \$pid | tr -d ' '); cmd=\$(ps -o args= -p \$pid | cut -c1-110)
     newest=\$(find /root/okc/.build /root/okc/muse_moe_w4a16 -type f -name '*.log' -mmin -20 2>/dev/null | head -1)
     flag=''; [ \"\${et:-0}\" -gt 1800 ] && [ -z \"\$newest\" ] && flag=' HUNG?'
+    q=\$pid; locked=0; while [ \"\$q\" -gt 1 ] 2>/dev/null; do ps -o args= -p \$q | grep -q 'flock .*gpu.lock' && { locked=1; break; }; q=\$(ps -o ppid= -p \$q | tr -d ' '); done
+    [ \$locked -eq 0 ] && flag=\"\$flag NOLOCK\"
     echo \"  \$pid  \$((\${et:-0}/60)) min \$mem  \$cmd\$flag\"
   done
   echo '-- flock on gpu.lock'; pgrep -af 'flock .*gpu.lock' | grep -v pgrep | cut -c1-140
