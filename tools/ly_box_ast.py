@@ -27,6 +27,23 @@ ATT_NAMES = {0: "entry", 1: "idx", 8: "kv_iss", 15: "wait", 16: "q_vis", 17: "kv
              4: "ticket", 14: "fin0", 5: "fin1"}
 
 
+ACL_NAMES = {0: "entry", 1: "idx", 2: "kv_iss", 3: "wait", 4: "q_vis", 5: "ready", 6: "math", 7: "partial",
+             8: "csync1", 9: "gather", 10: "stored", 11: "csync2"}
+
+
+def summarize_acl(acl, qend):
+    """ly_acl --stamp: globaltimer_lo per CTA of the cluster kernel, relative to qkv_end (mod 2^32)."""
+    base = qend & 0xffffffff
+    rel = lambda v: (((v & 0xffffffff) - base + (1 << 31)) % (1 << 32) - (1 << 31)) / 1e3  # noqa: E731
+    rows = [r for r in acl if r[0] != 0]
+    out = {"cl_n": len(rows)}
+    for k, nm in ACL_NAMES.items():
+        v = [rel(r[k]) for r in rows if r[k] != 0]
+        if v:
+            out[f"c_{nm}_min"], out[f"c_{nm}_p50"], out[f"c_{nm}_max"] = min(v), statistics.median(v), max(v)
+    return out
+
+
 def summarize(att, qkv, o):
     qkv = [r for r in qkv if r[0] > 0]
     o = [r for r in o if r[0] > 0]
@@ -100,11 +117,14 @@ def main():
     o_buf = torch.zeros(1024 * KS, dtype=torch.int64, device="cuda")
     ext = mod.bfp__get_ext()
     nq = int(state["qkv"].shape[0])
+    acl_buf = torch.zeros(64 * 16, dtype=torch.int32, device="cuda") if hasattr(mod, "_ACL_DBG") else None
 
     def inst(on):
         ext.sk2_set_ast(0, nq, mod.HIDDEN, qkv_buf.data_ptr() if on else 0)
         ext.sk2_set_ast(1, mod.HIDDEN, mod.Q_DIM, o_buf.data_ptr() if on else 0)
         mod._AST_DBG = att_buf if on else None
+        if acl_buf is not None:
+            mod._ACL_DBG = acl_buf if on else None
 
     lsc = br.LocalStartCache(a.ls_cache, os.path.join(pdir, "reference.py"), a.router_seed, ref.WEIGHTS_SEED) \
         if a.ls_cache else None
@@ -132,7 +152,7 @@ def main():
             torch.cuda.synchronize()
             tp = timer.cold(gp) / 1e3
             op = first(outp).clone()
-            for b in (att_buf, qkv_buf, o_buf):
+            for b in (att_buf, qkv_buf, o_buf) + ((acl_buf,) if acl_buf is not None else ()):
                 b.zero_()
             br.copy_into(static, f)
             torch.cuda.synchronize()
@@ -155,6 +175,8 @@ def main():
             qk = qkv_buf.view(-1, KS).cpu().tolist()
             oo = o_buf.view(-1, KS).cpu().tolist()
             st = summarize(att, qk, oo)
+            if acl_buf is not None:
+                st.update(summarize_acl(acl_buf.view(-1, 16).cpu().tolist(), max(r[23] for r in qk if r[0] > 0)))
             st.update(graph_plain=tp, graph_inst=ti, maxdiff=diff, seed=seeds[j])
             if j < a.raw:
                 st["raw"] = dict(att=[r for r in att if r[0]], qkv=[r for r in qk if r[0]], o=[r for r in oo if r[0]])

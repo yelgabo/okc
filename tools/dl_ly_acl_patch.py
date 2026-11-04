@@ -40,6 +40,33 @@ if "--base" in sys.argv:
     PIN = None
 if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
+# --stamp (instrument only): globaltimer_lo per CTA into p.dbg[blockIdx.x * 16 + k] when the launch passes a dbg
+# tensor (module global _ACL_DBG): 0 entry, 1 page indices visible, 2 K/V issued (before the wait), 3 wait returned,
+# 4 q group visible, 5 tiles and new rows ready, 6 tile math done, 7 partial summed (before cluster.sync 1), 8 after
+# it, 9 peers' rows gathered, 10 finalize stored (before cluster.sync 2), 11 after it, 12 SM id
+STAMP = "--stamp" in sys.argv
+STAMP_MACRO = ("#define ACL_T(k) do { if (p.dbg != nullptr && threadIdx.x == 0) { unsigned lo_; "
+               "asm volatile(\"mov.u32 %0, %%globaltimer_lo;\" : \"=r\"(lo_)); p.dbg[blockIdx.x * 16 + (k)] = (int)lo_; } } while (0)\n")
+STAMP_EDITS = [
+    ("    cooperative_groups::cluster_group cluster = cooperative_groups::this_cluster();\n    const int rank",
+     "    ACL_T(0);\n    if (p.dbg != nullptr && threadIdx.x == 0) { unsigned sm_; asm volatile(\"mov.u32 %0, %%smid;\" : \"=r\"(sm_)); p.dbg[blockIdx.x * 16 + 12] = (int)sm_; }\n"
+     "    cooperative_groups::cluster_group cluster = cooperative_groups::this_cluster();\n    const int rank"),
+    ("    cp_wait<0>();   // (ly_acl: group 0 only; the qkv reads come after the wait)\n    __syncthreads();\n",
+     "    cp_wait<0>();   // (ly_acl: group 0 only; the qkv reads come after the wait)\n    __syncthreads();\n    ACL_T(1);\n"),
+    ("    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n    asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n",
+     "    ACL_T(2);\n    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n    asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n    ACL_T(3);\n"),
+    ("    cp_commit();\n    cp_wait<0>();\n    __syncthreads();\n\n    const float k_scale",
+     "    cp_commit();\n    cp_wait<0>();\n    __syncthreads();\n    ACL_T(4);\n\n    const float k_scale"),
+    ("    cp_wait<0>();\n    if constexpr (L == 8) {\n        fence_proxy_async();\n    }\n    __syncthreads();\n",
+     "    cp_wait<0>();\n    if constexpr (L == 8) {\n        fence_proxy_async();\n    }\n    __syncthreads();\n    ACL_T(5);\n"),
+    ("        // Fixed-frame partial of this warp: o * 2^m and l * 2^m into row g",
+     "        ACL_T(6);\n        // Fixed-frame partial of this warp: o * 2^m and l * 2^m into row g"),
+    ("    // Publishes every partial to the cluster", "    ACL_T(7);\n    // Publishes every partial to the cluster"),
+    ("    cluster.sync();\n    // Rank r gathers rows", "    cluster.sync();\n    ACL_T(8);\n    // Rank r gathers rows"),
+    ("    __syncthreads();\n    // Finalize: 16 threads per row", "    __syncthreads();\n    ACL_T(9);\n    // Finalize: 16 threads per row"),
+    ("    // No CTA leaves while a peer may still read its partial.\n    cluster.sync();\n}",
+     "    ACL_T(10);\n    // No CTA leaves while a peer may still read its partial.\n    cluster.sync();\n    ACL_T(11);\n}"),
+]
 
 KV_END = "#pragma unroll\n    for (int t = 0; t < NT; ++t) {\n        if (t < ntiles) {\n            issue_kv(t);\n        }\n        cp_commit();\n    }\n    cp_wait<NT>();\n    __syncthreads();\n"
 
@@ -85,6 +112,7 @@ PY_BLOCK = r'''
 ACL_CPP_SRC = r"""@@CPP@@"""
 _ACL = None
 _ACL_DUMMY = {}
+_ACL_DBG = None   # (instrument builds only: int32 stamp buffer for the cluster kernel)
 
 
 def _acl():
@@ -117,7 +145,8 @@ def _acl_attention(data, cfg, qkv, pdl):
     out = m.attn_one(qkv, data["page_table"], data["seq_lens"], data["cache_loc"],
                      _inv_freq(theta if theta else 1.0, dev), data["k_scale"], data["v_scale"],
                      data["k_cache"], data["v_cache"], d[0], d[0], d[1], 1, 1, 1, cfg["window"], bool(theta),
-                     cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E, 8, 1, 136, False, d[2], 0)
+                     cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E, 8, 1, 136, False,
+                     _ACL_DBG if _ACL_DBG is not None else d[2], 0)
     return out.view(1, Q_DIM)
 '''
 
@@ -165,6 +194,10 @@ def cl_source():
     tail = "ONE_CL_INSTANCES(X)\n#endif"
     e = s.index(tail, k)
     s = s[:k] + "#define ONE_INSTANCES(X) X(1, 136)   // (ly_acl: the one instance the layer launches)\n#endif" + s[e + len(tail):]
+    if STAMP:
+        s = sub(s, "constexpr int M_CL = 128;\n", "constexpr int M_CL = 128;\n" + STAMP_MACRO, 1, "stamp macro")
+        for old, new in STAMP_EDITS:
+            s = sub(s, old, new, 1, "stamp")
     return s + SET_PDL
 
 

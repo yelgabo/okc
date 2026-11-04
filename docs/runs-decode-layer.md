@@ -6005,6 +6005,91 @@ Answer: today no K/V byte is loaded before the wait; only seq_lens, the page ind
 | ly_atrg (1abac1d6...) | `tools/dl_ly_atrg_patch.py`: the ONE build triggers its dependents at entry | 4.22 / 4.35 | 4.96 | 5.38 | 8.82 | o launches at -0.11 instead of +1.15; its pre-wait stream now lands on attention's q loads (q visible 1.87 vs 0.93): loss |
 | diagnostics | --nol, --noacc (wrong outputs), dpf0 (no pooler prefetch), do0 (o one pre-wait stage), warm replay | see above | | 5.33, 4.90, 5.18, 4.67, 5.47 | 8.62, 8.13, 8.42, 8.62, 8.93 | do0: attention 0.53 us earlier, o 0.15 us later (more stream after its wait); warm (no L2 flush before the stamped replay): q side unchanged (q pass 1.41), so the q side is not cold code fetched from DRAM |
 
-The ONE_CL cluster merge (ruled out standalone at +1.31 us) was not ported: it is a separate kernel in
-`muse_attention_decode/attn_one.cu` with its own Params and no `griddepcontrol.wait`, and its standalone loss was not
-split into launch, barriers and the 16-SM pull.
+### Paired A/B against ly_v1un (box, 19:22 to 19:31 UTC)
+
+`tools/ly_prtl_ab.sh` with CTL=ly_v1un.py: a check run of the candidate at all six loads (`--runs 5`), then two
+rounds of c/w/c/w/c (`--runs 60`, all six loads, PDL pinned on at T = 1, 8, 16, 32 in every arm, `--skip-pdl8-gate`),
+pooled by `tools/ly_prtl_table.py` (threshold max(2 x control spread, 0.5 us) at decode 1 / verify 1; pairs = 6
+controls x 4 candidate runs). Logs and JSONs in `muse_decode_layer/profiles/box/ad1/`. Net us, candidate minus
+control:
+
+| cell | ly_akv w - c (pairs < 0 of 24) | ly_anf4 w - c (pairs < 0 of 24) |
+|---|---:|---:|
+| decode 1 sliding | -0.00 (12) | -0.11 (13) |
+| decode 1 full | -0.22 (19) | -0.32 (20) |
+| decode 16 sliding | -0.00 (10) | -0.01 (11) |
+| decode 16 full | -0.20 (12) | +0.40 (6) |
+| decode 32 sliding | -0.30 (17) | -0.40 (17) |
+| decode 32 full | -0.15 (14) | -0.33 (17) |
+| verify 1 sliding | +0.12 (11) | -0.08 (13) |
+| verify 1 full | -0.09 (13) | -0.66 (24) |
+| verify 16 sliding | +0.29 (13) | -0.45 (17) |
+| verify 16 full | -0.34 (14) | -1.42 (20) |
+| verify 32 sliding | +0.17 (14) | -0.44 (16) |
+| verify 32 full | +0.87 (5) | -0.23 (16) |
+
+Reference check PASS at all 12 cells for both candidates, G_RELEASE_STARTUP_OK in both check runs. Every cell is
+inside its threshold; the target cell, decode 1 sliding, moves by 0.00 and -0.11 us. ly_anf4's verify 1 full
+(-0.66, 24 of 24 pairs) is a cell whose plan and launch it does not change (q_len 8); the kernel module differs
+only by the dead `fin_ncn<8, ...>` instantiation in the q_len 8 builds (the `L == 1 && p.nc == 4` test is a run-time
+`if`), so this is a code-layout or session effect, not the mechanism; it is recorded, not claimed.
+
+### Candidate ly_acl: the ONE_CL cluster kernel inside the layer
+
+`tools/dl_ly_acl_patch.py` writes `muse_decode_layer/cand/ly_acl.py` (SHA256
+5c9bc573a8e5cbee5828e6e3d386913157a6c106dbe554602de9c944e1121ee9): the file embeds
+`muse_attention_decode/attn_one.cu` built as its own extension with `-DONE_CL=1` and only the `X(1, 136)` instance,
+and decode 1 sliding (batch 1, q_len 1, page size 1, window <= 2048 keys, contiguous 2304-wide qkv rows) launches
+`attn_cl_kernel<1>` (16 CTAs, two portable clusters of 8, one KV head and 4 tiles per CTA, DSMEM sum after one
+cluster barrier, rank r finalizes head r; no workspace, red, ticket or counter) as a PDL secondary of qkv. Two edits
+to the standalone kernel: the page-index group is waited, the speculated length checked and every tile's K/V issued
+before `griddepcontrol.wait` (layer inputs only), then the wait, the trigger, and the q / new k,v / constants group;
+the cluster launch adds the programmatic attribute. The cluster merge lost +1.31 us standalone (c1becf5a66274d37),
+where its launch and K/V pull were on the critical path; inside the layer both can sit before the wait.
+
+Check run at all six loads: reference check PASS at all 12 cells, G_RELEASE_STARTUP_OK. Decode 1 screen
+(c/w/c/w/c, `--runs 60`, decode 1 only): decode 1 sliding 64.50 / 64.58 / 64.74 control against 66.30 / 66.30,
++1.70 us, every pair a loss (+1.57 to +1.81); decode 1 full (base code) -0.03. Kernel timeline (`ly_tl_run.py`,
+10 profiled replays, `profiles/box/ad1/tl_*.log`): attention ends 6.56 us after qkv's end against 5.08 in the base
+session. Stamps (`--stamp`, `ly_ast_acl.py`, 20 inputs, us after qkv's end, p50 / latest CTA):
+
+| step | cluster kernel | base kernel (same quantity) |
+|---|---:|---:|
+| entry | -0.74 | -1.07 |
+| page indices visible | -0.03 | (before the wait) |
+| K/V of 4 tiles issued (before the wait) | 1.06 / 1.25 | (after the wait) |
+| `griddepcontrol.wait` returned | 1.09 / 1.26 | 0.42 |
+| q group visible | 1.63 / 1.81 | 0.93 |
+| tiles and new rows ready | 2.15 / 2.74 | 1.63 / 2.03 |
+| tile math done | 3.72 / 4.34 | 2.24 / 2.59 |
+| CTA partial summed (8 warp slots) | 4.52 / 5.07 | (key-half exchange 2.37 / 2.72) |
+| after cluster.sync 1 | 5.13 / 5.42 | |
+| peers' rows gathered (DSMEM) | 5.55 / 5.84 | |
+| finalize stored | 5.98 / 6.29 | 4.78 (last CTA) |
+| o's wait returns | 6.98 | 5.20 |
+
+Reading: no single phase holds the loss. Issuing 32 KB of K/V per CTA (8 copies per thread) takes 1.1 us because the
+copies stall issue once the SM's outstanding requests fill, and the thread reaches `griddepcontrol.wait` only after
+that, so the wait returns 0.67 us later than in the base; the tile math takes 1.6 us (four tiles' halves over 8
+warps, against one tile over 4 warps in 0.6 us), the 8-slot partial sum 0.8 us, the first cluster barrier 0.6 us, the
+gather and finalize 0.85 us. The merge without global atomics (partial to stored: 1.46 us) is no cheaper than the
+base's exchange, reds, ticket and finalize (2.37 to 4.78: 2.41 us) by enough to pay for the slower math on half as
+many SMs. Loss; no second round.
+
+### Decision
+
+No candidate. Decode 1 sliding moves by -0.00 (ly_akv), -0.11 (ly_anf4) and +1.70 us (ly_acl) at the box; every
+other variant was stopped at the stamp level because the o projection's end did not move earlier (table above). No
+ledger registration, no judge check. What the measurements leave:
+
+- The cached window's K/V is off the critical path today, so loading it before the wait buys nothing; the q side
+  after the wait (0.5 us L2 round trip for q, 0.6 to 1.1 us of norm / RoPE / pack and the new token's row) sets the
+  tile start.
+- The merge is 1.5 us of ticket (about 1.0 us release plus atomic round trip with 32 contenders, about 0.5 us red
+  volume into one 4 KB region) plus 0.56 us of finalize plus 0.42 us of completion flush. Copies, fewer splits, a
+  finalize kernel and a cluster merge each moved cost between these items without removing it.
+- The o projection's pre-wait weight stages compete with the merge (one stage instead of two: tickets 0.45 us
+  earlier, o 0.15 us later; an entry trigger: o's stages land on the q loads instead). Attention and o share the
+  memory system in the 3 us after qkv; a gain there needs fewer bytes or fewer dependent round trips across both
+  kernels (for example q-norm / RoPE in qkv's epilogue, or the finalize inside o's prologue), which is cross-lane
+  work (bf16 owns qkv and o) and not tested here.
