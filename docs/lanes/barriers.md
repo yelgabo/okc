@@ -95,8 +95,8 @@ other cell runs identical code, so swings there are noise (about 1.5 us on pair 
 ## A/B result (box 22:18-22:20 UTC, both rounds complete)
 
 Round 2's native check passed: every arm log (ab_c_a, ab_w_a, ab_c_b, ab_w_b, ab_c_c) prints "backend native" once,
-and none matches "native build failed", "fallback" or "marlin". PDL was pinned on at T = 1, 8, 16 and 32 in every arm.
-Each row gives w - c in us: round 1 mean, then its four pairs; round 2 mean, then its four pairs.
+and none matches "native build failed", "fallback" or "marlin".
+Values were checked against `tools/ly_prtl_table.py` on .build/prtl/gb_fw and gb_fw_r2. Each row gives w - c in us: round 1 mean, then its four pairs; round 2 mean, then its four pairs.
 
 | Cell (touched) | r1 mean | r1 pairs | r2 mean | r2 pairs | thr r1 / r2 | verdict r1 / r2 |
 |---|---|---|---|---|---|---|
