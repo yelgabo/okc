@@ -21,6 +21,23 @@ Its prepare prints `FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YB
 - Smallest repair (hypothesis): unalias via `_df_patch(_MA_ALT_SRCS['moe_helper0'])`, remove the spin cap (cooperative residency makes an unbounded wait safe because phase A has no dependencies), and make the inter stores st.relaxed.gpu and the poll loads ld.relaxed.gpu so the flag is a same-location morally strong edge.
 - Expected gain (hypothesis): 0.5-1.2 us at decode 16 out of the measured 3.02 / 3.04 us A-to-B handoff (docs/runs-decode-layer.md:1971-1990).
 
+## Candidate ly_mdf (built 14:13 PT)
+
+muse_decode_layer/cand/ly_mdf.py, SHA256 28d4422ac37a7857da8d0f514ee13e8549f8331bf934141d084c4018250c06c8, made from ly_stk4 by
+/private/tmp/claude-501/-Users-gretchengabo-GitHub-okc/aad66da8-25fc-49ca-a3a1-289176256272/scratchpad/mkmdf.py (47 diff lines). Changes:
+
+1. `_MA_ALT_SRCS['moe_helper0df'] = _df_patch(_MA_ALT_SRCS['moe_helper0'])` instead of the alias to plain helper0.
+2. Poll uncapped (`spin > 200000` fall-through removed).
+3. Poll loads `ld.relaxed.gpu.global.v4.u32`; the ws_helper inter store under OKC_DF is `st.relaxed.gpu.global.L2::cache_hint.b32` (same evict-last policy as st_keep_bf16x2).
+4. New defect found and fixed: the sentinel rows were inter rows [128, 256) of the one shared scratch, which every WGS launch with M > 16 (decode 32 B4, verify 32 MAIN) writes as real data. A MID launch after one of those would accept stale rows as written. The rows move to [EMAX - 128, EMAX), which no build reaches at M <= 32 (`_df_inter` fill and the `p.inter` offset both moved).
+5. Status string reads `MFIN+DF on, YBF/PDL off`.
+
+Protocol note for the lead: under OKC_DF the MID build drops the doneA credit (its `__threadfence` and atomicAdd) and the phase B `ld_acquire` wait. The replacement is a data-as-flag on the inter words themselves with gpu-scope relaxed accesses. The writer stores 32 bits and the reader loads 128 bits, so the PTX "overlap completely" clause of morally strong is not met; soundness rests on per-word single-copy atomicity of aligned 32-bit stores. This conflicts with the brief's "keep every fence and the release/acquire ordering" if read literally; the lead decides.
+
+## Box A/B (running, started 14:15 PT)
+
+Script muse_decode_layer/profiles/box/mdf/mdf.sh, box logs /root/okc/.build/mdf/arms_r{1,2}.{log,json}. tools/ly_arms.py on ly_mdf, decode 16 both layers, 48 runs, router seed 106218864389449120, two processes. Arms: base (MOE_MID_DEFINES back to @moe_helper0 with its own ext cache, which is ly_stk4's MID kernel), df (file default), base2 (duplicate of base, noise floor).
+
 ## Next action
 
-Build muse_decode_layer/cand/ly_mdf.py on ly_stk4 with the repair, run the reference check, then a two-round paired A/B against ly_stk4 with tools/ly_arms.py, judging decode 16 sliding and full only.
+Read the two rounds (check PASS per arm, df minus base per cell), then the final report and ruled-out rows.
