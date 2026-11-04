@@ -6416,19 +6416,19 @@ turns the lane-0 red into an elected-lane REDG.
 
 Measured:
 
-- With idle HBM, B costs the consumers 358 to 432 ns per tile at every compute length. A costs 76 to 95 ns once
-  compute per tile exceeds the epilogue warp's service time (about 460 ns per tile at T = 8 and 800 ns at T = 32 with
-  no load); below that A is epilogue-bound and loses to B at T = 32 (554 against 378 ns at 210 ns of compute). Two
+- With idle HBM, B costs the consumers 358 to 432 ns per tile at every compute length. A costs 76 to 95 ns where
+  the epilogue warp keeps up, that is where compute per tile plus the handoff reaches its service time (about 450 ns
+  per tile at T = 8 and 800 ns at T = 32 with no load); below that A is epilogue-bound and loses to B at T = 32 (554 against 378 ns at 210 ns of compute). Two
   epilogue warps bring the short-compute cells to 76 ns (T = 8) and 105 to 212 ns (T = 32).
 - Under load the release latency, not the store, sets everything. The epilogue warp's per-tile time grows with the
-  bytes in flight ahead of the release: 1.4 to 1.6 us at one 32 KB chunk per SM (2.6 to 3.1 TB/s), 2.2 to 2.6 us at
-  two (3.9 to 4.1 TB/s), 5.5 to 6.4 us at four (4.2 to 4.35 TB/s). B's stall tracks the same latency (0.8 to 6.1 us
+  bytes in flight ahead of the release: 1.4 to 1.65 us at one 32 KB chunk per SM (2.6 to 3.1 TB/s), 2.2 to 2.6 us at
+  two (3.9 to 4.1 TB/s), 5.5 to 6.4 us at four (4.2 to 4.35 TB/s). B's stall tracks the same latency (0.8 to 6.2 us
   per tile) because each warpgroup's MEMBAR.ALL.GPU waits for it once per tile.
 - A removes the stall under load only where compute per tile exceeds that latency: T = 32, kiters 64, load 1
   (2.0 us of compute against 1.6 us of release) gives 116 ns for A against 800 ns for B and a kernel span of 139.0
   against 185.3 us (C 135.6). Where compute per tile is shorter than the latency, A is bounded by one release per
-  latency and is only 3 to 25% better than B; A2 halves that bound (T = 8, load 2, kiters 64: A 1121, A2 332, B
-  1769 ns).
+  latency and lands between 4% worse and 37% better than B (T = 32, load 1, kiters 16: A 1032, B 990 ns;
+  T = 8, load 2, kiters 64: A 1121, B 1769 ns); A2 halves that bound (same T = 8 cell: A2 332 ns).
 
 Hypotheses for the design (not measured in the real kernel):
 
