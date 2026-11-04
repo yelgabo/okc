@@ -1,0 +1,149 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+LOCK acquired after 0.0 s
+READ 4 GiB sum 4.431 TB/s
+ST       h0  A k  7 D 3 delay    0 grid 132 units  3584 span   29.73 [29.34-31.14] TB/s 4.444 (100.3%) steady 4.815 (108.7%) ramp 2.94 endspread 4.48 cta_unit 0.982
+ST       h0  A k  7 D 3 delay 1050 grid 132 units  3584 span   37.90 [37.15-38.88] TB/s 3.486 ( 78.7%) steady 4.040 ( 91.2%) ramp 2.88 endspread 3.66 cta_unit 1.204
+ST       h0  A k  7 D 3 delay 1150 grid 132 units  3584 span   40.34 [39.74-41.95] TB/s 3.276 ( 73.9%) steady 3.736 ( 84.3%) ramp 2.87 endspread 3.46 cta_unit 1.301
+ST       h0  A k  7 D 4 delay    0 grid 132 units  3584 span   29.90 [29.44-31.65] TB/s 4.418 ( 99.7%) steady 4.836 (109.1%) ramp 2.87 endspread 7.28 cta_unit 0.985
+ST       h0  A k  7 D 4 delay 1050 grid 132 units  3584 span   38.05 [37.50-39.97] TB/s 3.472 ( 78.4%) steady 4.052 ( 91.5%) ramp 2.90 endspread 3.94 cta_unit 1.206
+ST       h0  A k  7 D 4 delay 1150 grid 132 units  3584 span   40.85 [39.90-42.46] TB/s 3.234 ( 73.0%) steady 3.743 ( 84.5%) ramp 2.92 endspread 4.08 cta_unit 1.303
+ST       rr  A k  7 D 3 delay    0 grid 132 units  3584 span   29.79 [29.31-31.30] TB/s 4.435 (100.1%) steady 4.811 (108.6%) ramp 2.78 endspread 4.59 cta_unit 0.988
+ST       rr  A k  7 D 3 delay 1050 grid 132 units  3584 span   37.50 [36.54-39.07] TB/s 3.523 ( 79.5%) steady 4.045 ( 91.3%) ramp 2.81 endspread 3.25 cta_unit 1.204
+ST       rr  A k  7 D 3 delay 1150 grid 132 units  3584 span   40.06 [39.30-41.82] TB/s 3.298 ( 74.4%) steady 3.734 ( 84.3%) ramp 2.81 endspread 3.26 cta_unit 1.301
+ST       rr  A k  7 D 4 delay    0 grid 132 units  3584 span   29.92 [29.44-31.52] TB/s 4.416 ( 99.7%) steady 4.822 (108.8%) ramp 2.81 endspread 7.07 cta_unit 0.987
+ST       rr  A k  7 D 4 delay 1050 grid 132 units  3584 span   37.57 [37.22-38.98] TB/s 3.517 ( 79.4%) steady 4.048 ( 91.3%) ramp 2.80 endspread 3.41 cta_unit 1.205
+ST       rr  A k  7 D 4 delay 1150 grid 132 units  3584 span   40.14 [39.78-42.59] TB/s 3.291 ( 74.3%) steady 3.745 ( 84.5%) ramp 2.76 endspread 3.25 cta_unit 1.302
+ST       em  A k  7 D 3 delay    0 grid 132 units  3584 span   29.98 [29.63-31.62] TB/s 4.406 ( 99.4%) steady 4.804 (108.4%) ramp 2.75 endspread 5.07 cta_unit 0.989
+ST       em  A k  7 D 3 delay 1050 grid 132 units  3584 span   38.34 [37.76-40.10] TB/s 3.446 ( 77.8%) steady 4.048 ( 91.3%) ramp 2.78 endspread 4.86 cta_unit 1.204
+ST       em  A k  7 D 3 delay 1150 grid 132 units  3584 span   41.20 [40.74-42.50] TB/s 3.207 ( 72.4%) steady 3.736 ( 84.3%) ramp 2.77 endspread 5.33 cta_unit 1.302
+ST       em  A k  7 D 4 delay    0 grid 132 units  3584 span   29.86 [29.57-31.49] TB/s 4.425 ( 99.9%) steady 4.829 (109.0%) ramp 2.73 endspread 7.23 cta_unit 0.987
+ST       em  A k  7 D 4 delay 1050 grid 132 units  3584 span   39.23 [38.18-41.70] TB/s 3.368 ( 76.0%) steady 4.048 ( 91.3%) ramp 2.79 endspread 5.66 cta_unit 1.206
+ST       em  A k  7 D 4 delay 1150 grid 132 units  3584 span   41.92 [40.86-43.14] TB/s 3.152 ( 71.1%) steady 3.747 ( 84.6%) ramp 2.78 endspread 5.76 cta_unit 1.303
+ST      emc  A k  7 D 3 delay    0 grid 132 units  3584 span   30.00 [29.57-31.26] TB/s 4.404 ( 99.4%) steady 4.818 (108.7%) ramp 2.93 endspread 4.85 cta_unit 0.985
+ST      emc  A k  7 D 3 delay 1050 grid 132 units  3584 span   38.58 [37.34-39.39] TB/s 3.425 ( 77.3%) steady 4.038 ( 91.1%) ramp 2.89 endspread 5.12 cta_unit 1.204
+ST      emc  A k  7 D 3 delay 1150 grid 132 units  3584 span   41.09 [40.42-43.39] TB/s 3.216 ( 72.6%) steady 3.740 ( 84.4%) ramp 2.85 endspread 5.10 cta_unit 1.302
+ST      emc  A k  7 D 4 delay    0 grid 132 units  3584 span   29.94 [29.50-31.55] TB/s 4.413 ( 99.6%) steady 4.846 (109.4%) ramp 2.86 endspread 7.63 cta_unit 0.981
+ST      emc  A k  7 D 4 delay 1050 grid 132 units  3584 span   38.43 [37.95-39.68] TB/s 3.438 ( 77.6%) steady 4.048 ( 91.3%) ramp 2.87 endspread 4.98 cta_unit 1.206
+ST      emc  A k  7 D 4 delay 1150 grid 132 units  3584 span   41.76 [40.67-43.46] TB/s 3.164 ( 71.4%) steady 3.745 ( 84.5%) ramp 2.89 endspread 5.84 cta_unit 1.302
+ST     rrb3  A k  7 D 3 delay    0 grid 132 units  3584 span   29.97 [29.66-31.49] TB/s 4.409 ( 99.5%) steady 4.794 (108.2%) ramp 2.83 endspread 4.70 cta_unit 0.990
+ST     rrb3  A k  7 D 3 delay 1050 grid 132 units  3584 span   39.42 [38.62-41.38] TB/s 3.351 ( 75.6%) steady 4.048 ( 91.3%) ramp 2.86 endspread 5.20 cta_unit 1.203
+ST     rrb3  A k  7 D 3 delay 1150 grid 132 units  3584 span   42.30 [41.98-44.54] TB/s 3.123 ( 70.5%) steady 3.738 ( 84.4%) ramp 2.84 endspread 5.46 cta_unit 1.301
+ST     rrb3  A k  7 D 4 delay    0 grid 132 units  3584 span   30.00 [29.63-31.62] TB/s 4.404 ( 99.4%) steady 4.843 (109.3%) ramp 2.84 endspread 7.57 cta_unit 0.987
+ST     rrb3  A k  7 D 4 delay 1050 grid 132 units  3584 span   39.98 [39.36-41.47] TB/s 3.304 ( 74.6%) steady 4.048 ( 91.3%) ramp 2.87 endspread 5.76 cta_unit 1.204
+ST     rrb3  A k  7 D 4 delay 1150 grid 132 units  3584 span   42.53 [41.82-43.58] TB/s 3.107 ( 70.1%) steady 3.745 ( 84.5%) ramp 2.83 endspread 5.73 cta_unit 1.302
+ST    em@56  A k  7 D 3 delay    0 grid  56 units  3584 span   31.04 [30.66-33.02] TB/s 4.256 ( 96.1%) steady 4.613 (104.1%) ramp 2.21 endspread 2.32 cta_unit 0.438
+ST    em@56  A k  7 D 3 delay 1050 grid  56 units  3584 span   79.71 [79.49-80.13] TB/s 1.657 ( 37.4%) steady 1.718 ( 38.8%) ramp 2.19 endspread 1.39 cta_unit 1.202
+ST    em@56  A k  7 D 3 delay 1150 grid  56 units  3584 span   85.95 [85.76-86.37] TB/s 1.537 ( 34.7%) steady 1.589 ( 35.9%) ramp 2.22 endspread 1.30 cta_unit 1.301
+ST    em@56  A k  7 D 4 delay    0 grid  56 units  3584 span   31.33 [30.50-33.02] TB/s 4.217 ( 95.2%) steady 4.715 (106.4%) ramp 2.24 endspread 4.13 cta_unit 0.426
+ST    em@56  A k  7 D 4 delay 1050 grid  56 units  3584 span   79.78 [79.52-81.44] TB/s 1.656 ( 37.4%) steady 1.718 ( 38.8%) ramp 2.20 endspread 1.47 cta_unit 1.202
+ST    em@56  A k  7 D 4 delay 1150 grid  56 units  3584 span   86.10 [85.86-87.07] TB/s 1.535 ( 34.6%) steady 1.589 ( 35.9%) ramp 2.21 endspread 1.49 cta_unit 1.300
+ST    h0@56  A k  7 D 3 delay    0 grid  56 units  3584 span   32.10 [30.85-33.12] TB/s 4.116 ( 92.9%) steady 4.549 (102.7%) ramp 2.25 endspread 3.02 cta_unit 0.446
+ST    h0@56  A k  7 D 3 delay 1050 grid  56 units  3584 span   79.68 [79.55-79.90] TB/s 1.658 ( 37.4%) steady 1.718 ( 38.8%) ramp 2.24 endspread 1.33 cta_unit 1.202
+ST    h0@56  A k  7 D 3 delay 1150 grid  56 units  3584 span   86.00 [85.76-87.20] TB/s 1.536 ( 34.7%) steady 1.589 ( 35.9%) ramp 2.24 endspread 1.33 cta_unit 1.300
+ST    h0@56  A k  7 D 4 delay    0 grid  56 units  3584 span   31.63 [30.72-33.09] TB/s 4.177 ( 94.3%) steady 4.705 (106.2%) ramp 2.30 endspread 4.10 cta_unit 0.425
+ST    h0@56  A k  7 D 4 delay 1050 grid  56 units  3584 span   79.97 [79.65-81.41] TB/s 1.652 ( 37.3%) steady 1.718 ( 38.8%) ramp 2.28 endspread 1.66 cta_unit 1.202
+ST    h0@56  A k  7 D 4 delay 1150 grid  56 units  3584 span   86.10 [85.79-87.07] TB/s 1.535 ( 34.6%) steady 1.589 ( 35.9%) ramp 2.29 endspread 1.47 cta_unit 1.300
+ST    h0@96  A k  7 D 3 delay    0 grid  96 units  3584 span   30.45 [30.05-32.16] TB/s 4.339 ( 97.9%) steady 4.804 (108.4%) ramp 2.64 endspread 4.21 cta_unit 0.715
+ST    h0@96  A k  7 D 3 delay 1050 grid  96 units  3584 span   49.34 [48.77-49.79] TB/s 2.678 ( 60.4%) steady 2.944 ( 66.4%) ramp 2.62 endspread 3.31 cta_unit 1.202
+ST    h0@96  A k  7 D 3 delay 1150 grid  96 units  3584 span   53.02 [52.51-53.47] TB/s 2.492 ( 56.2%) steady 2.719 ( 61.4%) ramp 2.59 endspread 3.26 cta_unit 1.301
+ST    h0@96  A k  7 D 4 delay    0 grid  96 units  3584 span   31.17 [30.37-32.99] TB/s 4.239 ( 95.7%) steady 4.822 (108.8%) ramp 2.65 endspread 5.18 cta_unit 0.711
+ST    h0@96  A k  7 D 4 delay 1050 grid  96 units  3584 span   49.22 [48.80-50.30] TB/s 2.685 ( 60.6%) steady 2.941 ( 66.4%) ramp 2.64 endspread 3.14 cta_unit 1.202
+ST    h0@96  A k  7 D 4 delay 1150 grid  96 units  3584 span   53.22 [52.45-55.55] TB/s 2.483 ( 56.0%) steady 2.718 ( 61.3%) ramp 2.65 endspread 3.50 cta_unit 1.301
+ST       h0  B k  7 D 3 delay    0 grid 132 units  1792 span   15.92 [15.62-17.34] TB/s 4.150 ( 93.6%) steady 4.906 (110.7%) ramp 2.85 endspread 3.15 cta_unit 0.956
+ST       h0  B k  7 D 3 delay 1050 grid 132 units  1792 span   21.30 [20.74-22.82] TB/s 3.102 ( 70.0%) steady 4.041 ( 91.2%) ramp 2.83 endspread 4.05 cta_unit 1.204
+ST       h0  B k  7 D 3 delay 1150 grid 132 units  1792 span   22.58 [21.82-24.13] TB/s 2.926 ( 66.0%) steady 3.735 ( 84.3%) ramp 2.87 endspread 4.10 cta_unit 1.301
+ST       h0  B k  7 D 4 delay    0 grid 132 units  1792 span   15.90 [15.62-17.28] TB/s 4.154 ( 93.7%) steady 4.870 (109.9%) ramp 2.82 endspread 4.24 cta_unit 0.957
+ST       h0  B k  7 D 4 delay 1050 grid 132 units  1792 span   22.05 [21.44-22.85] TB/s 2.996 ( 67.6%) steady 4.007 ( 90.4%) ramp 2.84 endspread 4.64 cta_unit 1.206
+ST       h0  B k  7 D 4 delay 1150 grid 132 units  1792 span   23.09 [22.50-24.48] TB/s 2.861 ( 64.6%) steady 3.710 ( 83.7%) ramp 2.82 endspread 4.61 cta_unit 1.303
+ST       rr  B k  7 D 3 delay    0 grid 132 units  1792 span   15.81 [15.46-17.25] TB/s 4.179 ( 94.3%) steady 4.884 (110.2%) ramp 2.78 endspread 3.17 cta_unit 0.963
+ST       rr  B k  7 D 3 delay 1050 grid 132 units  1792 span   20.54 [20.13-21.92] TB/s 3.216 ( 72.6%) steady 4.036 ( 91.1%) ramp 2.75 endspread 3.36 cta_unit 1.204
+ST       rr  B k  7 D 3 delay 1150 grid 132 units  1792 span   22.34 [21.70-23.17] TB/s 2.958 ( 66.7%) steady 3.739 ( 84.4%) ramp 2.74 endspread 3.90 cta_unit 1.301
+ST       rr  B k  7 D 4 delay    0 grid 132 units  1792 span   15.79 [15.58-17.02] TB/s 4.183 ( 94.4%) steady 4.827 (108.9%) ramp 2.76 endspread 4.30 cta_unit 0.962
+ST       rr  B k  7 D 4 delay 1050 grid 132 units  1792 span   21.33 [20.67-22.40] TB/s 3.097 ( 69.9%) steady 4.002 ( 90.3%) ramp 2.74 endspread 4.10 cta_unit 1.206
+ST       rr  B k  7 D 4 delay 1150 grid 132 units  1792 span   22.74 [21.89-24.16] TB/s 2.906 ( 65.6%) steady 3.710 ( 83.7%) ramp 2.79 endspread 4.35 cta_unit 1.303
+ST       em  B k  7 D 3 delay    0 grid 132 units  1792 span   15.81 [15.49-17.31] TB/s 4.179 ( 94.3%) steady 4.877 (110.1%) ramp 2.76 endspread 3.14 cta_unit 0.961
+ST       em  B k  7 D 3 delay 1050 grid 132 units  1792 span   21.28 [20.51-21.92] TB/s 3.104 ( 70.1%) steady 4.036 ( 91.1%) ramp 2.75 endspread 3.95 cta_unit 1.204
+ST       em  B k  7 D 3 delay 1150 grid 132 units  1792 span   22.80 [22.18-24.42] TB/s 2.897 ( 65.4%) steady 3.735 ( 84.3%) ramp 2.73 endspread 4.16 cta_unit 1.301
+ST       em  B k  7 D 4 delay    0 grid 132 units  1792 span   15.89 [15.68-17.38] TB/s 4.158 ( 93.8%) steady 4.827 (108.9%) ramp 2.77 endspread 4.32 cta_unit 0.962
+ST       em  B k  7 D 4 delay 1050 grid 132 units  1792 span   22.06 [20.83-23.07] TB/s 2.994 ( 67.6%) steady 3.997 ( 90.2%) ramp 2.75 endspread 4.72 cta_unit 1.209
+ST       em  B k  7 D 4 delay 1150 grid 132 units  1792 span   23.30 [22.40-24.38] TB/s 2.836 ( 64.0%) steady 3.710 ( 83.7%) ramp 2.76 endspread 4.70 cta_unit 1.304
+ST      emc  B k  7 D 3 delay    0 grid 132 units  1792 span   15.86 [15.58-17.50] TB/s 4.166 ( 94.0%) steady 4.906 (110.7%) ramp 2.83 endspread 3.12 cta_unit 0.957
+ST      emc  B k  7 D 3 delay 1050 grid 132 units  1792 span   21.42 [20.93-22.59] TB/s 3.083 ( 69.6%) steady 4.046 ( 91.3%) ramp 2.86 endspread 4.22 cta_unit 1.204
+ST      emc  B k  7 D 3 delay 1150 grid 132 units  1792 span   22.93 [22.40-23.81] TB/s 2.881 ( 65.0%) steady 3.735 ( 84.3%) ramp 2.80 endspread 4.34 cta_unit 1.302
+ST      emc  B k  7 D 4 delay    0 grid 132 units  1792 span   15.97 [15.62-17.44] TB/s 4.137 ( 93.4%) steady 4.870 (109.9%) ramp 2.88 endspread 4.27 cta_unit 0.958
+ST      emc  B k  7 D 4 delay 1050 grid 132 units  1792 span   21.87 [21.09-22.69] TB/s 3.020 ( 68.2%) steady 4.007 ( 90.4%) ramp 2.81 endspread 4.59 cta_unit 1.209
+ST      emc  B k  7 D 4 delay 1150 grid 132 units  1792 span   23.42 [22.72-25.38] TB/s 2.820 ( 63.6%) steady 3.718 ( 83.9%) ramp 2.88 endspread 4.59 cta_unit 1.304
+ST     rrb3  B k  7 D 3 delay    0 grid 132 units  1792 span   16.05 [15.52-17.44] TB/s 4.116 ( 92.9%) steady 4.943 (111.5%) ramp 2.83 endspread 4.40 cta_unit 0.924
+ST     rrb3  B k  7 D 3 delay 1050 grid 132 units  1792 span   22.24 [21.38-23.26] TB/s 2.970 ( 67.0%) steady 3.968 ( 89.6%) ramp 2.82 endspread 6.11 cta_unit 1.203
+ST     rrb3  B k  7 D 3 delay 1150 grid 132 units  1792 span   23.62 [22.78-24.26] TB/s 2.797 ( 63.1%) steady 3.673 ( 82.9%) ramp 2.80 endspread 6.27 cta_unit 1.301
+ST     rrb3  B k  7 D 4 delay    0 grid 132 units  1792 span   16.08 [15.74-17.50] TB/s 4.108 ( 92.7%) steady 4.906 (110.7%) ramp 2.81 endspread 5.30 cta_unit 0.927
+ST     rrb3  B k  7 D 4 delay 1050 grid 132 units  1792 span   22.86 [22.27-23.46] TB/s 2.889 ( 65.2%) steady 3.931 ( 88.7%) ramp 2.83 endspread 6.85 cta_unit 1.206
+ST     rrb3  B k  7 D 4 delay 1150 grid 132 units  1792 span   24.32 [23.68-25.12] TB/s 2.716 ( 61.3%) steady 3.652 ( 82.4%) ramp 2.83 endspread 7.10 cta_unit 1.301
+ST    em@56  B k  7 D 3 delay    0 grid  56 units  1792 span   16.50 [16.10-18.08] TB/s 4.005 ( 90.4%) steady 4.560 (102.9%) ramp 2.18 endspread 1.62 cta_unit 0.432
+ST    em@56  B k  7 D 3 delay 1050 grid  56 units  1792 span   41.18 [40.99-42.46] TB/s 1.604 ( 36.2%) steady 1.728 ( 39.0%) ramp 2.18 endspread 1.38 cta_unit 1.203
+ST    em@56  B k  7 D 3 delay 1150 grid  56 units  1792 span   44.24 [44.10-44.54] TB/s 1.493 ( 33.7%) steady 1.600 ( 36.1%) ramp 2.16 endspread 1.20 cta_unit 1.300
+ST    em@56  B k  7 D 4 delay    0 grid  56 units  1792 span   16.88 [16.35-18.46] TB/s 3.914 ( 88.3%) steady 4.751 (107.2%) ramp 2.17 endspread 2.83 cta_unit 0.418
+ST    em@56  B k  7 D 4 delay 1050 grid  56 units  1792 span   41.20 [40.96-42.72] TB/s 1.603 ( 36.2%) steady 1.724 ( 38.9%) ramp 2.18 endspread 1.33 cta_unit 1.203
+ST    em@56  B k  7 D 4 delay 1150 grid  56 units  1792 span   44.38 [44.13-46.05] TB/s 1.488 ( 33.6%) steady 1.597 ( 36.0%) ramp 2.22 endspread 1.36 cta_unit 1.301
+ST    h0@56  B k  7 D 3 delay    0 grid  56 units  1792 span   16.82 [16.42-18.46] TB/s 3.928 ( 88.7%) steady 4.535 (102.3%) ramp 2.21 endspread 1.82 cta_unit 0.438
+ST    h0@56  B k  7 D 3 delay 1050 grid  56 units  1792 span   41.18 [40.99-42.46] TB/s 1.604 ( 36.2%) steady 1.723 ( 38.9%) ramp 2.21 endspread 1.41 cta_unit 1.203
+ST    h0@56  B k  7 D 3 delay 1150 grid  56 units  1792 span   44.29 [44.16-44.64] TB/s 1.492 ( 33.7%) steady 1.598 ( 36.1%) ramp 2.21 endspread 1.38 cta_unit 1.301
+ST    h0@56  B k  7 D 4 delay    0 grid  56 units  1792 span   16.72 [16.32-18.37] TB/s 3.951 ( 89.2%) steady 4.730 (106.7%) ramp 2.22 endspread 2.72 cta_unit 0.420
+ST    h0@56  B k  7 D 4 delay 1050 grid  56 units  1792 span   41.34 [41.12-41.82] TB/s 1.598 ( 36.1%) steady 1.722 ( 38.9%) ramp 2.23 endspread 1.57 cta_unit 1.203
+ST    h0@56  B k  7 D 4 delay 1150 grid  56 units  1792 span   44.46 [44.16-45.82] TB/s 1.486 ( 33.5%) steady 1.595 ( 36.0%) ramp 2.25 endspread 1.52 cta_unit 1.301
+ST    h0@96  B k  7 D 3 delay    0 grid  96 units  1792 span   16.02 [15.68-17.28] TB/s 4.125 ( 93.1%) steady 4.884 (110.2%) ramp 2.53 endspread 2.54 cta_unit 0.704
+ST    h0@96  B k  7 D 3 delay 1050 grid  96 units  1792 span   26.35 [26.05-26.78] TB/s 2.507 ( 56.6%) steady 2.943 ( 66.4%) ramp 2.53 endspread 3.14 cta_unit 1.202
+ST    h0@96  B k  7 D 3 delay 1150 grid  96 units  1792 span   28.19 [27.78-28.99] TB/s 2.343 ( 52.9%) steady 2.720 ( 61.4%) ramp 2.53 endspread 3.17 cta_unit 1.300
+ST    h0@96  B k  7 D 4 delay    0 grid  96 units  1792 span   16.48 [16.22-17.95] TB/s 4.009 ( 90.5%) steady 4.877 (110.1%) ramp 2.58 endspread 3.23 cta_unit 0.696
+ST    h0@96  B k  7 D 4 delay 1050 grid  96 units  1792 span   26.46 [25.89-27.30] TB/s 2.496 ( 56.3%) steady 2.943 ( 66.4%) ramp 2.56 endspread 3.25 cta_unit 1.202
+ST    h0@96  B k  7 D 4 delay 1150 grid  96 units  1792 span   28.51 [27.74-29.02] TB/s 2.317 ( 52.3%) steady 2.720 ( 61.4%) ramp 2.55 endspread 3.57 cta_unit 1.300
+ST       h0 AB k  7 D 3 delay    0 grid 132 units  5376 span   43.74 [43.33-45.22] TB/s 4.530 (102.2%) steady 4.796 (108.2%) ramp 2.84 endspread 6.30 cta_unit 0.991
+ST       h0 AB k  7 D 3 delay 1050 grid 132 units  5376 span   55.14 [53.98-55.84] TB/s 3.594 ( 81.1%) steady 4.046 ( 91.3%) ramp 2.85 endspread 5.25 cta_unit 1.204
+ST       h0 AB k  7 D 3 delay 1150 grid 132 units  5376 span   58.86 [57.95-59.55] TB/s 3.367 ( 76.0%) steady 3.739 ( 84.4%) ramp 2.86 endspread 5.25 cta_unit 1.302
+ST       h0 AB k  7 D 4 delay    0 grid 132 units  5376 span   43.70 [43.26-45.25] TB/s 4.535 (102.4%) steady 4.815 (108.7%) ramp 2.83 endspread 10.16 cta_unit 0.986
+ST       h0 AB k  7 D 4 delay 1050 grid 132 units  5376 span   54.80 [54.30-56.03] TB/s 3.616 ( 81.6%) steady 4.048 ( 91.4%) ramp 2.83 endspread 5.07 cta_unit 1.205
+ST       h0 AB k  7 D 4 delay 1150 grid 132 units  5376 span   58.99 [58.30-60.13] TB/s 3.359 ( 75.8%) steady 3.742 ( 84.5%) ramp 2.83 endspread 5.25 cta_unit 1.302
+ST       rr AB k  7 D 3 delay    0 grid 132 units  5376 span   43.95 [43.17-45.18] TB/s 4.509 (101.8%) steady 4.778 (107.8%) ramp 2.79 endspread 6.56 cta_unit 0.992
+ST       rr AB k  7 D 3 delay 1050 grid 132 units  5376 span   54.59 [53.44-55.97] TB/s 3.630 ( 81.9%) steady 4.048 ( 91.4%) ramp 2.77 endspread 4.48 cta_unit 1.203
+ST       rr AB k  7 D 3 delay 1150 grid 132 units  5376 span   58.26 [57.57-59.52] TB/s 3.402 ( 76.8%) steady 3.744 ( 84.5%) ramp 2.76 endspread 4.51 cta_unit 1.301
+ST       rr AB k  7 D 4 delay    0 grid 132 units  5376 span   43.95 [43.42-45.44] TB/s 4.509 (101.8%) steady 4.810 (108.6%) ramp 2.78 endspread 10.91 cta_unit 0.988
+ST       rr AB k  7 D 4 delay 1050 grid 132 units  5376 span   54.56 [54.18-56.51] TB/s 3.632 ( 82.0%) steady 4.053 ( 91.5%) ramp 2.79 endspread 4.94 cta_unit 1.204
+ST       rr AB k  7 D 4 delay 1150 grid 132 units  5376 span   58.66 [58.02-60.22] TB/s 3.379 ( 76.2%) steady 3.742 ( 84.5%) ramp 2.80 endspread 5.01 cta_unit 1.301
+ST       em AB k  7 D 3 delay    0 grid 132 units  5376 span   43.87 [43.20-45.18] TB/s 4.517 (101.9%) steady 4.792 (108.1%) ramp 2.80 endspread 6.42 cta_unit 0.991
+ST       em AB k  7 D 3 delay 1050 grid 132 units  5376 span   56.05 [55.23-57.41] TB/s 3.536 ( 79.8%) steady 4.045 ( 91.3%) ramp 2.76 endspread 7.34 cta_unit 1.203
+ST       em AB k  7 D 3 delay 1150 grid 132 units  5376 span   60.24 [59.68-61.79] TB/s 3.290 ( 74.2%) steady 3.742 ( 84.5%) ramp 2.77 endspread 7.76 cta_unit 1.301
+ST       em AB k  7 D 4 delay    0 grid 132 units  5376 span   44.22 [43.36-45.60] TB/s 4.481 (101.1%) steady 4.810 (108.6%) ramp 2.79 endspread 10.03 cta_unit 0.992
+ST       em AB k  7 D 4 delay 1050 grid 132 units  5376 span   56.26 [55.26-58.02] TB/s 3.523 ( 79.5%) steady 4.051 ( 91.4%) ramp 2.84 endspread 7.38 cta_unit 1.204
+ST       em AB k  7 D 4 delay 1150 grid 132 units  5376 span   60.03 [59.49-61.22] TB/s 3.301 ( 74.5%) steady 3.748 ( 84.6%) ramp 2.75 endspread 7.49 cta_unit 1.301
+ST      emc AB k  7 D 3 delay    0 grid 132 units  5376 span   43.97 [43.46-45.50] TB/s 4.507 (101.7%) steady 4.790 (108.1%) ramp 2.83 endspread 6.94 cta_unit 0.989
+ST      emc AB k  7 D 3 delay 1050 grid 132 units  5376 span   56.21 [55.49-57.92] TB/s 3.526 ( 79.6%) steady 4.043 ( 91.2%) ramp 2.84 endspread 7.09 cta_unit 1.204
+ST      emc AB k  7 D 3 delay 1150 grid 132 units  5376 span   60.64 [59.58-62.66] TB/s 3.268 ( 73.8%) steady 3.737 ( 84.3%) ramp 2.84 endspread 7.84 cta_unit 1.302
+ST      emc AB k  7 D 4 delay    0 grid 132 units  5376 span   44.35 [43.55-45.28] TB/s 4.468 (100.8%) steady 4.810 (108.6%) ramp 2.84 endspread 10.88 cta_unit 0.987
+ST      emc AB k  7 D 4 delay 1050 grid 132 units  5376 span   56.18 [55.30-58.24] TB/s 3.528 ( 79.6%) steady 4.048 ( 91.4%) ramp 2.79 endspread 7.15 cta_unit 1.205
+ST      emc AB k  7 D 4 delay 1150 grid 132 units  5376 span   60.53 [59.90-62.02] TB/s 3.274 ( 73.9%) steady 3.742 ( 84.5%) ramp 2.81 endspread 7.78 cta_unit 1.302
+ST     rrb3 AB k  7 D 3 delay    0 grid 132 units  5376 span   44.50 [43.36-45.70] TB/s 4.454 (100.5%) steady 4.806 (108.5%) ramp 2.86 endspread 7.66 cta_unit 0.980
+ST     rrb3 AB k  7 D 3 delay 1050 grid 132 units  5376 span   57.30 [56.64-59.78] TB/s 3.459 ( 78.1%) steady 4.046 ( 91.3%) ramp 2.85 endspread 8.77 cta_unit 1.204
+ST     rrb3 AB k  7 D 3 delay 1150 grid 132 units  5376 span   61.76 [61.25-63.97] TB/s 3.209 ( 72.4%) steady 3.742 ( 84.5%) ramp 2.86 endspread 9.47 cta_unit 1.301
+ST     rrb3 AB k  7 D 4 delay    0 grid 132 units  5376 span   44.24 [43.62-45.86] TB/s 4.480 (101.1%) steady 4.815 (108.7%) ramp 2.85 endspread 11.62 cta_unit 0.975
+ST     rrb3 AB k  7 D 4 delay 1050 grid 132 units  5376 span   58.02 [57.31-60.22] TB/s 3.416 ( 77.1%) steady 4.045 ( 91.3%) ramp 2.90 endspread 9.49 cta_unit 1.204
+ST     rrb3 AB k  7 D 4 delay 1150 grid 132 units  5376 span   62.58 [60.80-63.42] TB/s 3.167 ( 71.5%) steady 3.744 ( 84.5%) ramp 2.83 endspread 10.08 cta_unit 1.302
+ST    em@56 AB k  7 D 3 delay    0 grid  56 units  5376 span   46.40 [44.90-47.23] TB/s 4.271 ( 96.4%) steady 4.624 (104.4%) ramp 2.16 endspread 3.17 cta_unit 0.449
+ST    em@56 AB k  7 D 3 delay 1050 grid  56 units  5376 span  118.16 [117.95-119.71] TB/s 1.677 ( 37.9%) steady 1.717 ( 38.7%) ramp 2.19 endspread 1.52 cta_unit 1.202
+ST    em@56 AB k  7 D 3 delay 1150 grid  56 units  5376 span  127.66 [127.36-128.96] TB/s 1.552 ( 35.0%) steady 1.586 ( 35.8%) ramp 2.16 endspread 1.52 cta_unit 1.301
+ST    em@56 AB k  7 D 4 delay    0 grid  56 units  5376 span   46.14 [44.99-47.97] TB/s 4.295 ( 96.9%) steady 4.739 (107.0%) ramp 2.19 endspread 6.05 cta_unit 0.428
+ST    em@56 AB k  7 D 4 delay 1050 grid  56 units  5376 span  118.19 [118.05-119.62] TB/s 1.677 ( 37.8%) steady 1.716 ( 38.7%) ramp 2.16 endspread 1.70 cta_unit 1.202
+ST    em@56 AB k  7 D 4 delay 1150 grid  56 units  5376 span  127.70 [127.52-128.16] TB/s 1.552 ( 35.0%) steady 1.586 ( 35.8%) ramp 2.19 endspread 1.63 cta_unit 1.301
+ST    h0@56 AB k  7 D 3 delay    0 grid  56 units  5376 span   46.91 [45.57-47.62] TB/s 4.225 ( 95.3%) steady 4.561 (102.9%) ramp 2.22 endspread 3.94 cta_unit 0.453
+ST    h0@56 AB k  7 D 3 delay 1050 grid  56 units  5376 span  118.27 [118.02-118.59] TB/s 1.676 ( 37.8%) steady 1.717 ( 38.7%) ramp 2.20 endspread 1.66 cta_unit 1.202
+ST    h0@56 AB k  7 D 3 delay 1150 grid  56 units  5376 span  127.68 [127.42-129.41] TB/s 1.552 ( 35.0%) steady 1.587 ( 35.8%) ramp 2.22 endspread 1.62 cta_unit 1.301
+ST    h0@56 AB k  7 D 4 delay    0 grid  56 units  5376 span   46.02 [44.93-47.65] TB/s 4.307 ( 97.2%) steady 4.748 (107.2%) ramp 2.25 endspread 6.22 cta_unit 0.428
+ST    h0@56 AB k  7 D 4 delay 1050 grid  56 units  5376 span  118.43 [118.21-120.03] TB/s 1.673 ( 37.8%) steady 1.716 ( 38.7%) ramp 2.25 endspread 1.76 cta_unit 1.202
+ST    h0@56 AB k  7 D 4 delay 1150 grid  56 units  5376 span  127.86 [127.58-129.76] TB/s 1.550 ( 35.0%) steady 1.586 ( 35.8%) ramp 2.24 endspread 1.74 cta_unit 1.301
+ST    h0@96 AB k  7 D 3 delay    0 grid  96 units  5376 span   45.31 [44.58-46.30] TB/s 4.374 ( 98.7%) steady 4.799 (108.3%) ramp 2.49 endspread 5.95 cta_unit 0.727
+ST    h0@96 AB k  7 D 3 delay 1050 grid  96 units  5376 span   71.76 [71.58-72.19] TB/s 2.762 ( 62.3%) steady 2.941 ( 66.4%) ramp 2.49 endspread 4.29 cta_unit 1.203
+ST    h0@96 AB k  7 D 3 delay 1150 grid  96 units  5376 span   77.34 [76.93-78.53] TB/s 2.562 ( 57.8%) steady 2.718 ( 61.3%) ramp 2.48 endspread 4.34 cta_unit 1.301
+ST    h0@96 AB k  7 D 4 delay    0 grid  96 units  5376 span   45.89 [45.06-47.17] TB/s 4.319 ( 97.5%) steady 4.733 (106.8%) ramp 2.47 endspread 7.62 cta_unit 0.721
+ST    h0@96 AB k  7 D 4 delay 1050 grid  96 units  5376 span   72.22 [72.03-73.76] TB/s 2.744 ( 61.9%) steady 2.945 ( 66.5%) ramp 2.52 endspread 4.64 cta_unit 1.204
+ST    h0@96 AB k  7 D 4 delay 1150 grid  96 units  5376 span   77.71 [77.44-79.07] TB/s 2.550 ( 57.6%) steady 2.720 ( 61.4%) ramp 2.46 endspread 4.67 cta_unit 1.302
+LOCK released

@@ -7,6 +7,10 @@ Base: muse_decode_layer/cand/ly_fabq.py (SHA256 pinned in tools/dl_ly_ul_patch.p
   rec  the MOE-TL-01 timeline (dl_ly_ul_patch.py's tl) on TINY2 and MID, plus a record of every weight copy the CTA
        issues (globaltimer, phase, expert block) and the time warp 0 saw each ring slot full, for
        tools/box_st_rec.py. Records are written only when the launch passes the fourth scratch tensor.
+       The same file carries a diagnostic switch, off by default: built with -DST_NOMATH=1 -DST_SPIN=N (box_st_rec.py
+       --extra), each unit's decode and mma become a globaltimer spin of N ns (output wrong), keeping the ring, the
+       barrier, the refill and the epilogue, so helper0's own stream machinery can be timed with a consumer of known
+       speed.
 """
 import argparse
 import hashlib
@@ -67,11 +71,28 @@ RDY_NEW = """    if (tl) {
 """
 
 
+NM_START = "#pragma unroll\n    for (int c = 0; c < NCH; ++c) {\n      const uint4 w = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);\n"
+NM_END = "#pragma unroll\n    for (int k = 0; k < 4; ++k) acc[k] += acc2[k] + acc3[k] + acc4[k];\n"
+NM_PRE = """#ifndef ST_NOMATH
+#define ST_NOMATH 0
+#endif
+#ifndef ST_SPIN
+#define ST_SPIN 0
+#endif
+#if ST_NOMATH
+    {  // diagnostic only (output is wrong): the unit's decode and mma replaced by a globaltimer spin of ST_SPIN ns
+      acc[0] = __uint_as_float(sc.x);
+      if (ST_SPIN) { const unsigned long long t_ = gtimer(); while (gtimer() - t_ < (unsigned long long)ST_SPIN) {} }
+    }
+#else
+"""
+
+
 def apply(s, v):
     if v == "rec":
         s = ul.timeline(s)
         s = ul.edit(s, [(TLS_ANCHOR, TLS_ANCHOR + REC_DEFS), (RING_OLD, RING_NEW), (F1_OLD, F1_NEW)], v)
-        s = ul.edit(s, [(RDY_OLD, RDY_NEW)], v, sub=ul.LOOP)
+        s = ul.edit(s, [(RDY_OLD, RDY_NEW), (NM_START, NM_PRE + NM_START), (NM_END, "#endif\n" + NM_END)], v, sub=ul.LOOP)
         add = 'MOE_MID_DEFINES += ("@moe_helper0",)\n'
         return ul.once(s, add, add + 'MOE_MID_DEFINES += ("-DOKC_TLX=1",)\n', v)
     sys.exit(f"unknown variant {v}")

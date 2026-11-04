@@ -14092,6 +14092,18 @@ __device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigne
     const uint4 sc = *reinterpret_cast<const uint4*>(slot + UNIT_CODES + warp * 512 + lane * 16);
     float acc[4] = {0.f, 0.f, 0.f, 0.f}, acc2[4] = {0.f, 0.f, 0.f, 0.f};
     float acc3[4] = {0.f, 0.f, 0.f, 0.f}, acc4[4] = {0.f, 0.f, 0.f, 0.f};
+#ifndef ST_NOMATH
+#define ST_NOMATH 0
+#endif
+#ifndef ST_SPIN
+#define ST_SPIN 0
+#endif
+#if ST_NOMATH
+    {  // diagnostic only (output is wrong): the unit's decode and mma replaced by a globaltimer spin of ST_SPIN ns
+      acc[0] = __uint_as_float(sc.x);
+      if (ST_SPIN) { const unsigned long long t_ = gtimer(); while (gtimer() - t_ < (unsigned long long)ST_SPIN) {} }
+    }
+#else
 #pragma unroll
     for (int c = 0; c < NCH; ++c) {
       const uint4 w = *reinterpret_cast<const uint4*>(slot + (warp * NCH + c) * 512 + lane * 16);
@@ -14121,6 +14133,7 @@ __device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigne
 #endif
       }
     }
+#endif
 #pragma unroll
     for (int k = 0; k < 4; ++k) acc[k] += acc2[k] + acc3[k] + acc4[k];
     // WSB: the compute warps keep the base loop's CTA barrier per unit (slot consumed + partials visible), thread 0

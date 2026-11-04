@@ -177,6 +177,9 @@ def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record
                     iv.append((ru[starts[c + 1] - 1] - ru[starts[c]]) / (n - 1) * 1e-3)
             row["cta_unit_us"] = statistics.median(iv) if iv else 0.0
             row["cta_unit_mean_us"] = statistics.mean(iv) if iv else 0.0
+            isd = issued.cpu().tolist()
+            lat = sorted((r_ - i_) * 1e-3 for r_, i_ in zip(ru, isd))
+            row["lat_med_us"], row["lat_p90_us"] = lat[len(lat) // 2], lat[(9 * len(lat)) // 10]
         rows.append(row)
     keys = rows[0].keys()
     med = {k: statistics.median(r[k] for r in rows) for k in keys}
@@ -256,7 +259,8 @@ def pr(m, rate):
           f" burn {m.get('burn', 0):2d} units {m['units']:5d} span {m['span_us']:7.2f} [{m['min_span_us']:.2f}-{m['max_span_us']:.2f}]"
           f" TB/s {m['tbs']:.3f} ({100 * m['tbs'] * 1e12 / rate:5.1f}%) steady {m.get('steady_tbs', 0):.3f}"
           f" ({100 * m.get('steady_tbs', 0) * 1e12 / rate:5.1f}%) ramp {m['ramp_us']:.2f}"
-          f" endspread {m['end_spread_us']:.2f} cta_unit {m.get('cta_unit_us', 0):.3f}", flush=True)
+          f" endspread {m['end_spread_us']:.2f} cta_unit {m.get('cta_unit_us', 0):.3f} mean {m.get('cta_unit_mean_us', 0):.3f}"
+          f" lat {m.get('lat_med_us', 0):.2f}/{m.get('lat_p90_us', 0):.2f}", flush=True)
 
 
 if __name__ == "__main__":

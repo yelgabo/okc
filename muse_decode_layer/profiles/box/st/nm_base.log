@@ -1,0 +1,8 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793782148.295 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793782148.969 release build glue_moe_15391620fc2b78f7_sm90a
+BXBUILD 1793782148.969 start build glue_moe_15391620fc2b78f7_sm90a
+BXBUILD 1793782148.969 start build glue_moe_8642a4cf610cab4c_sm90a
+BXBUILD 1793782148.971 start build glue_moe_a496f544976b34a3_sm90a

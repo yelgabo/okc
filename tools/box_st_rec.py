@@ -131,6 +131,8 @@ def main():
     ap.add_argument("--ext-cache", default="/root/.cache/bx_ext")
     ap.add_argument("--ls-cache", default="")
     ap.add_argument("--out", default="")
+    ap.add_argument("--extra", default="", help="comma-separated defines for the recorded launches only, e.g. "
+                    "-DST_NOMATH=1,-DST_SPIN=900 (the prepared state and its checks use the file's own builds)")
     ap.add_argument("--flush", default="write", choices=("write", "read"),
                     help="L2 flush before the recorded launch: write (fill_, box_moe_tl8.py's) or read (sum, the judge's)")
     a = ap.parse_args()
@@ -158,6 +160,9 @@ def main():
     mod._moe(8, state)
     mod._moe(16, state)
     recs = {"tiny2": Recorder(state["ma_ext"]["tiny2"], 8), "mid": Recorder(state["ma_ext"]["mid"], 16)}
+    extra = tuple(x for x in a.extra.split(",") if x)
+    run_ext = {k: (mod._ma_ext(tuple(d) + extra + tuple(state["ma_sfx"])) if extra else r.ext)
+               for (k, r), d in zip(recs.items(), (mod.MOE_TINY2_DEFINES, mod.MOE_MID_DEFINES))}
     for k, r in recs.items():
         state["ma_ext"][k] = r
     lsc = br.LocalStartCache(a.ls_cache, os.path.join(pdir, "reference.py"), a.router_seed, ref.WEIGHTS_SEED) \
@@ -175,7 +180,8 @@ def main():
             with torch.no_grad():
                 mod.kernel_fn(data, state)
             torch.cuda.synchronize()
-            rec = next((r for r in recs.values() if r.calls), None)
+            key = next((k for k, r in recs.items() if r.calls), None)
+            rec = recs[key] if key else None
             if rec is None:
                 print("REC no helper0 launch recorded", case["load"], flush=True)
                 continue
@@ -187,7 +193,7 @@ def main():
             else:
                 flush.sum()
             torch.cuda.synchronize()
-            rec.ext.okc_run(w_, list(scr) + [buf], x, lids, wts, inst, l0, l1, nsm)
+            run_ext[key].okc_run(w_, list(scr) + [buf], x, lids, wts, inst, l0, l1, nsm)
             torch.cuda.synchronize()
             ctas = decode(buf, nsm)
             st = tl8.stats(buf[: nsm * SLOTS].view(nsm, SLOTS).cpu(), lids)
