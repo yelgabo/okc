@@ -37,7 +37,7 @@ no new measurement. 750 ly_rsl_nt: not landed.
 
 | Rank | Point | Cell (value %/us) | Est. gain | Score | Status |
 |---|---|---|---|---|---|
-| 1 | S1 waiters only on item CTAs (ly_fw) | decode 1 sl 0.18, verify 1 sl 0.12, decode 16 sl 0.096 | 0.1-0.4 us (hypothesis) | 0.02-0.07 % | built, on the box |
+| 1 | S1 waiters only on item CTAs (ly_fw) | decode 1 sl 0.18, verify 1 sl 0.12, decode 16 sl 0.096 | 0.1-0.4 us (hypothesis) | 0.02-0.07 % | built; box A/B loss in two rounds, closed |
 | 2 | S1 option b: item CTA forms its own ss | decode 1 sl 0.18 | 0 | 0 | no lever: each route's rsqrt(ss/HD) needs y over all 4096 columns, so the item still depends on every phase-B unit of its jobs; at T = 1 that is the whole grid, and only the barrier's own latency (S1, rank 1) is removable |
 | 3 | S4 B4 two-step final wait | decode 32 sl 0.084 | <= 0.2 | <= 0.017 % | not built |
 | 4 | S5 B4 kind-4 release undeferred | decode 32 sl 0.084 | <= 0.2 | <= 0.017 % | not built |
