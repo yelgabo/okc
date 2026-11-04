@@ -29,6 +29,13 @@ class PromotionAudit(unittest.TestCase):
             data=self.receipt();data['result'][field]=value
             self.assertIsNone(receipt_row(data))
 
+    def test_explicit_raw_disqualification_overrides_passing_result(self):
+        for location in ('top', 'result'):
+            data = self.receipt()
+            target = data if location == 'top' else data['result']
+            target.update(disqualified=True, disqualified_reason='organizer ruling')
+            self.assertIsNone(receipt_row(data))
+
     def test_disposition_requires_owner_evidence_and_user_facing_report(self):
         row=receipt_row(self.receipt())
         entry=dict(job=row['job'],problem=row['problem'],score_us=row['score_us'],
@@ -102,6 +109,28 @@ class CLIExportAudit(unittest.TestCase):
                 job = self.own_job(); job[field] = value
                 self.assertIsNone(receipt_row(self.export(), self.index(job)))
 
+    def test_disqualified_cli_is_not_clean_even_with_empty_flags_and_passed_true(self):
+        job = self.own_job()
+        job.update(disqualified=True, disqualified_reason='organizer ruling')
+        self.assertIsNone(receipt_row(self.export(), self.index(job)))
+        for location in ('top', 'summary'):
+            data = self.export()
+            target = data if location == 'top' else data['summary']
+            target['disqualified'] = True
+            self.assertIsNone(receipt_row(data, self.index()))
+
+    def test_fresh_disqualification_revokes_archived_passing_raw_without_mutation(self):
+        raw = PromotionAudit().receipt()
+        raw.update(id=self.own_job()['job_id'], board=self.own_job()['problem'])
+        before = copy.deepcopy(raw)
+        job = self.own_job(); job.update(disqualified=True, disqualified_reason='organizer ruling')
+        self.assertIsNotNone(receipt_row(raw))
+        self.assertIsNone(receipt_row(raw, self.index(job)))
+        self.assertEqual(raw, before)
+        raw['board'] = 'muse_moe_w4a16'
+        with self.assertRaisesRegex(ValueError, 'Conflicting own receipt.*problem'):
+            receipt_row(raw, self.index(job))
+
     def test_bound_export_identity_or_summary_conflicts_fail_closed(self):
         variants = []
         data = self.export(); data['problem'] = 'muse_moe_w4a16'; variants.append(data)
@@ -171,6 +200,7 @@ class CLIExportAudit(unittest.TestCase):
                 self.assertEqual(excluded['leads'], [])
                 self.assertEqual(excluded['cli_export_coverage']['excluded_no_index'], 2)
                 self.assertIn('CLI exports excluded', excluded['scope'])
+                self.assertIn('no fresh post-adjudication check', excluded['scope'])
                 included = inventory(root, snapshots, tracked_only=True, own_jobs_path=index)
             self.assertEqual(len(included['leads']), 1)
             self.assertEqual(included['leads'][0]['job'], self.own_job()['job_id'])
@@ -178,6 +208,34 @@ class CLIExportAudit(unittest.TestCase):
             self.assertEqual((coverage['indexed_jobs'], coverage['bound_clean_exports'],
                               coverage['distinct_bound_jobs'], coverage['excluded_unlisted']), (1, 1, 1, 1))
             self.assertIn('unlisted exports excluded', included['scope'])
+
+    def test_inventory_discloses_index_revocation_of_raw_and_cli_exports(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            snapshots = root / 'boards'; snapshots.mkdir()
+            for problem in PROBLEMS:
+                (snapshots / (problem+'.leaderboard.json')).write_text(json.dumps(dict(rows=[
+                    dict(team='yelgabo', job='public-job', value=11000, rank=1, speedup=2)])))
+            raw = PromotionAudit().receipt()
+            raw.update(id=self.own_job()['job_id'], board=self.own_job()['problem'])
+            raw['result']['score_us'] = self.own_job()['score_us']
+            (root / 'archived-raw.json').write_text(json.dumps(raw))
+            (root / 'archived-cli.json').write_text(json.dumps(self.export()))
+            job = self.own_job(); job.update(disqualified=True, disqualified_reason='organizer ruling')
+            index = root / 'own-jobs.json'; index.write_text(json.dumps([job]))
+            files = b'archived-raw.json\narchived-cli.json\n'
+            with patch('release_audit.subprocess.check_output', return_value=files):
+                without_index = inventory(root, snapshots)
+                self.assertEqual(len(without_index['leads']), 1)
+                self.assertIn('no fresh post-adjudication check', without_index['scope'])
+                audit = inventory(root, snapshots, own_jobs_path=index)
+            self.assertEqual(audit['leads'], [])
+            coverage = audit['disqualification_coverage']
+            self.assertEqual((coverage['indexed_disqualified_jobs'], coverage['excluded_files'],
+                              coverage['distinct_excluded_jobs']), (1, 2, 1))
+            self.assertEqual({row['basis'] for row in coverage['exclusions']}, {'explicit own-jobs index'})
+            self.assertEqual({row['reason'] for row in coverage['exclusions']}, {'organizer ruling'})
+            self.assertIn('override archived passing receipts', audit['scope'])
 
 
 if __name__=='__main__':unittest.main()

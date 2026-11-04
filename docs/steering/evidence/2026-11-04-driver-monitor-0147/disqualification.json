@@ -1,0 +1,63 @@
+{
+  "observed_at": "2026-11-04T01:48:32.515131+00:00",
+  "source": "Fresh authenticated own-account okc jobs listing",
+  "jobs": [
+    {
+      "disqualified": true,
+      "disqualified_reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+      "flags": [],
+      "job_id": "86ed5dd3bbcb48a8",
+      "mode": "run",
+      "passed": true,
+      "problem": "muse_decode_layer",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 10243.868562697944,
+      "status": "done",
+      "submitted_at": 1793750870.070175
+    },
+    {
+      "disqualified": true,
+      "disqualified_reason": "Swaps near-tied experts for ones on other GPUs so their weights are never read, which changes the model's output. Goes against the spirit of the challenge.",
+      "flags": [],
+      "job_id": "9d80ae2494334136",
+      "mode": "run",
+      "passed": true,
+      "problem": "muse_decode_layer",
+      "result_status": "ok",
+      "score": null,
+      "score_us": 10343.105996394634,
+      "status": "done",
+      "submitted_at": 1793745035.8547375
+    }
+  ],
+  "board_fallback": {
+    "attempts": 55,
+    "job": "f931abf568544018",
+    "rank": 364,
+    "speedup": 2.1804,
+    "submitted_at": 1793726515.533823,
+    "team": "yelgabo",
+    "value": 10374.616018194523
+  },
+  "binding": "Lead dc86c3ae binds public RS and repeat86ed to routing-slack source01426b89; source inheritance requires clean rebuild on PDL8d7cb74240.",
+  "affected": [
+    {
+      "source": "g1b4_rs.py/01426b89",
+      "state": "Organizer-disqualified public source"
+    },
+    {
+      "source": "g1b4_pdl8h.py/33c2353b",
+      "state": "RS-derived; not eligible release/build base; coarse-guard evidence preserved"
+    },
+    {
+      "job": "a88203c2400e4d56",
+      "source": "rv_k_combo2.py/7f0a3e360f085c4f21c1b760d10eaf251d3d379464a1f0556d52828cf92d5f37",
+      "state": "Existing running check diagnostic-only until clean rebuild/new qualification; no root poll/cancel"
+    },
+    {
+      "source": "mo_* RS-derived sweep files",
+      "state": "Local mechanism observations only; rebind clean-base comparisons before eligibility"
+    }
+  ]
+}

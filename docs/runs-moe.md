@@ -6201,3 +6201,10 @@ latency, about 1 us per claim from L2. A second, smaller candidate: launch the M
 route kernel, so entry, barrier init and the launch gap overlap the router. That saves about 0.7-0.9 us, the
 measured PDL edge saving in this layer. The 2.4 us routing prologue cannot overlap, because it reads the route
 kernel's ids.
+
+
+### November 4 01:47 UTC source correction: TINY2 tail claims were already tested
+
+The preceding timeline proposal's statement that last-min(2G,nB-4G) runtime claims had not run on TINY2 is withdrawn. MOE-SB-BCLM-01 check 2b3f078535cd4def, wrapper 57751b94, replaced both Tiny and Tiny2 modules with OKC_BCLM=2; _sb_launch(T=8) selects the replaced Tiny2 module through _fork_native_moe. The old control and current literal helper0 bodies are byte-identical, and active Tiny2 flags agree (WS1/WSB1/WSBL2/WSBLK1/NW8). The pool formula and three-slot ring match. The existing matched T8 result is +1.25 us [0.80,1.92], null +0.06 us, with 48/48 numerical passes per arm. The new timeline does not by itself reopen that exact losing treatment; distinguish a genuinely different design or prerequisite observation first.
+
+Timeline spans/fits remain measured instrumented observations. The 47.75-us floor uses bytes divided by a separate 4-GiB stream bandwidth, so the 17.4-17.7-us gap is not demonstrated recoverable time. Instrumented/plain outputs differ up to 0.001953 and production-graph observer overhead was not isolated. RS-derived source and scores are now ineligible following organizer adjudication; any prospective production mechanism needs a clean PDL8d rebuild/comparison. See docs/steering/2026-11-04-driver-monitor-0147.md for source pins, dispatch proof and disqualification evidence.
