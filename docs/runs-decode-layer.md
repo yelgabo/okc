@@ -7672,3 +7672,48 @@ holds. Standalone nc 2 (ruled out, e468255b) used the cold generic finalize; thi
 
 No candidate this round. Five arms lose at the stamp level (three ruled-out rows); ly_a16nc2 is built and gated but
 untested. No ledger registration.
+
+### Round 3: ly_a16nc2 on the box (2026-11-04 20:36 to 20:52 UTC)
+
+Attention-d16 lane, round 3. Same base (ly_stk3, a1c48810), candidate ly_a16nc2 (dbadd530), stamp build
+ly_a16nc2_st.py (f5a5dcc4, `tools/dl_ly_a16_patch.py`). Every run under gpu.lock. No judge job. Logs:
+`muse_decode_layer/profiles/box/a16r3/` (stamps, gate, A/B logs under `ab/r1`, `ab/r2`).
+
+Stamps (same session, 20 inputs, medians, us after qkv's last stores; decode 16 / decode 32):
+
+| arm | reds issued | ticket | reds -> ticket | attention end | finalize | o's wait | o end |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| ly_stk3 (base) | 5.34 / 7.66 | 6.80 / 8.58 | 1.46 / 0.91 | 8.08 / 9.55 | 1.28 / 0.98 | 8.59 / 10.11 | 11.94 / 14.21 |
+| ly_a16nc2 | 5.25 / 7.66 | 6.56 / 8.54 | 1.31 / 0.88 | 7.46 / 9.63 | 0.90 / 1.09 | 8.10 / 10.14 | 11.41 / 14.24 |
+
+The registered gate (ticket -0.4 us, finalize under +0.15) failed on the ticket (-0.14), but the finalize shrank by
+0.38 us instead of growing, so ticket plus finalize netted -0.52 us at decode 16. The A/B ran as the decisive test.
+
+Gate run (`tools/ly_a16_ab.sh`, the file's own prepare): check PASS at decode 16 / 32 sliding and full; five PDL8H
+guards pass (T = 1 sliding, 16 sliding, 32 full, 8 full, 8 sliding). chk step: check PASS at all 12 cells,
+G_RELEASE_STARTUP_OK.
+
+Paired A/B against ly_stk3, two rounds (c w c w c, --runs 60, PDL pinned on), pooled, 24 pairs per cell:
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs faster |
+|---|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 63.33 | 0.30 | 63.26 | -0.08 | 0.61 | 16/24 |
+| decode 1 full | 70.57 | 0.94 | 70.48 | -0.09 | 1.89 | 16/24 |
+| decode 16 sliding | 125.06 | 0.75 | 125.09 | +0.03 | 1.50 | 12/24 |
+| decode 16 full | 197.39 | 1.01 | 197.19 | -0.20 | 2.02 | 17/24 |
+| decode 32 sliding | 142.20 | 1.18 | 142.19 | -0.01 | 2.37 | 12/24 |
+| decode 32 full | 294.37 | 1.06 | 293.85 | -0.52 | 2.94 | 20/24 |
+| verify 1 sliding | 100.15 | 0.86 | 99.74 | -0.41 | 1.73 | 19/24 |
+| verify 1 full | 108.45 | 1.28 | 108.32 | -0.13 | 2.56 | 15/24 |
+| verify 16 sliding | 242.46 | 1.26 | 242.25 | -0.21 | 2.53 | 16/24 |
+| verify 16 full | 326.05 | 2.13 | 326.06 | +0.01 | 4.26 | 11/24 |
+| verify 32 sliding | 294.79 | 0.67 | 294.29 | -0.50 | 2.95 | 18/24 |
+| verify 32 full | 458.34 | 0.88 | 458.29 | -0.05 | 4.58 | 9/24 |
+
+Per round at decode 16 sliding: +0.06 and -0.00 us. The change touches only the decode 16 / 32 sliding launch, so
+the other cells measure noise.
+
+Decision: null, no registration (bar 0.3 us at decode 16 sliding with 20+/24 pairs; measured +0.03, 12/24). Ruled-out
+row added. The instrument build moved o's end 0.53 us earlier at decode 16, yet the timed layer did not change.
+Two hypotheses, both untested: the stamp build's extra stores change the merge tail's timing so that its gain does
+not carry into the plain build, or a later boundary absorbs an earlier o end.
