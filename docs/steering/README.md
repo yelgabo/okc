@@ -2,7 +2,7 @@
 
 ## Current pointers (one per topic; everything below is dated and newer sections sit higher)
 
-- Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
+- Rule for the remaining day: [top 100 push, November 4 12:30 PT](2026-11-04-top100-push.md) (every sliding cell by pool size; supersedes short-loads-only for engineering time); ledger stays in the [final-day directive](2026-11-02-final-day-directive.md).
 - Queue state: the first dated section below this list.
 - Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 04:45UTC](2026-11-04-driver-monitor-0445.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
@@ -10,6 +10,10 @@
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 4 20:30 UTC — top 100 push
+
+[Plan](2026-11-04-top100-push.md): row ly_rfx caed0290 10,146.4 us, rank 310, rank 100 at 2.2973x (3.0% gap). Pool table from the judge's cell weights; levers: sliding attention at decode 1 / verify 1, repeat draws after 16:00 PT, a decode 16 / 32 sliding timeline lane, smaller lanes in flight.
 
 ## November 4 04:45 UTC — withdrawals complete; micro check terminal
 

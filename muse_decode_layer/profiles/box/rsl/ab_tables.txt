@@ -1,0 +1,29 @@
+cell                      c_a      w_a      c_b      w_b      c_c   spread  w - c mean   w_a-c_a w_a-c_b w_b-c_b w_b-c_c   thr  verdict
+decode 1 sliding        64.67    66.13    64.67    65.87    64.29     0.38       +1.46     +1.46   +1.46   +1.20   +1.58   0.77  loss
+decode 1 full           70.77    72.11    70.93    72.27    70.85     0.16       +1.34     +1.34   +1.18   +1.34   +1.42   0.50  loss
+c_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_c timed PDL {'1': True, '8': True, '16': True, '32': True}
+cell                      c_a      w_a      c_b      w_b      c_c   spread  w - c mean   w_a-c_a w_a-c_b w_b-c_b w_b-c_c   thr  verdict
+decode 1 sliding        65.09    65.86    65.02    65.38    64.56     0.53       +0.73     +0.77   +0.83   +0.35   +0.82   1.06  inside
+decode 1 full           71.01    72.11    70.77    72.72    70.74     0.27       +1.58     +1.10   +1.34   +1.95   +1.98   0.54  loss
+c_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_c timed PDL {'1': True, '8': True, '16': True, '32': True}
+
+pooled over .build/prtl/rsl_d1, .build/prtl/rsl_d1_r2
+cell                  ctl n  ctl mean  spread  cand mean  w - c   thr  pairs<0  verdict
+decode 1 sliding          6     64.72    0.80      65.81   +1.09  1.60    0/24   inside
+decode 1 full             6     70.84    0.27      72.30   +1.46  0.54    0/24   loss
+cell                      c_a      w_a      c_b      w_b      c_c   spread  w - c mean   w_a-c_a w_a-c_b w_b-c_b w_b-c_c   thr  verdict
+decode 1 sliding        64.27    65.46    64.45    65.73    64.77     0.50       +1.10     +1.18   +1.01   +1.28   +0.96   0.99  loss
+decode 1 full           70.54    71.34    70.85    72.02    70.67     0.30       +0.99     +0.80   +0.50   +1.17   +1.34   0.61  loss
+c_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_c timed PDL {'1': True, '8': True, '16': True, '32': True}
