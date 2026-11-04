@@ -4364,7 +4364,7 @@ decode 1 sliding 2.8% of the score) of the public file, where does the time abov
 route-side quarter sum (ly_prq2) is in, and does one candidate against the largest piece shorten the layer? Base
 `muse_decode_layer/cand/ly_fabq.py` (SHA256 3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555, never
 edited). Box only (okc-h200, no foreign GPU process at any run, every run under gpu.lock), no judge check, nothing
-registered. Timeline runs 2026-11-04 15:35 to 16:20 UTC (07:35 to 08:20 PT), router seed 106218864389449120, f931 case
+registered. Timeline runs 2026-11-04 15:30 to 15:47 UTC (07:30 to 07:47 PT), router seed 106218864389449120, f931 case
 seeds, local_start per input, PDL on at T = 1, 8, 16, 32. Logs and JSONs: box `/root/okc/.build/prtl/fabq/`
 (`tl_fabq.{log,json}`, `tl_fabqc.{log,json}`, `tl_fabqc2.{log,json}`).
 
