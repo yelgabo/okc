@@ -4457,3 +4457,16 @@ PDL set per T. At T = 8 the slice is the sk2 kernel (bit 29, no cgemv), so verif
 base's code and are the session's null. Expected (hypothesis): decode 1 sliding and full -1.0 to -1.5 us if the
 second wave is the cost, less the 0.2 us the standalone bench charged 32 registers against 40 (docs/runs.md,
 5ff76a62b0044378).
+
+Candidate file: muse_decode_layer/cand/ly_cg32.py (SHA256
+8bbb1b94dfb6a45709e855066888224b72f4e711a7f59c8d2f91ee7288bbcc3e); `diff` against the base is the first-line header
+and the one `cg_go(...)` string. Correctness (box, `bx_box_run.py --runs 5`, six loads, 16:0x UTC, log
+`.build/box/ltl/cg32/chk.log`): reference check PASS at all 12 cells, G_RELEASE_STARTUP_OK (56 verified replays),
+`CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok` (the 32-register
+cgemv matches FP64 on the gate input; the sk2 arm is the one 1 ulp off there, which the judged base log also shows
+as input-dependent: 0 / 0 / 0 on its input). Resource and SASS comparison (`cuobjdump -res-usage` and `-sass` on the
+box's two cgemv extensions): cgemv_kernel<128, 2> REG 32, STACK 0, LOCAL 0, SHARED 1064, 688 instructions;
+cgemv40_kernel<128, 2> REG 40, STACK 0, LOCAL 0, SHARED 1064, 696 instructions. The floating-point and load mix is
+identical (FADD 54, FFMA 64, FMUL 5, FSEL 10, LDG 23, SHFL 31, PRMT 32, LOP3 105 in both); the eight-instruction
+difference is integer bookkeeping (IMAD 114 vs 110, IADD3 21 vs 16, VIADD 21 vs 24, SHF 32 vs 33, NOP 9 vs 13, no
+UMOV). No spill at 32 registers, so the 40-register choice of the standalone bench bought nothing in code here.
