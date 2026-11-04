@@ -17,7 +17,15 @@ randomness) that carries every mechanism that won its own A/B beats pdl8h on the
 twice the pdl8h control-vs-control spread and loses on no cell beyond that spread. The earlier bar (against
 g1b4_rs's spread, with decode 1 and verify 1 each clearing it) is kept below for the g1b4_rs-based rows.
 
-None clears either bar yet.
+Finalist (pending the separate-process check below): **muse_decode_layer/cand/rv_k_combo2.py**.
+
+| file | SHA256 | mechanisms | six-load sum against pdl8h (bar 146) | decode 1 load | verify 1 load | against g1b4_rs | to prove at the judge |
+|---|---|---|---|---|---|---|---|
+| muse_decode_layer/cand/rv_k_combo2.py (tools/rv_combo_patch.py, which reruns tools/rv_cgfe_rs_patch.py --base pdl8h) | 7f0a3e360f085c4f21c1b760d10eaf251d3d379464a1f0556d52828cf92d5f37 | on g1b4_pdl8h 33c2353b: (1) the m = 1 unpooler slice as a 12-bit cgemv PDL secondary (cgfe's edits: wait before x, x through __ldcg, trigger at the CTA's end), CG_GATE kept, pick fixed to cg once the gate passes; (2) one sk2 weight stage before griddepcontrol.wait at T = 32 instead of two; (3) attention triggers its dependents at entry instead of at the merge. No fence, barrier or wait removed; no new PDL edge; every reference check passed; PDL8H_GUARD and CG_GATE ran in every prepare | five prepares in two in-process runs, each against pdl8h prepares in the same process: -280.1, -62.7 (rv_combo_3v3, control mean -3.8) and -124.8, -202.1, -189.1 (rv_combo2_3v3, control mean +19.6); against the control means -276, -59, -144, -222, -209, mean -182; geomean ratio 1.0026 to 1.0064 | -73.6 to -81.1 on the last three, -76.2 / -46.0 on the first two (pdl8h spread 4.6) | -58.5 / -24.0, then -63.5 / -72.6 / -73.7 (spread 42.0) | separate-process numbers in the row "combo2, separate processes" below | the judge's draw on all six loads; that the unpooler cgemv's decode 1 saving (box 0.7 to 1.7 us per cell) and the attention-trigger verify 1 saving (0.6 to 1.2 us at sliding) survive the judge's routing; PDL8H_GUARD on the judge with the entry trigger |
+
+No cell is worse than pdl8h by more than the controls' own span in any of the five prepares (worst: +1.12 at
+verify 16 full on c2b, where the three controls span 1.59). Two of the five prepares are below 146 on their
+own (-59, -144): the mean clears the bar, single prepares do not always.
 
 Best candidate so far, decode 1 only, for the lead's call:
 
