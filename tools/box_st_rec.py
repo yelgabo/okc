@@ -59,7 +59,7 @@ def decode(buf, nsm):
         rdy = [(b[RDY + c * RN + q] - t0) / 1e3 if b[RDY + c * RN + q] > 0 else None for q in range(RN)]
         wt = [b[WT + c * RN + q] / 1e3 for q in range(RN)]
         ret = [(b[c * SLOTS + 18 + q] - t0) / 1e3 if b[c * SLOTS + 18 + q] > 0 else None for q in range(46)]
-        ctas.append(dict(iss=iss, rdy=rdy, wt=wt, ret=ret, nA=cnt & 0xFFFF, nB=(cnt >> 16) & 0xFFFF,
+        ctas.append(dict(abuf=b[c * SLOTS + 14] / 1e3, iss=iss, rdy=rdy, wt=wt, ret=ret, nA=cnt & 0xFFFF, nB=(cnt >> 16) & 0xFFFF,
                          entry=(b[c * SLOTS] - t0) / 1e3))
     return ctas
 
@@ -114,7 +114,7 @@ def analyse(ctas, label):
     q = lambda xs: (statistics.median(xs), sorted(xs)[int(0.9 * (len(xs) - 1))], sum(xs)) if xs else (0, 0, 0)  # noqa: E731
     latA = [x for pb, x in lat if not pb]
     latB = [x for pb, x in lat if pb]
-    out = dict(label=label, endA=endA, snaps=snaps, latA=q(latA), latB=q(latB),
+    out = dict(label=label, endA=endA, a_buf=statistics.mean(c["abuf"] for c in ctas), snaps=snaps, latA=q(latA), latB=q(latB),
                stallA_per_cta=sum(stallA) / nsm, stallB_per_cta=sum(stallB) / nsm,
                stall_at={k: (len(v), sum(v) / nsm, statistics.median(v)) for k, v in stall_at.items()})
     return out
@@ -133,6 +133,8 @@ def main():
     ap.add_argument("--out", default="")
     ap.add_argument("--extra", default="", help="comma-separated defines for the recorded launches only, e.g. "
                     "-DST_NOMATH=1,-DST_SPIN=900 (the prepared state and its checks use the file's own builds)")
+    ap.add_argument("--replay", default="", help="also stream each input's recorded phase A sequence from the layer's own "
+                    "w13 tensor with muse_moe_w4a16/cl/st_replay.cu: comma-separated consumer delays in ns")
     ap.add_argument("--flush", default="write", choices=("write", "read"),
                     help="L2 flush before the recorded launch: write (fill_, box_moe_tl8.py's) or read (sum, the judge's)")
     a = ap.parse_args()
@@ -169,6 +171,11 @@ def main():
         if a.ls_cache else None
     flush = torch.ones(1 << 28, dtype=torch.float32, device="cuda")
     dump = []
+    rp = None
+    if a.replay:
+        sys.path.insert(0, os.path.abspath("muse_moe_w4a16/cl"))
+        import st_replay_bench as rpb
+        rp = rpb.build()
     for case in cases:
         res = []
         for j in range(a.inputs):
@@ -208,6 +215,14 @@ def main():
                   + " latB " + str([round(v, 3) for v in an["latB"]]), flush=True)
             print("REC   wait(count, per CTA us, median) " + json.dumps(
                 {k: [v[0], round(v[1], 3), round(v[2], 3)] for k, v in an["stall_at"].items()}), flush=True)
+            if rp is not None:
+                base = w_[10].view(torch.uint8).reshape(-1)
+                lists = [[u["blk"] for u in c["iss"][:c["nA"]]] for c in ctas]
+                for dl in [int(x) for x in a.replay.split(",")]:
+                    med, _ = rpb.run(rp, base, flush, lambda r, L=lists: L, 3, dl, 5)
+                    print(f"REPLAY same-bytes {an['label']} delay {dl} span {med['span_us']:.2f} TB/s {med['tbs']:.3f}"
+                          f" steady {med['steady_tbs']:.3f} cta_unit {med['cta_unit_us']:.3f} lat {med['lat_med_us']:.2f}"
+                          f"/{med['lat_p90_us']:.2f}", flush=True)
             res.append(an)
             if j < 2:
                 dump.append(dict(label=an["label"], ctas=ctas))

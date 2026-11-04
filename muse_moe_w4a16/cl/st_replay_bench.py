@@ -118,7 +118,7 @@ def flat(lists):
     return units, starts
 
 
-def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record=True, burn=0):
+def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record=True, burn=0, polc=0, stores=0, cons=1):
     lists = lists_fn(0)
     units, starts = flat(lists)
     G, N = len(lists), len(units)
@@ -128,10 +128,11 @@ def run(ext, base, flush, lists_fn, depth, delay, replays, evict_first=1, record
     ready = torch.zeros(N if record else 0, dtype=torch.int64, device="cuda")
     issued = torch.zeros(N if record else 0, dtype=torch.int64, device="cuda")
     sink = torch.zeros(2 * G, dtype=torch.int32, device="cuda")
+    scratch = torch.zeros(8 * 4096 if stores else 0, dtype=torch.int16, device="cuda")
     smem = max(depth * UNIT, 118784)  # one CTA per SM, as helper0 (its smem rules out a second)
 
     def launch():
-        ext.launch(base, du, ds, stamps, ready, issued, sink, depth, delay, evict_first, smem, burn)
+        ext.launch(base, du, ds, stamps, ready, issued, sink, depth, delay, evict_first, smem, burn, polc, scratch, cons)
 
     launch()
     torch.cuda.synchronize()
@@ -202,6 +203,9 @@ def main():
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--seq", default="", help="JSON with recorded per-CTA unit lists: {name: [[unit, ...], ...]}")
     ap.add_argument("--evict-first", type=int, default=1)
+    ap.add_argument("--cons", default="1", help="consumer warps polling the full barrier (helper0: 8)")
+    ap.add_argument("--polc", default="0", help="1: helper0's constant L2 policy word instead of createpolicy")
+    ap.add_argument("--stores", default="0", help="1: helper0-shaped evict_last bf16 stores per unit")
     ap.add_argument("--burn", default="0", help="extra warps running an integer + mma.sync loop (power load)")
     ap.add_argument("--flush", default="read", choices=("read", "write"),
                     help="1 GiB L2 flush before each replay: read (sum, as the judge) or write (fill_, leaves L2 dirty)")
@@ -243,11 +247,14 @@ def main():
                     G = int(G)
                     for depth in [int(x) for x in a.depth.split(",")]:
                         for delay in [int(x) for x in a.delay.split(",")]:
-                            for burn in [int(x) for x in a.burn.split(",")]:
+                            for burn, polc, stores, cons in [(int(b), int(c), int(t), int(w)) for b in a.burn.split(",")
+                                                             for c in a.polc.split(",") for t in a.stores.split(",")
+                                                             for w in a.cons.split(",")]:
                                 fn = lambda r, n=name, ph=phase, g=G: assign(n, sets[r], ph, g)  # noqa: E731
                                 med, rows = run(ext, base, flush, fn, depth, delay, a.replays, a.evict_first,
-                                                burn=burn)
-                                med.update(pattern=pat, phase=phase, k=k, depth=depth, delay=delay, burn=burn)
+                                                burn=burn, polc=polc, stores=stores, cons=cons)
+                                med.update(pattern=pat, phase=phase, k=k, depth=depth, delay=delay, burn=burn,
+                                           polc=polc, stores=stores, ef=a.evict_first, cons=cons)
                                 results.append(dict(summary=med, rows=rows))
                                 pr(med, rate)
         if a.out:
@@ -256,7 +263,7 @@ def main():
 
 def pr(m, rate):
     print(f"ST {m['pattern']:>8} {m['phase']:>2} k {m['k']:2d} D {m['depth']} delay {m['delay']:4d} grid {m['grid']:3d}"
-          f" burn {m.get('burn', 0):2d} units {m['units']:5d} span {m['span_us']:7.2f} [{m['min_span_us']:.2f}-{m['max_span_us']:.2f}]"
+          f" cons {m.get('cons', 1)} burn {m.get('burn', 0):2d} polc {m.get('polc', 0)} stores {m.get('stores', 0)} ef {m.get('ef', 1)} units {m['units']:5d} span {m['span_us']:7.2f} [{m['min_span_us']:.2f}-{m['max_span_us']:.2f}]"
           f" TB/s {m['tbs']:.3f} ({100 * m['tbs'] * 1e12 / rate:5.1f}%) steady {m.get('steady_tbs', 0):.3f}"
           f" ({100 * m.get('steady_tbs', 0) * 1e12 / rate:5.1f}%) ramp {m['ramp_us']:.2f}"
           f" endspread {m['end_spread_us']:.2f} cta_unit {m.get('cta_unit_us', 0):.3f} mean {m.get('cta_unit_mean_us', 0):.3f}"

@@ -12870,6 +12870,9 @@ __device__ __forceinline__ unsigned long long gtimer() {
 // without it (the timed path) every stamp is a uniform not-taken branch
 #define TLX_ON (OKC_TLX && p.dbg != nullptr)
 #define TLS(k, v) do { if (TLX_ON) p.dbg[blockIdx.x * 64 + (k)] = (v); } while (0)
+#ifndef ST_NOEPI
+#define ST_NOEPI 0  // diagnostic (output wrong): the helper warp skips its phase A epilogue except the CTA's last unit
+#endif
 #define ST_REC_N 128
 #define ST_CNT (136 * 64)
 #define ST_ISS (ST_CNT + 136)
@@ -14242,6 +14245,7 @@ __device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {
     }
     __syncwarp();
     if (lane == 0) mbar_arrive1(S.wsre + bb);  // buffer free again
+    if (ST_NOEPI && !PB && q != nA - 1) continue;
     // sm: (row gg, token 2tt), (row gg, token 2tt+1), (row gg+8, token 2tt), (row gg+8, token 2tt+1)
     const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
     if (!PB) {

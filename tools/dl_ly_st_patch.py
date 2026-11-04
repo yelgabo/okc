@@ -25,7 +25,10 @@ import dl_ly_ul_patch as ul  # noqa: E402
 # p.dbg layout past the timeline's 136 x 64 stamps: 136 unused words, then per CTA REC_N records of two words
 # (issue time, PB << 31 | expert block) indexed by the CTA's sequence number q (no atomic on the issuing thread), then per CTA REC_N ready times indexed by the CTA's sequence number q, then per CTA REC_N
 # ring-slot wait durations of warp 0 (same index).
-REC_DEFS = """#define ST_REC_N 128
+REC_DEFS = """#ifndef ST_NOEPI
+#define ST_NOEPI 0  // diagnostic (output wrong): the helper warp skips its phase A epilogue except the CTA's last unit
+#endif
+#define ST_REC_N 128
 #define ST_CNT (136 * 64)
 #define ST_ISS (ST_CNT + 136)
 #define ST_RDY (ST_ISS + 136 * ST_REC_N * 2)
@@ -88,10 +91,15 @@ NM_PRE = """#ifndef ST_NOMATH
 """
 
 
+EPI_OLD = "    if (lane == 0) mbar_arrive1(S.wsre + bb);  // buffer free again\n"
+EPI_ADD = "    if (ST_NOEPI && !PB && q != nA - 1) continue;\n"
+
+
 def apply(s, v):
     if v == "rec":
         s = ul.timeline(s)
         s = ul.edit(s, [(TLS_ANCHOR, TLS_ANCHOR + REC_DEFS), (RING_OLD, RING_NEW), (F1_OLD, F1_NEW)], v)
+        s = ul.edit(s, [(EPI_OLD, EPI_OLD + EPI_ADD)], v, sub=ul.HELPER)
         s = ul.edit(s, [(RDY_OLD, RDY_NEW), (NM_START, NM_PRE + NM_START), (NM_END, "#endif\n" + NM_END)], v, sub=ul.LOOP)
         add = 'MOE_MID_DEFINES += ("@moe_helper0",)\n'
         return ul.once(s, add, add + 'MOE_MID_DEFINES += ("-DOKC_TLX=1",)\n', v)
