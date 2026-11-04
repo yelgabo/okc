@@ -1,4 +1,4 @@
-# Lane barriers: checkpoint 3
+# Lane barriers: checkpoint 4 (lane stopped for restart, A/B still running on the box)
 
 Base: `muse_decode_layer/cand/ly_stk4.py`, SHA256 a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e.
 Line numbers below are in ly_stk4. Inventory is from source reading (three read-only agents plus my own reads);
@@ -69,7 +69,37 @@ ly_fw gate rc=0: PDL8H guards at T = 1 / 8 / 16 / 32 with 0 ids mismatches; refe
 (/root/okc/.build/prtl/gb_fw/chk.log). Single-run box nets in that check (not an A/B): decode 1 sliding 64.86 us,
 verify 1 sliding 95.55, decode 16 sliding 122.50.
 
-## Next action
+## Native build check
 
-A/B started 14:17 PT (PHASE=ab, CTL=ly_stk4.py, log /root/okc/.build/moegb/fw_ab.log, tables from
-tools/ly_prtl_table.py on /root/okc/.build/prtl/gb_fw and gb_fw_r2). Judge decode 1 / verify 1 / decode 16 cells only.
+Round 1 arms checked at 14:2x PT: ab_c_a.log (ly_stk4), ab_w_a.log (ly_fw) and chk.log each print
+`G1b4 backend native repaired: cooperative+BF16` and `G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16)`;
+none contains "native build failed", "fallback" or "marlin".
+
+## How to read the result (next session)
+
+The A/B runs on without the lane: `tools/ly_gb_ab.sh` with CTL=ly_stk4.py CAND=ly_fw.py TAG=fw PHASE=ab, two rounds
+of `c_a w_a c_b w_b c_c`, started 14:17 PT. It is finished when the log ends in "all done" and
+`pgrep -f ly_gb_ab.sh` is empty.
+
+    ssh okc-h200 'tail -4 /root/okc/.build/moegb/fw_ab.log'
+    ssh okc-h200 'cd /root/okc && python3 tools/ly_prtl_table.py .build/prtl/gb_fw'      # round 1
+    ssh okc-h200 'cd /root/okc && python3 tools/ly_prtl_table.py .build/prtl/gb_fw_r2'   # round 2
+
+Native build in round 2 (every arm must match the first grep and none the second):
+
+    ssh okc-h200 'cd /root/okc/.build/prtl/gb_fw_r2 && grep -c "backend native" ab_*.log; grep -liE "native build failed|fallback|marlin" ab_*.log'
+
+Judge only the touched cells: decode 1, verify 1 and decode 16, sliding first (helper0 TINY / TINY2 / MID). Every
+other cell runs identical code, so swings there are noise (about 1.5 us on pair counts).
+
+## Verdict so far
+
+There are no A/B numbers yet, so there is no verdict. The reference check passes at all 12 cells and the guards show
+0 mismatches. Keep ly_fw only if decode 1 sliding improves by at least the lane threshold in both rounds with a
+majority of paired wins; otherwise close it with the ruled-out row below, filled in with the numbers.
+
+Draft ruled-out row: | 2026-11-04 ly_fw (059f734b, `tools/dl_ly_fw_patch.py` on ly_stk4 a054c8d5): the TINY / TINY2 /
+MID grid barrier waited on only by the M x 4 final-item CTAs (red.release arrivals, others exit, CTA 0 bumps the
+generation) | Box paired A/B vs ly_stk4, two rounds: decode 1 sliding <r1> / <r2> us, verify 1 sliding <..>, decode 16
+sliding <..>; check PASS 12/12 | fewer pollers on the skinny MoE grid-barrier counter as a decode 1 lever. Untested:
+a different arrival form (hierarchical or per-SM arrivals) |
