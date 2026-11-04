@@ -50,3 +50,13 @@ Failing build dir: /root/.cache/bx_ext/glue_moe_6f5ecd94975b9370_sm90a-bc5b91501
 4. Ruled-out row for YBF (text below) goes into docs/ruled-out.md; DF gets a row or a candidate line depending on step 3.
 
 Draft YBF ruled-out row: `| 2026-11-04 OKC_YBF (WGS ybuf stored BF16 after the gamma multiply; B4 decode 32, MAIN verify 16/32) on ly_stk4 a054c8d5 | Not built: it adds a BF16 round after gamma that the reference (FP32 gamma, FP32 norm/finalize; precision contract archive/docs/steering/2026-11-01-g-fork-precision-contract.md:21,23) does not have. The exact factorized form already failed the standalone matched gate (MOE-FACTOR-Y-01, line 629). B4 final y read is one float2 per slot and latency-bound; expected gain under 0.2 us (estimate). Reopen only if the precision rules allow a post-gamma BF16 round. |`
+
+## Box result, final (14:18 PT)
+
+Round 2 was not stopped: it finished at 22:16 box time. Both logs contain `native build failed` twice, so every arm in both rounds ran the Marlin fallback. Neither round says anything about DF.
+
+Round 2, decode 16, all checks PASS:
+- sliding: base 215.31, df 215.39, base2 215.25 us
+- full: base 283.57, df 285.04, base2 282.99 us
+
+The next action is unchanged. Get the real compiler error from the failing build dir, fix the host `p.inter` offset (hypothesis: use the literal `(size_t)(3072 - 128) * 4096`), and rerun `mdf.sh`. Before reading ARMS lines, confirm the log has no `native build failed`.
