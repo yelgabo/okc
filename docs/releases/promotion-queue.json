@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "observed_at": "2026-11-04T17:40:00+00:00",
+  "observed_at": "2026-11-04T22:05:00+00:00",
   "scope": "Numerical leads, not automatic release eligibility. Public submission requires user approval.",
   "runs": [
     {
@@ -879,6 +879,20 @@
       "disclosure_report": "docs/steering/2026-11-02-final-day-directive.md",
       "release_review_required": false,
       "public_submission_occurred": true
+    },
+    {
+      "job": "cf84eae4905f4745",
+      "problem": "muse_decode_layer",
+      "score_us": 10132.37863754337,
+      "owner": "Final-day lead (Claude session)",
+      "judged_arm": "ly_stk1 check, every T PDL on, five PDL8H guards pass, CG_GATE 0/1024",
+      "source_identity": "muse_decode_layer/cand/ly_stk1.py SHA256 d7db12a14807eeb57df914dac468f4f2567b6bfc4e6771a549c167e92fc39878",
+      "release_state": "queued-for-public-draws",
+      "reason": "Below the public row (10,146.4 us) on its first draw; keep rule's six-load clause met; the user authorized the switch to the v1un line at 11:05 PT and ly_stk1 adds two box-measured edits on it. Public draws start at the 16:00 PT quota reset under the standing repeat authorization.",
+      "evidence": "muse_decode_layer/cand/profiles/ly_stk1.cf84eae4905f4745.json",
+      "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+      "release_review_required": false,
+      "public_submission_occurred": false
     }
   ],
   "ineligible_source_family_checkpoint": {
