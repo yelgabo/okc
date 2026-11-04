@@ -6933,3 +6933,147 @@ k = 9. By the plan's own rule (C = 16 fails at k = 9 and C = 8 passes), D2 is C 
   never reuses the slot, so it did not matter there. In persistent mode, the producer's next wait on that slot
   read a stale phase, and the kernel hung at k = 3, S = 8. My own process was holding the GPU lock and was
   killed after about 10 minutes. The fix releases the sentinel slot like any other.
+
+## CL-1.1 phase A
+
+Task 1.1 of docs/plans/2026-11-04-moe-cluster-rewrite.md. Box okc-h200, 2026-11-04 UTC, under gpu.lock, nvcc 13.0
+sm_90a, torch 2.14.1+cu130, no judge job. Files (SHA-256): `muse_moe_w4a16/cl/cl_phase_a.cuh` (c1ed395b...4f19),
+`cl_phase_a_bench.py` (1692dd20...3f3c47), `cl/tests/test_phase_a.py` (978aeb9d...95ee). Logs and JSON are in
+`muse_moe_w4a16/cl/profiles/1.1/`. The final numbers are `test_phase_a.log`, `bench_final_{fill,s2,prof}.log` and
+`sass_check.txt`, all from the committed header bytes. The `bench_v1`, `bench_prof1*`, `bench_v3*`, `bench_v4*` files
+and `exp_solo_pipes.log` come from earlier builds and are cited below by name.
+
+### What the kernel does
+
+`cl_phase_a_kernel<8>` has `__cluster_dims__(8)`, one launch per input, and cluster i runs ClSchedule slice i. It has
+384 threads in three warpgroups: warpgroup 0 gives registers back with `setmaxnreg` down to 56, and the consumers take
+224. Warp 0 is the TMA producer (the cl_stream.cu ring, copied, depth 4 = two pair slots), warps 4-11 are the 8
+consumers with the cl_math K split, and warps 1-2 are epilogue warps. CTA c owns the slice's columns
+[col0 + c cpc, +cpc), cpc = ncol / 8. Units move in pairs, with one full and one empty mbarrier per pair slot and one
+partial buffer per epilogue warp. A consumer computes its warp partials of both units (the cl_math chains and combine,
+unchanged), frees the slot, writes the partials and arrives. The epilogue warp sums the 8 partials in warp order
+(`clm::sum_warps`), applies `clm::swiglu_bf16` and stores BF16 to the slab. At the end, one `cp.async.bulk` per slab
+row writes the global copy.
+
+x staging: the B fragments of up to two 8-token n-tiles sit in consumer registers (64 per tile), loaded once per pass
+from global. helper0 does the same (`load_x_regs` once per job, not per unit). Per-unit reads from L2 would cost
+T x 8 KB per unit (256 KB at T = 32, against 36 KB of weights), so I did not build that variant. An expert with more
+than 16 tokens runs ceil(ntt / 2) passes, and every pass but the last loads with an L2 evict_last hint.
+
+Intermediate slab (for task 1.2): BF16 at dynamic shared offset `CLA_SLAB_OFF` = 180,224 B, row-major [ntok][cpc] with
+row pitch cpc = slice_ncol / 8. Row i is the expert's i-th tok_list entry, and column j is slice column c cpc + j.
+Capacity is t_max x slab_cols x 2 B (32 KB at t_max 32 and slab_cols 512; 16 KB used at S = 2). The slab is complete
+after both epilogue warps leave their loops. Global copy: `inter_g[(slice * t_max + i) * pitch + c cpc + j]`. Dynamic
+shared memory is 212,992 B, and `cudaOccupancyMaxActiveClusters` = 15.
+
+### Correctness (final bytes, 20 inputs per T, judge routing)
+
+| T | distinct | max ntok | elements | mismatches vs helper0 inter (bitwise) | row rel L2 max | overall rel L2 max | elements over 2^-7 element-wise (kernel / helper0) |
+|---:|---|---:|---:|---:|---:|---:|---|
+| 1 | 2-4 | 1 | 225,280 | 0 | 3.36e-3 | 3.25e-3 | 797 / 797 |
+| 8 | 5-11 | 8 | 1,142,784 | 0 | 3.56e-3 | 3.19e-3 | 4,249 / 4,249 |
+| 32 | 10-20 | 32 | 3,817,472 | 0 | 3.66e-3 | 3.15e-3 | 14,386 / 14,386 |
+
+helper0 is the CL-0.5 debug build (TINY / TINY2 / MID). The FP32 reference uses nvfp4.dequantize; reference.py is not
+edited. The strict element-wise bound |k - r| <= 2^-7 |r| fails for 0.35% of elements, and helper0's rows fail at the
+same count. BF16 rounding of gate, up and inter (CL-0.5 items 9 and 11) exceeds 2^-7 where h cancels or the gate is
+large and negative. The test therefore gates on bitwise equality with helper0, every element written, and per-row
+relative L2 within 2^-7.
+
+I found a race on the way. One two-pass T = 32 input (seed 4209) showed 128 to 255 wrong elements in 9 of 12 runs,
+always in unit 31 of pass 0 and in lanes 0-15 of that unit (half-warp groups of columns). The TMA refill of a ring
+slot landed while generic-proxy reads of that slot were still outstanding, even though the consumers arrived on the
+empty mbarrier only after their reads. Lane 0 arriving after `__syncwarp` failed 9 of 12 runs, and every lane arriving
+failed 2 of 12. With `fence.proxy.async.shared::cta` before the empty arrive, 0 of 12 runs failed, on both the paired
+and the sequential path. The fence lowers to `MEMBAR.ALL.CTA; FENCE.VIEW.ASYNC.S` (CTA scope) and cost about 0.3 us of
+T = 8 span. Hypothesis, not checked: cl_stream.cu, and any phase B consumer that reads TMA-filled slots with generic
+loads and frees them by mbarrier arrive, has the same hazard. The discard consumer of task 0.1 would not show it in
+its numbers.
+
+SASS (`sass_check.txt`, cuobjdump of the default build): the consumer loops contain no `MEMBAR.*.GPU`, no ERRBAR, no
+BAR.SYNC, and no global store except the predicated first-slot timing stamp. Their only fence is the CTA proxy fence
+above. Kernel-wide there are 2 BAR.SYNC (the post-init `__syncthreads` and the epilogue warps' named barrier), and
+`REDG.MAX` appears only for the timing stamps after the loops. There are no spills (168 registers at launch).
+
+### Span against floor (final bytes, 5 inputs x 20 replays, CUDA graph, 1 GiB read flush, schedule copied in-graph)
+
+Floor = distinct x 18.87 MB / 4.45 TB/s = 4.24 us per expert (29.69 us at 7). The T = 8 inputs are judge-routing
+seeds with 7 distinct local experts. T = 32 never has 7 (12 to 21 distinct in seeds 1000-1399), so "7r" keeps each
+input's 7 most-routed local experts and moves the other local slots to unused non-local ids.
+
+| T, input | policy | slices | median span us | ratio median (min-max over inputs) |
+|---|---|---:|---:|---|
+| 8, distinct 7 | fill target 15 (G0) | 15 | 34.54 | 1.163 (1.158-1.175) |
+| 8, distinct 7 | s2 | 14 | 34.29 | 1.155 (1.137-1.177) |
+| 32, 7r | fill 15 | 15 | 46.26 | 1.558 (1.244-1.987) |
+| 32, 7r | s2 | 14 | 46.02 | 1.550 (1.528-2.507) |
+| 32, natural (14-18 distinct) | fill 15 | 15-18 | 120.24 | 1.770 (1.438-2.247) |
+| 1, natural (2-3 distinct) | fill 15 | 15 | 15.26 | 1.786 (1.519-1.803) |
+
+Verdict: the kernel is correct. It misses the 1.15x criterion at T = 8 by 1% (fill) and 0.5% (s2), and misses it at
+T = 32 by a wide margin. "Schedule copied in-graph" means a 3,464-byte device copy into the schedule buffer before the
+launch, so the schedule is L2-resident, as it would be after a prologue kernel. Without that copy (s2, T = 8, pre-fence
+build) the median was 1.163 against 1.142 in the same build.
+
+Per-CTA timeline, T = 8, fill, CLA_PROF build (`bench_final_prof.log`; medians over CTAs, in us): ramp (entry to first
+unit ready) 2.5-2.7, loop 29.3-29.5, tail (last consumer to last epilogue) 0.6-0.8. The end spread over all CTAs is
+10.6-12.0, because the 3 S = 3 clusters from the extra slice finish 7-10 us early. Consumer 0 waits 3.6 us on full and
+0.7 on a partial buffer, out of a 28.1 us loop. The epilogue warp is busy 5.1-5.4. The SM clock is 1.77-1.78 GHz.
+With s2 (14 equal clusters) the end spread is 2.4-3.0 us and the loop runs at the HBM rate (112 CTAs x 39.9 GB/s =
+4.47 TB/s, bench_v3_s2). The remaining excess is the ramp (about 2.4 us, 8%) plus end spread and tail.
+
+T = 32, 7r: inputs with a hot expert are bound by its slices. A two-tile pass costs 1.16 us per unit and a one-tile
+pass 0.81 (solo clusters, below), against 0.93 us per unit of HBM share at 120 CTAs. So every expert with more than 8
+tokens runs compute-bound, and one with 17-32 tokens runs two passes (seed 2001, 20 tokens: 60.6 us span, end spread
+28.8). Inputs without a hot expert reach 1.31.
+
+### What the measurements say about the compute
+
+Solo cluster (one slice alone, 32 units per CTA; `exp_solo_pipes.log` and later runs):
+
+| build | solo loop us (32 units) | note |
+|---|---:|---|
+| first build, one unit per iteration | 31.3 | bench_prof1_solo; epilogue busy 18.7 us |
+| pairs, CLA_PROF | 28.0 | SM clock 1.80 GHz |
+| EXP 1: no scale multiply (128 fewer HMUL2 per unit-warp) | 28.0 | no change |
+| EXP 2: no MMA | 28.6 | clock rises to 1.98 GHz |
+| EXP 3: one mask in place of the E2M1 unpack | 20.0 | full grid T = 8 span 33.5 (1.13) |
+| unpack rotations by IMAD.WIDE instead of SHF (same bits) | 36.9 | worse; reverted |
+| two-tile slice (15 tokens), pairs | 47.9 | 1.35 us per unit |
+| same, the two units of a pair one after the other | 41.3 | 1.16 us per unit; kept |
+
+The one-tile unit loop per warp is 161 LOP3, 128 HMUL2, 85 IMAD, 64 SHF, 32 HMMA and 16 PRMT. My reading: the E2M1
+unpack on the integer pipe is the limit (EXP 3), the FMA pipe is close behind (moving the shifts to IMAD.WIDE made it
+slower), and the HMMAs alone are not. I searched for a repack that needs fewer integer operations. Four rotations of
+the bf16 code mask (bits 6, 7, 8 and 15 per half) cannot partition the 32 code bits of a word, so one of the four
+registers always needs two masks, which is what DQ7 already does. The MMAs lower the SM clock from 1.98 to
+1.73-1.80 GHz.
+
+Changes and their T = 8 effect (fill, median of 5 inputs unless noted):
+
+| change | span us | ratio |
+|---|---:|---:|
+| first build (bench_v1) | 36.24 | 1.221 |
+| pairs and two epilogue warps (2 inputs) | 35.8-36.0 | 1.204-1.213 |
+| pair-level mbarriers (3 inputs) | 34.77 | 1.171 |
+| the kernel's first unit alone (ramp 3.7 to 2.5 us) | 34.46 | 1.161 |
+| global copy by bulk store at the end, in-graph schedule copy | 34.22 | 1.153 |
+| proxy fence (final) | 34.54 | 1.163 |
+
+Schedule policies at T = 32 (pre-fence build, bench_v4_*, 7r / natural): fill 1.519 / 1.764, s2 1.536 / 1.403. A local
+"cost" policy (slices by per-expert work, two-tile pass = 1.43) changes nothing at target 15, because 15 clusters
+cannot give a hot expert with 2.75x the work enough slices. At target 30 it gives 1.513 / 1.431, and at target 45
+1.617 / 1.391.
+
+### What phase A needs that this task does not own (proposals)
+
+- cl_schedule.py / cl_prologue.cu: a target argument for the fill policy. G0 says 15 co-resident clusters of 8, but
+  `fill_target` returns 128 // C = 16. The bench sets `cl_schedule.fill_target` to return 15.
+- Schedule: at 7 experts and 15 clusters, every within-expert split leaves 6 experts at 32 units per CTA against a mean
+  of 29.9. Slices that may span two experts would remove that gap (estimate, a hypothesis: about 6% of the T = 8 span).
+- T > 8: the mma.sync unit math is compute-bound beyond one n-tile per pass. Reaching the floor at T = 32 needs either
+  an engine that decodes a weight unit once for more tokens (the B4 / WGS wgmma path, which is not bitwise helper0
+  MID), or schedules that give hot experts several times the slices of cold ones, which needs more than 15 clusters at
+  a time.
+- Task 1.2 and the join: keep `fence.proxy.async.shared::cta` before every arrive that frees a TMA-filled slot read by
+  generic loads.

@@ -1,0 +1,36 @@
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 168 registers, used 2 barriers, 1024 bytes smem
+sha256 cl_phase_a.cuh c1ed395b63c7fb799f067f7f652c0c15d1265b4873cf66b2829fab27bb014f19
+whole kernel: instructions 4096
+  MEMBAR           2
+  ERRBAR           0
+  CGAERRBAR        0
+  BAR.SYNC         2
+  BAR.ARV          0
+  RED              1
+  ATOM             0
+  STG              4
+  UBLKCP           7
+  SYNCS.ARRIVE     5
+  SYNCS.PHASECHK   9
+  HMMA             240
+  USETMAXREG       2
+lines with MEMBAR, BAR.SYNC, RED, ATOM or STG:
+77:        /*0230*/              @!P0 STG.E.64 desc[UR18][R8.64], R4 ;
+169:        /*0510*/                   BAR.SYNC.DEFER_BLOCKING 0x0 ;
+1015:        /*1f80*/                   MEMBAR.ALL.CTA ;
+1025:        /*1fd0*/                   BAR.SYNC.DEFER_BLOCKING 0x1, 0x40 ;
+1139:        /*2360*/                   UBLKCP.G.S [UR10], [UR9], UR6 ;
+1217:        /*25d0*/                   UBLKCP.G.S [UR12], [UR9], UR6 ;
+1263:        /*2740*/                   UBLKCP.G.S [UR12], [UR9], UR6 ;
+1309:        /*28b0*/                   UBLKCP.G.S [UR12], [UR9], UR6 ;
+1355:        /*2a20*/                   UBLKCP.G.S [UR10], [UR9], UR6 ;
+1391:        /*2b40*/                   REDG.E.MAX.64.STRONG.GPU desc[UR18][R2.64+0x18], R4 ;
+1397:        /*2b70*/                   STG.E.64 desc[UR18][R6.64+0x20], R8 ;
+1575:        /*3100*/                   UBLKCP.S.G [UR10], [UR14], UR6, desc[UR32] ;
+1603:        /*31e0*/                   UBLKCP.S.G [UR12], [UR10], UR6, desc[UR32] ;
+4747:        /*9420*/              @!P0 STG.E.64 desc[UR18][R68.64+0x8], R80 ;
+5911:        /*b880*/                   MEMBAR.ALL.CTA ;
+6295:        /*c480*/              @!P0 STG.E.64 desc[UR18][R6.64+0x8], R4 ;
+8267:        /*10220*/                   MEMBAR.ALL.CTA ;
+8627:        /*10d60*/                   REDG.E.MAX.64.STRONG.GPU desc[UR18][R4.64+0x10], R2 ;

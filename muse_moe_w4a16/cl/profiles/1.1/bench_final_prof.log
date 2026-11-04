@@ -1,0 +1,19 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 38.5 s  cl_phase_a.cuh c1ed395b63c7fb79 defines ['-DCLA_PROF=1']
+LOCK acquired after 26.7 s
+APPS 351362, 2950 MiB
+SMEM 212992 B  max active clusters of 8: 15
+RUN T= 8 cfg=8:7  seed=2000 distinct= 7 slices=15 span  34.66 [34.18-36.64] us floor  29.69 ratio 1.167 | event  41.74 | ramp 2.52 loop 29.30 tail 0.77 end-spread 11.98 entry-spread 0.29 sms 120 ntok [1, 2, 5] | prof c0 full-wait 3.60 red-wait 0.70 loop 28.11, epi busy 5.38 wait 18.83 clock 1.78 GHz slice 0 ntok 1
+RUN T= 8 cfg=8:7  seed=2004 distinct= 7 slices=15 span  34.45 [34.02-36.29] us floor  29.69 ratio 1.160 | event  41.42 | ramp 2.53 loop 29.37 tail 0.61 end-spread 11.70 entry-spread 0.29 sms 120 ntok [1, 6] | prof c0 full-wait 3.55 red-wait 0.70 loop 28.03, epi busy 5.08 wait 20.03 clock 1.77 GHz slice 0 ntok 1
+RUN T= 8 cfg=8:7  seed=2018 distinct= 7 slices=15 span  35.04 [34.46-36.77] us floor  29.69 ratio 1.180 | event  42.18 | ramp 2.69 loop 29.46 tail 0.64 end-spread 10.59 entry-spread 0.29 sms 120 ntok [1, 2, 8] | prof c0 full-wait 3.58 red-wait 0.70 loop 28.09, epi busy 5.13 wait 19.54 clock 1.77 GHz slice 0 ntok 2
+RUN T= 8 cfg=8:7  seed=2024 distinct= 7 slices=15 span  34.58 [34.18-36.83] us floor  29.69 ratio 1.165 | event  41.66 | ramp 2.59 loop 29.26 tail 0.61 end-spread 11.06 entry-spread 0.29 sms 120 ntok [1, 2, 6] | prof c0 full-wait 3.59 red-wait 0.70 loop 28.10, epi busy 5.11 wait 19.85 clock 1.78 GHz slice 0 ntok 1
+RUN T= 8 cfg=8:7  seed=2031 distinct= 7 slices=15 span  34.72 [34.21-36.93] us floor  29.69 ratio 1.169 | event  41.58 | ramp 2.56 loop 29.35 tail 0.64 end-spread 11.14 entry-spread 0.29 sms 120 ntok [1, 2, 6] | prof c0 full-wait 3.57 red-wait 0.70 loop 28.06, epi busy 5.26 wait 19.19 clock 1.78 GHz slice 0 ntok 1
+SUM T=8 cfg=8:7 inputs=5 median ratio 1.167 (min 1.160, max 1.180) median span 34.66 us
+RUN T=32 cfg=32:7r seed=2000 distinct= 7 slices=15 span  48.32 [46.40-50.27] us floor  29.69 ratio 1.627 | event  55.18 | ramp 2.98 loop 29.55 tail 0.80 end-spread 16.72 entry-spread 0.22 sms 120 ntok [2, 3, 4, 13, 15] | prof c0 full-wait 3.26 red-wait 0.73 loop 28.54, epi busy 7.90 wait 18.36 clock 1.78 GHz slice 0 ntok 2
+RUN T=32 cfg=32:7r seed=2001 distinct= 7 slices=15 span  60.56 [59.49-62.91] us floor  29.69 ratio 2.040 | event  67.36 | ramp 2.78 loop 29.70 tail 0.80 end-spread 28.83 entry-spread 0.26 sms 120 ntok [2, 3, 4, 20] | prof c0 full-wait 3.42 red-wait 0.72 loop 28.47, epi busy 7.91 wait 18.13 clock 1.78 GHz slice 0 ntok 2
+RUN T=32 cfg=32:7r seed=2002 distinct= 7 slices=15 span  38.83 [37.34-40.38] us floor  29.69 ratio 1.308 | event  45.65 | ramp 2.80 loop 30.05 tail 0.86 end-spread 6.88 entry-spread 0.26 sms 120 ntok [3, 4, 5, 7, 9] | prof c0 full-wait 2.46 red-wait 0.72 loop 28.97, epi busy 7.86 wait 18.56 clock 1.77 GHz slice 0 ntok 3
+RUN T=32 cfg=32:7r seed=2003 distinct= 7 slices=15 span  60.96 [59.30-63.26] us floor  29.69 ratio 2.053 | event  67.87 | ramp 2.94 loop 30.10 tail 0.86 end-spread 28.90 entry-spread 0.26 sms 120 ntok [2, 3, 4, 6, 13, 24] | prof c0 full-wait 2.74 red-wait 0.73 loop 28.92, epi busy 8.18 wait 18.47 clock 1.78 GHz slice 0 ntok 24
+RUN T=32 cfg=32:7r seed=2004 distinct= 7 slices=15 span  39.04 [37.41-41.02] us floor  29.69 ratio 1.315 | event  45.74 | ramp 2.73 loop 30.54 tail 0.90 end-spread 6.75 entry-spread 0.26 sms 120 ntok [2, 4, 5, 9] | prof c0 full-wait 2.29 red-wait 0.72 loop 29.19, epi busy 7.93 wait 18.91 clock 1.78 GHz slice 0 ntok 2
+SUM T=32 cfg=32:7r inputs=5 median ratio 1.627 (min 1.308, max 2.053) median span 48.32 us
+LOCK released
