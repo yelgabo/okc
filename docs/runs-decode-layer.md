@@ -6532,3 +6532,8 @@ builds the stacked file (SHA256 e010ef869d29387dc85a30d4acbbbcb8248d735c6f6e1ebb
 ly_stk1 is the header and that condition; reference check PASS 12 / 12 on the box with `G_RELEASE_STARTUP_OK` and the
 control's CG_GATE line, `.build/prtl/stk1q1n/chk.log`; not A/B'd, every A/B here is against ly_v1un). ly_q1w8 is
 below the bar (ruled-out row added).
+
+Gate runs with the file's own in-prepare guard (no pin, no `--skip-pdl8-gate`; decode 1 and verify 1, 20 runs;
+`gate_ly_q1n.log`, `gate_ly_stk1_q1n.log`): both files pass PDL8H_GUARD at T = 1 sliding, 8 sliding and full, 16
+sliding and 32 full (ids mismatches 0 on both arms, T = 1 max relative difference to the PDL-off output 3.74e-04 /
+4.81e-04 on both arms), prepare and timed sets {1, 8, 16, 32} all on, check PASS at all four cells.
