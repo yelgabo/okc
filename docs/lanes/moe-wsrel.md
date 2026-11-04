@@ -1,6 +1,6 @@
 # Lane moe-wsrel checkpoint
 
-Updated: 2026-11-04 15:33 PST
+Updated: 2026-11-04 15:36 PST
 
 ## Goal
 
@@ -62,8 +62,24 @@ proxy). No TMA or cp.async.bulk on this read, so no `fence.proxy.async` is neede
 
 ## Results
 
-Pending.
+Gate (ly_wsrel, bx_box_run, six loads, 5 runs): 12/12 check PASS, "G1b4 backend native", no "native build failed",
+no Marlin. Log /root/okc/.build/wsrel/chk.log.
+
+A/B (ly_arms, 60 runs, paired median delta fix minus w0, us; both arms check PASS every cell; "wsrel arms
+['mid_w0', 'tiny2_w0', 'tiny_w0']" confirms the w0 builds):
+
+| cell | r1 | r2 |
+|---|---|---|
+| decode 1 sliding | +0.56 | +0.19 |
+| decode 1 full | +0.35 | -0.08 |
+| decode 16 sliding | +0.18 | +0.21 |
+| decode 16 full | +0.56 | +0.30 |
+| verify 1 sliding | +0.98 | +0.69 |
+| verify 1 full | +0.46 | +0.83 |
+
+The fence.sc.gpu form fails the 0.3 us sliding rule (verify 1 sliding both rounds).
 
 ## Next action
 
-Read chk.log for PASS and "G1b4 backend native", then the ab_r1 / ab_r2 paired deltas.
+Test the cheaper valid release: lane-0 `fence.acq_rel.gpu` (MEMBAR.ALL.GPU) instead of fence.sc.gpu, three-arm A/B
+(w0, sc, ar), then gate whichever is kept.
