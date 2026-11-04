@@ -12,7 +12,7 @@ tensor; the layer's own launches pass three, so the timed path runs every stamp 
 tools/box_moe_tl8.py makes the extra instrumented launches. MID (helper0df) gets the same source text with
 OKC_TLX 0. Fences, barriers, ring and final pass are unchanged.
 
-    python3 tools/dl_moe_tl.py
+    python3 tools/ly_moe_tl16.py [--base FILE --pin SHA256 --out FILE]   (default: combo2n -> ly_tl16.py)
 """
 import hashlib
 import pathlib
@@ -29,9 +29,16 @@ TINY2_ADD = 'MOE_MID_DEFINES += ("@moe_helper0",)\n'
 
 
 def main():
-    raw = SRC.read_bytes()
-    if hashlib.sha256(raw).hexdigest() != PIN:
-        sys.exit("rv_k_combo2n.py is not 3ac83fb4")
+    src, pin, dst = SRC, PIN, DST
+    if "--base" in sys.argv:
+        src = ROOT / sys.argv[sys.argv.index("--base") + 1]
+    if "--pin" in sys.argv:
+        pin = sys.argv[sys.argv.index("--pin") + 1]
+    if "--out" in sys.argv:
+        dst = ROOT / sys.argv[sys.argv.index("--out") + 1]
+    raw = src.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != pin:
+        sys.exit(f"{src.name} is not {pin[:8]}")
     whole = raw.decode()
     assert whole.count(MARK) == 1
     head, rest = whole.split(MARK)
@@ -52,9 +59,9 @@ def main():
         sys.exit("MID helper define anchor")
     tail = tail.replace(TINY2_ADD, TINY2_ADD + 'MOE_MID_DEFINES += ("-DOKC_TLX=1",)\n')
     out = head + MARK + box["src"] + tail
-    DST.write_text(out)
-    py_compile.compile(str(DST), doraise=True)
-    print(DST.name, hashlib.sha256(out.encode()).hexdigest(), len(out))
+    dst.write_text(out)
+    py_compile.compile(str(dst), doraise=True)
+    print(dst.name, hashlib.sha256(out.encode()).hexdigest(), len(out))
 
 
 if __name__ == "__main__":

@@ -3242,3 +3242,127 @@ The lever that exists is helper0's stream ceiling of about 3.9 TB/s against 4.8 
 streaming kernel; the next step is to keep stripping the BARE build (the x prefetch, then the route itself with ranges
 passed in) until it reaches the replay's 4.8, which names the part
 to change. Expected value if found and removable: 5 to 8 us per verify 1 cell (hypothesis above).
+
+## 2026-11-04 - MID single weight read at decode 16 (box)
+
+Question from the lead (moe lane): at decode 16 the MID build splits any local expert with more than 8 tokens into two
+8-token jobs and streams that expert's 28 MB of NVFP4 weights twice (stream lane's side finding). Build a candidate on
+`muse_decode_layer/cand/ly_fabq.py` (SHA256 3765470032deb505...dde555, never edited) in which an expert's weights are
+read once at decode 16 and decode 32 whatever its token count, output identical to ly_fabq, paired A/B on the box.
+Box only (okc-h200, 2026-11-04 09:55 to 10:35 UTC, every GPU run under /root/okc/.build/box/gpu.lock; nvidia-smi showed
+0% utilization and no other process before the first run), no judge job, no routing slack. Logs and JSON:
+`muse_decode_layer/profiles/box/mid1/`.
+
+Prior rows on the same lever, read first: ly_ws2t (two-tile jobs in one shared loop body, +1.67 / +2.11 us at
+decode 16) and ly_ws2u (two-tile body only on the CTAs that hold a two-tile job, +4.13 / +4.72 us) on combo2n, both
+losses; the MoE knob sweep's mid8 row (decode 16 on the MAIN WGS build, +2.72 / +3.84 us). Decode 32 runs the B4 build,
+whose jobs hold up to 64 tokens, so it already streams every expert once (B4 timeline: 768 x distinct stages on every
+input); the decode 32 half of the goal holds by construction and was only re-verified by the A/B cells.
+
+### Ceiling: what the second read costs (ly_fabq, timeline in the layer graph)
+
+`tools/ly_moe_tl16.py --base muse_decode_layer/cand/ly_fabq.py` (the tool now takes `--base / --pin / --out`) writes
+`ly_fabq_tl16.py` (13368de9), the MID per-CTA globaltimer stamps on ly_fabq's own helper0 text; `tools/ly_box_moe_tl16g.py`
+replays the whole layer graph with a cold L2, 40 fresh inputs per cell (f931 case seeds, router seed 106218864389449120,
+local_start per input), units counted per input. Medians, sliding / full, us:
+
+| | span | ramp | A | handoff | B | B-end spread | bar idle | final | unit A | unit B | warp 0 weight wait A | units | distinct |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ly_fabq | 66.34 / 66.75 | 3.71 / 3.68 | 36.64 / 36.91 | 2.31 / 2.33 | 18.49 / 18.43 | 3.50 / 3.36 | 2.95 / 2.78 | 0.46 / 0.48 | 1.15 / 1.15 | 1.12 / 1.15 | 2.74 / 2.65 | 6144 / 6144 | 8 / 7 |
+
+Excess units over 768 x distinct per input: 34 of 40 sliding inputs and 33 of 40 full inputs carry one split expert
+(768 extra units), 2 per cell carry two, 6 / 7 carry none. Least squares over the 40 inputs, span = a + b x distinct +
+c x split experts: sliding 11.02 + 6.77 x distinct + 7.29 x split (residual sd 0.80 us), full 12.05 + 6.63 x distinct +
+7.31 x split (0.90); on the graph time 7.63 / 7.06 us per split expert. Phase A carries 4.42 / 4.45 of it and phase B
+2.25 / 2.22. So the second read of one expert costs the same as one more distinct expert, 7.3 us of MID span, which
+is the loop-bound cost of its 768 units (768 / 132 x 1.152 us = 6.7) plus its share of the finish. Averaged over the
+inputs (0.9 split experts per input) the lever is 6.0 / 5.9 us per decode 16 cell; that is its ceiling, reached only
+if the non-split units kept their 1.15 us interval.
+
+Phase A is loop-bound, not stream-bound: warp 0 waits for weights 2.7 us per CTA over a 36.6 us phase (the stream
+lane's finding on verify 1 again). That rules out the brief's second option (both jobs of a split expert on one CTA,
+decoding the shared-memory unit twice): it keeps 6,912 loop iterations per 8-expert input and can save nothing
+while the loop is the bound. The third option (decode 16 on the WGS build) is the knob sweep's mid8 loss. What is
+left is the first option: one decode per unit, two n-tiles.
+
+### Mechanism: ly_mid1 (every unit two n-tiles, every CTA the same loop)
+
+`python3 tools/dl_ly_mid1_patch.py` (base ly_fabq, SHA checked; `--base / --pin / --out` like tools/dl_ly_prq_patch.py)
+writes `muse_decode_layer/cand/ly_mid1.py`, SHA256 f1c9b4e31fa6afb999fa4433156413e10bc6bc586ac3bbf166a20cfb3466dd01
+(the A/B ran on 3a2320ad, the same file with the two x1 declarations two lines later; the SASS report and the bitwise
+check are of f1c9b4e3). MID gets `-DOKC_SKT=16`: one job per local expert (up to 16 tokens), and every unit of every
+job runs two n-tiles on one decode of the weights. Tokens 0..7 come from the register fragments as in the control;
+tokens 8..15 are staged per warp in shared memory (the region the smem size formula already reserves for OKC_SKT > 8)
+by cp.async, zero-filled past the job's tokens, issued with the job's x0 loads and waited for after the unit's
+ring-slot wait. A job of 8 or fewer tokens runs the same code against a zero second tile, so every SM runs one loop
+body (the ly_ws2u reading: its two-tile CTAs stalled 3 to 6 us on their first unit of each phase while the one-tile
+CTAs ran the control's loop). Tile 0 keeps the control's four accumulator chains and combine order, so tokens 0..7 of
+every job are bitwise the control's; tile 1 has its own four chains combined the same way, so tokens 8..15 are bitwise
+what the control computes for them as a separate job. Tile-1 partials go to `red1` at the end of Smem, written before
+the same fence.proxy.async, CTA barrier and mbarrier hand-over as tile 0; the helper warp reads them before it frees
+the buffer and runs the epilogue for tokens 8..15 when the job has more than 8 (the WSBLK last-unit epilogue likewise).
+Unit ranges stay the control's count split, since every unit costs the same. No fence, barrier, mbarrier protocol,
+griddepcontrol or launch attribute changes; every edit is under `#if OKC_SKT > 8` with the control text in the
+`#else` arm, so TINY and TINY2 (decode 1, verify 1) preprocess to the base.
+
+Correctness (`chk`, all six loads, `--runs 5`): reference check PASS at all 12 scored cells, G_RELEASE_STARTUP_OK in
+prepare; in the A/B every run's check passed. Bitwise comparison against ly_fabq (`tools/ly_bitcmp.py`: both files
+prepared on the same weights in one process, 20 fresh inputs per cell run eagerly through both, the `reference.collect`
+bytes compared with torch.equal): not bitwise, and not measurable this way. ly_mid1 against ly_fabq differs on
+19 / 18 of 20 decode 16 inputs (hidden and stream, max abs diff 4.7e-2 / 3.1e-2), but also on 7 / 2 decode 1 inputs,
+13 / 14 decode 32 inputs and 12 / 12 verify 1 inputs, whose builds are byte-identical in both files; ly_fabq against
+itself (`bitcmp_self.log`) differs the same way, 16 / 19 of 20 at decode 16 (3.1e-2 / 3.1e-2), 8 / 2 at decode 1,
+14 / 15 at decode 32 (one decode 32 full input even flips a routing id), 15 / 12 at verify 1. The layer's output
+is not reproducible bit for bit from one call to the next (FP32 atomics in the MoE's sum of squares and the
+router, order-dependent), so the candidate's differences are inside the control's own run-to-run noise; the
+reference check passed 20 / 20 at every cell on both sides. By construction the candidate's partial sums are
+the control's chains in the control's order (source reading, not a measured identity).
+
+SASS (`tools/ly_micro_sass.py`, MID build, nvcc 13.0 on the box CPU): control 144 registers, phase A unit loop 692
+instructions with 32 HMMA and 17 LDS, phase B loop 747; ly_mid1 162 registers, 0 local, 0 stack, phase A loop 1006
+instructions with 64 HMMA and 102 LDS (16 LDS.128 of x1 fragments per unit; the x1 loader's cp.async and S.ent loads
+sit inside the loop region), phase B loop 912 with 64 HMMA. The second tile costs 32 HMMA + 16 LDS + the address
+arithmetic per unit per warp on every unit, split expert or not.
+
+### Timeline, ly_mid1_tl16.py (the same instrument on the candidate, 40 inputs per cell)
+
+| | span | ramp | A | handoff | B | B-end spread | bar idle | final | unit A | unit B | units | distinct |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ly_mid1 | 80.10 / 76.27 | 4.53 / 4.53 | 43.38 / 38.29 | 2.64 / 2.68 | 24.47 / 21.87 | 5.95 / 6.11 | 4.90 / 4.94 | 1.23 / 1.24 | 1.41 / 1.41 | 1.54 / 1.54 | 6144 / 5376 | 8 / 7 |
+
+The re-stream is gone (0 of 80 inputs with excess units; span = 17.59 + 8.17 x distinct, residual sd 1.18, no split
+term left). What eats it: every unit retires slower, 1.15 -> 1.41 us in phase A (+23%) and 1.12 to 1.15 -> 1.54 in
+phase B (+35%), so the per-expert slope rises from 6.3 to 6.8 us to 8.0 to 8.2 us, more than the 7.3 us one split
+expert cost; the ramp (+0.8 us, the x1 cp.async and the longer first unit), B-end spread (+2.5) and final pass (+0.8)
+grow too. The loop is issue-bound: 1006 instructions per warp per unit against 692 at about the same IPC.
+
+### Paired A/B against ly_fabq (`tools/ly_mid1_ab.sh`, 10:12 to 10:13 UTC)
+
+Five `bx_box_run.py --lock --ls-cache --ext-cache --pin-pdl8 1,8,16,32 --skip-pdl8-gate` processes (control,
+candidate, control, candidate, control), `--runs 60`, router seed 106218864389449120, f931 case seeds, every run timed
+with PDL on at T = 1, 8, 16, 32; table by `tools/ly_ws2t_table.py muse_decode_layer/profiles/box/mid1/ab`; net us,
+threshold max(2 x control spread, 1% of the control mean):
+
+| cell | c_a | w_a | c_b | w_b | c_c | control spread | candidate - control (means) | threshold | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 64.94 | 65.26 | 65.26 | 64.93 | 65.46 | 0.51 | -0.13 | 1.02 | inside (TINY, unchanged code) |
+| decode 1 full | 72.24 | 71.36 | 71.52 | 71.54 | 71.82 | 0.72 | -0.41 | 1.44 | inside |
+| decode 16 sliding | 126.99 | 137.14 | 126.58 | 137.71 | 126.82 | 0.42 | +10.63 | 1.27 | loss (every pair +10.1 to +11.1) |
+| decode 16 full | 200.00 | 208.66 | 198.66 | 208.59 | 199.42 | 1.34 | +9.26 | 2.69 | loss (every pair +8.7 to +10.0) |
+| decode 32 sliding | 144.16 | 143.76 | 142.96 | 143.90 | 143.10 | 1.20 | +0.42 | 2.40 | inside (B4, unchanged code) |
+| decode 32 full | 295.42 | 294.48 | 294.99 | 294.03 | 294.98 | 0.45 | -0.87 | 2.95 | inside |
+| verify 1 sliding | 102.35 | 101.78 | 101.79 | 101.92 | 101.90 | 0.56 | -0.17 | 1.12 | inside (TINY2, unchanged code) |
+| verify 1 full | 110.62 | 109.95 | 110.32 | 109.41 | 109.78 | 0.85 | -0.56 | 1.70 | inside |
+
+Decision: loss at decode 16 (+10.6 / +9.3 us against a 6 us ceiling), the largest of the three two-tile attempts.
+Not for a judge check; ruled-out row added. What it establishes, with ly_ws2t and ly_ws2u: on helper0's
+register-resident mma.sync loop a second n-tile costs 23 to 35% per unit, and no split of that cost between CTAs has
+beaten the 12.5% of units it saves. Running it on every unit (this candidate) loses the most; running it only where
+needed (ly_ws2u) loses 4 us to a per-CTA first-unit stall that follows the code, not the data. The ceiling itself is
+modest: 6 us per decode 16 cell at 0.105% of the score per us, about 0.6% at best.
+
+What would be needed (not built): a two-tile loop no slower per unit than the one-tile loop, which means the second
+tile's HMMAs and fragment loads must hide in the loop's latency slack (IPC about 0.6 per SMSP) rather than add issue
+slots; or the ly_ws2u form with the two-tile code made warm before its first unit (its stall disappeared when every
+SM ran the body, consistent with cold instruction fetch after the L2 flush; unproven without counters). Neither fits
+the day's rule at 0.6% of the score.
