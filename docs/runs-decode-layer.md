@@ -3242,3 +3242,89 @@ The lever that exists is helper0's stream ceiling of about 3.9 TB/s against 4.8 
 streaming kernel; the next step is to keep stripping the BARE build (the x prefetch, then the route itself with ranges
 passed in) until it reaches the replay's 4.8, which names the part
 to change. Expected value if found and removable: 5 to 8 us per verify 1 cell (hypothesis above).
+
+## 2026-11-04 - Phase A producer cap (box)
+
+Question from the lead (stream lane, second leg): which part of helper0's producer path caps its phase A stream at
+about 3.9 TB/s when a weights-only replay of the same bytes streams at 4.8. Base `muse_decode_layer/cand/ly_fabq.py`
+(SHA256 3765470032deb505...dde555, never edited). Box only (okc-h200, 2026-11-04 10:00-11:30 UTC, every GPU run under
+/root/okc/.build/box/gpu.lock, no foreign GPU process in `nvidia-smi` before or during the runs, ncu unavailable),
+no judge job, no routing slack. Logs: `muse_decode_layer/profiles/box/st/v_*.log`, `w_*.log`, `b_*.log`.
+
+Tools added (commit 68b58532): `tools/dl_ly_st_patch.py --variant rec` gains off-by-default switches `ST_PLAIN`
+(both phases as st_replay.cu's loop on helper0's own ring and ranges: wait, one shared read, `fence.proxy.async`,
+CTA barrier, thread-0 refill, nothing else; helper as `ST_BARE`), `ST_NOROUTE` (job table from the FAST1 warp's
+expert mask, no `route()`), `ST_NOX` (no x prefetch, no LUT), `ST_NOZERO` (no ss zeroing), and records `clock64`
+with `globaltimer` at the first full slot and at the phase A end of every CTA, so each launch reports its SM clock.
+`st_replay.cu` records the same clock and has a prologue stand-in (cold loads, 6 CTA barriers, a staggered spin).
+`tools/box_st_rec.py` prints `smclk_mhz` and `cta_unit_a` (median per-CTA phase A unit interval from the ready
+stamps) and replays the A+B sequence from the lower of the two unit tensors (w2 sits 288 MB below w13), so
+the whole-kernel CUDA-event time of helper0 can be set against the replay of its exact bytes.
+
+### helper0 in place, verify 1, read flush, 6 inputs each (3 sliding, 3 full)
+
+`A` is tl8's phase A window (mean first-full to mean phase-A-end over CTAs), tbsA the phase A bytes over it,
+`cta_unit` the median per-CTA interval between consecutive ready stamps, `wwait` warp 0's weights wait per CTA
+summed over phase A, `lat` the median issue-to-ready time, `plain` the CUDA-event time of the whole launch.
+
+| build (extra defines) | SM MHz in phase A | cta_unit us | tbsA | wwait per CTA us | lat us | plain us (seed 078 / 931) |
+|---|---:|---:|---:|---:|---:|---:|
+| base (math), run 1 | 1754 to 1774 | 1.218 to 1.235 | 3.97 to 4.02 | 1.6 to 3.0 | 2.72 | 57.1 / 62.8 |
+| base (math), run 2 | 1739 to 1777 | 1.221 to 1.263 | 3.88 to 4.00 | 1.6 to 2.8 | 2.72 to 2.78 | 55.9 / 63.4 |
+| no math (`ST_NOMATH=1 ST_SPIN=0`) | 1966 to 1979 | 1.018 to 1.086 | 4.66 to 4.95 | 13 to 23 | 2.72 to 2.78 | 51.0 / 56.5 |
+| bare (`+ ST_BARE=1`) | 1967 to 1980 | 1.024 to 1.030 | 4.90 to 4.96 | 15 to 25 | 2.78 to 2.82 | 47.1 / 53.2 |
+| plain loop (`ST_PLAIN=1`), run 1 | 1969 to 1979 | 1.033 to 1.097 | 4.64 to 4.93 | 22 to 37 | 2.82 to 2.91 | 46.8 / 52.1 |
+| plain loop, run 2 | 1977 to 1979 | 1.031 to 1.039 | 4.86 to 4.93 | 22 to 37 | 2.7 to 2.8 | 46.9 / 52.2 |
+| plain, no route, no x, no zeroing (`+ ST_NOROUTE=1 ST_NOX=1 ST_NOZERO=1`) | 1968 to 1979 | 1.040 to 1.111 | 4.62 to 4.91 | 23 to 39 | 2.7 to 2.8 | 46.1 / 52.4 |
+| same-bytes replay (st_replay.cu, phase A list, same process) | 1978 to 1980 | 0.977 to 0.992 | 4.32 to 4.47 span / 4.79 to 4.85 steady | - | 2.69 to 2.75 | - |
+| same-bytes replay, A then B in one ring, eager event time | 1979 to 1980 | 0.985 to 1.02 | 4.41 to 4.52 span | - | - | 43.0 / 49.1 |
+
+### Replay with helper0's remaining traits (st_replay_bench, h0 pattern, 7 experts, D = 3, 10 replays)
+
+| replay options | SM MHz | span / steady TB/s | cta_unit us | lat us |
+|---|---:|---|---:|---:|
+| plain (1 consumer warp, graph launch) | 1980 | 4.42 / 4.82 | 0.988 | 2.74 |
+| every trait at once: 8 polling warps, refill by warp 1 after the 256-thread barrier, constant policy word, evict_last stores, cooperative eager launch, ring behind 40 KB | 1979 | 4.37 / 4.84 | 0.982 | 2.72 |
+| prologue stand-in (64 cold ints, 6 barriers, 6 us + up to 2.8 us stagger before the first issue) | 1979 | 3.64 / 4.79 | 0.916 | 2.61 |
+| both | 1979 | 3.60 / 4.82 | 0.926 | 2.62 |
+| 8 polling consumer warps, no refill thread | 1979 | 4.26 / 4.54 | 1.032 | 2.72 |
+| 8 burn warps (mma.sync + integer, power load) | 1766 | 4.25 / 4.81 | 1.002 | 2.54 |
+
+### Reading
+
+1. There is no producer-path cap. With the math removed and everything else of helper0 kept (its launch, prologue,
+   routing, ring, barriers, refill thread, helper warp, grid barrier, final pass), phase A streams in place at 4.66
+   to 4.96 TB/s (tbsA) and 1.02 to 1.09 us per unit per CTA, the same as the replay of the same bytes in the same
+   process (0.98 to 0.99 us, 4.8 steady). Removing the route, the x prefetch, the LUT and the ss zeroing changes
+   nothing. Adding every remaining helper0 trait and a prologue stand-in to the replay changes nothing. The
+   issue-to-ready latency is 2.7 to 2.8 us in every build, with or without math.
+2. The previous leg's no-math and bare numbers (1.15 to 1.22 us per unit, 3.72 to 4.05 TB/s, latency 3.4 to 3.5 us;
+   `nm0.log`, `s_bare.log`, `t_bare.log`, 08:20-10:10 UTC) are not reproduced with the same defines, the same tool
+   and the same inputs: today the same builds give 1.02 to 1.09 us and 4.6 to 4.96, in two runs each. Today's runs
+   were made with no other process on the GPU. The only code difference between the two legs' bare builds is two
+   clock64 stores per CTA. Hypothesis for the earlier numbers: their issue-to-ready latency was 3.4 to 3.5 us
+   against 2.7 for the replay in the same session and 2.7 to 2.8 in every build today, which is what a memory
+   system carrying load beyond the kernel's own looks like; the h-loop census was running outside the lock in that
+   window. Not verifiable after the fact; the earlier in-place rows should not be cited.
+3. What limits phase A in the base build is the unit loop: 1.22 to 1.26 us per unit with warp 0 waiting for weights
+   only 1.6 to 3 us per CTA over a 28 to 47 us phase (the ring is never empty after the ramp), at an SM clock of
+   1740 to 1780 MHz, against 1966 to 1980 MHz in every build without the math and in the replay. The math's power
+   sets the clock (a power load in the replay, 8 burn warps, drops it to 1766 MHz too), and at 1765 MHz the base
+   loop's 1.23 us is 2170 cycles per unit. The stream itself is not clock-bound: the burn replay at 1766 MHz still
+   reads 4.81 TB/s steady, so a faster loop would be fed at up to 4.8 (1.02 us per unit at 132 CTAs).
+4. Size of the lever (hypothesis, corrected from the previous leg's 5 to 8 us): phase A at the stream's 1.02 us per
+   unit instead of the loop's 1.23 is 17% of phase A, 4 to 8 us per verify 1 cell, and phase B in proportion; it is
+   a loop lever (h-loop and moe lanes), not a stream lever. Each unit's loop has about half of its 2170 cycles in
+   the per-unit CTA barrier, hand-off and refill rather than in the decode and mma (lane 1.3b's timeline), which is
+   what a second CTA on the SM can fill: the one stream-side change that acts on it is occupancy.
+
+### Candidate: ly_dual (two CTAs per SM, 2-slot ring)
+
+`tools/dl_ly_dual_patch.py` (base ly_fabq, pinned) -> `muse_decode_layer/cand/ly_dual.py`: `__launch_bounds__(NTL,
+OKC_MINB)`, the launcher multiplies the grid by OKC_MINB and its residency checks by the same factor, and the
+TINY / TINY2 / MID builds get `-DOKC_NS=2 -DOKC_MINB=2` (two CTAs of 36.7 KB tables + 73.7 KB ring fit the SM's
+228 KB; 112 registers per thread at 2 x 288 threads against the single-CTA builds' 141 (TINY2) and 162 (MID)).
+Every unit range, the dynamic pool, the grid barrier and the final pass already index by gridDim.x; no fence,
+barrier or arithmetic order changes, so the output is bitwise the base's.
+
+A/B: PENDING_AB
