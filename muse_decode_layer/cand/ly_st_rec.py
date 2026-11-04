@@ -12897,10 +12897,13 @@ __device__ __forceinline__ unsigned long long gtimer() {
 #define ST_NOROUTE 0  // (the SPLIT build has no expert mask: it keeps route())
 #endif
 #define ST_REC_N 128
-#define ST_CNT (136 * 64)
-#define ST_ISS (ST_CNT + 136)
-#define ST_RDY (ST_ISS + 136 * ST_REC_N * 2)
-#define ST_WT (ST_RDY + 136 * ST_REC_N)
+#ifndef ST_NC
+#define ST_NC 136  // CTAs the record covers (264 for a two-CTAs-per-SM build)
+#endif
+#define ST_CNT (ST_NC * 64)
+#define ST_ISS (ST_CNT + ST_NC)
+#define ST_RDY (ST_ISS + ST_NC * ST_REC_N * 2)
+#define ST_WT (ST_RDY + ST_NC * ST_REC_N)
 #if OKC_TLX
 #define ST_ISSUE(kv, blkv, pbv) do { if (TLX_ON) { \
     const int k_ = (kv); \

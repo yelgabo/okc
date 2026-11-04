@@ -21,11 +21,21 @@ import box_moe_tl8 as tl8  # noqa: E402
 import torch  # noqa: E402
 
 SLOTS, NC, RN = 64, 136, 128
-CNT = NC * SLOTS
-ISS = CNT + NC
-RDY = ISS + NC * RN * 2
-WT = RDY + NC * RN
-TOTAL = WT + NC * RN
+CNT = ISS = RDY = WT = TOTAL = 0
+
+
+def layout(nc):
+    """The record's p.dbg layout for nc CTAs (dl_ly_st_patch.py's ST_NC)."""
+    global NC, CNT, ISS, RDY, WT, TOTAL
+    NC = nc
+    CNT = NC * SLOTS
+    ISS = CNT + NC
+    RDY = ISS + NC * RN * 2
+    WT = RDY + NC * RN
+    TOTAL = WT + NC * RN
+
+
+layout(136)
 UNIT = 36864
 RBA, RBB = 512, 256
 
@@ -142,9 +152,12 @@ def main():
                     "-DST_NOMATH=1,-DST_SPIN=900 (the prepared state and its checks use the file's own builds)")
     ap.add_argument("--replay", default="", help="also stream each input's recorded phase A sequence from the layer's own "
                     "w13 tensor with muse_moe_w4a16/cl/st_replay.cu: comma-separated consumer delays in ns")
+    ap.add_argument("--minb", type=int, default=1, help="CTAs per SM of the file's helper0 (ly_dual: 2); the record then"
+                    " covers minb x 136 CTAs and the launch's grid is minb x nsm")
     ap.add_argument("--flush", default="write", choices=("write", "read"),
                     help="L2 flush before the recorded launch: write (fill_, box_moe_tl8.py's) or read (sum, the judge's)")
     a = ap.parse_args()
+    layout(136 * a.minb)
     if a.lock:
         br.release_lock_for_triton()
         br.BudgetClock.install()
@@ -200,6 +213,7 @@ def main():
                 print("REC no helper0 launch recorded", case["load"], flush=True)
                 continue
             w_, scr, x, lids, wts, out, l0, l1, nsm = rec.calls[-1]
+            grid = nsm * a.minb  # the launcher multiplies the grid by OKC_MINB
             plain_us = []
             for _ in range(3):
                 if a.flush == "write":
@@ -221,12 +235,12 @@ def main():
             torch.cuda.synchronize()
             run_ext[key].okc_run(w_, list(scr) + [buf], x, lids, wts, inst, l0, l1, nsm)
             torch.cuda.synchronize()
-            if int(buf[: nsm * SLOTS].abs().sum()) == 0:
+            if int(buf[: grid * SLOTS].abs().sum()) == 0:
                 print(f"REC plain-only {case['load']} {case['layer']} seed {seed} plain_us {statistics.median(plain_us):.2f}",
                       flush=True)
                 continue
-            ctas = decode(buf, nsm)
-            st = tl8.stats(buf[: nsm * SLOTS].view(nsm, SLOTS).cpu(), lids)
+            ctas = decode(buf, grid)
+            st = tl8.stats(buf[: grid * SLOTS].view(grid, SLOTS).cpu(), lids)
             an = analyse(ctas, f"{case['load']} {case['layer']} seed {seed}")
             an.update(plain_us=statistics.median(plain_us), span=st["span"], A=st["A"], B=st["B"], a_wwait=st["a_wwait"], b_wwait=st["b_wwait"],
                       distinct=st["distinct"], units=st["units"], unit_a=st["unit_a"], unit_b=st["unit_b"])

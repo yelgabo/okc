@@ -52,10 +52,13 @@ REC_DEFS = """#ifndef ST_BARE
 #define ST_NOROUTE 0  // (the SPLIT build has no expert mask: it keeps route())
 #endif
 #define ST_REC_N 128
-#define ST_CNT (136 * 64)
-#define ST_ISS (ST_CNT + 136)
-#define ST_RDY (ST_ISS + 136 * ST_REC_N * 2)
-#define ST_WT (ST_RDY + 136 * ST_REC_N)
+#ifndef ST_NC
+#define ST_NC 136  // CTAs the record covers (264 for a two-CTAs-per-SM build)
+#endif
+#define ST_CNT (ST_NC * 64)
+#define ST_ISS (ST_CNT + ST_NC)
+#define ST_RDY (ST_ISS + ST_NC * ST_REC_N * 2)
+#define ST_WT (ST_RDY + ST_NC * ST_REC_N)
 #if OKC_TLX
 #define ST_ISSUE(kv, blkv, pbv) do { if (TLX_ON) { \\
     const int k_ = (kv); \\
@@ -212,7 +215,7 @@ Z_OLD = "    for (int i = blockIdx.x * NT + tid; i < EMAX; i += gridDim.x * NT) 
 Z_NEW = "#if !ST_NOZERO\n" + Z_OLD + "#endif\n"  # (the barrier counter's zeroing stays: the next launch's grid barrier needs it)
 
 
-def apply(s, v):
+def apply(s, v, nc=136):
     if v == "rec":
         s = ul.timeline(s)
         s = ul.edit(s, [(TLS_ANCHOR, TLS_ANCHOR + REC_DEFS), (RING_OLD, RING_NEW), (F1_OLD, F1_NEW)], v)
@@ -223,7 +226,12 @@ def apply(s, v):
         s = ul.edit(s, [(HELPER_END, PLAIN_FN), (RP_OLD, RP_NEW), (MASK_OLD, MASK_NEW), (ROUTE_OLD, ROUTE_NEW), (X_OLD, X_NEW),
                         (X_END_OLD, X_END_NEW), (Z_OLD, Z_NEW)], v)
         add = 'MOE_MID_DEFINES += ("@moe_helper0",)\n'
-        return ul.once(s, add, add + 'MOE_MID_DEFINES += ("-DOKC_TLX=1",)\n', v)
+        s = ul.once(s, add, add + 'MOE_MID_DEFINES += ("-DOKC_TLX=1",)\n', v)
+        if nc != 136:
+            anchor = 'MOE_TINY_DEFINES += ("@moe_helper0", "-DOKC_FINPF=1", "-DOKC_NOSCL=1")\n'
+            s = ul.once(s, anchor, anchor + "".join(f'{b} += ("-DST_NC={nc}",)\n' for b in
+                                                    ("MOE_TINY_DEFINES", "MOE_TINY2_DEFINES", "MOE_MID_DEFINES")), v)
+        return s
     sys.exit(f"unknown variant {v}")
 
 
@@ -231,13 +239,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", action="append", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--base", default=str(ul.SRC), help="layer file to patch (default ly_fabq.py)")
+    ap.add_argument("--pin", default=ul.PIN, help="its SHA256")
+    ap.add_argument("--nc", type=int, default=136, help="CTAs the record covers (264 for ly_dual's two per SM)")
     a = ap.parse_args()
-    raw = ul.SRC.read_bytes()
-    if hashlib.sha256(raw).hexdigest() != ul.PIN:
-        sys.exit("ly_fabq.py SHA256 mismatch")
+    base = pathlib.Path(a.base) if pathlib.Path(a.base).is_absolute() else ROOT / a.base
+    raw = base.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != a.pin:
+        sys.exit(f"{base.name} SHA256 mismatch")
     s = raw.decode()
     for v in a.variant:
-        s = apply(s, v)
+        s = apply(s, v, a.nc)
     out = ROOT / a.out
     out.write_text(s)
     py_compile.compile(str(out), doraise=True)
