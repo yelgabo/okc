@@ -4470,3 +4470,55 @@ cgemv40_kernel<128, 2> REG 40, STACK 0, LOCAL 0, SHARED 1064, 696 instructions. 
 identical (FADD 54, FFMA 64, FMUL 5, FSEL 10, LDG 23, SHFL 31, PRMT 32, LOP3 105 in both); the eight-instruction
 difference is integer bookkeeping (IMAD 114 vs 110, IADD3 21 vs 16, VIADD 21 vs 24, SHF 32 vs 33, NOP 9 vs 13, no
 UMOV). No spill at 32 registers, so the 40-register choice of the standalone bench bought nothing in code here.
+
+### Paired A/B against ly_fabq (box, 15:52 to 15:54 UTC)
+
+`tools/ly_prtl_ab.sh` with CTL=ly_fabq.py, CAND=ly_cg32.py: five bx_box_run.py processes c/w/c/w/c under gpu.lock,
+all six loads, `--runs 60`, `--pin-pdl8 1,8,16,32 --skip-pdl8-gate`, router seed 106218864389449120, f931 case
+seeds, local_start per input; every arm's timed PDL set {1, 8, 16, 32} on, reference check PASS in every run.
+Logs and JSONs: `muse_decode_layer/profiles/box/cg32/` (box `.build/prtl/cg32/`). Table by
+`tools/ly_prtl_table.py` (threshold max(2 x control spread, 0.5 us) at decode 1 / verify 1, max(2 x spread, 1%)
+elsewhere); net us, candidate mean minus control mean, pairs w_a-c_a, w_a-c_b, w_b-c_b, w_b-c_c.
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|
+| decode 1 sliding | 65.74 | 65.58 | 65.47 | 65.52 | 65.07 | 0.67 | +0.12 | -0.16 +0.11 +0.05 +0.45 | 1.34 | inside |
+| decode 1 full | 72.02 | 72.03 | 71.79 | 71.68 | 72.19 | 0.40 | -0.14 | +0.02 +0.24 -0.11 -0.51 | 0.80 | inside |
+| decode 16 sliding | 126.88 | 126.69 | 127.28 | 126.19 | 127.25 | 0.40 | -0.70 | -0.19 -0.59 -1.09 -1.06 | 1.27 | inside |
+| decode 16 full | 198.88 | 198.98 | 199.12 | 198.51 | 199.63 | 0.75 | -0.47 | +0.10 -0.14 -0.61 -1.12 | 1.99 | inside |
+| decode 32 sliding | 144.22 | 144.10 | 143.87 | 143.04 | 143.65 | 0.58 | -0.35 | -0.13 +0.22 -0.83 -0.61 | 1.44 | inside |
+| decode 32 full | 295.97 | 294.93 | 294.46 | 295.20 | 294.77 | 1.50 | -0.00 | -1.04 +0.46 +0.74 +0.43 | 3.01 | inside |
+| verify 1 sliding | 102.51 | 102.75 | 101.94 | 102.13 | 102.19 | 0.58 | +0.23 | +0.24 +0.82 +0.19 -0.06 | 1.15 | inside |
+| verify 1 full | 110.83 | 110.78 | 109.76 | 110.32 | 110.54 | 1.07 | +0.17 | -0.05 +1.02 +0.56 -0.22 | 2.14 | inside |
+| verify 16 sliding | 242.45 | 242.74 | 243.26 | 243.01 | 242.64 | 0.82 | +0.09 | +0.29 -0.53 -0.26 +0.37 | 2.43 | inside |
+| verify 16 full | 327.49 | 327.02 | 327.22 | 327.18 | 327.12 | 0.37 | -0.17 | -0.46 -0.19 -0.03 +0.06 | 3.27 | inside |
+| verify 32 sliding | 297.76 | 297.66 | 296.93 | 296.64 | 297.14 | 0.83 | -0.12 | -0.10 +0.74 -0.29 -0.50 | 2.97 | inside |
+| verify 32 full | 459.95 | 460.06 | 461.46 | 459.20 | 459.57 | 1.89 | -0.69 | +0.11 -1.39 -2.26 -0.37 | 4.60 | inside |
+
+Sign counts at the changed cells: decode 1 sliding 3 of 4 pairs positive, decode 1 full 2 of 4; the ten unchanged
+cells (the base's code) move by -0.70 to +0.23 and are the session's null. A null, not a loss: the candidate is
+indistinguishable from the base at decode 1.
+
+### Candidate timeline (same instrument, `muse_decode_layer/profiles/box/ltl/tl_cg32/`, net 65.02 / 71.58 us)
+
+Decode 1 sliding, base -> candidate: slice start 58.59 -> 58.26 (2.26 -> 2.29 us before the MoE's end), duration
+5.66 -> 5.62, critical path 3.60 -> 3.33; finish start 63.25 -> 61.97 (1.06 -> 1.90 us before the slice's end),
+duration 2.67 -> 3.44, critical path 1.47 -> 1.63; span 65.76 -> 65.55. Full: slice 3.44 -> 3.48, finish 1.94 ->
+1.46, span 71.68 -> 71.92. The other seven kernels are within 0.25 us of the base.
+
+Reading. The slice's post-MoE critical path moved by 0.27 us at sliding and not at all at full, and whatever it gave
+back the finish absorbed (it launches earlier and waits longer), so the second-wave residency explains at most
+about 0.3 us of the slice's 2.2 us excess, and the step is unchanged. The 3.3 to 3.5 us from the MoE's end to the
+slice's end is therefore not the late CTAs' code loads. What remains unseparated (hypotheses): the wait-return
+latency behind a 132-CTA cooperative kernel's completion (its CTAs exit after the final pass, and the flush covers
+the MoE's scratch and output writes), the x row read after the wait, and the escape warp's table walk; a per-CTA
+entry / wait-return / store stamp in the slice would separate them (not built; one kernel edit plus the launch
+plumbing). ly_cg32 is not kept; the ruled-out row records the measurement. No judge check.
+
+### Decision
+
+No candidate for a judge check from this lane tonight. The decode 1 edges are measured: the eight PDL edges hold
+about 6 us (hypothesis from the 0.7 us per-edge estimate), the route -> MoE serial edge 0.1 us, and the post-MoE
+tail (slice + finish) 3.6 to 4.0 us over its floor, of which residency was 0.3. Every load-ordering, trigger and
+fusion lever at these edges is closed by earlier sections; what is left needs an instrument inside the slice and
+finish kernels or a change inside the MoE's tail (the MoE lane's).
