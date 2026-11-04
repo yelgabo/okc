@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ly_sngw: the layer attention's verify 1 sliding merge with one workspace copy per split, written by plain stores,
+"""ly_sngw2 (first build ly_sngw 0302ec93: one dimension per thread, 40 loads each): the layer attention's verify 1 sliding merge with one workspace copy per split, written by plain stores,
 summed in split order by the cooperative finalize.
 
 Base ly_v1un (pinned). One change. Host: _plan7's one-request q_len 8 sliding plan takes nc = n_splits (each split
@@ -21,7 +21,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SRC = ROOT / "muse_decode_layer/cand/ly_v1un.py"
-DST = ROOT / "muse_decode_layer/cand/ly_sngw.py"
+DST = ROOT / "muse_decode_layer/cand/ly_sngw2.py"
 PIN = "88fbae8644f946af46b87ab89be17409e133ebab26d20cf61e9c3f3941788145"
 if "--src" in sys.argv:
     SRC = ROOT / sys.argv[sys.argv.index("--src") + 1]
@@ -29,53 +29,78 @@ if "--src" in sys.argv:
 if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
 
-FIN = r"""// sngw (one workspace copy per split): rows [r_lo, r_hi) summed over the nact copies in split order (deterministic,
-// unlike the red.add merge), the copies zeroed after the read, then rmsnorm * sigmoid(gate); one dimension per thread
-#define SNGW_MAX 40
+FIN = r"""// sngw (one workspace copy per split): rows [r_lo, r_hi) summed over the nact copies (deterministic, unlike the
+// red.add merge), the copies zeroed after the read, then rmsnorm * sigmoid(gate). Thread = (row, 4 dims, copy phase q):
+// copies q, q + 4, ... summed in order, then the quad's xor-1 / xor-2 butterfly (the same sum in all four lanes)
+#define SNGW_CPT 10
 template <int L, int NT>
 __device__ __forceinline__ void fin_sngw(const Params& p, const int b, const int pair, const int bp, const int r_lo,
                                          const int r_hi, const int nact, const float vscale) {
   __shared__ float ssx[NT / 32];
-  const int tid = threadIdx.x, d = tid & 63, warp = tid >> 5, lane = tid & 31;
+  const int tid = threadIdx.x, q = tid & 3, d4 = (tid >> 2) & 15, warp = tid >> 5, lane = tid & 31;
   const int nc = p.nc;
   for (int rbase = r_lo; rbase < r_hi; rbase += NT / 64) {   // the same trip count in every thread (barriers below)
     const int rr = rbase + (tid >> 6);
     const bool act = rr < r_hi;
     const int j = act ? rr >> 4 : 0, hh = act ? rr & 15 : 0;
-    const float gt = act ? __bfloat162float(__ldcg(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 +
-                                                   (16 * pair + hh) * 64 + d)) : 0.f;
-    float y = 0.f, ls = 0.f;
-    for (int c0 = 0; c0 < nact; c0 += SNGW_MAX) {
-      float v[SNGW_MAX], lv[SNGW_MAX];
+    uint2 graw = make_uint2(0u, 0u);
+    if (act && q == 0)
+      graw = __ldcg(reinterpret_cast<const uint2*>(p.qkv + (ix_t)(b * L + j) * p.ld_qkv + (p.Hq + 2 * p.Hkv) * 64 +
+                                                   (16 * pair + hh) * 64 + d4 * 4));
+    float4 y = make_float4(0.f, 0.f, 0.f, 0.f);
+    float ls = 0.f;
+    for (int c0 = 0; c0 < nact; c0 += 4 * SNGW_CPT) {
+      float4 v[SNGW_CPT];
+      float lv[SNGW_CPT];
 #pragma unroll
-      for (int u = 0; u < SNGW_MAX; ++u) {
-        const bool on = act && c0 + u < nact;
-        const int row = ((bp * nc + c0 + u) * L + j) * 16 + hh;
-        v[u] = on ? __ldcg(p.ws_acc + (ix_t)row * 64 + d) : 0.f;
-        lv[u] = on ? __ldcg(p.ws_l + row) : 0.f;
+      for (int u = 0; u < SNGW_CPT; ++u) {
+        const int c = c0 + 4 * u + q;
+        const int row = ((bp * nc + c) * L + j) * 16 + hh;
+        v[u] = make_float4(0.f, 0.f, 0.f, 0.f);
+        lv[u] = 0.f;
+        if (act && c < nact) {
+          v[u] = __ldcg(reinterpret_cast<const float4*>(p.ws_acc + (ix_t)row * 64) + d4);
+          lv[u] = __ldcg(p.ws_l + row);
+        }
       }
 #pragma unroll
-      for (int u = 0; u < SNGW_MAX; ++u) { y += v[u]; ls += lv[u]; }
-#pragma unroll
-      for (int u = 0; u < SNGW_MAX; ++u) {
-        if (act && c0 + u < nact) {
-          const int row = ((bp * nc + c0 + u) * L + j) * 16 + hh;
-          p.ws_acc[(ix_t)row * 64 + d] = 0.f;
-          if (d == 0) p.ws_l[row] = 0.f;
+      for (int u = 0; u < SNGW_CPT; ++u) {
+        y.x += v[u].x; y.y += v[u].y; y.z += v[u].z; y.w += v[u].w;
+        ls += lv[u];
+        const int c = c0 + 4 * u + q;
+        if (act && c < nact) {
+          const int row = ((bp * nc + c) * L + j) * 16 + hh;
+          __stcg(reinterpret_cast<float4*>(p.ws_acc + (ix_t)row * 64) + d4, make_float4(0.f, 0.f, 0.f, 0.f));
+          if (d4 == 0) p.ws_l[row] = 0.f;
         }
       }
     }
-    const float inv = ls > 0.f ? __fdividef(vscale, ls) : 0.f;
-    const float yv = pr8(y * inv);
-    float ss = yv * yv;
 #pragma unroll
-    for (int o = 16; o > 0; o >>= 1) ss += __shfl_xor_sync(0xffffffffu, ss, o);
+    for (int o = 1; o <= 2; o <<= 1) {
+      y.x += __shfl_xor_sync(0xffffffffu, y.x, o);
+      y.y += __shfl_xor_sync(0xffffffffu, y.y, o);
+      y.z += __shfl_xor_sync(0xffffffffu, y.z, o);
+      y.w += __shfl_xor_sync(0xffffffffu, y.w, o);
+      ls += __shfl_xor_sync(0xffffffffu, ls, o);
+    }
+    const float inv = ls > 0.f ? __fdividef(vscale, ls) : 0.f;
+    const float y0 = pr8(y.x * inv), y1 = pr8(y.y * inv), y2 = pr8(y.z * inv), y3 = pr8(y.w * inv);
+    float ss = q == 0 ? y0 * y0 + y1 * y1 + y2 * y2 + y3 * y3 : 0.f;
+#pragma unroll
+    for (int o = 4; o <= 16; o <<= 1) ss += __shfl_xor_sync(0xffffffffu, ss, o);
     if (lane == 0) ssx[warp] = ss;
     __syncthreads();
     const float tot = ssx[warp & ~1] + ssx[warp | 1];
     __syncthreads();
     const float rn = rsqrtf(tot * (1.f / 64.f) + 1e-5f);
-    if (act) p.out[(ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + d] = __float2bfloat16_rn(yv * rn * sigm(gt));
+    if (act && q == 0) {
+      const __nv_bfloat162* g2 = reinterpret_cast<const __nv_bfloat162*>(&graw);
+      const float2 ga = __bfloat1622float2(g2[0]), gb = __bfloat1622float2(g2[1]);
+      __nv_bfloat162 o01 = __floats2bfloat162_rn(y0 * rn * sigm(ga.x), y1 * rn * sigm(ga.y));
+      __nv_bfloat162 o23 = __floats2bfloat162_rn(y2 * rn * sigm(gb.x), y3 * rn * sigm(gb.y));
+      uint2 ov = make_uint2(*reinterpret_cast<uint32_t*>(&o01), *reinterpret_cast<uint32_t*>(&o23));
+      *reinterpret_cast<uint2*>(p.out + (ix_t)(b * L + j) * (p.Hq * 64) + (16 * pair + hh) * 64 + d4 * 4) = ov;
+    }
   }
 }
 """
@@ -130,7 +155,7 @@ def main():
     text = text[:i] + a + text[j:]
     for old, new in FILE_EDITS:
         text = sub(text, old, new, "file")
-    text = ("# ly_sngw: ly_v1un + verify 1 sliding attention merge with one workspace copy per split, plain stores, "
+    text = ("# ly_sngw2: ly_v1un + verify 1 sliding attention merge with one workspace copy per split, plain stores, "
             "ordered sum (tools/dl_ly_sngw_patch.py).\n") + text
     DST.write_text(text)
     py_compile.compile(str(DST), doraise=True)

@@ -5916,3 +5916,152 @@ before the MoE ends, but at decode 1 the slice's 6 MB of DRAM time then lands in
 barrier) instead of after its exit, and the base's ordering, where most code loads follow the MoE CTAs' exits and
 overlap only the final pass, is already close to the best one. This bears on the moe lane's current step (the MoE's
 CTAs prefetching the slice's 6.3 MB into L2 at phase B start): the same bytes would share phase B's DRAM time.
+
+## 2026-11-04 - Verify 1 sliding attention in the layer (box)
+
+Attention-v1 lane. Question: the "Verify 1 timeline (box)" section puts `attn_kernel<8, false, 15>` (the T = 8
+instance at verify 1 sliding: per-request grid of 33 splits, one 64-key tile each, OKC_SPEC speculated length,
+cooperative finalize, one workspace copy) at 6.75 us on the critical path against a 0.12 us byte floor. Where do the
+6.75 us go, which K/V bytes are read before `griddepcontrol.wait`, and can one change take the excess? Base:
+`muse_decode_layer/cand/ly_v1un.py` (SHA256 88fbae8644f946af46b87ab89be17409e133ebab26d20cf61e9c3f3941788145), never
+edited. Box only (okc-h200, 18:31 to 19:01 UTC), every run under gpu.lock, no judge check. Logs, JSONs and tables:
+`muse_decode_layer/profiles/box/atst/`.
+
+### Instrument (never a candidate)
+
+`tools/dl_ly_atst_patch.py` writes `muse_decode_layer/cand/ly_atst.py` (771c7f9b) from ly_v1un: the attention's own
+DBG stamps switched on (OKC_DBGON 1, OKC_MRGDBG 1, 32 slots per CTA, thread 0, written only when `p.dbg` is set) plus
+five slots (pre-wait work done, wait returned, q group landed, ticket atomic returned, SM id), and entry / wait /
+output-store stamps in the sk2 kernel for the T = 8 qkv (narrow build) and o launches. `tools/ly_box_atst.py`
+captures the whole layer twice per cell (plain, instrumented; PDL pinned on at every T as bx_box_run does), replays
+20 fresh inputs (local_start per input, router seed 106218864389449120, f931 case seeds) through both with a cold L2
+and reports times from `qkv_end`, the last qkv CTA's output store. The base's stamps: `atst1.{log,json}`.
+
+### The 6.75 us as a sum of parts (measurement, verify 1 sliding, medians over 20 inputs, us after qkv_end)
+
+| part | from | to | us |
+|---|---:|---:|---:|
+| qkv's last store to the attention's `griddepcontrol.wait` return (all 33 CTAs within 0.03 us) | 0.00 | 0.42 | 0.42 |
+| q / new k,v / constants group issued, page-index group waited, CTA barrier, K/V copies issued, q group landed | 0.42 | 1.12 | 0.70 |
+| RoPE table, q pass (RMS norm, RoPE, e4m3 into the wgmma A tile) | 1.12 | 2.21 | 1.09 |
+| new k,v pass and cache-row writes, new-row patch | 2.21 | 2.27 | 0.06 |
+| consumer setup, tile 0 wait + CTA barrier | 2.27 | 2.64 | 0.37 |
+| tile math (QK^T wgmma, softmax, P.V) | 2.64 | 3.46 | 0.82 |
+| merge: 8 `red.global.add.v4` + 1 `red.add` per thread issued (32 KB per CTA into one copy) | 3.49 | 4.34 | 0.85 |
+| ticket: thread 0's `atom.acq_rel.gpu` returns (the CTA's reds performed) | 4.35 | 5.22 | 0.87 |
+| grid barrier: last ticket (5.79, the split holding the new rows) seen by every CTA | 5.22 | 5.92 | 0.70 |
+| finalize: 4 rows per CTA, sum the copy, rmsnorm, gate, BF16 store (last CTA) | 5.92 | 6.72 | 0.80 |
+| attention end | | 6.72 | **6.72** |
+
+The o kernel's `griddepcontrol.wait` returns 0.42 us after the attention's last store (7.14). The o kernel's first CTAs
+enter at 1.18 us (the attention triggers right after its own wait), so o's pre-wait weight stream runs on the same SMs
+and memory system through the whole merge. The critical CTA is split 32, the one holding the new rows: it does the new
+k,v pass (+0.3 us), the patch (+0.15) and a masked tile, and its ticket comes last in every input (5.70 to 5.79 against
+5.06 to 5.38 for the others). Verify 1 full (`<8, false, 11>`, 252 splits, 8 copies): wait return 0.48, q landed 1.50,
+tile 0 landed 3.23, merge start 9.22 (median; several tiles per split), last ticket 12.62, end 14.13 (the timeline's
+13.93).
+
+Pre-wait work today (entry -1.25 us, pre-wait work done -0.69): the pooler L2 prefetch (`cp.async.bulk.prefetch`,
+4 MB over the 33 CTAs), the `seq_lens` load and the page-index `cp.async` of the CTA's tile (64 entries from the
+speculated length), then the CTA idles in `griddepcontrol.wait` for 1.1 us. **No K/V byte is read before the wait:**
+the K/V copies are issued at 0.99 us, after the wait, after the q group's issue and after the page-index group's
+wait (0 of 33 CTAs before the wait in all 20 inputs).
+
+### Which operand may be read before `griddepcontrol.wait` (source proof)
+
+The qkv kernel is a plain launch (bit 29), so every kernel before it has completed when it starts, and the attention
+can overlap only qkv. qkv writes only the qkv buffer. So, per operand of the attention:
+
+- q rows, new k / v rows, gate rows: columns of the qkv buffer, the predecessor's output: after the wait only.
+- `seq_lens`, `page_table`, `cache_loc`, `k_scale`, `v_scale`, `inv_freq`: layer inputs or prepare-time constants
+  that no kernel of the layer writes: legal before the wait (seq_lens and page_table already are).
+- `k_cache` / `v_cache` rows at positions < seq (the cached window): layer inputs. The only kernel of the layer that
+  writes either cache is this attention kernel itself, after its wait, at `cache_loc[j]` for the 8 new positions
+  (`S.cloc`, the new-k,v pass); `kernel_fn`'s agent path has no other cache writer (the `_qk_prep` writer belongs to
+  the FA3 fallback). The ONE straight-line issue copies only rows with position < min(end, seq), zero-fills rows past
+  the range without a read, and skips the new rows (patched from qkv after the wait). Legal before the wait.
+- the workspace epoch (`ws_cnt + 24576 + bp`) and the zeroed workspace: written by the previous launch of this kernel,
+  which completed before qkv started: legal, unused here.
+- `out` and the workspace are written only after the wait.
+
+### Candidate ly_apw: the window's K/V before the wait (loss/null)
+
+`tools/dl_ly_apw_patch.py` writes `muse_decode_layer/cand/ly_apw.py` (SHA256
+73e26604def283ef9e93ef4caa5ee26202e4fc939221ccb10d9f6d05a2f4026f). One change in ATT7_CUDA_SRC's `segment()`, behind
+`constexpr bool PREKV = OKC_PREKV8 && L == 8 && ONE && !WS && !S2` (only the one-tile q_len 8 per-request builds;
+every q_len 1 and multi-tile instance compiles the base text): before `pdl_wait` the CTA waits for its page-index
+group, runs the CTA barrier and the OKC_SPEC length check, and issues its tile's K/V (the unchanged ONE issue text);
+after the wait the q group is issued as before and one `cp.async.wait_group 0` + barrier replaces the base's two
+partial waits. Wait placement, trigger, fences and the merge are unchanged; nothing global is written before the wait.
+
+Stamps (`ly_atst_apw.py` cd2b6e34, `atst_apw.{log,json}`): the page indices land at -0.08 us (1.2 us after their
+issue, with qkv streaming at full DRAM rate), the K/V copies go out at 0.19 (32 of 33 CTAs before the wait returns
+at 0.45), but q lands at 1.10 (base 1.12), tile 0 is waited at 2.69 (base 2.64) and the attention ends at 6.69 (base
+6.72). The K/V tile was never what the post-wait chain waited on: the 0.37 us between the patch and the tile-0 stamp
+is consumer setup and the CTA barrier, and it stays 0.43 with the tile in shared memory long before.
+
+Gate run (the file's own prepare): PDL8_AB T = 8 savings 6.30 / 7.62 us (9/9), PDL8H_GUARD pass at both T = 8 cells
+(ids mismatches 0), reference check PASS at both verify 1 cells. Check: PASS 12/12, `G_RELEASE_STARTUP_OK`, CG_GATE
+line equal to the control's. Paired A/B against ly_v1un (`tools/ly_prtl_ab.sh` via `tools/ly_atw_run.sh`, c/w/c/w/c,
+60 runs, six loads, PDL pinned on, two rounds; `atst/apw/table_both_rounds.txt`):
+
+| cell | ctl mean | spread | cand mean | w - c | pairs < 0 |
+|---|---:|---:|---:|---:|---|
+| decode 1 sliding | 64.57 | 0.90 | 64.73 | +0.16 | 10/24 |
+| decode 1 full | 70.76 | 0.69 | 70.83 | +0.07 | 11/24 |
+| decode 16 sliding | 127.23 | 0.88 | 126.93 | -0.30 | 18/24 |
+| decode 16 full | 199.55 | 2.06 | 199.39 | -0.16 | 12/24 |
+| decode 32 sliding | 144.46 | 1.23 | 144.32 | -0.15 | 14/24 |
+| decode 32 full | 295.38 | 1.70 | 295.45 | +0.07 | 10/24 |
+| verify 1 sliding | 100.93 | 1.12 | 101.25 | **+0.31** | **8/24** |
+| verify 1 full | 109.31 | 1.60 | 109.12 | -0.20 | 13/24 |
+| verify 16 sliding | 242.01 | 1.94 | 243.04 | +1.03 | 2/24 |
+| verify 16 full | 325.79 | 1.01 | 325.76 | -0.04 | 13/24 |
+| verify 32 sliding | 294.46 | 2.75 | 293.89 | -0.57 | 19/24 |
+| verify 32 full | 458.91 | 1.66 | 459.23 | +0.32 | 11/24 |
+
+Every cell inside its threshold; verify 1 sliding +0.31 us with 8 of 24 pairs below the control (round 1 -0.18,
+round 2 +0.8); the other cells run unchanged code (verify 16 sliding's +1.03 is the session's, its kernel is the
+multi-tile instance). Not kept; ruled-out row.
+
+### Candidate ly_sngw2: one workspace copy per split, plain stores, ordered sum (loss)
+
+The merge tail (reds issued to the finalize's last store, 3.49 to 6.72 us) is the largest block. Hypothesis: 33 CTAs
+`red.add` into the same 8,192 floats, so the reds' issue (0.85 us) and their drain before the ticket (0.87) are
+same-address atomic serialization. `tools/dl_ly_sngw_patch.py` writes `muse_decode_layer/cand/ly_sngw2.py` (SHA256
+4a7f2497bd246626c1596630803e8966f7f56d2781a957a57f2a34b5de5f059c). One change: `_plan7`'s one-request q_len 8 sliding
+plan takes nc = n_splits (each split owns a workspace copy); in the kernel, behind `constexpr SNGW = OKC_SNGW8 && L == 8
+&& ONE && !FLAT && cooperative` and `p.nc == p.n_splits`, the merge writes the same rescaled partials with
+`st.global.cg` instead of `red.global.add`, the ticket / grid barrier / every fence stay as they are, and the finalize
+(`fin_sngw`) sums each row over the 33 copies in split order (thread = row, 4 dims, copy phase; quad butterfly, so the
+merge is deterministic), zeroes what it read (the workspace stays zero between calls, as the red-based plans assume)
+and applies the same rmsnorm * sigmoid(gate). A first build (ly_sngw 0302ec93, one dimension per thread, 40 loads per
+thread) had the same finalize time, so the cost is not its register footprint.
+
+Stamps (`ly_atst_sngw2.py` 52834b3e, `atst_sngw2.{log,json}`): plain stores issue in 0.61 us (reds 0.85), tickets
+return at 4.86 median / 5.44 last (base 5.22 / 5.79), the grid barrier passes at 5.58 (base 5.92), but the finalize
+takes 2.4 us (5.58 to 7.95, every CTA alike; base 0.80) and the attention ends at 8.10 (base 6.72). Reading 33 copies
+moves 33 KB per CTA through its SM's L2 port and writes 33 KB of zeros back, against 1 KB read and 1 KB zeroed in the
+base, while o's 256 CTAs stream their weights through the same SMs; the red merge lets L2 do the reduction, so each CTA
+sends its 32 KB once and reads back only its rows.
+
+Gate run: PDL8_AB T = 8 savings 6.40 / 7.36 us (9/9), PDL8H_GUARD pass at both T = 8 cells, reference check PASS at
+both verify 1 cells. Check PASS 12/12, `G_RELEASE_STARTUP_OK`, CG_GATE line equal to the control's. Paired A/B against
+ly_v1un, two rounds (`atst/sngw2/table_both_rounds.txt`): verify 1 sliding **+1.18 us, 1 of 24 pairs** below the
+control (rounds +0.51 / +1.84), verify 1 full -0.39 (19/24, unchanged code), other cells -1.12 to +0.68, all inside.
+Loss; ruled-out row.
+
+### Decision
+
+No candidate. The verify 1 sliding attention's 6.72 us after qkv's end is a dependent post-wait chain (measurement):
+q landing 0.70, q pass 1.09, consumer setup 0.37, tile math 0.82, merge reds 0.85 + drain 0.87, wait for the
+new-rows split 0.70, finalize 0.80. K/V DRAM time is not on it: moving the window before the wait (ly_apw, legal
+by the operand proof above) changes nothing measurable, and replacing the red merge by per-split copies trades 0.3 us of
+merge for 1.6 us of finalize (ly_sngw2). Nothing registered for the judge. Leads not tested (hypotheses): (1) the q pass
+(1.1 us for 128 rows of RMS norm, RoPE and e4m3 per CTA) and the consumer setup (0.37) look like once-per-launch code
+from a cold instruction cache rather than arithmetic; a stamp inside the q pass would separate the two; (2) the split
+that holds the new rows ends its merge 0.4 to 0.7 us after the others in every input (new k,v pass, patch, masked
+tile), so the grid barrier waits for it; giving it fewer cached keys, or computing the new rows' e4m3 form in a
+split that has none, would shorten the barrier wait by up to that much; (3) the merge's 32 KB per CTA competes with
+o's pre-wait weight stream, which starts 1.18 us after qkv's end because the attention triggers right after its own
+wait (OKC_PDLTRIG 0); a later trigger trades that against o's own start (PDL lane's knob).
