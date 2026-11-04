@@ -3880,3 +3880,152 @@ worse; a next step would have to shorten the release latency (for example `red.r
 `bar.sync`, which needs a cheaper intra-warpgroup ordering than a named barrier and is not available without the
 mbarrier round trip measured here), or reduce the number of segments per CTA (fewer, longer ranges), which the
 stream-K balance forbids at 132 CTAs.
+
+## 2026-11-04 - Verify tail (box)
+
+Question from the lead (moe lane, after "Verify 16/32 MoE limit"): the tail of `okc::moe_fused<true>` at verify 16 / 32
+(the 6.2 to 7.2 us wait after each CTA's phase B end plus the 4.1 to 6.1 us final pass). Decompose the wait, pick one
+mechanism, A/B it. Base `muse_decode_layer/cand/ly_fabq.py` (SHA256 3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555,
+never edited). Box only (okc-h200, 14:20 to 14:50 UTC, every GPU run under `/root/okc/.build/box/gpu.lock`,
+`nvidia-smi` showed no foreign process before the runs), no judge job, no routing slack. Logs `/root/okc/.build/box/v16/tail/`
+(timelines) and `/root/okc/.build/prtl/fin1/`, `/root/okc/.build/prtl/bal/` (A/B), copied to
+`muse_decode_layer/profiles/box/tail/`, `.../fin1/`, `.../bal/` (the 45 MB raw-stamp JSONs stay on the box). Tools:
+`tools/ly_moe_tlv16f.py` (the previous lane's level-1 timeline plus final-pass stamps: pass 1 done, pass 2 done, the
+second token's pass done; writes `ly_fabq_tlv16f.py`, 16e7f055), `tools/ly_box_moe_tlv16g.py --raw 20` (raw stamps of
+every input), `muse_decode_layer/profiles/box/tail/tail_pass.py`, `tail_decomp.py`, `spread_fit.py` (the statistics below).
+
+### The wait is a grid barrier, not a per-expert count
+
+The WGS builds force the per-expert completion counters off: `#if OKC_WGS / #undef OKC_MFIN / #define OKC_MFIN 0` (the
+MoE source, after the MFIN defaults), and prepare prints `FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL
+off`. The reason is on record (`docs/steering/2026-11-01-g-native-repair-inventory.md`, "MFIN forced 0"): the readiness
+poll in the final pass is bounded (`n < 4000000`) and may fall through, so re-enabling the flag is not a repair. So at
+verify 16 / 32 every CTA, after its phase B, runs the grid barrier (`atom.acq_rel.gpu` by thread 0, `ld.acquire` poll with
+`__nanosleep(64)`, CTA barrier), zeroes its share of the per-launch flags, then runs the WGSFINSS final pass with no
+per-token wait. The previous section's "MFIN wait" column is that barrier wait.
+
+Measured (20 fresh inputs per cell, raw stamps of all 132 CTAs in every input, medians over inputs, us):
+
+| cell | wait = fin - own B end | max(B end) - mean(B end) | fin - max(B end) | zeroing + pass 1 | pass 2 | first token total | second token (v32) | B-end spread |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| verify 16 sliding | 6.49 | 5.12 | 1.16 | 2.92 (per-CTA 2.72 to 3.14) | 1.69 (1.62 to 2.02) | 4.65 | - | 10.1 |
+| verify 16 full | 7.06 | 5.97 | 1.10 | 2.88 | 1.71 | 4.67 | - | 10.4 |
+| verify 32 sliding | 6.61 | 5.50 | 1.14 | 2.95 | 1.75 | 4.73 | 3.2 | 11.3 |
+| verify 32 full | 6.48 | 5.23 | 1.09 | 2.98 | 1.68 | 4.64 | 3.2 | 12.0 |
+
+Every CTA's `fin` (barrier passed) lies within 0.2 us of every other's in every input, and 0.96 to 1.44 us after the last
+CTA's phase B end: the wait is end spread (5.1 to 6.0 us for the mean CTA) plus one barrier release latency (1.1 us), with
+no count-wait component. The CTAs that end last (B end within 2 us of the last: 6 to 10 of 132, blockIdx 10 to 102) hold 24
+to 30 phase B stages against the all-CTA median of 36 to 46: they carry the widest jobs (64-token, 8 n-tiles), which sit
+first in the job list.
+
+How much of the spread a static rebalance could remove (`spread_fit.py` on the previous lane's 20-input JSON: each CTA's
+phase A + B time regressed on its stage counts per n-tile class with a per-input intercept):
+
+| cell | per-CTA end sd | part explained by the stage mix (sd) | residual sd | max - mean, total | max - mean, residual alone | residual correlation between inputs by blockIdx |
+|---|---:|---:|---:|---:|---:|---:|
+| verify 16 sliding | 1.95 | 1.10 | 1.66 | 5.73 | 4.50 | 0.05 |
+| verify 16 full | 1.87 | 1.10 | 1.52 | 5.21 | 4.30 | 0.06 |
+| verify 32 sliding | 2.39 | 1.26 | 2.04 | 6.05 | 4.87 | -0.01 |
+| verify 32 full | 2.37 | 1.10 | 2.18 | 5.64 | 4.97 | -0.01 |
+
+Within an input a CTA's phase A and phase B times are anti-correlated (-0.75 to -0.79): a CTA that ends phase A late
+finds its phase B inputs ready and runs phase B shorter. The part of the end spread the stage mix explains is about half
+the total variance, it is not tied to a blockIdx (no SM-position effect), and a perfect static rebalance would cut the
+mean wait by about 0.7 to 1.2 us (5.2 to 6.0 -> 4.3 to 5.0). The rest is per-CTA variation the schedule cannot predict.
+
+The final pass itself: one token per CTA at verify 16 (128 tokens on 132 CTAs), two at verify 32. The first token costs
+4.6 to 4.7 us from the barrier: 2.9 us to the end of pass 1 (the flag zeroing, the y-row loads of the token's local routes
+(1.4 of 8 on average), the shuffles and two CTA barriers) and 1.7 us for pass 2 (the same rows again, the weighted sum, the
+output store, a CTA barrier); the second token costs 3.2 us. The kernel exits 0.05 us after the last pass.
+
+### Candidate ly_fin1: pass 2 from a shared-memory copy (box, no gain)
+
+`tools/dl_ly_fin1_patch.py` writes `muse_decode_layer/cand/ly_fin1.py` (SHA256
+bb918ff32a40b8db05bd486713c59e74af47bf38b3af11afca832ddaf5da478a). MAIN build only (`-DOKC_FIN1=1` on its define tuple;
+every other build compiles the base's text): pass 1 also stores the two float4 it loaded per route into a row cache
+behind the `red` partials (8 routes x 16 KB inside the free weight ring; static_assert on the ring size), and pass 2 reads
+them back from shared memory instead of global. Same values, same FP32 adds in the same order (bitwise the base's); the
+barrier, both CTA barriers, every fence and the stage loops are unchanged. Build (`tools/ly_micro_sass.py` with the new
+`LY_SASS_MAIN_EXTRA` hook so the report compiles the MAIN build with the candidate's define; `.build/box/v16/tail/sass_fin1/`):
+96 registers, 0 local, 22,642 instructions (base 22,647), the 16 stage loops 304 / 307 / 308 instructions with 16 HGMMA,
+identical to the base's; the only loop that changed is the 2,449-instruction outer body that holds the final pass
+(2,444). Reference check (`muse_decode_layer/profiles/box/fin1/chk.log`): `G_RELEASE_STARTUP_OK native (128, 32, 33, 256,
+1, 8, 16) 56 verified_replays`, check PASS at all 12 cells.
+
+Paired A/B (`tools/ly_prtl_ab.sh`, CTL=ly_fabq.py, c/w/c/w/c in one session, `--runs 60`, PDL pinned at 1, 8, 16, 32 in
+both arms, all six loads, 14:35 to 14:37 UTC, no foreign GPU process; `tools/ly_prtl_table.py`, threshold max(2 x
+control spread, 0.5 us short cells, 1% long cells)):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | w_a-c_a | w_a-c_b | w_b-c_b | w_b-c_c | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.33 | 65.10 | 64.86 | 65.10 | 65.26 | 0.46 | -0.05 | -0.22 | +0.24 | +0.24 | -0.16 | 0.93 | inside |
+| decode 1 full | 72.11 | 71.73 | 71.86 | 71.78 | 71.23 | 0.88 | +0.02 | -0.38 | -0.13 | -0.08 | +0.54 | 1.76 | inside |
+| decode 16 sliding | 126.74 | 127.06 | 126.61 | 126.67 | 127.04 | 0.43 | +0.07 | +0.32 | +0.45 | +0.06 | -0.37 | 1.27 | inside |
+| decode 16 full | 200.03 | 199.66 | 200.46 | 199.41 | 200.48 | 0.45 | -0.79 | -0.37 | -0.80 | -1.06 | -1.07 | 2.00 | inside |
+| decode 32 sliding | 144.29 | 143.78 | 144.66 | 143.60 | 142.93 | 1.73 | -0.27 | -0.51 | -0.88 | -1.06 | +0.67 | 3.46 | inside |
+| decode 32 full | 295.50 | 295.76 | 295.76 | 295.07 | 294.85 | 0.91 | +0.05 | +0.26 | -0.00 | -0.69 | +0.22 | 2.95 | inside |
+| verify 1 sliding | 102.53 | 102.14 | 102.82 | 101.76 | 102.86 | 0.34 | -0.78 | -0.38 | -0.67 | -1.06 | -1.10 | 0.67 | "win" (unchanged build) |
+| verify 1 full | 111.01 | 110.93 | 111.10 | 110.03 | 110.03 | 1.07 | -0.23 | -0.08 | -0.18 | -1.07 | -0.00 | 2.14 | inside |
+| verify 16 sliding | 243.57 | 242.80 | 243.09 | 241.82 | 243.30 | 0.48 | -1.01 | -0.77 | -0.29 | -1.26 | -1.47 | 2.43 | inside |
+| verify 16 full | 326.99 | 326.88 | 327.12 | 326.48 | 326.86 | 0.26 | -0.31 | -0.11 | -0.24 | -0.64 | -0.38 | 3.27 | inside |
+| verify 32 sliding | 296.75 | 297.60 | 297.98 | 297.22 | 297.10 | 1.23 | +0.13 | +0.85 | -0.38 | -0.77 | +0.11 | 2.97 | inside |
+| verify 32 full | 459.76 | 460.40 | 460.88 | 460.91 | 460.80 | 1.12 | +0.18 | +0.64 | -0.48 | +0.03 | +0.11 | 4.60 | inside |
+
+The verify 1 sliding "win" is on the MID build, whose text the patch does not touch (the 0.67 us threshold is below the
+run-to-run movement of that cell). At the four target cells: -1.0 / -0.3 / +0.1 / +0.2 us, inside. The candidate's timeline
+(`ly_fin1_tlv16f.py`, 20 inputs, `muse_decode_layer/profiles/box/tail/fin1_tlv16f.log`) shows why: pass 2 fell 1.69 /
+1.71 / 1.75 / 1.68 -> 1.48 / 1.49 / 1.49 / 1.52 us, pass 1 rose 2.92 / 2.88 / 2.95 / 2.98 -> 3.15 / 3.11 / 3.03 / 3.06
+(the shared-memory stores), first token total 4.65 / 4.67 / 4.73 / 4.64 -> 4.62 / 4.66 / 4.57 / 4.59; the second token at
+verify 32 unchanged (span - max(B end) 9.31 / 9.42 vs 9.41 / 9.30). The second global round trip was worth 0.2 us, not
+the 1.2 us the pass-2 duration suggested: the pass is bound by the first load after the barrier (every CTA's loads land on
+the L2 at the same instant) and by its barriers, not by the re-read.
+
+### Candidate ly_bal: the switch cost charged by n-tiles in the cost split (box, loss)
+
+`tools/dl_ly_bal_patch.py` writes `muse_decode_layer/cand/ly_bal.py` (SHA256
+fe5477fe0c68da1b59e023e60d3c6983b906205089748a946824fc7f0f51301c). MAIN build only (`-DOKC_BAL=1`): `wgs_unitc` takes
+the job's token count and returns 90 + 40 x n-tiles (phase A) / 55 + 31 x n-tiles (phase B) instead of the constant 160 /
+140, in the units of the per-stage cost tables (8-token stage 112 / 100), from the measured first-of-segment issue gaps
+(phase A about 1.0 us + 0.3 us per n-tile, phase B 0.8 + 0.3, against 0.96 us per 8-token stage); used in the prefix, the
+stage-at search and the CTA-of search (x-producer warp, before the stream). Per-stage tables, job list, segment walk,
+fixup path, fences and barriers unchanged; stage loops identical (SASS 22,671 instructions, 96 registers, 0 local, the
+16 stage loops 304 / 307 / 308 with 16 HGMMA equal to the base's). Reference check PASS at all 12 cells
+(`muse_decode_layer/profiles/box/bal/chk.log`, `G_RELEASE_STARTUP_OK native ... 56 verified_replays`).
+
+Paired A/B (same protocol, 14:41 to 14:42 UTC, `/root/okc/.build/prtl/bal/`):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | w_a-c_a | w_a-c_b | w_b-c_b | w_b-c_c | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.41 | 65.52 | 65.04 | 65.14 | 65.18 | 0.37 | +0.12 | +0.11 | +0.48 | +0.10 | -0.05 | 0.74 | inside |
+| decode 1 full | 72.03 | 72.00 | 71.98 | 71.74 | 71.79 | 0.24 | -0.06 | -0.03 | +0.02 | -0.24 | -0.05 | 0.50 | inside |
+| decode 16 sliding | 127.04 | 127.06 | 127.34 | 126.67 | 127.41 | 0.37 | -0.40 | +0.02 | -0.29 | -0.67 | -0.74 | 1.27 | inside |
+| decode 16 full | 198.93 | 200.00 | 199.71 | 199.09 | 200.21 | 1.28 | -0.07 | +1.07 | +0.29 | -0.62 | -1.12 | 2.56 | inside |
+| decode 32 sliding | 144.11 | 144.59 | 144.30 | 143.89 | 144.46 | 0.35 | -0.05 | +0.48 | +0.29 | -0.42 | -0.58 | 1.44 | inside |
+| decode 32 full | 294.91 | 295.44 | 295.17 | 294.83 | 295.82 | 0.91 | -0.17 | +0.53 | +0.27 | -0.34 | -0.99 | 2.95 | inside |
+| verify 1 sliding | 102.16 | 102.32 | 102.30 | 102.67 | 101.92 | 0.38 | +0.37 | +0.16 | +0.02 | +0.37 | +0.75 | 0.77 | inside |
+| verify 1 full | 110.74 | 110.51 | 110.00 | 110.98 | 109.86 | 0.88 | +0.55 | -0.22 | +0.51 | +0.98 | +1.12 | 1.76 | inside |
+| verify 16 sliding | 241.74 | 243.89 | 243.81 | 243.68 | 242.14 | 2.06 | +1.22 | +2.14 | +0.08 | -0.13 | +1.54 | 4.13 | inside |
+| verify 16 full | 326.24 | 327.01 | 327.47 | 327.49 | 326.82 | 1.23 | +0.41 | +0.77 | -0.46 | +0.02 | +0.67 | 3.27 | inside |
+| verify 32 sliding | 297.70 | 300.24 | 296.58 | 299.26 | 297.82 | 1.25 | +2.39 | +2.54 | +3.66 | +2.69 | +1.44 | 2.97 | inside |
+| verify 32 full | 459.79 | 463.94 | 459.94 | 464.83 | 459.17 | 0.77 | +4.75 | +4.14 | +4.00 | +4.90 | +5.66 | 4.60 | loss |
+
+A loss at verify 32 (+2.4 / +4.8 us, all eight pairs positive) and +1.2 / +0.4 at verify 16. Charging wide units more
+hands their stages to more CTAs, so the wide jobs are cut more often and their fixups (n-tile serialized L2 round trips
+on the finisher) and extra segments cost more than the end spread they were meant to remove; the deterministic part of
+the spread was worth at most about 1 us (table above).
+
+### Decision
+
+No judge check: ly_fin1 is inside (no gain at the target cells), ly_bal is a loss; both get ruled-out rows. What the tail
+is made of, measured: a 1.1 us grid-barrier release, 5.1 to 6.0 us of end spread of which about 1 us is predictable from
+the stage mix, and a 4.6 us first-token final pass (plus 3.2 us for the second token at verify 32) that is bound by the
+first load after the barrier and its CTA barriers, not by the second read. Levers not taken, with their estimated worth:
+per-expert gating of the final pass (MFIN on the MAIN build) would let early CTAs start their tokens before the last CTA
+ends, but it was forced off because its poll is bounded, it adds a `bar.sync` + `red.release.gpu` per phase B unit
+(about 0.4 us per segment, the switch cost the previous section measured in phase A and not in phase B), and nearly every
+token routes to one of the four widest experts, which end last, so the net is at most about 1 to 1.5 us per cell
+(hypothesis) and needs an unbounded wait plus a review of the launch-parity scheme; BF16 y rows (OKC_YBF) would halve
+the final pass's bytes but round y before the weighted sum (numerics); fewer segments per CTA belongs to the
+segment-switch lane. The ramp (option c) was not attempted: the weights producer waits for the x gather, and
+ly_b4_wpre already measured no gain from issuing weights before it.
