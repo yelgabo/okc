@@ -7628,3 +7628,177 @@ File-name note: attention-d1 committed `muse_decode_layer/cand/ly_atrg.py`, `too
 `tools/dl_ly_v1sp_patch.py` and `tools/dl_ly_v1trg_patch.py`, and the box copies of attention-d1's three files (which
 this lane had overwritten at 19:19 / 19:37 UTC) were restored from origin/main (sha 1abac1d6, 5e4a3d8c, a3c7eb67).
 Attention-d1's recorded ly_atrg result (decode 1, trigger at entry) matches its own file's behaviour.
+## 2026-11-04 - Decode 16 / 32 sliding attention merge (box)
+
+Attention-d16 lane, round 2. Question: after ly_a16o2, can one change gated to the decode 16 / 32 sliding attention
+(`attn_kernel<1, false, 1>`) shorten its merge tail (reds -> acq_rel ticket -> last-CTA finalize -> o's wait), its tile
+loop, or o's start? Base: muse_decode_layer/cand/ly_stk3.py (SHA256
+a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6; its attention source is ly_a16o2's), never edited.
+Box only (okc-h200, 20:24 to 20:33 UTC), every run under gpu.lock (`tools/ly_a16r2_st.sh` -> `tools/ly_box_a16.py`,
+20 fresh inputs per cell, cold L2, router seed 106218864389449120). No judge job, no A/B run (no arm passed the stamp
+level). Logs: `muse_decode_layer/profiles/box/a16r2/`.
+
+### Stamp sweep (medians over 20 inputs, us after qkv's last stores; decode 16 / decode 32)
+
+| arm (change) | loop end | reds issued | ticket / barrier | attention end | o's wait | o end |
+|---|---:|---:|---:|---:|---:|---:|
+| ly_stk3 (base) | 4.69 / 7.26 | 5.17 / 7.66 | 6.72 / 8.59 | 7.95 / 9.57 | 8.51 / 10.10 | 11.87 / 14.21 |
+| ly_aopf (o stream L2 prefetch after non-last tickets) | 4.70 / 6.91 | 5.10 / 7.22 | 6.78 / 8.51 | 9.18 / 10.56 | 9.76 / 11.10 | 12.74 / 14.86 |
+| ly_aopfl (same prefetch after each tile loop) | 4.67 / 6.98 | 5.86 / 7.89 | 8.45 / 10.03 | 9.94 / 11.17 | 10.45 / 11.68 | 13.46 / 15.41 |
+| ly_a16sp (8 / 4 splits, one CTA per SM) | 6.18 / 10.16 | 6.50 / 10.48 | 7.30 / 11.36 | 8.93 / 12.14 | 9.47 / 12.66 | 12.85 / 16.78 |
+| ly_a16cl (cluster 16 / 8, DSMEM merge, sm_n) | 5.89 / 8.74 | - | 6.78 / 9.86 | 9.47 / 11.89 | 10.06 / 12.32 | 14.14 / 16.50 |
+| ly_a16cl2 (same, 81,920 B) | 12.70 / 16.21 | - | 13.54 / 17.02 | 15.65 / 19.14 | 16.06 / 19.55 | 20.16 / 23.74 |
+
+Findings (measurements):
+- o's weight stream (12,582,912 B at both loads) fully prefetched into L2 by the attention shortens o after its wait
+  only 3.36 -> 2.98 us (decode 16) and 4.11 -> 3.76 (decode 32); the fill traffic slows the last CTA's finalize from
+  1.14 to 2.34 us (aopf) or the ticket by 1.7 us (aopfl). o after its wait is mostly not DRAM-bound.
+- The ticket tracks same-address fan-in: reds -> ticket 1.46 us at 16 CTAs per request (decode 16), 0.93 at 8
+  (decode 32), 0.80 at 8 with 128 CTAs (ly_a16sp). Fewer splits pay it back in the loop (+1.5 / +2.9 us).
+- The MODE 2 cluster merge places worse (about three CTAs per SM on 96 to 100 SMs; at two per SM clusters of 16 do
+  not all land at launch) and its DSMEM reduce takes 1.67 us at decode 16.
+
+### Built, not yet run: ly_a16nc2
+
+`tools/dl_ly_a16nc_patch.py` writes `muse_decode_layer/cand/ly_a16nc2.py` (SHA256
+dbadd5302873cea3385f497b6d24837604bc67e2118e4e1dae1f87bf456c24bb): two workspace copies per request at decode 16 / 32
+(split parity picks the copy, 8 / 4 CTAs per address), fin_nc1 under a `NC2` template flag (MODE 1, q_len 1 only)
+loads both copies in its one round trip, adds them in copy order and zeroes both; ticket, CTA barrier, acq_rel atomic
+and fences unchanged. `--d16only` gates decode 16 alone. Hypothesis from the fan-in row above: ticket 1.46 -> about
+0.95 us at decode 16, finalize +0.1, so about -0.3 to -0.4 us there; below the 0.8 us registration bar even if it
+holds. Standalone nc 2 (ruled out, e468255b) used the cold generic finalize; this build keeps the warmed one.
+
+### Decision
+
+No candidate this round. Five arms lose at the stamp level (three ruled-out rows); ly_a16nc2 is built and gated but
+untested. No ledger registration.
+
+## 2026-11-04 - Decode 1 TINY x at entry (box)
+
+Question: at T = 1, does the TINY MoE build (helper0 source, OKC_NW=8, FAST1=2) wait on the x load at the top of its first unit, and does loading x into registers at kernel entry shorten the ramp? Base ly_stk3.py (a1c48810...b135f6, judge 10,109.9 us); every A/B is paired against it on the RunPod H200 through the GPU lock.
+
+Legality: the MoE runs griddepcontrol.wait at entry, and its stream predecessor is the route kernel that writes xm, so a load after that wait reads finished data. The base already reads x at the same point with prefetch.global.L2.
+
+Candidate: muse_decode_layer/cand/ly_x1e.py, SHA256 c385fe76677295c38ea21337fe8466963e00676441ccf98a824fece579edf17a, written by tools/dl_ly_x1e_patch.py. Under a new OKC_X1E define (set only in MOE_TINY_DEFINES, default 0, so TINY2 and MID build the base device code): a new load_x_tok0 loads token 0's x slice (lanes with g == 0, 16 uint4) at moe_fused entry when p.M == 1; skinny_ring_ws takes those registers and skips load_x_regs for phase A jobs with jC == 1 while M == 1. Numerics unchanged (same x values, same mma order). SASS: TINY moe_fused 145 registers, 0 local, 0 stack in both files (5197 to 5296 instructions).
+
+Stamps (tools/dl_ly_mtl3x_patch.py instrument, 20 inputs, mean CTA, us, sliding / full; muse_decode_layer/profiles/box/x1e/st_summary_x1e.txt):
+
+| stamp | ly_stk3 | ly_x1e |
+|---|---|---|
+| gen stored | 0.60 / 0.58 | 0.75 / 0.71 |
+| route done | 2.11 / 2.09 | 2.21 / 2.21 |
+| WS_JOIN passed | 2.30 / 2.29 | 2.41 / 2.41 |
+| x consumed (unit 0) | 2.90 / 2.89 | 2.90 / 2.91 |
+| first ring slot ready | 3.03 / 3.01 | 3.03 / 3.02 |
+| phase A end | 12.70 / 12.50 | 13.07 / 12.46 |
+
+The first ring slot lands 0.13 us after x is consumed in both files, so the mean CTA's first unit waits on the weight copy (FAST1's warp 7 issues at about 1.1 us), not on x. The entry loads push the prologue back by 0.10 to 0.15 us and buy nothing at the slot wait. The latest CTA's slot moves 3.62 to 3.55 (sliding) and 3.58 to 3.52 (full).
+
+Gate: five PDL8H_GUARD lines pass in the file's own prepare; chk 12/12 check PASS, CG_GATE ok, G_RELEASE_STARTUP_OK.
+
+A/B (tools/ly_prtl_ab.sh, two rounds c/w/c/w/c, 24 pairs per cell, pooled; muse_decode_layer/profiles/box/x1e/x1e_table_both_rounds.txt):
+
+| cell | ly_stk3 | ly_x1e | w - c | thr | pairs < 0 |
+|---|---|---|---|---|---|
+| decode 1 sliding | 63.61 | 63.80 | +0.19 | 2.18 | 8/24 |
+| decode 1 full | 70.41 | 70.16 | -0.25 | 2.37 | 14/24 |
+| decode 16 sliding | 125.29 | 125.06 | -0.23 | 2.46 | 16/24 |
+| decode 16 full | 197.85 | 198.27 | +0.42 | 3.78 | 10/24 |
+| decode 32 sliding | 142.72 | 142.98 | +0.26 | 3.10 | 10/24 |
+| decode 32 full | 294.50 | 294.52 | +0.01 | 2.95 | 12/24 |
+| verify 1 sliding | 100.66 | 100.52 | -0.14 | 4.06 | 16/24 |
+| verify 1 full | 108.87 | 108.74 | -0.14 | 2.46 | 15/24 |
+| verify 16 sliding | 242.41 | 242.73 | +0.32 | 4.26 | 10/24 |
+| verify 16 full | 325.74 | 326.49 | +0.75 | 3.94 | 6/24 |
+| verify 32 sliding | 294.54 | 294.23 | -0.31 | 4.96 | 16/24 |
+| verify 32 full | 458.96 | 459.24 | +0.27 | 4.59 | 8/24 |
+
+Round 1 alone read decode 1 full -0.89 us (win verdict); round 2 read +0.39, so the pooled cell is noise. Decision: no registration, no judge check. The decode 1 MoE ramp is gated by the first weight unit's copy, so an x-side prologue change cannot move it; the ramp lever is the FAST1 copy issue time (about 1.1 us after entry), which sits behind route.
+
+## 2026-11-04 - Decode 16 / 32 MoE prologue (box)
+
+MoE lane, round 4 (11:57 PT start). Question: what does each microsecond of the MID prologue (decode 16) and the B4
+prologue (decode 32) wait on, and does one change take at least 0.8 us at decode 16 or 32 sliding? Base:
+muse_decode_layer/cand/ly_stk2.py (SHA256 4bbf4010f412b9afe8595b1a5ede517fb8aa6e31af6efdc1e55dd34a3a335846), never
+edited. Box only, every GPU process under gpu.lock, no judge job, no routing slack. Evidence:
+`muse_decode_layer/profiles/box/moe4/` (box `.build/moe4/`, A/B runs `.build/prtl/m4_*`).
+
+### Instrument
+
+`tools/ly_moe_pro16.py` (MID) and `tools/ly_moe_prob4.py` (B4) extend the round 3 stamps to 128 slots per CTA; the
+new stamps read clock64 (the box's globaltimer advances in 256 ns steps) and are converted per CTA with its own
+clock64 / globaltimer rate (1.81 GHz). A clock read placed after `bar.sync` was hoisted above it (a helper stamp after
+WS_JOIN read 0.45 us while the barrier could not release before 3.4), so every post-barrier stamp first does a volatile
+shared load. Stamps after a load branch on the loaded value. Runner `tools/ly_box_moe_pro.py` (20 fresh inputs, cold L2,
+the layer graph; `--warm` adds a replay without the flush). The instrument adds about 0.6 us to route() against the
+round 3 stamps, so read the parts as relative sizes. Values: us after each CTA's own entry, CTA mean, median over 20
+inputs, decode 16 / 32 sliding (full within 0.1).
+
+### MID prologue (`pro_mid2.log`, `pro_midr2.log`, `pro_mid1p.log`)
+
+| part | ends at | length | what it waits on |
+|---|---:|---:|---|
+| x L2 prefetch issue, lut (thread 0) | 0.25 | 0.25 | issue only |
+| launch generation load (p.ctr[3]) | 0.64 | 0.39 | one global round trip (0.55 in the unflushed replay) |
+| route() start, its topk load back | 0.83 | 0.19 | L2 hit (the route kernel's output) |
+| barrier 1 | 2.09 | 1.26 | the FAST1 warp: four dependent topk loads (back at 0.47 / 0.70 / 0.89 / 1.08), job scan 0.45, barrier inits 0.09, two TMA issues 0.19, x prefetch and lut 0.13 |
+| count loop, barrier 2 | 2.38 | 0.29 | shared atomics |
+| warp 0 job scan, barrier 3 | 3.11 | 0.73 | warp 0 alone: three shuffle scans and the job table |
+| position loop, barrier 4 (route end) | 3.45 | 0.34 | shared stores |
+| ss zeroing, unit ranges, WS_JOIN | 3.69 | 0.24 | |
+| skinny_ring_ws setup to the first x load issue | 4.10 | 0.41 | |
+| first job's x rows back (64 KB per CTA, L2) | 4.90 | 0.80 | per-SM L2 bandwidth (first slot full at 4.64: weights are not the gate) |
+| helper: third ring unit issued | 5.12 | 1.36 after WS_JOIN | |
+
+Tests: the unflushed replay gives the same shape (route end 3.66 at a lower clock, x back 5.52), so cold DRAM data,
+code evicted from L2 and TLB refills are not the cost. A second route() call right after the first (`--r2`) takes
+1.57 us (topk 0.14, barrier 1 0.07, count 0.21, barrier 2 0.08, scan 0.63, barrier 3 0.08, positions 0.26, barrier 4
+0.07), the same as the first call's body, so route() is not waiting on instruction fetch. Probe (helper warp, before
+WS_JOIN, a phase B weight page nothing else touches): first touch 414 ns, a new line 64 KB away in the same 2 MiB 400 ns.
+
+### B4 prologue (`pro_b42.log`, `pro_b4r2.log`)
+
+| part | ends at | length | what it waits on |
+|---|---:|---:|---|
+| lut, barrier inits (thread 0) | 0.35 | 0.35 | |
+| launch generation atomic | 0.67 | 0.32 | one global atomic round trip |
+| route() (topk loads back 1.14, scan 0.39) | 2.41 | 1.56 | its own body (1.52 when repeated) |
+| parity zeroing, jrow scan and barrier | 2.95 | 0.54 | |
+| gather: x row loads and stores, proxy fence, barrier | 4.11 | 1.16 | x rows from L2 (0.98) |
+| xready releases (thread 0) | 4.56 | 0.45 | |
+| x producer wgs_ranges, from barrier 7 (2.53) | 5.07 | 2.54 | an immediate second call takes 0.90 |
+| WS_JOIN, first weight issue | 5.2 to 5.4 | | gated by wgs_ranges, not by the gather |
+
+Round 3's "WS_JOIN 3.43, first weight issue 4.32" came from a hoisted stamp; the weights producer cannot leave
+WS_JOIN before the x producer finishes wgs_ranges.
+
+### Candidates (one change each, against ly_stk2)
+
+ly_m4rb, MID only (`tools/dl_ly_m4_patch.py rb7`, `muse_decode_layer/cand/ly_m4rb.py`, SHA256
+b12e1b47688ed569d2e8202326f475f54166788495e59debbf4b2de378b740a8, `-DOKC_RB7=1` on MOE_MID_DEFINES): at E = 8 M <= 224
+the FAST1 warp holds no routing entry, so route()'s first three CTA barriers become named barrier 3 over warps 0..6,
+warp 0 zeroes the FAST1 warp's count row, and the FAST1 warp joins only route()'s last CTA barrier (bar 1, all 256
+threads), which orders every routing table before any use as before. Gate: five PDL8H guards pass; chk PASS 12/12,
+G_RELEASE_STARTUP_OK. Pooled A/B, two rounds (`table_rb_both_rounds.txt`): decode 16 sliding +0.19 us (5/24 pairs
+faster), full +0.45 (5/24), decode 32 +0.03 / -0.26, every cell inside. Stamps (`pro_rb.log`): route end 3.45 ->
+2.84, but the FAST1 warp, now running beside routing instead of alone, issues its two TMA copies at 2.59 instead of
+1.81 (its barrier-init step 0.09 -> 0.79), the x load takes 1.79 instead of 0.80 as the weight copies land at the same
+time, and the first slot fills at 5.04 instead of 4.64. Null.
+
+ly_m4rw, B4 only (`tools/dl_ly_m4_patch.py rwarm`, `muse_decode_layer/cand/ly_m4rw.py`, SHA256
+f66973f1aba39ae4b144fc6f56528ad2f3661dd9c6c5c750d6474fd95f25a6f8, `-DOKC_RWARM=1` on the b4 defines): the x producer
+runs wgs_ranges once on a fixed two-job table (no routing table read; its shared writes are rewritten by the real call
+before WS_JOIN) before it waits on barrier 7. MAIN compiles the unchanged text. Gate: five guards pass; chk PASS 12/12,
+startup OK. Pooled A/B (`table_rw_both_rounds.txt`): decode 32 sliding +0.22 us (6/24), full -0.57 (23/24, inside the
+2.94 threshold), decode 16 -0.14 / -0.32, every cell inside. Stamps (`pro_rw.log`): the real call takes 1.28 us
+(2.54 before) but the dry run itself ends at 3.21, so ranges finish at 4.49 instead of 5.07 and the weights producer
+leaves WS_JOIN at 4.96 instead of about 5.25. Null.
+
+### Decision
+
+No candidate for a judge check and no ledger registration. What the prologue waits on at both loads: route()'s own
+body (1.5 us, warm or cold), MID's barrier 1 on the FAST1 warp's serial topk loads (1.26), the first job's x rows over
+the SM's L2 bandwidth (0.8 to 1.0), and at B4 a 2.5 us cold first wgs_ranges. Moving one of these alone shifts the
+wait onto the next: in ly_m4rb onto the FAST1 copies and the x load sharing the SM's input path, in ly_m4rw onto the
+dry run. Not built: ly_m16r's hoisted FAST1 loads together with rb7 (copies out before routing starts), and the B4
+dry run placed so it ends before route() does.

@@ -1,6 +1,7 @@
 ---
 name: okc-coordinator
 description: Coordinates the Open Kernel Challenge work in this repo. Runs parallel kernel agents per problem, ports component wins into the decode layer, manages judge quota and scored runs, merges and logs results, and steers by the researcher's reports. Use to resume or run the okc campaign.
+autoCompactWindow: 150000
 ---
 
 You coordinate the yelgabo Open Kernel Challenge entry (https://openkernelchallenge.dev,

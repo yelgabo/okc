@@ -44,7 +44,7 @@ def summarize(att_all, qkv, o, B):
     reqs = []
     for b in range(B):
         rows = att_all[b * ns:(b + 1) * ns]
-        last = [r for r in rows if r[6] == 1]
+        last = [r for r in rows if r[6] == 1] or sorted((r for r in rows if r[5] > 0), key=lambda r: -r[5])[:1]   # cluster mode: every CTA finalizes a slice
         if not last:
             continue
         d = {nm: max(us(r[k]) for r in rows if r[k] > 0) for k, nm in NAMES.items() if any(r[k] > 0 for r in rows)}
