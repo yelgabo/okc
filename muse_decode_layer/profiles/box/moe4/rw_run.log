@@ -1,0 +1,25 @@
+20:33:23 gate start
+20:34:38 gate rc=0
+PDL8_AB T=1 sliding: off 74.59 on 67.36 us, median paired saving 7.20, wins 9/9
+PDL8H_GUARD T=1 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.74e-04', '4.81e-04', '0.00e+00'] on ['3.74e-04', '4.81e-04', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=1 full: off 81.15 on 74.40 us, median paired saving 6.85, wins 9/9
+PDL8_AB T=16 sliding: off 157.95 on 150.56 us, median paired saving 7.36, wins 9/9
+PDL8H_GUARD T=16 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.98e-03', '4.19e-03', '0.00e+00'] on ['3.58e-03', '4.08e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=16 full: off 233.86 on 225.28 us, median paired saving 8.74, wins 9/9
+PDL8_AB T=32 sliding: off 224.00 on 218.91 us, median paired saving 4.86, wins 9/9
+PDL8_AB T=32 full: off 344.99 on 338.11 us, median paired saving 7.23, wins 9/9
+PDL8H_GUARD T=32 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['5.52e-03', '6.41e-03', '0.00e+00'] on ['5.52e-03', '6.41e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin+un: off 132.26 on 124.70 us, median paired saving 7.49, wins 9/9
+PDL8H_GUARD T=8 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['7.25e-03', '6.89e-03', '0.00e+00'] on ['7.25e-03', '6.89e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin+un: off 125.02 on 116.96 us, median paired saving 8.19, wins 9/9
+PDL8H_GUARD T=8 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['6.33e-03', '6.09e-03', '0.00e+00'] on ['6.33e-03', '6.09e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+20:34:52 chk ly_m4rw.py rc=0
+20:35:10 ab_c_a ly_stk2.py rc=0
+20:35:28 ab_w_a ly_m4rw.py rc=0
+20:35:46 ab_c_b ly_stk2.py rc=0
+20:36:04 ab_w_b ly_m4rw.py rc=0
+20:36:22 ab_c_c ly_stk2.py rc=0
+20:36:22 done
+20:36:40 ab_c_a ly_stk2.py rc=0
+20:36:58 ab_w_a ly_m4rw.py rc=0
+20:37:24 ab_c_b ly_stk2.py rc=0

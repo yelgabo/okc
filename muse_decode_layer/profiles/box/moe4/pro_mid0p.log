@@ -1,0 +1,92 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793822818.952 acquire start after 32.1 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793822819.867 release build glue_moe_aee7f48dc98ac563_sm90a
+BXBUILD 1793822819.867 start build glue_moe_aee7f48dc98ac563_sm90a
+BXBUILD 1793822859.319 end build glue_moe_aee7f48dc98ac563_sm90a
+BXLOCK 1793822886.271 acquire build glue_moe_aee7f48dc98ac563_sm90a done after 27.0 s
+BXCLOCK submission clocks now 27.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.14), ('sk2', 8.06), ('torch', 10.4)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+PRO decode 16 sliding n 20 graph_us 135.18 grid 132 cta entry spread mean 0.00 max 0.26
+PRO decode 16 sliding slot  84 F1 entry                 own   0.00  first-cta   0.13
+PRO decode 16 sliding slot   0 entry after wait         own   0.26  first-cta   0.26
+PRO decode 16 sliding slot  65 x prefetch issued        own   0.26  first-cta   0.26
+PRO decode 16 sliding slot  66 lut done                 own   0.26  first-cta   0.26
+PRO decode 16 sliding slot  85 F1 cnt zero              own   0.26  first-cta   0.26
+PRO decode 16 sliding slot  86 F1 topk 0 back           own   0.51  first-cta   0.51
+PRO decode 16 sliding slot  96 helper entry             own   0.51  first-cta   0.51
+PRO decode 16 sliding slot  67 gen load back            own   0.77  first-cta   0.77
+PRO decode 16 sliding slot  68 route start              own   0.77  first-cta   0.77
+PRO decode 16 sliding slot  87 F1 topk 1 back           own   0.77  first-cta   0.77
+PRO decode 16 sliding slot  69 topk load back           own   0.90  first-cta   1.02
+PRO decode 16 sliding slot  70 bar 1                    own   1.02  first-cta   1.02
+PRO decode 16 sliding slot  88 F1 topk 2 back           own   1.02  first-cta   1.02
+PRO decode 16 sliding slot  89 F1 topk 3 back           own   1.02  first-cta   1.02
+PRO decode 16 sliding slot  90 F1 scan done             own   1.54  first-cta   1.54
+PRO decode 16 sliding slot  91 F1 mbar init             own   1.54  first-cta   1.54
+PRO decode 16 sliding slot  97 helper after WS_JOIN     own   1.54  first-cta   1.54
+PRO decode 16 sliding slot  92 F1 TMA issued            own   1.79  first-cta   1.79
+PRO decode 16 sliding slot  93 F1 x prefetch            own   1.79  first-cta   1.79
+PRO decode 16 sliding slot  94 F1 lut done              own   1.79  first-cta   2.05
+PRO decode 16 sliding slot  71 count loop               own   2.30  first-cta   2.30
+PRO decode 16 sliding slot  72 bar 2                    own   2.30  first-cta   2.30
+PRO decode 16 sliding slot  73 warp0 scan               own   2.82  first-cta   2.82
+PRO decode 16 sliding slot  74 bar 3                    own   2.82  first-cta   2.82
+PRO decode 16 sliding slot  75 early_issue              own   2.82  first-cta   2.82
+PRO decode 16 sliding slot  76 position loop            own   3.07  first-cta   3.07
+PRO decode 16 sliding slot  77 bar 4 (route end)        own   3.07  first-cta   3.07
+PRO decode 16 sliding slot  78 ss zeroed                own   3.33  first-cta   3.33
+PRO decode 16 sliding slot  79 before WS_JOIN           own   3.33  first-cta   3.33
+PRO decode 16 sliding slot   1 after WS_JOIN            own   3.33  first-cta   3.33
+PRO decode 16 sliding slot  80 w0 x load issue          own   3.84  first-cta   3.84
+PRO decode 16 sliding slot  81 w0 x load back           own   4.61  first-cta   4.61
+PRO decode 16 sliding slot   2 first slot full          own   4.61  first-cta   4.61
+PRO decode 16 sliding slot  98 helper ring issued       own   4.86  first-cta   4.86
+PRO decode 16 sliding slot 100 probe first touch (ns)                384
+PRO decode 16 sliding slot 101 probe same 2 MiB, new line (ns)       352
+PRO decode 16 sliding slot 102 probe L2 hit (ns)                      32
+PRO decode 16 full n 20 graph_us 211.36 grid 132 cta entry spread mean 0.00 max 0.26
+PRO decode 16 full slot  84 F1 entry                 own   0.00  first-cta   0.26
+PRO decode 16 full slot   0 entry after wait         own   0.13  first-cta   0.26
+PRO decode 16 full slot  65 x prefetch issued        own   0.26  first-cta   0.26
+PRO decode 16 full slot  66 lut done                 own   0.26  first-cta   0.26
+PRO decode 16 full slot  85 F1 cnt zero              own   0.26  first-cta   0.26
+PRO decode 16 full slot  86 F1 topk 0 back           own   0.51  first-cta   0.51
+PRO decode 16 full slot  96 helper entry             own   0.51  first-cta   0.51
+PRO decode 16 full slot  67 gen load back            own   0.77  first-cta   0.77
+PRO decode 16 full slot  68 route start              own   0.77  first-cta   0.77
+PRO decode 16 full slot  69 topk load back           own   0.77  first-cta   1.02
+PRO decode 16 full slot  70 bar 1                    own   0.77  first-cta   1.02
+PRO decode 16 full slot  87 F1 topk 1 back           own   0.77  first-cta   0.77
+PRO decode 16 full slot  88 F1 topk 2 back           own   1.02  first-cta   1.02
+PRO decode 16 full slot  89 F1 topk 3 back           own   1.02  first-cta   1.28
+PRO decode 16 full slot  97 helper after WS_JOIN     own   1.28  first-cta   1.54
+PRO decode 16 full slot  90 F1 scan done             own   1.54  first-cta   1.54
+PRO decode 16 full slot  91 F1 mbar init             own   1.54  first-cta   1.79
+PRO decode 16 full slot  92 F1 TMA issued            own   1.79  first-cta   1.79
+PRO decode 16 full slot  93 F1 x prefetch            own   1.79  first-cta   1.92
+PRO decode 16 full slot  94 F1 lut done              own   1.79  first-cta   2.05
+PRO decode 16 full slot  71 count loop               own   2.30  first-cta   2.30
+PRO decode 16 full slot  72 bar 2                    own   2.30  first-cta   2.30
+PRO decode 16 full slot  73 warp0 scan               own   2.82  first-cta   2.82
+PRO decode 16 full slot  74 bar 3                    own   2.82  first-cta   2.82
+PRO decode 16 full slot  75 early_issue              own   2.82  first-cta   3.07
+PRO decode 16 full slot  76 position loop            own   3.07  first-cta   3.33
+PRO decode 16 full slot  77 bar 4 (route end)        own   3.07  first-cta   3.33
+PRO decode 16 full slot  78 ss zeroed                own   3.33  first-cta   3.33
+PRO decode 16 full slot  79 before WS_JOIN           own   3.33  first-cta   3.33
+PRO decode 16 full slot   1 after WS_JOIN            own   3.33  first-cta   3.33
+PRO decode 16 full slot  80 w0 x load issue          own   3.84  first-cta   3.84
+PRO decode 16 full slot  81 w0 x load back           own   4.35  first-cta   4.61
+PRO decode 16 full slot   2 first slot full          own   4.61  first-cta   4.61
+PRO decode 16 full slot  98 helper ring issued       own   4.86  first-cta   4.99
+PRO decode 16 full slot 100 probe first touch (ns)                384
+PRO decode 16 full slot 101 probe same 2 MiB, new line (ns)       352
+PRO decode 16 full slot 102 probe L2 hit (ns)                      32
+20:08:16 mid0p rc=0
