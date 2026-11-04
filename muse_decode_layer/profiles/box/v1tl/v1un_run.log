@@ -1,0 +1,16 @@
+17:22:19 gate start
+17:22:50 gate rc=0
+17:23:04 chk ly_v1un.py rc=0
+17:23:23 ab_c_a ly_rfx.py rc=0
+17:23:41 ab_w_a ly_v1un.py rc=0
+17:23:59 ab_c_b ly_rfx.py rc=0
+17:24:18 ab_w_b ly_v1un.py rc=0
+17:24:36 ab_c_c ly_rfx.py rc=0
+17:24:36 done
+17:24:55 ab_c_a ly_rfx.py rc=0
+17:25:14 ab_w_a ly_v1un.py rc=0
+17:25:33 ab_c_b ly_rfx.py rc=0
+17:25:51 ab_w_b ly_v1un.py rc=0
+17:26:10 ab_c_c ly_rfx.py rc=0
+17:26:10 done
+17:26:21 all done
