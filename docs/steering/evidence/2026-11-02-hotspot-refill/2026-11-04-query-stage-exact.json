@@ -1,0 +1,36 @@
+{
+  "source_pin": "39ae77cf42b1c8ee8f3d64539c082ac8de02f710",
+  "source_path": "muse_decode_layer/cand/ly_stk3.py",
+  "source_git_blob": "7e92d0d202fc1de208324a72dcd05260c2284200",
+  "scope": "CPU enumeration of the fixed L8 non-flat 256-thread query layout, not GPU execution",
+  "logical_values": 8192,
+  "unique_byte_destinations": 8192,
+  "source_and_proposed_destination_mapping_equal": true,
+  "exactly_one_proposed_writer_per_byte": true,
+  "destination_range": [0, 8191],
+  "mapping_sha256": "939f02946ba255125d8e66c7e6d7c5bb65e87d1ca052c628c4d0f5d0d833ce78",
+  "potential_removed_shared_bytes_per_CTA": 32768,
+  "potential_removed_shared_bytes_at_33_splits": 1081344,
+  "traffic_limit": "Static shared write/read accounting; not HBM bytes, SASS validation or exposed time.",
+  "double_rounding_witness": {
+    "input_f32": 1.062600016593933,
+    "rounded_f16": 1.0625,
+    "e4m3_after_f16": 1.0,
+    "direct_e4m3": 1.125,
+    "limit": "Finite scalar RNE example around 1.0 only; no GPU assertion."
+  },
+  "conditional_score_improvements_percent": {
+    "v1_sliding_minus_0_4us": 0.04898469679588014,
+    "d1_and_v1_sliding_minus_1us_each": 0.3061914455920242,
+    "d16_and_d32_sliding_minus_5us_each": 0.9263168280540418,
+    "all_six_sliding_minus_5_percent": 3.878973087317644
+  },
+  "limits": [
+    "No source import or native compile",
+    "No GPU timing or register allocation",
+    "No compiled conversion equivalence or asynchronous publication proof",
+    "No check, implementation assignment, public action or owner polling"
+  ],
+  "report": "docs/steering/2026-11-04-deepseek-h200-research.md",
+  "report_commit": "05fd376e54ecfde8133cecb68faeaef2f641ca1c"
+}
