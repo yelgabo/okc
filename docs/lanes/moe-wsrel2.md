@@ -19,11 +19,58 @@ muse_decode_layer/cand/ly_mpdl.py sha256 a0ee638cf5342235a879054ac68da02e63d6f5e
 - muse_decode_layer/cand/ly_wsrel1_ab.py (A/B only; default arm = ly_mpdl helper, state wsrel_h ar1 / sc1)
   sha256 978bc1474cff880c0b91837522b5c5a7d20bdf5c3173cfe1f1ba49eb3f6b9d81
 
+## Proof (PTX ISA, chapter "Memory Consistency Model", plus the bar.warp.sync instruction description)
+
+Producer (one helper warp, every lane): weak `st.global.L2::cache_hint` stores of its `p.inter` rows across the
+phase-A loop, then at `q == nA - 1` `__syncwarp()` (bar.warp.sync), then lane 0 runs `fence.acq_rel.gpu` (ly_wsrel1)
+or `fence.sc.gpu` (ly_wsrel1_sc) and `atomicAdd(p.doneA + jj, ...)` (atom.global.add, strong relaxed, gpu scope) for
+each job. Consumer: lane 0 polls `ld.acquire.gpu` on `p.doneA + j`, then `__syncwarp()`, then every lane reads
+`p.inter` with `__ldcg` (ld.global.cg, generic proxy; no TMA or cp.async.bulk on this path, confirmed by moe-wsrel).
+
+1. Lane k's stores precede its `bar.warp.sync` in program order. The instruction description of bar.warp.sync says
+   it "also guarantee[s] memory ordering among threads participating in barrier", so those stores are ordered
+   before every operation lane 0 performs after the barrier ("Base causality order": X precedes Z in program
+   order, Z precedes Y).
+2. "Release and acquire patterns": a `fence.sc` or `fence.acq_rel` followed in program order by a strong write is a
+   release pattern. Lane 0's post-relay fence plus each atomicAdd is one, and its first operation (the fence) comes
+   after the relay, so every lane's stores precede it.
+3. "Observation order": the consumer's acquire read observes the counter through the chain of producers' atomic
+   RMWs, so each producer's atom precedes the read in observation order. "Synchronizes-with": the release pattern
+   synchronizes with the `ld.acquire.gpu` acquire pattern; both are gpu scope and morally strong.
+4. The consumer's `bar.warp.sync` orders its lane 0 acquire before the other lanes' `__ldcg` reads (as in 1).
+   "Causality order" then runs from every producer lane's store to every consumer lane's read, and the "Causality"
+   axiom makes the read see the store (or a later write).
+
+The base (ly_mpdl) has a fence in each lane but lane 0's release pattern starts before the relay, so step 2 fails
+for lanes 1 to 31. The variant is strictly stronger than the base without any per-lane fence. Disclosure: the formal
+"Synchronizes-with" list names bar{.cta}.sync / red / arrive; bar.warp.sync's ordering comes from its instruction
+description, which the base, ly_wsrel and ly_wsrel1 all rely on in the same way. Every other fence is kept
+(the PB path, the CTA credits and the MOE_CUDA_SRC sites other than ws_helper are unchanged).
+
 ## Box
 
 tools/ly_wsrel1_box.sh, PHASE="sass gate ab", outputs in /root/okc/.build/wsrel1/ (sass.log, chk_<cand>.log,
 ab_r{1,2}.log). SASS: tools/ly_wsrel1_sass.py (nvcc device build of the helper source, TINY and MID define sets).
 
+## Results
+
+Gate ly_wsrel1 (bx_box_run, six loads, 5 runs, judge reference g1b4_pdl8d, /root/okc/.build/wsrel1/chk_ly_wsrel1.log):
+12/12 check PASS, one "G1b4 backend native" line (the same "native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off"
+line as moe-wsrel's accepted ly_wsrel_ar gate), 0 "native build failed", 0 Marlin. Box net us:
+
+| load | sliding | full |
+|---|---|---|
+| decode 1 | 61.60 | 70.05 |
+| decode 16 | 124.10 | 201.09 |
+| decode 32 | 134.69 | 292.67 |
+| verify 1 | 92.93 | 110.59 |
+| verify 16 | 240.51 | 321.09 |
+| verify 32 | 296.06 | 460.94 |
+
+The first SASS attempt failed (C++17, no Python.h); fixed script rerun to /root/okc/.build/wsrel1/sass2.log.
+The run.log "rc=" values of the first launch are date's status (the script echoed `$?` after a `$(date)`);
+fixed in tools/ly_wsrel1_box.sh for later launches. Read the logs, not those rc values.
+
 ## Next action
 
-Launch the box script, read sass.log, the gate logs and the A/B rounds.
+Read sass2.log, chk_ly_wsrel1_sc.log and the A/B rounds ab_r1 / ab_r2.

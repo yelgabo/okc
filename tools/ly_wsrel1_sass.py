@@ -12,6 +12,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import sysconfig
 
 from torch.utils.cpp_extension import include_paths
 
@@ -33,8 +34,8 @@ def sass(stem, build, out):
     cu = out / f"{stem}_{build}.cu"
     cu.write_text(src)
     obj = out / f"{stem}_{build}.o"
-    inc = sum((["-I", p] for p in include_paths(device_type="cuda")), [])
-    subprocess.run(["nvcc", "-c", "-O3", "-std=c++17", "-gencode=arch=compute_90a,code=sm_90a", *inc, *COMMON,
+    inc = sum((["-I", p] for p in include_paths(device_type="cuda") + [sysconfig.get_paths()["include"]]), [])
+    subprocess.run(["nvcc", "-c", "-O3", "-std=c++20", "-gencode=arch=compute_90a,code=sm_90a", *inc, *COMMON,
                     *BUILDS[build], str(cu), "-o", str(obj)], check=True)
     dump = subprocess.run(["cuobjdump", "-sass", str(obj)], check=True, capture_output=True, text=True).stdout
     (out / f"{stem}_{build}.sass").write_text(dump)
