@@ -2197,3 +2197,28 @@ full -1.31 (5 of 5), verify 1 -0.43 / -0.25, decode 1 sliding +0.55 (5 of 5 posi
   change was needed.
 - Judge check candidate, if the lead wants one: ly_micro.py (dc3e0d00), or ly_micro without scl on TINY if the decode 1
   sign matters.
+
+### ly_micro2: the stack without scl on the decode 1 build (box, 2026-11-04 03:31-03:34 UTC)
+
+`python3 tools/dl_ly_micro_patch.py --variant scl_notiny --variant wspack --variant wgspack --variant ftz --out
+muse_decode_layer/cand/ly_micro2.py` gives ly_micro2.py, SHA256
+0bc2bd8bdeecd7514ab259bd8f2b5b6b66cef88734f583c5ccaf466f1075cacd. `scl_notiny` wraps the scl edits in `#if !OKC_NOSCL`
+and adds `-DOKC_NOSCL=1` to MOE_TINY_DEFINES only. SASS (`muse_decode_layer/profiles/box/lym/sass/stack2.diff.txt`): the
+TINY unit loops are back to the base's 702 / 754 instructions and 145 registers; the TINY2, MID, B4 and MAIN SASS is
+identical to ly_micro's (instruction text md5 equal for all four).
+
+A/B (`lym_r4/`, `tools/ly_micro_ab.sh`, same flags and pin, `--runs 60`, order c, ly_micro, ly_micro2 three times, then
+c; all 10 runs passed the startup expert comparison and every reference check). Net us:
+
+| cell | control mean (4) | control spread | ly_micro delta (per run) | ly_micro2 delta (per run) | threshold |
+|---|---:|---:|---|---|---:|
+| decode 1 sliding | 66.19 | 0.70 | +0.35 (+0.61 +0.36 +0.07) | +0.16 (+0.60 -0.04 -0.06) | 1.41 |
+| decode 1 full | 72.47 | 0.22 | +0.12 (-0.34 +0.83 -0.12) | -0.29 (-0.45 -0.12 -0.31) | 0.50 |
+| verify 1 sliding | 102.61 | 0.86 | -0.05 (+0.20 -0.70 +0.34) | +0.30 (+0.34 +0.23 +0.32) | 1.73 |
+| verify 1 full | 112.38 | 0.98 | -0.24 (-0.07 -0.55 -0.10) | -0.19 (+0.09 -0.50 -0.17) | 1.95 |
+
+Reading: ly_micro2's decode 1 sliding delta (+0.16) is inside the control spread (0.70), and decode 1 full moved to
+-0.29 in all three runs. Verify 1 runs the TINY2 build, whose SASS is the same in both files, so the +0.30 against
+-0.05 at verify 1 sliding is session variation between arms of identical verify 1 code, inside the 0.86 spread. In
+this session ly_micro's own decode 1 sliding excess was +0.35 (earlier sessions +0.55), and neither file reproduced the
+earlier verify 1 sliding gain (-0.64 for ly_micro in lym_r3). All cells are inside the threshold.

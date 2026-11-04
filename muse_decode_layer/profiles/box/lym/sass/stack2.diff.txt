@@ -1,0 +1,11 @@
+tiny  reg 145->145 local 0->0 ins 5201->5197 ops {'FSETP': -2, 'STG.E': 1, 'BSSY': -1, 'SHFL.BFLY': 1, 'STG.E.U16': -2}
+      loop 0x5fc0 n 702->702 mma 32 {'IADD3': -1, 'SHF': 1}
+      loop 0x97c0 n 754->754 mma 32 {'IADD3': -1, 'SHF': -1, 'LEA': 2}
+tiny2 reg 145->141 local 0->0 ins 5250->5207 ops {'FSETP': -2, 'STG.E': 1, 'BSSY': -1, 'SHFL.BFLY': 1, 'STG.E.U16': -2}
+      loop 0x5fe0 n 706->690 mma 32 {'MOV': -1, 'SHF': -1, 'PRMT': -8, 'LEA': 1, 'IMAD': -8, 'VIADD': 1}
+      loop 0x9820 n 757->741 mma 32 {'PRMT': -8, 'IMAD': -8}
+mid   reg 152->144 local 0->0 ins 5224->5180 ops {'FSETP': -2, 'STG.E': 1, 'BSSY': -1, 'SHFL.BFLY': 1, 'STG.E.U16': -2}
+      loop 0x5640 n 708->692 mma 32 {'IADD3': -1, 'SHF': 1, 'PRMT': -8, 'IMAD': -9, 'VIADD': 1}
+      loop 0x8ef0 n 763->747 mma 32 {'MOV': -3, 'IADD3': 2, 'SHF': -2, 'PRMT': -8, 'IMAD': -4, 'VIADD': -1}
+b4    reg 96->96 local 0->0 ins 26796->25528 ops {'FSETP': -108, 'STG.E': 54, 'BSSY': -82, 'STG.E.U16': -108, 'SHFL.BFLY': 54}
+main  reg 96->96 local 0->0 ins 23862->22647 ops {'FSETP': -108, 'STG.E': 54, 'BSSY': -82, 'STG.E.U16': -108, 'SHFL.BFLY': 54}

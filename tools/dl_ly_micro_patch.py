@@ -6,6 +6,8 @@
 Variants (every one keeps the output bits; docs/runs-decode-layer.md "Micro-optimizations on the box"):
   scl     helper0 skinny_ring_ws (TINY / TINY2 / MID unit loop): both rows' block scales in one bf16x2 (one PRMT and
           one IMAD per 64-K chunk instead of two each), the multiplies broadcast its halves, as the WGS stage does.
+  scl_notiny  scl on the TINY2 and MID builds only: the TINY build (decode 1) gets -DOKC_NOSCL=1 and preprocesses
+          to the base loop (decode 1 sliding measured +0.36 to +0.55 us with scl, verify 1 / decode 16 -0.8 to -0.9).
   ftz     every MoE SwiGLU epilogue: exp through ex2.approx.ftz. The non-ftz __expf adds a compare and two predicated
           multiplies for results below 2^-126; there 1 + e^-g is 1.0f either way, so the SiLU bits do not change.
   wspack  helper0 ws_helper phase A: the two tokens' BF16 stores become one 32-bit store; lanes 4 apart (adjacent
@@ -163,7 +165,16 @@ CG_NEW = ("""'        if (t == 0) {\\n"""
           """        }\\n""" + CG_OLD[1:])
 
 
+SCLN_NEW = ("#if !OKC_NOSCL\n" + SCL_NEW[:-len("#else")] + "#else\n" + SCL_OLD[:-len("#else")] + "#endif\n#else")
+SCLN_MMA_NEW = SCL_MMA_NEW.replace("#if OKC_PRMTSC\n", "#if OKC_PRMTSC && !OKC_NOSCL\n", 1)
+TINY_DEF = 'MOE_TINY_DEFINES += ("@moe_helper0", "-DOKC_FINPF=1")'
+
+
 def apply(s, v):
+    if v == "scl_notiny":
+        s = once(s, TINY_DEF, TINY_DEF[:-1] + ', "-DOKC_NOSCL=1")', v)
+        return in_region(s, H0_START, '\n"""', [(SCL_OLD, SCLN_NEW), (SCL_MMA_OLD, SCLN_MMA_NEW)], v,
+                         sub=("__device__ void skinny_ring_ws(", "__device__ void ws_helper("))
     if v == "cgpf":
         return once(s, CG_OLD, CG_NEW, v)
     if v == "scl":
