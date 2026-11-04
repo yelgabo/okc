@@ -389,3 +389,5 @@ MoE factorized-output7479372115c64702 is terminal and archived at1454ac73: offic
 - 14:06 PT: user "do it": lane moe-dfybf opened (DF and YBF, the MoE features still off besides MFIN/PDL): research first, build on ly_stk4 only for a few-line repair worth >= 0.4 us at a sliding cell; hard stop 17:30 PT; no judge use by the lane.
 
 - 14:08 PT: user asked for the barrier lesson and a whole-layer barrier search: lesson written to docs/steering/2026-11-01-working-principles.md and AGENTS.md (c411ba60); lane barriers opened (inventory every sync point, rank by pool, build at most two small repairs on ly_stk4, stop 17:30 PT); layer-guide relaunched (lost at compaction).
+
+- 14:17 PT: lane moe-dfybf stopped at budget (checkpoint d3ca74ee). YBF closed on precision (extra post-gamma BF16 round). DF (MID data-flag hand-off) repaired as ly_mdf 28d4422a but unmeasured (MID build failed on the box); lead closed it on ordering grounds (mixed-size relaxed accesses, sentinel hang risk) for 0.05-0.12% of score; reopen trigger in docs/ruled-out.md.
