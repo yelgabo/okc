@@ -1,0 +1,273 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.01), ('sk2', 7.87), ('torch', 10.43)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+RBSTI decode 16 sliding in 0 plain 127.49 inst 124.83 diff 9.77e-03 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.37
+RBSTI decode 16 sliding in 1 plain 132.06 inst 130.56 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.34
+RBSTI decode 16 sliding in 2 plain 123.14 inst 124.93 diff 7.81e-03 b1[glue] n 128 wait 0.45 end 2.27 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 sliding in 3 plain 156.00 inst 157.25 diff 1.95e-03 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 sliding in 4 plain 117.92 inst 118.72 diff 1.56e-02 b1[glue] n 128 wait 0.45 end 2.27 b2 n 16 wait 0.45 end 2.30
+RBSTI decode 16 sliding in 5 plain 132.00 inst 131.42 diff 3.91e-03 b1[glue] n 128 wait 0.48 end 2.34 b2 n 16 wait 0.48 end 2.34
+RBSTI decode 16 sliding in 6 plain 130.53 inst 130.62 diff 1.56e-02 b1[glue] n 128 wait 0.48 end 2.34 b2 n 16 wait 0.45 end 2.30
+RBSTI decode 16 sliding in 7 plain 129.54 inst 132.00 diff 1.56e-02 b1[glue] n 128 wait 0.45 end 2.24 b2 n 16 wait 0.48 end 2.27
+RBSTI decode 16 sliding in 8 plain 137.41 inst 136.99 diff 7.81e-03 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.34
+RBSTI decode 16 sliding in 9 plain 124.45 inst 125.73 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.34 b2 n 16 wait 0.48 end 2.34
+RBSTI decode 16 sliding in 10 plain 123.01 inst 124.38 diff 2.34e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 sliding in 11 plain 137.02 inst 138.98 diff 1.56e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 sliding in 12 plain 131.62 inst 131.46 diff 1.56e-02 b1[glue] n 128 wait 0.48 end 2.34 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 sliding in 13 plain 137.79 inst 138.40 diff 3.91e-03 b1[glue] n 128 wait 0.45 end 2.27 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 sliding in 14 plain 117.60 inst 119.01 diff 1.56e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.27
+RBSTI decode 16 sliding in 15 plain 130.85 inst 130.59 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.24 b2 n 16 wait 0.48 end 2.27
+RBSTI decode 16 sliding in 16 plain 123.94 inst 122.94 diff 1.56e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.34
+RBSTI decode 16 sliding in 17 plain 138.18 inst 137.63 diff 7.81e-03 b1[glue] n 128 wait 0.48 end 2.27 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 sliding in 18 plain 119.55 inst 119.55 diff 1.56e-02 b1[glue] n 128 wait 0.48 end 2.30 b2 n 16 wait 0.51 end 2.37
+RBSTI decode 16 sliding in 19 plain 136.86 inst 138.91 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.34
+RBST decode 16 sliding T 16 n 20 medians
+  graph_plain 130.688 graph_inst 130.608 maxdiff 3.12e-02
+  o   n                    256.000
+  o   end_spread             0.512
+  o   wait_to_end            3.232
+  un  n                    256.000
+  un  end_spread             1.280
+  un  wait_to_end           12.128
+  b1  n                    128.000
+  b1  entry_first           -1.152
+  b1  entry_last            -0.736
+  b1  sync_last              0.192
+  b1  wait_p50               0.512
+  b1  wait_last              0.448
+  b1  wait_first             0.416
+  b1  branch                 0.032
+  b1  red1                   0.896
+  b1  red2                   0.736
+  b1  store                  0.064
+  b1  wait_to_end            1.728
+  b1  wait_to_end_max        1.872
+  b1  end_p50                2.176
+  b1  end                    2.304
+  b1  last_cta_wait          0.432
+  b1  sms                  120.000
+  b2  n                     16.000
+  b2  entry_first           -1.072
+  b2  entry_last            -0.992
+  b2  pre_landed_last       -0.320
+  b2  wait_p50               0.512
+  b2  wait_last              0.480
+  b2  wait_first             0.448
+  b2  branch                 0.080
+  b2  red1                   0.544
+  b2  stream                 0.352
+  b2  ns_store               0.216
+  b2  red2                   0.480
+  b2  out_store              0.128
+  b2  wait_to_end            1.776
+  b2  wait_to_end_max        1.856
+  b2  end_p50                2.304
+  b2  end                    2.304
+  b2  last_row_wait          0.480
+  b2  last_row_entry        -1.024
+  b2  sms                   16.000
+RBSTI decode 16 full in 0 plain 194.02 inst 195.04 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.24 b2 n 16 wait 0.48 end 2.34
+RBSTI decode 16 full in 1 plain 195.49 inst 196.29 diff 2.34e-02 b1[glue] n 128 wait 0.45 end 2.27 b2 n 16 wait 0.45 end 2.30
+RBSTI decode 16 full in 2 plain 206.18 inst 208.70 diff 3.12e-02 b1[glue] n 128 wait 0.48 end 2.30 b2 n 16 wait 0.48 end 2.27
+RBSTI decode 16 full in 3 plain 215.81 inst 217.82 diff 1.56e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.45 end 2.27
+RBSTI decode 16 full in 4 plain 215.84 inst 218.59 diff 7.81e-03 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.45 end 2.27
+RBSTI decode 16 full in 5 plain 201.28 inst 202.85 diff 7.81e-03 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.27
+RBSTI decode 16 full in 6 plain 199.17 inst 200.38 diff 1.56e-02 b1[glue] n 128 wait 0.48 end 2.30 b2 n 16 wait 0.45 end 2.27
+RBSTI decode 16 full in 7 plain 206.24 inst 209.66 diff 3.91e-03 b1[glue] n 128 wait 0.45 end 2.27 b2 n 16 wait 0.45 end 2.30
+RBSTI decode 16 full in 8 plain 208.19 inst 208.22 diff 3.12e-02 b1[glue] n 128 wait 0.48 end 2.34 b2 n 16 wait 0.48 end 2.37
+RBSTI decode 16 full in 9 plain 214.02 inst 217.22 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.27
+RBSTI decode 16 full in 10 plain 207.55 inst 207.26 diff 2.34e-02 b1[glue] n 128 wait 0.45 end 2.27 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 full in 11 plain 194.66 inst 195.01 diff 3.12e-02 b1[glue] n 128 wait 0.48 end 2.30 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 full in 12 plain 199.39 inst 200.58 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.27 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 full in 13 plain 223.49 inst 226.46 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.27 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 full in 14 plain 211.65 inst 214.98 diff 2.34e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.51 end 2.34
+RBSTI decode 16 full in 15 plain 201.34 inst 204.00 diff 3.91e-03 b1[glue] n 128 wait 0.45 end 2.27 b2 n 16 wait 0.45 end 2.34
+RBSTI decode 16 full in 16 plain 200.90 inst 200.80 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.34
+RBSTI decode 16 full in 17 plain 213.66 inst 214.02 diff 3.91e-03 b1[glue] n 128 wait 0.45 end 2.30 b2 n 16 wait 0.48 end 2.30
+RBSTI decode 16 full in 18 plain 214.34 inst 213.73 diff 3.91e-03 b1[glue] n 128 wait 0.48 end 2.30 b2 n 16 wait 0.48 end 2.34
+RBSTI decode 16 full in 19 plain 219.36 inst 220.96 diff 3.12e-02 b1[glue] n 128 wait 0.45 end 2.24 b2 n 16 wait 0.48 end 2.34
+RBST decode 16 full T 16 n 20 medians
+  graph_plain 206.896 graph_inst 208.464 maxdiff 3.12e-02
+  o   n                    256.000
+  o   end_spread             0.512
+  o   wait_to_end            3.488
+  un  n                    256.000
+  un  end_spread             1.280
+  un  wait_to_end           12.160
+  b1  n                    128.000
+  b1  entry_first           -1.280
+  b1  entry_last            -0.896
+  b1  sync_last             -0.016
+  b1  wait_p50               0.512
+  b1  wait_last              0.448
+  b1  wait_first             0.416
+  b1  branch                 0.032
+  b1  red1                   0.896
+  b1  red2                   0.736
+  b1  store                  0.072
+  b1  wait_to_end            1.728
+  b1  wait_to_end_max        1.856
+  b1  end_p50                2.304
+  b1  end                    2.304
+  b1  last_cta_wait          0.448
+  b1  sms                  119.000
+  b2  n                     16.000
+  b2  entry_first           -1.072
+  b2  entry_last            -1.008
+  b2  pre_landed_last       -0.272
+  b2  wait_p50               0.512
+  b2  wait_last              0.480
+  b2  wait_first             0.448
+  b2  branch                 0.096
+  b2  red1                   0.544
+  b2  stream                 0.336
+  b2  ns_store               0.176
+  b2  red2                   0.528
+  b2  out_store              0.128
+  b2  wait_to_end            1.760
+  b2  wait_to_end_max        1.840
+  b2  end_p50                2.304
+  b2  end                    2.304
+  b2  last_row_wait          0.480
+  b2  last_row_entry        -1.024
+  b2  sms                   16.000
+RBSTI decode 32 sliding in 0 plain 142.98 inst 141.70 diff 3.12e-02 b1[gluon] n 32 wait 0.51 end 3.04 b2 n 32 wait 0.51 end 2.53
+RBSTI decode 32 sliding in 1 plain 142.05 inst 141.66 diff 3.12e-02 b1[gluon] n 32 wait 0.48 end 4.19 b2 n 32 wait 0.45 end 2.30
+RBSTI decode 32 sliding in 2 plain 140.45 inst 140.42 diff 2.34e-02 b1[gluon] n 32 wait 0.48 end 2.98 b2 n 32 wait 0.45 end 2.37
+RBSTI decode 32 sliding in 3 plain 139.30 inst 140.83 diff 1.56e-02 b1[gluon] n 32 wait 0.48 end 2.88 b2 n 32 wait 0.48 end 2.43
+RBSTI decode 32 sliding in 4 plain 141.73 inst 142.75 diff 3.12e-02 b1[gluon] n 32 wait 0.54 end 3.01 b2 n 32 wait 0.48 end 2.40
+RBSTI decode 32 sliding in 5 plain 152.45 inst 156.90 diff 3.12e-02 b1[gluon] n 32 wait 0.64 end 3.23 b2 n 32 wait 0.51 end 2.34
+RBSTI decode 32 sliding in 6 plain 150.40 inst 150.56 diff 3.12e-02 b1[gluon] n 32 wait 0.51 end 3.04 b2 n 32 wait 0.51 end 2.37
+RBSTI decode 32 sliding in 7 plain 145.60 inst 146.02 diff 2.34e-02 b1[gluon] n 32 wait 0.54 end 3.17 b2 n 32 wait 0.48 end 2.34
+RBSTI decode 32 sliding in 8 plain 153.92 inst 150.43 diff 2.34e-02 b1[gluon] n 32 wait 0.61 end 3.17 b2 n 32 wait 0.51 end 2.34
+RBSTI decode 32 sliding in 9 plain 146.69 inst 146.59 diff 3.12e-02 b1[gluon] n 32 wait 0.45 end 3.36 b2 n 32 wait 0.48 end 2.37
+RBSTI decode 32 sliding in 10 plain 144.45 inst 144.70 diff 1.56e-02 b1[gluon] n 32 wait 0.45 end 2.98 b2 n 32 wait 0.48 end 2.37
+RBSTI decode 32 sliding in 11 plain 159.17 inst 160.42 diff 3.12e-02 b1[gluon] n 32 wait 0.61 end 3.07 b2 n 32 wait 0.48 end 2.30
+RBSTI decode 32 sliding in 12 plain 146.43 inst 147.30 diff 3.12e-02 b1[gluon] n 32 wait 0.51 end 2.94 b2 n 32 wait 0.48 end 2.43
+RBSTI decode 32 sliding in 13 plain 151.14 inst 151.87 diff 1.56e-02 b1[gluon] n 32 wait 0.48 end 2.85 b2 n 32 wait 0.48 end 2.40
+RBSTI decode 32 sliding in 14 plain 146.50 inst 146.43 diff 3.12e-02 b1[gluon] n 32 wait 0.61 end 3.01 b2 n 32 wait 0.48 end 2.37
+RBSTI decode 32 sliding in 15 plain 148.00 inst 146.94 diff 3.12e-02 b1[gluon] n 32 wait 0.64 end 3.10 b2 n 32 wait 0.48 end 2.40
+RBSTI decode 32 sliding in 16 plain 140.03 inst 140.29 diff 7.81e-03 b1[gluon] n 32 wait 0.48 end 2.88 b2 n 32 wait 0.48 end 2.30
+RBSTI decode 32 sliding in 17 plain 142.62 inst 142.62 diff 2.34e-02 b1[gluon] n 32 wait 0.45 end 2.94 b2 n 32 wait 0.48 end 2.37
+RBSTI decode 32 sliding in 18 plain 150.43 inst 152.86 diff 2.34e-02 b1[gluon] n 32 wait 0.58 end 3.04 b2 n 32 wait 0.48 end 2.37
+RBSTI decode 32 sliding in 19 plain 136.00 inst 134.62 diff 1.56e-02 b1[gluon] n 32 wait 0.64 end 3.14 b2 n 32 wait 0.51 end 2.34
+RBST decode 32 sliding T 32 n 20 medians
+  graph_plain 146.016 graph_inst 146.224 maxdiff 3.12e-02
+  o   n                    256.000
+  o   end_spread             0.512
+  o   wait_to_end            4.080
+  un  n                    128.000
+  un  end_spread             1.024
+  un  wait_to_end           13.152
+  b1  n                     32.000
+  b1  entry_first           -1.312
+  b1  entry_last            -0.144
+  b1  pre_landed_last        0.384
+  b1  wait_p50               0.512
+  b1  wait_last              0.512
+  b1  wait_first             0.480
+  b1  branch                 0.416
+  b1  red1                   0.264
+  b1  stream                 0.288
+  b1  ns_store               0.512
+  b1  red2                   0.496
+  b1  out_store              0.128
+  b1  wait_to_end            2.152
+  b1  wait_to_end_max        2.512
+  b1  end_p50                2.560
+  b1  end                    3.040
+  b1  last_row_wait          0.496
+  b1  last_row_entry        -0.272
+  b1  sms                   32.000
+  b2  n                     32.000
+  b2  entry_first           -1.392
+  b2  entry_last            -0.960
+  b2  pre_landed_last       -0.160
+  b2  wait_p50               0.512
+  b2  wait_last              0.480
+  b2  wait_first             0.448
+  b2  branch                 0.064
+  b2  red1                   0.576
+  b2  stream                 0.320
+  b2  ns_store               0.256
+  b2  red2                   0.448
+  b2  out_store              0.128
+  b2  wait_to_end            1.784
+  b2  wait_to_end_max        1.920
+  b2  end_p50                2.304
+  b2  end                    2.368
+  b2  last_row_wait          0.464
+  b2  last_row_entry        -1.264
+  b2  sms                   32.000
+RBSTI decode 32 full in 0 plain 297.50 inst 301.47 diff 1.95e-02 b1[gluon] n 32 wait 0.48 end 2.82 b2 n 32 wait 0.48 end 2.37
+RBSTI decode 32 full in 1 plain 298.27 inst 300.77 diff 3.12e-02 b1[gluon] n 32 wait 0.58 end 2.82 b2 n 32 wait 0.48 end 2.40
+RBSTI decode 32 full in 2 plain 300.16 inst 306.30 diff 1.56e-02 b1[gluon] n 32 wait 0.54 end 2.98 b2 n 32 wait 0.48 end 2.34
+RBSTI decode 32 full in 3 plain 296.64 inst 300.58 diff 1.56e-02 b1[gluon] n 32 wait 0.58 end 2.85 b2 n 32 wait 0.51 end 2.34
+RBSTI decode 32 full in 4 plain 301.50 inst 307.10 diff 3.12e-02 b1[gluon] n 32 wait 0.64 end 3.04 b2 n 32 wait 0.48 end 2.34
+RBSTI decode 32 full in 5 plain 295.46 inst 302.11 diff 3.12e-02 b1[gluon] n 32 wait 0.48 end 2.75 b2 n 32 wait 0.51 end 2.34
+RBSTI decode 32 full in 6 plain 297.34 inst 300.70 diff 3.12e-02 b1[gluon] n 32 wait 0.48 end 2.75 b2 n 32 wait 0.51 end 2.37
+RBSTI decode 32 full in 7 plain 289.76 inst 295.71 diff 3.12e-02 b1[gluon] n 32 wait 0.48 end 2.88 b2 n 32 wait 0.51 end 2.34
+RBSTI decode 32 full in 8 plain 296.06 inst 302.50 diff 3.12e-02 b1[gluon] n 32 wait 0.58 end 2.88 b2 n 32 wait 0.48 end 2.34
+RBSTI decode 32 full in 9 plain 298.98 inst 304.64 diff 3.12e-02 b1[gluon] n 32 wait 0.54 end 2.82 b2 n 32 wait 0.48 end 2.43
+RBSTI decode 32 full in 10 plain 289.57 inst 292.96 diff 3.91e-03 b1[gluon] n 32 wait 0.58 end 2.78 b2 n 32 wait 0.48 end 2.43
+RBSTI decode 32 full in 11 plain 313.95 inst 318.75 diff 3.12e-02 b1[gluon] n 32 wait 0.54 end 2.66 b2 n 32 wait 0.48 end 2.37
+RBSTI decode 32 full in 12 plain 306.08 inst 309.89 diff 1.56e-02 b1[gluon] n 32 wait 0.54 end 2.94 b2 n 32 wait 0.48 end 2.37
+RBSTI decode 32 full in 13 plain 294.82 inst 299.30 diff 3.12e-02 b1[gluon] n 32 wait 0.45 end 2.91 b2 n 32 wait 0.48 end 2.34
+RBSTI decode 32 full in 14 plain 309.47 inst 311.46 diff 2.34e-02 b1[gluon] n 32 wait 0.67 end 2.85 b2 n 32 wait 0.51 end 2.34
+RBSTI decode 32 full in 15 plain 291.55 inst 295.01 diff 2.34e-02 b1[gluon] n 32 wait 0.70 end 2.94 b2 n 32 wait 0.48 end 2.40
+RBSTI decode 32 full in 16 plain 291.71 inst 294.02 diff 1.56e-02 b1[gluon] n 32 wait 0.51 end 2.88 b2 n 32 wait 0.51 end 2.37
+RBSTI decode 32 full in 17 plain 306.98 inst 310.72 diff 3.12e-02 b1[gluon] n 32 wait 0.61 end 2.85 b2 n 32 wait 0.48 end 2.34
+RBSTI decode 32 full in 18 plain 301.70 inst 301.89 diff 3.12e-02 b1[gluon] n 32 wait 0.64 end 3.07 b2 n 32 wait 0.48 end 2.43
+RBSTI decode 32 full in 19 plain 300.58 inst 303.68 diff 1.95e-02 b1[gluon] n 32 wait 0.48 end 2.62 b2 n 32 wait 0.48 end 2.34
+RBST decode 32 full T 32 n 20 medians
+  graph_plain 297.888 graph_inst 302.000 maxdiff 3.12e-02
+  o   n                    256.000
+  o   end_spread             0.512
+  o   wait_to_end            4.192
+  un  n                    128.000
+  un  end_spread             1.024
+  un  wait_to_end           12.960
+  b1  n                     32.000
+  b1  entry_first           -0.896
+  b1  entry_last            -0.096
+  b1  pre_landed_last        0.384
+  b1  wait_p50               0.512
+  b1  wait_last              0.544
+  b1  wait_first             0.480
+  b1  branch                 0.416
+  b1  red1                   0.256
+  b1  stream                 0.288
+  b1  ns_store               0.512
+  b1  red2                   0.416
+  b1  out_store              0.128
+  b1  wait_to_end            2.024
+  b1  wait_to_end_max        2.320
+  b1  end_p50                2.560
+  b1  end                    2.848
+  b1  last_row_wait          0.512
+  b1  last_row_entry        -0.256
+  b1  sms                   32.000
+  b2  n                     32.000
+  b2  entry_first           -1.360
+  b2  entry_last            -0.960
+  b2  pre_landed_last       -0.160
+  b2  wait_p50               0.512
+  b2  wait_last              0.480
+  b2  wait_first             0.448
+  b2  branch                 0.064
+  b2  red1                   0.576
+  b2  stream                 0.320
+  b2  ns_store               0.256
+  b2  red2                   0.448
+  b2  out_store              0.128
+  b2  wait_to_end            1.792
+  b2  wait_to_end_max        1.888
+  b2  end_p50                2.304
+  b2  end                    2.352
+  b2  last_row_wait          0.480
+  b2  last_row_entry        -1.216
+  b2  sms                   32.000
