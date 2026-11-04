@@ -4,7 +4,7 @@
 mins=${1:-40}
 echo "== $(TZ=America/Los_Angeles date '+%H:%M PT')  box okc-h200"
 ssh -o ConnectTimeout=20 -o BatchMode=yes okc-h200 "
-  echo '-- GPU processes (pid, elapsed, memory, command; HUNG? = older than 30 min with no log written in the last 20; NOLOCK = no flock gpu.lock ancestor, its timings and everyone else'"'"'s are suspect)'
+  echo '-- GPU processes (pid, elapsed, memory, command; HUNG? = older than 30 min with no log written in the last 20; NOLOCK = no flock gpu.lock ancestor, all timings in its window are suspect)'
   nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader | while IFS=, read pid mem; do
     et=\$(ps -o etimes= -p \$pid | tr -d ' '); cmd=\$(ps -o args= -p \$pid | cut -c1-110)
     newest=\$(find /root/okc/.build /root/okc/muse_moe_w4a16 -type f -name '*.log' -mmin -20 2>/dev/null | head -1)
