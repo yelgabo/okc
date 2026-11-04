@@ -13,7 +13,7 @@ here are PST.
 | # | finding | measured size | fix |
 |---|---|---|---|
 | 1 | The GPU is idle about half the time even with a full queue | 53% of 0.5 s samples had any kernel running over 14:56-15:07 PST, while 97% of 2 s samples had at least two jobs waiting on gpu.lock | items 2-5 |
-| 2 | Building fresh inputs is the largest phase of a run | 30.2 s of a 52.8 s six-load g1b4_rs run (57%); timed replays 1.23 s (2.3%) | `--fast-inputs` builds each input once; fewer `--runs` |
+| 2 | Building fresh inputs is the largest phase of a run | 30.2 s of a 52.8 s six-load g1b4_rs run (57%); timed replays 1.23 s (2.3%) | `--ls-cache` stores each input's local_start (ref_front is 90% of the phase); fewer `--runs` |
 | 3 | Extension builds thrash between file families and run under the GPU lock | `muse_att_v298w1pf_90a` and `dl_okc_bf16proj_v86y4_90a` rebuilt 5 times between 23:03 and 23:12 UTC; prepare 63-85 s instead of 14 s; 0% GPU for 3.3 min while held | `--ext-cache` (content-addressed build directories) |
 | 4 | The in-prepare PDL gate is a coin flip that changes the timed path between runs of the same bytes | 4 distinct enable sets in 35 logs; 5 to 8 us per cell at verify 1, decode 16 and decode 32 between two runs of g1b4_rs | `--pin-pdl8`, and `--skip-pdl8-gate` saves its 8.3 s |
 | 5 | rs2 lane ran GPU work outside the lock | box_rs_check.py jobs at 22:50-22:56 UTC overlapped flocked timed runs | lane fixed by 15:20 PST (coordinator) |
@@ -66,7 +66,7 @@ verify 1 0.5 / 0.6, decode 16 1.3 / 4.0, verify 16 1.4 / 4.6, decode 32 2.2 / 7.
 History: before the per-input `case_fields` change (about 15:00 PST, docs/box.md "Routing") a
 12-cell run with `--kernels` and an 11 s router search took 35 s birth-to-end (`layer_rt.log`);
 afterwards the same shape of run takes 51-53 s (`rs_ab_*`, `rs2_ab_*`, this run). The per-input
-routing fix is correct and must stay; its cost is what `--fast-inputs` attacks.
+routing fix is correct and must stay; its cost is what `--ls-cache` removes.
 
 Cold prepare: 119.4 s for layer_base.py at 12:55 PST with an empty cache (`layer_base.log`); 63-85 s
 for files whose extensions were evicted by another family (section 3). Warm: 14.0-16.5 s.
@@ -103,7 +103,9 @@ of its rented hours as GPU work so far, and about 1% as timed replays.
 flock(1) grants the lock in no fixed order, so jobs are not served first-come. My anatomy job
 waited 416 s behind about five others, and lanes' chained A/B scripts (control, candidate,
 control, candidate) are interleaved with other lanes' jobs: pdl8h's `ab_cand1` ended 205 s after
-`ab_ctl1` though one run takes about 50 s. The expected wait is (jobs ahead) x (mean job time);
+`ab_ctl1` though one run takes about 50 s. Later in the afternoon the queue grew to 9 flock wrappers (15:16 and 15:24 PST) and this audit's
+52 s control run waited 1,084 s for the lock (enqueued 23:09:22, lock 23:27:25 UTC); the rv lane's
+multi-arm rv_ab jobs held it for 3 to 4 minutes each. The expected wait is (jobs ahead) x (mean job time);
 with a mean of 3 waiting and 50-90 s jobs that is 2.5 to 4.5 min per run, and up to several
 minutes more when the holder is compiling.
 
@@ -115,7 +117,7 @@ Options compared, cost per candidate in lock-held seconds (measured parts, combi
 | several candidates in one process (tools/rv_ab.py, rv lane) | the later arms' prepare drops to 7.5-8 s (first arm 14 s: one-time loads), and the fresh inputs are built once for all arms | the strongest structural option; already written by the rv lane |
 | content-addressed extension cache | 50-70 s each time a family switch would rebuild | section 3 finding; `--ext-cache` |
 | skip the in-prepare PDL gate when the A/B pins PDL | 8.3 s per prepare, plus every rv_ab re-prepare ("attempt N") that only re-rolls the gate (7.5 s each) | `--pin-pdl8 --skip-pdl8-gate` |
-| build each fresh input once | see "Input generation" | `--fast-inputs` |
+| cache each fresh input's local_start across runs | about 26 s of the 30 s input phase per six-load run | `--ls-cache` |
 | batching several candidates' prepares | none beyond the in-process option: prepare is per file and its compile is per source | |
 
 The extension cache: `/root/.cache/torch_extensions/py312_cu130` holds 119 MB (the 1.7 GB under
@@ -220,9 +222,10 @@ six-load run by about 20 s of the 30 s input phase, more than any other single o
 Remaining rental about 15.7 h at 15:17 PST. Estimates combine the measured phase costs with the
 current job mix (mostly six-load or four-load layer A/Bs, 50-90 s each, plus rv_ab multi-arm jobs).
 
-1. `--fast-inputs` plus a smaller `--runs`: input building is 57% of a job. Building once removes
-   the duplicate `generate_input` per input (its share is measured in "Input generation"), and
-   `--runs 20` removes two thirds of the rest. One hour of work; it applies to every job.
+1. `--ls-cache` plus a smaller `--runs`: input building is 57% of a job and 90% of it is
+   `case_fields`' reference front, whose answer (local_start) is the same for every run with the
+   same router seed. Caching it cuts about 26 s of a 53 s six-load run; `--runs 20` cuts two thirds
+   of what is left. One hour of work; it applies to every job.
 2. `--ext-cache`: removes 50-70 s rebuilds on family switches, which happened 5 times in 10 min
    while the rv lane alternated families. Half an hour of work.
 3. `--pin-pdl8` with `--skip-pdl8-gate`: 8.3 s per prepare plus the rv lane's re-prepares, and it
@@ -234,5 +237,34 @@ current job mix (mostly six-load or four-load layer A/Bs, 50-90 s each, plus rv_
 
 ## Input generation
 
-Pending: `.build/bx_audit/gen_bench.py` (per cell, 5 inputs: generate_input, ref_front and
-case_fields times, and whether building once gives identical tensors) is queued on gpu.lock.
+`.build/bx_audit/gen_bench.py` (one lock hold, 8.3 s, 23:54:23 UTC): per cell, 5 fresh inputs,
+time per input in ms:
+
+| cell (sliding / full) | generate_input | ref_front | case_fields (generate_input + ref_front) | KV cache GB |
+|---|---:|---:|---:|---:|
+| decode 1 | 1 / 1 | 2 / 3 | 2 / 5 | 0.02 |
+| verify 1 | 1 / 1 | 2 / 4 | 3 / 5 | 0.02 |
+| decode 16 | 4 / 4 | 8 / 49 | 12 / 54 | 0.35 |
+| verify 16 | 4 / 4 | 8 / 60 | 13 / 64 | 0.35 |
+| decode 32 | 8 / 8 | 14 / 98 | 22 / 106 | 0.70 |
+| verify 32 | 8 / 8 | 15 / 119 | 23 / 127 | 0.70 |
+
+Summed over the 12 cells, one input set costs 488 ms, 60 sets 29.3 s, which matches the 30.2 s
+phase. 433 ms of the 488 is `case_fields`, and of that the reference front (FP32 attention over
+the full 80,000-token cache at the full layers) is nearly all; building the KV cache twice costs
+only 52 ms per set. So the duplicate `generate_input` I first targeted is worth 3 s per run, and
+the reference front is worth 26 s.
+
+The reference front's only use in the runner is `local_start`, a deterministic function of
+reference.py, the weights (weights seed and router seed), the case and the input seed. Every run
+with the standard router seed recomputes the same 720 values. `--ls-cache FILE` keeps them in a
+JSON file keyed by those inputs (reference.py SHA256 prefix, router seed, weights seed, case
+fields, input seed), computes a missing one with `ref.case_fields` exactly as before and merges
+new values into the file by atomic rename, so lanes can share one file.
+
+A side observation: building an input once and filling local_start afterwards did not give
+byte-equal tensors at decode 1 full in one of 5 inputs (`gen_bench.log`, "reuse identical False"),
+and a runner variant that asserted equality failed there (`v_bx1.log`). One of the tensors
+`generate_input` returns differs between two builds of the same seed in that cell, or ref_front
+writes into its input; not traced further, and the cache path does not depend on it because it
+still builds each timed input with one `generate_input` call, as box_run.py does.

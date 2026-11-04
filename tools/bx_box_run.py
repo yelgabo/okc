@@ -140,14 +140,44 @@ def distinct_router_seed(ref, weights, cases, targets, seed, attempts):
     return best
 
 
-def fresh_input(ref, case, seed, weights):
-    """generate_input with case_fields' local_start, building the input once: case_fields builds the
-    same input with local_start 0, reads its routing and drops it, and only local_start differs."""
-    data = ref.generate_input(**{**case, "seed": seed, "local_start": 0})
-    ids = ref.ref_front(data, weights)["biased"].topk(ref.TOP_K, dim=-1).indices
-    pairs = torch.bincount((ids // ref.LOCAL_EXPERTS).flatten(), minlength=ref.N_EXPERTS // ref.LOCAL_EXPERTS)
-    data["local_start"].fill_(ref.LOCAL_EXPERTS * int(pairs.argmax()))
-    return data
+class LocalStartCache:
+    """case_fields' local_start per fresh input, on disk. It is a function of reference.py, the
+    weights (seed, router seed), the case and the input seed, and it is 90% of a run's input
+    building (ref_front's FP32 attention), so every run with the same router seed recomputes the
+    same values (docs/box-audit.md, "Input generation")."""
+
+    def __init__(self, path, ref_path, router_seed, weights_seed):
+        import hashlib
+        self.path = path
+        self.tag = [hashlib.sha256(open(ref_path, "rb").read()).hexdigest()[:16], router_seed, weights_seed]
+        self.data = self._read()
+        self.hits = self.misses = 0
+
+    def _read(self):
+        try:
+            with open(self.path) as f:
+                return json.load(f)
+        except (OSError, ValueError):
+            return {}
+
+    def get(self, ref, case, seed, weights):
+        key = json.dumps(self.tag + [sorted((k, str(v)) for k, v in case.items() if k not in ("seed", "local_start")), seed])
+        if key in self.data:
+            self.hits += 1
+            return {"local_start": self.data[key]}
+        self.misses += 1
+        extra = ref.case_fields({**case, "seed": seed}, weights)
+        self.data[key] = int(extra["local_start"])
+        return extra
+
+    def save(self):
+        if not self.misses:
+            return
+        merged = {**self._read(), **self.data}
+        tmp = f"{self.path}.{os.getpid()}"
+        with open(tmp, "w") as f:
+            json.dump(merged, f)
+        os.replace(tmp, self.path)
 
 
 def content_addressed_extensions(root):
@@ -262,8 +292,8 @@ def main():
     ap.add_argument("--case-local-start", action="store_true",
                     help="reuse the case seed's local_start for every fresh input (the runner before 2026-11-03)")
     ap.add_argument("--kernels", action="store_true", help="also print a per-kernel GPU time table (torch.profiler, 10 cold replays)")
-    ap.add_argument("--fast-inputs", action="store_true",
-                    help="build each fresh input once (same bytes as case_fields + generate_input; checked per cell)")
+    ap.add_argument("--ls-cache", default="",
+                    help="JSON cache of case_fields' local_start per fresh input, e.g. /root/okc/.build/box/ls_cache.json")
     ap.add_argument("--ext-cache", default="",
                     help="content-addressed load_inline build root, e.g. /root/.cache/bx_ext")
     ap.add_argument("--pin-pdl8", default=None,
@@ -287,6 +317,7 @@ def main():
     torch.cuda.init()
     phase("load_reference_cuda_init")
 
+    router_used = None
     judge, judge_cases = read_judge(a.judge)
     cases = judge_cases or [dict(c, seed=1000 + i) for i, c in enumerate(CASES[name])]
     if a.loads:
@@ -302,12 +333,14 @@ def main():
     targets = {k: sum(v) / len(v) for k, v in targets.items()}
     if a.router_seed is not None:
         weights = ref.generate_weights(ref.WEIGHTS_SEED, router_seed=a.router_seed)
+        router_used = a.router_seed
     elif targets and hasattr(ref, "_mean_busiest_load"):
         t0 = time.monotonic()
         err, rs, got = distinct_router_seed(ref, weights, cases, targets, ref.WEIGHTS_SEED, a.router_attempts)
         print(f"BOX router_distinct targets {targets}; router_seed {rs} gives {got} (max err {err:.3f},"
               f" {time.monotonic() - t0:.0f} s)", flush=True)
         weights = ref.generate_weights(ref.WEIGHTS_SEED, router_seed=rs)
+        router_used = rs
     torch.cuda.synchronize()
     phase("weights_and_router")
 
@@ -334,6 +367,8 @@ def main():
         phase(f"prepare_{side}")
         print(f"BOX {side} import+prepare {time.monotonic() - t0:.1f} s", flush=True)
 
+    lsc = (LocalStartCache(a.ls_cache, os.path.join(pdir, "reference.py"), router_used, getattr(ref, "WEIGHTS_SEED", None))
+           if a.ls_cache and hasattr(ref, "case_fields") and weights is not None else None)
     timer = Timer()
     rows = []
     for case in cases:
@@ -342,23 +377,18 @@ def main():
             case.update(ref.case_fields(case, weights))
         seeds = [case["seed"] + j for j in range(a.inputs or a.runs)]
         fresh = []
-        if a.fast_inputs and hasattr(ref, "case_fields") and weights is not None and not a.case_local_start:
-            for j, s in enumerate(seeds):
-                fresh.append(fresh_input(ref, case, s, weights))
-                if j == 0:
-                    want = ref.generate_input(**{**case, "seed": s, **ref.case_fields({**case, "seed": s}, weights)})
-                    assert all(torch.equal(want[k], fresh[0][k]) for k in want if isinstance(want[k], torch.Tensor)), \
-                        "fast input differs from case_fields + generate_input"
-                    del want
-        for s in ([] if fresh else seeds):
+        for s in seeds:
             # case_fields runs per input on the judge: each fresh input's local_start is its own
             # busiest range, the range the router_load / router_distinct targets are measured on.
             # One case-seed local_start for every input left about a third of decode 1 inputs with
             # no local expert (docs/box.md, "Routing").
-            extra = (ref.case_fields({**case, "seed": s}, weights)
+            extra = (lsc.get(ref, case, s, weights) if lsc is not None and not a.case_local_start else
+                     ref.case_fields({**case, "seed": s}, weights)
                      if hasattr(ref, "case_fields") and weights is not None and not a.case_local_start else {})
             fresh.append(ref.generate_input(**{**case, "seed": s, **extra}))
         row = dict(case=case)
+        if lsc is not None:
+            lsc.save()
         torch.cuda.synchronize()
         phase("fresh_inputs")
         if a.profile:
@@ -454,6 +484,8 @@ def main():
             json.dump(dict(problem=name, submission=a.submission, gpu=torch.cuda.get_device_name(),
                            torch=torch.__version__, rows=rows, phases=PH, pdl8=PDL8, argv=sys.argv), f)
     phase("json_write")
+    if lsc is not None:
+        print(f"BX local_start cache {a.ls_cache}: {lsc.hits} hits, {lsc.misses} computed", flush=True)
     print("BXPHASE " + " ".join(f"{k}={v:.2f}" for k, v in PH.items()) + f" total={time.monotonic() - _T0:.2f}", flush=True)
 
 
