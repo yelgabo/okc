@@ -1683,7 +1683,7 @@ written by `tools/dl_pdl8h_patch.py` from g1b4_rs.py (the tool checks 01426b89 f
 time at T = 1, 8 (all six edges), 16 and 32, on the source audit, the bitwise attention bench 2c84c321b3bb4dbb and the clean
 T = 8 stages of 61c00906 / 9ae1d02f, and keep the in-prepare stress only as a guard against gross errors. Changes against
 g1b4_rs: `PDL8_HARD` has T = 8 on; the T = 1 / 16 / 32 stress decision and pdl8d's T = 8 edge search are replaced by one
-guard. Every CUDA source, launch attribute, edge wiring and the T = 1 routing slack are byte-identical (82 diff lines, all in
+guard. Every CUDA source, launch attribute, edge wiring and the T = 1 routing slack are byte-identical (83 changed diff lines, all in
 the gate code and the header comment).
 
 Guard, per T on pdl8d's existing stress inputs (T = 1 sliding, T = 8 full and sliding, T = 16 sliding, T = 32 full; 2000
@@ -1726,3 +1726,47 @@ The deltas decompose by enable set: where a control run had a T on, the candidat
 ctl3: -0.13 / +0.16; decode 16 / 32 against ctl1 and ctl2: within 1.07); where the control's gate had turned a T off, the
 candidate is 5.9 to 9.1 us faster (verify 1 against ctl1 / ctl2, decode 16 / 32 against ctl3). pdl8h does not change the
 speed of any configuration; it removes the draw that turns a T off.
+
+### Judge check `b6c0efcd06324246` (g1b4_pdl8h.py 33c2353b)
+
+**Result: VALID 13/13, 10,377.1 us, 2.180x (95% CI 2.147 to 2.213)** against g1b4_rs's check 10,297.4 (f8a55f1043804158) and
+the public run 10,340 (9d80ae2494334136). Prepare log `muse_decode_layer/cand/profiles/g1b4_pdl8h.b6c0efcd06324246.log`.
+
+Guard (out / s2, 2000 replays per arm):
+
+| T | layer | ids off / on (limit) | off drift | on drift | decision |
+|---|---|---|---|---|---|
+| 1 | sliding | 0 / 0 (16) | 7.01e-3 / 7.19e-3 | 7.01e-3 / 7.19e-3 | on |
+| 8 | full | 0 / 0 (16) | 6.37e-3 / 6.21e-3 | 6.37e-3 / 6.21e-3 | on |
+| 8 | sliding | 0 / 0 (16) | 7.02e-4 / 2.53e-4 | 4.21e-3 / 5.13e-3 | on (pdl8d's own-drift rule would have turned T = 8 off here) |
+| 16 | sliding | 0 / 0 (16) | 4.60e-3 / 5.29e-3 | 4.60e-3 / 5.29e-3 | on |
+| 32 | full | 0 / 0 (16) | 5.56e-3 / 6.08e-3 | 5.56e-3 / 6.08e-3 | on |
+
+In-prepare A/B savings: T = 1 7.01 / 6.75, T = 8 3.97 / 6.24, T = 16 5.57 / 4.93, T = 32 3.74 / 5.09 us (sliding / full).
+Enabled {1, 8, 16, 32}.
+
+| cell | g1b4_rs check f8a55f10 (yours / SGLang) | this check (yours / SGLang) | yours delta |
+|---|---:|---:|---:|
+| decode 1 sliding | 65.5 / 169.9 | 65.9 / 169.9 | +0.4 |
+| decode 1 full | 74.1 / 180.2 | 71.7 / 179.9 | -2.4 |
+| decode 16 sliding | 127.1 / 262.2 | 129.3 / 259.3 | +2.2 |
+| decode 16 full | 211.4 / 440.2 | 207.3 / 433.2 | -4.1 |
+| decode 32 sliding | 153.1 / 265.5 | 153.2 / 256.8 | +0.1 |
+| decode 32 full | 300.7 / 632.1 | 303.9 / 609.4 | +3.2 |
+| verify 1 sliding | 109.7 / 259.1 | 107.1 / 258.5 | -2.6 |
+| verify 1 full | 122.6 / 276.4 | 117.7 / 281.1 | -4.9 |
+| verify 16 sliding | 248.8 / 530.1 | 240.3 / 503.5 | -8.5 |
+| verify 16 full | 331.2 / 697.8 | 331.0 / 684.7 | -0.2 |
+| verify 32 sliding | 322.4 / 738.6 | 316.7 / 722.4 | -5.7 |
+| verify 32 full | 485.7 / 1,103.5 | 475.8 / 1,064.0 | -9.9 |
+
+Keep rule: VALID 13/13 met; every T on with the guard clean met; verify 1 below 109.7 / 122.6 met (107.1 / 117.7); routing
+margins unchanged (the T = 1 route program is byte-identical). **Not met:** six-load 10,377.1 is above 10,297.4, and decode 16
+sliding 129.3 is above 127.1 (full 207.3 is below 211.4). Not kept, not for submission.
+
+Reading (hypothesis, not separated by this one draw): our times are at or below the g1b4_rs check in 8 of 12 cells, and the
+gate now does what it was built for (every T on, including a T = 8 sliding row that pdl8d's rule fails). The score moved the
+other way because this draw's SGLang column is lower in most long cells (verify 16 sliding 503.5 against 530.1, verify 32
+full 1,064.0 against 1,103.5, decode 32 full 609.4 against 632.1), and the score is the paired ratio. The box A/B predicted
+about -8 us per verify 1 cell against a T = 8-off control; f8a55f10 had T = 8 off, and verify 1 moved -2.6 / -4.9 at the
+judge. A second draw of the same bytes would separate the draw from the file; that is the lead's quota call.
