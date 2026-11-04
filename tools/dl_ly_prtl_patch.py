@@ -74,8 +74,7 @@ K_EDITS = [
     ('  if (pdl) asm volatile("griddepcontrol.launch_dependents;" ::: "memory");   // the next kernel may start its prologue\n',
      '  if (lane == 0) SK2_TLS(56 + warp);\n'
      '  if (pdl) asm volatile("griddepcontrol.launch_dependents;" ::: "memory");   // the next kernel may start its prologue\n'),
-    ("    __shared__ int s_rlast;\n    if (tid == 0) {\n",
-     "    __shared__ int s_rlast;\n    if (tid == 0) SK2_TLS(5);\n    if (tid == 0) {\n"),
+    ("    __shared__ int s_rlast;\n", "    __shared__ int s_rlast;\n    if (tid == 0) SK2_TLS(5);\n"),
     ("    named_bar(1, NC);\n    if (s_rlast) {\n",
      "    named_bar(1, NC);\n    if (tid == 0) SK2_TLS(6);\n    if (s_rlast) {\n"),
     ("        outr[(size_t)(i >> 3) * 256 + rt * 8 + (i & 7)] = v;\n      }\n",

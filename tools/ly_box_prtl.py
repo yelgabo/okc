@@ -46,6 +46,8 @@ def stats(s, T, P, bw):
     loop_first = [min(us(r[56 + w]) for w in range(8)) for r in v]
     land0 = col(36)
     rpart, ratom, rout = col(5), col(6), col(7)
+    if not ratom:  # ly_prq: no counter block, so the epilogue follows the partial stores
+        ratom = rpart
     epi0, epi1, fin = col(8), col(9), col(10)
     # producer issue interval of stage s (s >= NSTAGE waits for the release of stage s - NSTAGE)
     iv_pool, iv_rt, land_iv = [], [], []
@@ -157,11 +159,12 @@ def main():
             br.copy_into(static, f)
             torch.cuda.synchronize()
             tp = timer.cold(gp) / 1e3
-            op = outp.clone() if torch.is_tensor(outp) else None
+            first = lambda o: o if torch.is_tensor(o) else next((x for x in o if torch.is_tensor(x)), None)  # noqa: E731
+            op = first(outp).clone()
             buf.zero_()
             torch.cuda.synchronize()
             ti = timer.cold(gi) / 1e3
-            diff = float((outi.float() - op.float()).abs().max()) if op is not None else math.nan
+            diff = float((first(outi).float() - op.float()).abs().max())
             nct = int((buf.view(-1, SLOTS)[:, 0] != 0).sum())
             s = buf[: nct * SLOTS].view(nct, SLOTS).cpu()
             st = stats(s, T, P, a.bw)
