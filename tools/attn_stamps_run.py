@@ -49,6 +49,14 @@ show("first tile - entry", [b - a for a, b in zip(entry, first)])
 show("loop end (last segment)", lend)
 show("merge done", merged)
 show("merge done - loop end", [b - a for a, b in zip(lend, merged)])
+for k, name in ((50, "producer: entry"), (51, "producer: after partition sync"), (52, "producer: after setmaxnreg.dec"),
+                (53, "consumer: after setmaxnreg.inc"), (40, "partition done (sync)"), (41, "segment list done"), (42, "producer: segment start"),
+                (47, "producer: pbar init done"), (48, "producer: page fetches issued"),
+                (46, "producer: tile 0 slot free"), (45, "producer: tile 0 pages landed"), (43, "producer: tile 0 issued"),
+                (44, "consumer: after pdl wait")):
+    xs = [int(x) for x in d[:, k]]
+    if any(xs):
+        show(name, [(x - t0) / 1e3 for x in xs if x])
 nseg2 = sum(1 for x in d[:, 20] if int(x) != 0)
 print(f"  CTAs with a second segment: {nseg2} of {n}")
 show("segment 0 start", s0s)
@@ -72,3 +80,10 @@ for c in range(n):
     span = merged[c] - first[c]
     rate.append(span)
 show("first tile -> merge", rate)
+fin = [c for c in range(n) if int(d[c, 6]) == 1]
+if fin:
+    print(f"  finalizer CTAs: {len(fin)}")
+    show("finalizer: ticket (14)", [(int(d[c, 14]) - t0) / 1e3 for c in fin])
+    show("finalizer: done (5)", [(int(d[c, 5]) - t0) / 1e3 for c in fin])
+    show("finalizer: done - ticket", [(int(d[c, 5]) - int(d[c, 14])) / 1e3 for c in fin])
+    print(f"  kernel end (last finalizer done) {max((int(d[c, 5]) - t0) / 1e3 for c in fin):8.2f}")
