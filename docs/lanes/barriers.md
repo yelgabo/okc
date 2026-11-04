@@ -1,4 +1,4 @@
-# Lane barriers: checkpoint 2
+# Lane barriers: checkpoint 3
 
 Base: `muse_decode_layer/cand/ly_stk4.py`, SHA256 a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e.
 Line numbers below are in ly_stk4. Inventory is from source reading (three read-only agents plus my own reads);
@@ -63,7 +63,13 @@ no new measurement. 750 ly_rsl_nt: not landed.
   has no PDL edge, so the next launch starts after every CTA of this one exited.
 - Box: gate log /root/okc/.build/moegb/fw_gate.log, A/B prefix gb_fw, gb_fw_r2 under /root/okc/.build/prtl/.
 
+## Gate (14:17 PT)
+
+ly_fw gate rc=0: PDL8H guards at T = 1 / 8 / 16 / 32 with 0 ids mismatches; reference check PASS at all 12 cells
+(/root/okc/.build/prtl/gb_fw/chk.log). Single-run box nets in that check (not an A/B): decode 1 sliding 64.86 us,
+verify 1 sliding 95.55, decode 16 sliding 122.50.
+
 ## Next action
 
-Wait for the gate (reference check at six loads), then PHASE=ab with CTL=ly_stk4.py; judge decode 1 / verify 1 /
-decode 16 sliding and full only.
+A/B started 14:17 PT (PHASE=ab, CTL=ly_stk4.py, log /root/okc/.build/moegb/fw_ab.log, tables from
+tools/ly_prtl_table.py on /root/okc/.build/prtl/gb_fw and gb_fw_r2). Judge decode 1 / verify 1 / decode 16 cells only.
