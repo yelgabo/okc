@@ -1,0 +1,90 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793822967.795 acquire start after 3.4 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793822968.562 release build glue_moe_a40e412d157a9b01_sm90a
+BXBUILD 1793822968.563 start build glue_moe_a40e412d157a9b01_sm90a
+BXBUILD 1793822968.564 start build glue_moe_e185a6079f415e8f_sm90a
+BXBUILD 1793822968.564 start build glue_moe_f934f013c51083f0_sm90a
+BXBUILD 1793823006.539 end build glue_moe_f934f013c51083f0_sm90a
+BXBUILD 1793823006.985 end build glue_moe_e185a6079f415e8f_sm90a
+BXBUILD 1793823006.986 end build glue_moe_a40e412d157a9b01_sm90a
+BXLOCK 1793823012.751 acquire build glue_moe_a40e412d157a9b01_sm90a done after 5.8 s
+BXCLOCK submission clocks now 5.8 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.98), ('sk2', 7.9), ('torch', 10.21)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+PRO decode 16 sliding n 20 graph_us 133.97 grid 132 sm GHz 1.806 cta entry spread mean 0.13 max 0.26
+PRO decode 16 sliding slot  84 F1 entry                 own   0.02  first-cta mean   0.06 latest   0.26
+PRO decode 16 sliding slot   0 entry after wait         own   0.05  first-cta mean   0.21 latest   0.26
+PRO decode 16 sliding slot  85 F1 cnt zero              own   0.10  first-cta mean   0.06 latest   0.26
+PRO decode 16 sliding slot  65 x prefetch issued        own   0.22  first-cta mean   0.32 latest   0.51
+PRO decode 16 sliding slot  66 lut done                 own   0.25  first-cta mean   0.32 latest   0.51
+PRO decode 16 sliding slot  96 helper entry             own   0.41  first-cta mean   0.50 latest   0.77
+PRO decode 16 sliding slot  97 helper after WS_JOIN     own   0.44  first-cta mean   0.54 latest   0.77
+PRO decode 16 sliding slot  86 F1 topk 0 back           own   0.49  first-cta mean   0.57 latest   0.77
+PRO decode 16 sliding slot  67 gen load back            own   0.63  first-cta mean   0.71 latest   1.02
+PRO decode 16 sliding slot  68 route start              own   0.67  first-cta mean   0.80 latest   1.02
+PRO decode 16 sliding slot  87 F1 topk 1 back           own   0.73  first-cta mean   0.81 latest   1.02
+PRO decode 16 sliding slot  69 topk load back           own   0.82  first-cta mean   0.88 latest   1.02
+PRO decode 16 sliding slot  70 bar 1                    own   0.84  first-cta mean   0.91 latest   1.02
+PRO decode 16 sliding slot  88 F1 topk 2 back           own   0.91  first-cta mean   0.99 latest   1.28
+PRO decode 16 sliding slot  89 F1 topk 3 back           own   1.09  first-cta mean   1.10 latest   1.41
+PRO decode 16 sliding slot  90 F1 scan done             own   1.55  first-cta mean   1.59 latest   1.79
+PRO decode 16 sliding slot  91 F1 mbar init             own   1.64  first-cta mean   1.68 latest   2.05
+PRO decode 16 sliding slot  92 F1 TMA issued            own   1.83  first-cta mean   1.86 latest   2.05
+PRO decode 16 sliding slot  93 F1 x prefetch            own   1.93  first-cta mean   2.00 latest   2.30
+PRO decode 16 sliding slot  94 F1 lut done              own   1.95  first-cta mean   2.03 latest   2.30
+PRO decode 16 sliding slot  71 count loop               own   2.25  first-cta mean   2.33 latest   2.56
+PRO decode 16 sliding slot  72 bar 2                    own   2.27  first-cta mean   2.34 latest   2.56
+PRO decode 16 sliding slot  73 warp0 scan               own   2.90  first-cta mean   2.91 latest   3.33
+PRO decode 16 sliding slot  74 bar 3                    own   2.91  first-cta mean   2.94 latest   3.33
+PRO decode 16 sliding slot  75 early_issue              own   2.93  first-cta mean   2.98 latest   3.33
+PRO decode 16 sliding slot   1 after WS_JOIN            own   3.10  first-cta mean   3.18 latest   3.33
+PRO decode 16 sliding slot  76 position loop            own   3.17  first-cta mean   3.19 latest   3.58
+PRO decode 16 sliding slot  77 bar 4 (route end)        own   3.18  first-cta mean   3.22 latest   3.58
+PRO decode 16 sliding slot  78 ss zeroed                own   3.26  first-cta mean   3.33 latest   3.58
+PRO decode 16 sliding slot  79 before WS_JOIN           own   3.41  first-cta mean   3.42 latest   3.84
+PRO decode 16 sliding slot  80 w0 x load issue          own   3.85  first-cta mean   3.88 latest   4.10
+PRO decode 16 sliding slot   2 first slot full          own   4.53  first-cta mean   4.60 latest   5.89
+PRO decode 16 sliding slot  81 w0 x load back           own   4.73  first-cta mean   4.85 latest   5.89
+PRO decode 16 sliding slot  98 helper ring issued       own   4.97  first-cta mean   5.15 latest   5.38
+PRO decode 16 full n 20 graph_us 209.95 grid 132 sm GHz 1.803 cta entry spread mean -0.26 max 0.00
+PRO decode 16 full slot   0 entry after wait         own   0.01  first-cta mean   0.02 latest   0.26
+PRO decode 16 full slot  84 F1 entry                 own   0.02  first-cta mean   0.00 latest   0.00
+PRO decode 16 full slot  85 F1 cnt zero              own   0.10  first-cta mean   0.00 latest   0.26
+PRO decode 16 full slot  65 x prefetch issued        own   0.22  first-cta mean   0.26 latest   0.26
+PRO decode 16 full slot  66 lut done                 own   0.25  first-cta mean   0.26 latest   0.26
+PRO decode 16 full slot  96 helper entry             own   0.42  first-cta mean   0.44 latest   0.51
+PRO decode 16 full slot  97 helper after WS_JOIN     own   0.46  first-cta mean   0.48 latest   0.77
+PRO decode 16 full slot  86 F1 topk 0 back           own   0.49  first-cta mean   0.51 latest   0.51
+PRO decode 16 full slot  67 gen load back            own   0.65  first-cta mean   0.65 latest   0.77
+PRO decode 16 full slot  68 route start              own   0.69  first-cta mean   0.76 latest   0.77
+PRO decode 16 full slot  87 F1 topk 1 back           own   0.72  first-cta mean   0.76 latest   0.77
+PRO decode 16 full slot  69 topk load back           own   0.84  first-cta mean   0.77 latest   1.02
+PRO decode 16 full slot  70 bar 1                    own   0.86  first-cta mean   0.80 latest   1.02
+PRO decode 16 full slot  88 F1 topk 2 back           own   0.91  first-cta mean   0.95 latest   1.02
+PRO decode 16 full slot  89 F1 topk 3 back           own   1.09  first-cta mean   1.05 latest   1.28
+PRO decode 16 full slot  90 F1 scan done             own   1.55  first-cta mean   1.54 latest   1.79
+PRO decode 16 full slot  91 F1 mbar init             own   1.64  first-cta mean   1.63 latest   1.79
+PRO decode 16 full slot  92 F1 TMA issued            own   1.83  first-cta mean   1.80 latest   2.05
+PRO decode 16 full slot  93 F1 x prefetch            own   1.93  first-cta mean   1.95 latest   2.05
+PRO decode 16 full slot  94 F1 lut done              own   1.95  first-cta mean   1.99 latest   2.05
+PRO decode 16 full slot  71 count loop               own   2.25  first-cta mean   2.29 latest   2.30
+PRO decode 16 full slot  72 bar 2                    own   2.27  first-cta mean   2.30 latest   2.30
+PRO decode 16 full slot  73 warp0 scan               own   2.89  first-cta mean   2.88 latest   3.07
+PRO decode 16 full slot  74 bar 3                    own   2.91  first-cta mean   2.90 latest   3.07
+PRO decode 16 full slot  75 early_issue              own   2.93  first-cta mean   2.93 latest   3.07
+PRO decode 16 full slot   1 after WS_JOIN            own   3.08  first-cta mean   3.09 latest   3.33
+PRO decode 16 full slot  76 position loop            own   3.17  first-cta mean   3.17 latest   3.33
+PRO decode 16 full slot  77 bar 4 (route end)        own   3.18  first-cta mean   3.18 latest   3.33
+PRO decode 16 full slot  78 ss zeroed                own   3.26  first-cta mean   3.31 latest   3.58
+PRO decode 16 full slot  79 before WS_JOIN           own   3.41  first-cta mean   3.39 latest   3.58
+PRO decode 16 full slot  80 w0 x load issue          own   3.85  first-cta mean   3.85 latest   4.10
+PRO decode 16 full slot   2 first slot full          own   4.47  first-cta mean   4.53 latest   5.63
+PRO decode 16 full slot  81 w0 x load back           own   4.70  first-cta mean   4.73 latest   5.89
+PRO decode 16 full slot  98 helper ring issued       own   5.04  first-cta mean   5.04 latest   5.25
+20:10:22 mid1 rc=0

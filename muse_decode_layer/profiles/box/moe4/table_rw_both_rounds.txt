@@ -1,0 +1,51 @@
+cell                      c_a      w_a      c_b      w_b      c_c   spread  w - c mean   w_a-c_a w_a-c_b w_b-c_b w_b-c_c   thr  verdict
+decode 1 sliding        62.96    63.17    62.98    63.58    63.34     0.38       +0.28     +0.21   +0.19   +0.61   +0.24   0.77  inside
+decode 1 full           69.95    69.79    70.35    69.81    69.86     0.50       -0.25     -0.16   -0.56   -0.54   -0.05   0.99  inside
+decode 16 sliding      125.68   124.83   125.71   125.81   126.03     0.35       -0.49     -0.85   -0.88   +0.10   -0.22   1.26  inside
+decode 16 full         197.58   198.08   198.35   197.57   198.14     0.77       -0.20     +0.50   -0.27   -0.78   -0.58   1.98  inside
+decode 32 sliding      143.18   142.77   143.66   143.97   143.49     0.48       -0.08     -0.42   -0.90   +0.30   +0.48   1.43  inside
+decode 32 full         294.26   293.81   294.58   293.71   294.16     0.42       -0.57     -0.45   -0.77   -0.86   -0.45   2.94  inside
+verify 1 sliding        99.52   100.62    99.97   100.74   100.37     0.85       +0.73     +1.10   +0.66   +0.77   +0.37   1.70  inside
+verify 1 full          107.70   107.98   108.48   108.88   108.96     1.26       +0.05     +0.29   -0.50   +0.40   -0.08   2.53  inside
+verify 16 sliding      240.27   241.62   241.39   241.94   241.06     1.12       +0.87     +1.34   +0.22   +0.54   +0.88   2.41  inside
+verify 16 full         323.55   325.89   325.10   325.01   325.63     2.08       +0.69     +2.34   +0.78   -0.10   -0.62   4.16  inside
+verify 32 sliding      294.35   293.78   294.58   293.87   293.22     1.36       -0.22     -0.58   -0.80   -0.70   +0.66   2.94  inside
+verify 32 full         459.68   458.78   458.90   458.38   458.48     1.20       -0.43     -0.90   -0.11   -0.51   -0.10   4.59  inside
+c_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_c timed PDL {'1': True, '8': True, '16': True, '32': True}
+cell                      c_a      w_a      c_b      w_b      c_c   spread  w - c mean   w_a-c_a w_a-c_b w_b-c_b w_b-c_c   thr  verdict
+decode 1 sliding        63.28    62.64    63.79    63.74    63.30     0.51       -0.26     -0.64   -1.15   -0.05   +0.45   1.02  inside
+decode 1 full           69.60    70.02    71.26    70.02    69.78     1.66       -0.20     +0.42   -1.25   -1.25   +0.24   3.33  inside
+decode 16 sliding      125.94   125.94   126.06   126.21   125.60     0.46       +0.21     +0.00   -0.13   +0.14   +0.61   1.26  inside
+decode 16 full         197.94   197.34   198.43   197.79   197.63     0.80       -0.43     -0.59   -1.09   -0.64   +0.16   1.98  inside
+decode 32 sliding      143.79   143.90   143.54   143.98   142.96     0.83       +0.51     +0.11   +0.37   +0.45   +1.02   1.66  inside
+decode 32 full         294.34   293.95   294.88   294.24   294.75     0.54       -0.56     -0.38   -0.93   -0.64   -0.51   2.95  inside
+verify 1 sliding       100.53   100.50   100.38   101.06   100.86     0.48       +0.18     -0.03   +0.11   +0.67   +0.19   0.96  inside
+verify 1 full          108.34   109.18   108.72   109.50   109.71     1.38       +0.42     +0.85   +0.46   +0.78   -0.21   2.75  inside
+verify 16 sliding      242.13   241.57   240.93   243.12   242.80     1.87       +0.39     -0.56   +0.64   +2.19   +0.32   3.74  inside
+verify 16 full         324.78   324.32   325.30   326.67   327.06     2.27       -0.22     -0.46   -0.98   +1.38   -0.38   4.54  inside
+verify 32 sliding      293.49   294.53   294.50   293.23   293.98     1.01       -0.11     +1.04   +0.03   -1.26   -0.75   2.94  inside
+verify 32 full         458.35   459.02   458.13   459.30   458.61     0.48       +0.80     +0.67   +0.90   +1.17   +0.69   4.58  inside
+c_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_c timed PDL {'1': True, '8': True, '16': True, '32': True}
+
+pooled over .build/prtl/m4_rw, .build/prtl/m4_rw_r2
+cell                  ctl n  ctl mean  spread  cand mean  w - c   thr  pairs<0  verdict
+decode 1 sliding          6     63.27    0.83      63.28   +0.01  1.66   12/24   inside
+decode 1 full             6     70.13    1.66      69.91   -0.23  3.33   12/24   inside
+decode 16 sliding         6    125.84    0.46     125.70   -0.14  1.26   11/24   inside
+decode 16 full            6    198.01    0.85     197.70   -0.32  1.98   19/24   inside
+decode 32 sliding         6    143.44    0.83     143.66   +0.22  1.66    6/24   inside
+decode 32 full            6    294.49    0.72     293.93   -0.57  2.94   23/24   inside
+verify 1 sliding          6    100.27    1.34     100.73   +0.46  2.69    4/24   inside
+verify 1 full             6    108.65    2.02     108.89   +0.24  4.03    9/24   inside
+verify 16 sliding         6    241.43    2.53     242.06   +0.63  5.06    6/24   inside
+verify 16 full            6    325.24    3.50     325.47   +0.23  7.01   11/24   inside
+verify 32 sliding         6    294.02    1.36     293.85   -0.17  2.94   14/24   inside
+verify 32 full            6    458.69    1.55     458.87   +0.18  4.59    8/24   inside
