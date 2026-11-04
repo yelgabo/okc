@@ -39,6 +39,10 @@ __device__ __forceinline__ uint64_t clk() {
 }
 __device__ __forceinline__ void cl_arrive() { asm volatile("barrier.cluster.arrive.release.aligned;" ::: "memory"); }
 __device__ __forceinline__ void cl_wait() { asm volatile("barrier.cluster.wait.acquire.aligned;" ::: "memory"); }
+__device__ __forceinline__ void cl_arrive_relaxed() { asm volatile("barrier.cluster.arrive.relaxed.aligned;" ::: "memory"); }
+__device__ __forceinline__ void cl_arrive_relaxed_na() { asm volatile("barrier.cluster.arrive.relaxed;" ::: "memory"); }
+__device__ __forceinline__ void cl_wait_na() { asm volatile("barrier.cluster.wait;" ::: "memory"); }
+__device__ __forceinline__ void bar_exch() { asm volatile("bar.sync 1, %0;" ::"n"(256) : "memory"); }
 __device__ __forceinline__ void cl_sync() {
   cl_arrive();
   cl_wait();
@@ -109,6 +113,11 @@ __device__ __forceinline__ void bulk_g2s(uint32_t dst, const void* src, uint32_t
 __device__ __forceinline__ void red_add_v4(float* p, float4 v) {
   asm volatile("red.global.v4.f32.add [%0], {%1,%2,%3,%4};" ::"l"(p), "f"(v.x), "f"(v.y), "f"(v.z), "f"(v.w) : "memory");
 }
+__device__ __forceinline__ void bulk_s2dsm(uint32_t dst, uint32_t src, uint32_t bytes, uint32_t mbar) {
+  asm volatile("cp.async.bulk.shared::cluster.shared::cta.mbarrier::complete_tx::bytes [%0], [%1], %2, [%3];" ::"r"(dst),
+               "r"(src), "r"(bytes), "r"(mbar)
+               : "memory");
+}
 __device__ __forceinline__ void xor4(uint4& a, const uint4& v) {
   a.x ^= v.x;
   a.y ^= v.y;
@@ -122,8 +131,8 @@ __host__ __device__ __forceinline__ uint32_t elem16(int t, int col) {
 }
 __host__ __device__ __forceinline__ uint32_t word2(int t, int col) { return elem16(t, col) | (elem16(t, col + 1) << 16); }
 
-enum Mode { A_DIST = 0, A_ONE = 1, B_DSM = 2, B_LOCAL = 3, C_GLB = 4, C_BULK = 5, EMPTY = 6, A_L2 = 7, A_RED = 8, B_ROT = 9 };
-static const char* mode_name[] = {"a_dist", "a_one", "b_dsmem", "b_local", "c_global", "c_bulk", "empty", "a_l2", "a_red", "b_dsmem_rot"};
+enum Mode { A_DIST = 0, A_ONE = 1, B_DSM = 2, B_LOCAL = 3, C_GLB = 4, C_BULK = 5, EMPTY = 6, A_L2 = 7, A_RED = 8, B_ROT = 9, B_PUSH = 10 };
+static const char* mode_name[] = {"a_dist", "a_one", "b_dsmem", "b_local", "c_global", "c_bulk", "empty", "a_l2", "a_red", "b_dsmem_rot", "b_push_bw"};
 static constexpr bool is_a(int m) { return m == A_DIST || m == A_ONE || m == A_L2 || m == A_RED; }
 
 struct Args {
@@ -133,11 +142,34 @@ struct Args {
   uint4* sink;                    // [grid, NT] XOR checksums
   unsigned long long* stamps;     // [grid, 3] globaltimer t0 / after the publication barrier / t1
   int chunk_bytes;                // mode A partial chunk per CTA
+  const char* lbuf;               // 1 GiB background stream source (LOAD)
+  unsigned long long* lstat;      // [grid, 3] bytes streamed, globaltimer start, end (LOAD)
+  int ring_off;                   // dynamic smem offset of the background stream ring
 };
 
-template <int C, int T, int MODE>
-__global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
+template <int LOAD>
+__device__ __forceinline__ void xsync(int tid, volatile int& bar_seen) {
+  if (LOAD && tid == 0) bar_seen = bar_seen + 1;
+  cl_sync();
+}
+
+constexpr int LSLOT = 4;
+constexpr size_t LREGION = size_t(8) << 20;  // per-CTA slice of lbuf; 128 slices cover 1 GiB, no L2 reuse
+
+// LOAD = 1 adds warp 8, which streams lbuf through a 4 x 16 KB cp.async.bulk ring (discarding the data) for the
+// whole exchange, the way the real kernel's weight ring keeps HBM busy while a slice exchanges. barrier.cluster
+// counts every thread, so the warp joins each barrier with a split arrive.relaxed / wait and keeps the ring fed
+// between them; thread 0 bumps `bar_seen` just before it arrives at each counted barrier.
+__device__ __forceinline__ void lissue(uint32_t ring, uint32_t mbar, int s, const char* src, uint64_t& off) {
+  mb_expect_tx(mbar + 8 * s, GCHUNK);
+  bulk_g2s(ring + s * GCHUNK, src + off, GCHUNK, mbar + 8 * s);
+  off = (off + GCHUNK) % LREGION;
+}
+
+template <int C, int T, int MODE, int LOAD>
+__global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT + 32 * LOAD, 1) xk(Args a) {
   extern __shared__ __align__(1024) unsigned char sm[];
+  __shared__ volatile int bar_seen, done;
   const uint32_t rank = cl_rank();
   const int cid = blockIdx.x / C;
   const int tid = threadIdx.x;
@@ -149,7 +181,7 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
   static_assert(VPC % NT == 0, "vectors per chunk");
   uint64_t t0 = 0, tm = 0;
 
-  if (MODE == B_DSM || MODE == B_LOCAL || MODE == B_ROT) {
+  if (MODE == B_DSM || MODE == B_LOCAL || MODE == B_ROT || MODE == B_PUSH) {
     for (int v = tid; v < T * WOWN / 8; v += NT) {
       const int t = v / (WOWN / 8), c = rank * WOWN + (v % (WOWN / 8)) * 8;
       uint4 w = make_uint4(word2(t, c), word2(t, c + 2), word2(t, c + 4), word2(t, c + 6));
@@ -161,9 +193,83 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
     for (int s = 0; s < NSLOT; s++) mb_init(smem_u32(&mbar[s]), 1);
     asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
   }
+  // B_PUSH is a bandwidth probe only: receive slots alias between senders, so its data is not checked.
+  constexpr int SLAB = T * WOWN * 2, PIECE = SLAB < GCHUNK ? SLAB : GCHUNK, NPIECE = SLAB / PIECE, NRSLOT = 8;
+  const uint32_t rslots = smem_u32(sm + 32768), rmbar = smem_u32(sm + 32768 + NRSLOT * GCHUNK);
+  if (MODE == B_PUSH) {
+    asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
+    if (tid == 0) {
+      mb_init(rmbar, 1);
+      asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+      mb_expect_tx(rmbar, (C - 1) * SLAB);
+    }
+  }
+  const uint32_t lring = smem_u32(sm + a.ring_off), lmbar = lring + LSLOT * GCHUNK;
+  if (LOAD && tid == 0) {
+    bar_seen = 0;
+    done = 0;
+    for (int s = 0; s < LSLOT; s++) mb_init(lmbar + 8 * s, 1);
+    asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+  }
   __syncthreads();
-  cl_sync();
+  if (LOAD && tid >= NT) {
+    const int nb = 1 + (MODE == A_DIST || MODE == A_ONE ? H / (a.chunk_bytes / (T * 4))
+                                                         : (MODE == B_PUSH || MODE == EMPTY ? 0 : 1));
+    const int lane = tid - NT;
+    const char* src = a.lbuf + (size_t)blockIdx.x * LREGION;
+    uint64_t off = 0, bytes = 0, ts = gtime();
+    uint32_t ph = 0;
+    if (lane == 0)
+      for (int s = 0; s < LSLOT; s++) lissue(lring, lmbar, s, src, off);
+    int k = 0;
+    bool arrived = false;
+    while (true) {
+      if (!arrived && k < nb) {
+        cl_arrive_relaxed_na();
+        arrived = true;
+      }
+      if (arrived && bar_seen > k) {
+        cl_wait_na();
+        arrived = false;
+        k++;
+        continue;
+      }
+      if (k >= nb && done) break;
+      if (lane == 0)
+        for (int s = 0; s < LSLOT; s++)
+          if (mb_try_wait(lmbar + 8 * s, (ph >> s) & 1)) {
+            ph ^= 1u << s;
+            bytes += GCHUNK;
+            lissue(lring, lmbar, s, src, off);
+          }
+    }
+    if (lane == 0) {
+      a.lstat[blockIdx.x * 3 + 0] = bytes;
+      a.lstat[blockIdx.x * 3 + 1] = ts;
+      a.lstat[blockIdx.x * 3 + 2] = gtime();
+      for (int s = 0; s < LSLOT; s++) mb_wait(lmbar + 8 * s, (ph >> s) & 1);
+    }
+    cl_arrive_relaxed_na();
+    cl_wait_na();
+    return;
+  }
+  if (LOAD) {
+    const uint64_t w = gtime();
+    while (gtime() - w < 3000) {
+    }
+  }
+  xsync<LOAD>(tid, bar_seen);
   if (tid == 0) t0 = gtime();
+  if (MODE == B_PUSH) {
+    const int n = (C - 1) * NPIECE;
+    if (tid < n) {
+      const int j = 1 + tid / NPIECE, q = tid % NPIECE;
+      const uint32_t dst = (rank + j) % C;
+      const uint32_t slot = rslots + (uint32_t)((rank * NPIECE + q) % NRSLOT) * GCHUNK;
+      bulk_s2dsm(mapa(slot, dst), smem_u32(sm) + q * PIECE, PIECE, mapa(rmbar, dst));
+    }
+    mb_wait(rmbar, 0);
+  }
 
   if (MODE == A_DIST || MODE == A_ONE) {
     const int wc = a.chunk_bytes / (T * 4);
@@ -180,7 +286,7 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
             make_float4(b + (col & 63), b + ((col + 1) & 63), b + ((col + 2) & 63), b + ((col + 3) & 63));
       }
       // One barrier per chunk suffices with two buffers: a CTA arrives here only after reading chunk ch-1's peers.
-      cl_sync();
+      xsync<LOAD>(tid, bar_seen);
       const uint32_t base = smem_u32(buf);
       if (MODE == A_DIST) {
         const int n = T * wo / 4;
@@ -220,7 +326,7 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
       if (MODE == A_RED) red_add_v4(yc + (size_t)t * H + col, v);
       else *reinterpret_cast<float4*>(mine + (size_t)t * H + col) = v;
     }
-    cl_sync();
+    xsync<LOAD>(tid, bar_seen);
     if (tid == 0) tm = gtime();
     if (MODE == A_L2) {
       constexpr int WO = H / C;
@@ -239,7 +345,7 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
       }
     }
   } else if (MODE == B_DSM || MODE == B_LOCAL || MODE == B_ROT) {
-    cl_sync();  // the publication barrier at the end of phase A
+    xsync<LOAD>(tid, bar_seen);  // the publication barrier at the end of phase A
     if (tid == 0) tm = gtime();
     const uint32_t base = smem_u32(sm);
     for (int ch = 0; ch < NCH; ch++) {
@@ -265,7 +371,7 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
     }
     // Generic stores feed an async-proxy bulk read in C_BULK; the writer-side proxy fence precedes the release.
     if (MODE == C_BULK) asm volatile("fence.proxy.async.global;" ::: "memory");
-    cl_sync();
+    xsync<LOAD>(tid, bar_seen);
     if (tid == 0) tm = gtime();
     if (MODE == C_GLB) {
       for (int ch = 0; ch < NCH; ch++) {
@@ -286,7 +392,7 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
         const uint32_t sb = smem_u32(sm + s * GCHUNK);
 #pragma unroll
         for (int j = 0; j < VPC / NT; j++) xor4(acc, ld_sm_v4(sb + (uint32_t)(tid + j * NT) * 16));
-        __syncthreads();
+        bar_exch();
         if (tid == 0 && ch + NSLOT < NCH) {
           mb_expect_tx(smem_u32(&mbar[s]), GCHUNK);
           bulk_g2s(smem_u32(sm + s * GCHUNK), g + (size_t)(ch + NSLOT) * T * KC, GCHUNK, smem_u32(&mbar[s]));
@@ -294,9 +400,10 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
       }
     }
   }
-  __syncthreads();
+  bar_exch();
   if (tid == 0) {
     const uint64_t t1 = gtime();
+    if (LOAD) done = 1;
     a.stamps[blockIdx.x * 3 + 0] = t0;
     a.stamps[blockIdx.x * 3 + 1] = tm ? tm : t1;
     a.stamps[blockIdx.x * 3 + 2] = t1;
@@ -307,14 +414,17 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) xk(Args a) {
 
 // Cluster barrier round trip: every thread of every CTA runs arrive.release + wait.acquire LAT_ITERS times;
 // thread 0 of each cluster's rank 0 records the clock64 delta between consecutive completions.
-template <int C>
+// SEM 0: every warp arrives with .release (SASS: MEMBAR.ALL.GPU before UCGABAR_ARV); 1: every warp .relaxed;
+// 2: warp 0 .release and the other warps .relaxed, the pattern rule 1 needs (only the epilogue warp publishes).
+template <int C, int SEM>
 __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NT, 1) bark(unsigned long long* cyc, unsigned long long* gt) {
   __shared__ unsigned int d[LAT_ITERS];
   const int cid = blockIdx.x / C;
   cl_sync();
   uint64_t g0 = gtime(), c0 = clk(), prev = c0;
   for (int i = 0; i < LAT_ITERS; i++) {
-    cl_arrive();
+    if (SEM == 0 || (SEM == 2 && threadIdx.x < 32)) cl_arrive();
+    else cl_arrive_relaxed();
     cl_wait();
     if (threadIdx.x == 0) {
       uint64_t c = clk();
@@ -443,19 +553,23 @@ static std::vector<double> graph_time(Ctx& ctx, L launch, F after) {
   return ev;
 }
 
-template <int C, int T, int MODE>
+template <int C, int T, int MODE, int LOAD>
 static void run_xch(Ctx& ctx, bool full, int chunk_bytes) {
-  auto k = xk<C, T, MODE>;
-  int smem = MIN_SMEM;
-  if (MODE == A_DIST || MODE == A_ONE) smem = std::max(smem, 2 * chunk_bytes);
-  if (MODE == C_BULK) smem = std::max(smem, NSLOT * GCHUNK + 64);
+  auto k = xk<C, T, MODE, LOAD>;
+  int need = 32768;
+  if (MODE == A_DIST || MODE == A_ONE) need = std::max(need, 2 * chunk_bytes);
+  if (MODE == C_BULK) need = std::max(need, NSLOT * GCHUNK + 64);
+  if (MODE == B_PUSH) need = std::max(need, 32768 + 8 * GCHUNK + 64);
+  const int ring_off = (need + 1023) / 1024 * 1024;
+  const int smem = std::max(MIN_SMEM, ring_off + LOAD * (LSLOT * GCHUNK + 64));
+  const int nthr = NT + 32 * LOAD;
   CK(cudaFuncSetAttribute(k, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
   if (C > 8) CK(cudaFuncSetAttribute(k, cudaFuncAttributeNonPortableClusterSizeAllowed, 1));
   int ncl = 1;
   if (full) {
     cudaLaunchConfig_t cfg = {};
     cfg.gridDim = dim3(C);
-    cfg.blockDim = dim3(NT);
+    cfg.blockDim = dim3(nthr);
     cfg.dynamicSmemBytes = smem;
     int mx = 0;
     CK(cudaOccupancyMaxActiveClusters(&mx, k, &cfg));
@@ -464,6 +578,11 @@ static void run_xch(Ctx& ctx, bool full, int chunk_bytes) {
   const int grid = ncl * C;
   Args a;
   a.chunk_bytes = chunk_bytes;
+  a.ring_off = ring_off;
+  a.lbuf = reinterpret_cast<const char*>(ctx.flush);
+  CK(cudaMalloc(&a.lstat, (size_t)grid * 24));
+  std::vector<unsigned long long> ls(grid * 3);
+  std::vector<double> lrate;
   CK(cudaMalloc(&a.y, (size_t)ncl * T * H * 4));
   a.part = nullptr;
   if (MODE == A_L2) CK(cudaMalloc(&a.part, (size_t)ncl * C * T * H * 4));
@@ -475,7 +594,7 @@ static void run_xch(Ctx& ctx, bool full, int chunk_bytes) {
   std::vector<double> span_med, span_max, pub_med;
   auto launch = [&]() {
     if (MODE == A_RED) CK(cudaMemsetAsync(a.y, 0, (size_t)ncl * T * H * 4, ctx.s));
-    k<<<grid, NT, smem, ctx.s>>>(a);
+    k<<<grid, nthr, smem, ctx.s>>>(a);
   };
   auto after = [&]() {
     CK(cudaMemcpy(st.data(), a.stamps, grid * 24, cudaMemcpyDeviceToHost));
@@ -492,6 +611,17 @@ static void run_xch(Ctx& ctx, bool full, int chunk_bytes) {
     }
     span_med.push_back(median(sp));
     pub_med.push_back(median(pb));
+    if (LOAD) {
+      CK(cudaMemcpy(ls.data(), a.lstat, grid * 24, cudaMemcpyDeviceToHost));
+      double b = 0;
+      unsigned long long lo = ~0ull, hi = 0;
+      for (int i = 0; i < grid; i++) {
+        b += ls[i * 3];
+        lo = std::min(lo, ls[i * 3 + 1]);
+        hi = std::max(hi, ls[i * 3 + 2]);
+      }
+      lrate.push_back(b / (double)(hi - lo));
+    }
     span_max.push_back(vmax(sp));
   };
   std::vector<double> ev = graph_time(ctx, launch, after);
@@ -531,21 +661,23 @@ static void run_xch(Ctx& ctx, bool full, int chunk_bytes) {
   } else {
     ok = -1;
   }
-  printf("XCH mode=%s T=%d C=%d ncl=%d grid=%d chunk=%d ev_med=%.3f ev_min=%.3f ev_max=%.3f "
-         "span_med=%.3f span_min=%.3f span_max=%.3f clmax_med=%.3f pub_med=%.3f ok=%d\n",
-         mode_name[MODE], T, C, ncl, grid, MODE <= A_ONE ? chunk_bytes : (is_a(MODE) || MODE == EMPTY ? 0 : GCHUNK),
-         median(ev), vmin(ev), vmax(ev), median(span_med), vmin(span_med), vmax(span_med), median(span_max), median(pub_med), ok);
+  printf("XCH mode=%s load=%d T=%d C=%d ncl=%d grid=%d chunk=%d ev_med=%.3f ev_min=%.3f ev_max=%.3f "
+         "span_med=%.3f span_min=%.3f span_max=%.3f clmax_med=%.3f pub_med=%.3f load_gbps=%.0f ok=%d\n",
+         mode_name[MODE], LOAD, T, C, ncl, grid, MODE <= A_ONE ? chunk_bytes : (is_a(MODE) || MODE == EMPTY ? 0 : GCHUNK),
+         median(ev), vmin(ev), vmax(ev), median(span_med), vmin(span_med), vmax(span_med), median(span_max), median(pub_med),
+         LOAD ? median(lrate) : 0.0, ok);
   fflush(stdout);
   CK(cudaFree(a.y));
   if (a.part) CK(cudaFree(a.part));
   CK(cudaFree(a.gint));
   CK(cudaFree(a.sink));
   CK(cudaFree(a.stamps));
+  CK(cudaFree(a.lstat));
 }
 
-template <int C>
+template <int C, int SEM>
 static void run_bar(Ctx& ctx, bool full) {
-  auto k = bark<C>;
+  auto k = bark<C, SEM>;
   if (C > 8) CK(cudaFuncSetAttribute(k, cudaFuncAttributeNonPortableClusterSizeAllowed, 1));
   CK(cudaFuncSetAttribute(k, cudaFuncAttributeMaxDynamicSharedMemorySize, MIN_SMEM));
   int ncl = 1;
@@ -578,9 +710,9 @@ static void run_bar(Ctx& ctx, bool full) {
     p99_ns.push_back(all[(size_t)(all.size() * 0.99)]);
   };
   std::vector<double> ev = graph_time(ctx, launch, after);
-  printf("LAT kind=cluster_barrier C=%d ncl=%d iters=%d med_ns=%.1f med_min=%.1f med_max=%.1f p99_ns=%.1f "
+  printf("LAT kind=cluster_barrier sem=%s C=%d ncl=%d iters=%d med_ns=%.1f med_min=%.1f med_max=%.1f p99_ns=%.1f "
          "ghz=%.3f ev_med=%.3f\n",
-         C, ncl, LAT_ITERS, median(med_ns), vmin(med_ns), vmax(med_ns), median(p99_ns), median(ghz), median(ev));
+         SEM == 0 ? "release" : SEM == 1 ? "relaxed" : "warp0_release", C, ncl, LAT_ITERS, median(med_ns), vmin(med_ns), vmax(med_ns), median(p99_ns), median(ghz), median(ev));
   fflush(stdout);
   CK(cudaFree(cyc));
   CK(cudaFree(gt));
@@ -621,19 +753,20 @@ static void run_mb(Ctx& ctx) {
   CK(cudaFree(gt));
 }
 
-template <int C, int T>
+template <int C, int T, int LOAD>
 static void run_all_modes(Ctx& ctx, bool full) {
-  run_xch<C, T, EMPTY>(ctx, full, 0);
-  run_xch<C, T, A_DIST>(ctx, full, 32768);
-  run_xch<C, T, A_DIST>(ctx, full, 65536);
-  run_xch<C, T, A_ONE>(ctx, full, 32768);
-  run_xch<C, T, A_L2>(ctx, full, 0);
-  run_xch<C, T, A_RED>(ctx, full, 0);
-  run_xch<C, T, B_DSM>(ctx, full, 0);
-  run_xch<C, T, B_ROT>(ctx, full, 0);
-  run_xch<C, T, B_LOCAL>(ctx, full, 0);
-  run_xch<C, T, C_GLB>(ctx, full, 0);
-  run_xch<C, T, C_BULK>(ctx, full, 0);
+  run_xch<C, T, EMPTY, LOAD>(ctx, full, 0);
+  run_xch<C, T, A_DIST, LOAD>(ctx, full, 32768);
+  run_xch<C, T, A_DIST, LOAD>(ctx, full, 65536);
+  if (!LOAD) run_xch<C, T, A_ONE, LOAD>(ctx, full, 32768);
+  run_xch<C, T, A_L2, LOAD>(ctx, full, 0);
+  run_xch<C, T, A_RED, LOAD>(ctx, full, 0);
+  if (!LOAD) run_xch<C, T, B_DSM, LOAD>(ctx, full, 0);
+  run_xch<C, T, B_ROT, LOAD>(ctx, full, 0);
+  run_xch<C, T, B_PUSH, LOAD>(ctx, full, 0);
+  run_xch<C, T, B_LOCAL, LOAD>(ctx, full, 0);
+  run_xch<C, T, C_GLB, LOAD>(ctx, full, 0);
+  run_xch<C, T, C_BULK, LOAD>(ctx, full, 0);
 }
 
 int main(int argc, char** argv) {
@@ -647,13 +780,21 @@ int main(int argc, char** argv) {
   CK(cudaGetDeviceProperties(&p, 0));
   printf("DEV %s sms=%d replays=%d\n", p.name, p.multiProcessorCount, ctx.replays);
   for (int full = 0; full < 2; full++) {
-    run_all_modes<8, 8>(ctx, full);
-    run_all_modes<8, 32>(ctx, full);
-    run_all_modes<16, 8>(ctx, full);
-    run_all_modes<16, 32>(ctx, full);
-    run_bar<8>(ctx, full);
-    run_bar<16>(ctx, full);
+    run_all_modes<8, 8, 0>(ctx, full);
+    run_all_modes<8, 32, 0>(ctx, full);
+    run_all_modes<16, 8, 0>(ctx, full);
+    run_all_modes<16, 32, 0>(ctx, full);
+    run_bar<8, 0>(ctx, full);
+    run_bar<16, 0>(ctx, full);
+    run_bar<8, 1>(ctx, full);
+    run_bar<16, 1>(ctx, full);
+    run_bar<8, 2>(ctx, full);
+    run_bar<16, 2>(ctx, full);
   }
+  run_all_modes<8, 8, 1>(ctx, true);
+  run_all_modes<8, 32, 1>(ctx, true);
+  run_all_modes<16, 8, 1>(ctx, true);
+  run_all_modes<16, 32, 1>(ctx, true);
   run_mb<8>(ctx);
   run_mb<256>(ctx);
   return 0;
