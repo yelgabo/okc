@@ -7945,3 +7945,56 @@ Decision: null, no registration (bar 0.3 us at decode 16 sliding with 20+/24 pai
 row added. The instrument build moved o's end 0.53 us earlier at decode 16, yet the timed layer did not change.
 Two hypotheses, both untested: the stamp build's extra stores change the merge tail's timing so that its gain does
 not carry into the plain build, or a later boundary absorbs an earlier o end.
+
+## MoE grid barrier removal (box)
+
+2026-11-04, moe-gb lane, base ly_stk3 (SHA256 a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6). Box only;
+no judge job dispatched. Evidence: muse_decode_layer/profiles/box/moegb/.
+
+The B4 build (decode 32) ended phase B with a grid-wide barrier and then the global final pass. The public code already
+had a distributed alternative, MFIN: per-expert completion counters (p.mfl + MF_CE + gen*32 + e) that phase B units
+release with red.release.gpu after their epilogue stores (64 releases per job, times the split count), which the
+final acquires for its token's experts instead of waiting at the barrier. The native repair forced MFIN to 0 for WGS
+because the B4FIN final's poll was bounded at 4M iterations and could fall through to the reads
+(docs/steering/2026-11-01-g-native-repair-inventory.md line 78).
+
+Candidate muse_decode_layer/cand/ly_gb4.py (SHA256 07e145f7369c8ec96ea51fa678e84dae9769eb3b1c14f9cca398549c1aee6299),
+two lines in MOE_CUDA_SRC:
+
+```
+3967  #if OKC_WGS                    ->  #if OKC_WGS && !OKC_B4FIN
+6581  for (int n = 0; ld_acquire(cp) < target && n < 4000000; ++n) { ... }
+      ->  while (ld_acquire(cp) < target) { if (OKC_MFS) __nanosleep(OKC_MFS); }
+```
+
+MID (WS) and MAIN (WGS with RFIN, where the finisher completes in wgs_seg without an MFIN release) keep MFIN 0 and the
+barrier. Ordering: each contributor's epilogue stores, then bar.sync 3+wg over its 128 threads, then one thread's
+red.release.gpu; the final's tid < 8 poll with ld.acquire.gpu, then CTA_SYNC, then __ldcg reads of sspart and ybuf.
+Counters use launch parity from atomicInc on MF_EXIT after griddepcontrol.wait; each launch zeroes the other parity
+after route(), and the previous launch has finished (stream-ordered cooperative launch). No deadlock: all 132 CTAs are
+co-resident (host residency check), the poll waits only on phase B releases, and each CTA flushes its last pending
+release before its own final. The final's sum code is unchanged, so results are bitwise equal.
+
+Gate: the file's own prepare at decode 16 / 32 passes all five PDL8H guards (2000 replays per arm, 0 ids mismatches);
+chk 12/12 PASS. Paired A/B against ly_stk3, two rounds (c w c w c, --runs 60, PDL pinned on), pooled, 24 pairs per cell
+(`gb4_table_both_rounds.txt`):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs faster |
+|---|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 63.41 | 0.58 | 63.31 | -0.10 | 1.15 | 15/24 |
+| decode 1 full | 70.77 | 0.38 | 70.07 | -0.70 | 0.77 | 24/24 |
+| decode 16 sliding | 124.97 | 1.02 | 124.58 | -0.39 | 2.05 | 18/24 |
+| decode 16 full | 197.37 | 1.38 | 196.90 | -0.47 | 2.75 | 18/24 |
+| decode 32 sliding | 142.10 | 1.81 | 140.36 | -1.75 | 3.62 | 24/24 |
+| decode 32 full | 294.00 | 0.99 | 292.33 | -1.67 | 2.94 | 24/24 |
+| verify 1 sliding | 100.11 | 0.94 | 99.90 | -0.21 | 1.89 | 16/24 |
+| verify 1 full | 108.30 | 1.73 | 108.22 | -0.08 | 3.46 | 12/24 |
+| verify 16 sliding | 242.45 | 2.30 | 242.61 | +0.17 | 4.61 | 12/24 |
+| verify 16 full | 326.67 | 1.60 | 326.08 | -0.59 | 3.27 | 20/24 |
+| verify 32 sliding | 294.58 | 2.42 | 294.25 | -0.33 | 4.83 | 13/24 |
+| verify 32 full | 458.07 | 1.22 | 458.16 | +0.09 | 4.58 | 10/24 |
+
+Only the decode 32 cells run the edited code. The moves at decode 1 and 16 are outside the edited build and read as
+drift between process launches; no cell loses beyond its threshold. Decision: meets the lane bar (decode 32 sliding at
+least 0.8 us faster with 20+/24 pairs); registered in the ledger at 13:17 PT. Expected layer effect about -0.15% from
+decode 32 sliding, plus decode 32 full, a hypothesis until a judge check.
