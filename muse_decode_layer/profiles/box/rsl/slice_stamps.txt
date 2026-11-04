@@ -1,0 +1,42 @@
+sliding        ctl       rsl      rsl2
+  graph_plain                    68.91     69.73     69.58
+  graph_inst                     70.62     69.78     69.28
+  moe_pa_end                     13.25     12.62     12.69
+  moe_trig                       20.26     20.22     21.39
+  moe_bar                        21.68     21.50     22.70
+  moe_exit                       23.09     22.06     23.36
+  moe_bar_to_exit_last8           0.86      0.40      0.53
+  sl_wait_lat_p50                 0.61      0.38      0.38
+  sl_xall_p50                     1.25      0.32      0.32
+  sl_math_p50                     0.80      1.60      1.60
+  sl_math_max                     1.15      1.70      1.79
+  sl_cta_wait_to_store_p50        2.14      2.24      2.30
+  sl_cta_wait_to_store_max        2.69      2.40      2.62
+  sl_end_after_exit               3.54      2.82      3.01
+  fin_end_after_sl_end            1.58      1.68      1.65
+  fin_end_after_exit              5.14      4.53      4.67
+  fin_end                        28.37     26.53     27.84
+  maxdiff                         0.00      0.00      0.00
+  plain rsl-ctl per input median +1.20, mean +1.06, neg 5/20
+  plain rsl2-ctl per input median +1.04, mean +0.90, neg 6/20
+full        ctl       rsl      rsl2
+  graph_plain                    74.54     76.05     76.02
+  graph_inst                     76.43     76.45     75.68
+  moe_pa_end                     12.62     12.66     12.78
+  moe_trig                       19.49     20.37     20.70
+  moe_bar                        21.28     21.74     22.00
+  moe_exit                       23.06     22.26     22.67
+  moe_bar_to_exit_last8           1.36      0.41      0.68
+  sl_wait_lat_p50                 0.45      0.38      0.38
+  sl_xall_p50                     1.28      0.33      0.31
+  sl_math_p50                     0.77      1.60      1.59
+  sl_math_max                     1.09      1.70      1.79
+  sl_cta_wait_to_store_p50        2.16      2.24      2.30
+  sl_cta_wait_to_store_max        2.67      2.43      2.59
+  sl_end_after_exit               3.18      2.85      2.98
+  fin_end_after_sl_end            1.47      1.95      1.66
+  fin_end_after_exit              4.83      4.80      4.64
+  fin_end                        28.19     27.06     27.30
+  maxdiff                         0.00      0.00      0.00
+  plain rsl-ctl per input median +1.36, mean +1.49, neg 1/20
+  plain rsl2-ctl per input median +1.52, mean +1.28, neg 3/20

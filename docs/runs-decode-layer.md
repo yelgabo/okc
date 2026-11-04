@@ -5641,3 +5641,278 @@ Next (hypotheses, not built):
    us left on the mean CTA, unmeasured).
 3. The handoff's largest piece is the 0.55 to 0.87 us from warp 0's last phase A unit to the helper holding all
    eight warps' partials (warp skew or the partial hand-off; not separated, needs per-warp stamps).
+
+## 2026-11-04 - Verify 1 slice and finish (box)
+
+Verify 1 lane, round 2 (T = 8). Question: the two T = 8 items round 1 left unmeasured per CTA, the unpooler slice sk2
+(4.4 us, all of x read into each of its 128 CTAs after the wait) and the finish (2.1 to 2.5 us after the slice ends):
+which part of each is largest, and can one T = 8-gated change take it? Base: `muse_decode_layer/cand/ly_v1un.py`
+(SHA256 88fbae8644f946af46b87ab89be17409e133ebab26d20cf61e9c3f3941788145, judge check b734f44afbf24acd VALID), never
+edited. Box only (okc-h200, 17:50 to 18:09 UTC), every GPU process under `/root/okc/.build/box/gpu.lock` (the layer
+lane's ly_rsl runs shared the lock). No judge check. Logs: `muse_decode_layer/profiles/box/v1sf/`.
+
+### Instruments (never candidates)
+
+- `muse_decode_layer/cand/ly_v1st.py` (26ee95cb...): `tools/dl_ly_pmt_patch.py --base ly_v1un.py --pin 88fbae86...
+  --xld __ldca --out ly_pmt_v1un.py` (1041126b..., the MoE DBG and finish TLON stamps of the decode 1 tail), then
+  `tools/dl_ly_v1st_patch.py`: the TINY2 MoE build with `-DOKC_DEBUG=1`; per-CTA globaltimer stamps in bfp_SK2_SRC's
+  sk2_kernel (non-fused instantiations, written only when dbg is non-null; the host `sk2` passes the buffer set by the
+  new export `sk2_set_tlu` as dbg for the slice's shape M = 8, N = 1024 only); the finish program's SM id. Slots: entry,
+  prologue done (pre-wait weight stages, escape table, barriers), after the wait, x of the pre-issued stages issued,
+  producer refills issued, escape table landed, consumer warps 0 and 7 seeing each of the 4 stages full, leaving the
+  stage loop, the 4 escape warps done, epilogue cbar / barriers / tid 0's store, SM id, escape count. No fence,
+  barrier, wait, trigger or launch attribute moves.
+- `muse_decode_layer/cand/ly_v1sx.py` (3d2c61ff..., `--diag`): the same plus `sk2_set_tdg(n)`, which hands sk2's
+  diagnostic bits to the stamped launch only; `--dg 4` drops x from the slice (stages carry weights only; output wrong
+  by design), so the stage landings time the weight stream alone.
+- `tools/ly_box_v1st.py`: plain and instrumented graph per cell (PDL pinned on at every T, gate skipped, router seed
+  106218864389449120, f931 case seeds, local_start per input), 20 fresh inputs per cell, cold L2. `tools/ly_v1st_fin.py`
+  reads the finish placement from its `--raw` JSON (`st2.json.gz`). Observer cost: plain / instrumented graph 103.86 /
+  105.31 us (sliding), 118.02 / 117.55 (full).
+
+### Slice and finish parts at T = 8 (measurement, ly_v1un, us, medians over 20 inputs, sliding / full)
+
+Reference: the last MoE CTA's exit. Per-CTA items are the median over the 128 CTAs, then over inputs (`st1.log`,
+`st2.log`: two runs, they agree within 0.1 us).
+
+| part | sliding | full |
+|---|---:|---:|
+| slice CTAs entering before the last MoE exit (they take SMs as MoE CTAs leave) | 100 to 103 of 128 | 103 to 106 |
+| first slice entry after the last MoE trigger | 1.71 | 1.70 |
+| prologue: barriers, 2 weight stages (24 KB), escape table issued | 0.61 | 0.61 |
+| wait return after the MoE exit, p50 / max (late-entering CTAs) | 0.47 / 0.94 | 0.51 / 0.90 |
+| x of stages 0 and 1 issued / producer issues stages 2 and 3 (weights + x), after the wait | 0.16 / 0.48 | 0.16 / 0.51 |
+| stage 0 / 1 / 2 / 3 full after the wait (no stage lands before the wait) | 0.77 / 1.15 / 1.54 / 1.86 | 0.67 / 1.06 / 1.44 / 1.79 |
+| consumers done after the last stage | 0.26 | 0.26 |
+| escape warps after the consumers, p50 / max | 0.00 / 0.38 | 0.00 / 0.40 |
+| epilogue: cbar 0.10, k-warp reduction 0.06, store 0.16 | 0.32 | 0.32 |
+| CTA wait return to its store, p50 / max | 2.46 / 2.77 | 2.40 / 2.70 |
+| slice end (last store) after the MoE exit; end spread (last minus median CTA) | 3.57; 0.61 | 3.42; 0.54 |
+| finish: entry before the slice end | 1.0 to 1.5 | 0.8 to 1.4 |
+| finish: wait return / P stage (P load and first reduction) / carry stage / stores, p50 | 0.45 / 0.51 / 0.42 / 0.10 | 0.45 / 0.51 / 0.42 / 0.10 |
+| finish: P stage, max over the 64 programs | 1.20 | 0.91 |
+| finish end after the slice end; after the MoE exit | 2.30; 5.87 | 1.92 to 2.27; 5.34 to 5.74 |
+
+Two diagnostics separate the two largest parts.
+
+1. **The slice's post-wait time is its weight stream, not x** (`sx4.log`, ly_v1sx with dg 4, the same inputs): with
+   no x at all the stages land 0.41 / 0.97 / 1.46 / 1.95 us (sliding) and 0.38 / 0.93 / 1.44 / 1.92 (full) after the
+   wait, against 0.75 / 1.15 / 1.50 / 1.86 with x. Even stages 0 and 1, whose 24 KB of weights go out in the
+   prologue, have not landed when the wait returns. x costs about 0.35 us at stage 0 and nothing after it. The weights
+   (48 KB per CTA, 6.3 MB in all, from DRAM) can only start when a MoE CTA leaves its SM (the two cannot share an SM:
+   >= 115,712 + 118,240 B of shared memory), and the MoE CTAs leave over the last 0.9 us before the wait returns.
+   Round 1's hypothesis that the 8 MB of x reads from L2 were a separate cost does not hold at this size: they overlap
+   the weight stream.
+2. **The finish's tail is four SMs holding three or four finish programs each** (`fin_placement.txt` from
+   `st2.json.gz`, 20 inputs per cell): the slice occupies 128 SMs, and the PDL launch of the finish's 64 programs puts
+   14 of them on the 4 SMs without a slice CTA (3 or 4 per SM, 16 warps each). Those programs take 0.78 / 0.80 us in
+   the P stage against 0.47 / 0.48 for the 50 programs that sit alone beside a slice CTA; they end 1.90 / 1.86 us
+   (p50) and 2.30 / 2.27 (max) after the slice end, the single ones 1.45 / 1.41 and 1.58 / 1.57. The finish's end is
+   set by the stacked programs: 0.7 us of its 2.3 us tail is the stacking (measurement; the ly_v1r16 stamps below show
+   it from the other side). The tile 0 / 1 pattern seen first (P stage 0.6 to 0.95 us for tiles 0 and 1) is the same
+   thing: blocks b and b + 8 (tiles 0 and 1 of token b) are dispatched first and go to the free SMs.
+
+### Candidate ly_v1r16: 16 rows per slice CTA (64 CTAs)
+
+`tools/dl_ly_v1r16_patch.py` (base and pin checked) writes `muse_decode_layer/cand/ly_v1r16.py` (SHA256
+0b5a22a084a2771c74806c0a72f3cbe6aa2ea0e00977ab6759a7937fbeddbfa1): one line, the `slice8_r192` row of
+bfp_SK2_CONFIGS from (R 8, NT 1) to (R 16, NT 2); picked only for (unpooler, tokr 8), which the layer runs only at
+T = 8 (T = 1 runs the cgemv slice). Built on the step 1 reading, before diagnostic 1: half as many CTAs read x, so the
+L2 serves 4 MB of x instead of 8. Per row the k split (WSK, UPW), the accumulator chains, the escape copies and the
+reduction order are the base's, so the output is bitwise the base's. SASS (`tools/ly_prtl_sass.py`, bfp extension,
+nvcc 13.0, sm_90a, `sass.log`): the slice instantiation (PK) 807 -> 895 instructions, 66 -> 74 registers, no stack or
+local memory, stage loop 485 -> 587 instructions with 8 -> 16 HMMA; every other kernel identical. Gate run: PDL8_AB
+T = 8 savings 7.33 (full) / 7.30 (sliding) us, 9/9; PDL8H_GUARD T = 8 pass, ids mismatches 0. Check (chk, six loads):
+PASS 12/12, `G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays`, CG_GATE line equal to the
+control's.
+
+Paired A/B against ly_v1un (`tools/ly_v1_ab.sh` with CTL=ly_v1un.py: c/w/c/w/c per round, 60 runs, six loads, PDL
+pinned, two rounds; `r16_table_both_rounds.txt`):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.57 | 0.78 | 64.31 | -0.27 | 1.57 | 19/24 | inside |
+| decode 1 full | 70.78 | 0.83 | 70.60 | -0.18 | 1.66 | 17/24 | inside |
+| decode 16 sliding | 127.04 | 0.70 | 127.00 | -0.04 | 1.41 | 14/24 | inside |
+| decode 16 full | 199.24 | 1.95 | 199.39 | +0.15 | 3.90 | 10/24 | inside |
+| decode 32 sliding | 144.13 | 0.56 | 144.22 | +0.10 | 1.44 | 11/24 | inside |
+| decode 32 full | 295.15 | 1.39 | 294.89 | -0.26 | 2.95 | 16/24 | inside |
+| verify 1 sliding | 100.52 | 0.91 | 100.92 | +0.40 | 1.82 | 6/24 | inside |
+| verify 1 full | 108.85 | 0.80 | 108.82 | -0.03 | 1.60 | 14/24 | inside |
+| verify 16 sliding | 242.73 | 1.34 | 242.81 | +0.09 | 2.69 | 11/24 | inside |
+| verify 16 full | 326.60 | 1.78 | 326.37 | -0.23 | 3.55 | 15/24 | inside |
+| verify 32 sliding | 294.22 | 1.58 | 293.84 | -0.38 | 3.17 | 18/24 | inside |
+| verify 32 full | 458.22 | 1.36 | 458.65 | +0.43 | 4.58 | 6/24 | inside |
+
+Stamps (`st_r16.log`, the same instrument on ly_v1r16): the stages land 0.71 / 1.23 / 1.71 / 2.16 us after the wait
+(sliding; base 0.77 / 1.15 / 1.54 / 1.86), the CTA's wait-to-store grows 2.46 -> 2.94 us and the slice ends 4.08 us
+after the MoE exit (base 3.57); but with 68 SMs free the finish's programs no longer stack (end spread 0.10 against
+0.83) and the finish ends 1.57 us after the slice (base 2.30). The two moves cancel: finish end after the MoE exit
+5.65 / 5.49 against 5.87 / 5.34. Reading: twice the weights per CTA on half the SMs streams slower, as diagnostic 1
+predicts, and the finish gain is diagnostic 2's 0.7 us. Null (+0.40 / -0.03 us, 6 and 14 of 24 pairs); not kept.
+
+### Candidate ly_v1cl4: the slice split over K across clusters of 4 CTAs
+
+`tools/dl_ly_v1cl4_patch.py` writes `muse_decode_layer/cand/ly_v1cl4.py` (SHA256
+e79745cc1002f4334d0acafc20b2116ccff60cf3dbbb0a7c64ed2976eb14401a): one line, `slice8_r192` to (R 32, NT 4, CL 4):
+32 clusters of 4 CTAs, each CTA one 1024-k stage of 32 rows, ranks 1 to 3 handing their sums to rank 0 by st.async
+(the file's existing CL > 1 path, used by the router's CL 3 build). Intent: each CTA's whole 48 KB of weights goes
+out before the wait (P = 1 is its whole K share) and only 16 KB of x follows it. With one stage per rank every escape
+correction sits in escape copy 0, the one copy the CL > 1 rank > 0 path folds. Not bitwise: each row is four rank
+partials added at rank 0 (CG_GATE at T = 1 reads sk2_vs_fp64 0.00e+00, equal 1024/1024, against the base's 1.21e-04,
+1023/1024). Gate: PDL8_AB T = 8 savings 7.23 / 7.58 us, 9/9; guard pass. Check PASS 12/12, startup OK.
+
+A/B against ly_v1un, two rounds (`cl4_table_both_rounds.txt`): verify 1 sliding +4.65 us (0/24 pairs, threshold
+3.55), full +4.50 (0/24, threshold 2.18), both losses; the other ten cells -0.67 to +0.60, inside. Stamps
+(`st_cl4.log`): two of the 32 clusters (8 CTAs) enter about 4 us after the MoE exit in every input. With one 198 KB
+CTA per SM the GPU holds 30 four-CTA clusters at once (hypothesis from the two late clusters: GPC SM counts that are
+not multiples of 4), so the grid runs in two waves and the slice ends 8.7 us after the MoE exit. The first wave's CTAs
+are no faster either (wait-to-store 2.64 against 2.46): their 48 KB of weights still land 1.2 us after the wait, and
+the one escape warp that owns the single stage walks 12 escapes (4x the rows) and finishes 0.48 us after the
+consumers. Loss; not kept.
+
+### Decision
+
+No candidate for a judge check. ly_v1r16 null (+0.40 / -0.03 us at verify 1, 6 and 14 of 24 pairs), ly_v1cl4 loss
+(+4.65 / +4.50, 0 of 24). Two ruled-out rows. What carries forward, both measured with a stated mechanism:
+
+1. The finish's tail: 14 of its 64 programs stack 3 or 4 per SM on the 4 SMs the 128-CTA slice leaves free and end
+   0.7 us after the others (2.30 against 1.58 us after the slice end, both cells). A placement change that keeps the
+   finish's programs one per SM, without moving the slice to fewer SMs and without changing the finish's reduction
+   layout (num_warps, hence its numerics), is worth up to about 0.7 us per verify 1 cell on the kernel timeline
+   (hypothesis for the A/B size). Untested: the lane's two candidates were spent before diagnostic 2.
+2. The slice's post-wait time is the 6.3 MB weight stream from DRAM, which cannot start before the MoE's CTAs leave
+   their SMs; x costs about 0.35 us at stage 0 only. A lever has to bring the slice's weights closer before the wait:
+   into L2 during a window where DRAM is idle (an L2 prefetch with an evict-last hint, for example from the MoE's tail
+   or the route kernel; the moe lane's current T = 1 slice prefetch is the same mechanism at T = 1). Bound: the 1.86 us
+   of stage landings after the wait, minus what an L2-resident stream would still need (unmeasured).
+## 2026-11-04 - Decode 1 register slice (box)
+
+Layer lane, round 2 (09:44 to 10:35 PT). Question: can the T = 1 unpooler slice hold all of its codes on chip
+before the MoE ends, launched from a phase A end trigger, so that only x and the math remain after the MoE exits
+(the next step proposed in "Decode 1 finish and slice launch")? Base: `muse_decode_layer/cand/ly_v1un.py` (SHA256
+88fbae8644f946af46b87ab89be17409e133ebab26d20cf61e9c3f3941788145; at T = 1 it runs the same code as ly_rfx). Box
+only (okc-h200), every GPU process under `/root/okc/.build/box/gpu.lock`. No judge check. Logs and tables in
+`muse_decode_layer/profiles/box/rsl/`.
+
+### Residency: what binds beside a TINY MoE CTA (measurement)
+
+`tools/ly_rslc_occ.cu` runs an occupier kernel with the TINY moe_fused footprint measured on ly_v1un
+(`tools/ly_micro_sass.py`, tiny build: 288 threads, REG 145, allocated as 152; SHARED 1024 static; okc_smem_bytes()
+= 214,784 dynamic), one CTA per SM, and launches a probe kernel on a second stream; a probe CTA that enters before
+the occupier's first exit was resident beside it (`occ1.log`, `occ2.log`, two repetitions each, all 132 SMs alike):
+
+| probe CTA shape | probe CTAs per SM beside the occupier |
+|---|---:|
+| 5 warps, 40 registers (the base slice, cgemv40_kernel<128, 2>) | 1 |
+| 5 warps, 32 registers (ly_cg32) | 1 |
+| 5 warps, 24 registers | 2 |
+| 3 warps, 56 registers | 2 |
+| 4, 6 or 7 warps at 56 registers; 7 warps at 40 or 48; 11 warps at 24 | 1 |
+| 4 warps at 64; 8 warps at 40 or 48; 12, 13 or 16 warps at 40; 17 warps (544 threads) at 40 or 32 | 0 |
+| 5 warps at 24 with 8 or 12 KB static shared memory | 1 |
+| 5 warps at 24 with 16 KB | 0 |
+| 7 warps at 56 with 14 or 15 KB | 1 |
+
+The occupier's nine warps sit 3 / 2 / 2 / 2 on the four `%warpid % 4` classes (taken here as the SM
+sub-partitions). With 152 allocated registers per thread, the sub-partition holding three of them keeps 16,384 -
+3 x 4,864 = 1,792 registers, one warp at up to 56 registers; the other three keep 6,656 each. A probe CTA's warps
+are spread over the four sub-partitions, with the short side placed on the full one (the 5-, 6-, 7- and 11-warp
+probes put their fewer warps there), so the binding resource is the register file of that one sub-partition, not
+the SM's 21,760 free registers in total. That explains the base's one slice CTA per SM beside the MoE (ly_trga)
+and why ly_cg32 was null. Shared memory leaves 16,640 bytes (233,472 - 214,784 - 1,024 - 1,024); after the slice's
+own 1 KB reserve, between 12 and 16 KB fit, as measured. The proposed 544-thread / 40-register shape fits 0 per
+SM. The largest shape that fits is 7 warps at 56 registers (12,544 registers) with up to 15 KB of shared memory.
+
+### Candidate ly_rsl: 128 slice CTAs of 7 warps holding their codes
+
+`tools/dl_ly_rsl_patch.py` writes `muse_decode_layer/cand/ly_rsl.py` (SHA256
+2e69f45cd80cadf12912cfc4dd367704de19a9c5621c2a1204fc4fdf74d95e82). Two parts, both reached only at T = 1:
+
+- MoE trigger, the ly_trga edit: in the helper0 source, after ly_v1un line 15079 (`DBG(2)` after
+  `run_phase<false, BIG>`) an `#if OKC_TRIGA` block issues `griddepcontrol.launch_dependents`, and the existing one
+  after line 15087 goes under `#if !OKC_TRIGA`; one new line after line 16263 adds `-DOKC_TRIGA=1` to
+  `MOE_TINY_DEFINES` (T <= 4, so only T = 1 in the layer). Nothing else in the MoE changes.
+- slice: a new kernel `cgrs_kernel` in CG_CUDA_SRC in front of `cgemv_launch` (line 17817), and in the pdl8 edit
+  that turns the cgemv40 launch into `cg_go` (line 18927) a branch that launches it for `NTH == 128 && CPT == 2`
+  with `half_n == 512` (cgemv_fwd runs only for the unpooler slice at m = 1). 128 CTAs of 7 warps at
+  `__maxnreg__(56)`, 8,352 bytes of shared memory (x and the partial sums), one per SM. CTA b owns row pairs
+  4b..4b+3. A task (row, quarter q) is one cgemv_body compute warp's work for one row: lane l takes chunks 32q + l
+  and 32q + l + 128. Warp w owns tasks w, w + 7, ...; before `griddepcontrol.wait` it loads its first three tasks'
+  codes into 36 registers (21 of 32 tasks, 66% of the 6 MB) and issues `prefetch.global.L2` for the other tasks'
+  lines and for the escape table. After the wait: x (8 KB, `__ldca`) to shared memory, one barrier, then every task
+  runs `chunk_fma` in cgemv_body's order and the same butterfly; the L2 tasks load after the first held tasks free
+  their registers; warps 3..6 walk the four escape tables with cgemv_body's loop; the four quarters and the escape
+  sum are added in cgemv_body's order. Pre-wait reads are the prepare-time stream and table only; trigger at the
+  CTA's end as before. ptxas: 56 registers, 0 spill, 8,352 bytes shared; SASS has the 12 code loads
+  (`LDG.E.NA.128.CONSTANT` / `LDG.E.64.CONSTANT`) and 6 `CCTL.E.PF2` before `ACQBULK`, and the x loads after it.
+- `--pair` (ly_rsl2, 471ecf40): the same with two tasks' FMA chains interleaved per call. `--no-trig` (ly_rsl_nt,
+  0a1114e8): the 128-CTA slice with the MoE trigger left at its phase B end, to separate the two parts.
+
+Correctness (chk, `tools/ly_rsl_box.sh`, `bx_box_run.py --runs 5`, six loads, PDL pinned): ly_rsl and ly_rsl2 PASS
+12 / 12, `G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays`, and
+`CG_GATE unpooler cg_vs_sk2 1.21e-04 ... equal 1023/1024 ok`, the control's line character for character.
+
+### Step 1, residency (stamps, `ly_pmt_rsl.py` 7499c7c2 = `tools/dl_ly_pmt_patch.py` on the `--tl` variant)
+
+20 inputs per cell, per-input local_start, `tools/ly_rsl_resid.py` (`residency.txt`): in every one of the 40 inputs
+all 128 slice CTAs were resident on 128 distinct SMs before the last MoE CTA's exit, and every CTA's held codes had
+landed before that exit (min 128 of 128). The slice CTAs enter 1.31 / 1.71 us (sliding / full, medians) after the
+last phase A end, and their codes land 6.66 / 5.63 us before the MoE's exit. After the exit: wait return 0.38 us
+(control 0.61 / 0.45), x in shared memory 0.32 us later (control: every lane's x 1.25 / 1.28 us), then the tasks
+1.60 us (control 0.80 / 0.77), slice end 2.82 / 2.85 us after the exit. The interleaved form (ly_rsl2) did not
+shorten the task phase (1.60 / 1.59 us). The residency design works as built.
+
+### A/B and where the time goes
+
+Paired A/B against ly_v1un at decode 1 (`tools/ly_prtl_ab.sh`, c/w/c/w/c, 60 runs, PDL pinned, router seed
+106218864389449120, `ab_tables.txt`):
+
+| candidate | round | decode 1 sliding w - c | decode 1 full w - c |
+|---|---|---:|---:|
+| ly_rsl | 1 | +1.46 (pairs +1.46 +1.46 +1.20 +1.58) | +1.34 (+1.34 +1.18 +1.34 +1.42) |
+| ly_rsl | 2 | +0.73 (+0.77 +0.83 +0.35 +0.82) | +1.58 (+1.10 +1.34 +1.95 +1.98) |
+| ly_rsl, pooled (6 controls, 24 pairs) | | +1.09, 0 / 24 pairs below the control | +1.46, 0 / 24 |
+| ly_rsl_nt | 1 | +1.10 (+1.18 +1.01 +1.28 +0.96) | +0.99 (+0.80 +0.50 +1.17 +1.34) |
+
+The other four loads were not A/B'd: the code changes reach only T = 1, and the candidate loses its target cells.
+
+The slice-instrumented stamps above cannot rank the arms: the control's stamped slice (512 CTAs forced to land their
+codes before the wait) costs the control 1.7 us of graph time (plain 68.91 against instrumented 70.62 at sliding),
+the candidate's nothing. `--moe-only` (new in `tools/ly_box_pmt.py`) stamps the MoE and the finish only and runs
+every slice plain, so both arms carry the same instrument (`moe_only_stamps.txt`; medians over 20 inputs, us from
+the first MoE CTA's entry; two control runs, two of each candidate):
+
+| item | ly_v1un | ly_rsl_nt | ly_rsl |
+|---|---|---|---|
+| sliding: phase B end / grid barrier / MoE exit | 20.51, 19.92 / 21.82, 21.18 / 22.48, 21.79 | 20.80, 20.53 / 23.28, 23.14 / 23.68, 23.34 | 20.88, 21.57 / 22.19, 22.91 / 22.66, 23.46 |
+| sliding: finish end after the MoE exit | 4.48, 4.43 | 4.43, 4.61 | 4.54, 4.58 |
+| full: phase B end / grid barrier / MoE exit | 19.28, 19.39 / 20.64, 20.77 / 21.28, 21.20 | 19.73, 19.38 / 22.16, 20.91 / 22.43, 22.27 | 20.53, 20.72 / 21.78, 22.00 / 22.32, 22.46 |
+| full: finish end after the MoE exit | 4.45, 4.48 | 4.51, 4.86 | 4.80, 4.77 |
+| plain graph, candidate - control per input (median), sliding / full | | +1.39, +0.61 / +0.16, +1.49 | +0.93, +0.91 / +0.86, +1.02 |
+
+Reading (measurements, then hypotheses):
+
+- With the trigger at the phase A end, the MoE's phase B ends 0.4 to 1.7 us later (full: 1.1 to 1.4) and the MoE
+  exits 0.2 to 1.7 us later (full: 1.0 to 1.3): the 6 MB the slice loads during phase B (4 MB into registers, 2 MB
+  into L2) take DRAM time phase B needs. 6 MB at 4.5 TB/s is 1.3 us (hypothesis: phase B at decode 1 runs at the
+  DRAM rate in the layer, so moving bytes into it is zero-sum). ly_trga moved 1.6 MB and showed no phase B change.
+- With the trigger left at the phase B end (ly_rsl_nt), the 128 resident CTAs load their 6 MB while the MoE runs its
+  grid barrier, and the barrier comes 1.1 to 1.35 us later after the phase B end (2.48 / 2.61 us against 1.31 /
+  1.26 at sliding; 2.43 against 1.36 in one of the two full runs, 1.53 in the other). The
+  base's 512 small CTAs fit one per SM there and load most of their codes only as MoE CTAs exit.
+- After the MoE exits, the 128-CTA slice plus the finish take as long as the base's (4.4 to 4.9 us against 4.4 to
+  4.5): the shorter wait and x landing are spent on 1.6 us of tasks in 7 warps per SM, against 0.8 us spread over
+  the base's 512 CTAs of 5 warps (about 19 warps per SM once the MoE has left). With seven warps per SM beside the MoE, the post-exit math cannot have the base's
+  latency hiding.
+
+### Decision
+
+ly_rsl is a loss at decode 1 (+1.09 / +1.46 us, 0 of 24 pairs below the control in either cell), ly_rsl_nt as well
+(+1.10 / +0.99, one round, every pair a loss); ly_rsl2 was stamped only (same task phase as ly_rsl). No ledger
+registration, no judge check. What carries forward: beside a TINY MoE CTA only a 7-warp, 56-register,
+<= 15 KB slice CTA fits per SM (the sub-partition with three MoE warps binds); every code byte can be on chip
+before the MoE ends, but at decode 1 the slice's 6 MB of DRAM time then lands inside the MoE (phase B or its grid
+barrier) instead of after its exit, and the base's ordering, where most code loads follow the MoE CTAs' exits and
+overlap only the final pass, is already close to the best one. This bears on the moe lane's current step (the MoE's
+CTAs prefetching the slice's 6.3 MB into L2 at phase B start): the same bytes would share phase B's DRAM time.

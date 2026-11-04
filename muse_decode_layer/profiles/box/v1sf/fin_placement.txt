@@ -1,0 +1,30 @@
+verify 1 sliding: 20 inputs, medians
+  free_sms              4.00
+  stacked_sms           4.00
+  stacked_on_free       4.00
+  stacked_n            14.00
+  stacked_P             0.78
+  stacked_carry         0.49
+  stacked_end_p50       1.90
+  stacked_end_max       2.30
+  single_n             50.00
+  single_P              0.47
+  single_carry          0.43
+  single_end_p50        1.45
+  single_end_max        1.58
+  fin_end               2.30
+verify 1 full: 20 inputs, medians
+  free_sms              4.00
+  stacked_sms           4.00
+  stacked_on_free       4.00
+  stacked_n            14.00
+  stacked_P             0.80
+  stacked_carry         0.45
+  stacked_end_p50       1.86
+  stacked_end_max       2.27
+  single_n             50.00
+  single_P              0.48
+  single_carry          0.42
+  single_end_p50        1.41
+  single_end_max        1.57
+  fin_end               2.27
