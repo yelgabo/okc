@@ -1,0 +1,20 @@
+c_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_a timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+w_b timed PDL {'1': True, '8': True, '16': True, '32': True}
+c_c timed PDL {'1': True, '8': True, '16': True, '32': True}
+
+pooled over .build/prtl/rpf, .build/prtl/rpf_r2
+cell                  ctl n  ctl mean  spread  cand mean  w - c   thr  pairs<0  verdict
+decode 1 sliding          6     64.64    0.80      66.49   +1.85  1.60    0/24   loss
+decode 1 full             6     70.95    0.70      73.06   +2.11  1.41    0/24   loss
+decode 16 sliding         6    126.80    1.18     127.03   +0.23  2.37    9/24   inside
+decode 16 full            6    199.32    2.42     199.08   -0.24  4.83   12/24   inside
+decode 32 sliding         6    143.47    1.28     144.06   +0.58  2.56    3/24   inside
+decode 32 full            6    294.88    0.86     294.64   -0.24  2.95   18/24   inside
+verify 1 sliding          6    102.14    0.67     101.95   -0.19  1.34   13/24   inside
+verify 1 full             6    110.38    0.98     110.34   -0.04  1.95   12/24   inside
+verify 16 sliding         6    242.71    0.93     242.31   -0.40  2.43   16/24   inside
+verify 16 full            6    326.47    1.44     326.70   +0.23  3.26    5/24   inside
+verify 32 sliding         6    294.51    1.20     294.41   -0.10  2.95   12/24   inside
+verify 32 full            6    458.23    1.23     458.21   -0.02  4.58   12/24   inside

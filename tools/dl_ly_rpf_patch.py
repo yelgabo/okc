@@ -14,7 +14,7 @@ FAST1 split (no dynamic pool in TINY): local expert mask m from the local ids, v
 expert = the (v0 >> 9)-th set bit of m, address wAu + (expert * 512 + (v0 & 511)) * 36864. The prefetch is a hint
 with no effect on any value; the MoE's own copies of the same lines then hit L2 or merge with the pending fill.
 The ids / lids / wts stores, the xm program, every wait and trigger, the MoE launch and the MoE source are
-unchanged; T = 8 passes NPF = 0 and launches the base grid. The non-prq route kernel gets the same parameters and
+unchanged; T = 8 passes NPF = 0 and launches the base grid, and the T = 16 graft call takes the defaults (NPF 0). The non-prq route kernel gets the same parameters and
 runs its top-8 branch only in program PARTS, so extra programs there do nothing.
 
     python3 tools/dl_ly_rpf_patch.py [--base F] [--pin <sha256>] [--out F]
@@ -37,7 +37,7 @@ if "--pin" in sys.argv:
 
 SIG = ("SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr):")
 SIG_NEW = ("SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr, "
-           "NPF: tl.constexpr, WAUA, NSM: tl.constexpr):")
+           "NPF: tl.constexpr = 0, WAUA=0, NSM: tl.constexpr = 132):")
 BASE_FN = "def _sl_tile_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, "
 PRQ_FN = "def _prq_sl_tile_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, "
 TOP_ELSE = "    else:\n        e = tl.arange(0, 256)\n"

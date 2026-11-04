@@ -18135,7 +18135,7 @@ _PDL8_GRAFT_GLUE_EDITS = [('template<typename F> void glue_launch(GlueArgs a,F f
 
 
 @triton.jit
-def _sl_tile_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr, NPF: tl.constexpr, WAUA, NSM: tl.constexpr):
+def _sl_tile_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr, NPF: tl.constexpr = 0, WAUA=0, NSM: tl.constexpr = 132):
     t = tl.program_id(0)
     kind = tl.program_id(1)
     if kind<PARTS:
@@ -18204,7 +18204,7 @@ def _sl_tile_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS,
 
 
 @triton.jit
-def _prq_sl_tile_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr, NPF: tl.constexpr, WAUA, NSM: tl.constexpr):
+def _prq_sl_tile_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr, NPF: tl.constexpr = 0, WAUA=0, NSM: tl.constexpr = 132):
     t = tl.program_id(0)
     kind = tl.program_id(1)
     if kind<PARTS:
