@@ -4522,3 +4522,245 @@ about 6 us (hypothesis from the 0.7 us per-edge estimate), the route -> MoE seri
 tail (slice + finish) 3.6 to 4.0 us over its floor, of which residency was 0.3. Every load-ordering, trigger and
 fusion lever at these edges is closed by earlier sections; what is left needs an instrument inside the slice and
 finish kernels or a change inside the MoE's tail (the MoE lane's).
+## 2026-11-04 - Pooler + router remaining gap (box)
+
+bf16 lane. Question: inside the fused pooler + FP32 router kernel (`sk2_kernel_gle<1, 8, 4, 1, 8, 1, 6, true...>`,
+decode 1 sliding 2.8% of the score) of the public file, where does the time above the byte floor go now that the
+route-side quarter sum (ly_prq2) is in, and does one candidate against the largest piece shorten the layer? Base
+`muse_decode_layer/cand/ly_fabq.py` (SHA256 3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555, never
+edited). Box only (okc-h200, no foreign GPU process at any run, every run under gpu.lock), no judge check, nothing
+registered. Timeline runs 2026-11-04 15:30 to 15:47 UTC (07:30 to 07:47 PT), router seed 106218864389449120, f931 case
+seeds, local_start per input, PDL on at T = 1, 8, 16, 32. Logs and JSONs: box `/root/okc/.build/prtl/fabq/`
+(`tl_fabq.{log,json}`, `tl_fabqc.{log,json}`, `tl_fabqc2.{log,json}`).
+
+### Instruments
+
+- `tools/dl_ly_prtl_patch.py --src muse_decode_layer/cand/ly_fabq.py --out muse_decode_layer/cand/ly_fabq_prtl.py`
+  (47966e43): the 2026-11-03 stamps (entry, pre-wait issues, wait, x issue, producer issue per stage, escape warp 0's
+  landing per stage, consumer loop exits, router partial, epilogue, final store) on ly_fabq's text; the patch applies
+  unchanged.
+- `tools/dl_ly_prtlc_patch.py` (new) writes `ly_fabq_prtlc.py` (35cc918f): the per-stage clocks taken by consumer warp 0
+  instead (slot 36 + s: its full-barrier return for stage s; slot 16 + s: done with stage s, pooler stages at the end of
+  the body and the interleaved FP32 router stages before their `continue`). Two globaltimer reads and stores per stage in
+  warp 0 sit inside the loop, so this build's loop SASS is not the base's: a diagnostic only. Back-to-back stamps
+  (done19 to the loop exit) measure 0.07 us, the stamp overhead bound. `tools/ly_prtlc_summary.py` reads it.
+- `ly_fabq_prtlc2.py` (056ce493, built inline from the same tool with three extra tail stamps: after
+  `griddepcontrol.launch_dependents`, after the router warp butterflies and partial store, after the `cbar` wait).
+- `tools/ly_box_prtl.py` as before (two graphs per cell, 5 fresh inputs, cold L2, `--raw 2 / 3`).
+
+### Post-wait span and its decomposition (measurements, us)
+
+Floor as in the 2026-11-03 section: 58.83 / 59.17 MB at 4.443 TB/s = 13.24 / 13.32 us (T = 1 / 8). Medians over 5 inputs
+per cell, ly_fabq_prtl build (escape-warp landing clocks; same columns as the 2026-11-03 table):
+
+| cell | wait | land0 | loop end | loop-end spread | router | epilogue | tail | post-wait span | floor | excess |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 1.50 | 0.77 | 13.44 | 0.77 | 0.41 | 0.40 | 0.77 | 14.75 | 13.24 | +1.51 |
+| decode 1 full | 0.99 | 1.16 | 13.37 | 0.96 | 0.41 | 0.41 | 0.80 | 14.82 | 13.24 | +1.58 |
+| verify 1 sliding | 1.28 | 0.85 | 15.28 | 0.96 | 0.40 | 0.38 | 0.74 | 16.61 | 13.32 | +3.29 |
+| verify 1 full | 1.31 | 0.76 | 14.97 | 0.93 | 0.39 | 0.39 | 0.74 | 16.58 | 13.32 | +3.26 |
+| decode 16 sliding | 1.02 | 1.46 | 11.54 | 3.81 | 1.55 | 0.42 | 2.05 | 15.71 | 13.29 | +2.42 |
+| decode 16 full | 0.83 | 1.37 | 11.55 | 3.81 | 1.56 | 0.42 | 2.08 | 15.46 | 13.29 | +2.17 |
+| decode 32 sliding | 1.79 | 0.62 | 12.68 | 2.91 | 2.20 | 0.63 | 2.75 | 17.18 | 13.35 | +3.84 |
+| decode 32 full | 1.63 | 0.63 | 12.48 | 2.69 | 2.18 | 0.63 | 2.88 | 16.74 | 13.35 | +3.39 |
+
+Against the 2026-11-03 ly_micro2 table the tail at T <= 8 fell from 1.8-2.0 to 0.74-0.80 us and the post-wait span by
+2.7 to 3.1 us at decode 1 / verify 1 (ly_prq2's counter removal, now measured in the public file). The ly_fabq_prtlc
+build (consumer clocks) gives post-wait spans of 14.14 to 14.24 (decode 1 sliding), 14.56 to 16.54 (decode 1 full, one
+input with a 0.9 us stall at stage 3), 15.5 to 16.1 (verify 1): the two instruments differ by about 0.3 to 0.5 us at
+decode 1 and the plain graph times of the two builds are inside replay noise of each other, so the spans below carry
+that uncertainty.
+
+Consumer warp 0's clocks (ly_fabq_prtlc, means over 3 inputs x 128 CTAs; wait = full-barrier return minus the previous
+stage's done, process = done minus return):
+
+| cell | first return after wait | pooler stage process (median) | router stage process | wait per stage (median / mean) | last stage process | loop exit to final store |
+|---|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 0.40 | 0.512 | 0.416 | 0.128 / 0.149 | 0.36 | 0.80 |
+| decode 1 full | 0.64 | 0.512 | 0.416 | 0.128 / 0.190 | 0.34 | 0.79 |
+| verify 1 sliding | 0.72 | 0.512 | 0.608 | 0.128 / 0.149 | 0.64 | 0.80 |
+| verify 1 full | 0.75 | 0.512 | 0.608 | 0.128 / 0.148 | 0.66 | 0.80 |
+
+Decomposition of the decode 1 sliding post-wait span (about 14.2 to 14.7 us):
+
+1. Ramp, wait to the first stage consumed: 0.40 us (sliding) / 0.64 (full). The first stage's weights were issued 0.5
+   to 1.0 us before the wait (first issue 0.32 us after entry, wait 1.0 to 1.5 us after entry) and land 1.75 us after
+   their issue in every cell; the x tile is issued 0.15 us after the wait and the stage is consumed 0.65 us after the x
+   issue when the weights are already in (sliding). Measurement: the ramp is bounded below by the x tile's TMA round
+   trip (about 0.65 us from issue to consumption) and above by the pre-wait weight latency when the predecessor ends
+   early (full). The prologue before the first weight load (0.32 us after entry) is hidden under the predecessor at
+   every short cell.
+2. Loop, 20 stages (16 pooler, 4 interleaved FP32 router): 12.9 us. Pooler stage 0.51 us of processing plus 0.13 us of
+   wait = 0.64 us per stage, which is 3.146 MB per stage on 128 CTAs at 4.9 TB/s; router stage 0.42 + 0.13 at T = 1,
+   0.61 + 0.13 at T = 8. The stream is at the DRAM rate (4.9 TB/s is above the 4.443 used for the floor, so the loop
+   beats the written floor by about 0.6 us) and the consumers process a pooler stage in 80% of its DRAM time: no
+   lever in the loop's rate at T = 1. Hypothesis for the T = 8 router stage (0.61 us): shared-memory bandwidth, since
+   every warp re-reads all 8 x32 rows (36 LDS.128 per lane per stage, 147 KB per CTA per stage at 128 B per cycle is
+   0.58 us); it is hidden under the DRAM time except on the last stage.
+3. Last stage, landing to loop exit: 0.36 us at T = 1 (a router stage), 0.65 at T = 8. Exposed, since nothing streams
+   behind it.
+4. Tail per CTA, loop exit to final store, 0.80 us at every short cell (ly_fabq_prtlc2, stamp cost 0.07 included once):
+   `launch_dependents` 0.07, router warp butterflies and partial store 0.23 (40 `shfl.xor` plus adds for all 8 token
+   slots whatever M is), `cbar` wait 0.06, named barrier 0.06, epilogue `cbar` wait and named barrier 0.10, reduction
+   buffer write and named barrier 0.10, final sum (4 escape copies + 8 K-warps, 8 threads at M = 1) and BF16 store
+   0.18. Three CTA-wide barrier rounds for 0.22 us, and 0.2 us of shuffles that reduce 7 unused tokens at T = 1.
+5. CTA spread: the last CTA's loop end is 0.4 to 0.5 us after the mean CTA's (loop-end spread 0.77 to 1.25 max minus
+   min). Weak correlation with entry, wait and first landing (r = 0.1 to 0.3); not explained.
+
+Sum: 12.0 us of bytes at the measured 4.9 TB/s + 0.4 ramp + 0.36 last stage + 0.8 tail + 0.45 spread = 14.0, against
+14.2 to 14.7 measured. The remaining gap over the written floor is 1.2 to 1.6 us at decode 1 and 2.3 to 3.3 us at
+verify 1 (where the four T = 8 router stages add 4 x 0.1 us in the loop and 0.3 more on the last stage). The x gather
+(x tiles by TMA, x32 rows by bulk copies inside the router stages) costs nothing visible beyond the ramp's 0.65 us
+round trip. The largest non-floor item inside the kernel is the tail (0.8 us on every CTA, so on the critical path in
+full), then the ramp, the last stage and the CTA spread (0.35 to 0.65 each).
+
+### Candidate: ly_pepi, a shorter tail at T <= 8
+
+`tools/dl_ly_pepi_patch.py` (base ly_fabq, pinned; `--base / --pin / --out` as tools/dl_ly_prq_patch.py) ->
+`muse_decode_layer/cand/ly_pepi.py` (SHA256 dc425a65d5f912af601ea8bd2ae0f64701392bc6f2500fe5a30d7a9f622885fc). Only
+the gle fused build (sk2_kernel_gle, FUSE, T <= 8) changes, through a define the gle source transform sets
+(`SK2_REDX 1`); the bf16_proj build (T = 16 / 32) and the o kernel compile the same code as before:
+
+1. The K-warp reduction buffer `red` gets its own shared-memory region after the zero row (WSK x TOKS x RP floats,
+   20,480 B; the launch adds it to the dynamic size: 206,800 -> 227,296 B at pmax 58, under the 227,836 B the 4.6 KB of
+   static gle smem leaves). The consumers write it right after the loop without first proving the ring idle: the
+   epilogue's `cbar` wait and named barrier before the write go; the `cbar` wait (escape corrections complete) moves
+   after the write, ahead of the final sum; the named barrier after the write stays.
+2. The ilv block's `cbar` wait and named barrier after the router partial store run only when outr != nullptr (the
+   counter path, compiled but never launched by this file; there the barrier orders the partial stores before the
+   release atom).
+3. The router warp butterflies reduce tokens t < M only (5 shuffles at T = 1 instead of 40); the per-token order is
+   unchanged.
+
+Kept: every fence, every mbarrier wait and arrival, the ring protocol, the escape warps' `cbar`, the named barrier that
+publishes red, and the summation orders of the pooler output and the router partials. Expected (hypothesis from the
+tail decomposition): 0.25 to 0.3 us off every CTA's tail at decode 1, 0.1 to 0.15 at verify 1.
+
+Correctness. Box chk run (`.build/prtl/pepi/chk.log`): reference check PASS at all 12 cells, G_RELEASE_STARTUP_OK (56
+verified replays), PDL on at T = 1, 8, 16, 32; the CG_GATE line is `cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64
+1.21e-04 equal 1023/1024 ok`, which is what every box run of ly_fabq and of every earlier candidate prints
+(`.build/prtl/*/ab_c_*.log`; the judge prints 0.00e+00 and 1024/1024 for the same file), so the box line is a box
+property and the judged-log criterion can only be checked by a judge run. `tools/ly_pepi_bitwise.py` (fused kernel
+launched by each file's own gle_pr on the same seeded inputs at T = 1, 2, 3, 5, 8, with the empty outr the layer passes
+and with a real outr): pooled rows, the four quarter partials and the counter-path logits are bitwise equal between
+ly_fabq and ly_pepi in every case (`bit_cmp.log`: ALL BITWISE EQUAL). SASS (`tools/ly_prtl_sass.py`, gle build,
+`.build/prtl/sass_pepi/`): fused kernel 128 -> 128 registers, 0 stack, 0 local; the consumer stage loop 377 -> 377
+instructions with the same HMMA / LDS / FFMA / LOP3 counts and five integer opcode substitutions (IMAD 29 -> 30, SHF
+16 -> 18, VIADD 16 -> 15, IADD3 9 -> 8, LEA 6 -> 4, + 1 MOV), whole kernel 2,949 -> 3,032; the o kernels are SAME.
+
+### Paired A/B against ly_fabq (box)
+
+`tools/ly_prtl_ab.sh` (CTL=ly_fabq.py, CAND=ly_pepi.py, c/w/c/w/c in one session, five bx_box_run.py processes under
+gpu.lock, `--runs 60`, all six loads, PDL pinned at 1, 8, 16, 32, `--skip-pdl8-gate`, router seed 106218864389449120,
+f931 judge JSON), 2026-11-04 15:56 to 15:58 UTC, logs and JSONs `/root/okc/.build/prtl/pepi/` (`ab_c_a` ... `ab_c_c`),
+table by `tools/ly_prtl_table.py`. No foreign GPU process before or during the session. Net us; delta = candidate mean
+minus control mean; threshold max(2 x control spread, 0.5 us) at decode 1 / verify 1 and max(2 x spread, 1%) elsewhere;
+pairs = sign of w_a - c_a, w_a - c_b, w_b - c_b, w_b - c_c.
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs > 0 | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.07 | 65.14 | 64.93 | 65.33 | 65.33 | 0.40 | +0.12 | 3/4 | 0.80 | inside |
+| decode 1 full | 71.58 | 72.29 | 72.06 | 71.87 | 71.73 | 0.48 | +0.29 | 3/4 | 0.96 | inside |
+| decode 16 sliding | 126.53 | 126.99 | 127.09 | 126.77 | 126.98 | 0.56 | +0.02 | 1/4 | 1.27 | inside |
+| decode 16 full | 200.59 | 199.79 | 199.54 | 199.01 | 199.25 | 1.34 | -0.39 | 1/4 | 2.69 | inside |
+| decode 32 sliding | 143.62 | 144.45 | 143.82 | 144.32 | 144.70 | 1.09 | +0.34 | 3/4 | 2.18 | inside |
+| decode 32 full | 294.91 | 295.49 | 294.99 | 294.02 | 294.74 | 0.26 | -0.13 | 2/4 | 2.95 | inside |
+| verify 1 sliding | 102.22 | 103.78 | 102.35 | 102.40 | 102.66 | 0.43 | +0.68 | 3/4 | 0.86 | inside |
+| verify 1 full | 110.94 | 111.38 | 110.72 | 111.70 | 111.09 | 0.37 | +0.62 | 4/4 | 0.74 | inside |
+| verify 16 sliding | 242.35 | 242.98 | 244.38 | 243.22 | 243.79 | 2.03 | -0.41 | 1/4 | 4.06 | inside |
+| verify 16 full | 326.69 | 327.14 | 327.54 | 327.57 | 327.76 | 1.07 | +0.02 | 2/4 | 3.27 | inside |
+| verify 32 sliding | 296.99 | 297.89 | 297.86 | 297.82 | 298.91 | 1.92 | -0.06 | 2/4 | 3.84 | inside |
+| verify 32 full | 460.18 | 461.47 | 460.58 | 461.12 | 460.72 | 0.54 | +0.81 | 4/4 | 4.60 | inside |
+
+Every cell inside its threshold; the changed cells (decode 1, verify 1) lean the wrong way (+0.1 to +0.7 us, 13 of 16
+pairs positive) and the unchanged cells (T >= 16, the session's null) scatter -0.4 to +0.8. Not a win; by the sign
+counts at verify 1 a small loss.
+
+Why: the stamped candidate (`ly_pepi_prtl.py` 90595351, `tl_pepi.{log,json}`) shows the tail did not move at decode 1
+(loop exit to final store 0.80 -> 0.80 us per CTA: 0.39 + 0.05 + 0.16 + 0.20 against 0.41 + 0.11 + 0.11 + 0.19, the
+removed barrier rounds reappear as a longer red write) and grew at verify 1 (0.78 -> 1.31): the per-token `if (t < M)`
+around each butterfly chain made the compiler serialize the 8 chains (40 dependent shuffles at about 30 cycles each,
+0.96 us against 0.23 for the interleaved chains). Kernel timeline (`ly_tl_run.py --kernels`, 10 replays,
+`ktl_ly_fabq` / `ktl_ly_pepi`): fused kernel 16.56 -> 16.62 (decode 1 sliding), 16.80 -> 16.78 (full), 17.79 -> 18.11
+(verify 1 sliding), 17.49 -> 18.11 (full); the route kernel after it 3.76 -> 3.70 / 3.89 -> 3.90 at decode 1 but 3.73 ->
+4.90 / 3.44 -> 4.59 at verify 1 (it starts under PDL at the same trigger and ends 0.8 us later behind the longer tail).
+
+### ly_pepi2: the same with the butterflies fixed
+
+`tools/dl_ly_pepi_patch.py` now writes `muse_decode_layer/cand/ly_pepi2.py` (SHA256
+f760505cc666eab3547c141360928a5415105d84f17dbe226da7f00211402890): changes 1 and 2 as above; change 3 becomes a single
+uniform branch, `if (M == 1)` one token's chain, else the original 8 interleaved chains. Box chk: PASS at all 12 cells,
+G_RELEASE_STARTUP_OK, PDL on at every T, the same box CG_GATE line. Stamped (`ly_pepi2_prtlc2.py` b34fa74f, consumer
+clocks plus the tail stamps, `.build/prtl/pepi2/tl_pepi2c.{log,json}`): tail per CTA 0.69 us at decode 1 and 0.75 at
+verify 1 (ly_fabq 0.80 in the same instrument class): launch_dependents 0.07, butterflies + partial store 0.20 (T = 1,
+5 shuffles) / 0.27 (T = 8), 0.05, 0.04, red write + cbar wait + named barrier 0.12, final 0.20. So the two barrier
+rounds and 35 shuffles were worth 0.1 us at decode 1 and 0.05 at verify 1, not the 0.25 to 0.3 expected: the 0.2 us
+between launch_dependents and the partial store does not depend on the shuffle count (measurement; what it is, not
+traced).
+
+Paired A/B (same recipe, CTL=ly_fabq.py, CAND=ly_pepi2.py, 16:04 to 16:06 UTC, `/root/okc/.build/prtl/pepi2/`):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs > 0 | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.02 | 65.36 | 65.30 | 65.31 | 65.07 | 0.27 | +0.21 | 4/4 | 0.54 | inside |
+| decode 1 full | 71.95 | 72.45 | 71.74 | 72.00 | 71.68 | 0.27 | +0.43 | 4/4 | 0.54 | inside |
+| decode 16 sliding | 126.98 | 126.21 | 126.38 | 126.88 | 127.07 | 0.69 | -0.27 | 1/4 | 1.38 | inside |
+| decode 16 full | 199.12 | 198.59 | 199.86 | 199.71 | 199.34 | 0.74 | -0.29 | 1/4 | 1.99 | inside |
+| decode 32 sliding | 144.82 | 144.42 | 143.57 | 143.26 | 144.05 | 1.25 | -0.30 | 1/4 | 2.50 | inside |
+| decode 32 full | 295.30 | 295.31 | 294.29 | 294.21 | 295.49 | 1.20 | -0.26 | 2/4 | 2.95 | inside |
+| verify 1 sliding | 102.37 | 102.67 | 102.19 | 102.64 | 102.61 | 0.42 | +0.27 | 4/4 | 0.83 | inside |
+| verify 1 full | 110.42 | 111.39 | 110.14 | 110.50 | 110.70 | 0.56 | +0.52 | 3/4 | 1.12 | inside |
+| verify 16 sliding | 243.31 | 243.28 | 242.54 | 241.74 | 242.19 | 1.12 | -0.17 | 1/4 | 2.43 | inside |
+| verify 16 full | 328.11 | 327.92 | 327.22 | 327.95 | 326.85 | 1.26 | +0.54 | 3/4 | 3.27 | inside |
+| verify 32 sliding | 297.33 | 297.66 | 296.83 | 296.59 | 297.07 | 0.50 | +0.05 | 2/4 | 2.97 | inside |
+| verify 32 full | 462.06 | 461.10 | 460.22 | 460.64 | 460.03 | 2.03 | +0.10 | 2/4 | 4.61 | inside |
+
+Inside everywhere again, and the four changed cells are positive in 15 of 16 pairs (+0.2 to +0.5 us) while the
+unchanged cells scatter around zero. Two candidates with a measured 0.1 us shorter kernel tail and a consistent +0.3
+us at the layer: the loss has another cause than the tail code.
+
+### ly_pepi3: the extra shared memory alone
+
+`muse_decode_layer/cand/ly_pepi3.py` (SHA256 60d76809b1908f85a994f5bafbafe1b6756b2b3e2e0e7e17fe929947dbc54583, built
+inline from the first and third kernel edits and the first file edit of tools/dl_ly_pepi_patch.py): ly_fabq with only
+the `SK2_REDX` define and the launch's extra 20,496 B of dynamic shared memory for the gle fused kernel (206,800 ->
+227,296 B); the kernel code is the base's (red stays in the ring, every barrier as before). Box chk PASS at 12 cells.
+Paired A/B (same recipe, 16:07 to 16:09 UTC, `/root/okc/.build/prtl/pepi3/`):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs > 0 | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 64.99 | 65.47 | 64.78 | 64.38 | 64.27 | 0.72 | +0.25 | 3/4 | 1.44 | inside |
+| decode 1 full | 72.24 | 71.79 | 70.70 | 71.07 | 71.12 | 1.54 | +0.08 | 2/4 | 3.07 | inside |
+| decode 16 sliding | 126.99 | 127.01 | 126.93 | 126.66 | 127.17 | 0.24 | -0.20 | 2/4 | 1.27 | inside |
+| decode 16 full | 198.83 | 199.20 | 198.58 | 199.15 | 199.41 | 0.83 | +0.24 | 3/4 | 1.99 | inside |
+| decode 32 sliding | 144.05 | 143.94 | 144.35 | 143.84 | 144.34 | 0.30 | -0.36 | 0/4 | 1.44 | inside |
+| decode 32 full | 294.78 | 295.71 | 295.86 | 295.12 | 294.19 | 1.66 | +0.47 | 2/4 | 3.33 | inside |
+| verify 1 sliding | 102.02 | 103.73 | 102.29 | 102.35 | 102.38 | 0.37 | +0.81 | 3/4 | 0.74 | loss |
+| verify 1 full | 111.10 | 111.87 | 110.50 | 111.07 | 110.69 | 0.61 | +0.71 | 4/4 | 1.22 | inside |
+| verify 16 sliding | 245.38 | 244.13 | 242.72 | 242.74 | 242.40 | 2.98 | -0.07 | 3/4 | 5.95 | inside |
+| verify 16 full | 328.29 | 326.45 | 325.70 | 326.66 | 326.35 | 2.59 | -0.23 | 3/4 | 5.18 | inside |
+| verify 32 sliding | 297.14 | 297.12 | 298.11 | 297.07 | 297.87 | 0.98 | -0.61 | 0/4 | 2.98 | inside |
+| verify 32 full | 460.90 | 460.69 | 461.55 | 460.34 | 460.26 | 1.30 | -0.39 | 1/4 | 4.61 | inside |
+
+The shared-memory growth by itself reproduces the candidates' short-cell drift (+0.25 / +0.08 at decode 1, +0.81 /
++0.71 at verify 1, 12 of 16 pairs positive, one cell past its threshold), with the kernel code untouched. Hypothesis
+(not traced): the fused kernel at 227 KB asks for the SM's full shared-memory carveout while its PDL neighbours (the
+boundary kernel before it, the route kernel after it) run at smaller carveouts, and the reconfiguration or the lost
+co-residency costs a few tenths of a microsecond per launch; the gle fused kernel at 207 KB already sits in the
+largest carveout class on paper, so the step may be the 4.6 KB static + 227 KB dynamic sum crossing a boundary. Either
+way the dedicated red region cannot be paid for by the 0.1 us it saves in the tail.
+
+### Reading
+
+- The pooler + router kernel in the public file is 1.2 to 1.6 us over its written byte floor at decode 1 (2.3 to 3.3 at
+  verify 1), and the loop streams at 4.9 TB/s, above the 4.443 the floor assumes. The remaining excess is four pieces of
+  0.35 to 0.8 us each (ramp, last stage, tail, CTA spread), none of them a barrier or a wait that a one-line change
+  removes: the tail's three barrier rounds and 35 idle shuffles were worth 0.1 us when removed (ly_pepi2 stamps), and
+  the mechanism's shared-memory cost outweighed it.
+- No judge check recommended for ly_pepi, ly_pepi2 or ly_pepi3. Ruled-out rows added.
+- Left for a later day (hypotheses with their sizes): the T = 8 FP32 router stage is shared-memory-bandwidth bound
+  (0.61 us per stage against 0.47 of DRAM time; 0.1 us per stage hidden in the loop, 0.3 exposed on the last stage), a
+  2-row x 4-token warp mapping would cut its smem reads by a third; a red region that fits without growing the launch
+  (16 tokens x 8 warps x 40 floats could be 8 x 8 x 40 at M <= 8 if the write were guarded) would test the barrier
+  removal without the carveout cost, for at most 0.1 us; the ramp (0.4 to 0.65 us, the x tile's TMA round trip after
+  the wait) and the CTA spread (0.45 us) have no in-kernel lever identified.
