@@ -130,7 +130,10 @@ g1b4_pdl8h.py 33c2353b, two separate box_run.py processes (`rv_hctl_a`, `rv_hctl
 | verify 32 full | 461.46 | 462.43 | 0.98 | 463.42 / 461.47 |
 | six-load sum | 69439.8 | 69366.6 | 73.2 | spread 59.9 |
 
-Bar for the combined candidate: six-load sum more than 146 below pdl8h (twice the larger spread, 73.2),
+Two later separate controls (`rv_hctl_c`, `rv_hctl_d`, 17:05 PT) read 69296.4 and 69470.2, which widens the
+separate-process six-load spread to 173.8 (bar 348); the in-process spreads were 16.1 and 74.3 (bar about 148).
+
+Bar for the combined candidate as first set: six-load sum more than 146 below pdl8h (twice the larger spread, 73.2),
 and no cell worse than pdl8h by more than that cell's spread (the larger of the two columns' differences;
 3.3 us at verify 16 full in-process, otherwise 0.0 to 2.0).
 
