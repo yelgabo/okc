@@ -11,6 +11,8 @@ Variants (docs/runs-decode-layer.md "Blueprint builds (fable lane)"):
   b1d32   T = 32 boundary 1 (_graft_row_boundary_pre_cg, POST = False): the stream load moves before gdc_wait. For
           boundary 1 the stream is data['stream'], the harness input, which nothing in the call writes; boundary 2
           (POST) keeps its stream (s1) load behind the wait with .cg.
+  finpre  T <= 8 boundary 2 (_sl_cluster_finish_cg): the NEXT weight load (the next input's norm weight, a prepare-time
+          constant) moves before gdc_wait; carry, tail and the slice stay behind the wait with .cg.
 No fence, barrier, mbarrier or griddepcontrol.wait removed; no new PDL edge; no launch attribute change.
 """
 import argparse
@@ -72,8 +74,29 @@ B1D32_NEW_2 = """    b = (b * r).to(_gl.bfloat16).to(_gl.float32)
         s = _gl.load(Stream + row * H + c, cache_modifier='.cg')
     ns = a * s + beta * b"""
 
+FIN_OLD = """    if USE_PDL:
+        tl.extra.cuda.gdc_wait()
+        tl.extra.cuda.gdc_launch_dependents()
+    carry = tl.load(CARRY+t*8192+c, cache_modifier='.cg')
+    tail = tl.load(TAIL+t, cache_modifier='.cg')
+    o = tile*BC+tl.arange(0,BC)
+    outcarry = tl.load(CARRY+t*8192+o, cache_modifier='.cg')
+    gn = tl.load(NEXT+o).to(tl.float32)
+"""
+FIN_NEW = """    o = tile*BC+tl.arange(0,BC)
+    gn = tl.load(NEXT+o).to(tl.float32)  # the next input's norm weight is a prepare-time constant
+    if USE_PDL:
+        tl.extra.cuda.gdc_wait()
+        tl.extra.cuda.gdc_launch_dependents()
+    carry = tl.load(CARRY+t*8192+c, cache_modifier='.cg')
+    tail = tl.load(TAIL+t, cache_modifier='.cg')
+    outcarry = tl.load(CARRY+t*8192+o, cache_modifier='.cg')
+"""
+
 
 def apply(s, v):
+    if v == "finpre":
+        return once(s, FIN_OLD, FIN_NEW, v)
     if v == "b2pre":
         i = s.index(EDITS_LINE)
         j = s.index("\n", i) + 1
