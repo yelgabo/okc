@@ -232,9 +232,8 @@ current job mix (mostly six-load or four-load layer A/Bs, 50-90 s each, plus rv_
 3. `--pin-pdl8` with `--skip-pdl8-gate`: 8.3 s per prepare plus the rv lane's re-prepares, and it
    removes a 5-8 us confound from every g1b4_rs A/B at verify 1 / decode 16 / decode 32. Half an
    hour of work; the validity gain is larger than the time saved.
-4. Release the lock while a compile runs (the runner takes the lock itself and drops it around
-   load_inline). Not done: it needs the lock moved into the runner and a re-acquire path, and once
-   2 removes the family thrash, compiles happen only for new sources.
+4. Release the lock while a compile runs: built later at the user's request, see "Lock released
+   during compiles" below.
 
 ## Input generation
 
@@ -367,3 +366,112 @@ ssh okc-h200 'cd /root/okc && . tools/box_env.sh && nohup flock /root/okc/.build
 
 Lead option: `tools/bx_box_run.py` can replace `tools/box_run.py` as is (same default behaviour,
 extra log lines and JSON keys only); box_bg.sh then gains the flags by passing them through.
+
+## Lock released during compiles (`--lock`)
+
+Added after the audit at the user's request (coordinator message, 16:05 PST). `--lock PATH` makes
+bx_box_run.py take gpu.lock itself, with `fcntl.flock` on an fd it owns. That is the same flock(2)
+lock that flock(1) and box_bg.sh take, so jobs started either way queue on the same lock. The
+runner lets the lock go only while a compiler runs:
+
+- `torch.utils.cpp_extension.load_inline` and `load` are wrapped (this implies
+  `--ext-cache /root/.cache/bx_ext`). A build directory that already holds a `.so` for these exact
+  arguments is a cache hit and loads with the lock kept; any other call synchronizes the device,
+  releases the lock, builds, and takes the lock back before returning.
+- `triton.compiler.compile` is wrapped the same way. The runner repeats Triton 3.8's own cache
+  lookup (key, hash, cache manager group) and releases only on a miss; anything unexpected counts
+  as a hit, which keeps the lock.
+- g1b4_stage_release builds several extensions at once from threads. Releases and reacquires are
+  therefore counted across concurrent builds: the first build to start releases the lock and the
+  last to finish takes it back.
+- Weights, prepare's GPU work (self-tests, in-prepare benches), the checks, captures and replays
+  all run with the lock held. The lock is held from start-up until the process exits, apart from
+  the build windows.
+- `BXLOCK <unix time> acquire|release <why>` and `BXBUILD <unix time> start|end <why>` lines go to
+  the log, and `lock_events` to the JSON.
+- The runner refuses to start if a parent process is flock(1) on the same file, since taking the
+  lock again would wait forever (tested: `flock /tmp/bxtest.lock python tools/bx_box_run.py ...
+  --lock /tmp/bxtest.lock` exits with the error). Jobs that keep using `flock ... box_run.py` or
+  box_bg.sh are unaffected and still exclude everyone.
+
+Cost seen on the shared queue: after a build the job queues again behind every waiter. In the
+first test on the live queue (00:11-00:43 UTC, `.build/bx_audit/lk/`), g1b4_stage_release took
+the lock after 824 s and released it at once for a 13 s build of `proj_dl_escape_d8a1e29286a8`.
+It then waited 629 s to get the lock back, and released it again for its next two builds. That
+prepare would release and requeue once per group of builds. The GPU gains (other jobs run during
+the compile), but that lane's wall clock grows by about one queue wait per build group. In that
+test the compile windows overlapped other lanes' jobs rather than my g1b4_rs runs, because flock
+order is arbitrary, so it does not show the A/B effect; the controlled test below does.
+
+### Controlled test, 2026-11-04 00:54:42-00:56:50 UTC (16:54-16:56 PST)
+
+`.build/bx_audit/demo.sh`, `.build/bx_audit/demo/` (logs, JSONs, nvidia-smi every 0.25 s). The whole
+test ran inside one hold of the real gpu.lock (outer flock), so no other lane's GPU work
+overlapped it, and the two jobs inside shared a private lock file through `--lock`:
+
+- B: `g1b4_stage_release.py` (ba9e327c) with an empty extension cache (`--ext-cache
+  /root/.cache/bx_ext_demo`), `--loads "decode 1" --runs 20`, started first.
+- A: `g1b4_rs.py` (01426b89), six loads, `--runs 60 --baseline`, warm caches, `--pin-pdl8 1,16,32
+  --skip-pdl8-gate`, started 4 s later. It ran up to four times back to back while B was alive
+  (`a1`-`a4`), then once more after B exited (`a9`).
+
+B made 10 build calls (two of them `muse_att_v298w1pf_90a` and `dl_okc_bf16proj_v86y4_90a`, built in
+parallel with five `glue_moe_*` builds), in four compile windows of 12.8, 61.2, 3.1 and 12.7 s.
+B held the lock for 10.4 s in all during its 106.1 s prepare. Lock and build timeline (PST):
+
+| interval | B | A |
+|---|---|---|
+| 16:54:42-16:54:43 | holds the lock: weights, imports | waits |
+| 16:54:43-16:54:56 | compiles `proj_dl_escape_d8a1e29286a8`, lock released | a1 takes the lock at 16:54:46, 9.6 s overlap, 2 cells timed during the build |
+| 16:55:04-16:56:05 | compiles 7 extensions in parallel, lock released | a2, a3 and a4 hold the lock for 17.7 + 17.8 + 18.0 s, all 36 cells timed during the build |
+| 16:56:07-16:56:23 | two short compile windows (3.1 and 12.7 s) | A chain finished; nobody holds the lock |
+| 16:56:23-16:56:31 | holds the lock: prepare's GPU work, decode 1 timing | |
+| 16:56:32-16:56:50 | exited | a9 (control after B) |
+
+nvidia-smi during the 61.2 s window: a kernel running in 57% of samples (mean 42%), which is A's
+own duty cycle (A's input building and imports are host work). Under the old runner the same
+window would hold the lock with the GPU at 0%, as seen at 15:00:30-15:03:45 PST.
+
+A's per-cell net medians, against `v_bx3` (same flags, same seeds, no compile anywhere, from the
+earlier validation) as the control; paired medians over the same 60 inputs:
+
+| cell | v_bx3 | a1 | a2 | a3 | a4 | a9 | a1 - v_bx3 | a2 - v_bx3 | a3 - v_bx3 | a4 - v_bx3 | a9 - v_bx3 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 67.86 | 67.31 | 67.52 | 67.20 | 67.55 | 67.23 | +0.02 | -0.18 | -0.16 | +0.03 | +0.08 |
+| decode 1 full | 73.50 | 73.92 | 74.13 | 74.14 | 73.89 | 73.50 | +0.22 | +0.50 | +0.21 | +0.48 | +0.00 |
+| decode 16 sliding | 131.31 | 131.60 | 131.58 | 131.26 | 131.57 | 131.23 | +0.06 | +0.48 | +0.16 | +0.46 | -0.35 |
+| decode 16 full | 202.72 | 203.81 | 202.69 | 202.78 | 203.23 | 202.72 | -0.06 | -0.03 | +0.30 | +0.02 | +0.21 |
+| decode 32 sliding | 147.44 | 147.58 | 148.27 | 146.99 | 147.87 | 148.30 | -0.32 | -0.32 | -0.27 | -0.46 | -0.03 |
+| decode 32 full | 298.37 | 298.35 | 298.98 | 297.28 | 299.07 | 298.77 | -0.48 | -0.40 | -0.43 | -0.22 | +0.08 |
+| verify 1 sliding | 111.74 | 112.51 | 112.27 | 112.50 | 112.45 | 112.19 | +0.75 | +0.34 | +0.70 | +0.69 | +0.46 |
+| verify 1 full | 120.80 | 120.90 | 120.53 | 121.06 | 121.36 | 120.88 | -0.03 | +0.29 | +0.26 | +0.10 | +0.13 |
+| verify 16 sliding | 244.37 | 244.83 | 244.42 | 243.79 | 244.85 | 244.02 | -0.18 | -0.24 | +0.18 | +0.16 | +0.06 |
+| verify 16 full | 326.40 | 327.23 | 327.26 | 328.06 | 326.59 | 328.24 | -0.00 | +0.27 | +0.03 | +0.05 | +0.42 |
+| verify 32 sliding | 298.45 | 297.09 | 297.47 | 297.92 | 296.82 | 298.13 | -0.82 | -0.51 | -0.53 | -0.48 | +0.06 |
+| verify 32 full | 461.82 | 461.81 | 461.78 | 461.97 | 462.22 | 461.50 | +0.53 | +0.21 | +0.19 | +0.82 | -0.18 |
+
+The runs timed while B compiled differ from the control by -0.82 to +0.82 us. The control-vs-control
+spreads measured earlier are -0.48 to +0.94 (v_bx3 against v_bx2) and -1.26 to +0.86 (two runs
+of the current runner, on the cells where they timed the same path), and a9, run after B exited,
+differs by -0.35 to +0.46. So B's nvcc work on the host (MAX_JOBS=64 on 192 cores) did not move A's
+medians beyond the control spread. Two hypotheses, not tested: verify 1 sliding at +0.34 to +0.75
+in all five A runs, and verify 32 sliding at -0.48 to -0.82 in the four overlapped ones, look like a
+session offset rather than compile noise, since a9 has the same verify 1 sign.
+
+### Command for the lanes (replaces the outer flock / box_bg.sh form)
+
+```bash
+ssh okc-h200 'cd /root/okc && . tools/box_env.sh && nohup python tools/bx_box_run.py muse_decode_layer \
+  muse_decode_layer/cand/<file>.py --baseline \
+  --judge .build/judge/g1b4_pdl8d.f931abf568544018.json --router-seed 106218864389449120 \
+  --loads "decode 1,verify 1" --runs 60 \
+  --lock /root/okc/.build/box/gpu.lock \
+  --ls-cache /root/okc/.build/box/ls_cache.json --ext-cache /root/.cache/bx_ext \
+  --pin-pdl8 1,16,32 --skip-pdl8-gate \
+  --out .build/box/<tag>.json > .build/box/<tag>.log 2>&1 &'
+```
+
+Do not wrap it in `flock` (it refuses to start if a parent flock holds the same file).
+`tools/box_bg.sh` and plain `flock ... box_run.py` keep working and queue on the same lock; those
+jobs still hold it through their compiles. The mo lane's `.build/box/mo_run.sh` already uses this
+form (seen running at 00:23 UTC).

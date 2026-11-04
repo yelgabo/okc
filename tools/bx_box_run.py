@@ -20,6 +20,7 @@ import json
 import os
 import statistics
 import sys
+import threading
 import time
 
 _T0 = time.monotonic()
@@ -180,6 +181,117 @@ class LocalStartCache:
         os.replace(tmp, self.path)
 
 
+class GpuLock:
+    """gpu.lock held on an fd this process owns (flock(2), the same lock flock(1) and box_bg.sh
+    take), so it can be let go while a compiler runs and taken back before the next GPU work."""
+
+    def __init__(self, path):
+        import fcntl
+        self.fcntl = fcntl
+        self.path = path
+        self.fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o644)
+        self.held = False
+        self.events = []
+
+    def _log(self, what, why, waited=None):
+        t = time.time()
+        self.events.append([round(t, 3), what, why] + ([round(waited, 3)] if waited is not None else []))
+        extra = f" after {waited:.1f} s" if waited is not None else ""
+        print(f"BXLOCK {t:.3f} {what} {why}{extra}", flush=True)
+
+    def acquire(self, why):
+        if self.held:
+            return
+        t0 = time.time()
+        self.fcntl.flock(self.fd, self.fcntl.LOCK_EX)
+        self.held = True
+        self._log("acquire", why, time.time() - t0)
+
+    def release(self, why):
+        if not self.held:
+            return
+        if torch.cuda.is_initialized():
+            torch.cuda.synchronize()
+        self.fcntl.flock(self.fd, self.fcntl.LOCK_UN)
+        self.held = False
+        self._log("release", why)
+
+
+LOCK = None
+_BUILDS = threading.Lock()
+_ACTIVE = [0]
+
+
+def unlocked(why, fn, *args, **kw):
+    """Run a compiler call with gpu.lock released; it is held again before the last concurrent
+    build returns. g1b4_stage_release builds several extensions from threads at once, so the
+    release and the reacquire are counted rather than paired per call."""
+    if LOCK is None:
+        return fn(*args, **kw)
+    with _BUILDS:
+        _ACTIVE[0] += 1
+        if _ACTIVE[0] == 1 and LOCK.held:
+            LOCK.release(why)
+    print(f"BXBUILD {time.time():.3f} start {why}", flush=True)
+    try:
+        return fn(*args, **kw)
+    finally:
+        print(f"BXBUILD {time.time():.3f} end {why}", flush=True)
+        with _BUILDS:
+            _ACTIVE[0] -= 1
+            if _ACTIVE[0] == 0 and not LOCK.held:
+                LOCK.acquire(why + " done")
+
+
+def outer_flock_holds(path):
+    """True when a parent process is flock(1) on this lock file: taking it again here would wait forever."""
+    pid, real = os.getppid(), os.path.realpath(path)
+    while pid > 1:
+        try:
+            argv = open(f"/proc/{pid}/cmdline", "rb").read().split(b"\0")
+            pid = int(open(f"/proc/{pid}/stat").read().rsplit(")", 1)[1].split()[1])
+        except (OSError, ValueError, IndexError):
+            return False
+        if argv and os.path.basename(argv[0].decode(errors="replace")) == "flock":
+            if any(os.path.realpath(a.decode(errors="replace")) == real for a in argv[1:] if a):
+                return True
+    return False
+
+
+def triton_cache_hit(src, target=None, options=None, _env_vars=None):
+    """The cache lookup at the top of triton.compiler.compile (triton 3.8), without compiling.
+    Anything unexpected counts as a hit, which keeps the lock (the safe side)."""
+    import hashlib
+    from triton.compiler import compiler as tc
+    try:
+        if not isinstance(src, tc.ASTSource) or tc.knobs.compilation.always_compile:
+            return True
+        if tc.knobs.runtime.add_stages_inspection_hook is not None:
+            return True
+        target = target or tc.driver.active.get_current_target()
+        backend = tc.make_backend(target)
+        opts = backend.parse_options(dict(options or dict(), **src.parse_options()))
+        env = tc.get_cache_invalidating_env_vars() if _env_vars is None else _env_vars
+        key = tc.get_cache_key(src, backend, opts, env_vars=env)
+        name = f"{src.name[:150]}.json"
+        group = tc.get_cache_manager(hashlib.sha256(key.encode("utf-8")).hexdigest()).get_group(name) or {}
+        return group.get(name) is not None
+    except Exception:
+        return True
+
+
+def release_lock_for_triton():
+    import triton.compiler
+    orig = triton.compiler.compile
+
+    def compile(src, target=None, options=None, _env_vars=None):
+        if LOCK is not None and LOCK.held and not triton_cache_hit(src, target, options, _env_vars):
+            return unlocked(f"triton {getattr(src, 'name', '?')}", orig, src, target=target, options=options,
+                            _env_vars=_env_vars)
+        return orig(src, target=target, options=options, _env_vars=_env_vars)
+    triton.compiler.compile = compile
+
+
 def content_addressed_extensions(root):
     """load_inline builds into root/<name>-<hash of every build argument>. torch keys its cache by
     name only, so two files that compile different sources under one name rebuild on every switch
@@ -197,8 +309,33 @@ def content_addressed_extensions(root):
             h = hashlib.sha256(repr(sorted(key.items())).encode()).hexdigest()[:16]
             b.arguments["build_directory"] = os.path.join(root, f"{b.arguments['name']}-{h}")
             os.makedirs(b.arguments["build_directory"], exist_ok=True)
-        return orig(*b.args, **b.kwargs)
+        d = b.arguments["build_directory"]
+        # A .so in the hashed directory means these exact arguments were built before: loading it
+        # is quick, so keep the lock rather than queue behind a whole job for it.
+        if any(f.endswith(".so") for f in os.listdir(d)):
+            return orig(*b.args, **b.kwargs)
+        return unlocked(f"build {b.arguments['name']}", orig, *b.args, **b.kwargs)
     ce.load_inline = load_inline
+
+    orig_load = ce.load
+    sig_load = inspect.signature(orig_load)
+
+    def load(*args, **kw):
+        b = sig_load.bind(*args, **kw)
+        if b.arguments.get("build_directory") is None:
+            srcs = b.arguments["sources"]
+            srcs = [srcs] if isinstance(srcs, str) else list(srcs)
+            key = {k: v for k, v in b.arguments.items() if k not in ("build_directory", "verbose")}
+            key["arch"] = os.environ.get("TORCH_CUDA_ARCH_LIST", "")
+            key["contents"] = [hashlib.sha256(open(f, "rb").read()).hexdigest() for f in srcs]
+            h = hashlib.sha256(repr(sorted(key.items())).encode()).hexdigest()[:16]
+            b.arguments["build_directory"] = os.path.join(root, f"{b.arguments['name']}-{h}")
+            os.makedirs(b.arguments["build_directory"], exist_ok=True)
+        d = b.arguments["build_directory"]
+        if any(f.endswith(".so") for f in os.listdir(d)):
+            return orig_load(*b.args, **b.kwargs)
+        return unlocked(f"build {b.arguments['name']}", orig_load, *b.args, **b.kwargs)
+    ce.load = load
 
 
 def pdl8_state(state):
@@ -294,6 +431,9 @@ def main():
     ap.add_argument("--kernels", action="store_true", help="also print a per-kernel GPU time table (torch.profiler, 10 cold replays)")
     ap.add_argument("--ls-cache", default="",
                     help="JSON cache of case_fields' local_start per fresh input, e.g. /root/okc/.build/box/ls_cache.json")
+    ap.add_argument("--lock", default="",
+                    help="take this flock file in-process (e.g. /root/okc/.build/box/gpu.lock) and let it go while an "
+                         "extension or Triton kernel compiles; implies --ext-cache /root/.cache/bx_ext; do not also wrap in flock(1)")
     ap.add_argument("--ext-cache", default="",
                     help="content-addressed load_inline build root, e.g. /root/.cache/bx_ext")
     ap.add_argument("--pin-pdl8", default=None,
@@ -305,6 +445,14 @@ def main():
     a = ap.parse_args()
     if a.skip_pdl8_gate and a.pin_pdl8 is None:
         ap.error("--skip-pdl8-gate needs --pin-pdl8")
+    global LOCK
+    if a.lock:
+        if outer_flock_holds(a.lock):
+            ap.error(f"--lock {a.lock}: a parent flock(1) already holds it; drop the outer flock or --lock")
+        a.ext_cache = a.ext_cache or "/root/.cache/bx_ext"
+        release_lock_for_triton()
+        LOCK = GpuLock(a.lock)
+        LOCK.acquire("start")
     if a.ext_cache:
         content_addressed_extensions(a.ext_cache)
     phase("import_torch")
@@ -482,7 +630,8 @@ def main():
     if a.out:
         with open(a.out, "w") as f:
             json.dump(dict(problem=name, submission=a.submission, gpu=torch.cuda.get_device_name(),
-                           torch=torch.__version__, rows=rows, phases=PH, pdl8=PDL8, argv=sys.argv), f)
+                           torch=torch.__version__, rows=rows, phases=PH, pdl8=PDL8, argv=sys.argv,
+                           lock_events=LOCK.events if LOCK else None), f)
     phase("json_write")
     if lsc is not None:
         print(f"BX local_start cache {a.ls_cache}: {lsc.hits} hits, {lsc.misses} computed", flush=True)
