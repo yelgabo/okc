@@ -105,7 +105,7 @@ struct Params {
 #define CLB_NREG16 0
 #endif
 #ifndef CLB_ACC_SMEM
-#define CLB_ACC_SMEM 1
+#define CLB_ACC_SMEM 0
 #endif
 #ifndef CLB_UPW
 #define CLB_UPW 1          // unit-blocks per warp per stage at T_MAX = 8 (1 or 2)
