@@ -1,4 +1,4 @@
-# moe-t1 checkpoint (2026-11-04 13:10 PT, round 2)
+# moe-t1 checkpoint (2026-11-04 13:20 PT, round 2)
 
 Base: muse_decode_layer/cand/ly_stk3.py, SHA256 a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6 (judge 10,109.9 us).
 
@@ -31,6 +31,10 @@ Question: why the eight warps' last phase A partials reach the helper 0.55-0.87 
 - Chain result (box /root/okc/.build/f1f/): gates f1f and f1f3 both 12 check PASS and 5/5 PDL8H_GUARD with 0 mismatches. mtf2 stamps, decode 1 sliding, mean CTA us (n / first copy / both issued / phase A end): stk3 run 1 0.65 / 0.88 / 1.06 / 11.68, stk3 run 2 0.67 / 0.89 / 1.07 / 11.77, f1f 0.68 / 0.83 / 0.92 / 11.71, f1f3 0.70 / 0.85 / 1.00 / 12.57. F1FAST issues both copies 0.14-0.15 us earlier; phase A end does not move (11.71 against 11.68 and 11.77). f1f3 (third slot early) is 0.8 us later at phase A end, dropped.
 - ly_f1fe.py SHA256 3867f0bbe60ccfb852b478f9bd52567528c6bc004c2648b447aa74d76d62696e (dl_ly_f1f_patch.py --fence-early): F1FAST plus fence.proxy.async moved into lane 0's mbarrier-init block. Instrument ly_mtf2_f1fe.py d946966e... (stamps 5 and 4 absent by construction).
 - A/B round 1 f1f against stk3: /root/okc/.build/prtl/f1f (started 21:02 UTC). Box chain /root/okc/.build/f1f/chain2.sh: gate f1fe, stamps f1fe and stk3, then A/B round 2 PFX f1f_r2.
+
+- f1fe gate: 12 check PASS, 5/5 PDL8H_GUARD 0 mismatches. f1fe stamps running in chain2.
+- A/B round 1 f1f against stk3 (/root/okc/.build/prtl/f1f, done 21:06 UTC), w - c mean us (6 pairs): decode 1 sliding -0.36 (5/6 pairs faster), decode 1 full -0.51 (6/6, verdict win, thr 0.50), decode 16 sliding -0.10, decode 16 full -0.08, decode 32 sliding +0.20, decode 32 full -0.43, verify 1 sliding +0.49, verify 1 full -0.57, verify 16 sliding -1.06, verify 16 full -0.84, verify 32 sliding -0.97, verify 32 full -0.48; every other cell inside. Timed PDL on in all runs.
+- Round 2 (PFX f1f_r2) is queued in chain2 behind another lane's A/B (m5_ww_r2); the pooled 24-pair table decides the bar.
 
 ## Next action
 
