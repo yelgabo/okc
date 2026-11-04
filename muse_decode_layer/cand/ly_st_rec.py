@@ -12893,7 +12893,8 @@ __device__ __forceinline__ unsigned long long gtimer() {
 #define ST_NOZERO 0  // diagnostic (breaks the next launch's ss): no ss / barrier-counter zeroing before the phases
 #endif
 #if ST_NOROUTE && (!ST_PLAIN || OKC_SPLIT)
-#error "ST_NOROUTE needs ST_PLAIN on a non-SPLIT (TINY2) build"
+#undef ST_NOROUTE
+#define ST_NOROUTE 0  // (the SPLIT build has no expert mask: it keeps route())
 #endif
 #define ST_REC_N 128
 #define ST_CNT (136 * 64)
