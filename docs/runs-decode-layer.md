@@ -2550,6 +2550,39 @@ be297008c330053f9ce6331ba9b1afeea87b085f2bdfef6fe5ffd4b453446521, ly_fab_finpre.
 | b2pre | T = 16 boundary 2 (PDL8 graft glue, `glue_cluster_boundary<4,32,true,...>`): the entry griddepcontrol.wait no longer precedes the alpha / beta / pre / post weight preloads (prepare-time constants); each thread prefetches its two s1 chunks into L2 (`prefetch.global.L2`); the wait follows the preloads and the s1 loads (`.cg`) stay behind it; the second wait before the branch (unpooler output) loads is unchanged; SLICED keeps its entry wait | POST kernels: 8 LDG (weights) and 2 CCTL.E.PF2 now precede the first ACQBULK (base: ACQBULK at 0x60 before every load); the two LDG.E.128.STRONG.GPU s1 loads follow it; second ACQBULK before the LDG.E.64.STRONG.GPU branch loads unchanged; 408 -> 416 and 416 -> 432 instructions, 54 / 55 registers, no local. b1 instantiations byte-identical (`sass/glue_*.summary`) | round 1: 3 / 2; round 2: 7 / 6; six loads: 4 / 3 | d16 s: round 1 129.71 / 129.07 / -0.64 (per run -1.04, -0.24); round 2 129.14 / 128.89 / -0.25 (-0.46 -0.11 -0.05 +0.58 -0.88 -0.58); six-load 129.34 / 128.59 / -0.75 (-0.99 -0.67 -0.60). d16 f: 202.39 / 201.10 / -1.29 (-1.47 -1.10); 202.26 / 201.38 / -0.59 (-0.07 -1.17 -0.98 -0.60 -0.90 +0.19); 201.17 / 200.81 / -0.36 (+0.03 -0.43 -0.67). Over all 11 variant runs: d16 s -0.46 (10 of 11 negative), d16 f -0.65 (9 of 11). Guards: d1 s +0.03 / -0.45 / -0.06, d1 f -0.18 / +0.10 / +0.18, v1 s +0.05 / -0.29 / +0.27, v1 f +0.06 / -0.25 / +0.04 (unchanged code), d32 and v16 / v32 within 0.75 of the control (unchanged code) | inside the threshold (1.29 to 1.30 at d16 s by the 1% rule, 2.0 to 3.0 at d16 f); consistent sign at both decode 16 cells |
 | b1d32 | T = 32 boundary 1 (`_graft_row_boundary_pre_cg`, POST = False): the stream load (data['stream'], the harness input; nothing in the call writes it) moves before gdc_wait; boundary 2 (POST) keeps its s1 load behind the wait with .cg | Triton PTX (`/root/.triton/cache/.../_graft_row_boundary_pre.ptx`, 04:48:47 UTC): the non-POST instance issues 8 ld.global before griddepcontrol.wait (base 6: the two stream v2.b32 loads moved up); the POST instance unchanged | 4 / 4 (lyf_glu) | d32 s 145.11 / 145.51 / +0.40 (+0.04 +0.39 +1.14 +0.01), d32 f 296.56 / 295.91 / -0.65 (-1.80 +0.18 -0.46 -0.52); other cells (unchanged code) -0.43 to +0.07 | inside; no consistent sign at the changed cells (d32 s 3 of 4 positive, d32 f 3 of 4 negative), not kept |
 | finpre | T <= 8 boundary 2 (`_sl_cluster_finish_cg`): the NEXT norm weight load (prepare-time constant) moves before gdc_wait; carry, tail and the slice stay behind it with .cg | Triton PTX: `ld.global.b16` (NEXT) at line 94, before `griddepcontrol.wait` at 100 (base: wait at 86, the b16 load at 147 after the four .cg loads); the T = 1 and T = 8 instances both move | 4 / 4 (lyf_glu) | d1 s 66.09 / 66.33 / +0.24 (+0.08 +0.50 +0.34 +0.04), d1 f 72.96 / 72.69 / -0.28 (-0.70 -0.06 -0.18 -0.16), v1 s 103.54 / 103.73 / +0.19, v1 f 111.64 / 111.66 / +0.02; d16 / d32 (unchanged code) -0.11 to +0.58 | inside; signs mixed (d1 sliding positive in all 4, d1 full negative in all 4), not kept |
+| b2gl16 | T = 16 boundary 2 dispatched to the one-program-per-row Gluon kernel `_graft_row_boundary_pre_cg` (the file's T = 32 boundary: 16 programs of 32 warps, weights before gdc_wait, branch and s1 after it with .cg, PDL launch) instead of the 8-CTA-cluster glue `b2c` (128 CTAs of 128 threads, cluster dim 8). Python dispatch only (`_pdl8_graft_boundary`); both kernels, their waits and launch attributes are the file's own | no new SASS: the Gluon POST instance is the one in the b1d32 row (its PTX: pre / alpha / beta / post loads, griddepcontrol.wait, launch_dependents, branch and stream .cg loads); the glue POST kernels are no longer launched at T = 16 (timeline below) | 5 / 4 (lyf_gl, d1 + d16); 7 / 6 (lyf_gl6, d1 + d16 + v1); 4 / 3 (lyf_fabsix, six loads) | d16 s: 129.29 / 127.88 / -1.41 (-1.61 -1.24 -1.67 -1.11); 129.23 / 128.05 / -1.18 (-1.34 -1.21 -1.10 -1.07 -0.81 -1.58); 129.12 / 128.05 / -1.07 (-0.85 -1.25 -1.12). d16 f: 201.66 / 200.67 / -0.99 (-1.10 -0.67 -1.48 -0.70); 201.82 / 200.93 / -0.89 (-1.76 -1.07 -1.93 -0.64 -0.97 +1.01); 201.78 / 200.70 / -1.08 (-1.00 -0.97 -1.27). All 13 variant runs negative at d16 s (mean -1.23), 12 of 13 at d16 f (mean -0.97). Guards (unchanged code): d1 s -0.08 / -0.00 / -0.11, d1 f +0.01 / -0.17 / -0.02, v1 s -0.09 / -0.46, v1 f -0.26 / -0.77, d32 +0.15 / +0.08, v16 +0.13 / -0.02, v32 +0.63 / +0.06 | inside by the 2 x spread clause (thresholds 1.73 / 1.92 / 1.44 at d16 s, 2.02 / 3.39 / 2.02 at d16 f), beyond the 1% clause (1.29) in two of three sessions; the one consistent effect of this lane, and the kernel timeline puts all of it on boundary 2. Kept as the stack |
+| b1gl16 | the same dispatch for T = 16 boundary 1 (POST = False, no router copy at T = 16) | no new SASS (the b1d32 row's non-POST instance, base load order) | 5 / 4 (lyf_gl) | d16 s 129.29 / 128.83 / -0.46 (-0.67 -0.20 -0.95 -0.01), d16 f 201.66 / 202.07 / +0.41 (+0.68 +0.12 -0.38 +1.24); d1 +0.04 / +0.10 | inside, mixed signs: the cluster glue boundary 1 (2.2 us after the o projection) has no penalty to recover; not kept |
+
+Kernel timeline at decode 16 for ly_fab (= b2gl16; `lyf_tl_ly_fab.timeline.txt`): boundary 2 is now
+`_graft_row_boundary_pre_cg`, duration 4.78 / 4.93 us against the glue's 5.73 / 5.84, critical-path share 2.71 / 2.73 us
+against 3.70 / 3.73 (sliding / full), the other eight kernels within 0.3 us of the control's; so the whole cell delta is
+boundary 2's. Reading of the mechanism (hypothesis, consistent with b1gl16's null): the glue's 8-CTA clusters need eight
+free SMs in one GPC to be scheduled, and the unpooler's 8192-row sk2 grid holds the SMs until it retires, so the
+PDL-launched boundary 2 clusters start late; after the o projection (boundary 1) the same clusters schedule on time, and
+the per-row Gluon programs need one SM each. b2pre's preloads recovered 0.35 to 0.45 us of the same kernel; the dispatch
+swap recovers 1.0 us and makes b2pre moot at T = 16 (the glue POST kernel is no longer launched there).
+
+### Stack ly_fab.py: b2gl16 alone (SHA256 916a8020deb7588920ee0dbe71aaef5a9ffcd55b466bc163b4e299fc16efd38a, the same bytes as ly_fab_b2gl16.py), six loads (lyf_fabsix: 4 controls, 3 stack runs)
+
+| cell | control mean | control spread | ly_fab mean | delta | per run | threshold | verdict |
+|---|---:|---:|---:|---:|---|---:|---|
+| decode 1 sliding | 66.24 | 0.69 | 66.12 | -0.11 | -0.12 +0.20 -0.41 | 1.38 | inside |
+| decode 1 full | 72.46 | 0.32 | 72.44 | -0.02 | -0.32 +0.40 -0.14 | 0.64 | inside |
+| decode 16 sliding | 129.12 | 0.72 | 128.05 | -1.07 | -0.85 -1.25 -1.12 | 1.44 | inside |
+| decode 16 full | 201.78 | 0.90 | 200.70 | -1.08 | -1.00 -0.97 -1.27 | 2.02 | inside |
+| decode 32 sliding | 145.43 | 0.53 | 145.58 | +0.15 | -0.06 +0.56 -0.03 | 1.45 | inside |
+| decode 32 full | 296.51 | 1.39 | 296.59 | +0.08 | +0.13 +0.54 -0.43 | 2.97 | inside |
+| verify 1 sliding | 103.83 | 1.17 | 103.37 | -0.46 | -1.45 -0.01 +0.07 | 2.34 | inside |
+| verify 1 full | 112.09 | 0.69 | 111.32 | -0.77 | -1.69 +0.12 -0.74 | 1.38 | inside |
+| verify 16 sliding | 243.41 | 0.77 | 243.53 | +0.13 | +0.99 -1.02 +0.42 | 2.43 | inside |
+| verify 16 full | 326.70 | 1.78 | 326.67 | -0.02 | +1.26 -1.14 -0.18 | 3.55 | inside |
+| verify 32 sliding | 296.29 | 3.01 | 296.92 | +0.63 | +0.45 +0.35 +1.10 | 6.02 | inside |
+| verify 32 full | 460.85 | 2.99 | 460.91 | +0.06 | -0.19 -0.08 +0.45 | 5.98 | inside |
+
+Every stack run passed the startup expert comparison and the reference check at all 12 cells (33 of 33 runs across
+lyf_gl, lyf_gl6 and lyf_fabsix print G_RELEASE_STARTUP_OK; 12 of 12 cells PASS in each six-load run). b2pre is not in
+the stack: with b2gl16 the glue POST kernel it edits is not launched at any scored shape, and the two were not measured
+together.
 
 Kernel timeline at decode 16 (`tools/ly_tl_run.py`, 20 runs, 10 profiled replays, `lyf_tl_*.timeline.txt`): boundary
 2's critical-path share (its end minus the unpooler's end) is 3.70 / 3.73 us on ly_micro2 and 3.37 / 3.29 us on
@@ -2560,7 +2593,7 @@ boundary 1 (2.2 us, same template) is not weight latency. Hypothesis, not separa
 its producer's end (start gap -1.95 against -2.45 for boundary 1) because the unpooler's 8192-row sk2 grid leaves fewer
 free SMs for the 128 PDL-launched glue CTAs than the o projection does.
 
-### Six-load run of the only candidate with a consistent sign (ly_fab_b2pre against ly_micro2; lyf_six: 4 controls, 3 variants)
+### Six-load run of b2pre (ly_fab_b2pre against ly_micro2; lyf_six: 4 controls, 3 variants; measured before b2gl16 superseded it)
 
 | cell | control mean | control spread | ly_fab_b2pre mean | delta | per run | threshold | verdict |
 |---|---:|---:|---:|---:|---|---:|---|
@@ -2578,8 +2611,6 @@ free SMs for the 128 PDL-launched glue CTAs than the o projection does.
 | verify 32 full | 460.14 | 1.58 | 459.99 | -0.15 | +0.00 -0.60 +0.16 | 4.60 | inside |
 
 The change touches only the T = 16 PDL8 glue, so every cell but decode 16 is a null here; the nulls span -0.73 to +0.27.
-No stack file ly_fab.py was built: by the stated rule nothing cleared its threshold, and a stack of one is the b2pre
-file itself (14afa879).
 
 ### Route recomputed in the MoE prologue (the audit's rank 1): bounded on the box, not built
 
@@ -2618,12 +2649,18 @@ that measurement; not built.
 
 ### Reading
 
-- Nothing cleared the threshold. b2pre is the one change with a consistent sign (decode 16 sliding -0.46 over 11 runs,
-  10 negative; decode 16 full -0.65, 9 negative), and the kernel timeline attributes it to boundary 2 (-0.35 / -0.45 us
-  of critical path). It is rule-clean (weights are prepare-time constants, a prefetch returns no data, both waits
-  stay). Whether 0.5 us at decode 16 is worth a judge check is the lead's call; the file is ly_fab_b2pre.py 14afa879.
-- The load-ordering family is now exhausted at T <= 32: every chain kernel issues its constants before its wait, and
-  the two remaining producer-written reads (s1 in boundary 2, the stream in the T = 32 boundary 2) must stay behind it.
+- Nothing cleared the letter of the threshold (2 x control spread, with five to seven controls). One change is a
+  measured effect by every other reading: b2gl16, the T = 16 boundary 2 dispatched to the file's own per-row Gluon
+  kernel, is faster in all 13 of its runs at decode 16 sliding (mean -1.23 us) and 12 of 13 at decode 16 full (-0.97),
+  the kernel timeline puts -1.0 us on that kernel alone, and every other cell is a null. It is the stack, ly_fab.py
+  916a8020, rule-clean (an existing kernel of the file at an existing PDL edge; no wait, fence or barrier touched),
+  and the judge check is the lead's call (cell weights put 1 us at decode 16 sliding at 0.45 of a decode 1 us).
+- b2pre (weights and an s1 L2 prefetch before boundary 2's entry wait) recovered 0.35 to 0.45 us of the same kernel
+  and is superseded by b2gl16; b1d32 and finpre were nulls. The load-ordering family is exhausted at T <= 32: every
+  chain kernel now issues its constants before its wait, and the two remaining producer-written reads (s1 in
+  boundary 2, the stream in the T = 32 boundary 2) must stay behind it.
+- The route-in-MoE fusion is closed by the diagnostic bound (-0.25 / +0.42 us at decode 1 with the route kernel
+  removed outright).
 - The time at decode 16 / 32 remains where the gap tables put it: the fused MoE's issue rate (the other lane's B4 build
   at decode 32; TINY2 / MID at 1.18 us per unit against 1.10 of bytes), the sk2 projections' 2.4 to 3.6 us per kernel
   above their byte floors (wave quantization and ramp, the bf16 lane's closed item), and attention's latency.
