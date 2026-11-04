@@ -7802,3 +7802,102 @@ the SM's L2 bandwidth (0.8 to 1.0), and at B4 a 2.5 us cold first wgs_ranges. Mo
 wait onto the next: in ly_m4rb onto the FAST1 copies and the x load sharing the SM's input path, in ly_m4rw onto the
 dry run. Not built: ly_m16r's hoisted FAST1 loads together with rb7 (copies out before routing starts), and the B4
 dry run placed so it ends before route() does.
+
+## 2026-11-04 - Decode 16 / 32 row boundaries (box)
+
+Layer-b2 lane, 12:24 to 12:55 PT (Mac clock; box 20:27 to 20:52 UTC). Question: where do the row boundaries at decode
+16 / 32 spend their 2.3 to 2.9 us after their producer (b1 after o: glue cluster at T = 16, Gluon
+`_graft_row_boundary_pre_cg` at T = 32; b2 after the unpooler: the Gluon kernel at T = 16 and 32), and can one change
+take part of it? Base: muse_decode_layer/cand/ly_stk3.py (SHA256
+a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6), never edited. Box only, every GPU process under
+gpu.lock, no judge job. Evidence: `muse_decode_layer/profiles/box/rbst/`. Checkpoint: docs/lanes/layer-b2.md.
+
+### Instrument (never a candidate)
+
+`tools/dl_ly_rbst_patch.py` writes `muse_decode_layer/cand/ly_rbst.py` (801adafc): thread-0 globaltimer stamps in a copy
+of the Gluon row boundary (entry, pre-wait constants landed, after gdc_wait, branch landed, first reduction, stream
+landed, NewStream store, second reduction, Out store, SM id; data-dependent stamps take the value as an asm input),
+in the PDL8 graft glue `glue_cluster_boundary` (tid 0 per CTA: entry, after cluster.sync, after the wait, branch,
+r1, r2, end, SM id), and in the o / unpooler sk2 at M = 16 / 32 (entry, after the wait, tid 0 after the output
+stores). All switches are host-side at capture, so the plain graph takes no stamp. `tools/ly_box_rbst.py` captures a
+plain and a stamped graph per cell and replays 20 fresh inputs (local_start per input, router seed
+106218864389449120, f931 case seeds, cold L2). Log `st1.log` / `st1_summary.txt`.
+
+### Stamps (medians over 20 inputs; us after the producer's last CTA end stamp; steps per program from its own wait)
+
+| item | b1 d16 (glue, 128 CTAs) | b2 d16 (Gluon, 16) | b1 d32 (Gluon, 32) | b2 d32 (Gluon, 32) |
+|---|---:|---:|---:|---:|
+| first / last program entry | -1.15 / -0.74 | -1.07 / -0.99 | -1.31 / -0.14 | -1.39 / -0.96 |
+| pre-wait loads landed (last) | 0.19 (cluster.sync) | -0.32 | **+0.38** | -0.16 |
+| wait return (last) | 0.45 | 0.48 | 0.51 | 0.48 |
+| branch landed (thread 0) | 0.03 | 0.08 | **0.42** | 0.06 |
+| first reduction (all loads landed + reduce) | 0.90 (DSMEM cluster) | 0.54 | 0.26 | 0.58 |
+| stream landed | (before the wait) | 0.35 | 0.29 | 0.32 |
+| NewStream store issued | - | 0.22 | 0.51 | 0.26 |
+| second reduction | 0.74 (DSMEM cluster) | 0.48 | 0.50 | 0.45 |
+| Out store issued | 0.06 | 0.13 | 0.13 | 0.13 |
+| wait return to end, p50 / max | 1.73 / 1.87 | 1.78 / 1.86 | 2.15 / 2.51 | 1.78 / 1.92 |
+| last program end | 2.30 | 2.30 | 3.04 | 2.37 |
+
+The timeline's critical path (kernel end minus producer end: 2.30 / 2.72 / 2.88 / 2.80) adds about 0.4 us of store
+drain and grid completion after the last stamp. What each part waits on: (1) launch spread is not on the path: every
+boundary's programs are resident 0.7 to 1.4 us before their wait returns, except b1 at T = 32, whose 1024-thread
+programs land only as o's CTAs leave (last at -0.14 to -0.27), so its 80 KB of pre-wait constants per SM land 0.38 us
+after the wait and its branch load queues behind them (0.42 against 0.06 in b2); (2) every wait returns 0.45 to 0.51
+us after the producer's last store; (3) the two row-wide reductions cost 0.45 to 0.58 us each in the Gluon kernel
+(each includes the tail of every thread's loads) and 0.74 to 0.90 us each as the glue's 8-CTA DSMEM cluster reduction;
+(4) b2's stream load (s1, 32 KB per row) sits between the reductions although b2's programs idle about 0.6 us at the
+wait with their constants landed. So the lead's suggested "more programs per row with a cluster / DSMEM reduction"
+is contradicted by the glue's own numbers (cluster reductions slower than the CTA's), and halving warps already lost
+(ly_rbc).
+
+### Candidates (one change each; `tools/dl_ly_b2_patch.py --mode sp|g32`, base pinned to a1c48810)
+
+ly_b2sp (`muse_decode_layer/cand/ly_b2sp.py`, SHA256 c97fe37063504a951ad304ce273392302e273308d1070b15899f1cd23944f4b5):
+in `_graft_row_boundary_pre_cg`, POST (b2 only) loads the Stream row before `_gdc_wait()`. Legality: the stream of b2
+is s1, b1's output (call site `_pdl8_graft_boundary(P, S, T, s1, state, True, s2, out, nu=nu)`); b1 completed before
+the cooperative MoE's non-programmatic launch, and nothing after b1 writes s1 (the ly_finb1 / b2pre argument); the
+branch (the unpooler's output) stays behind the wait; no fence, wait, trigger or barrier moves. Moving the load
+changed LLVM's FMA contraction (first build: 15% of NewStream elements and 1 to 5 Out elements differ,
+`bitwise_first_sp_contraction.log`), so the POST path spells out the base's contraction, `ns = where(c < 4096,
+fma(a, s, beta * b), fma(beta, b, a * s))`; then NewStream and Out are bitwise equal to the base at T = 16 / 32 (8
+seeds x 4 scales, `tools/ly_b2_bitwise.py`, `bitwise.log`). SASS (POST, `sass_J6E7.txt` base, `sass_6IZQ.txt`
+candidate): the stream LDG.E.128.STRONG.GPU pair moves from 0x6d0 / 0x710 (after the first BAR.SYNC) to 0x190 / 0x1a0
+(before ACQBULK at 0x1b0); 51 registers (base 44), EXIT 0xd60 (0xd50), no local memory.
+
+ly_b2g32 (`muse_decode_layer/cand/ly_b2g32.py`, SHA256 c5d276b13adcdd1d2b649efeaf6ece0a725d5104c5fddd3279f34c324567fd86):
+b1 at T = 32 dispatched to the PDL8 graft glue b1 (8-CTA clusters of 128 threads per row, stream and constants before
+the wait), the form b1 already runs at T = 16, to remove b1's late entry; the glue host's row limit in `_GRAFT_GLUE_CUDA`
+b1() 16 -> 32. Output bitwise equal to the Gluon b1 at T = 32 (`bitwise.log`).
+
+Gates (own prepare, `gate_b2sp.txt`, `gate_b2g32.txt`): five PDL8H guards pass, every T on; check PASS 12/12 with
+`G_RELEASE_STARTUP_OK` and the control's CG_GATE line (`chk_*.txt`).
+
+Paired A/B against ly_stk3 (`tools/ly_d16_ab.sh` CTL=ly_stk3.py: two rounds of c/w/c/w/c, 60 runs, six loads, PDL
+pinned; pooled 6 controls, 4 candidate runs, 24 pairs; `b2sp_table_both_rounds.txt`, `b2g32_table_both_rounds.txt`):
+
+| cell | ly_b2sp w - c (pairs < 0) | ly_b2g32 w - c (pairs < 0) |
+|---|---|---|
+| decode 1 sliding / full | +0.16 (9/24) / -0.11 (14/24) | +0.04 (11/24) / -0.00 (11/24) |
+| decode 16 sliding / full | +0.09 (10/24) / +0.01 (11/24) | -0.30 (17/24) / -0.26 (14/24) |
+| decode 32 sliding / full | +0.25 (10/24) / -0.03 (13/24) | **+1.04 (0/24) / +1.04 (2/24)** |
+| verify 1 sliding / full | -0.27 (15/24) / -0.11 (13/24) | +0.04 (14/24) / +0.09 (10/24) |
+| verify 16 sliding / full | -0.04 (7/24) / +0.29 (8/24) | +0.16 (11/24) / -0.42 (16/24) |
+| verify 32 sliding / full | +0.31 (10/24) / +0.75 (5/24) | -0.16 (14/24) / -0.06 (12/24) |
+
+Kernel timelines (`tl_b2sp.tables.txt`, `tl_b2g32.tables.txt`, against ly_stk2's `tl_stk2.tables.txt`, whose
+boundary code is ly_stk3's): ly_b2sp's b2 critical path 2.59 / 2.62 / 2.59 / 2.59 us (decode 16 sliding / full,
+decode 32 sliding / full) against 2.78 / 2.78 / 2.75 / 2.82, so the hoist takes 0.16 to 0.23 us off the kernel, below
+the cell's run-to-run noise; ly_b2g32's b1 at T = 32 runs 3.54 / 2.69 against 3.07 / 2.72 (the 256 cluster CTAs land
+behind o's grid at sliding).
+
+### Decision
+
+No candidate; nothing registered, no judge job. ly_b2sp is null at the cell (b2 -0.2 us at the kernel); ly_b2g32
+loses decode 32 by 1.0 us. What remains of the boundaries' 2.3 to 2.9 us is structural (measurement): 0.45 to 0.51
+us from the producer's last store to the wait return, two serial row-wide reductions of about 0.5 us each, and about
+0.4 us of store drain and grid completion. Untested leads (hypotheses): one reduction instead of two by expanding
+sum(ns^2) into three partial sums of the first pass (not bitwise: the bf16 rounding of b * r1 sits between them;
+would need the CG_GATE and a cancellation argument); b1 at T = 32 with smaller programs that can co-reside with o's
+CTAs (512 threads, two programs per row, cross-CTA reduction), whose cost the glue's cluster reductions put at 0.7
+to 0.9 us.

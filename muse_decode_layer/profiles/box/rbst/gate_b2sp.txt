@@ -1,0 +1,9 @@
+PDL8H_GUARD T=1 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.74e-04', '4.81e-04', '0.00e+00'] on ['3.74e-04', '4.81e-04', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8H_GUARD T=16 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.98e-03', '4.19e-03', '0.00e+00'] on ['3.58e-03', '4.08e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8H_GUARD T=32 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['5.52e-03', '6.41e-03', '0.00e+00'] on ['5.52e-03', '6.41e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8H_GUARD T=8 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['7.25e-03', '6.89e-03', '0.00e+00'] on ['7.25e-03', '6.89e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8H_GUARD T=8 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.16e-03', '3.98e-03', '0.00e+00'] on ['6.33e-03', '6.09e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+BOX decode 16 sliding: raw 129.71 net 125.84 us (overhead 3.87) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.984 | check PASS
+BOX decode 16 full: raw 204.94 net 200.82 us (overhead 4.13) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.954 | check PASS
+BOX decode 32 sliding: raw 144.34 net 140.11 us (overhead 4.22) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.932 | check PASS
+BOX decode 32 full: raw 297.92 net 293.82 us (overhead 4.10) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.965 | check PASS

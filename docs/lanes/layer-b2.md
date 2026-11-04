@@ -52,6 +52,10 @@ before the non-programmatic MoE launched) is loaded after the first reduction, w
    bitwise equal at T = 16 / 32. SASS (POST): stream LDG.E.128.STRONG.GPU at 0x190 / 0x1a0 before ACQBULK 0x1b0
    (base: 0x6d0 / 0x710 after the first BAR.SYNC), 51 registers (base 44); `profiles/box/rbst/sass_*.txt`.
 
-Gate (b2sp, own prepare): five PDL8H guards pass, check PASS at decode 16 / 32.
-Box runs: `tools/ly_d16_ab.sh` CTL=ly_stk3.py, tags b2sp then b2g32 (`.build/d16tl/`, `.build/prtl/b2sp*`,
-`.build/prtl/b2g32*`). Next action: tables with `python3 tools/ly_prtl_table.py DIR1 DIR2`.
+Gates: five PDL8H guards pass for both; check PASS 12/12, startup OK, control's CG_GATE line.
+
+## Result (12:55 PT): no candidate, lane closed
+
+Box A/B vs ly_stk3, two rounds, 24 pairs: ly_b2sp decode 16 sliding +0.09 (10/24), decode 32 sliding +0.25 (10/24),
+null (kernel timeline: b2 -0.16 to -0.23 us); ly_b2g32 decode 32 sliding / full +1.04 / +1.04 (0/24, 2/24), loss.
+Run log "Decode 16 / 32 row boundaries (box)" in docs/runs-decode-layer.md; two ruled-out rows. Nothing registered.
