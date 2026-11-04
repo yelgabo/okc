@@ -13,16 +13,18 @@ fused-launch Python wrappers (_gle_frt at T <= 8, bfp_fused_pooler_router at T =
 return the partial buffer, tagged `_prq_part`, as the logits. _sl_tile_route_cg (the route kernel the layer launches
 after the fused kernel at T = 1, 8, 16, 32) is wrapped: given a tagged buffer it launches _prq_route_cg, a copy whose
 SPLIT logit load becomes ((p0 + p1) + p2) + p3 of the four quarter partials, the same FP32 adds in the same order as
-the last-arriving CTA did, so the logits are bitwise unchanged. Every other kernel that takes logits (_route,
-_graft_route, _sl_graft_route, _sl_tile_route, _gle_route) is wrapped to raise if it ever receives a tagged buffer.
+the last-arriving CTA did, so the logits are bitwise unchanged. The other route kernels that read split logits
+(_route_split, _graft_route, _sl_graft_route, _sl_tile_route: prepare's composition timing and non-PDL paths) get
+the same copy; _route and _gle_route raise if they ever receive a tagged buffer.
 Ordering: the route kernel's loads stay after its griddepcontrol.wait (the fused kernel complete and flushed); no
 fence, barrier or wait is removed from any kernel that still runs; the counter is no longer touched.
 
-    python3 tools/dl_ly_prq_patch.py [--out muse_decode_layer/cand/ly_prq.py]
+    python3 tools/dl_ly_prq_patch.py [--contig] [--out muse_decode_layer/cand/ly_prq.py]
 """
 import hashlib
 import pathlib
 import py_compile
+import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -47,20 +49,57 @@ F_EDITS = [
     ("outr.data_ptr<float>(), part.data_ptr<float>(), ",
      "(outr.numel() ? outr.data_ptr<float>() : nullptr), part.data_ptr<float>(), ", 2),
 ]
+# --contig (ly_prq2): partial buffer [4 quarters][32 tokens][256 router rows] instead of [32 tiles][4 quarters][32][8],
+# so the route kernel reads each quarter's 256 logits of a token as one contiguous 1 KB row; the stores and the
+# last-quarter read-back (still used when outr is passed) follow the new layout
+CONTIG = "--contig" in sys.argv
+K_CONTIG = [
+    ("    float* pp = part + ((size_t)rt * 4 + rq) * 32 * 8;\n",
+     "    float* pp = part + (size_t)rq * 8192 + rt * 8;   // prq2: [quarter][token][256]\n"),
+    ("      __stcg(pp + i, v);\n", "      __stcg(pp + (i >> 3) * 256 + (i & 7), v);\n"),
+    ("      const float* pr = part + (size_t)rt * 4 * 32 * 8;\n", "      const float* pr = part + (size_t)rt * 8;\n"),
+    ("        const float v = __ldcg(pr + i) + __ldcg(pr + 256 + i) + __ldcg(pr + 512 + i) + __ldcg(pr + 768 + i);\n",
+     "        const int o = (i >> 3) * 256 + (i & 7);\n"
+     "        const float v = __ldcg(pr + o) + __ldcg(pr + 8192 + o) + __ldcg(pr + 16384 + o) + __ldcg(pr + 24576 + o);\n"),
+]
+F_CONTIG = [
+    ('"        if (t < M) __stcg(part + ((size_t)rt * 4 + rq) * 32 * 8 + t * 8 + r, v);\\n"',
+     '"        if (t < M) __stcg(part + (size_t)rq * 8192 + t * 256 + rt * 8 + r, v);\\n"', 1),
+    ('"      if (lane < M) __stcg(part + ((size_t)rt * 4 + rq) * 32 * 8 + lane * 8 + warp, mine);\\n"',
+     '"      if (lane < M) __stcg(part + (size_t)rq * 8192 + lane * 256 + rt * 8 + warp, mine);\\n"', 1),
+]
+if CONTIG:
+    K_EDITS = K_EDITS + K_CONTIG
+    F_EDITS = F_EDITS + F_CONTIG
+    DST = ROOT / "muse_decode_layer/cand/ly_prq2.py" if "--out" not in sys.argv else DST
 
-ROUTE_DEF = "@triton.jit\ndef _sl_tile_route_cg("
-OLD_LOGIT = "            logit = tl.load(LOGITS + t * 256 + e, cache_modifier='.cg')\n"
-NEW_LOGIT = ("            # prq: LOGITS is the fused kernel's quarter-partial buffer [32 tiles][4 quarters][32 tokens][8 rows];\n"
-             "            # the four quarters are added in quarter order, as the last-arriving CTA did\n"
-             "            pq = LOGITS + (e >> 3) * 1024 + t * 8 + (e & 7)\n"
-             "            logit = (((tl.load(pq, cache_modifier='.cg') + tl.load(pq + 256, cache_modifier='.cg'))\n"
-             "                      + tl.load(pq + 512, cache_modifier='.cg')) + tl.load(pq + 768, cache_modifier='.cg'))\n")
+# route kernels that read the fused kernel's logits in their SPLIT form (the layer's paths and prepare's composition
+# timing): each gets a _prq_ copy whose logit load sums the four quarter partials in quarter order
+ROUTES = ("_route_split", "_graft_route", "_sl_graft_route", "_sl_tile_route", "_sl_tile_route_cg")
+LOGIT = re.compile(r"^( +)logit = tl\.load\(LOGITS \+ t \* 256 \+ e(, cache_modifier='\.cg')?\)\n", re.M)
+
+
+def qsum(ind):
+    ld = lambda o: f"tl.load(pq{o}, cache_modifier='.cg')"  # noqa: E731
+    return (f"{ind}# prq: LOGITS is the fused kernel's quarter-partial buffer [32 tiles][4 quarters][32 tokens][8 rows];\n"
+            f"{ind}# the four quarters are added in quarter order, as the last-arriving CTA did\n"
+            f"{ind}pq = LOGITS + (e >> 3) * 1024 + t * 8 + (e & 7)\n"
+            f"{ind}logit = ((({ld('')} + {ld(' + 256')}) + {ld(' + 512')}) + {ld(' + 768')})\n")
+
+
+def qsum_contig(ind):
+    ld = lambda o: f"tl.load(pq{o}, cache_modifier='.cg')"  # noqa: E731
+    return (f"{ind}# prq2: LOGITS is the fused kernel's quarter-partial buffer [4 quarters][32 tokens][256 rows];\n"
+            f"{ind}# the four quarters are added in quarter order, as the last-arriving CTA did\n"
+            f"{ind}pq = LOGITS + t * 256 + e\n"
+            f"{ind}logit = ((({ld('')} + {ld(' + 8192')}) + {ld(' + 16384')}) + {ld(' + 24576')})\n")
+
 
 TAIL = r'''
 
 
 # ---- prq (tools/dl_ly_prq_patch.py): router quarter sum in the route kernel ----
-def _prq_tagged(m):
+@@LAYOUT@@def _prq_tagged(m):
     part = m["fused_part"].view(-1)
     part._prq_part = True
     return part
@@ -110,31 +149,35 @@ class _PrqLaunch:
     def __getitem__(self, grid):
         def go(*a, **kw):
             if any(getattr(x, "_prq_part", False) for x in a[:3]):
-                if self.alt is None or not kw.get("SPLIT", False):
+                if self.alt is None or not kw.get("SPLIT", True):
                     raise RuntimeError(f"prq: {self.name} got the router's quarter partials")
                 return self.alt[grid](*a, **kw)
             return self.base[grid](*a, **kw)
         return go
 
 
-_sl_tile_route_cg = _PrqLaunch(_sl_tile_route_cg, _prq_route_cg, "_sl_tile_route_cg")
-_sl_tile_route = _PrqLaunch(_sl_tile_route, None, "_sl_tile_route")
+_route_split = _PrqLaunch(_route_split, _prq_route_split, "_route_split")
+_graft_route = _PrqLaunch(_graft_route, _prq_graft_route, "_graft_route")
+_sl_graft_route = _PrqLaunch(_sl_graft_route, _prq_sl_graft_route, "_sl_graft_route")
+_sl_tile_route = _PrqLaunch(_sl_tile_route, _prq_sl_tile_route, "_sl_tile_route")
+_sl_tile_route_cg = _PrqLaunch(_sl_tile_route_cg, _prq_sl_tile_route_cg, "_sl_tile_route_cg")
 _route = _PrqLaunch(_route, None, "_route")
-_graft_route = _PrqLaunch(_graft_route, None, "_graft_route")
-_sl_graft_route = _PrqLaunch(_sl_graft_route, None, "_sl_graft_route")
 _gle_route = _PrqLaunch(_gle_route, None, "_gle_route")
 '''
 
 
 def build(whole):
     out = tlp.patch(whole, K_EDITS, F_EDITS)
-    i = out.index(ROUTE_DEF)
-    j = out.index("\n\n\n@triton.jit", i)
-    fn = out[i:j]
-    assert fn.count(OLD_LOGIT) == 1
-    alt = fn.replace("def _sl_tile_route_cg(", "def _prq_route_cg(").replace(OLD_LOGIT, NEW_LOGIT)
-    out = out[:j] + "\n\n\n" + alt + out[j:]
-    return out.rstrip("\n") + TAIL
+    for name in ROUTES:
+        i = out.index(f"@triton.jit\ndef {name}(")
+        j = re.compile(r"\n(?=[^\s#])").search(out, out.index("\n", i + 12) + 1).start()   # next top-level line
+        fn = out[i:j].rstrip("\n")
+        j = i + len(fn)
+        m = LOGIT.findall(fn)
+        assert len(m) == 1, (name, m)
+        alt = LOGIT.sub(lambda mm: (qsum_contig if CONTIG else qsum)(mm.group(1)), fn).replace(f"def {name}(", f"def _prq{name}(", 1)
+        out = out[:j] + "\n\n\n" + alt + out[j:]
+    return out.rstrip("\n") + TAIL.replace("@@LAYOUT@@", '_PRQ_LAYOUT = "qt"\n\n\n' if CONTIG else "")
 
 
 def main():
