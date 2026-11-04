@@ -5935,8 +5935,10 @@ slots after `griddepcontrol.wait` (15), the q / new k,v / constants group visibl
 the merge steps (19 key halves exchanged, 20 thread 0's reds issued, 21 the CTA barrier before the ticket); the
 T = 1 qkv and o sk2 launches stamp entry, wait return and end. `tools/ly_box_ast.py` captures two graphs per cell
 (plain, every stamp off; instrumented) and replays each of 20 fresh inputs through both with a cold L2. Times are
-us after `qkv_end`, the last qkv CTA's end stamp (its output stores issued). The instrumented and plain graphs agree
-within 0.4 us per input on the whole layer; logs and JSONs in `muse_decode_layer/profiles/box/ast/`.
+us after `qkv_end`, the last qkv CTA's end stamp (its output stores issued). Whole-layer time, instrumented minus
+plain replay of the same input: median -1.33 us (ast) and -0.46 us (ast --mrg), per input -4.9 to +2.5 us, the
+layer's replay-to-replay spread (MoE), so the stamps do not slow the layer measurably; logs and JSONs in
+`muse_decode_layer/profiles/box/ast/`.
 
 ### The 5.02 us as a sum of parts (measurement; base, decode 1 sliding, median over 20 inputs; 32 CTAs, one 64-key tile each)
 
