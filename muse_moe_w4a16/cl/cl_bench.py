@@ -90,7 +90,8 @@ def bootstrap_ci(v, reps=2000, seed=0):
 
 
 def kernel_time_us(timer, g, n=3):
-    """Mean summed GPU kernel time of one cold replay (torch.profiler; the flush, memcpy and memset left out)."""
+    """Mean summed GPU kernel time of one cold replay (torch.profiler; the read or write flush, memcpy and memset
+    left out)."""
     from torch.profiler import ProfilerActivity, profile
     with profile(activities=[ProfilerActivity.CUDA]) as prof:
         for _ in range(n):
@@ -98,9 +99,22 @@ def kernel_time_us(timer, g, n=3):
     total = 0.0
     for ev in prof.events():
         if (ev.device_type == torch.autograd.DeviceType.CUDA and "reduce_kernel" not in ev.name
-                and not ev.name.startswith(("Memcpy", "Memset"))):
+                and "FillFunctor" not in ev.name and not ev.name.startswith(("Memcpy", "Memset"))):
             total += ev.device_time
     return total / n
+
+
+class WriteFlushTimer(bx.Timer):
+    """The flush tools/box_moe_tl8.py uses (a 1 GiB fill_): it leaves L2 full of dirty lines, which the timed
+    kernel then writes back. The default read flush is the judge's and bx_box_run's."""
+
+    def cold(self, g):
+        self.flush.fill_(1.0)
+        self.a.record()
+        g.replay()
+        self.b.record()
+        self.b.synchronize()
+        return self.a.elapsed_time(self.b) * 1e6
 
 
 def summarize(rows, ov_us, failed, a):
@@ -112,7 +126,7 @@ def summarize(rows, ov_us, failed, a):
     for r in rows:
         counts[r["distinct"]] = counts.get(r["distinct"], 0) + 1
     mean_d = statistics.mean(r["distinct"] for r in rows)
-    s = dict(T=a.T, distinct_target=a.distinct, distinct_counts=dict(sorted(counts.items())), distinct_mean=mean_d,
+    s = dict(T=a.T, flush=a.flush, distinct_target=a.distinct, distinct_counts=dict(sorted(counts.items())), distinct_mean=mean_d,
              floor_us_at_mean=mean_d * FLOOR_US_PER_EXPERT, overhead_us=ov_us,
              cand_med_raw=cm, cand_med_net=cm - ov_us, ctl_med_raw=km, ctl_med_net=km - ov_us,
              cand_iqr_med=statistics.median(r["cand_iqr"] for r in rows),
@@ -138,6 +152,8 @@ def main():
     ap.add_argument("--seed", type=int, default=1000, help="first input seed of the series")
     ap.add_argument("--dist", default="normal", help="generate_input dist: normal (the scored shapes) or skewed")
     ap.add_argument("--max-scan", type=int, default=20000)
+    ap.add_argument("--flush", choices=("read", "write"), default="read",
+                    help="read: 1 GiB sum before each replay (judge); write: 1 GiB fill_ (tools/box_moe_tl8.py)")
     ap.add_argument("--kernels", action="store_true",
                     help="also record each side's summed kernel time per input (torch.profiler, 3 cold replays)")
     ap.add_argument("--lock", default="",
@@ -177,7 +193,7 @@ def main():
     print(f"CL T={a.T} dist={a.dist} distinct target {a.distinct}: {len(picked)} inputs from {nscan} seeds "
           f"(scanned distinct distribution {scanned})", flush=True)
 
-    timer = bx.Timer()
+    timer = WriteFlushTimer() if a.flush == "write" else bx.Timer()
     graphs = {}
     for side, (fn, state) in sides.items():
         static = ref.generate_input(bs=a.T, sharding="ep8", seed=picked[0][0], dist=a.dist)
@@ -226,7 +242,7 @@ def main():
 
     s = summarize(rows, ov_us, failed, a)
     lo, hi = s["delta_ci95"]
-    print(f"CLSUM T={a.T} inputs={len(rows)} runs={a.runs} distinct {s['distinct_counts']} mean "
+    print(f"CLSUM T={a.T} flush={a.flush} inputs={len(rows)} runs={a.runs} distinct {s['distinct_counts']} mean "
           f"{s['distinct_mean']:.2f} floor {s['floor_us_at_mean']:.2f} us | candidate raw {s['cand_med_raw']:.2f} "
           f"net {s['cand_med_net']:.2f} (iqr {s['cand_iqr_med']:.2f}) | control raw {s['ctl_med_raw']:.2f} net "
           f"{s['ctl_med_net']:.2f} (iqr {s['ctl_iqr_med']:.2f}) | paired delta {s['delta_med']:+.2f} us, 95% CI over "
