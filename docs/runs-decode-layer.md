@@ -3229,7 +3229,16 @@ build on the same inputs (for example 53.5 against 49.95 us), so the math costs 
 What is not yet isolated is which part of helper0's kernel caps the stream. Excluded so far by measurement:
 pattern, bytes, flush type (up to 1 us), ring depth, the compute loop, the helper epilogue, the partials hand-off,
 the policy word, the evict_last stores, 8 polling warps, the refill-after-barrier form, the ring's shared offset,
-cooperative launch, eager launch, power load from mma warps. Not yet tested inside helper0: the timeline
-instrument itself (both helper0 and the replay record per-unit stamps, but helper0's are on warp 0's critical
-path), the routing prologue and x prefetch, the kernel's per-launch zeroing, and the launch's L2 persisting or
-stream state.
+cooperative launch, eager launch, power load from mma warps. The timeline instrument is unlikely: removing it
+(`-DOKC_TLX=0`) moves the bare build's plain launch time by -1.9 to +0.4 us per input (46.9 -> 45.7, 71.1 -> 69.2,
+47.5 -> 45.9, 51.8 -> 52.2, 58.5 -> 58.3, 64.6 -> 64.5 us) and the base build's by -1.6 to -5.5 us, which cannot
+hide a 20% stream gap in a kernel whose phase A alone is 27 to 37 us (inference from plain times; no counters:
+ncu returns ERR_NVGPUCTRPERM on this pod). The per-launch zeroing is 3,072 floats (EMAX), negligible. Not yet
+tested inside helper0: the routing prologue with FAST1's two early copies, the x prefetch, and anything else in
+the kernel that runs while phase A streams.
+
+Decision: no candidate, nothing to A/B, no judge check. The pattern lever is closed (rows in docs/ruled-out.md).
+The lever that exists is helper0's stream ceiling of about 3.9 TB/s against 4.8 for the same copies in a plain
+streaming kernel; the next step is to keep stripping the BARE build (remove FAST1's pre-routing copies, then the
+x prefetch, then the route itself with ranges passed in) until it reaches the replay's 4.8, which names the part
+to change. Expected value if found and removable: 5 to 8 us per verify 1 cell (hypothesis above).
