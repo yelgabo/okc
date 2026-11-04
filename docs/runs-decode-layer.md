@@ -2355,7 +2355,7 @@ whose one-tile issue rate stays at 1.18 us, which ly_ws2t's shared body did not 
 Question: is the layer's attention (ATT7, `attn_kernel` in muse_decode_layer/cand/ly_micro2.py, SHA256 0bc2bd8b) slower
 than the standalone board's public kernel (`.build/repeats/attention_base.py`, aa3535d0, the 8914751e3b9f468b bytes,
 attn_one with HMRG 1, PRQ 31, FIN8 1, pick off) at the verify 1 shapes (batch 1, q_len 8, ctx 80000, page 1), and by
-more than 1 us? Answer: no. The standalone kernel is faster by 0.66 us at sliding and by 0.06 to 0.12 us at full, so
+more than 1 us? Answer: no. The standalone kernel is faster by 0.66 us at sliding and by 0.02 to 0.13 us at full, so
 nothing was ported.
 
 Method: `tools/att_v1_cmp.py` (box, 03:58-04:02 UTC, under gpu.lock with the ext cache) imports both files in one
@@ -2372,13 +2372,13 @@ Plans at these shapes are the same in both files: sliding 33 splits x 1, coopera
 copy (standalone mode 15 = cooperative | one tile | speculated length); full 252 splits x 1, cooperative, 8 workspace
 copies (standalone mode 11). ATT7's `_TUNED7` has no entry for (1, 8).
 
-Medians over five processes (net us; spread = max - min across the five process medians or paired deltas):
+Median of the five process medians (net us; spread = max - min across the five process medians or paired deltas):
 
 | cell | std | lay | lay_pf | lay - std (paired) | lay_pf - std (paired) |
 |---|---:|---:|---:|---:|---:|
-| verify 1 sliding (soft) | 6.87 (0.11) | 7.53 (0.10) | 7.78 (0.06) | +0.66 (0.03) | +0.90 (0.11) |
-| verify 1 full (soft) | 14.98 (0.10) | 15.10 (0.13) | 15.38 (0.19) | +0.12 (0.08) | +0.37 (0.08) |
-| verify 1 full (coherent) | 15.10 (0.11) | 15.16 (0.06) | 15.41 (0.06) | +0.06 (0.16) | +0.32 (0.19) |
+| verify 1 sliding (soft) | 6.88 (0.11) | 7.52 (0.10) | 7.78 (0.06) | +0.66 (0.03) | +0.90 (0.11) |
+| verify 1 full (soft) | 14.98 (0.10) | 15.09 (0.13) | 15.39 (0.19) | +0.13 (0.08) | +0.38 (0.08) |
+| verify 1 full (coherent) | 15.12 (0.11) | 15.15 (0.06) | 15.39 (0.06) | +0.02 (0.16) | +0.30 (0.19) |
 
 Per process, lay - std at sliding: +0.656, +0.656, +0.640, +0.672, +0.672; at full soft: +0.080, +0.160, +0.080,
 +0.128, +0.144.
@@ -2388,9 +2388,9 @@ In the layer (bx_box_run.py --kernels, ly_micro2, PDL pinned 1,8,16,32, 60 runs,
 the attention is PDL-launched and starts during the qkv projection, so its lifetime includes the wait and is not a
 kernel-alone time). Cell nets in that run: 102.48 / 110.67 us.
 
-Reading: the kernel-alone gap the brief asked about is 0.66 us at sliding and inside 0.2 us at full, under the 1 us
-port threshold at both cells. The layer's own pooler prefetch adds 0.24 us (sliding) and 0.25 to 0.29 us (full) to the
+Reading: the kernel-alone gap the brief asked about is 0.66 us at sliding and 0.13 us or less at full, under the 1 us
+port threshold at both cells. The layer's own pooler prefetch adds 0.24 us (sliding) and 0.25 to 0.28 us (full) to the
 attention; it buys the pooler's weight stream, so it is a layer trade, not an attention-port question. The 16.5 us
 o-projection reading at verify 1 full is not explained by a slower attention kernel: kernel-alone, ATT7 and attn_one
-are within 0.12 us there. A sliding port could at best save 0.66 us of attention time at one cell (0.66 x 46 weight),
+are within 0.13 us there. A sliding port could at best save 0.66 us of attention time at one cell (0.66 x 46 weight),
 less any part already hidden under PDL. Logs and JSONs: `muse_decode_layer/profiles/box/attv1/`.
