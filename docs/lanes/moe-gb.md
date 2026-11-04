@@ -34,12 +34,17 @@ every CTA flushes its last pending release (line 6166) before its final. Final s
 
 ## Measurements
 
-None yet.
+- Gate (21:10-21:12 UTC): rc 0, all five PDL8H guards pass (T=1 sliding, T=8 full, T=8 sliding, T=16 sliding,
+  T=32 full; 2000 replays per arm, ids mismatches 0). T=32 full max rel diff 5.52e-03 / 6.41e-03, equal off and on.
+- chk: 12/12 check PASS. Single-run decode 32 sliding net 135.84 us (box/judge 0.903), not an A/B number.
+- Paired A/B rounds 1 and 2 against ly_stk3: running since 21:12:50 UTC.
 
 ## Box paths
 
-Box results go to /root/okc/.build/prtl/gb4/ (planned).
+Driver tools/ly_gb_ab.sh (PHASE=gate, PHASE=ab). Logs /root/okc/.build/moegb/ (gb4_gate.log, gb4_ab.log,
+gate_gb4.log); chk and rounds /root/okc/.build/prtl/gb_gb4/ and /root/okc/.build/prtl/gb_gb4_r2/.
 
 ## Next action
 
-rsync ly_gb4.py to the box, run the gate (five PDL8H guards), chk 12/12, then two paired rounds against ly_stk3.
+Read the two tables (python3 tools/ly_prtl_table.py DIR); decide against the bar (decode 32 sliding at least 0.8 us,
+20 of 24 pairs, nothing else losing beyond noise).
