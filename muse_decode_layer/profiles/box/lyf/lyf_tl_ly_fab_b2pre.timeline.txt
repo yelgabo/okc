@@ -1,0 +1,24 @@
+.build/box/lyf_tl/ly_fab_b2pre/cell0.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.08   10.08   0.00  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    8.24    9.50   17.87  -1.79  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Para
+ 2   10.64   10.82   21.57  -7.14  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, f
+ 3   19.06    4.74   23.84  -2.45  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+ 4   22.10   18.83   41.06  -1.76  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, t
+ 5   38.08    4.53   42.67  -2.99  _sl_tile_route_cg
+ 6   42.72   70.02  113.22   0.06  void okc::moe_fused<false>(okc::Params)
+ 7  113.28   14.27  127.41   0.06  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, f
+ 8  125.41    5.42  130.78  -1.95  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+span 130.78 us, sum of durations 148.66 us
+.build/box/lyf_tl/ly_fab_b2pre/cell1.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.42   10.42   0.00  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, f
+ 1    8.59   84.88   93.39  -1.84  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Param
+ 2   86.38   11.30   97.23  -7.57  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, f
+ 3   94.40    5.09   99.47  -2.86  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+ 4   97.58   18.64  116.54  -1.89  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, t
+ 5  113.78    4.45  118.21  -2.78  _sl_tile_route_cg
+ 6  118.32   69.14  186.93   0.10  void okc::moe_fused<false>(okc::Params)
+ 7  187.06   14.19  201.06   0.13  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, f
+ 8  198.98    5.54  204.35  -2.11  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+span 204.35 us, sum of durations 222.46 us
