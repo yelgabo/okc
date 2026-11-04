@@ -16,6 +16,6 @@ ssh -o ConnectTimeout=20 -o BatchMode=yes okc-h200 "
 echo "-- lane branches (origin)"
 git fetch -q origin 2>/dev/null
 for b in $(git branch -r --list 'origin/worktree-agent-*' | sed 's#origin/##'); do
-  age=$(git log -1 --format=%cr origin/$b 2>/dev/null)
-  case "$age" in *hour*|*minute*|*second*) echo "-- $b"; git log --format='   %h %ar %s' origin/$b -2;; esac
+  ts=$(git log -1 --format=%ct origin/$b 2>/dev/null); now=$(date +%s)
+  [ -n "$ts" ] && [ $((now - ts)) -lt $((3 * 3600)) ] && { echo "-- $b"; git log --format='   %h %ar %s' origin/$b -2; }
 done
