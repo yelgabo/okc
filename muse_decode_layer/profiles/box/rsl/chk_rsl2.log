@@ -1,0 +1,47 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793815716.987 acquire start after 0.0 s
+BXLOCK 1793815717.475 release build okc_dl_cgemv_81b0c562d874
+BXBUILD 1793815717.475 start build okc_dl_cgemv_81b0c562d874
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+BXBUILD 1793815730.213 end build okc_dl_cgemv_81b0c562d874
+BXLOCK 1793815730.213 acquire build okc_dl_cgemv_81b0c562d874 done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 8.29), ('sk2', 7.97), ('torch', 10.43)] -> ('sk2',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 19.8 s
+BXLOCK 1793815737.270 release triton _prq_sl_tile_route_cg
+BXBUILD 1793815737.270 start triton _prq_sl_tile_route_cg
+BXBUILD 1793815738.059 end triton _prq_sl_tile_route_cg
+BXLOCK 1793815738.060 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793815738.061 release triton _sl_cluster_finish_cg
+BXBUILD 1793815738.061 start triton _sl_cluster_finish_cg
+BXBUILD 1793815738.156 end triton _sl_cluster_finish_cg
+BXLOCK 1793815738.156 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BOX decode 1 sliding: raw 69.47 net 65.81 us (overhead 3.66) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.933 | check PASS
+BOX decode 1 full: raw 75.81 net 72.13 us (overhead 3.68) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.903 | check PASS
+BOX decode 16 sliding: raw 126.94 net 123.04 us (overhead 3.90) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.962 | check PASS
+BOX decode 16 full: raw 209.12 net 205.66 us (overhead 3.46) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.977 | check PASS
+BXLOCK 1793815739.069 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793815739.069 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793815739.168 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793815739.168 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BOX decode 32 sliding: raw 143.58 net 139.74 us (overhead 3.84) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.929 | check PASS
+BOX decode 32 full: raw 299.58 net 296.00 us (overhead 3.58) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.972 | check PASS
+BOX verify 1 sliding: raw 98.88 net 95.33 us (overhead 3.55) | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.897 | check PASS
+BOX verify 1 full: raw 117.18 net 113.34 us (overhead 3.84) | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.951 | check PASS
+BOX verify 16 sliding: raw 241.70 net 238.24 us (overhead 3.46) | judge net 250.02 (n=1, 250.02-250.02) box/judge 0.953 | check PASS
+BOX verify 16 full: raw 324.80 net 321.18 us (overhead 3.62) | judge net 335.01 (n=1, 335.01-335.01) box/judge 0.959 | check PASS
+BOX verify 32 sliding: raw 300.86 net 296.80 us (overhead 4.06) | judge net 308.45 (n=1, 308.45-308.45) box/judge 0.962 | check PASS
+BOX verify 32 full: raw 463.01 net 459.23 us (overhead 3.78) | judge net 468.64 (n=1, 468.64-468.64) box/judge 0.980 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 60 hits, 0 computed
+BXPHASE import_torch=1.47 load_reference_cuda_init=0.00 weights_and_router=0.24 prepare_submission=19.79 fresh_inputs=0.89 check=2.23 capture=0.12 overhead_graphs=1.29 replays=0.04 cell_tail=0.02 json_write=0.00 total=26.08
