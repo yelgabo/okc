@@ -5916,3 +5916,170 @@ before the MoE ends, but at decode 1 the slice's 6 MB of DRAM time then lands in
 barrier) instead of after its exit, and the base's ordering, where most code loads follow the MoE CTAs' exits and
 overlap only the final pass, is already close to the best one. This bears on the moe lane's current step (the MoE's
 CTAs prefetching the slice's 6.3 MB into L2 at phase B start): the same bytes would share phase B's DRAM time.
+
+## 2026-11-04 - Decode 1 slice L2 prefetch from the MoE (box)
+
+MoE lane, round 2 (relaunched 10:00 PT). Question: at decode 1, can the MoE's 132 CTAs pull the unpooler slice's
+6.3 MB of prepare-time codes into L2 before the slice reads them, so that the slice's code read after the MoE's exit
+(full) and under the MoE's final pass (sliding) hits L2? The slice kernel, its launch point and its 512 CTAs are not
+touched. Base: `muse_decode_layer/cand/ly_v1un.py` (SHA256 88fbae8644f946af46b87ab89be17409e133ebab26d20cf61e9c3f3941788145,
+judge-valid b734f44afbf24acd). Box only (okc-h200, 18:07 to 18:26 UTC), every GPU process under
+`/root/okc/.build/box/gpu.lock`; no judge check. At T = 1 the MoE is the TINY build (M <= MOE_TINY_MAX_M = 4; TINY2
+serves M 5 to 8, that is verify 1), so the change is gated on MOE_TINY_DEFINES. Artifacts:
+`muse_decode_layer/profiles/box/slpf/`.
+
+### L2 budget (numbers before building)
+
+- L2: 62,914,560 B (torch `L2_cache_size` on the box H200).
+- Slice codes: e["stream"] of the m = 1 unpooler cg entry, 512 CTAs x 12,288 B = 6,291,456 B; per MoE CTA
+  ceil(6,291,456 / 132) rounded to 16 B = 47,664 B, issued as two bulk prefetches (32,768 + 14,896 B).
+- MoE DRAM traffic after a prefetch issued at the CTA's doneA credit: phase B is 256 units x 36,864 B = 9,437,184 B
+  per distinct local expert, and thread 0 has already issued each CTA's first 3 phase B units (396 units,
+  14,598,144 B) during phase A's last units (ws_issue q + OKC_NS). Left: 4.28 MB at 2 distinct experts, 13.71 MB at
+  3, 23.15 MB at 4 (the box's decode 1 inputs: 34 / 23 / 3 of 60 by the routing map).
+- MoE data re-read after the prefetch (inter, ybuf, ss, x): under 0.3 MB, touched later than the prefetch.
+- Newer-than-prefetch bytes before the slice reads: 6.3 + 4.3 to 23.2 + 0.3 = 10.9 to 29.8 MB, 17% to 47% of L2;
+  under 30 MiB even if the two L2 partitions behaved as separate halves. No MoE line that is read again can be
+  evicted by the prefetch; the weight units are read once.
+- Issue path: the TINY build's helper warp (warp 8, `ws_helper`) runs the epilogues only. After its doneA credit for
+  the CTA's last phase A unit it has nothing to do until the first phase B unit's partials arrive (every CTA's
+  credit, then one unit of compute, at least about 1 us), so lane 0 issues the prefetch there, after the atomicAdd.
+  The compute warps' code is unchanged.
+
+The budget leaves out one cost: DRAM time. It shows the bytes fit in L2, not that phase B has DRAM time to spare,
+and the stamps below show it does not at the phase A end.
+
+### Candidates
+
+`tools/dl_ly_slpf_patch.py` (base and pin checked) writes both; `--at a` = ly_slpf, `--at b` = ly_slpfb. Line numbers
+are in the candidate file (ly_v1un's line before the insertion in brackets):
+
+- line 1: header comment.
+- 6921 (after 6919): `void okc_set_slpf(torch::Tensor t);` in MOE_CPP_SRC.
+- 6984-6985 (6982): `_ma_ext` binds `okc_set_slpf` when the source defines it (as it does for okc_attrs).
+- 12705-12707 (12701): `#ifndef OKC_SLPF / #define OKC_SLPF 0` in the helper0 source.
+- 12838-12840 (12831): Params gains `slpf`, `slpf_bytes`, `slpf_share` under `#if OKC_SLPF`.
+- 14193-14203 (14183): `slpf_issue(p)`: `cp.async.bulk.prefetch.L2.global` of [blockIdx.x x share, min(bytes,
+  (blockIdx.x + 1) x share)) in 32 KB pieces; the share comes from the host (no integer divide in the kernel).
+- ly_slpf 14259-14261 (14238): in ws_helper's credit block, lane 0 calls it right after the doneA atomicAdds.
+  ly_slpfb 14281-14283 (14260): lane 0 calls it after the helper's loop, before its `__threadfence(); WS_JOIN()`, so
+  after the helper's last epilogue (the CTA's last OKC_WSBLK = 2 units' epilogues run in the compute warps, so this
+  is about two units before the CTA's phase B end; every weight copy of the CTA has been issued by then).
+- 15310-15319 (15286): host `okc_set_slpf(tensor)` keeps the address and byte count (16-B multiple and alignment
+  checked; empty tensor = off).
+- 15365-15369 (15331): okc_run fills the three fields under `#if OKC_SLPF`, share = ceil(bytes / grid) rounded up
+  to 16 B.
+- 19071-19089 (end of file): `MOE_TINY_DEFINES += ("-DOKC_SLPF=1",)` and a `_moe` wrapper that hands the TINY
+  extension `state["bfp"]["cg"]["unpooler"]["stream"]` on every M <= 4 call (an empty tensor when no cg entry), so
+  every T = 1 launch, captured or eager (in-prepare guards included), carries the pointer.
+
+ly_slpf SHA256 b7609b3c7f7b7853605ec535b5686e8abe6f343f51344e04cf93db5e8d0fdf3d; ly_slpfb SHA256
+a850fe2928340fd78295b8a404b66535f7dfd90419db19559c874304e832f1b5. No fence, barrier, acquire, release, atomic, wait,
+trigger or launch attribute is added, removed or moved; the prefetch writes nothing, so no value changes.
+
+SASS (box ext cache, cuobjdump, nvcc 13.0, sm_90a): the TINY build's `moe_fused<false / true>` hold 145 registers,
+no stack and no local memory in the control (glue_moe_f380dc69...) and both candidates; total SASS lines 10,464 ->
+10,688 (ly_slpf) / 10,704 (ly_slpfb), the difference being the share arithmetic and the `UBLKPF.L2` prefetches.
+The TINY2 and MID builds of the candidates contain no UBLKPF (their device code preprocesses to the base's).
+
+Correctness (chk, `bx_box_run.py --runs 5`, six loads): both candidates PASS at 12 cells, `G_RELEASE_STARTUP_OK
+native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays`, `CG_GATE unpooler cg_vs_sk2 1.21e-04 ... equal 1023/1024
+ok` (the box control's line), `CG_CHAIN ... {'unpooler': ('cg',)}`.
+
+### Stamps (prefetch on against off, the lead's requested first measurement)
+
+`tools/dl_ly_pmt_patch.py --xld __ldca` on each file (ly_pmt_v1un 1041126b, identical to the copy on main;
+ly_pmt_slpf 69e215fa; ly_pmt_slpfb d2de131f), `tools/ly_box_pmt.py --raw 20`, 20 inputs per cell, f931 case seeds,
+local_start per input. These ran beside the first A/B round, not before it. Each entry is the median of that
+statistic over the 20 inputs (medians do not add), us from the first MoE CTA's entry unless stated:
+
+| statistic | v1un sliding | slpf | slpfb | v1un full | slpf | slpfb |
+|---|---:|---:|---:|---:|---:|---:|
+| last CTA's phase A end | 12.45 | 13.01 | 12.58 | 12.72 | 12.58 | 12.59 |
+| last CTA's phase B end (trigger) | 19.38 | 20.78 | 19.78 | 19.42 | 19.84 | 19.58 |
+| last CTA past the grid barrier | 20.83 | 22.13 | 21.41 | 20.83 | 21.22 | 21.18 |
+| last MoE exit | 23.04 | 23.10 | 23.55 | 21.62 | 21.82 | 21.70 |
+| final pass (last 8 CTAs, barrier to exit) | 1.27 | 0.46 | 1.16 | 0.48 | 0.43 | 0.58 |
+| slice codes landed, after its CTA's entry (p50) | 1.63 | 1.29 | 1.31 | 1.60 | 1.31 | 1.31 |
+| slice CTAs with codes landed before the MoE exit | 477 | 12 | 501 | 0 | 0 | 0 |
+| slice wait return after the MoE exit (p50) | 0.50 | 1.06 | 0.51 | 1.58 | 1.28 | 1.26 |
+| slice end after the MoE exit | 3.26 | 3.79 | 3.18 | 4.37 | 4.14 | 4.08 |
+| finish end after the MoE exit | 4.86 | 5.33 | 4.78 | 5.94 | 5.68 | 5.63 |
+| plain graph, raw median | 68.72 | 68.56 | 67.98 | 75.10 | 75.60 | 75.23 |
+
+Every instrumented output matched its plain graph (maxdiff 0 in the summaries).
+
+### A/B against ly_v1un (`tools/ly_prtl_ab.sh`, CTL=ly_v1un.py, c/w/c/w/c, 60 runs, six loads, PDL pinned at 1, 8, 16, 32 in every run, router seed 106218864389449120)
+
+ly_slpf, two rounds (`slpf/round1`, `round2`, `slpf_table_both_rounds.txt`). Round 1 decode 1 -0.17 / -0.47, round
+2 -0.12 / -0.05:
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.39 | 1.14 | 64.24 | -0.15 | 2.27 | 14/24 | inside |
+| decode 1 full | 70.86 | 0.56 | 70.60 | -0.26 | 1.12 | 17/24 | inside |
+| decode 16 sliding | 126.94 | 0.64 | 127.14 | +0.20 | 1.28 | 5/24 | inside |
+| decode 16 full | 199.34 | 1.12 | 199.65 | +0.30 | 2.24 | 7/24 | inside |
+| decode 32 sliding | 143.88 | 1.58 | 143.64 | -0.25 | 3.17 | 14/24 | inside |
+| decode 32 full | 295.17 | 1.46 | 295.12 | -0.05 | 2.95 | 16/24 | inside |
+| verify 1 sliding | 100.51 | 0.90 | 101.16 | +0.65 | 1.79 | 3/24 | inside |
+| verify 1 full | 108.99 | 0.93 | 109.19 | +0.20 | 1.86 | 11/24 | inside |
+| verify 16 sliding | 241.50 | 4.58 | 242.88 | +1.39 | 9.15 | 3/24 | inside |
+| verify 16 full | 326.10 | 1.70 | 327.11 | +1.01 | 3.39 | 6/24 | inside |
+| verify 32 sliding | 294.05 | 2.05 | 294.39 | +0.34 | 4.10 | 9/24 | inside |
+| verify 32 full | 458.51 | 2.26 | 458.54 | +0.02 | 4.59 | 11/24 | inside |
+
+ly_slpfb, two rounds, then two more (`slpfb/round1` to `round4`, `slpfb_table_four_rounds.txt`). Rounds 1+2:
+decode 1 sliding -0.38 (21/24), full -0.57 (24/24); rounds 3+4: sliding -0.34 (21/24), full -0.59 (24/24). Per
+round: -0.16 / -0.56, -0.59 / -0.58, -0.59 / -0.57, -0.09 / -0.61. All four rounds pooled (12 controls, 8 candidate
+runs):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.45 | 0.75 | 64.09 | -0.36 | 1.50 | 84/96 | inside |
+| decode 1 full | 70.76 | 1.18 | 70.18 | -0.58 | 2.37 | 89/96 | inside |
+| decode 16 sliding | 127.07 | 0.88 | 127.10 | +0.04 | 1.76 | 44/96 | inside |
+| decode 16 full | 199.35 | 1.22 | 199.44 | +0.09 | 2.43 | 45/96 | inside |
+| decode 32 sliding | 143.98 | 1.28 | 144.09 | +0.11 | 2.56 | 45/96 | inside |
+| decode 32 full | 295.07 | 1.71 | 295.26 | +0.19 | 3.42 | 30/96 | inside |
+| verify 1 sliding | 100.72 | 1.44 | 101.19 | +0.47 | 2.88 | 18/96 | inside |
+| verify 1 full | 108.89 | 1.20 | 108.99 | +0.10 | 2.40 | 35/96 | inside |
+| verify 16 sliding | 242.61 | 2.82 | 242.63 | +0.02 | 5.63 | 46/96 | inside |
+| verify 16 full | 326.35 | 3.14 | 326.21 | -0.14 | 6.27 | 55/96 | inside |
+| verify 32 sliding | 294.45 | 2.13 | 294.34 | -0.12 | 4.26 | 51/96 | inside |
+| verify 32 full | 458.30 | 2.34 | 458.45 | +0.15 | 4.67 | 39/96 | inside |
+
+### Reading
+
+Measurements:
+
+- An L2 hit shortens the slice CTA's code fetch by only 0.3 us: codes land 1.29 to 1.31 us after the CTA's entry
+  with either prefetch, 1.60 to 1.63 us from DRAM. The 1 us estimate assumed the post-exit code read was DRAM time;
+  most of it is not.
+- Prefetching at the doneA credit (ly_slpf) lengthens phase B: the last CTA's phase B end moves +1.41 us at sliding
+  and +0.42 at full, and phase A's end +0.56 at sliding (early CTAs prefetch while late CTAs still stream phase A).
+  6.3 MB at 4.5 to 4.8 TB/s is 1.3 to 1.4 us, so at sliding phase B grew by about the prefetched bytes' DRAM time,
+  as the layer lane's register slice found ("Decode 1 register slice (box)"). The same prefetch removed the slice's
+  DRAM stream from under the sliding final pass (1.27 -> 0.46 us), so the exit barely moved and the A/B is a null.
+- Prefetching after the helper's last epilogue (ly_slpfb), when the CTA has issued every weight copy, costs phase B
+  +0.40 / +0.16 us and the A/B gains -0.36 / -0.58 us, reproduced in two independent two-round sets (21/24 and 24/24
+  pairs in each).
+
+Hypotheses (not separated): the remaining 1.3 us of the slice's code fetch is the 512 CTAs' simultaneous 6.3 MB
+burst through L2 plus the new kernel's cold start, not DRAM. At sliding the slpfb stamps do not show the gain the
+plain graph shows (exit +0.51, finish end after exit -0.08 against the control's stamp medians, plain-graph medians
+-0.74); stamps of separate processes move by that much, so the paired A/B is the measurement and the sliding
+attribution is open. verify 1 sliding reads +0.47 (18 of 96 pairs) for slpfb and +0.65 (3 of 24) for slpf although
+the T = 8 device code is identical in both arms (OKC_SLPF is a TINY define; TINY2 has no UBLKPF); the candidates'
+MoE modules load under different names and allocate in a different order, which may move page placement (the box
+doc's untested hypothesis for MoE variance). It is inside the threshold (2.88 / 1.79 us).
+
+### Decision
+
+ly_slpf is a null (-0.15 / -0.26 us, 14 and 17 of 24 pairs); ruled-out row added. ly_slpfb wins decode 1 full by
+0.58 us (24 of 24 pairs in each two-round set) and decode 1 sliding by 0.36 us (21 of 24 in each), 0.42 us on the
+46:16 load weighting; every other cell is inside its threshold. Against the lead's bar (0.4 us with 20 or more of
+24 pairs, nothing else losing beyond noise) it passes at full and on the weighted load, and misses at sliding by
+0.02 to 0.06 us. Ledger line written as a proposal; no judge check dispatched by this lane. Expected judge value:
+about 0.5 us x 0.212% per us = 0.1% of score, below one draw's spread, so a check would establish validity, not
+rank.
