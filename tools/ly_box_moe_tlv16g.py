@@ -54,8 +54,15 @@ def wgs_split(pb, g0, g1):
     return ue if (REORDER and pb == 0 and (g1 & 15) != 0 and ue > g0) else g0
 
 
+RFIN2 = 0  # ly_rfin2 bases (--rfin2 MASK): the cut share before the range's last whole unit (bit 0 phase A, bit 1 phase B)
+
+
 def issue_order(pb, g0, g1):
-    """stages in the order the producers issue them (phase A: the trailing partial unit first)"""
+    """stages in the order the producers issue them (phase A: the trailing partial unit first; rfin2: [g0, uw), [ue, g1), [uw, ue))"""
+    ue = ((g1 - 1) >> 4) << 4
+    uw = ue - 16
+    if ((RFIN2 >> pb) & 1) and (g1 & 15) != 0 and uw >= g0:
+        return list(range(g0, uw)) + list(range(ue, g1)) + list(range(uw, ue))
     sp = wgs_split(pb, g0, g1)
     return list(range(sp, g1)) + list(range(g0, sp))
 
@@ -182,9 +189,11 @@ def main():
     ap.add_argument("--out", default="")
     ap.add_argument("--raw", type=int, default=0)
     ap.add_argument("--no-reorder", action="store_true", help="the base runs its phase A range in order (OKC_WGSREORD 0)")
+    ap.add_argument("--rfin2", type=int, default=0, help="ly_rfin2 bases: the OKC_RFIN2 mask of the walk (implies --no-reorder)")
     a = ap.parse_args()
-    global REORDER
-    REORDER = not a.no_reorder
+    global REORDER, RFIN2
+    REORDER = not (a.no_reorder or a.rfin2)
+    RFIN2 = a.rfin2
     if a.lock:
         br.release_lock_for_triton()
         br.BudgetClock.install()
