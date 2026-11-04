@@ -86,6 +86,34 @@ struct Params {
   uint32_t zero;                   // runtime 0 (k16 opaque to ptxas, as in helper0)
 };
 
+// Loop knobs (CL-1.3a). CLB_LOOP_BREG: -1 auto (B fragments in registers when the block needs at most 64 of
+// them), 0 never, 1 always. CLB_LOOP_DQ: 1 r3 merge on the FMA pipe, 0 the LOP3 form. CLB_LOOP_DIAG: bench
+// diagnostics, see cl_unit_loop.cuh. CLB_NREG16: consumer registers at NCW = 16 through setmaxnreg (0 keeps the
+// launch split of 96 for every warp); the four other warps get what remains of the 64K file, rounded down to 8.
+#ifndef CLB_LOOP_BREG
+#define CLB_LOOP_BREG -1
+#endif
+#ifndef CLB_LOOP_DQ
+#define CLB_LOOP_DQ 0
+#endif
+#ifndef CLB_LOOP_DIAG
+#define CLB_LOOP_DIAG 0
+#endif
+#ifndef CLB_NREG16
+#define CLB_NREG16 112
+#endif
+#ifndef CLB_ACC_SMEM
+#define CLB_ACC_SMEM 1
+#endif
+// setmaxnreg.inc can only take registers that setmaxnreg.dec released inside the CTA, so the split stays within
+// the launch allocation 640 x 96 (an inc beyond it blocks forever: the first 1.3a build hung 2.5 h on that).
+constexpr int NREG16_OTHER = ((640 * 96 - 16 * 32 * CLB_NREG16) / (4 * 32)) / 8 * 8;
+static_assert(CLB_NREG16 == 0 || (NREG16_OTHER >= 24 && NREG16_OTHER <= 96 && CLB_NREG16 % 8 == 0), "CLB_NREG16");
+// Running per-unit sums in shared memory at T_MAX = 8 (16 KB: 32 units x 32 lanes x float4) instead of 16 registers
+// per lane; with the 64-register B cache the 16-warp consumer spills otherwise.
+__host__ __device__ constexpr bool acc_smem(int tmax) { return CLB_ACC_SMEM != 0 && tmax == 8; }
+__host__ __device__ constexpr int acc_bytes(int tmax) { return acc_smem(tmax) ? 32 * 32 * 16 : 0; }
+
 __host__ __device__ constexpr int buf_bytes(int tmax) { return tmax * BROW * 2; }
 __host__ __device__ constexpr int smem_bytes(int tmax, int depth, int slab_cols) {
   return depth * SLOT + 2 * buf_bytes(tmax) + tmax * slab_cols * 2 + acc_bytes(tmax);
@@ -157,34 +185,6 @@ __device__ __forceinline__ void cl_arrive_release() { asm volatile("barrier.clus
 __device__ __forceinline__ void cl_arrive_relaxed() { asm volatile("barrier.cluster.arrive.relaxed;" ::: "memory"); }
 __device__ __forceinline__ void cl_wait() { asm volatile("barrier.cluster.wait.acquire;" ::: "memory"); }
 
-// Loop knobs (CL-1.3a). CLB_LOOP_BREG: -1 auto (B fragments in registers when the block needs at most 64 of
-// them), 0 never, 1 always. CLB_LOOP_DQ: 1 r3 merge on the FMA pipe, 0 the LOP3 form. CLB_LOOP_DIAG: bench
-// diagnostics, see cl_unit_loop.cuh. CLB_NREG16: consumer registers at NCW = 16 through setmaxnreg (0 keeps the
-// launch split of 96 for every warp); the four other warps get what remains of the 64K file, rounded down to 8.
-#ifndef CLB_LOOP_BREG
-#define CLB_LOOP_BREG -1
-#endif
-#ifndef CLB_LOOP_DQ
-#define CLB_LOOP_DQ 1
-#endif
-#ifndef CLB_LOOP_DIAG
-#define CLB_LOOP_DIAG 0
-#endif
-#ifndef CLB_NREG16
-#define CLB_NREG16 112
-#endif
-#ifndef CLB_ACC_SMEM
-#define CLB_ACC_SMEM 1
-#endif
-// setmaxnreg.inc can only take registers that setmaxnreg.dec released inside the CTA, so the split stays within
-// the launch allocation 640 x 96 (an inc beyond it blocks forever: the first 1.3a build hung 2.5 h on that).
-constexpr int NREG16_OTHER = ((640 * 96 - 16 * 32 * CLB_NREG16) / (4 * 32)) / 8 * 8;
-static_assert(CLB_NREG16 == 0 || (NREG16_OTHER >= 24 && NREG16_OTHER <= 96 && CLB_NREG16 % 8 == 0), "CLB_NREG16");
-// Running per-unit sums in shared memory at T_MAX = 8 (16 KB: 32 units x 32 lanes x float4) instead of 16 registers
-// per lane; with the 64-register B cache the 16-warp consumer spills otherwise.
-__host__ __device__ constexpr bool acc_smem(int tmax) { return CLB_ACC_SMEM != 0 && tmax == 8; }
-__host__ __device__ constexpr int acc_bytes(int tmax) { return acc_smem(tmax) ? 32 * 32 * 16 : 0; }
-
 template <int NTT, int NCHB>
 __host__ __device__ constexpr bool breg_fits() {
   return CLB_LOOP_BREG == 1 || (CLB_LOOP_BREG == -1 && NTT * NCHB * 8 <= 64);
@@ -255,7 +255,9 @@ __device__ __forceinline__ void consume_block(const Params& p, const Smem& sm, c
 #pragma unroll 1
   for (int jj = 0; jj < R; ++jj) {
     const int it = bi * SPB + jj * NG + grp, s = it % D;
-    if (stamp) {
+    if (CLB_LOOP_DIAG == 6) {
+      if (stamp && it == 0) st[2] = gtimer();
+    } else if (stamp) {
       const unsigned long long t0 = gtimer();
       mbar_wait(&sm.full[s], (it / D) & 1);
       const unsigned long long t1 = gtimer();
@@ -432,19 +434,14 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(n_threads(NCW), 1) p
 
   const Slice q = slice_info(p, slice, rank);
 
-  // NCW = 8: 384 threads x 168 registers at launch; warpgroups 0-1 (consumers) take 208, warpgroup 2 keeps 88:
-  // 256 x 208 + 128 x 88 = 64,512, the launch total. Without this the T = 32 consumer spills (240 B at 168).
-  if (NCW == 8) {
-    if (warp < NCW) asm volatile("setmaxnreg.inc.sync.aligned.u32 208;");
-    else asm volatile("setmaxnreg.dec.sync.aligned.u32 88;");
-  }
-  // NCW = 16: 640 threads x 96 at launch; warpgroups 0-3 (consumers) take CLB_NREG16, warpgroup 4 keeps the rest.
-  if (NCW == 16 && CLB_NREG16 > 0) {
-    if (warp < NCW) asm volatile("setmaxnreg.inc.sync.aligned.u32 %0;" :: "n"(CLB_NREG16));
-    else asm volatile("setmaxnreg.dec.sync.aligned.u32 %0;" :: "n"(NREG16_OTHER));
-  }
-
+  // Register split. NCW = 8: 384 threads x 168 at launch; warpgroups 0-1 (consumers) take 208, warpgroup 2 keeps
+  // 88 (256 x 208 + 128 x 88 = 64,512, the launch total). NCW = 16: 640 x 96 at launch; warpgroups 0-3 take
+  // CLB_NREG16, warpgroup 4 keeps NREG16_OTHER. The setmaxnreg sits at the top of each role branch: ptxas raises
+  // the register budget only for code it can see is dominated by the inc (a shared branch before the role
+  // dispatch left the 1.3a consumer at 96 registers with 40 to 104 bytes of spills).
   if (warp < NCW) {
+    if (NCW == 8) asm volatile("setmaxnreg.inc.sync.aligned.u32 208;");
+    if (NCW == 16 && CLB_NREG16 > 0) asm volatile("setmaxnreg.inc.sync.aligned.u32 %0;" :: "n"(CLB_NREG16));
     cl_arrive_relaxed();   // phase 0 (slabs published): consumers publish nothing
     const int ntt = (q.ntok + 7) >> 3;
     if (TM <= 8 || ntt == 1) consumer<1, TM, NCW, DBG>(p, sm, q, rank, warp, lane, st);
@@ -454,6 +451,8 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(n_threads(NCW), 1) p
     // Consumers leave here: barrier.cluster.wait waits only for non-exited threads, so the end-of-kernel
     // barrier does not need them, and they never execute its acquire (UCGABAR_WAIT + CCTL.IVALL).
   } else if (warp == WP) {
+    if (NCW == 8) asm volatile("setmaxnreg.dec.sync.aligned.u32 88;");
+    if (NCW == 16 && CLB_NREG16 > 0) asm volatile("setmaxnreg.dec.sync.aligned.u32 %0;" :: "n"(NREG16_OTHER));
     cl_arrive_relaxed();
     if (lane == 0) {
       uint64_t pol;
@@ -488,6 +487,8 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(n_threads(NCW), 1) p
     cl_arrive_relaxed();
     cl_wait();
   } else if (warp < WS0 + NSW) {
+    if (NCW == 8) asm volatile("setmaxnreg.dec.sync.aligned.u32 88;");
+    if (NCW == 16 && CLB_NREG16 > 0) asm volatile("setmaxnreg.dec.sync.aligned.u32 %0;" :: "n"(NREG16_OTHER));
     // staging warps: load the own slab, publish it, gather each K block into the block buffers
     const int tid = threadIdx.x - 32 * WS0;
     const int nst = 32 * NSW;
@@ -563,6 +564,8 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(n_threads(NCW), 1) p
     cl_wait();
   } else {
     // epilogue warp
+    if (NCW == 8) asm volatile("setmaxnreg.dec.sync.aligned.u32 88;");
+    if (NCW == 16 && CLB_NREG16 > 0) asm volatile("setmaxnreg.dec.sync.aligned.u32 %0;" :: "n"(NREG16_OTHER));
     cl_arrive_relaxed();
     mbar_wait(sm.yready, 0);
     const float* ystage = reinterpret_cast<const float*>(sm.ring);

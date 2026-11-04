@@ -12,7 +12,8 @@
 //   DQ = 1: the r3 merge of the DQ7 unpack is an IMAD (x * one + y, `one` a runtime 1), which moves one LOP3 per
 //     word from the ALU pipe (16 lanes) to the FMA pipe. Bitwise identical: the two masked operands are disjoint.
 //   DIAG (bench only, numerics garbage): 1 B fragments are lane constants (no B loads), 2 no E2M1 unpack
-//     (a = word, scale multiply kept), 3 no unpack and no scale multiply, 4 no mma (one FADD per step per tile).
+//     (a = word, scale multiply kept), 3 no unpack and no scale multiply, 4 no mma (one FADD per step per tile),
+//     5 no code and scale loads (lane constants), 6 (cl_phase_b.cuh) consumers do not wait on the stage barrier.
 #pragma once
 #include <cuda_bf16.h>
 #include <stdint.h>
@@ -84,7 +85,8 @@ __device__ __forceinline__ void unit_block(const unsigned char* slot, int u8, in
   for (int n = 0; n < NTT; ++n)
 #pragma unroll
     for (int k = 0; k < 4; ++k) { acc[n][k] = 0.f; c1[n][k] = 0.f; c2[n][k] = 0.f; c3[n][k] = 0.f; }
-  const uint4 sc = clm::unit_scales(slot, u8, lane);
+  const uint4 sc = DIAG == 5 ? make_uint4(0x3E3E3E3Eu + lane, 0x3F3F3F3Fu, 0x40404040u, 0x41414141u)
+                             : clm::unit_scales(slot, u8, lane);
   const uint4* base[NTT];
   if (!BREG) {
 #pragma unroll
@@ -93,7 +95,8 @@ __device__ __forceinline__ void unit_block(const unsigned char* slot, int u8, in
   }
 #pragma unroll
   for (int c = CLO; c < CHI; ++c) {
-    const uint4 w = clm::unit_codes(slot, u8, c, lane);
+    const uint4 w = DIAG == 5 ? make_uint4(0x12345678u * (c + 1) + lane, 0x9ABCDEF0u + c, 0x0F0F0F0Fu + lane, 0xF0F0F0F0u + c)
+                              : clm::unit_codes(slot, u8, c, lane);
     uint32_t sg, sg8;
     clm::scale_pair(sc, c, op.k16, sg, sg8);
     const uint32_t ww[4] = {w.x, w.y, w.z, w.w};

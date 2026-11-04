@@ -7120,3 +7120,58 @@ exchange is not what keeps phase B from the floor.
   more slices.
 - At T = 32 with S = 1 (distinct >= 15), slab 32 KB + 2 block buffers 65 KB + ring 147 KB exceed 227 KB; the
   bench's Runner drops to depth 3 there (smem 209,920). Not timed.
+
+## CL-1.3a unit loop
+
+Task 1.3a of docs/plans/2026-11-04-moe-cluster-rewrite.md (section 9): make the phase B consumer unit loop run at
+or near issue rate. Box okc-h200, 2026-11-04 UTC, under gpu.lock, nvcc 13.0 sm_90a, no judge job. Files:
+`muse_moe_w4a16/cl/cl_unit_loop.cuh` (the loop, included by cl_phase_b.cuh and designed for phase A),
+`cl_phase_b.cuh` (loop section: `consume_block`, register split, the CL-1.1 proxy fence at the slot release),
+`cl_phase_b_bench.py` (`--defines` loop knobs, `--census` registers and opcode mix per HMMA); logs and JSON in
+`muse_moe_w4a16/cl/profiles/1.3a/`. Every number below is the 1.2 bench: 15 slices on 120 CTAs (fill rule at 15
+clusters, distinct 7), 5 judge-like inputs x 20 replays after a 1 GiB flush, in-kernel globaltimer span, medians.
+"math-only" is the bench's `compute` mode (producer skips the loads), "no exchange" its `none` mode (loads on,
+no gather). The control is the main-branch cl_phase_b.cuh b1f1894d (CL-1.2's bytes) run in the same session.
+
+### Control (main-branch loop, re-measured this session)
+
+| T, consumer warps | math-only span us (floor ratio) | no-exchange span us | per stage, math-only |
+|---|---:|---:|---:|
+| 8, 16 | 20.96 [20.58-22.30] (1.412) | 26.11 [25.54-27.23] (1.759) | (20.96 - 2.80 first stage) / 16 stages = 1.14 us |
+| 32, 8 | 27.97 [26.40-36.64] (1.884) | 29.97 [28.80-39.81] (2.019) | |
+
+CL-1.2 reported 21.18 / 26.24 and 28.29 / 30.64 for the same cells: the session-to-session spread is about 1%.
+
+### Round 1: B fragments cached per K block, r3 merge on IMAD, 112-register consumers (all losses)
+
+| variant (T = 8, 16 warps) | knobs | reg / stack | per HMMA: LOP3, IMAD, HMUL2, SHF, LDS | math-only us | no-exchange us |
+|---|---|---|---|---:|---:|
+| control | - | 96 / 0 | 5.1, 2.4, 4.0, 2.2, 1.0 | 20.96 | 26.11 |
+| v1 | BREG, DQ 1, 112 regs, acc in smem | 96 / 64 | 5.0, 3.7, 3.9, 2.4, 0.66 | 24.83 | 27.10 |
+| v1 DQ 0 | BREG, LOP3 merge | 96 / 64 | 5.1, 2.9, 3.8, 2.4, 0.66 | 24.22 | 26.74 |
+| v1 BREG 0 | per-chunk B loads, DQ 1 | 96 / 64 | 4.9, 3.5, 3.9, 2.4, 0.73 | 22.77 | 29.31 |
+| v1 104 regs | | 96 / 40 | | 26.43 | 28.32 |
+| v1 96 regs (no setmaxnreg) | | 96 / 104 | | 27.58 | 29.86 |
+
+T = 32 (8 warps, 168 registers, no spills, BREG cannot apply at NTT = 4): v1 28.85, DQ 0 29.15, BREG 0 28.77 against
+the control's 27.97 math-only: the DQ 1 form costs about 0.9 us.
+
+Two causes, both fixed in round 2:
+
+1. The r3 merge as `x * one + y` does not remove a LOP3: the original `(a & M2) | t` is one LOP3 that masks and
+   merges, so DQ 1 only adds an IMAD per word (IMAD per HMMA 1.74 to 2.02 at T = 32, LOP3 unchanged at 2.17). The
+   5 LOP3 + 2 SHF + 2 IMAD per word of the DQ7 unpack is the minimum for this fragment layout: the four A registers
+   need translates of the bit set {6, 7, 8, 15} that cannot tile Z/16 (translates by 0, 3 and 6 leave {0, 1, 3, 4},
+   which is not a translate), so one register always needs two shifted sources. DQ stays 0.
+2. ptxas raised no register budget for the consumer: `setmaxnreg` sat in a branch before the role dispatch, so the
+   consumer region was not dominated by the `inc` and was compiled at the launch count (96) with the 64-register
+   B cache spilling 40 to 104 bytes. In addition the first build asked `inc 112` on 16 warps while the 4 other warps'
+   `dec 64` released only 4,096 registers of the 640 x 96 launch allocation; `inc` draws only on registers released
+   inside the CTA, so the consumer warpgroups blocked for 2.5 hours at 100% GPU until killed. The split is now
+   computed from the launch total (112 / 32 at NCW = 16, staging warps keep 4 pieces in flight instead of 8) and
+   each role branch starts with its own `setmaxnreg`.
+
+Diagnostics in round 1 (v1 structure, spilling, T = 8 math-only): no mma 19.42 us, no E2M1 unpack 20.14, no unpack
+and no scale multiply 20.67, no B loads 23.71, against 24.83 for v1 and 20.96 for the control. Removing any one
+class of the loop's instructions leaves 19.4 to 20.7 us: the loop is not bound by the ALU, the FMA pipe or the
+tensor pipe alone. Round 2 removes what the modes share (the code loads, the per-stage barrier wait).
