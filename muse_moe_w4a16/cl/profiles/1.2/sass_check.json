@@ -1,0 +1,110 @@
+{
+ "_ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6ParamsE": {
+  "kind": "kernel",
+  "ops": {
+   "STG.E.64": 22,
+   "SYNCS.EXCH.64": 64,
+   "BAR.SYNC.DEFER_BLOCKING": 5,
+   "UCGABAR_ARV": 13,
+   "SYNCS.PHASECHK.TRANS64.TRYWAIT": 32,
+   "UCGABAR_WAIT": 12,
+   "CCTL.IVALL": 12,
+   "MEMBAR.ALL.CTA": 4,
+   "MEMBAR.ALL.GPU": 4,
+   "ERRBAR": 4,
+   "SYNCS.ARRIVE.TRANS64.A1T0": 16,
+   "SYNCS.ARRIVE.TRANS64": 1,
+   "HMMA.16816.F32.BF16": 640
+  }
+ },
+ "_ZN3clb14phase_b_kernelILi32ELi8ELb1EEEvNS_6ParamsE": {
+  "kind": "kernel",
+  "ops": {
+   "STG.E.64": 22,
+   "SYNCS.EXCH.64": 64,
+   "BAR.SYNC.DEFER_BLOCKING": 5,
+   "UCGABAR_ARV": 13,
+   "SYNCS.PHASECHK.TRANS64.TRYWAIT": 32,
+   "UCGABAR_WAIT": 12,
+   "CCTL.IVALL": 12,
+   "MEMBAR.ALL.CTA": 4,
+   "MEMBAR.ALL.GPU": 4,
+   "ERRBAR": 4,
+   "SYNCS.ARRIVE.TRANS64.A1T0": 16,
+   "SYNCS.ARRIVE.TRANS64": 1,
+   "HMMA.16816.F32.BF16": 640
+  }
+ },
+ "_ZN3clb14phase_b_kernelILi8ELi8ELb0EEEvNS_6ParamsE": {
+  "kind": "kernel",
+  "ops": {
+   "STG.E.64": 10,
+   "SYNCS.EXCH.64": 64,
+   "BAR.SYNC.DEFER_BLOCKING": 2,
+   "UCGABAR_ARV": 13,
+   "SYNCS.PHASECHK.TRANS64.TRYWAIT": 14,
+   "UCGABAR_WAIT": 12,
+   "CCTL.IVALL": 12,
+   "MEMBAR.ALL.CTA": 4,
+   "MEMBAR.ALL.GPU": 4,
+   "ERRBAR": 4,
+   "SYNCS.ARRIVE.TRANS64.A1T0": 7,
+   "SYNCS.ARRIVE.TRANS64": 1,
+   "HMMA.16816.F32.BF16": 64
+  }
+ },
+ "_ZN3clb14phase_b_kernelILi8ELi8ELb1EEEvNS_6ParamsE": {
+  "kind": "kernel",
+  "ops": {
+   "STG.E.64": 10,
+   "SYNCS.EXCH.64": 64,
+   "BAR.SYNC.DEFER_BLOCKING": 2,
+   "UCGABAR_ARV": 13,
+   "SYNCS.PHASECHK.TRANS64.TRYWAIT": 14,
+   "UCGABAR_WAIT": 12,
+   "CCTL.IVALL": 12,
+   "MEMBAR.ALL.CTA": 4,
+   "MEMBAR.ALL.GPU": 4,
+   "ERRBAR": 4,
+   "SYNCS.ARRIVE.TRANS64.A1T0": 7,
+   "SYNCS.ARRIVE.TRANS64": 1,
+   "HMMA.16816.F32.BF16": 64
+  }
+ },
+ "_ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6ParamsE": {
+  "kind": "kernel",
+  "ops": {
+   "STG.E.64": 10,
+   "SYNCS.EXCH.64": 64,
+   "BAR.SYNC.DEFER_BLOCKING": 2,
+   "UCGABAR_ARV": 14,
+   "SYNCS.PHASECHK.TRANS64.TRYWAIT": 14,
+   "UCGABAR_WAIT": 12,
+   "CCTL.IVALL": 12,
+   "MEMBAR.ALL.CTA": 4,
+   "MEMBAR.ALL.GPU": 4,
+   "ERRBAR": 4,
+   "SYNCS.ARRIVE.TRANS64.A1T0": 7,
+   "SYNCS.ARRIVE.TRANS64": 1,
+   "HMMA.16816.F32.BF16": 64
+  }
+ },
+ "_ZN3clb14phase_b_kernelILi8ELi16ELb1EEEvNS_6ParamsE": {
+  "kind": "kernel",
+  "ops": {
+   "STG.E.64": 10,
+   "SYNCS.EXCH.64": 64,
+   "BAR.SYNC.DEFER_BLOCKING": 2,
+   "UCGABAR_ARV": 14,
+   "SYNCS.PHASECHK.TRANS64.TRYWAIT": 14,
+   "UCGABAR_WAIT": 12,
+   "CCTL.IVALL": 12,
+   "MEMBAR.ALL.CTA": 4,
+   "MEMBAR.ALL.GPU": 4,
+   "ERRBAR": 4,
+   "SYNCS.ARRIVE.TRANS64.A1T0": 7,
+   "SYNCS.ARRIVE.TRANS64": 1,
+   "HMMA.16816.F32.BF16": 64
+  }
+ }
+}

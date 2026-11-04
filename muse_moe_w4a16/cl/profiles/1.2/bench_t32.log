@@ -1,0 +1,15 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 51.1 s; sha cl_phase_b.cuh b1f1894d745cf7b9 bench 3b38f7efa072fb74
+LOCK acquired after 0.0 s
+APPS none
+PICK only 4 of 5 inputs with 7 distinct experts in seeds 1000..3999; scanned distribution {7: 4, 8: 12, 9: 24, 10: 54, 11: 100, 12: 157, 13: 261, 14: 326, 15: 389, 16: 399, 17: 381, 18: 359, 19: 261, 20: 145, 21: 77, 22: 33, 23: 13, 24: 3, 25: 1, 26: 1}; synthesizing
+BENCH T=32 distinct=7 policy=fill15 ncw=8 slices=15 sc_max=256 depth=4 smem=230400 floor 14.85 us inputs [1000, 1001, 1002, 1003, 1004] synthetic=True
+RUN T=32 b_rot1  span  34.05 [31.62-54.75] us ratio 2.294 from-slab 31.84 (2.145) event  39.66 | slab-load 2.50 cons 32.59 slab-pub 3.36 first-stage 6.27 gather-end 23.58 | cons wait on gather med 4.32 max 10.86, on weights 1.34 | end spread 6.54
+RUN T=32 b_rot0  span  34.05 [31.78-52.86] us ratio 2.294 from-slab 31.73 (2.137) event  39.47 | slab-load 2.53 cons 32.90 slab-pub 3.38 first-stage 6.27 gather-end 23.58 | cons wait on gather med 4.37 max 10.94, on weights 1.31 | end spread 6.82
+RUN T=32 b_nat   span  34.05 [31.81-54.11] us ratio 2.294 from-slab 31.86 (2.146) event  39.60 | slab-load 2.53 cons 32.86 slab-pub 3.36 first-stage 6.30 gather-end 23.55 | cons wait on gather med 4.41 max 9.73, on weights 1.34 | end spread 6.96
+RUN T=32 c_rot1  span  36.67 [31.84-58.40] us ratio 2.470 from-slab 34.34 (2.313) event  42.14 | slab-load 2.71 cons 34.91 slab-pub 3.64 first-stage 6.43 gather-end 23.46 | cons wait on gather med 4.62 max 12.86, on weights 1.31 | end spread 5.57
+RUN T=32 none    span  30.64 [29.82-40.22] us ratio 2.064 from-slab 28.35 (1.910) event  36.22 | slab-load 2.54 cons 29.86 slab-pub 3.41 first-stage 4.45 gather-end 17.98 | cons wait on gather med 2.22 max 3.95, on weights 1.57 | end spread 2.72
+RUN T=32 stream  span  19.81 [18.98-24.19] us ratio 1.334 from-slab 17.60 (1.186) event  25.25 | slab-load 2.46 cons 18.88 slab-pub 3.37 first-stage 4.40 gather-end 11.23 | cons wait on gather med 2.40 max 4.00, on weights 9.57 | end spread 1.57
+RUN T=32 compute span  28.29 [27.14-36.90] us ratio 1.906 from-slab 25.98 (1.750) event  33.74 | slab-load 2.58 cons 27.18 slab-pub 3.13 first-stage 3.68 gather-end 16.68 | cons wait on gather med 1.86 max 2.88, on weights 1.15 | end spread 1.94
+LOCK released

@@ -1,0 +1,22 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 48.9 s; sha cl_phase_b.cuh b1f1894d745cf7b9 bench 3b38f7efa072fb74
+LOCK acquired after 0.0 s
+APPS none
+BENCH T=8 distinct=7 policy=fill15 ncw=16 slices=15 sc_max=256 depth=4 smem=168192 floor 14.85 us inputs [1000, 1017, 1020, 1022, 1025] synthetic=False
+RUN T= 8 b_rot1  span  27.26 [26.59-30.18] us ratio 1.837 from-slab 25.55 (1.721) event  32.86 | slab-load 1.79 cons 26.21 slab-pub 2.46 first-stage 4.94 gather-end 17.48 | cons wait on gather med 4.03 max 11.57, on weights 6.75 | end spread 4.77
+RUN T= 8 b_rot0  span  27.36 [26.62-30.11] us ratio 1.843 from-slab 25.62 (1.726) event  32.85 | slab-load 1.79 cons 26.16 slab-pub 2.50 first-stage 4.96 gather-end 17.56 | cons wait on gather med 4.06 max 11.76, on weights 6.78 | end spread 4.61
+RUN T= 8 b_nat   span  27.50 [26.56-31.10] us ratio 1.853 from-slab 25.81 (1.738) event  33.14 | slab-load 1.79 cons 26.32 slab-pub 2.46 first-stage 4.92 gather-end 17.55 | cons wait on gather med 4.07 max 11.41, on weights 6.82 | end spread 4.69
+RUN T= 8 c_rot1  span  28.48 [27.46-31.33] us ratio 1.918 from-slab 26.70 (1.799) event  34.08 | slab-load 1.89 cons 26.88 slab-pub 2.72 first-stage 5.67 gather-end 18.19 | cons wait on gather med 4.77 max 12.08, on weights 6.75 | end spread 4.82
+RUN T= 8 none    span  26.24 [25.66-27.52] us ratio 1.768 from-slab 24.50 (1.650) event  31.78 | slab-load 1.76 cons 24.72 slab-pub 2.28 first-stage 3.78 gather-end 14.14 | cons wait on gather med 2.05 max 4.18, on weights 9.91 | end spread 6.46
+RUN T= 8 stream  span  18.13 [17.41-20.13] us ratio 1.221 from-slab 16.40 (1.105) event  23.55 | slab-load 1.76 cons 17.42 slab-pub 2.43 first-stage 3.70 gather-end 10.53 | cons wait on gather med 2.13 max 4.21, on weights 10.73 | end spread 2.67
+RUN T= 8 compute span  21.18 [20.74-22.24] us ratio 1.427 from-slab 19.34 (1.303) event  26.53 | slab-load 1.79 cons 20.61 slab-pub 2.18 first-stage 2.80 gather-end 12.21 | cons wait on gather med 1.98 max 2.85, on weights 0.74 | end spread 5.71
+BENCH T=8 distinct=7 policy=fill15 ncw=8 slices=15 sc_max=256 depth=4 smem=168192 floor 14.85 us inputs [1000, 1017, 1020, 1022, 1025] synthetic=False
+RUN T= 8 b_rot1  span  29.18 [28.35-31.42] us ratio 1.966 from-slab 27.30 (1.839) event  34.75 | slab-load 1.89 cons 28.67 slab-pub 2.53 first-stage 4.93 gather-end 19.36 | cons wait on gather med 3.78 max 8.72, on weights 1.18 | end spread 5.44
+RUN T= 8 b_rot0  span  29.10 [28.29-31.36] us ratio 1.961 from-slab 27.17 (1.830) event  34.66 | slab-load 1.90 cons 28.54 slab-pub 2.51 first-stage 4.90 gather-end 19.27 | cons wait on gather med 3.74 max 9.01, on weights 1.18 | end spread 5.26
+RUN T= 8 b_nat   span  29.14 [28.42-31.68] us ratio 1.963 from-slab 27.31 (1.840) event  34.67 | slab-load 1.89 cons 28.64 slab-pub 2.50 first-stage 4.89 gather-end 19.33 | cons wait on gather med 3.74 max 8.51, on weights 1.18 | end spread 5.34
+RUN T= 8 c_rot1  span  29.87 [28.90-31.84] us ratio 2.012 from-slab 27.90 (1.880) event  35.30 | slab-load 1.98 cons 29.33 slab-pub 2.80 first-stage 5.46 gather-end 19.85 | cons wait on gather med 4.26 max 9.46, on weights 1.18 | end spread 5.28
+RUN T= 8 none    span  27.78 [26.88-29.28] us ratio 1.871 from-slab 25.89 (1.744) event  33.31 | slab-load 1.90 cons 27.26 slab-pub 2.50 first-stage 3.90 gather-end 14.82 | cons wait on gather med 1.92 max 3.70, on weights 3.46 | end spread 6.78
+RUN T= 8 stream  span  18.29 [17.82-20.70] us ratio 1.232 from-slab 16.43 (1.107) event  23.74 | slab-load 1.89 cons 17.82 slab-pub 2.36 first-stage 3.81 gather-end 10.75 | cons wait on gather med 1.77 max 3.68, on weights 9.62 | end spread 3.09
+RUN T= 8 compute span  25.06 [24.64-26.02] us ratio 1.688 from-slab 23.17 (1.561) event  30.50 | slab-load 1.92 cons 24.54 slab-pub 2.30 first-stage 2.85 gather-end 14.24 | cons wait on gather med 1.73 max 2.59, on weights 1.22 | end spread 6.35
+LOCK released
