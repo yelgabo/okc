@@ -9,7 +9,8 @@ phase A at the replay's 4.7 to 4.95 TB/s in place, so the stream is not the limi
 1.22 to 1.26 us per unit at the 1740 to 1780 MHz the math's power sets, and the consumer waits only 1.6 to 3 us per
 CTA. About half of each unit's time is the per-unit barrier, hand-off and refill rather than math, so a second CTA
 on the SM can run its math under the first one's stalls. The ring drops from 3 to 2 slots so two CTAs fit the SM's
-shared memory (2 x (36.7 KB tables + 73.7 KB ring + 1 KB)); the launch bound allows 112 registers per thread
+shared memory (2 x (36.7 KB tables + 73.7 KB ring + 1 KB), with the tiny builds' dynamic footprint sized by the
+skinny ring alone: their fat path traps, and the fat sizing alone kept it at 178 KB); the launch bound allows 112 registers per thread
 (65,536 / (2 x 288)). The unit ranges, grid barrier, dynamic pool and final pass already index by gridDim.x, so the
 larger grid changes only how many units each CTA streams. No fence, barrier or arithmetic order changes: bitwise
 output.
@@ -46,6 +47,11 @@ GRID_OLD = "  int device=0; cudaDeviceProp prop{}; int resident=0;\n"
 GRID_NEW = "  grid *= OKC_MINB;\n" + GRID_OLD
 CHECK_OLD = "  TORCH_CHECK(grid>0 && grid<=prop.multiProcessorCount && grid<=136 && grid<160,\n"
 CHECK_NEW = "  TORCH_CHECK(grid>0 && grid<=OKC_MINB*prop.multiProcessorCount && grid<=OKC_MINB*136 && grid<OKC_MINB*160,\n"
+SMEM_OLD = "  size_t xb = (size_t)okc::NSF * okc::UNIT_BYTES + 2 * (size_t)okc::FT_T * okc::XP_FT * 2;\n"
+SMEM_NEW = SMEM_OLD + """#if OKC_TINY
+  xb = 0;  // the tiny builds never run the fat path (run_phase traps on fat units): size by the skinny ring alone
+#endif
+"""
 DEF_ANCHOR = 'MOE_TINY_DEFINES += ("@moe_helper0", "-DOKC_FINPF=1", "-DOKC_NOSCL=1")\n'
 NAMES = {"tiny": "MOE_TINY_DEFINES", "tiny2": "MOE_TINY2_DEFINES", "mid": "MOE_MID_DEFINES"}
 
@@ -55,7 +61,7 @@ def main():
     if hashlib.sha256(raw).hexdigest() != PIN:
         sys.exit(f"{SRC.name} SHA256 mismatch")
     s = raw.decode()
-    s = ul.edit(s, [(LB_OLD, LB_NEW), (GRID_OLD, GRID_NEW), (CHECK_OLD, CHECK_NEW)], "dual")
+    s = ul.edit(s, [(LB_OLD, LB_NEW), (GRID_OLD, GRID_NEW), (CHECK_OLD, CHECK_NEW), (SMEM_OLD, SMEM_NEW)], "dual")
     add = "".join(f'{NAMES[b]} += ("-DOKC_NS=2", "-DOKC_MINB=2")\n' for b in BUILDS.split(","))
     s = ul.once(s, DEF_ANCHOR, DEF_ANCHOR + add, "dual")
     DST.write_text(s)

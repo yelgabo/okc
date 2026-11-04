@@ -15226,6 +15226,9 @@ static size_t okc_smem_bytes() {
 #endif
   size_t xa = (size_t)OKC_NS * okc::UNIT_BYTES + (OKC_SKT > 8 ? (size_t)okc::NW * 8 * okc::X1P * 2 : 0);
   size_t xb = (size_t)okc::NSF * okc::UNIT_BYTES + 2 * (size_t)okc::FT_T * okc::XP_FT * 2;
+#if OKC_TINY
+  xb = 0;  // the tiny builds never run the fat path (run_phase traps on fat units): size by the skinny ring alone
+#endif
   return base + (xa > xb ? xa : xb);
 }
 
