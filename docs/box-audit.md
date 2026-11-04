@@ -232,9 +232,8 @@ current job mix (mostly six-load or four-load layer A/Bs, 50-90 s each, plus rv_
 3. `--pin-pdl8` with `--skip-pdl8-gate`: 8.3 s per prepare plus the rv lane's re-prepares, and it
    removes a 5-8 us confound from every g1b4_rs A/B at verify 1 / decode 16 / decode 32. Half an
    hour of work; the validity gain is larger than the time saved.
-4. Release the lock while a compile runs (the runner takes the lock itself and drops it around
-   load_inline). Not done: it needs the lock moved into the runner and a re-acquire path, and once
-   2 removes the family thrash, compiles happen only for new sources.
+4. Release the lock while a compile runs: built later at the user's request, see "Lock released
+   during compiles" below.
 
 ## Input generation
 
@@ -424,7 +423,7 @@ B held the lock for 10.4 s in all during its 106.1 s prepare. Lock and build tim
 |---|---|---|
 | 16:54:42-16:54:43 | holds the lock: weights, imports | waits |
 | 16:54:43-16:54:56 | compiles `proj_dl_escape_d8a1e29286a8`, lock released | a1 takes the lock at 16:54:46, 9.6 s overlap, 2 cells timed during the build |
-| 16:55:04-16:56:05 | compiles 8 extensions in parallel, lock released | a2, a3 and a4 hold the lock for 17.7 + 17.8 + 18.0 s, all 36 cells timed during the build |
+| 16:55:04-16:56:05 | compiles 7 extensions in parallel, lock released | a2, a3 and a4 hold the lock for 17.7 + 17.8 + 18.0 s, all 36 cells timed during the build |
 | 16:56:07-16:56:23 | two short compile windows (3.1 and 12.7 s) | A chain finished; nobody holds the lock |
 | 16:56:23-16:56:31 | holds the lock: prepare's GPU work, decode 1 timing | |
 | 16:56:32-16:56:50 | exited | a9 (control after B) |
