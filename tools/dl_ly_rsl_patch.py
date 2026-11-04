@@ -45,8 +45,49 @@ def arg(name, default):
 SRC = ROOT / arg("--base", "muse_decode_layer/cand/ly_v1un.py")
 PIN = arg("--pin", "88fbae8644f946af46b87ab89be17409e133ebab26d20cf61e9c3f3941788145")
 TL = "--tl" in sys.argv
+NOTRIG = "--no-trig" in sys.argv   # keep the MoE trigger at its phase B end (ly_rsl_nt): isolates the trigger move
+PAIR = "--pair" in sys.argv   # two tasks per call with interleaved FMA chains (ly_rsl2)
 HELD = 3   # the task schedule in kernel_src assumes three held tasks per warp
-DST = ROOT / arg("--out", "muse_decode_layer/cand/" + ("ly_rsl_tl.py" if TL else "ly_rsl.py"))
+DST = ROOT / arg("--out", "muse_decode_layer/cand/ly_rsl" + ("2" if PAIR else "") + ("_nt" if NOTRIG else "")
+                 + ("_tl" if TL else "") + ".py")
+
+
+TASK2_SRC = (
+        "// two tasks with their FMA chains interleaved; each task's own order is rs_task's\n"
+        "__device__ __forceinline__ void rs_task2(uint4 l0, uint4 l1, uint2 c0, uint2 c1, int tk,\n"
+        "                                         uint4 m0, uint4 m1, uint2 d0, uint2 d1, int tj, const uint4* xs, int ln,\n"
+        "                                         unsigned base4, float (*part)[5]) {\n"
+        "    const int ch = 32 * (tk >> 3) + ln, cj = 32 * (tj >> 3) + ln;\n"
+        "    float a = 0.f, e = 0.f;\n"
+        "    chunk_fma(l0, c0.x, c0.y, xs[2 * ch], xs[2 * ch + 1], base4, a);\n"
+        "    chunk_fma(m0, d0.x, d0.y, xs[2 * cj], xs[2 * cj + 1], base4, e);\n"
+        "    chunk_fma(l1, c1.x, c1.y, xs[2 * ch + 256], xs[2 * ch + 257], base4, a);\n"
+        "    chunk_fma(m1, d1.x, d1.y, xs[2 * cj + 256], xs[2 * cj + 257], base4, e);\n"
+        "#pragma unroll\n"
+        "    for (int o = 16; o > 0; o >>= 1) {\n"
+        "        a += __shfl_xor_sync(0xFFFFFFFFu, a, o);\n"
+        "        e += __shfl_xor_sync(0xFFFFFFFFu, e, o);\n"
+        "    }\n"
+        "    if (ln == 0) {\n"
+        "        part[tk & 7][tk >> 3] = a;\n"
+        "        part[tj & 7][tj >> 3] = e;\n"
+        "    }\n"
+        "}\n\n"
+)
+
+PAIR_SRC = (
+        "    rs_task2(hl[0][0], hl[0][1], hc[0][0], hc[0][1], wi, hl[1][0], hl[1][1], hc[1][0], hc[1][1], wi + 7, xs, ln, base4, part);\n"
+        "    uint4 al0, al1, bl0, bl1;\n"
+        "    uint2 ac0, ac1, bc0, bc1;\n"
+        "    rs_load(lo_plane, cd_plane, b, wi + 21, ln, al0, al1, ac0, ac1);\n"
+        "    if (wi < 4) {\n"
+        "        rs_load(lo_plane, cd_plane, b, wi + 28, ln, bl0, bl1, bc0, bc1);\n"
+        "        rs_task(hl[2][0], hl[2][1], hc[2][0], hc[2][1], xs, wi + 14, ln, base4, part);\n"
+        "        rs_task2(al0, al1, ac0, ac1, wi + 21, bl0, bl1, bc0, bc1, wi + 28, xs, ln, base4, part);\n"
+        "    } else {\n"
+        "        rs_task2(hl[2][0], hl[2][1], hc[2][0], hc[2][1], wi + 14, al0, al1, ac0, ac1, wi + 21, xs, ln, base4, part);\n"
+        "    }\n"
+)
 
 
 def kernel_src(tl):
@@ -70,6 +111,7 @@ def kernel_src(tl):
         "    a = warp_sum(a);\n"
         "    if (ln == 0) part[tk & 7][tk >> 3] = a;\n"
         "}\n\n"
+        + (TASK2_SRC if PAIR else "") +
         "__device__ __forceinline__ void rs_load(const uint8_t* lo_plane, const uint8_t* cd_plane, int b, int tk, int ln,\n"
         "                                        uint4& l0, uint4& l1, uint2& c0, uint2& c1) {\n"
         "    const int row = 8 * b + (tk & 7), ch = 32 * (tk >> 3) + ln;\n"
@@ -144,6 +186,7 @@ def kernel_src(tl):
         "    const int2* tb = table + (size_t)(4 * b + (pr < 0 ? 0 : pr)) * pmax;\n"
         "    int2 en = make_int2(0, 0);\n"
         "    if (pr >= 0) en = __ldg(tb + min(ln, pmax - 1));\n"
+        + (PAIR_SRC if PAIR else
         "    rs_task(hl[0][0], hl[0][1], hc[0][0], hc[0][1], xs, wi, ln, base4, part);\n"
         "    uint4 al0, al1, bl0, bl1;\n"
         "    uint2 ac0, ac1, bc0, bc1;\n"
@@ -152,7 +195,7 @@ def kernel_src(tl):
         "    if (wi < 4) rs_load(lo_plane, cd_plane, b, wi + 28, ln, bl0, bl1, bc0, bc1);\n"
         "    rs_task(hl[2][0], hl[2][1], hc[2][0], hc[2][1], xs, wi + 14, ln, base4, part);\n"
         "    rs_task(al0, al1, ac0, ac1, xs, wi + 21, ln, base4, part);\n"
-        "    if (wi < 4) rs_task(bl0, bl1, bc0, bc1, xs, wi + 28, ln, base4, part);\n"
+        "    if (wi < 4) rs_task(bl0, bl1, bc0, bc1, xs, wi + 28, ln, base4, part);\n")
         + S("    if (TL && tid == 0) tl[4] = cg_gt();\n") +
         "    if (pr >= 0) {\n"
         "        const int cnt = __shfl_sync(0xFFFFFFFFu, en.x, 0);\n"
@@ -236,8 +279,11 @@ FILE_EDITS = [
     # its launch rides on the pdl8 edit that turns the cgemv40 launch into cg_go (one-line list literal)
     (repr(CG40_GO)[1:-1], repr(RS_GO + CG40_GO)[1:-1], 1),
 ]
-HEADER = ("# ly_rsl: ly_v1un with the decode 1 unpooler slice as 128 CTAs of 7 warps that hold their codes from the MoE's "
+HEADER = ("# ly_rsl" + ("2" if PAIR else "") + ": ly_v1un with the decode 1 unpooler slice as 128 CTAs of 7 warps that hold their codes from the MoE's "
           "phase A end (TINY trigger moved there), bitwise equal output (tools/dl_ly_rsl_patch.py).\n")
+if NOTRIG:
+    HEADER = ("# ly_rsl_nt: ly_rsl with the MoE trigger left at its phase B end (control for the trigger move; "
+              "tools/dl_ly_rsl_patch.py --no-trig).\n")
 if TL:
     HEADER = ("# ly_rsl_tl: ly_rsl with globaltimer stamps in cgrs_kernel<true> (needs tools/dl_ly_pmt_patch.py on top). "
               "Instrument, not a candidate.\n")
@@ -254,13 +300,14 @@ def main():
     sha = hashlib.sha256(text.encode()).hexdigest()
     if sha != PIN:
         sys.exit(f"base {SRC} is {sha}, expected {PIN}")
-    a = text.index(HELPER_START)
-    b = text.index('"""', a + len(HELPER_START))
-    blk = text[a:b]
-    for old, new, n in HELPER_EDITS:
-        blk = sub(blk, old, new, n, "helper0")
-    text = text[:a] + blk + text[b:]
-    for old, new, n in FILE_EDITS:
+    if not NOTRIG:
+        a = text.index(HELPER_START)
+        b = text.index('"""', a + len(HELPER_START))
+        blk = text[a:b]
+        for old, new, n in HELPER_EDITS:
+            blk = sub(blk, old, new, n, "helper0")
+        text = text[:a] + blk + text[b:]
+    for old, new, n in (FILE_EDITS[1:] if NOTRIG else FILE_EDITS):
         text = sub(text, old, new, n, "file")
     text = HEADER + text
     DST.write_text(text)
