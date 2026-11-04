@@ -89,12 +89,9 @@ __device__ void wgs_publisher(const Params& p, Smem& S) {
 """
 
 EDITS = [
-    # the define, off everywhere but the MAIN build
-    ("#define OKC_WGSDFIN 2  // WGS: stream-K split units finished by a designated share (see wgs_flush): bit0 phase A, bit1 phase B\n",
-     "#define OKC_WGSDFIN 2  // WGS: stream-K split units finished by a designated share (see wgs_flush): bit0 phase A, bit1 phase B\n"
-     "#ifndef OKC_PUB\n#define OKC_PUB 0      // WGS: whole-unit releases by a publisher warp (ly_pub)\n#endif\n"),
-    # the fifth warp
+    # the define (off everywhere but the MAIN build) and the fifth warp
     ("constexpr int NTL = NT + (OKC_WGS ? 64 : OKC_WS ? 32 : 0);",
+     "#ifndef OKC_PUB\n#define OKC_PUB 0      // WGS: whole-unit releases by a publisher warp (ly_pub)\n#endif\n"
      "constexpr int NTL = NT + (OKC_WGS ? (OKC_PUB ? 96 : 64) : OKC_WS ? 32 : 0);"),
     # the mailbox
     ("  int wglast[4];      // WGS: this warpgroup completed a split unit\n",

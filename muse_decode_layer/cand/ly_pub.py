@@ -3990,6 +3990,9 @@ __device__ __forceinline__ void st_keep_bf16x2(__nv_bfloat16* a, __nv_bfloat162 
 
 constexpr int HD = 4096, ID = 4096;
 constexpr int NW = OKC_NW, NT = NW * 32;
+#ifndef OKC_PUB
+#define OKC_PUB 0      // WGS: whole-unit releases by a publisher warp (ly_pub)
+#endif
 constexpr int NTL = NT + (OKC_WGS ? (OKC_PUB ? 96 : 64) : OKC_WS ? 32 : 0);  // + helper warp (WS) | weights and x producer warps (WGS)  // launched: NT compute threads (+ helper warp | WGS producer warp + epilogue warpgroup)
 constexpr int NRB = OKC_WS ? OKC_WSNR : 2;   // cross-warp partial-sum buffers
 #if OKC_WS || OKC_WGS
@@ -5584,9 +5587,6 @@ __device__ __forceinline__ int wgs_cost(int pb, int cnt) {
 #define OKC_GATHB 8  // WGS: x rows gathered per batch (loads first, then stores); 0 = one row at a time
 #define OKC_WGSPR 1  // WGS: the x producer warp computes the stage ranges while the consumers gather
 #define OKC_WGSDFIN 2  // WGS: stream-K split units finished by a designated share (see wgs_flush): bit0 phase A, bit1 phase B
-#ifndef OKC_PUB
-#define OKC_PUB 0      // WGS: whole-unit releases by a publisher warp (ly_pub)
-#endif
 #define OKC_WGSFCI 4  // st2 (E374): the deferred flush at commit group 4 (FCI 3..7 sweep best)
 #define OKC_WGSGS 2  // WGS: k16 steps per wgmma commit group (4 serializes the N=16..32 variants at 96 registers: C7512)
 __device__ __forceinline__ void wgs_wait(uint64_t* bar, uint32_t parity, int tag) {
