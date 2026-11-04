@@ -13987,8 +13987,14 @@ __device__ __forceinline__ bool ws_any2(const Smem& S, int v0, int v1, int rbs) 
 #ifndef OKC_SPW2
 #define OKC_SPW2 4
 #endif
-constexpr int SPW1 = OKC_SPW1, SPW2 = OKC_SPW2;
-template <int K0, int K1>
+#ifndef OKC_SPB1
+#define OKC_SPB1 OKC_SPW1
+#endif
+#ifndef OKC_SPB2
+#define OKC_SPB2 OKC_SPW2
+#endif
+constexpr int SPW1 = OKC_SPW1, SPW2 = OKC_SPW2, SPB1 = OKC_SPB1, SPB2 = OKC_SPB2;  // phase A / phase B unit costs
+template <int K0, int K1, int SPW1, int SPW2>
 __device__ __forceinline__ void ws_split(int tot, int lane, int c, int G, int (&r)[4]) {
   const unsigned mT = __ballot_sync(0xffffffffu, tot > 0), m2 = __ballot_sync(0xffffffffu, tot > 8);
   const unsigned lt = (1u << lane) - 1u;
@@ -15293,7 +15299,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
 #if OKC_SKT > 8
     (void)nS1; (void)rG1;
     int wr[4];
-    ws_ranges<2>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);
+    ws_split<0, 2, SPW1, SPW2>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);
     const int v01 = wr[0], v11 = wr[1];
 #else
     const int v01 = muldiv_g(nS1, blockIdx.x, gridDim.x, rG1), v11 = muldiv_g(nS1, blockIdx.x + 1, gridDim.x, rG1);
@@ -15360,6 +15366,11 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
       }
       S.preissued = n > 0 ? n : 0;
     }
+#if OKC_SKT > 8
+    ws_split<2, 4, SPB1, SPB2>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);
+    if (ln == 0) { S.wsr[0] = wr[0]; S.wsr[1] = wr[1]; S.wsr[2] = wr[2]; S.wsr[3] = wr[3]; }
+#else
+#endif
   }
 #endif
   // pull every token row of x into L2 now (one 128 B line per thread-iteration); the skinny jobs read them later
@@ -15414,12 +15425,6 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
   }
 #if OKC_WS
 #if OKC_SKT > 8
-  if (tid < 32) {  // this CTA's unit ranges, split by cost (ws_ranges); run_phase and FAST1 use the same split
-    const int G = gridDim.x, c = blockIdx.x, tot = tid < p.nloc ? S.cnt[tid] : 0;
-    int r[4];
-    ws_ranges<4>(tot, tid, c, G, r);
-    if (tid == 0) { S.wsr[0] = r[0]; S.wsr[1] = r[1]; S.wsr[2] = r[2]; S.wsr[3] = r[3]; }
-  }
 #else
   if (tid == 0) {  // this CTA's unit ranges for the helper warp (the same exact split run_phase uses: no fat jobs)
     const int G = gridDim.x, c = blockIdx.x;
@@ -15756,7 +15761,7 @@ void okc_run(std::vector<torch::Tensor> w, std::vector<torch::Tensor> scratch, t
 
 """
 MOE_MID_DEFINES += ("@moe_helper0",)
-MOE_MID_DEFINES += ("-DOKC_SKT=16",)
+MOE_MID_DEFINES += ("-DOKC_SKT=16", "-DOKC_SPB1=4", "-DOKC_SPB2=7",)
 
 def _df_patch(c):
     def s1(s, old, new):

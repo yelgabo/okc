@@ -2081,3 +2081,131 @@ the prologue slower by more than the repeat costs. Reopen with a two-tile build 
 control's code (the two-tile loop in a separate function body that one-tile units never enter; the host cannot pick a
 build per launch, because it does not see the routing inside the graph) and a range split that costs the prologue
 nothing, or measure the loop's issue slots once Nsight counters are available on some host.
+
+## 2026-11-03 - ly_ws2u: ly_ws2t's 16-token MID jobs with the control's one-tile loop (box, loss, no check)
+
+The reopen test for the ly_ws2t row: keep the 16-token MID jobs that remove the decode 16 split re-stream, but (1) give
+the two-tile path its own function body so the one-tile unit loop is the control's code, and (2) take the cost split out
+of the routing prologue. Base: rv_k_combo2n.py (3ac83fb4, SHA checked by the tool). Box only, no judge check, nothing
+registered. Box runs from 02:56 to 03:56 UTC (18:56 to 19:56 PST), router seed 106218864389449120, f931 case seeds,
+local_start per input, PDL on at T = 1, 8, 16, 32 in every run. Logs and JSON: `muse_decode_layer/profiles/box/ly2u/`.
+
+Build: `python3 tools/dl_ly_ws2u_patch.py` (default variant b; `--variant a`; `--tl` applies the same edits to
+ly_tl16.py from tools/ly_moe_tl16.py). MID only gets `-DOKC_SKT=16`; every edit is under `#if OKC_SKT > 8`, so TINY and
+TINY2 keep the original text.
+
+- skinny_ring_ws and ws_helper are the control's text. ly_ws2t's two-tile versions sit beside them as skinny_ring_ws2 and
+  ws_helper2. A CTA whose unit range holds no job of more than 8 tokens runs the control's functions; the choice is
+  CTA-uniform, read from S.jC after the WS_JOIN that publishes the job table. ws_helper's leading WS_JOIN moves into the
+  selecting wrapper at the same program point. red1 sits at the end of Smem (alignas 16), so every other member keeps
+  its offset.
+- Variant a: ly_ws2t's cost split as built (ws_ranges on warp 0 after route(), again in the FAST1 warp).
+- Variant b: a closed-form cost split computed only in the FAST1 warp, which already holds the per-expert counts and runs
+  beside warp 0's route(). It needs one job per local expert, which MID guarantees at M <= 16 with 16-token jobs, so it
+  is ballots and popcounts with no scan and no double divide. The phase A ranges are computed before the preissue, the
+  phase B ranges after it, and lane 0 writes S.wsr before the WS_JOIN; warp 0 computes nothing after route().
+- The two-tile x rows (tokens 8 to 15) load by cp.async (zero-filled past the job's tokens) and are waited for after the
+  unit's ring-slot wait (`cp.async.wait_all`, `__syncwarp`), in place of ly_ws2t's blocking loader.
+
+No fence, barrier, mbarrier protocol, griddepcontrol or launch attribute is removed or changed. No new PDL edge.
+
+### Step 1: the two costs, separated
+
+SASS (`tools/ly_ws2u_sass.py` compiles the MID build with nvcc only, `tools/ly_ws2u_sass_cmp.py` compares). Control:
+152 registers, the one-tile unit loop 534 instructions with 32 HMMA. ly_ws2u.py (c77d594f, the A/B file): 151 registers,
+no stack, no local memory; its one-tile loop is 530 instructions (BSSY and BSYNC -2 each, IADD3 -3, LOP3 -3, IMAD.SHL
+-2, IMAD.IADD +2, IMAD +2, LDS +4). The loop is neither byte-identical to the control's nor identical up to register
+names, so "compiles to the control's code" holds for the instruction count and the per-unit retire interval (below), not
+for the bytes. A `__noinline__` two-tile path (`-DOKC_WS2INL=0`) gives 160 registers, a 272-byte stack and 240 local
+loads and stores, so the inlined form is the one measured.
+
+Eager MID timeline (`tools/ly_box_moe_tl16.py`, 40 inputs per cell; medians sliding / full, us):
+
+| build | route stamp | ramp | unit A | unit B | units (median) | B-end spread | span |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| control ly_tl16.py (2d3b0dd6) | 2.83 / 2.78 | 4.72 / 4.62 | 1.18 / 1.18 | 1.15 / 1.15 | 6144 / 6144 | 4.13 / 4.40 | 72.22 / 72.13 |
+| variant a (ly_ws2ua_tl.py f6fdd3e0, blocking x1 loader) | 4.15 / 4.15 | 5.46 / 5.45 | 1.18 / 1.18 | 1.18 / 1.20 | 6144 / 5376 | 9.79 / 9.70 | 75.28 / 73.41 |
+| variant b, all four ranges before the preissue (4b29a74d) | 3.60 / 3.58 | 5.57 / 5.57 | 1.18 / 1.18 | 1.17 / 1.15 | 6144 / 5376 | 10.53 / 10.70 | 76.74 / 75.33 |
+| variant b, phase B ranges after the preissue, weights 5:4 | 2.99 / 2.97 | 4.83 / 4.80 | 1.18 / 1.18 | 1.18 / 1.18 | 6144 / 5376 | 10.91 / 10.45 | 75.42 / 74.40 |
+| variant b, cp.async x1, weights 4:3 (ly_ws2ub_tl.py 3d4733f9: the A/B build plus stamps) | 3.01 / 2.98 | 4.90 / 4.77 | 1.18 / 1.18 | 1.18 / 1.18 | 6144 / 5376 | 11.54 / 7.79 | 71.73 / 70.62 |
+
+At 8 distinct experts the control processes 6912 units and every variant 6144: the re-stream is gone. The separate body
+brings the unit interval back to the control's (ly_ws2t: 1.25), and the FAST1-warp split brings the route stamp to within
+0.2 us of the control's (ly_ws2t: +1.3). Variant a's prologue matches ly_ws2t's. The f6fdd3e0 and 4b29a74d bytes came from
+uncommitted tool states between 199f6418 and a30ff1d7 and were overwritten later; their logs are kept.
+
+The probe files named below (ly_ws2ub_tl_pr3.py, ly_ws2ub_tl_all.py, ly_ws2ub_tl_all2.py, ly_c2n_smpad.py) are ad hoc
+copies of the timeline build with a few stamp or predicate edits each; they are not committed, their logs are.
+
+What is left is the finish: the B-end spread is 8 to 12 us against 4.1 to 4.4. Weight sweeps of the split did not move it
+(both phases 5:4, 4:3, 7:5, 3:2, 5:3: spread 9.2 to 10.9 sliding; phase B alone 7:4, 2:1, 5:2: 8.5, 9.4, 12.2). Per CTA
+(`--raw`, eager), the 20 to 29 CTAs whose ranges hold the two-tile job end phase A with the others (40.5 against 39.7 us),
+but their first unit of each phase is late:
+
+- Phase A: first ring slot plus x1 at 7.2 us against 4.3 to 4.5 for the other CTAs. With ly_ws2t's blocking loader the x1
+  load itself ran from 3.81 to 7.49 us; with cp.async the x1 wait is short, but the first unit still completes at the same
+  time.
+- Phase B (`ly_ws2ub_tl_pr3.py` probe): the job's doneA wait ends at 45.1 us, x0 arrives at 46.6 to 46.9, x1 at 46.6, the
+  ring slot is full at 46.5, and the first two-tile B unit's MMA ends at 52.8, at the same time on every one of those CTAs.
+  The unit body takes about 6 us the first time and 1.47 after.
+- Running every CTA through ws2 (`ly_ws2ub_tl_all.py`, one-tile CTAs on ws2's one-tile branch) leaves the stall on the
+  two-tile CTAs (first B unit 7.2 / 9.1 / 3.8 us after the dependency on three inputs, against 2.0 to 2.4 for the rest)
+  and slows the one-tile units to 1.22 to 1.25. Running every job through the two-tile body (`ly_ws2ub_tl_all2.py`, x1
+  zero-filled for jobs of 8 or fewer tokens) removes it: first B unit 2.2 to 2.4 us after the dependency (max 3.7 to 4.0)
+  on every CTA.
+
+So the stall follows the code, not the data: it appears when a code region runs on 20 to 29 SMs and disappears when all
+132 run it. Hypothesis: cold instruction fetch for a code region that few SMs execute (the cold-L2 flush evicts code as
+well). Not confirmed with counters (Nsight counters are blocked on this pod).
+
+### In-graph
+
+The eager span understates the loss. `tools/ly_box_moe_tl16g.py` takes the same stamps inside the layer's CUDA graph
+(fresh input per replay, cold L2; 20 inputs per cell), sliding / full:
+
+| build | graph us | span | ramp | A | handoff | B | B-end spread | barrier idle | final | units |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| control ly_tl16.py | 137.73 / 213.39 | 72.13 / 72.98 | 3.68 / 3.69 | 41.34 / 41.58 | 2.34 / 2.40 | 20.57 / 20.63 | 3.07 / 3.81 | 2.55 / 2.90 | 0.46 / 0.49 | 6912 / 6912 |
+| ly_ws2ub_tl.py | 145.17 / 218.66 | 79.34 / 79.36 | 4.06 / 4.01 | 37.45 / 37.42 | 3.33 / 3.31 | 21.78 / 21.76 | 10.77 / 9.71 | 9.83 / 8.37 | 1.46 / 1.38 | 6144 / 6144 |
+
+Phase A gains 3.9 us (the re-stream). The finish loses that and more: B-end spread +7.7 / +5.9, handoff +1.0, final pass
++1.0. In-graph per-kernel (`--kernels`, 10 cold replays) moe_fused: control 71.29 / 70.09, ly_ws2u.py 79.45 / 75.97. A
+control with ly_ws2u's 16 KB of red1 added to Smem and left unused (`ly_c2n_smpad.py`) gives 70.72 / 69.82, so the shared
+memory size is not the cause.
+
+### Step 2: paired A/B against combo2n
+
+`tools/ly_ws2u_ab.sh` (`tools/bx_box_run.py --lock --ls-cache --ext-cache --pin-pdl8 1,8,16,32 --skip-pdl8-gate`,
+`--runs 60`, five processes: control, candidate, control, candidate, control, 03:28:14 to 03:29:14 UTC). Before it, the
+candidate ran once at all six loads (`chk`, `--runs 5`): reference check PASS at all 12 scored cells.
+G_RELEASE_STARTUP_OK (56 verified replays) in every prepare; every run timed with PDL on at T = 1, 8, 16, 32. Candidate
+ly_ws2u.py c77d594f1c8713a520a4b03271ece2e206d7327d263eb1f31fb8d73f2983d946 (the tool at a7cfdce4; the current tool's
+default output, 3b22dd4a, adds the phase B weight defines and was not measured). Table by
+`tools/ly_ws2t_table.py muse_decode_layer/profiles/box/ly2u/ab`; net us:
+
+| cell | c_a | w_a | c_b | w_b | c_c | control spread | candidate - control (means) | threshold | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.81 | 66.18 | 65.73 | 66.06 | 65.50 | 0.30 | +0.44 | 0.66 | inside |
+| decode 1 full | 72.14 | 72.18 | 72.11 | 72.26 | 72.54 | 0.43 | -0.05 | 0.86 | inside |
+| decode 16 sliding | 129.42 | 134.00 | 129.62 | 133.38 | 129.63 | 0.21 | +4.13 | 1.30 | loss |
+| decode 16 full | 201.65 | 206.08 | 201.55 | 206.90 | 202.10 | 0.54 | +4.72 | 2.02 | loss |
+| decode 32 sliding | 146.99 | 147.15 | 146.43 | 146.08 | 146.18 | 0.82 | +0.08 | 1.63 | inside |
+| decode 32 full | 297.26 | 296.62 | 297.06 | 297.95 | 296.61 | 0.66 | +0.31 | 2.97 | inside |
+| verify 1 sliding | 102.72 | 103.15 | 103.62 | 103.33 | 103.31 | 0.90 | +0.02 | 1.79 | inside |
+| verify 1 full | 111.82 | 112.10 | 111.54 | 111.82 | 111.86 | 0.32 | +0.22 | 1.12 | inside |
+
+A second build with phase B weights 7:4 (`--spb 4:7 --out ly_ws2u_b47.py`, ly_ws2u_b47_b47.py c1555731, decode 16 only,
+03:33 to 03:35 UTC, same protocol; `muse_decode_layer/profiles/box/ly2u/b47`): decode 16 sliding +3.80 (threshold 1.30,
+every pair +3.6 to +4.2), full +1.87 (threshold 2.18).
+
+Decision: loss at decode 16, sliding and full, larger than ly_ws2t's (+1.67 / +2.11). Not for a judge check; the
+ruled-out row is extended. Step 3 (the same job-size question for the B4 build at decode 32) was not run because decode
+16 did not clear; B4 builds fat jobs of up to FT_T = 64 tokens, so it has no 8-token split at decode 32 by construction
+(source reading, not measured).
+
+What this establishes: with the one-tile loop at the control's instruction count and the split out of the prologue, the
+two costs ly_ws2t paid are gone, and the re-stream saving shows up in phase A (-3.9 us in graph). The loss comes from the
+CTAs that run the two-tile code: their first unit in each phase is late (about 2.8 us in A and 5 to 6 us in B), which a
+per-unit cost split cannot balance because the delay is per CTA. That delay disappears when every SM runs the two-tile
+body. A next design, if any: one shared unit body for one-tile and two-tile units (so every SM fetches the same code)
+whose one-tile issue rate stays at 1.18 us, which ly_ws2t's shared body did not reach (1.25).

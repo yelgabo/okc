@@ -1,0 +1,32 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793761488.115 acquire start after 0.0 s
+TL16 bandwidth TB/s {'copy (read + write)': 4.271, 'sum (read)': 4.431}
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793761488.922 release build glue_moe_f7221dfed5a745af_sm90a
+BXBUILD 1793761488.923 start build glue_moe_f7221dfed5a745af_sm90a
+BXBUILD 1793761529.331 end build glue_moe_f7221dfed5a745af_sm90a
+BXLOCK 1793761529.331 acquire build glue_moe_f7221dfed5a745af_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.49), ('sk2', 7.87), ('torch', 10.62)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+TL16 ma_w tensors [((134217728,), 'torch.int32'), ((67108864,), 'torch.uint8'), ((32,), 'torch.float32'), ((67108864,), 'torch.int32'), ((33554432,), 'torch.uint8'), ((32,), 'torch.float32'), ((256,), 'torch.int32'), ((4096,), 'torch.bfloat16'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((603979776,), 'torch.uint8'), ((301989888,), 'torch.uint8'), ((587202560,), 'torch.uint8'), ((293601280,), 'torch.uint8')] bytes 3598722304 per local expert 112460072.0
+TL16 decode 16 sliding n 40 medians plain_us 100.69 span 74.64 ramp 4.89 route 2.99 A 38.05 handoff 3.70 B 18.90 bend_spread 9.44 bend_to_bar 1.14 bar_idle 7.47 final 0.86 unit_us 1.18 unit_a 1.18 unit_b 1.18 a_wwait 2.48 b_wwait 0.90 units 6144.00 distinct 8.00 routes 27.00
+TL16 decode 16 sliding distinct  6 n  8 plain  90.32 span  63.44 units   4608 ramp 5.00 A 29.04 handoff 3.52 B 16.37 spread 8.06 tail 8.93 maxdiff 1.95e-03
+TL16 decode 16 sliding distinct  7 n 11 plain  97.06 span  72.13 units   5376 ramp 4.96 A 33.79 handoff 3.87 B 18.42 spread 9.89 tail 10.30 maxdiff 9.77e-04
+TL16 decode 16 sliding distinct  8 n 13 plain 104.38 span  79.90 units   6144 ramp 4.87 A 38.73 handoff 3.55 B 20.80 spread 10.34 tail 10.97 maxdiff 1.95e-03
+TL16 decode 16 sliding distinct  9 n  7 plain 112.77 span  87.33 units   6912 ramp 4.70 A 42.66 handoff 3.65 B 22.91 spread 10.82 tail 11.62 maxdiff 9.77e-04
+TL16 decode 16 sliding distinct 12 n  1 plain 136.19 span 112.29 units   9216 ramp 4.91 A 57.71 handoff 4.77 B 30.46 spread 11.97 tail 13.35 maxdiff 1.95e-03
+TL16 decode 16 full n 40 medians plain_us 99.78 span 74.16 ramp 4.92 route 3.02 A 34.94 handoff 3.50 B 19.00 bend_spread 9.01 bend_to_bar 1.12 bar_idle 7.14 final 0.81 unit_us 1.18 unit_a 1.18 unit_b 1.18 a_wwait 2.80 b_wwait 0.90 units 5376.00 distinct 7.00 routes 27.50
+TL16 decode 16 full distinct  5 n  1 plain  76.74 span  52.26 units   3840 ramp 5.33 A 24.32 handoff 2.72 B 14.33 spread 3.17 tail 4.99 maxdiff 9.77e-04
+TL16 decode 16 full distinct  6 n  7 plain  88.54 span  62.75 units   4608 ramp 5.00 A 29.08 handoff 3.16 B 16.27 spread 8.32 tail 8.37 maxdiff 9.77e-04
+TL16 decode 16 full distinct  7 n 14 plain  95.62 span  71.20 units   5376 ramp 4.96 A 33.67 handoff 3.60 B 18.53 spread 9.58 tail 9.41 maxdiff 9.77e-04
+TL16 decode 16 full distinct  8 n  5 plain 105.47 span  80.03 units   6144 ramp 4.95 A 39.33 handoff 3.46 B 20.55 spread 9.22 tail 10.52 maxdiff 9.77e-04
+TL16 decode 16 full distinct  9 n  8 plain 113.74 span  90.38 units   6912 ramp 4.89 A 43.60 handoff 4.21 B 23.37 spread 12.88 tail 13.14 maxdiff 4.88e-04
+TL16 decode 16 full distinct 10 n  3 plain 111.52 span  89.47 units   7680 ramp 4.58 A 48.25 handoff 3.44 B 25.39 spread 5.86 tail 6.96 maxdiff 9.77e-04
+TL16 decode 16 full distinct 11 n  1 plain 118.50 span  91.52 units   8448 ramp 4.88 A 52.02 handoff 3.18 B 26.52 spread 3.49 tail 4.45 maxdiff 3.05e-05
+TL16 decode 16 full distinct 12 n  1 plain 121.34 span  99.04 units   9216 ramp 4.14 A 57.97 handoff 2.78 B 28.59 spread 4.00 tail 4.55 maxdiff 0.00e+00

@@ -90,8 +90,9 @@ ANY2 = (
 # RB_A * SPW2 * 32 experts * 132 CTAs <= 512 * 7 * 32 * 132 = 15.1e6.
 SPLIT = (
     "#ifndef OKC_SPW1\n#define OKC_SPW1 3\n#endif\n#ifndef OKC_SPW2\n#define OKC_SPW2 4\n#endif\n"
-    "constexpr int SPW1 = OKC_SPW1, SPW2 = OKC_SPW2;\n"
-    "template <int K0, int K1>\n"
+    "#ifndef OKC_SPB1\n#define OKC_SPB1 OKC_SPW1\n#endif\n#ifndef OKC_SPB2\n#define OKC_SPB2 OKC_SPW2\n#endif\n"
+    "constexpr int SPW1 = OKC_SPW1, SPW2 = OKC_SPW2, SPB1 = OKC_SPB1, SPB2 = OKC_SPB2;  // phase A / phase B unit costs\n"
+    "template <int K0, int K1, int SPW1, int SPW2>\n"
     "__device__ __forceinline__ void ws_split(int tot, int lane, int c, int G, int (&r)[4]) {\n"
     "  const unsigned mT = __ballot_sync(0xffffffffu, tot > 0), m2 = __ballot_sync(0xffffffffu, tot > 8);\n"
     "  const unsigned lt = (1u << lane) - 1u;\n"
@@ -190,11 +191,11 @@ def patch_helper(h, variant):
         h = once(h, F1, guard(
             "    (void)nS1; (void)rG1;\n"
             "    int wr[4];\n"
-            "    ws_split<0, 2>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);\n"
+            "    ws_split<0, 2, SPW1, SPW2>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);\n"
             "    const int v01 = wr[0], v11 = wr[1];\n", F1), "FAST1 ranges")
         # phase B ranges after the preissue, so the first units go out as early as in the control
         h = once(h, F1_END, F1_END + guard(
-            "    ws_split<2, 4>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);\n"
+            "    ws_split<2, 4, SPB1, SPB2>(S.fcnt[ln], ln, blockIdx.x, gridDim.x, wr);\n"
             "    if (ln == 0) { S.wsr[0] = wr[0]; S.wsr[1] = wr[1]; S.wsr[2] = wr[2]; S.wsr[3] = wr[3]; }\n", ""),
             "FAST1 B ranges")
     return h
@@ -206,6 +207,7 @@ def main():
     ap.add_argument("--tl", action="store_true")
     ap.add_argument("--out", default="")
     ap.add_argument("--spw", default="", help="W1:W2 unit costs of the variant b split (default 3:4)")
+    ap.add_argument("--spb", default="", help="W1:W2 phase B unit costs (default: --spw)")
     a = ap.parse_args()
     cand = ROOT / "muse_decode_layer/cand"
     if a.tl:
@@ -230,6 +232,10 @@ def main():
         w1, w2 = a.spw.split(":")
         extra = f', "-DOKC_SPW1={w1}", "-DOKC_SPW2={w2}"'
         dst = dst.with_name(dst.stem + f"_s{w1}{w2}.py")
+    if a.spb:
+        w1, w2 = a.spb.split(":")
+        extra += f', "-DOKC_SPB1={w1}", "-DOKC_SPB2={w2}"'
+        dst = dst.with_name(dst.stem + f"_b{w1}{w2}.py")
     tail = once(tail, MID_ADD, MID_ADD + f'MOE_MID_DEFINES += ("-DOKC_SKT=16"{extra},)\n', "MID define")
     out = head + MARK + helper + tail
     dst.write_text(out)

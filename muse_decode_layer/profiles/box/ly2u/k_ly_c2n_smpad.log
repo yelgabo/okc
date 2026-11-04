@@ -1,0 +1,80 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793763406.103 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793763407.076 release build glue_moe_6d9336ac4bd39f57_sm90a
+BXBUILD 1793763407.076 start build glue_moe_6d9336ac4bd39f57_sm90a
+BXBUILD 1793763407.079 start build glue_moe_022c6e3b0c0f149d_sm90a
+BXBUILD 1793763407.079 start build glue_moe_9a5aaf6032f3d24e_sm90a
+BXBUILD 1793763445.163 end build glue_moe_9a5aaf6032f3d24e_sm90a
+BXBUILD 1793763446.260 end build glue_moe_022c6e3b0c0f149d_sm90a
+BXBUILD 1793763447.535 end build glue_moe_6d9336ac4bd39f57_sm90a
+BXLOCK 1793763447.535 acquire build glue_moe_6d9336ac4bd39f57_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.42), ('sk2', 8.03), ('torch', 10.34)] -> ('cg',)
+BXLOCK 1793763449.900 release triton _sl_tile_route_cg
+BXBUILD 1793763449.900 start triton _sl_tile_route_cg
+BXBUILD 1793763450.648 end triton _sl_tile_route_cg
+BXLOCK 1793763450.648 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793763450.651 release triton _sl_cluster_finish_cg
+BXBUILD 1793763450.651 start triton _sl_cluster_finish_cg
+BXBUILD 1793763450.749 end triton _sl_cluster_finish_cg
+BXLOCK 1793763450.749 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793763450.787 release triton _sl_tile_route_cg
+BXBUILD 1793763450.787 start triton _sl_tile_route_cg
+BXBUILD 1793763451.544 end triton _sl_tile_route_cg
+BXLOCK 1793763451.544 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793763451.546 release triton _sl_cluster_finish_cg
+BXBUILD 1793763451.546 start triton _sl_cluster_finish_cg
+BXBUILD 1793763451.643 end triton _sl_cluster_finish_cg
+BXLOCK 1793763451.643 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793763451.696 release triton _sl_tile_route
+BXBUILD 1793763451.696 start triton _sl_tile_route
+BXBUILD 1793763452.397 end triton _sl_tile_route
+BXLOCK 1793763452.397 acquire triton _sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 50.7 s
+BXLOCK 1793763457.757 release triton _sl_tile_route_cg
+BXBUILD 1793763457.757 start triton _sl_tile_route_cg
+BXBUILD 1793763458.462 end triton _sl_tile_route_cg
+BXLOCK 1793763458.462 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+USDT:2026-11-04 03:37:38 250199:250199 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 03:37:38 250199:250199 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    70.72 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    18.92 us  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.49 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.83 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.52 us  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     9.68 us  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Params)
+  KERNEL     5.85 us  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+  KERNEL     4.85 us  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+  KERNEL     4.44 us  _sl_tile_route_cg
+  KERNEL   150.30 us  total
+BOX decode 16 sliding: raw 135.06 net 130.86 us (overhead 4.19) | judge net 127.89 (n=1, 127.89-127.89) box/judge 1.023 | check PASS
+USDT:2026-11-04 03:37:39 250199:250199 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 03:37:39 250199:250199 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL    84.93 us  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Params)
+  KERNEL    69.82 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    18.60 us  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.43 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.80 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.44 us  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     5.93 us  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+  KERNEL     5.09 us  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+  KERNEL     4.58 us  _sl_tile_route_cg
+  KERNEL   224.62 us  total
+BOX decode 16 full: raw 210.38 net 206.26 us (overhead 4.13) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.980 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 40 hits, 0 computed
+BXPHASE import_torch=1.90 load_reference_cuda_init=0.00 weights_and_router=0.25 prepare_submission=50.67 fresh_inputs=0.39 check=0.93 capture=0.02 overhead_graphs=0.22 replays=0.03 kernels_profiler=0.07 cell_tail=0.01 json_write=0.00 total=54.49
