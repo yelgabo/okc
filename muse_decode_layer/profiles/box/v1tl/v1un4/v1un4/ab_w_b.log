@@ -1,0 +1,27 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793813445.874 acquire start after 16.4 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.94), ('sk2', 8.06), ('torch', 10.3)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 7.8 s
+BOX decode 1 sliding: raw 68.90 net 64.80 us (overhead 4.10) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.918 | check PASS
+BOX decode 1 full: raw 74.62 net 70.53 us (overhead 4.10) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.883 | check PASS
+BOX decode 16 sliding: raw 130.98 net 126.88 us (overhead 4.10) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.992 | check PASS
+BOX decode 16 full: raw 203.30 net 199.10 us (overhead 4.19) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.946 | check PASS
+BOX decode 32 sliding: raw 148.05 net 144.18 us (overhead 3.87) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.959 | check PASS
+BOX decode 32 full: raw 298.90 net 294.54 us (overhead 4.35) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.967 | check PASS
+BOX verify 1 sliding: raw 105.52 net 101.34 us (overhead 4.18) | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.954 | check PASS
+BOX verify 1 full: raw 114.34 net 110.21 us (overhead 4.13) | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.925 | check PASS
+BOX verify 16 sliding: raw 247.81 net 243.78 us (overhead 4.03) | judge net 250.02 (n=1, 250.02-250.02) box/judge 0.975 | check PASS
+BOX verify 16 full: raw 330.42 net 326.34 us (overhead 4.08) | judge net 335.01 (n=1, 335.01-335.01) box/judge 0.974 | check PASS
+BOX verify 32 sliding: raw 298.03 net 294.03 us (overhead 4.00) | judge net 308.45 (n=1, 308.45-308.45) box/judge 0.953 | check PASS
+BOX verify 32 full: raw 462.30 net 458.14 us (overhead 4.16) | judge net 468.64 (n=1, 468.64-468.64) box/judge 0.978 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 720 hits, 0 computed
+BXPHASE import_torch=17.95 load_reference_cuda_init=0.00 weights_and_router=0.37 prepare_submission=7.84 fresh_inputs=3.99 check=1.27 capture=0.12 overhead_graphs=1.29 replays=0.53 cell_tail=0.23 json_write=0.00 total=33.60
