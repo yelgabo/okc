@@ -53,7 +53,7 @@ gate_gb4.log); chk and rounds /root/okc/.build/prtl/gb_gb4/ and /root/okc/.build
 
 Hypothesis only. The MoE already waits with griddepcontrol.wait at its top (line 6307), and its launch helper has a
 programmatic-serialization attribute slot (line 3603). Launching it as a PDL secondary keeps the cooperative launch,
-but its 132 CTAs need one whole SM each (1 CTA per SM, about 214 KB shared), so they cannot become resident until the
+but its 132 CTAs need one whole SM each (1 CTA per SM by __launch_bounds__(NTL, 1) and the 132-CTA cooperative grid; the B4 shared-memory size was not checked), so they cannot become resident until the
 producer's CTAs leave their SMs; the gain is the launch latency plus whatever sits above the wait, which today is
 nothing. Moving work above the wait is limited: which experts run depends on routing, and the MFIN parity atomicInc and
 zeroing must stay after the wait (the previous launch's final must be done). Cheapest decisive test: stamp the first
