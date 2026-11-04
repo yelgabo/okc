@@ -1,0 +1,54 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 0.0 s
+LOCK acquired after 0.0 s
+APPS 
+OCC C= 1 smem=110592 threads=160 -> max active clusters 264 (264 CTAs)
+OCC C= 1 smem=147456 threads=160 -> max active clusters 132 (132 CTAs)
+OCC C= 1 smem=184320 threads=160 -> max active clusters 132 (132 CTAs)
+OCC C= 1 smem=163840 threads=160 -> max active clusters 132 (132 CTAs)
+OCC C= 1 smem=231424 threads=160 -> max active clusters 132 (132 CTAs)
+OCC C= 8 smem=110592 threads=160 -> max active clusters  30 (240 CTAs)
+OCC C= 8 smem=147456 threads=160 -> max active clusters  15 (120 CTAs)
+OCC C= 8 smem=184320 threads=160 -> max active clusters  15 (120 CTAs)
+OCC C= 8 smem=163840 threads=160 -> max active clusters  15 (120 CTAs)
+OCC C= 8 smem=231424 threads=160 -> max active clusters  15 (120 CTAs)
+OCC C=16 smem=110592 threads=160 -> max active clusters  14 (224 CTAs)
+OCC C=16 smem=147456 threads=160 -> max active clusters   7 (112 CTAs)
+OCC C=16 smem=184320 threads=160 -> max active clusters   7 (112 CTAs)
+OCC C=16 smem=163840 threads=160 -> max active clusters   7 (112 CTAs)
+OCC C=16 smem=231424 threads=160 -> max active clusters   7 (112 CTAs)
+READ_RATE 4 GiB sum: 4.430 TB/s
+RUN C= 8 D=4 k= 3 S=  1 P=15 R=0 mode=0 ef=1 grid= 120 span   46.02 [45.44-47.23] us  event   52.54  floor  19.09  ratio 2.411  1.85 TB/s  per-SM 76.9 GB/s over 24 (CTA 80.5)  ready 2.90  end-spread 44.93  late 0  sms 120  units 92-115
+RUN C= 8 D=4 k= 3 S=  2 P=15 R=0 mode=0 ef=1 grid= 120 span   31.12 [24.93-32.13] us  event   37.46  floor  19.09  ratio 1.630  2.73 TB/s  per-SM 56.9 GB/s over 48 (CTA 63.4)  ready 3.05  end-spread 30.06  late 0  sms 120  units 46-57
+RUN C= 8 D=4 k= 3 S=  4 P=15 R=0 mode=0 ef=1 grid= 120 span   26.50 [23.71-27.87] us  event   33.04  floor  19.09  ratio 1.388  3.21 TB/s  per-SM 33.4 GB/s over 96 (CTA 41.1)  ready 3.39  end-spread 25.28  late 0  sms 120  units 21-30
+RUN C= 8 D=4 k= 3 S=  8 P=15 R=0 mode=0 ef=1 grid= 120 span   26.78 [26.53-28.22] us  event   33.25  floor  19.09  ratio 1.403  3.17 TB/s  per-SM 26.4 GB/s over 120 (CTA 38.2)  ready 3.54  end-spread 11.55  late 0  sms 120  units 11-29
+RUN C= 8 D=4 k= 7 S=  1 P=15 R=0 mode=0 ef=1 grid= 120 span   69.78 [47.94-70.82] us  event   76.03  floor  44.54  ratio 1.567  2.84 TB/s  per-SM 50.7 GB/s over 56 (CTA 55.7)  ready 3.04  end-spread 68.66  late 0  sms 120  units 91-115
+RUN C= 8 D=4 k= 7 S=  2 P=15 R=0 mode=0 ef=1 grid= 120 span   50.37 [45.70-51.65] us  event   56.77  floor  44.54  ratio 1.131  3.93 TB/s  per-SM 35.1 GB/s over 112 (CTA 45.7)  ready 3.52  end-spread 49.01  late 0  sms 120  units 42-60
+RUN C= 8 D=4 k= 7 S=  4 P=15 R=0 mode=0 ef=1 grid= 120 span   47.57 [47.23-49.50] us  event   53.97  floor  44.54  ratio 1.068  4.17 TB/s  per-SM 34.7 GB/s over 120 (CTA 38.9)  ready 3.52  end-spread 20.51  late 0  sms 120  units 21-57
+RUN C= 8 D=4 k= 7 S=  8 P=15 R=0 mode=0 ef=1 grid= 120 span   52.08 [51.52-53.28] us  event   58.35  floor  44.54  ratio 1.169  3.81 TB/s  per-SM 31.7 GB/s over 120 (CTA 36.0)  ready 3.52  end-spread 8.62  late 0  sms 120  units 32-57
+RUN C= 8 D=4 k= 9 S=  1 P=15 R=0 mode=0 ef=1 grid= 120 span   81.30 [69.76-92.51] us  event   87.54  floor  57.26  ratio 1.420  3.13 TB/s  per-SM 43.5 GB/s over 72 (CTA 48.1)  ready 3.17  end-spread 80.18  late 0  sms 120  units 86-120
+RUN C= 8 D=4 k= 9 S=  2 P=15 R=0 mode=0 ef=1 grid= 120 span   70.69 [69.31-72.77] us  event   76.96  floor  57.26  ratio 1.235  3.60 TB/s  per-SM 30.0 GB/s over 120 (CTA 39.3)  ready 3.58  end-spread 23.98  late 0  sms 120  units 42-114
+RUN C= 8 D=4 k= 9 S=  4 P=15 R=0 mode=0 ef=1 grid= 120 span   67.38 [65.86-68.06] us  event   73.71  floor  57.26  ratio 1.177  3.78 TB/s  per-SM 31.5 GB/s over 120 (CTA 40.0)  ready 3.55  end-spread 18.78  late 0  sms 120  units 42-84
+RUN C= 8 D=4 k= 9 S=  8 P=15 R=0 mode=0 ef=1 grid= 120 span   66.96 [66.56-68.16] us  event   73.65  floor  57.26  ratio 1.169  3.81 TB/s  per-SM 31.7 GB/s over 120 (CTA 35.5)  ready 3.54  end-spread 9.47  late 0  sms 120  units 43-70
+RUN C= 8 D=4 k=12 S=  1 P=15 R=0 mode=0 ef=1 grid= 120 span   95.54 [84.77-96.77] us  event  101.94  floor  76.35  ratio 1.251  3.56 TB/s  per-SM 37.0 GB/s over 96 (CTA 41.5)  ready 3.36  end-spread 94.30  late 0  sms 120  units 86-120
+RUN C= 8 D=4 k=12 S=  2 P=15 R=0 mode=0 ef=1 grid= 120 span   87.18 [86.91-87.58] us  event   93.58  floor  76.35  ratio 1.142  3.90 TB/s  per-SM 32.5 GB/s over 120 (CTA 40.4)  ready 3.55  end-spread 36.82  late 0  sms 120  units 42-115
+RUN C= 8 D=4 k=12 S=  4 P=15 R=0 mode=0 ef=1 grid= 120 span   84.16 [82.46-85.12] us  event   90.51  floor  76.35  ratio 1.102  4.04 TB/s  per-SM 33.6 GB/s over 120 (CTA 37.7)  ready 3.57  end-spread 13.74  late 0  sms 120  units 64-113
+RUN C= 8 D=4 k=12 S=  8 P=15 R=0 mode=0 ef=1 grid= 120 span   87.26 [85.82-88.10] us  event   93.76  floor  76.35  ratio 1.143  3.89 TB/s  per-SM 32.4 GB/s over 120 (CTA 35.6)  ready 3.54  end-spread 10.90  late 0  sms 120  units 65-98
+RUN C=16 D=4 k= 3 S=  1 P= 7 R=0 mode=0 ef=1 grid= 112 span   37.18 [26.34-38.18] us  event   43.50  floor  19.09  ratio 1.948  2.28 TB/s  per-SM 47.6 GB/s over 48 (CTA 51.6)  ready 3.36  end-spread 35.94  late 0  sms 112  units 46-52
+RUN C=16 D=4 k= 3 S=  2 P= 7 R=0 mode=0 ef=1 grid= 112 span   21.82 [21.63-23.33] us  event   28.14  floor  19.09  ratio 1.143  3.89 TB/s  per-SM 40.5 GB/s over 96 (CTA 48.1)  ready 3.50  end-spread 20.56  late 0  sms 112  units 22-27
+RUN C=16 D=4 k= 3 S=  4 P= 7 R=0 mode=0 ef=1 grid= 112 span   24.48 [24.22-25.82] us  event   30.91  floor  19.09  ratio 1.283  3.47 TB/s  per-SM 31.0 GB/s over 112 (CTA 42.4)  ready 3.66  end-spread 8.99  late 0  sms 112  units 10-27
+RUN C=16 D=4 k= 3 S=  8 P= 7 R=0 mode=0 ef=1 grid= 112 span   28.62 [28.42-30.18] us  event   35.12  floor  19.09  ratio 1.500  2.97 TB/s  per-SM 26.5 GB/s over 112 (CTA 29.9)  ready 3.66  end-spread 2.59  late 0  sms 112  units 16-28
+RUN C=16 D=4 k= 7 S=  1 P= 7 R=0 mode=0 ef=1 grid= 112 span   50.83 [50.27-52.10] us  event   57.26  floor  44.54  ratio 1.141  3.90 TB/s  per-SM 34.8 GB/s over 112 (CTA 45.9)  ready 3.67  end-spread 11.23  late 0  sms 112  units 41-61
+RUN C=16 D=4 k= 7 S=  2 P= 7 R=0 mode=0 ef=1 grid= 112 span   53.18 [52.64-54.50] us  event   59.55  floor  44.54  ratio 1.194  3.73 TB/s  per-SM 33.3 GB/s over 112 (CTA 43.0)  ready 3.62  end-spread 11.52  late 0  sms 112  units 42-60
+RUN C=16 D=4 k= 7 S=  4 P= 7 R=0 mode=0 ef=1 grid= 112 span   57.63 [57.06-58.85] us  event   63.94  floor  44.54  ratio 1.294  3.44 TB/s  per-SM 30.7 GB/s over 112 (CTA 37.1)  ready 3.65  end-spread 11.28  late 0  sms 112  units 43-56
+RUN C=16 D=4 k= 7 S=  8 P= 7 R=0 mode=0 ef=1 grid= 112 span   65.20 [64.22-66.37] us  event   71.42  floor  44.54  ratio 1.464  3.04 TB/s  per-SM 27.1 GB/s over 112 (CTA 29.0)  ready 3.65  end-spread 5.57  late 0  sms 112  units 39-63
+RUN C=16 D=4 k= 9 S=  1 P= 7 R=0 mode=0 ef=1 grid= 112 span   66.50 [65.22-68.03] us  event   72.82  floor  57.26  ratio 1.161  3.83 TB/s  per-SM 34.2 GB/s over 112 (CTA 45.4)  ready 3.67  end-spread 25.94  late 0  sms 112  units 42-102
+RUN C=16 D=4 k= 9 S=  2 P= 7 R=0 mode=0 ef=1 grid= 112 span   67.44 [66.43-68.22] us  event   73.87  floor  57.26  ratio 1.178  3.78 TB/s  per-SM 33.7 GB/s over 112 (CTA 42.9)  ready 3.65  end-spread 13.76  late 0  sms 112  units 42-84
+RUN C=16 D=4 k= 9 S=  4 P= 7 R=0 mode=0 ef=1 grid= 112 span   71.63 [69.50-72.64] us  event   77.98  floor  57.26  ratio 1.251  3.56 TB/s  per-SM 31.8 GB/s over 112 (CTA 36.7)  ready 3.63  end-spread 13.38  late 0  sms 112  units 44-80
+RUN C=16 D=4 k= 9 S=  8 P= 7 R=0 mode=0 ef=1 grid= 112 span   82.14 [80.42-83.33] us  event   88.62  floor  57.26  ratio 1.435  3.10 TB/s  per-SM 27.7 GB/s over 112 (CTA 28.8)  ready 3.62  end-spread 5.95  late 0  sms 112  units 50-76
+RUN C=16 D=4 k=12 S=  1 P= 7 R=0 mode=0 ef=1 grid= 112 span   78.29 [76.83-78.69] us  event   84.74  floor  76.35  ratio 1.025  4.34 TB/s  per-SM 38.7 GB/s over 112 (CTA 45.9)  ready 3.66  end-spread 26.58  late 0  sms 112  units 42-109
+RUN C=16 D=4 k=12 S=  2 P= 7 R=0 mode=0 ef=1 grid= 112 span   82.67 [81.25-83.07] us  event   89.14  floor  76.35  ratio 1.083  4.11 TB/s  per-SM 36.7 GB/s over 112 (CTA 41.9)  ready 3.65  end-spread 3.15  late 0  sms 112  units 64-106
+RUN C=16 D=4 k=12 S=  4 P= 7 R=0 mode=0 ef=1 grid= 112 span   92.64 [91.42-93.31] us  event   98.96  floor  76.35  ratio 1.213  3.67 TB/s  per-SM 32.7 GB/s over 112 (CTA 36.3)  ready 3.66  end-spread 6.08  late 0  sms 112  units 65-105
+RUN C=16 D=4 k=12 S=  8 P= 7 R=0 mode=0 ef=1 grid= 112 span  105.07 [103.46-107.97] us  event  111.54  floor  76.35  ratio 1.376  3.23 TB/s  per-SM 28.9 GB/s over 112 (CTA 28.7)  ready 3.66  end-spread 6.03  late 0  sms 112  units 66-104
+LOCK released

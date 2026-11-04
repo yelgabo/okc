@@ -6781,3 +6781,155 @@ Other facts for the phase 1 design (measurements):
   (all threads arrive) for the handoff; a cluster barrier with release costs 181 ns idle and 0.22 us under load.
 - Keep the column rotation in any DSMEM read pattern: without it the gather costs 1.7-1.8x at T = 32 and 1.2-1.3x
   at T = 8.
+
+## CL-0.1 stream skeleton
+
+Task 0.1 of docs/plans/2026-11-04-moe-cluster-rewrite.md, measured on the box (okc-h200) on 2026-11-04 UTC
+under the GPU lock, no judge job. Source: `muse_moe_w4a16/cl/cl_stream.cu` (SHA-256 b5e89dd4...bb6d) and
+`muse_moe_w4a16/cl/cl_stream_bench.py` (5075c83f...0521); the box ran these exact bytes. Raw logs and JSON
+(every replay's span, event time, per-CTA spread, units per CTA, SM ids) are in
+`muse_moe_w4a16/cl/profiles/0.1/` (`onepass`, `persist`, `c1`, `solo`). nvidia-smi showed no other compute
+process when each run took the lock.
+
+### What the kernel does
+
+`cl_stream_kernel<C>` has `__cluster_dims__(C, 1, 1)` with instantiations for C = 1, 2, 4, 8 and 16; C = 16
+sets the non-portable cluster attribute. Each CTA has one producer warp, whose lane 0 claims a unit, waits for
+a free slot and issues one 36,864-byte `cp.async.bulk` into a ring of depth D (3 or 4 slots, 110,592 or
+147,456 B of dynamic shared memory), with an L2 evict-first hint and an mbarrier with expect_tx. Four consumer
+warps wait on the slot's full mbarrier, XOR one word of the unit (the task's discard; `--consume 1` XORs all
+2,304 16-byte words instead) and arrive on the slot's empty mbarrier. Unit claims are an `atomicAdd` over DSMEM
+on a counter in the leader CTA's shared memory (`cluster.map_shared_rank`). The units come from
+`submission.repack_expert` applied to `reference.generate_weights(5252)` at the real shapes (w13
+[256, 8192, 2048], w2 [256, 4096, 2048] and their scales), local experts 0-31, giving [32, 512, 36864] and
+[32, 256, 36864]. A slice is a range of the expert's 768 units (512 w13, then 256 w2). One-pass mode launches
+one cluster per slice. Persistent mode (`--persist`) launches a fixed number of clusters, and each one claims
+slices from a global counter until none are left, which is the D2 "leftover slices claimed dynamically"
+option. Each graph replay draws its own random set of k distinct local experts.
+
+Timing: one launch captured in a CUDA graph, then for each replay a 1 GiB float32 read (the L2 flush), CUDA
+events around `replay()`, and globaltimer stamps per CTA. Span is the first CTA's entry to the last CTA's
+consumers done. There are 20 replays after 2 warm-ups; the table gives the median and the min-max range.
+Floor = k x 28,311,552 B / 4.45 TB/s = 6.362 us per expert. The same sessions measured a 4 GiB read at
+4.426-4.430 TB/s. The event time is about 6.3 us above the span, because it includes the graph launch.
+
+### Span against floor, one cluster per expert (S = 1), one-word discard
+
+| k | floor us | C = 8, D = 3 | C = 8, D = 4 | C = 16, D = 3 | C = 16, D = 4 |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 6.36 | 46.86 (7.37x) | 45.33 (7.13x) | 25.25 (3.97x) | 25.10 (3.95x) |
+| 3 | 19.09 | 45.25 (2.37x) | 45.18 (2.37x) | 36.21 (1.90x) | 36.34 (1.90x) |
+| 7 | 44.54 | 48.19 (**1.082**) | 47.54 (**1.067**) | 49.78 (1.118) | 50.06 (1.124) |
+| 8 | 50.90 | 51.95 (1.021) | 51.30 (1.008) | 69.34 (1.362) | 65.44 (1.286) |
+| 9 | 57.26 | 59.20 (**1.034**) | 62.67 (**1.095**) | 72.37 (1.264) | 66.32 (1.158) |
+| 12 | 76.35 | 85.12 (1.115) | 85.52 (1.120) | 85.57 (1.121) | 78.58 (1.029) |
+
+Ranges are 1-2 us (for example C = 8, D = 4, k = 7: 47.46-48.58; k = 9: 61.25-63.26). With all words read
+(`--consume 1`) the C = 8 ratios are k = 7 1.136 / 1.101 (D = 3 / 4) and k = 9 1.044 / 1.080. The C = 16
+ratios move by at most 0.03.
+
+**Gate G0, first condition (span within 1.10x of floor at k = 7 and k = 9):**
+
+- C = 8 passes at both. k = 7: 1.082 (D = 3), 1.067 (D = 4). k = 9: 1.034 (D = 3), 1.095 (D = 4). With the
+  full read, D = 4 still passes (1.101 at k = 7 sits on the line, 1.080 at k = 9). D = 3 with the full read
+  fails at k = 7 (1.136).
+- C = 16 fails at both. k = 7: 1.118 / 1.124. k = 9: 1.264 / 1.158. The persistent and sliced variants below
+  do not rescue it (best k = 9 at C = 16 is 1.161).
+
+### Co-residency
+
+`cudaOccupancyMaxActiveClusters` for this kernel (160 threads):
+
+| C | 110,592 B (D = 3) | 147,456 B (D = 4) | 163,840 / 184,320 / 231,424 B |
+|---:|---:|---:|---:|
+| 1 | 264 (2 CTAs per SM) | 132 | 132 |
+| 8 | 30 clusters (240 CTAs) | 15 (120 CTAs) | 15 |
+| 16 | 14 clusters (224 CTAs) | 7 (112 CTAs) | 7 |
+
+At one CTA per SM the box holds 7 clusters of 16, not 8. So one of the 8 GPCs cannot host a 16-CTA cluster, and
+the plan's "at most 8 of them" (section 2.1) is 7 here. It also holds 15 clusters of 8, the same as
+`tools/fu_occ.cu` found.
+
+Timing agrees. At C = 16, D = 4, k = 8 and k = 9 start 16 and 32 CTAs (one and two clusters) after the first
+cluster has finished, so k = 9 at C = 16 takes a second wave: 66.3 us against 50.1 at k = 7. Those runs never
+use more than 112 distinct SMs. At D = 3 the 110.6 KB footprint lets two CTAs share an SM, so k = 8 and k = 9
+run in one wave on 112 SMs with two clusters doubled up. That is slower still (69.3 / 72.4 us), because the
+doubled-up clusters get half an SM each. C = 8 never needs a second wave up to k = 15.
+
+### Per-SM bandwidth
+
+| setting | per-SM GB/s |
+|---|---:|
+| one CTA alone (C = 1, k = 1), D = 2 / 3 / 4, one-word discard | 75.2 / 98.6 / 98.9 |
+| same, all words read | 63.4 / 86.3 / 87.5 |
+| one cluster of 8 alone (k = 1), D = 4 | 78.1 (0.62 TB/s for the cluster) |
+| one cluster of 16 alone (k = 1), D = 4 | 70.5 (1.13 TB/s) |
+| k = 3, C = 8 / C = 16, D = 4 | 78.3 / 48.7 |
+| k = 7, C = 8 / C = 16, D = 4 | 74.4 / 35.3 |
+| k = 9, C = 8, D = 4 | 56.5 |
+
+Per-SM is total bytes / span / active CTAs. A CTA's own rate while it streams (bytes over first-ready to done)
+is 3 to 10 GB/s higher, because the span includes the ramp (2.4-3.7 us from entry to the first full slot) and
+the end spread.
+
+Reading (measurements, then a hypothesis):
+
+1. An SM streams at about 99 GB/s with three or four 36 KB slots in flight, and the fourth slot adds nothing.
+   So HBM saturation (4.43 TB/s) needs at least 45 SMs streaming at that rate. In practice it needs more,
+   because SMs inside a cluster run slower: 78 GB/s for 8 CTAs and 70 for 16. Hypothesis: SMs that share a
+   GPC also share its link into the memory system.
+2. Few experts cannot fill HBM with one cluster per expert. k = 3 reaches 1.88 TB/s at C = 8 and 2.35 at
+   C = 16. At decode 1 (2 to 3 experts) S = 1 is 2 to 7x the floor; slicing is required there.
+3. At k = 7 to 9 the floor gap comes from the end spread, not the stream rate. Clusters on different GPCs get
+   unequal shares of HBM: the end spread is 2.1 us at k = 7, C = 8 but 11.0 at k = 9, C = 8, D = 4 and 11.0 at
+   k = 7, C = 16. Claiming inside a cluster balances its CTAs (units per CTA range 93-115 at C = 8) but cannot
+   move work between clusters.
+
+### Persistent clusters and slicing (D2 data, D = 4, one-word discard)
+
+Persistent clusters: 15 at C = 8, 7 at C = 16, and 132 single-CTA "clusters" as the
+no-cluster baseline. Each claims slices of 768/S units from a global counter. Span / floor:
+
+| k | C = 8 S = 1 | S = 2 | S = 4 | S = 8 | C = 16 S = 1 | S = 2 | S = 4 | S = 8 | C = 1 S = 16 | S = 64 |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 3 | 2.411 | 1.630 | 1.388 | 1.403 | 1.948 | **1.143** | 1.283 | 1.500 | 1.638 | 1.257 |
+| 7 | 1.567 | 1.131 | **1.068** | 1.169 | 1.141 | 1.194 | 1.294 | 1.464 | 1.166 | 1.139 |
+| 9 | 1.420 | 1.235 | 1.177 | **1.169** | 1.161 | 1.178 | 1.251 | 1.435 | 1.208 | 1.101 |
+| 12 | 1.251 | 1.142 | **1.102** | 1.143 | **1.025** | 1.083 | 1.213 | 1.376 | 1.033 | 1.074 |
+
+- Each slice switch in this skeleton drains the ring and runs two `cluster.sync()`s, and cooperative groups
+  compiles each of them with a `MEMBAR.ALL.GPU`. That cost shows up wherever S grows past 2 at C = 16 or past
+  4 at C = 8. A real kernel would prefetch the next slice's first units across the switch; this skeleton does
+  not, so the S > 2 rows are an upper bound on the switch cost, not the design's.
+- Persistent C = 8 at S = 1 (k = 7: 1.567) is much worse than one-pass C = 8 at S = 1 (1.067), although both
+  run 7 clusters of 8 on one expert each. The difference is which clusters get work. In persistent mode the
+  first 7 of 15 resident clusters to claim get the slices. Hypothesis, not checked: those are packed two per
+  GPC, so they share GPC bandwidth while other GPCs idle. One-pass launches only 7 clusters, and the hardware
+  spreads them. If this holds, the real kernel should launch one cluster per slice when the slice count is at
+  most 15, and should not leave the GPC placement to the claim order.
+- The best result at k = 3 is C = 16, S = 2 (1.143, 6 slices on 7 clusters). This is the decode 1 shape.
+- 132 independent CTAs claiming 12-unit slices (C = 1, S = 64) give 1.139 at k = 7 and 1.101 at k = 9. That is
+  worse than one-pass C = 8 at both (1.067 / 1.034 at the best D).
+
+### Verdict and what it means for D2
+
+G0's first condition holds for C = 8 (one cluster per expert, one pass) and fails for C = 16, at both k = 7 and
+k = 9. By the plan's own rule (C = 16 fails at k = 9 and C = 8 passes), D2 is C = 8. Two findings refine it:
+
+- C = 16 caps at 7 resident clusters on this H200, so S = 1 at C = 16 takes a second wave from 8 experts up.
+- C = 8, S = 1 is good from 7 to 9 experts but poor at 3 (2.37x) and at 12 (1.12). At 12, 96 CTAs leave 36 SMs
+  idle and the clusters end 23 us apart. The schedule has to slice when distinct < 7 (best measured at k = 3:
+  C = 16, S = 2 at 1.14, and C = 8, S = 4 at 1.39) and when distinct > 9 (C = 8, S = 4 at 1.10; C = 16, S = 1
+  persistent at 1.03).
+
+### Two bugs found on the way (both fixed in the committed bytes)
+
+- With the consumer XOR loop rolled (one 16-byte shared-memory load per iteration), consuming one unit took
+  about 0.8 us. That throttled the ring to 46 GB/s per SM and made D = 4 behave like D = 1.5. An A/B against
+  the first version, which the compiler had unrolled (7 LDS.128 against 1 in SASS), showed this. `#pragma
+  unroll 6` restores 74-80 GB/s. A real consumer will have to keep its own loop off the ring's critical path in
+  the same way.
+- When a consumer saw the end-of-slice sentinel, it did not arrive on that slot's empty mbarrier. One-pass mode
+  never reuses the slot, so it did not matter there. In persistent mode, the producer's next wait on that slot
+  read a stale phase, and the kernel hung at k = 3, S = 8. My own process was holding the GPU lock and was
+  killed after about 10 minutes. The fix releases the sentinel slot like any other.
