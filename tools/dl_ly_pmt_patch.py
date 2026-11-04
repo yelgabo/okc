@@ -7,10 +7,11 @@ stamp is behind a switch that the timed graph of the plain run leaves off, so th
 - slice cgemv (CG_CUDA_SRC, after the pdl8 edits): cgemv_body / cgemv_kernel / cgemv40_kernel get a `bool TL`
   template parameter (default false, the launched kernel is unchanged); cgemv_launch picks the TL instantiation only
   while cg_set_tlb(ptr) holds a non-null stamp buffer (a __device__ pointer). Slots (16 int64 per CTA, blockIdx.x):
-    0 entry (t 0)   1 t 0's weight loads landed (every l0 / l1 / q0 / q1 word consumed)   2 after griddepcontrol.wait
-    3 x landed (t 0)   4 warp 0's FMAs and warp sum done   5 escape warp: count landed (before its wait)
-    6 escape warp after its wait   7 escape walk done (after the warp sums)   8 after the CTA barrier (t 0)
-    9 output stored (t 0)   10 SM id   11 escape count
+    0 entry (t 0)   1 weight loads issued (t 0, nothing consumed before the wait)   2 after griddepcontrol.wait (t 0)
+    3 lane 0's x landed   12 warp 0: every lane's x landed   13 warp 1: every lane's weights landed (consumed, then
+    __syncwarp)   4 warp 0's FMAs and warp sums done   5 escape warp: count landed (before its wait)   6 escape warp
+    after its wait   14 escape lane 0: its first x element landed   15 escape lane 0 after its loop   7 escape walk
+    done (after the warp sums)   8 after the CTA barrier (t 0)   9 output stored (t 0)   10 SM id   11 escape count
 - MoE TINY build (helper0): -DOKC_DEBUG=1 enables the source's own DBG(k) stamps (p.dbg, 8 per CTA: 0 entry,
   1 prologue, 7 gather, 6 WS join, 2 phase A end, 3 phase B end = launch_dependents, 4 after the grid barrier,
   5 exit after the final pass); they fire only when a launch passes a fourth scratch tensor (_PMT_MOE_DBG), which
@@ -38,6 +39,9 @@ if "--out" in sys.argv:
 PIN = "3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555"
 if "--pin" in sys.argv:
     PIN = sys.argv[sys.argv.index("--pin") + 1]
+XLD = "__ldcg"   # the base's x load intrinsic after the pdl8 edits (--xld __ldca for a candidate that changed it)
+if "--xld" in sys.argv:
+    XLD = sys.argv[sys.argv.index("--xld") + 1]
 
 # edits on CG_CUDA_SRC after the pdl8 edits (applied at import under `if PDL_CHAIN:`), as (old, new, count)
 CG_EDITS = [
@@ -59,20 +63,22 @@ CG_EDITS = [
      "    }\n"
      "    if (warp < NW) {\n        const uint8_t* lp = stream + (size_t)c * 2 * K;\n", 1),
     ("            q1[i] = __ldg(reinterpret_cast<const uint2*>(cp + K / 2) + j);\n        }\n"
-     "        asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n#pragma unroll\n        for (int i = 0; i < CPT; ++i) {\n            xa[i] = __ldcg(xp + i * NTH * 2);\n            xb[i] = __ldcg(xp + i * NTH * 2 + 1);\n        }\n        float acc0 = 0.f, acc1 = 0.f;\n",
+     "        asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n#pragma unroll\n        for (int i = 0; i < CPT; ++i) {\n            xa[i] = XLD(xp + i * NTH * 2);\n            xb[i] = XLD(xp + i * NTH * 2 + 1);\n        }\n        float acc0 = 0.f, acc1 = 0.f;\n",
      "            q1[i] = __ldg(reinterpret_cast<const uint2*>(cp + K / 2) + j);\n        }\n"
-     "        if (TL && t == 0) {\n#pragma unroll\n            for (int i = 0; i < CPT; ++i) {\n"
+     "        if (TL && t == 0) tl[1] = cg_gt();\n"
+     "        if (TL && warp == 1) {\n#pragma unroll\n            for (int i = 0; i < CPT; ++i) {\n"
      "                cg_use(l0[i].x); cg_use(l0[i].y); cg_use(l0[i].z); cg_use(l0[i].w);\n"
      "                cg_use(l1[i].x); cg_use(l1[i].y); cg_use(l1[i].z); cg_use(l1[i].w);\n"
      "                cg_use(q0[i].x); cg_use(q0[i].y); cg_use(q1[i].x); cg_use(q1[i].y);\n            }\n"
-     "            tl[1] = cg_gt();\n        }\n"
+     "            __syncwarp();\n            if (lane == 0) tl[13] = cg_gt();\n        }\n"
      "        asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n"
      "        if (TL && t == 0) tl[2] = cg_gt();\n"
-     "#pragma unroll\n        for (int i = 0; i < CPT; ++i) {\n            xa[i] = __ldcg(xp + i * NTH * 2);\n            xb[i] = __ldcg(xp + i * NTH * 2 + 1);\n        }\n"
-     "        if (TL && t == 0) {\n#pragma unroll\n            for (int i = 0; i < CPT; ++i) {\n"
+     "#pragma unroll\n        for (int i = 0; i < CPT; ++i) {\n            xa[i] = XLD(xp + i * NTH * 2);\n            xb[i] = XLD(xp + i * NTH * 2 + 1);\n        }\n"
+     "        if (TL && warp == 0) {\n#pragma unroll\n            for (int i = 0; i < CPT; ++i) {\n"
      "                cg_use(xa[i].x); cg_use(xa[i].y); cg_use(xa[i].z); cg_use(xa[i].w);\n"
      "                cg_use(xb[i].x); cg_use(xb[i].y); cg_use(xb[i].z); cg_use(xb[i].w);\n            }\n"
-     "            tl[3] = cg_gt();\n        }\n"
+     "            if (lane == 0) tl[3] = cg_gt();\n"
+     "            __syncwarp();\n            if (lane == 0) tl[12] = cg_gt();\n        }\n"
      "        float acc0 = 0.f, acc1 = 0.f;\n", 1),
     ("        acc0 = warp_sum(acc0);\n        acc1 = warp_sum(acc1);\n        if (lane == 0) {\n            red[0][warp] = acc0;\n",
      "        acc0 = warp_sum(acc0);\n        acc1 = warp_sum(acc1);\n        if (TL && t == 0) tl[4] = cg_gt();\n        if (lane == 0) {\n            red[0][warp] = acc0;\n", 1),
@@ -80,8 +86,11 @@ CG_EDITS = [
      "        const int count = __shfl_sync(0xFFFFFFFFu, ent.x, 0);\n        if (TL && lane == 0) { tl[5] = cg_gt(); tl[11] = (unsigned long long)count; }\n", 1),
     ("        float corr0 = 0.f, corr1 = 0.f;\n        asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n        for (int e = lane; e <= count; e += 32) {",
      "        float corr0 = 0.f, corr1 = 0.f;\n        asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n        if (TL && lane == 0) tl[6] = cg_gt();\n        for (int e = lane; e <= count; e += 32) {", 1),
+    ("                const float xv = __uint_as_float(\n                    (unsigned)XLD(reinterpret_cast<const unsigned short*>(x) + kk) << 16);\n",
+     "                const float xv = __uint_as_float(\n                    (unsigned)XLD(reinterpret_cast<const unsigned short*>(x) + kk) << 16);\n"
+     "                if (TL && lane == 0 && e == 1) { cg_use(__float_as_uint(xv)); tl[14] = cg_gt(); }\n", 1),
     ("        corr0 = warp_sum(corr0);\n        corr1 = warp_sum(corr1);\n        if (lane == 0) {\n            red[0][NW] = corr0;\n",
-     "        corr0 = warp_sum(corr0);\n        corr1 = warp_sum(corr1);\n        if (TL && lane == 0) tl[7] = cg_gt();\n        if (lane == 0) {\n            red[0][NW] = corr0;\n", 1),
+     "        if (TL && lane == 0) tl[15] = cg_gt();\n        corr0 = warp_sum(corr0);\n        corr1 = warp_sum(corr1);\n        if (TL && lane == 0) tl[7] = cg_gt();\n        if (lane == 0) {\n            red[0][NW] = corr0;\n", 1),
     ("    asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n    __syncthreads();\n    if (t == 0) {\n        float r0 = 0.f, r1 = 0.f;",
      "    asm volatile(\"griddepcontrol.launch_dependents;\" ::: \"memory\");\n    __syncthreads();\n    if (t == 0) {\n        if (TL) tl[8] = cg_gt();\n        float r0 = 0.f, r1 = 0.f;", 1),
     ("        *reinterpret_cast<unsigned*>(out + 2 * c) = pack_bf16x2(r0, r1);\n    }\n}\n",
@@ -151,11 +160,12 @@ def main():
     sha = hashlib.sha256(text.encode()).hexdigest()
     if sha != PIN:
         sys.exit(f"base {SRC} is {sha}, expected {PIN}")
+    cg_edits = [(o.replace("XLD", XLD), nw.replace("XLD", XLD), n) for o, nw, n in CG_EDITS]
     for old, new, n in FILE_EDITS:
         text = sub(text, old, new, n, "file")
     # the cg edits as a module-level list, applied to the post-pdl8 CG_CUDA_SRC at import
     anchor = "# pdl8e: the three m = 1 cgemv kernels as PDL participants at T = 1"
-    text = sub(text, anchor, "_PMT_CG_EDITS = " + repr(CG_EDITS) + "\n\n" + anchor, 1, "cg edits")
+    text = sub(text, anchor, "_PMT_CG_EDITS = " + repr(cg_edits) + "\n\n" + anchor, 1, "cg edits")
     text = HEADER + text
     DST.write_text(text)
     py_compile.compile(str(DST), doraise=True)
@@ -168,7 +178,7 @@ def main():
     exec(src[j:src.index("\n", j)], ns)  # noqa: S102  (the list is one line)
     for old, new, n in ns["_PDL8_CG_EDITS"]:
         cg = sub(cg, old, new, n, "pdl8 replay")
-    for old, new, n in CG_EDITS:
+    for old, new, n in cg_edits:
         cg = sub(cg, old, new, n, "cg")
     print(DST, hashlib.sha256(text.encode()).hexdigest())
 

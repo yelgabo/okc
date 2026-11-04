@@ -53,7 +53,11 @@ def summarize(cg, moe, fin):
     )
     # slice
     e = [us(r[0]) for r in cg]
-    w1 = [us(r[1]) for r in cg]
+    w1 = [us(r[13]) for r in cg]   # warp 1: every lane's weights landed
+    w1i = [us(r[1]) for r in cg]   # t 0: weight loads issued
+    x12 = [us(r[12]) for r in cg]  # warp 0: every lane's x landed
+    e14 = [us(r[14]) for r in cg]  # escape lane 0: first x element landed (0 when it has no escape)
+    e15 = [us(r[15]) for r in cg]  # escape lane 0: after its loop
     w2 = [us(r[2]) for r in cg]
     x3 = [us(r[3]) for r in cg]
     f4 = [us(r[4]) for r in cg]
@@ -69,7 +73,13 @@ def summarize(cg, moe, fin):
     out.update(
         sl_n=len(cg), sl_entry_min=min(e), sl_entry_p50=med(e), sl_entry_max=max(e),
         sl_entry_after_trig=min(e) - moe_trig, sl_n_late=len(late),
+        sl_wissued_p50=med(b - a for a, b in zip(e, w1i)),
         sl_wready_p50=med(w1), sl_wready_max=max(w1), sl_wready_before_exit=sum(1 for v in w1 if v < moe_exit),
+        sl_wready_after_entry_p50=med(b - a for a, b in zip(e, w1)),
+        sl_xall_p50=med(b - a for a, b in zip(w2, x12)), sl_xall_p90=q([b - a for a, b in zip(w2, x12)], 0.9), sl_xall_max=max(b - a for a, b in zip(w2, x12)),
+        sl_math_p50=med(b - a for a, b in zip(x12, f4)), sl_math_max=max(b - a for a, b in zip(x12, f4)),
+        sl_esc_x_p50=med(b - a for a, b in zip(e6, e14) if b > 0), sl_esc_x_max=max(b - a for a, b in zip(e6, e14) if b > 0),
+        sl_esc_loop_p50=med(b - a for a, b in zip(e6, e15)), sl_esc_sums_p50=med(b - a for a, b in zip(e15, e7)),
         sl_wait_min=min(w2), sl_wait_p50=med(w2), sl_wait_p90=q(w2, 0.9), sl_wait_max=max(w2),
         sl_wait_lat_min=min(w2) - moe_exit, sl_wait_lat_p50=med(w2) - moe_exit, sl_wait_lat_max=max(w2) - moe_exit,
         sl_x_p50=med(b - a for a, b in zip(w2, x3)), sl_x_p90=q([b - a for a, b in zip(w2, x3)], 0.9), sl_x_max=max(b - a for a, b in zip(w2, x3)),
@@ -84,7 +94,7 @@ def summarize(cg, moe, fin):
         sl_cta_wait_to_store_p50=med(b - a for a, b in zip(w2, s9)), sl_cta_wait_to_store_max=max(b - a for a, b in zip(w2, s9)),
         sl_end_p50=med(s9), sl_end_p90=q(s9, 0.9), sl_end=max(s9), sl_end_after_exit=max(s9) - moe_exit,
         crit_cta=crit, crit_entry=us(r[0]), crit_wready=us(r[1]), crit_wait=us(r[2]), crit_wait_lat=us(r[2]) - moe_exit,
-        crit_x=us(r[3]) - us(r[2]), crit_fma=us(r[4]) - us(r[3]), crit_esc_walk=us(r[7]) - us(r[6]),
+        crit_x=us(r[3]) - us(r[2]), crit_xall=us(r[12]) - us(r[2]), crit_math=us(r[4]) - us(r[12]), crit_fma=us(r[4]) - us(r[3]), crit_esc_walk=us(r[7]) - us(r[6]),
         crit_esc_after_fma=us(r[7]) - us(r[4]), crit_sync=us(r[8]) - max(us(r[4]), us(r[7])), crit_store=us(r[9]) - us(r[8]),
         crit_cnt=int(r[11]), crit_sm=int(r[10]),
     )
@@ -195,7 +205,7 @@ def main():
             res.append(st)
             print(f"PMTI {case['load']} {case['layer']} in {j} plain {tp:.2f} inst {ti:.2f} diff {diff:.2e} "
                   f"exit {st['moe_exit']:.2f} wait_lat p50 {st['sl_wait_lat_p50']:.2f} max {st['sl_wait_lat_max']:.2f} "
-                  f"x {st['sl_x_p50']:.2f} esc_walk {st['sl_esc_walk_p50']:.2f} sl_end+ {st['sl_end_after_exit']:.2f} "
+                  f"x {st['sl_x_p50']:.2f} xall {st['sl_xall_p50']:.2f} math {st['sl_math_p50']:.2f} esc_x {st['sl_esc_x_p50']:.2f} sl_end+ {st['sl_end_after_exit']:.2f} "
                   f"fin_end+ {st.get('fin_end_after_sl_end', float('nan')):.2f} late {st['sl_n_late']}", flush=True)
         label = f"{case['load']} {case['layer']}"
         keys = [k for k in res[0] if k not in ("raw", "seed")]

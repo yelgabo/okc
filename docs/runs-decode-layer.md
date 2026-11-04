@@ -4522,3 +4522,92 @@ about 6 us (hypothesis from the 0.7 us per-edge estimate), the route -> MoE seri
 tail (slice + finish) 3.6 to 4.0 us over its floor, of which residency was 0.3. Every load-ordering, trigger and
 fusion lever at these edges is closed by earlier sections; what is left needs an instrument inside the slice and
 finish kernels or a change inside the MoE's tail (the MoE lane's).
+
+## 2026-11-04 - Decode 1 post-MoE tail (box)
+
+Layer lane. Question: of the 3.3 to 3.7 us from the MoE's last CTA exit to the slice's end at decode 1 (sliding /
+full, one token), which part is the largest: the wait-return latency behind the cooperative MoE, the x read after the
+wait, the escape warp's table walk, or something else; then one candidate on that part. Base:
+muse_decode_layer/cand/ly_fabq.py (SHA256 3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555, the
+public file, never edited). Box only (okc-h200), every run under gpu.lock, no judge check. The bf16 lane shared the
+box (its ly_box_prtl.py process held the lock when this lane's first run queued; nvidia-smi showed no process outside
+the lock at any run start).
+
+### Instrument: ly_pmt (stamped copy of ly_fabq, never a candidate)
+
+`tools/dl_ly_pmt_patch.py` (base and pin checked) writes `muse_decode_layer/cand/ly_pmt.py`: per-CTA globaltimer
+stamps in the three kernels of the tail, every one behind a switch the plain graph leaves off, so the plain graph runs
+the base's kernels:
+
+- slice cgemv (`CG_CUDA_SRC` after the pdl8 edits): `cgemv_body` / `cgemv_kernel` / `cgemv40_kernel` get a `bool TL`
+  template parameter (default false, the launched kernel unchanged); `cgemv_launch` picks the TL instantiation only
+  while `cg_set_tlb(ptr)` holds a stamp buffer. 16 int64 per CTA: entry, weight loads issued, after
+  `griddepcontrol.wait`, lane 0's x landed, every lane of warp 0's x landed (consumed, `__syncwarp`), every lane of
+  warp 1's weights landed, warp 0's FMAs and warp sums done, escape warp count landed / after its wait / first x
+  element landed / after its loop / after its warp sums, after the CTA barrier, output stored, SM id, escape count.
+- MoE TINY build (helper0): `-DOKC_DEBUG=1` compiles the source's own `DBG(k)` stamps (8 per CTA: entry, prologue,
+  gather, join, phase A end, phase B end = `launch_dependents`, after the grid barrier, exit after the final pass),
+  taken only when a launch passes a fourth scratch tensor (`_PMT_MOE_DBG`), which the plain graph does not.
+- finish (`_sl_cluster_finish_cg`, Triton): a stamp pointer argument and a `TLON` constexpr (entry, after
+  `gdc_wait`, the slice output P consumed, carry and tail consumed, stores issued); off, a dummy pointer and no code.
+
+No fence, barrier, wait, trigger or launch attribute moves. `tools/ly_box_pmt.py` captures a plain and an
+instrumented graph of the whole layer per cell (PDL pinned on at every T, the gate skipped, router seed
+106218864389449120, f931 case seeds, local_start per input), replays each fresh input through both with a cold L2 and
+reads the stamps; it prints per-input lines and medians and writes a JSON. Observer cost: the instrumented graph is
+1.3 to 2.9 us slower than the plain one (first round: the stamp that consumed thread 0's weights before its wait
+delayed warp 0; removed in the second round), so the absolute stamp times carry that bias, the plain graph does not.
+
+### Round 1 (16:0x to 16:11 UTC, `muse_decode_layer/profiles/box/pmt/pmt_fabq.{log,json}`): 20 inputs per cell
+
+The slice's escape table has pmax 6 (at most 5 escapes per CTA, median 1), so the escape warp's walk is one
+iteration per lane; the escape-table hypothesis is small before any timing. Medians over the 20 inputs, us from the
+first MoE CTA's entry; reference points are the last MoE CTA's `launch_dependents` (trig), the grid barrier's
+release (bar), the last MoE CTA's exit (exit), the last slice CTA's store (slice end) and the last finish program's
+stores (fin end). All numbers are measurements unless marked.
+
+| item | sliding | full |
+|---|---:|---:|
+| MoE trig (last CTA's launch_dependents) | 19.36 | 19.46 |
+| MoE barrier release (last CTA) | 21.20 | 20.80 |
+| MoE exit, median CTA / last 8 (final pass) / last | 20.74 / 22.20 / 23.01 | 20.80 / 21.20 / 21.49 |
+| final pass after the barrier (last 8 CTAs) | 1.34 | 0.49 |
+| slice entry min / max (all 512 CTAs) | 20.59 / 20.69 | 21.46 / 21.55 |
+| slice entry after trig | 1.26 | 1.63 |
+| slice CTAs entering after the MoE exit | 0 of 512 (one input 107) | 0 (five inputs 512) |
+| slice weights landed (warp 0 lane 0), median / max | 22.30 / 23.04 | 23.18 / 24.16 |
+| slice CTAs with weights landed before the MoE exit | 498 of 512 | 0 of 512 |
+| slice wait return, min / median / max | 23.47 / 23.49 / 23.50 | 22.72 / 23.40 / 24.48 |
+| wait return after the MoE exit, median / max | 0.48 / 0.51 | 1.73 / 2.70 (gated by the weights, see below) |
+| lane 0's x after the wait, median / p90 / max | 0.38 / 0.61 / 0.80 | 0.19 / 0.40 / 0.69 |
+| lane 0's x landed to warp 0's sums done, median / max | 1.98 / 2.75 | 1.76 / 3.17 |
+| escape warp: wait to walk done (one iteration), median / p90 | 1.38 / 1.92 | 1.38 / 1.68 |
+| escape walk done minus warp 0's sums done | -0.96 | -0.92 |
+| CTA barrier wait / store | 0.14 / 0.06 | 0.40 / 0.06 |
+| CTA wait return to its store, median / max | 2.62 / 3.20 | 2.54 / 3.78 |
+| slice end median / p90 / last | 26.13 / 26.34 / 26.74 | 26.03 / 26.51 / 26.93 |
+| slice end after the MoE exit | 3.66 | 5.22 |
+| finish entry before the slice end | 0.38 | 0.30 |
+| finish wait return after the slice end / P landed / carry landed / stores | 0.39 / 0.42 / 0.48 / 0.06 | 0.42 / 0.38 / 0.48 / 0.06 |
+| finish end after the slice end / after the MoE exit | 1.63 / 5.34 | 1.57 / 6.74 |
+| plain graph / instrumented graph | 68.54 / 71.39 | 75.76 / 77.02 |
+
+Readings (sliding). The wait-return latency is 0.48 us and tight (all 512 CTAs released within 0.03 us), so the
+cooperative kernel's completion and flush is a small part, not the 2 us the earlier section guessed. All 512 slice
+CTAs enter together 1.26 us after the trigger, at the moment the first MoE CTAs exit, and 498 of them hold their
+weights before the last MoE CTA exits (the final pass takes 1.34 us after the barrier, which is the slice's prefetch
+window). The largest part is between lane 0's x landing and warp 0's sums being done: 1.98 us median for about 250
+instructions, and the escape warp's single iteration (one x element load, one table load that hits in L1) takes
+1.38 us in the same window, so the x row read by 512 CTAs at the same instant is the suspect (hypothesis: 32k line
+requests on the 64 lines of one 8 KB row; the second round separates every lane's x landing from the math). The
+finish is 1.6 us: 0.4 wait, 0.4 P, 0.5 carry, serial loads after its wait.
+
+Readings (full). The MoE's final pass is short (0.49 us after the barrier) and the slice enters 1.63 us after the
+trigger, 0.03 us before the last MoE CTA exits, so its weights land 1.7 us after the exit; the wait stamp of round 1
+was gated by thread 0 consuming its weights before the wait (an instrument artefact fixed in round 2), so the "wait
+return" column at full is the weights landing, and the real wait-return latency at full is not separated in this
+round. The post-exit tail is therefore: launch latency remainder plus the 1.7 us weight stream (which the MoE's
+longer final pass hides at sliding), then the same 2 us x-plus-math block, then a 0.9 us end spread. Nothing in the
+slice can start its weights earlier than its launch, and the launch follows the trigger by 1.3 to 1.6 us in both
+cells (the trigger sits at the MoE's phase B end, before the barrier; trigger placements are the MoE lane's and are
+covered by ruled-out rows).
