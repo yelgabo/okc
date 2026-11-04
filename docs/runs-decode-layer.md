@@ -4031,7 +4031,11 @@ us bar that a 1 to 3 us mechanism cannot clear; the sign counts and the timeline
 20 paired inputs) agree on a gain of about 1 to 3 us at verify 32 and about 0.5 to 1 us at verify 16.
 
 Knob variant `ly_rfinq4.py` (f6cc316c, `OKC_RFINQ=4`, four fixup tiles in flight): SASS identical in instruction count
-(22,647) and loops to Q = 2, ptxas already hoists the constant-offset loads; see the ledger line for its A/B.
+(22,647) and loops to Q = 2, ptxas already hoists the constant-offset loads. Its own round (`.build/prtl/rfinq4/`,
+`muse_decode_layer/profiles/box/rfin/q4/`, check PASS 12 / 12, startup OK): verify 16 sliding -0.11 (+0.29, +0.43, -0.37,
+-0.64), verify 16 full -1.01 (-1.42, -0.99, -0.98, -0.62), verify 32 sliding -2.41 (-0.88, -1.94, -3.30, -3.74; threshold
+3.01), verify 32 full -1.95 (-0.58, -2.29, -2.51, -2.88): the same class as Q = 2, as the identical SASS predicts; the
+knob is a no-op and ly_rfin (Q = 2) stays the candidate.
 
 Decision: ly_rfin is correct (12 / 12, startup conformance, bitwise equal to the base on nine direct comparisons),
 changes no fence, barrier or release path, costs nothing at the eight untouched cells and gains 1.5 to 2.8 us at
