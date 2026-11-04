@@ -1,0 +1,115 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793827374.283 acquire start after 8.5 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.04), ('sk2', 7.97), ('torch', 10.43)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+ARMS state v16pdl_on None pdl8_on {1: True, 8: True, 16: True, 32: True}
+BXLOCK 1793827382.885 release triton _sl_cluster_finish_cg
+BXBUILD 1793827382.885 start triton _sl_cluster_finish_cg
+BXBUILD 1793827382.999 end triton _sl_cluster_finish_cg
+BXLOCK 1793827399.529 acquire triton _sl_cluster_finish_cg done after 16.5 s
+BXCLOCK submission clocks now 16.5 s behind real (lock waits after builds)
+BXLOCK 1793827399.540 release triton _sl_cluster_finish_cg
+BXBUILD 1793827399.540 start triton _sl_cluster_finish_cg
+BXBUILD 1793827399.640 end triton _sl_cluster_finish_cg
+BXLOCK 1793827399.640 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 16.5 s behind real (lock waits after builds)
+BXLOCK 1793827399.650 release triton _sl_cluster_finish_cg
+BXBUILD 1793827399.650 start triton _sl_cluster_finish_cg
+BXBUILD 1793827399.745 end triton _sl_cluster_finish_cg
+BXLOCK 1793827399.745 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 16.5 s behind real (lock waits after builds)
+BXLOCK 1793827399.755 release triton _sl_cluster_finish_cg
+BXBUILD 1793827399.755 start triton _sl_cluster_finish_cg
+BXBUILD 1793827399.850 end triton _sl_cluster_finish_cg
+BXLOCK 1793827399.851 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 16.5 s behind real (lock waits after builds)
+BXLOCK 1793827399.877 release triton _prq_sl_tile_route_cg
+BXBUILD 1793827399.877 start triton _prq_sl_tile_route_cg
+BXBUILD 1793827400.685 end triton _prq_sl_tile_route_cg
+BXLOCK 1793827400.685 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 16.5 s behind real (lock waits after builds)
+BXLOCK 1793827400.697 release triton _prq_sl_tile_route_cg
+BXBUILD 1793827400.697 start triton _prq_sl_tile_route_cg
+BXBUILD 1793827401.464 end triton _prq_sl_tile_route_cg
+BXLOCK 1793827417.384 acquire triton _prq_sl_tile_route_cg done after 15.9 s
+BXCLOCK submission clocks now 32.5 s behind real (lock waits after builds)
+ARMS decode 1 sliding   base         net    64.34 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 1 sliding   f1nw4        net    64.30 us  d  -0.26  neg 29/48  check PASS
+ARMS decode 1 sliding   f1nw16       net    64.34 us  d  +0.05  neg 24/48  check PASS
+ARMS decode 1 sliding   f1bc128      net    64.38 us  d  -0.08  neg 26/48  check PASS
+ARMS decode 1 sliding   f1bc512      net    64.61 us  d  -0.06  neg 29/48  check PASS
+ARMS decode 1 sliding   f8bc512      net    64.06 us  d  -0.40  neg 34/48  check PASS
+ARMS decode 1 sliding   f8bc2048     net    64.37 us  d  -0.13  neg 27/48  check PASS
+ARMS decode 1 sliding   t1nw8        net    64.53 us  d  +0.24  neg 20/48  check PASS
+ARMS decode 1 sliding   t1p2         net    64.46 us  d  +0.00  neg 23/48  check PASS
+ARMS decode 1 sliding   t8nw8        net    64.14 us  d  -0.13  neg 27/48  check PASS
+ARMS decode 1 sliding   t8p2         net    64.26 us  d  -0.18  neg 27/48  check PASS
+ARMS decode 1 sliding   t8p8         net    64.82 us  d  +0.19  neg 21/48  check PASS
+ARMS decode 1 sliding   base2        net    64.53 us  d  -0.19  neg 28/48  check PASS
+ARMS decode 1 full      base         net    71.04 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 1 full      f1nw4        net    70.53 us  d  -0.38  neg 29/48  check PASS
+ARMS decode 1 full      f1nw16       net    70.88 us  d  -0.61  neg 31/48  check PASS
+ARMS decode 1 full      f1bc128      net    70.38 us  d  -0.21  neg 29/48  check PASS
+ARMS decode 1 full      f1bc512      net    70.35 us  d  -0.82  neg 34/48  check PASS
+ARMS decode 1 full      f8bc512      net    70.77 us  d  -0.50  neg 32/48  check PASS
+ARMS decode 1 full      f8bc2048     net    70.51 us  d  -0.29  neg 28/48  check PASS
+ARMS decode 1 full      t1nw8        net    70.61 us  d  -0.59  neg 33/48  check PASS
+ARMS decode 1 full      t1p2         net    70.40 us  d  -0.86  neg 31/48  check PASS
+ARMS decode 1 full      t8nw8        net    70.56 us  d  -0.05  neg 25/48  check PASS
+ARMS decode 1 full      t8p2         net    70.29 us  d  -0.85  neg 37/48  check PASS
+ARMS decode 1 full      t8p8         net    70.21 us  d  -0.94  neg 33/48  check PASS
+ARMS decode 1 full      base2        net    70.69 us  d  -0.29  neg 29/48  check PASS
+BXLOCK 1793827418.935 release triton _sl_cluster_finish_cg
+BXBUILD 1793827418.935 start triton _sl_cluster_finish_cg
+BXBUILD 1793827419.040 end triton _sl_cluster_finish_cg
+BXLOCK 1793827437.132 acquire triton _sl_cluster_finish_cg done after 18.1 s
+BXCLOCK submission clocks now 50.5 s behind real (lock waits after builds)
+BXLOCK 1793827437.161 release triton _sl_cluster_finish_cg
+BXBUILD 1793827437.161 start triton _sl_cluster_finish_cg
+BXBUILD 1793827437.267 end triton _sl_cluster_finish_cg
+BXLOCK 1793827437.267 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 50.5 s behind real (lock waits after builds)
+BXLOCK 1793827437.347 release triton _prq_sl_tile_route_cg
+BXBUILD 1793827437.347 start triton _prq_sl_tile_route_cg
+BXBUILD 1793827438.162 end triton _prq_sl_tile_route_cg
+BXLOCK 1793827438.162 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 50.5 s behind real (lock waits after builds)
+BXLOCK 1793827438.217 release triton _prq_sl_tile_route_cg
+BXBUILD 1793827438.217 start triton _prq_sl_tile_route_cg
+BXBUILD 1793827438.991 end triton _prq_sl_tile_route_cg
+BXLOCK 1793827451.368 acquire triton _prq_sl_tile_route_cg done after 12.4 s
+BXCLOCK submission clocks now 62.9 s behind real (lock waits after builds)
+ARMS verify 1 sliding   base         net   100.69 us  d  +0.00  neg 0/48  check PASS
+ARMS verify 1 sliding   f1nw4        net   100.58 us  d  +0.11  neg 23/48  check PASS
+ARMS verify 1 sliding   f1nw16       net   100.40 us  d  +0.03  neg 23/48  check PASS
+ARMS verify 1 sliding   f1bc128      net   101.33 us  d  +0.54  neg 15/48  check PASS
+ARMS verify 1 sliding   f1bc512      net   100.62 us  d  +0.06  neg 19/48  check PASS
+ARMS verify 1 sliding   f8bc512      net   100.37 us  d  -0.03  neg 25/48  check PASS
+ARMS verify 1 sliding   f8bc2048     net   100.86 us  d  +0.42  neg 17/48  check PASS
+ARMS verify 1 sliding   t1nw8        net   100.96 us  d  +0.16  neg 23/48  check PASS
+ARMS verify 1 sliding   t1p2         net   100.32 us  d  -0.08  neg 26/48  check PASS
+ARMS verify 1 sliding   t8nw8        net   101.06 us  d  +0.16  neg 22/48  check PASS
+ARMS verify 1 sliding   t8p2         net   100.72 us  d  +0.54  neg 15/48  check PASS
+ARMS verify 1 sliding   t8p8         net   101.28 us  d  +0.56  neg 14/48  check PASS
+ARMS verify 1 sliding   base2        net   101.44 us  d  +0.34  neg 19/48  check PASS
+ARMS verify 1 full      base         net   111.20 us  d  +0.00  neg 0/48  check PASS
+ARMS verify 1 full      f1nw4        net   110.80 us  d  -0.27  neg 27/48  check PASS
+ARMS verify 1 full      f1nw16       net   110.99 us  d  +0.00  neg 24/48  check PASS
+ARMS verify 1 full      f1bc128      net   110.91 us  d  -0.32  neg 28/48  check PASS
+ARMS verify 1 full      f1bc512      net   112.10 us  d  +0.10  neg 19/48  check PASS
+ARMS verify 1 full      f8bc512      net   110.43 us  d  -0.24  neg 29/48  check PASS
+ARMS verify 1 full      f8bc2048     net   111.15 us  d  -0.10  neg 26/48  check PASS
+ARMS verify 1 full      t1nw8        net   111.28 us  d  -0.22  neg 28/48  check PASS
+ARMS verify 1 full      t1p2         net   111.54 us  d  +0.32  neg 20/48  check PASS
+ARMS verify 1 full      t8nw8        net   111.66 us  d  +0.16  neg 22/48  check PASS
+ARMS verify 1 full      t8p2         net   112.40 us  d  +0.70  neg 13/48  check PASS
+ARMS verify 1 full      t8p8         net   110.96 us  d  -0.11  neg 26/48  check PASS
+ARMS verify 1 full      base2        net   111.50 us  d  -0.08  neg 25/48  check PASS
+BXLOCK 1793827452.897 release end
