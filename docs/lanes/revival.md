@@ -1,80 +1,94 @@
-# Revival lane checkpoint: per-T knob sweep on ly_stk3
+# Revival lane checkpoint: round 2, launch knobs on ly_stk4
 
-Updated 2026-11-04 13:20 PT. Branch worktree-agent-a034ce431fea8011b.
+Updated 2026-11-04 13:48 PT. Branch worktree-agent-a4ca890a24d12b144. Round 1 (ly_stk3 sweeps) is in
+docs/runs-decode-layer.md, section "2026-11-04 - Per-T knob sweep on ly_stk3 (box)".
 
-Base: muse_decode_layer/cand/ly_stk3.py, SHA256 a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6.
-Instrument: tools/ly_arms.py (one prepare, one graph per arm, rotated replay, reference check per arm), router seed
-106218864389449120, judge .build/judge/g1b4_pdl8d.f931abf568544018.json, GPU lock /root/okc/.build/box/gpu.lock.
+Base: muse_decode_layer/cand/ly_stk4.py, SHA256 a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e
+(judged 10,046.1 us, the draw base).
 
-## Knobs skipped (already swept on a recent base, docs/ruled-out.md)
+Screen file: muse_decode_layer/cand/ly_rv2s.py, SHA256 546866a686d857bfb7d3be2e0126ed05b4520bf39d12823fb18d826c8608117b,
+built by muse_decode_layer/profiles/box/rev2/mk_rv2s.py from ly_stk4. With empty knob tables it runs the base's
+launches. Knobs (module globals, read at launch, so each ly_arms arm bakes its own value into its graph):
+- `ASMEM_CFG[(B, L, sliding)]`: dynamic shared memory bytes of that attention launch (env OKC_ASMEM read in the C++
+  `launch<L>`; cooperative grids keep the base value when the larger reservation would break residency).
+- `CG_NTH_OVR[(n, k)]`: cgemv threads at launch (T = 1 slice, base (1024, 4096) = 128).
+- `V1FS_T[T]`: finish dynamic shared memory per T (base {8: 118784}); T = 1 added.
+- `MOE_X["tiny" | "tiny2"]`: replacement define tuple for that MoE build.
 
-Unpooler P at T = 16 / 32 (row 769) and T = 8 P = 4 (row 731); o P = 1 at T = 1 (row 792); attention splits at
-decode 1 / verify 1 / decode 16 / 32 (rows 789, 812, 820, 821); workspace copies (787, 827); pooler L2 prefetch
-extension and alternatives (772, 814, 817); RT_CFG row boundary (ly_rbc); MoE ring depth OKC_NS (678); MoE two CTAs
-per SM (696); verify 16 / 32 PDL edges (768).
+Instrument: tools/ly_arms.py, 48 runs, router seed 106218864389449120, judge
+.build/judge/g1b4_pdl8d.f931abf568544018.json, GPU lock /root/okc/.build/box/gpu.lock. Box scripts:
+muse_decode_layer/profiles/box/rev2/{s1.sh,s2.py}; logs /root/okc/.build/rev2/arms_{s1,s1b,s2}.log.
 
-## Sweep 1: sk2 pre-wait stages P per role at T = 1 / 8 / 16 (sliding, 48 runs, all checks PASS)
+## Sweep 1 (done): attention reservation, T = 1 cgemv threads, T = 1 finish reservation
 
-Paired median difference against base in us (negative is faster), faster pairs out of 48.
+All checks PASS. Paired median difference against base in us (negative is faster), faster pairs of 48. base2 is a
+second copy of the base arm: its spread (up to +0.58 / -0.29) is the noise floor of this run.
 
-| arm | decode 1 (base 64.19) | verify 1 (base 100.78) | decode 16 (base 125.89) |
-|---|---|---|---|
-| qkv1 | -0.14 (26) | +0.11 (23) | -0.53 (36) |
-| qkv3 | +0.26 (21) | -0.24 (31) | +0.14 (21) |
-| qkv4 | +0.56 (17) | +0.43 (15) | +0.66 (12) |
-| o1 | +0.11 (20) | +0.77 (17) | +0.38 (17) |
-| o3 | +0.16 (21) | -0.58 (40) | +0.13 (20) |
-| o4 | +0.66 (11) | -0.27 (29) | +0.66 (14) |
-| pool1 | +0.66 (15) | +0.40 (17) | -0.24 (27) |
-| pool3 | +0.03 (24) | +0.11 (23) | -0.40 (27) |
-| pool4 | +0.98 (8) | +0.85 (12) | +0.40 (18) |
-| router1 | +0.00 (23) | -0.35 (32) | -0.13 (27) |
-| router4 | +0.35 (21) | +0.00 (22) | +0.11 (21) |
-| base2 (control) | +0.02 (22) | -0.34 (28) | +0.03 (24) |
+| arm | d1 sliding | d1 full | v1 sliding | v1 full |
+|---|---|---|---|---|
+| a1s100 (1,1,sl) 100K | -0.34 (31) | -0.53 (36) | +0.02 (23) | +0.29 (19) |
+| a1s160 | +0.34 (21) | -0.03 (25) | -0.56 (30) | +0.10 (23) |
+| a1s227 | -0.05 (24) | -0.82 (37) | -0.34 (28) | +0.08 (20) |
+| a1f100 (1,1,full) | +0.13 (22) | -0.96 (36) | -0.32 (29) | +0.32 (19) |
+| a1f160 | +0.11 (22) | -0.37 (27) | +0.13 (23) | -0.05 (24) |
+| a8s100 (1,8,sl) | +0.42 (18) | -0.82 (34) | -0.08 (26) | +0.34 (20) |
+| a8s160 | +0.14 (21) | -0.34 (28) | +0.58 (19) | +0.32 (17) |
+| a8f100 (1,8,full) | +0.40 (20) | -0.38 (33) | -0.18 (26) | +0.27 (19) |
+| a8f160 | -0.27 (30) | -0.27 (29) | -0.18 (28) | +0.30 (18) |
+| cg64 | +1.18 (13) | +0.35 (23) | -0.83 (32) | -0.13 (26) |
+| cg256 | +1.97 (5) | +0.93 (7) | -0.35 (27) | +0.16 (20) |
+| f1_60k | -0.06 (25) | -0.32 (29) | -0.32 (28) | +0.43 (20) |
+| f1_118k | +0.27 (18) | -0.46 (29) | -0.21 (25) | -0.05 (25) |
+| f1_160k | +0.40 (21) | -0.80 (35) | -0.11 (25) | -0.03 (24) |
+| base2 | +0.00 (23) | -0.29 (31) | -0.11 (26) | +0.58 (16) |
 
-P = 4 loses for every role. Leads: o P = 3 at T = 8 (verify 1 -0.58, 40/48, control -0.34) and qkv P = 1 at T = 16
-(decode 16 -0.53, 36/48, control +0.03). Logs: muse_decode_layer/profiles/box/rev/arms_pcx.{log,json}, script pcx.sh.
+The decode 1 full column drifts negative for every arm, including verify-only arms (a8*) that cannot touch a
+decode 1 launch, so its -0.5 to -0.96 entries are base-arm noise. No sliding cell moves 0.5 us with a margin.
 
-## Sweep 2: single-T confirmation, 96 runs, both layers (pcx2.sh, arms_pcx2.{log,json}, all checks PASS)
+Sweep 1b, decode 16 / 32 (sl = sliding):
 
-| arm | verify 1 sl | verify 1 full | decode 16 sl | decode 16 full | decode 32 sl | decode 32 full |
-|---|---|---|---|---|---|---|
-| o3_8 | -0.59 (63) | +0.14 (45) | +0.06 (45) | +0.26 (38) | -0.18 (52) | -0.37 (54) |
-| qkv1_16 | -0.18 (53) | +0.29 (38) | +0.06 (44) | -0.32 (59) | +0.13 (44) | +0.08 (46) |
-| pool3_16 | -0.26 (55) | -0.22 (56) | +0.08 (45) | +0.03 (47) | +0.51 (38) | -0.14 (52) |
-| router1_8 | -0.06 (49) | +0.00 (46) | +0.42 (32) | -0.13 (50) | +0.50 (39) | -0.03 (50) |
-| qkv2_32 | -0.14 (51) | -0.08 (49) | +0.13 (43) | -0.16 (52) | +0.51 (36) | +0.32 (36) |
-| o2_32 | -0.18 (54) | -0.02 (48) | +0.34 (38) | -0.35 (58) | -0.27 (53) | -0.75 (60) |
-| pool2_32 | -0.16 (52) | +0.13 (39) | -0.11 (49) | -0.21 (55) | -0.05 (49) | -0.59 (60) |
-| base2 | -0.19 (55) | +0.29 (34) | +0.32 (36) | +0.06 (43) | +0.18 (47) | +0.19 (44) |
+| arm | d16 sl | d16 full | d32 sl | d32 full |
+|---|---|---|---|---|
+| d16f100 (16,1,full) | -0.02 (24) | +0.10 (23) | -0.48 (29) | +0.42 (19) |
+| d16f160 | +0.18 (18) | +0.08 (22) | -0.19 (26) | +0.61 (21) |
+| d32f100 (32,1,full) | -0.06 (25) | +0.00 (23) | -0.72 (32) | +0.51 (18) |
+| d32f160 | -0.19 (25) | +0.14 (19) | +0.06 (23) | -0.06 (24) |
+| d16s120 (16,1,sl) 120K | +2.96 (2) | +0.27 (22) | -0.40 (29) | +0.48 (18) |
+| d32s120 (32,1,sl) 120K | -0.21 (25) | -0.10 (24) | +4.86 (0) | +0.38 (22) |
+| base2 | -0.06 (28) | -0.13 (25) | +0.10 (23) | +0.37 (20) |
 
-qkv1_16 at decode 16 sliding did not repeat (+0.06). o3_8 at verify 1 sliding repeated (-0.59, 63/96), but only about
-0.4 us past its control. o2_32 at decode 32 full -0.75 (60/96).
+Reach: the env knob demonstrably changes launches (d16s120 / d32s120 lose 3.0 / 4.9 us on their own cell, which
+confirms ly_a16o2's 81920 two-per-SM choice) and cg64 / cg256 lose at decode 1. Reach at decode 1 / verify 1
+attention is unproven: with B = 1 the split grid fits one CTA per SM, so a reservation only changes what can
+co-reside under PDL, and no arm moved.
 
-## Paired A/B (tools/rev_ab.sh: gate, then tools/ly_prtl_ab.sh two rounds against ly_stk3.py)
+Decision: knobs 1-3 flat, no candidate.
 
-ly_rvo38.py (ly_stk3 + `PCX_CFG[("o", 8)] = (3, 0, 0, 0)` after line 10194), SHA256
-2f00aeb84e8e506b5fc68524b9e71a9f658411a26756a901fa7fe6ff19387b9e. Gate: five PDL8H guards pass, chk PASS. Pooled 24
-pairs: verify 1 sliding -0.12 (15/24), verify 1 full +0.61 (1/24), decode 1 sliding -0.22 (20/24, T = 1 untouched),
-verify 32 sliding +1.51 (1/24, untouched). Rejected. The untouched cells show the process-level pairs count carries
-systematic swings of about 1.5 us. Box dirs /root/okc/.build/prtl/rvo38{,_r2}.
+## Sweep 2 (done): MoE TINY / TINY2 define variants, decode 1 / verify 1
 
-ly_rvo232.py (`PCX_CFG[("o", 32)] = (2, 0, 0, 0)`), SHA256 069a1a14c15a139b9331fdf51f5326761cbf6aa429b79cd28da2ecae7ab6ae72.
-Gate pass, chk 12/12 PASS. Pooled 24 pairs: decode 32 full -0.81 (21/24), decode 32 sliding -0.03 (11/24), verify 1
-sliding +0.39 (2/24, untouched). Misses the bar (no sliding cell). Tables: profiles/box/rev/ab_rvo38.txt, ab_rvo232.txt.
+All checks PASS. Own cells: TINY arms at decode 1, TINY2 arms at verify 1 (the other load is untouched).
 
-## Sweep 3: finish and tile shapes at T = 1 / 8 (fin.sh, arms_fin.{log,json}, 48 runs, all checks PASS)
+| arm | d1 sliding | d1 full | v1 sliding | v1 full |
+|---|---|---|---|---|
+| t_wsblk1 | +1.31 (8) | +1.62 (3) | -0.30 (27) | +0.40 (19) |
+| t_wsblk4 | +1.12 (7) | +1.44 (5) | +0.18 (21) | +0.24 (21) |
+| t_finpf1 | -0.21 (29) | +0.35 (15) | -0.21 (27) | +0.32 (16) |
+| t_cpf0 | +1.20 (6) | +1.38 (8) | +0.14 (18) | +0.32 (14) |
+| t_l2h1 | +0.86 (9) | +1.04 (11) | +0.02 (23) | +0.10 (23) |
+| t_wsbl1 | +1.09 (8) | +0.93 (10) | +0.11 (22) | +0.67 (18) |
+| t_fast3 | +1.02 (10) | +1.50 (6) | -0.16 (26) | -0.02 (24) |
+| t2_cpf1 | -0.14 (27) | +0.03 (23) | +0.85 (11) | +1.52 (7) |
+| t2_finpf0 | -0.13 (29) | +0.21 (21) | +1.84 (3) | +2.10 (1) |
+| t2_wsbl1 | +0.21 (22) | -0.06 (24) | +0.99 (10) | +1.42 (8) |
+| t2_fast3 | +0.42 (19) | +0.13 (20) | +2.06 (4) | +2.11 (3) |
+| t2_wsblk4 | -0.64 (27) | +0.26 (20) | +0.75 (13) | +1.12 (8) |
+| base2 | +0.10 (21) | +0.11 (23) | -0.19 (26) | -0.13 (26) |
 
-Sliding: decode 1 best f1nw4 -0.26 (29/48), control -0.19; verify 1 best t1p2 -0.08 (26/48), control +0.34. Flat.
+Decision: knob 4 flat (every change loses on its own cell, TINY FINPF 1 inside noise). Round 2 ends with no
+candidate. Run log: docs/runs-decode-layer.md, "2026-11-04 - Launch knobs on ly_stk4, revival round 2 (box)";
+ruled-out rows appended.
 
-## State at 13:30 PT
+## Next
 
-No candidate clears the bar; no ledger line written. Run log "Per-T knob sweep on ly_stk3 (box)" and three ruled-out
-rows written.
-
-## Next (for a relaunched lane)
-
-Not yet swept: OKC_A16SM reservation at decode 1 / verify 1 (compile-time define, line 171, needs files),
-CG_LAYER_THREADS for the T = 1 slice (1024, 4096) at 64 / 256 (consumed in prepare at line 18045, needs files), a
-T = 1 finish smem reservation (`_v1fs_reserve` filters on the T = 8 warp count; needs a file), MoE TINY defines
-(lines 6935-6941). For in-process screening, ly_arms "glob" arms only reach values read at launch.
+None of the four knobs is left. ly_rv2s stays useful as an in-process screen for any further launch-shape or
+MoE-define idea (add an arm, no new compile of the layer).
