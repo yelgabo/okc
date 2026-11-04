@@ -92,6 +92,31 @@ In weighted units: the decode 1 bar is about 0.23 us per cell, verify 1 about 1.
 six-load sum about 6 us per cell over all twelve. In-process nulls (the control's byte copy `rv_ctl2.py`
 as a second arm, same set) are listed with each run; so far they are within these bars.
 
+### pdl8h control-vs-control spread (the bar for the combined candidate)
+
+g1b4_pdl8h.py 33c2353b, two separate box_run.py processes (`rv_hctl_a`, `rv_hctl_b`, all six loads,
+60 runs, both {1, 8, 16, 32 on}, PDL8H_GUARD clean), and the in-process pair h / h2 of `rv_h_six`.
+
+| cell | rv_hctl_a | rv_hctl_b | spread | rv_h_six h / h2 |
+|---|---:|---:|---:|---:|
+| decode 1 sliding | 66.56 | 66.56 | 0.00 | 67.02 / 67.65 |
+| decode 1 full | 72.72 | 72.43 | 0.29 | 73.70 / 73.31 |
+| decode 16 sliding | 132.02 | 131.41 | 0.61 | 131.52 / 131.68 |
+| decode 16 full | 204.10 | 202.80 | 1.30 | 203.06 / 203.22 |
+| decode 32 sliding | 147.92 | 148.38 | 0.46 | 147.47 / 147.55 |
+| decode 32 full | 298.00 | 298.22 | 0.22 | 298.40 / 298.32 |
+| verify 1 sliding | 105.25 | 104.64 | 0.61 | 104.96 / 104.42 |
+| verify 1 full | 113.17 | 112.29 | 0.88 | 111.54 / 111.33 |
+| verify 16 sliding | 245.60 | 244.93 | 0.67 | 243.76 / 244.67 |
+| verify 16 full | 326.86 | 326.45 | 0.42 | 327.31 / 330.58 |
+| verify 32 sliding | 298.72 | 299.14 | 0.42 | 297.31 / 297.10 |
+| verify 32 full | 461.46 | 462.43 | 0.98 | 463.42 / 461.47 |
+| six-load sum | 69439.8 | 69366.6 | 73.2 | spread 59.9 |
+
+Bar for the combined candidate: six-load sum more than 146 below pdl8h (twice the larger spread, 73.2),
+and no cell worse than pdl8h by more than that cell's spread (the larger of the two columns' differences;
+3.3 us at verify 16 full in-process, otherwise 0.0 to 2.0).
+
 ## Runs
 
 | experiment | box log tag | arms (set) | cell numbers, box net us | decision |
