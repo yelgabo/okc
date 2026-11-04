@@ -3682,3 +3682,201 @@ about 1.4 to 1.8 us. No judge check is recommended for either file. The remainin
 before the first copy (the instruction stream, not the data dependencies, sets the 2.5 us) and (b) the end
 spread, where every static or arrival-order pair split has lost before (docs/ruled-out.md). Each is worth at most
 about 3 us per cell on these measurements, which is the 1% keep threshold itself.
+## 2026-11-04 - Verify 16/32 MoE limit (box)
+
+Question from the lead (moe lane): what limits `okc::moe_fused<true>` at verify 16 and verify 32 (sliding and full) in
+the layer, and which single mechanism has the largest measured headroom there. Base `muse_decode_layer/cand/ly_fabq.py`
+(SHA256 3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555, never edited). Box only (okc-h200, 2026-11-04
+11:40 to 12:30 UTC, every GPU run under /root/okc/.build/box/gpu.lock, `nvidia-smi` showed no foreign process before
+the runs), no judge job, no routing slack. Logs: `/root/okc/.build/box/v16/` (`tl/` the per-kernel timeline,
+`tlv16g.log` / `.json` the in-kernel timeline, `sass/` the SASS report, `wgmma/` the microbenchmark). Tools:
+`tools/ly_moe_tlv16.py` (writes the stamped copy `muse_decode_layer/cand/ly_fabq_tlv16.py` from the pinned base) and
+`tools/ly_box_moe_tlv16g.py` (graph runner and the per-input statistics).
+
+### Which form runs at these T (source reading, confirmed by the box SASS)
+
+At M = 128 and 256 `_fork_native_moe` selects the MAIN build (`MOE_DEFINES`: `-DOKC_NW=16 -DOKC_WGS=1`, plus SC6W and
+PRMTSC from the weights): 16 consumer warps in 4 warpgroups plus a weights-producer warp and an x-producer warp (544
+threads, 96 registers, 0 spill), register-A `wgmma.mma_async.m64nNk16.bf16` with N = 8 x NTT, NTT = ceil(tokens of the
+job / 8) up to 8 (jobs of up to 64 tokens; an expert with more tokens gets several jobs and its weights are streamed
+once per job). One stage is 256 rows x 256 K (35,840 B with SC6 scales): per warpgroup 16 k16 steps, 2 per commit group
+with `wgmma.wait_group 1`, the DQ7 unpack and scale multiply in registers before each step. So the wgmma form the brief
+asked to try first is what the layer already runs at T >= 16; the mma.sync loop (helper0) runs only at T <= 16 (TINY /
+TINY2 / MID), and decode 32 runs this same WGS source as B4.
+
+SASS of the MAIN build (`tools/ly_micro_sass.py`, nvcc 13.0 on the box CPU; `.build/box/v16/sass/report.json`): the 16
+stage loops (8 NTT variants x 2 phases) are 304 to 308 instructions per warp per stage with 16 HGMMA each, 19.0
+instructions per wgmma at every N: LOP3 85, HMUL2 64, IMAD 39 to 44, SHF 36, UIADD3 17, WARPGROUP (arrive / depbar) 17,
+HGMMA 16, LDS 6, SYNCS 4, PRMT 4, BRA 3, MEMBAR 2 + FENCE 2 (the two `fence.proxy.async.shared::cta`), the rest
+uniform-datapath address arithmetic. Per SMSP (one warp of each warpgroup) that is 1,216 issue slots per stage.
+
+### Floors per stage and per cell (measurements unless marked)
+
+Box read bandwidth this session 4.424 TB/s (`sum` over 4 GiB): one stage on every CTA at once is 132 x 35,840 B /
+4.424 TB/s = 1.069 us. Tensor floor from the RS-wgmma microbenchmark (`.build/box/v16/wgmma/wgmma_rs.cu`, grid 132,
+the kernel's commit-group pattern, 4 warpgroups per SM, no decode, no C7510/C7512/C7513, 46 to 80 registers; median of 3
+runs): per stage (16 wgmma per warpgroup, 4 warpgroups) N <= 24: 832 cycles per warpgroup, a 13-cycle per-SM issue
+floor whatever N (31% of peak at N = 8); N >= 32: N x 32 cycles, the full 4,096 BF16 FLOP per cycle per SM. At the
+measured clock that is 0.46 us (N <= 24), 0.57 (32), 0.73 (40), 0.89 (48), 1.03 (56), 1.17 us (64). Removing the
+per-group `wait_group 1` or using 4-step groups changes nothing at 4 warpgroups. Issue floor (hypothesis from the SASS
+count): 1,216 slots per SMSP per stage, 0.69 us at 1 IPC and 1,760 MHz, 0.98 us at 0.7 IPC.
+
+Achieved per-stage time in the layer, from the in-kernel timeline (below): least squares of each CTA's phase time on its
+stage counts per NTT class over 20 inputs x 132 CTAs (residual sd 1.9 to 2.7 us per CTA), and the steady issue gap
+(median interval between the weights producer's issues when the released stage is the third or later of its segment):
+
+| NTT (N) | fit A us per stage, v16 s / v32 s | fit B | steady gap A v16 s / v32 s | steady gap B | byte floor | tensor floor |
+|---|---|---|---|---|---:|---:|
+| 1 (8) | 0.995 / 0.981 | 0.931 / 0.844 | 0.96 / 0.96 | 0.99 / 0.96 | 1.069 | 0.46 |
+| 2 (16) | 1.117 / 1.093 | 1.052 / 0.961 | 1.02 / 1.06 | 1.06 / 1.06 | 1.069 | 0.46 |
+| 3 (24) | 1.156 / 1.142 | 1.143 / 1.045 | 1.09 / 1.09 | 1.12 / 1.12 | 1.069 | 0.46 |
+| 4 (32) | 1.302 / 1.264 | 1.245 / 1.122 | 1.15 / 1.15 | 1.22 / 1.22 | 1.069 | 0.57 |
+| 5 (40) | 1.441 / 1.370 | 1.353 / 1.204 | 1.22 / 1.25 | 1.28 / 1.28 | 1.069 | 0.73 |
+| 6 (48) | - / 1.470 | - / 1.320 | - / 1.31 | - / 1.34 | 1.069 | 0.89 |
+| 7 (56) | 1.661 / 1.589 | 1.540 / 1.441 | 1.41 / 1.41 | 1.44 / 1.44 | 1.069 | 1.03 |
+| 8 (64) | 1.767 / 1.697 | 1.706 / 1.563 | 1.47 / 1.50 | 1.54 / 1.54 | 1.069 | 1.17 |
+
+Stages by NTT class, phase A, summed over the 20 inputs: verify 16 sliding 132,096 / 33,280 / 12,288 / 8,192 / 512 / 0
+/ 2,048 / 7,168 (NTT 1..8: 67% of the stages are 8-token jobs, 5% are wider than 32 tokens); verify 32 sliding 115,712 /
+32,256 / 14,848 / 17,408 / 10,240 / 6,144 / 7,680 / 16,384 (52% NTT 1, 18% wider than 32 tokens).
+
+Per cell (medians over 20 fresh inputs per cell, f931 case seeds, router seed 106218864389449120; the instrumented graph
+is within 1.5 us of the plain graph at verify 16 and verify 32 sliding, +8.6 us at verify 32 full):
+
+| cell | moe_fused in the graph (ly_tl_run) | span (stamps) | distinct / routes / jobs | re-streamed experts | byte floor | tensor floor (hyp.) | ramp | phase A (floor) | phase B (floor) | MFIN wait + final | A-end / B-end spread | stream A (agg.) | SM MHz |
+|---|---:|---:|---|---:|---:|---:|---:|---|---|---|---|---:|---:|
+| verify 16 sliding | 141.9 | 145.6 | 18.5 / 182 / 18.5 | 0 | 115.1 | 36 | 5.5 | 86.0 (76.7) | 43.1 (38.4) | 6.6 + 4.3 | 12.8 / 10.4 | 3.98 TB/s | 1781 |
+| verify 16 full | 140.3 | 141.2 | 18 / 175 / 18 | 0 | 112.0 | 35 | 5.4 | 83.3 (74.7) | 41.3 (37.3) | 6.2 + 4.1 | 12.4 / 9.4 | 3.97 | 1798 |
+| verify 32 sliding | 177.7 | 178.7 | 20 / 354 / 21 | 1 (118 tokens) | 130.7 | 62 | 7.4 | 103.1 (87.1) | 52.8 (43.6) | 7.2 + 6.1 | 15.8 / 12.3 | 3.76 | 1749 |
+| verify 32 full | 177.8 | 177.7 | 20 / 358 / 21.5 | 1 (116 tokens) | 133.8 | 63 | 7.5 | 103.4 (89.2) | 53.2 (44.6) | 6.3 + 6.0 | 16.3 / 11.9 | 3.81 | 1772 |
+
+The byte floor counts the stages actually streamed (768 per job, so the re-streamed expert at verify 32 is inside it;
+without it 124.4 / 127.5 us) at 4.424 TB/s. The tensor floor column is the microbenchmark's per-stage cost summed over
+the stage mix and divided by 132 (a hypothesis for the kernel, whose stages also decode). The ramp is routing 2.1 / 2.7
+us, the x gather 2.9 / 4.5 us (the weights producer waits for it at WS_JOIN) and 0.3 us to the first TMA issue. The
+judge's profile of the same file shows 143.2 / 169.7 / 203.5 / 191.6 us for one input per cell; the box medians above
+sit inside the per-input range that the distinct-expert count explains (span = 11 + 7.3 x distinct at verify 16, 12 +
+8.3 x distinct at verify 32, from the per-distinct rows in `tlv16g.log`).
+
+### The limit, named
+
+1. The kernel is byte-bound in its narrow stages and tensor-bound in its wide ones, and neither is the main excess.
+   NTT = 1 to 3 stages run at 0.96 to 1.09 us steady, the byte rate (1.069); NTT = 8 stages run at 1.47 to 1.54 us,
+   1.26x the microbenchmark's 1.17 us tensor floor at N = 64 (the decode's 1,216 issue slots and the smem B-operand
+   reads compete with the wgmma issue: hypothesis, no counters on the pod). Wide stages are 5% of verify 16 and 18% of
+   verify 32; their excess over the byte floor is about 1.5 us per verify 16 cell and 7 us per verify 32 cell.
+2. Segment switches are the largest excess (measured). Every CTA's range is 5 to 7 segments in phase A and 3 to 4 in
+   phase B (a segment = one 256-row unit's stages on this CTA). The weights producer's issue gap after a segment's first
+   stage is released is 2.1 to 2.3 us at NTT = 1 against 0.96 steady, rising to 4.1 to 5.5 us at NTT = 8 (about 1.1 us
+   + 0.25 us per n-tile), and the second stage's gap is 0.03 to 0.2 us over steady. Summed per CTA
+   (`.build/box/v16/switch_cost.py` on the raw stamps of 3 inputs per cell): phase A 10.1 to 11.0 us at verify 16 and
+   11.9 to 12.5 us at verify 32, phase B 4.1 to 5.1 and 5.0 to 6.1 us, so 15 to 18 us per cell, which is the whole 9 to
+   16 us phase A excess over the byte floor plus most of phase B's. While the four warpgroups run a unit's epilogue
+   (SwiGLU + bf16 stores in phase A, y stores in phase B; its issue count grows with NTT) and then the deferred
+   `wgs_flush` (fence.proxy.async.global, `bar.sync` of the warpgroup, `red.release.gpu`: 0.25 + 0.66 to 0.69 us
+   measured by the B4 lane on the same code, and for a cut unit an `atom.acq_rel.gpu` round trip and a read-back), no
+   stage is consumed, the 3-deep ring fills, and this CTA's stream stops; the loop then catches up only at its small
+   margin over the byte rate (0.96 against 1.069 us at NTT = 1), so the stall is exposed. The aggregate phase A stream of
+   3.76 to 3.98 TB/s (85 to 90% of the box rate) is this stall's mirror image.
+3. The tail is the second piece: after its own phase B end the mean CTA waits 6.2 to 7.2 us before its first final item
+   (a token's experts complete when the slowest CTA holding their units finishes; B-end spread 9.4 to 12.3 us, sd 1.5
+   to 2.8 us per CTA), then the final pass takes 4.1 to 6.1 us (1 to 2 tokens per CTA, each a dependent L2 round trip
+   over the routes' y rows, two CTA barriers, a re-read). 10 to 13 us per cell.
+4. The ramp is 5.4 to 7.5 us (routing, then the x gather on the weights producer's critical path); ly_b4_wpre
+   (2026-11-03) already measured that issuing the weights before the gather gains nothing at verify 16 / 32.
+5. Ruled out as the limit: the stream (4.42 TB/s delivered whenever stages are consumed; the narrow steady stretches run
+   at 0.96 us per stage), the clock (1,750 to 1,800 MHz under the math, as at T <= 8), registers (96, no spill), the
+   decode instruction count per wgmma (19, against 15.7 per mma.sync in the T <= 8 loop; amortized over N, it binds
+   only through the wide stages).
+
+Candidate chosen (the single mechanism with the largest measured headroom): take the GPU-scope release of each
+whole-unit publish (`bar.sync` + `red.release.gpu`, 0.9 us of consumer time per segment, 6 to 7 whole-unit publishes
+per CTA and cell) off the consumer warpgroups and onto a publisher warp through an mbarrier relay, keeping every fence
+(the writers' `fence.proxy.async.global` stays on the writers), so the consumers go straight from the epilogue into the
+next segment's stages. Expected 4 to 6 us per cell (hypothesis: 0.9 us x the whole-unit publishes per CTA, if the stall
+is fully exposed as the fci6 experiment indicated); the epilogue's own issue time (the NTT-dependent part) stays. Build
+and A/B below.
+
+### Candidate ly_pub: whole-unit releases through a publisher warp (box, loss)
+
+`tools/dl_ly_pub_patch.py` writes `muse_decode_layer/cand/ly_pub.py` (SHA256
+368bec058526ec18c978ba1cb7094bdafdd0245f30773a557cd5e822a408aa0e) from the pinned base. The MAIN build alone gets
+`-DOKC_PUB=1` (every other build compiles the base's text): a fifth non-consumer warp (NTL 544 to 576) is the
+publisher. For the flush kinds that only release (kind 1, phase A whole unit to doneAs; kind 4, phase B whole unit to
+the expert's MFIN count; kind 2, phase B cut share to its fixup count; the finisher's trailing doneAs / MFIN release)
+every consumer thread keeps its own `fence.proxy.async.global` and stores, waits (warp-uniform `mbarrier.try_wait`) on
+the acknowledge mbarrier of its warpgroup's previous publish, and arrives (release.cta) on the warpgroup's request
+mbarrier (count 128) instead of `bar.sync`; thread 0 of the warpgroup writes the (address, value) mailbox before its
+arrive. The publisher polls the four request barriers (`mbarrier.test_wait`, acquire.cta, `__nanosleep(64)` between
+empty polls), performs the `red.release.gpu` and arrives on the acknowledge barrier; after phase B each warpgroup sends
+a null sentinel and the publisher exits. Causality order through the cta-scope arrive / test_wait pair and then the
+gpu-scope release is the chain the base already relies on through `bar.sync` + one thread's release (PTX ISA memory
+model: release patterns are cumulative over what precedes them in causality order). Kind 3 (the finisher's count wait,
+`bar.sync`, read-back) and the phase A cut path (`atom.acq_rel`) are unchanged; no fence or barrier removed; the
+consumers' stage loop is the base's text. The publish count is a register threaded through wgs_phase / wgs_seg /
+wgs_flush like `seq`.
+
+Build facts (box, `tools/ly_micro_sass.py` main build, `.build/box/v16/pub_sass2/`): 96 registers, 0 spill, 8 B stack
+(base 0), stage loops 304 / 307 / 308 instructions with 16 HGMMA (one 310), the same opcode mix as the base; the phase A
+outer loop drops from 24 to 16 BAR, 96 to 64 MEMBAR and 52 to 36 REDG, and gains 32 SYNCS (the mbarrier ops) and 32
+STS (the mailbox). A first build whose acknowledge wait sat inside `if (wt == 0)` (divergent spin, count in shared
+memory) compiled to 388-instruction stage loops (the uniform-datapath address arithmetic fell back to IMAD / R2UR, 104 B
+stack, an LDL in the loop) and crashed the prepare probe with `unspecified launch failure`; it was replaced by the
+uniform wait before any measurement and its cause was not isolated further. Reference check (`.build/prtl/pub/chk.log`,
+`muse_decode_layer/profiles/box/pub/chk.log`): `FORK_MOE_ROUTE native repaired`, `G_RELEASE_STARTUP_OK native (128, 32,
+33, 256, 1, 8, 16) 56 verified_replays`, check PASS at all 12 cells. The bisect variant `ly_pubx.py`
+(ec01371016798e63d4d51b31b1d45a36ad0a9315bb70928b25014d801cb9a9c6, publisher warp present, base release path, relay
+for the sentinel only) also passes 12 / 12.
+
+Paired A/B (`tools/ly_prtl_ab.sh`, c/w/c/w/c, `--runs 60`, PDL pinned at 1, 8, 16, 32 in both arms, all six loads,
+12:46 to 12:48 UTC, no foreign GPU process; logs `/root/okc/.build/prtl/pub/`, copied to
+`muse_decode_layer/profiles/box/pub/`; table `tools/ly_prtl_table.py`, threshold max(2 x control spread, 0.5 us short
+cells, 1% long cells)):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | w_a-c_a | w_a-c_b | w_b-c_b | w_b-c_c | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.25 | 64.80 | 64.70 | 65.01 | 65.22 | 0.54 | -0.15 | -0.45 | +0.10 | +0.30 | -0.21 | 1.09 | inside |
+| decode 1 full | 71.71 | 71.57 | 71.92 | 71.46 | 72.14 | 0.43 | -0.41 | -0.14 | -0.35 | -0.46 | -0.69 | 0.86 | inside |
+| decode 16 sliding | 127.20 | 126.83 | 126.64 | 126.64 | 126.98 | 0.56 | -0.20 | -0.37 | +0.19 | +0.00 | -0.34 | 1.27 | inside |
+| decode 16 full | 199.73 | 199.87 | 200.91 | 199.76 | 199.78 | 1.18 | -0.32 | +0.14 | -1.04 | -1.15 | -0.02 | 2.37 | inside |
+| decode 32 sliding | 143.57 | 144.26 | 143.52 | 144.67 | 144.05 | 0.53 | +0.75 | +0.69 | +0.74 | +1.15 | +0.62 | 1.44 | inside |
+| decode 32 full | 295.44 | 295.15 | 294.14 | 294.80 | 295.42 | 1.30 | -0.03 | -0.29 | +1.01 | +0.66 | -0.62 | 2.95 | inside |
+| verify 1 sliding | 102.14 | 102.27 | 102.35 | 103.06 | 101.87 | 0.48 | +0.54 | +0.13 | -0.08 | +0.70 | +1.18 | 0.96 | inside |
+| verify 1 full | 110.70 | 110.74 | 110.88 | 110.66 | 110.80 | 0.18 | -0.10 | +0.03 | -0.14 | -0.22 | -0.14 | 0.50 | inside |
+| verify 16 sliding | 243.31 | 245.28 | 244.03 | 245.20 | 244.29 | 0.98 | +1.36 | +1.97 | +1.25 | +1.17 | +0.91 | 2.44 | inside |
+| verify 16 full | 327.38 | 329.06 | 327.02 | 328.77 | 327.41 | 0.38 | +1.64 | +1.68 | +2.03 | +1.74 | +1.36 | 3.27 | inside |
+| verify 32 sliding | 297.57 | 299.65 | 297.52 | 299.50 | 297.22 | 0.35 | +2.14 | +2.08 | +2.13 | +1.98 | +2.29 | 2.97 | inside |
+| verify 32 full | 459.95 | 463.04 | 459.74 | 462.16 | 460.54 | 0.80 | +2.52 | +3.09 | +3.30 | +2.42 | +1.62 | 4.60 | inside |
+
+The eight cells whose builds did not change sit inside the control spread. At the four target cells every one of the
+four pair differences is positive: +1.4 / +1.6 / +2.1 / +2.5 us mean, a loss (inside the 1% long-cell threshold, but
+with the same sign in all sixteen pair differences and the only cells whose build changed).
+
+Where the time went (candidate timeline `ly_moe_tlv16.py --base ly_pub.py`, 20 inputs per cell, same inputs as the base's
+run; `.build/box/v16/pub_tlv16g.log`, both logs in `muse_decode_layer/profiles/box/pub/tl/`; base -> candidate medians):
+
+| cell | span | phase A | phase B | MFIN wait | final | x producer wait on doneAs (b_dep_wait) | phase A fit intercept | first-of-segment issue gap A at NTT 1 / 2 / 4 | first gap B at NTT 1 / 4 |
+|---|---|---|---|---|---|---|---|---|---|
+| verify 16 sliding | 145.6 -> 147.1 | 86.0 -> 84.2 | 43.1 -> 44.7 | 6.6 -> 7.5 | 4.3 -> 4.4 | 15.2 -> 16.1 | 7.7 -> 4.0 | 2.18 / 2.56 / 3.33 -> 1.70 / 2.43 / 3.17 | 1.82 / 2.82 -> 1.76 / 2.78 |
+| verify 16 full | 141.2 -> 141.8 | 83.3 -> 81.1 | 41.3 -> 42.3 | 6.2 -> 7.8 | 4.1 -> 4.4 | 15.0 -> 15.2 | 7.2 -> 2.5 | 2.30 / 2.69 / 3.52 -> 1.82 / 2.56 / 3.49 | 1.86 / 2.91 -> 1.76 / 2.82 |
+| verify 32 sliding | 178.7 -> 179.1 | 103.1 -> 102.0 | 52.8 -> 54.2 | 7.2 -> 7.1 | 6.1 -> 6.4 | 16.7 -> 18.0 | 10.0 -> 9.3 | 2.08 / 2.40 / 2.94 -> 1.63 / 1.95 / 2.82 | 1.79 / 2.72 -> 1.73 / 2.78 |
+| verify 32 full | 177.7 -> 179.1 | 103.4 -> 102.4 | 53.2 -> 54.0 | 6.3 -> 6.9 | 6.0 -> 6.4 | 17.1 -> 18.0 | 4.4 -> 3.9 | 1.95 / 2.37 / 2.85 -> 1.60 / 1.95 / 2.69 | 1.76 / 2.69 -> 1.73 / 2.78 |
+
+The steady issue gaps are unchanged at every NTT (0.96 at NTT 1, 1.47 to 1.50 at NTT 8, phase A; the publisher's polling
+does not slow the stage loop), and the per-stage fit moves by at most 0.04 us. The mechanism did what it was built for in
+phase A: the first-of-segment gap at NTT 1 fell by 0.35 to 0.48 us per switch (2.1 to 2.3 -> 1.6 to 1.8 us), the phase A
+intercept fell, and phase A shortened by 1.0 to 2.2 us per cell. Phase B gave it back and more (+0.8 to +1.6 us): its
+segments end in kind 3 finishers that wait for the other shares' kind 2 counts, and the x producer waits for the doneAs
+counts of phase A (b_dep_wait +0.2 to +1.3 us); both now arrive through a polling warp instead of directly from the
+warpgroup, so the release latency seen by the waiters grew by about the poll period, and phase B's first-of-segment gaps
+did not move (1.8 -> 1.7 us at NTT 1). The MFIN wait before the final pass grew by 0.6 to 1.6 us at verify 16 for the same
+reason. Net: the consumer-side cost of a release was real (about 0.45 us per phase A switch), but the kernel is also
+latency-bound on those releases at its waiters, and the relay trades 0.45 us of issue time for more than that in waiting.
+
+Decision: ly_pub is a loss at verify 16 / 32 and unchanged elsewhere; no judge check. Ruled-out row added. What remains
+of the switch excess after this result: the epilogue's own issue time (NTT-dependent, 0.25 us per n-tile per segment),
+which the relay does not touch, and the finisher / producer waits on cross-CTA counts, which any added latency makes
+worse; a next step would have to shorten the release latency (for example `red.release.gpu` by thread 0 without the
+`bar.sync`, which needs a cheaper intra-warpgroup ordering than a named barrier and is not available without the
+mbarrier round trip measured here), or reduce the number of segments per CTA (fewer, longer ranges), which the
+stream-K balance forbids at 132 CTAs.
