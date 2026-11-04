@@ -6192,3 +6192,177 @@ qualifies and full does not, so no ledger registration line from this lane. Size
 cell, 0.06 to 0.07% of the layer score at 0.144% per us, well below the judge's 1.3% draw spread, so one judge check
 could not resolve it alone. Recommendation for the lead: stack it onto the next layer file rather than spend a check
 on it alone (numerics identical, T = 8 only, three lines of dispatch). No loss, so no ruled-out row.
+## 2026-11-04 - Decode 16 / 32 sliding timeline (box)
+
+Layer-d16 lane. Question: at decode 16 and decode 32 (the sliding cells hold 5.0% and 5.2% of the score above speed of
+light, docs/steering/2026-11-04-top100-push.md), where does the step go kernel by kernel and edge by edge in the
+current public file, and which excess can one change take? Base: muse_decode_layer/cand/ly_v1un.py (SHA256
+88fbae8644f946af46b87ab89be17409e133ebab26d20cf61e9c3f3941788145), never edited. Box only (okc-h200, from 18:30 UTC),
+every run under gpu.lock, no judge job. Logs, traces and tables: `muse_decode_layer/profiles/box/d16tl/` (box
+`.build/d16tl/`, `.build/prtl/d16*`). Driver for each candidate: `tools/ly_d16_ab.sh` (a gate run with the file's own
+in-prepare PDL8 guard at decode 16 / 32, then `tools/ly_prtl_ab.sh` twice against ly_v1un at all six loads with the chk
+step first, then a candidate timeline). Tables: `tools/ly_d16_tltab.py DIR`.
+
+### Timeline at T = 16 and T = 32 (measurement)
+
+`LY_TRACE_DIR=.build/d16tl/tl_v1un tools/ly_tl_run.py muse_decode_layer muse_decode_layer/cand/ly_v1un.py --loads
+"decode 16,decode 32" --runs 20 --kernels --pin-pdl8 1,8,16,32 --skip-pdl8-gate --router-seed 106218864389449120
+--judge g1b4_pdl8d.f931abf568544018.json` (lock, ls-cache and ext-cache as in the decode 1 section); reference check
+PASS at all four cells, net 127.20 / 203.55 (decode 16 sliding / full) and 144.13 / 296.24 us (decode 32). Medians
+over the 10 profiled cold replays. Critical path = this kernel's end minus the previous kernel's end; gap = start minus
+the previous end (negative: PDL overlap). Floors at 4.44 TB/s from "Decode 16 / 32 sliding: floor and gap"; the MoE
+floor is taken at the judge's distinct-expert target (7.5 / 9.0 experts: 47.9 / 55.9 us), not the 10 profiled inputs'
+own count, so the MoE row's excess is approximate (the route-map fits put about 5 to 6 us per distinct expert on it).
+
+Decode 16 sliding (span 128.77 us, sum of durations 145.57):
+
+| # | kernel | start | dur | end | gap | critical path | floor | over floor |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| 0 | qkv sk2<1,16,3,...> (plain launch, first kernel) | 0.00 | 10.27 | 10.27 | - | 10.27 | 6.39 | 3.88 |
+| 1 | attn_kernel<1,false,1> | 8.42 | 9.55 | 18.02 | -1.82 | 7.71 | 1.89 | 5.82 |
+| 2 | o sk2 | 10.86 | 10.85 | 21.71 | -7.15 | 3.68 | 2.84 | 0.84 |
+| 3 | b1 glue_cluster_boundary | 19.22 | 4.82 | 23.98 | -2.48 | 2.30 | 0.35 | 1.95 |
+| 4 | pooler + router sk2 (fused) | 22.24 | 17.68 | 40.05 | -1.76 | 15.94 | 13.26 | 2.68 |
+| 5 | _prq_sl_tile_route_cg | 38.32 | 3.33 | 41.62 | -1.74 | 1.57 | 0 | 1.57 |
+| 6 | moe_fused<false> (MID, cooperative) | 41.70 | 69.49 | 111.76 | +0.06 | 69.55 | 47.9 | 21.65 |
+| 7 | unpooler sk2<1,16,4,1,4,1,5,...> (bit 29: plain launch) | 111.84 | 14.24 | 126.05 | **+0.06** | 14.32 | 11.36 | 2.96 |
+| 8 | b2 _graft_row_boundary_pre_cg (16 programs) | 124.03 | 4.80 | 128.77 | -2.06 | 2.72 | 0.35 | 2.37 |
+
+Decode 32 sliding (span 143.07 us, sum of durations 160.61):
+
+| # | kernel | start | dur | end | gap | critical path | floor | over floor |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| 0 | qkv sk2<2,32,3,...> (plain launch) | 0.00 | 10.96 | 10.96 | - | 10.96 | 6.39 | 4.57 |
+| 1 | attn_kernel<1,false,1> | 9.58 | 11.26 | 20.85 | -1.52 | 9.71 | 3.78 | 5.93 |
+| 2 | o sk2 | 12.19 | 13.31 | 25.41 | -8.74 | 4.58 | 2.84 | 1.74 |
+| 3 | b1 _graft_row_boundary_pre_cg (32 programs) | 23.54 | 4.82 | 28.32 | -1.92 | 2.88 | 0.71 | 2.17 |
+| 4 | pooler + router sk2 (fused) | 26.00 | 19.82 | 46.06 | -2.29 | 17.52 | 13.26 | 4.26 |
+| 5 | route | 44.03 | 3.87 | 47.74 | -2.19 | 1.63 | 0 | 1.63 |
+| 6 | moe_fused<false> (B4 WGS, cooperative) | 48.24 | 76.30 | 125.09 | **+0.45** | 76.74 | 55.9 | 20.84 |
+| 7 | unpooler sk2<2,32,4,2,2,2,3,...> (bit 29) | 125.66 | 14.58 | 140.26 | **+0.58** | 15.22 | 11.36 | 3.86 |
+| 8 | b2 _graft_row_boundary_pre_cg (32 programs) | 138.34 | 4.93 | 143.07 | -2.13 | 2.80 | 0.71 | 2.09 |
+
+The full cells (`tl_v1un.tables.txt`) have the same shape after attention: decode 16 full MoE 69.39, unpooler 14.30
+(+0.13 gap), b2 2.74; decode 32 full MoE 80.77 (+0.42 gap), unpooler 15.34 (+0.58), b2 2.83; attention 83.01 /
+159.63 us critical against about 73.9 / 147.7 of KV bytes.
+
+Edges. Six of the eight edges are PDL edges whose secondary starts 1.5 to 8.7 us before its producer ends. Two are
+serial at both loads: route -> MoE (+0.06 / +0.45 us; the cooperative MoE has no programmatic attribute; the MoE lane's,
+and its route-in-MoE form is bounded at -0.25 / +0.42 in the blueprint section) and MoE -> unpooler (+0.06 / +0.58 us):
+`_pdl8_bfp_pdl` sets bit 29 (no programmatic attribute) on role "un" at every T except 8 (ly_v1un opened T = 8 only),
+so the 50.4 MB unpooler starts after the MoE grid has completed and only then issues its first weight stages.
+
+Excesses over floor ranked by microseconds (critical path minus floor, decode 16 / decode 32 sliding) and owners:
+
+| rank | item | d16 | d32 | owner / status |
+|---:|---|---:|---:|---|
+| 1 | MoE (MID at 16, B4 at 32) | about 21.7 | about 20.8 | moe lane; split re-stream, loop rate, ring, ranges and tail all worked (rows ly_ws2t, ly_ws2u, ly_mid1, ly_ul_*, ly_b4_*, ly_dual) |
+| 2 | attention (q_len 1, 8.4 / 16.8 MB of KV) | 5.82 | 5.93 | attention-d1 lane (the q_len 1 kernel) |
+| 3 | qkv sk2, first kernel after the flush | 3.88 | 4.57 | bf16 projections; config space swept (P2 split-K declined, qkv16n2 lost) |
+| 4 | pooler + router | 2.68 | 4.26 | bf16 lane ("Pooler + router remaining gap" at T <= 8) |
+| 5 | unpooler sk2 behind the serial MoE edge | 2.96 | 3.86 | this lane: candidate ly_d16un |
+| 6 | b2 row boundary (and b1 at T = 32: 2.17) | 2.37 | 2.09 | this lane: candidate ly_d16rb |
+| 7 | b1 glue (T = 16) | 1.95 | - | blueprint rows (b1d32 null) |
+| 8 | route | 1.57 | 1.63 | ruled out in the decode 1 lanes (ly_rpf, route-in-MoE) |
+| 9 | o sk2 | 0.84 | 1.74 | bf16 lane |
+
+The largest excess with a concrete mechanism outside docs/ruled-out.md is the unpooler's serial edge (rank 5): the same
+change ly_v1un made at T = 8 (where it gave -1.43 / -1.40 us), whose two ruled-out rows ("M-B slice 1", "G Tiny/Tiny2
+expert->single sliced-unpool PDL edge") were reopened for T = 8 only. The MID and WGS B4 builds both run
+`griddepcontrol.launch_dependents` unconditionally at each CTA's phase B end (helper0 source, after WS_JOIN and outside
+the `OKC_WGS` branch), so a programmatic unpooler can launch before the MoE's grid barrier and final pass. The second
+(rank 6) is the row boundary's serial second load, below.
+
+### Candidate ly_d16un: the T = 16 / 32 unpooler as a PDL secondary of the MoE
+
+`tools/dl_ly_d16un_patch.py` (base and pin checked) writes `muse_decode_layer/cand/ly_d16un.py` (SHA256
+ff1a2cd1873d6cf818ed413236f0efcbcb1f2e6a5bd3a4a15d537563f888e4aa). One line changes (ly_v1un line 18511, the
+candidate's 18512, in `_pdl8_bfp_pdl`): `(role == "un" and T != 8)` -> `(role == "un" and T not in (8, 16, 32))`, so bit
+29 stays off for the unpooler at T = 16 and 32 and its sk2 launch gets the programmatic attribute; T = 1 is unchanged
+(its slice is the cgemv path). No kernel source changes and no SASS diff: the sk2 binary is the base's, and its `pdl`
+argument already carried bit 30 and P (2 at T = 16, 1 at T = 32 from PCX_CFG), so the pre-wait weight stages, the
+escape table, every thread's `griddepcontrol.wait`, `fence.proxy.async.global` (upstream generic stores -> TMA reads)
+and the x tiles after it are the code the base already ran, with a wait that returned at once. `griddepcontrol.wait`
+returns only after the whole MoE grid has completed and its memory operations are visible (PTX ISA 8.7, 9.7.13.13).
+The MoE stays the primary, cooperative, with its trigger, fences and grid barrier; all its CTAs are resident before any
+secondary CTA can launch. At T = 16 / 32 `pdl8_edges` is None, so the in-prepare PDL8H guard (T = 16 sliding, T = 32
+full: paired A/B and the 2000-replay stress against the PDL-off output) runs with the new edge on.
+
+Gate run (the file's own prepare, no pin, `gate_d16un.log`): `PDL8_AB T=16 sliding: off 157.92 on 150.72 us, saving
+7.20, wins 9/9`; full 8.26 (9/9); T = 32 sliding 4.58 (9/9), full 6.62 (9/9); `PDL8H_GUARD T=16 sliding`: ids
+mismatches 0 / 0, on drift 3.98e-03 / 4.19e-03 against off 3.58e-03 / 4.08e-03, bound max(2e-2, off): pass, T stays on;
+`PDL8H_GUARD T=32 full`: on drift equal to off (5.52e-03 / 6.41e-03), pass; T = 1 and T = 8 guards pass; enabled at
+every T. Correctness (chk step, six loads, `--runs 5`): reference check PASS 12/12, `G_RELEASE_STARTUP_OK native
+(128, 32, 33, 256, 1, 8, 16) 56 verified_replays`, `CG_GATE ... equal 1023/1024 ok` (the control's line).
+
+Paired A/B against ly_v1un (`tools/ly_prtl_ab.sh`, CTL=ly_v1un.py, c/w/c/w/c per round, 60 runs, PDL pinned on at every
+T, router seed 106218864389449120, f931 case seeds, local_start per input; two rounds 18:33 to 18:37 UTC; table
+`profiles/box/d16tl/prtl/d16un_table_both_rounds.txt`). Per round, decode 16 sliding / full w - c: -1.32 / -2.13 us
+(4/4, 4/4 pairs), -2.20 / -2.00 (4/4, 4/4); decode 32 sliding / full -0.93 / -0.88, -1.02 / -1.28. Pooled (6 control
+runs, 4 candidate runs, 24 pairs per cell):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.65 | 1.23 | 64.56 | -0.08 | 2.46 | 17/24 | inside |
+| decode 1 full | 70.73 | 0.53 | 70.58 | -0.15 | 1.06 | 10/24 | inside |
+| decode 16 sliding | 127.29 | 0.88 | 125.53 | **-1.76** | 1.76 | **24/24** | inside by 0.002 us (win in round 2) |
+| decode 16 full | 199.83 | 0.99 | 197.77 | **-2.06** | 2.00 | **24/24** | win |
+| decode 32 sliding | 144.23 | 2.11 | 143.25 | **-0.97** | 4.22 | **21/24** | inside |
+| decode 32 full | 295.28 | 1.23 | 294.20 | **-1.08** | 2.95 | **20/24** | inside |
+| verify 1 sliding | 101.35 | 1.47 | 101.06 | -0.29 | 2.94 | 17/24 | inside |
+| verify 1 full | 108.94 | 1.26 | 109.02 | +0.08 | 2.53 | 14/24 | inside |
+| verify 16 sliding | 242.38 | 4.53 | 242.30 | -0.07 | 9.06 | 14/24 | inside |
+| verify 16 full | 325.99 | 4.56 | 325.89 | -0.10 | 9.12 | 15/24 | inside |
+| verify 32 sliding | 293.97 | 1.07 | 294.02 | +0.05 | 2.94 | 13/24 | inside |
+| verify 32 full | 459.15 | 1.81 | 459.00 | -0.15 | 4.59 | 14/24 | inside |
+
+The eight unchanged cells (the code differs only at T = 16 / 32) sit within 0.3 us of the control, the session null.
+
+Candidate timeline (same instrument, `profiles/box/d16tl/tl_d16un/`, `tl_d16un.tables.txt`, net 125.41 / 201.33 /
+141.66 / 294.29 us): the unpooler now starts 1.41 / 1.36 us (decode 16 sliding / full) and 2.37 / 2.38 us (decode 32)
+before the MoE's end instead of 0.06 to 0.58 after it; its critical path after the MoE drops 14.32 -> 13.25 and
+14.30 -> 13.23 at decode 16, 15.22 -> 14.37 and 15.34 -> 14.45 at decode 32 (-1.07 / -1.07 / -0.85 / -0.89 us); the
+MoE and b2 rows stay within their input spread.
+
+### Candidate ly_d16rb: the row boundary's Stream row loaded with its Branch row (null)
+
+The b2 row boundary (`_graft_row_boundary_pre_cg`, Gluon, one 32-warp program per token row; b2 at T = 16, b1 and b2 at
+16 < T <= 32, launched nowhere else) has a 2.7 to 2.8 us critical path after its producer for a 0.35 / 0.71 us floor.
+After its `_gdc_wait()` it loads the Branch row, reduces it over the CTA, and only then loads the Stream row. SASS of
+the base's cubin on the box (Triton cache, POST build, 44 registers): the Branch loads `LDG.E.64.STRONG.GPU` at
+0x01b0 / 0x01c0, `BAR.SYNC` at 0x04a0, `MUFU.RSQ` at 0x0580, the Stream loads `LDG.E.128.STRONG.GPU` at 0x06d0 / 0x0710:
+the `.cg` loads compile to strong GPU-scope loads that ptxas keeps behind the barrier, so the Stream row's latency is
+serial after the first reduction.
+
+`tools/dl_ly_d16rb_patch.py` (base ly_v1un, pin checked) writes `muse_decode_layer/cand/ly_d16rb.py` (SHA256
+dbf7ecb882dabc205926ad76110ca7bc46413b9699f58f7a4ae975895a4f39da). One line moves (ly_v1un line 18322, `s =
+_gl.load(Stream + row * H + c, cache_modifier='.cg')`, to directly after the Branch load at line 18317; candidate
+line 18319), both after the wait; the math, its order and the stores are unchanged. SASS diff (POST build): the
+Stream loads now at 0x04a0 / 0x04b0, before the first `BAR.SYNC` (0x04f0); 51 registers (base 44), same instruction
+count to EXIT (0x0d50), 0 local; the POST = False build (b1 at T = 32) moves the same way (Stream at 0x0410, BAR.SYNC
+0x0460). Gate: PDL8H guards pass at every T; chk PASS 12/12, startup OK, CG_GATE as the control.
+
+Paired A/B against ly_v1un, two rounds, 24 pairs per cell (18:38 to 18:42 UTC,
+`profiles/box/d16tl/prtl/d16rb_table_both_rounds.txt`): decode 16 sliding +0.22 us (7/24 pairs below), full +0.33
+(10/24), decode 32 sliding -0.29 (16/24), full -0.18 (13/24), the other eight cells -0.37 to +0.44, all inside.
+Candidate timeline (`tl_d16rb.tables.txt`): b2's critical path 2.75 / 2.75 at decode 16 (base 2.72 / 2.74) and 2.72 /
+2.72 at decode 32 (base 2.80 / 2.83), b1 at T = 32 2.70 / 2.66 (base 2.88 / 2.72). The second load's latency was not
+what holds the row boundary at 2.7 us; what does (the producer's completion and flush before the wait returns, the
+first-program launch, the two CTA-wide reductions of 1024 threads) is not separated here. Null, ruled-out row.
+
+### Decision
+
+ly_d16un is the lane's candidate: decode 16 sliding / full -1.76 / -2.06 us at 24/24 pairs each, decode 32 sliding /
+full -0.97 / -1.08 at 21/24 and 20/24, the eight other cells within 0.3 us (session null), guards clean at T = 16 and 32
+with the new edge, check PASS 12/12. It meets the lane's registration bar (decode 16 sliding at least 1 us with 20+ of
+24 pairs, nothing else losing beyond noise). Value if the box deltas carried to the judge (hypothesis; the box rule
+forbids reading them as a prediction): 1.76 x 0.096 + 2.06 x 0.021 + 0.97 x 0.085 + 1.08 x 0.014 = about 0.31% of the
+score, below one draw's spread, so one check establishes validity (13/13 and the PDL8H guard on the judge's prepare
+with the T = 16 / 32 edge) rather than rank. It changes one Python expression on the T = 16 / 32 path only, so it
+stacks with the T = 1 and T = 8 lanes by construction (it is ly_v1un's own T = 8 expression widened). A ledger
+registration line proposing the check is written; this lane dispatched no judge job. ly_d16rb is null.
+
+Left open: the unpooler still runs 13.2 / 14.4 us after the MoE for an 11.36 us stream (it now starts 1.4 / 2.4 us
+early, but its first stages land only as MoE CTAs exit, as at T = 8); the pre-wait stage count at T = 16 / 32 (P = 2 /
+1) was set when the edge had no attribute and is untuned for it (at T = 8, P = 4 lost to P = 2); the row boundaries'
+2.7 us are unstamped.
