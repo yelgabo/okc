@@ -1,0 +1,300 @@
+{
+  "observed_at": "2026-11-04T00:48:55.265732+00:00",
+  "source_commit": "b584ae10",
+  "boards": {
+    "overall": {
+      "you": {
+        "rank": 362,
+        "team": "yelgabo",
+        "first": false,
+        "ahead": 361
+      },
+      "own_row": {
+        "rank": 362,
+        "solved": 4,
+        "team": "yelgabo"
+      },
+      "rank100": {
+        "rank": 100,
+        "solved": 4,
+        "team": "warc0s"
+      }
+    },
+    "muse_decode_layer": {
+      "you": {
+        "rank": 362,
+        "team": "yelgabo",
+        "speedup": 2.187,
+        "first": false,
+        "ahead": 361,
+        "to_first": 1.1675
+      },
+      "own_row": {
+        "attempts": 53,
+        "job": "9d80ae2494334136",
+        "rank": 362,
+        "speedup": 2.187,
+        "submitted_at": 1793745035.8547375,
+        "team": "yelgabo",
+        "value": 10343.105996394634
+      },
+      "rank100": {
+        "attempts": 28,
+        "job": "a9f11e86e03f4267",
+        "rank": 100,
+        "speedup": 2.2837,
+        "submitted_at": 1793692660.7456532,
+        "team": "warc0s",
+        "value": 9905.250432758137
+      }
+    },
+    "muse_moe_w4a16": {
+      "you": {
+        "rank": 357,
+        "team": "yelgabo",
+        "speedup": 2.3438,
+        "first": false,
+        "ahead": 356,
+        "to_first": 1.1794
+      },
+      "own_row": {
+        "attempts": 33,
+        "job": "2821fdb184d740b1",
+        "rank": 357,
+        "speedup": 2.3438,
+        "submitted_at": 1793692238.0244794,
+        "team": "yelgabo",
+        "value": 5737.988910262929
+      },
+      "rank100": {
+        "attempts": 58,
+        "job": "eaa97b339144444c",
+        "rank": 100,
+        "speedup": 2.4282,
+        "submitted_at": 1793542688.6468031,
+        "team": "prateekm1007",
+        "value": 5538.567929964267
+      }
+    },
+    "muse_bf16_proj": {
+      "you": {
+        "rank": 257,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 256,
+        "to_first": 1.1088
+      },
+      "own_row": {
+        "attempts": 42,
+        "job": "9eba96894ee1402e",
+        "rank": 257,
+        "speedup": 1.5278,
+        "submitted_at": 1793509752.4725015,
+        "team": "yelgabo",
+        "value": 3161.918773020326
+      },
+      "rank100": {
+        "attempts": 17,
+        "job": "294b12cfa52e451a",
+        "rank": 100,
+        "speedup": 1.5821,
+        "submitted_at": 1793544819.094829,
+        "team": "almogtavor",
+        "value": 3053.348662089971
+      }
+    },
+    "muse_attention_decode": {
+      "you": {
+        "rank": 290,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 289,
+        "to_first": 1.2821
+      },
+      "own_row": {
+        "attempts": 34,
+        "job": "8914751e3b9f468b",
+        "rank": 290,
+        "speedup": 2.6043,
+        "submitted_at": 1793510570.8706555,
+        "team": "yelgabo",
+        "value": 1446.1905945986007
+      },
+      "rank100": {
+        "attempts": 10,
+        "job": "107e0cc2076a4092",
+        "rank": 100,
+        "speedup": 2.6905,
+        "submitted_at": 1793384570.038272,
+        "team": "cr0sh",
+        "value": 1399.8670287923153
+      }
+    },
+    "muse_prefill_layer": {
+      "you": {
+        "rank": 660,
+        "team": "yelgabo",
+        "speedup": 1.2166,
+        "first": false,
+        "ahead": 659,
+        "to_first": 1.8512
+      },
+      "own_row": {
+        "attempts": 3,
+        "job": "1530ec79d50a4f69",
+        "rank": 660,
+        "speedup": 1.2166,
+        "submitted_at": 1793513800.5948975,
+        "team": "yelgabo",
+        "value": 318441.9905489318
+      },
+      "rank100": {
+        "attempts": 2,
+        "job": "4a18dba6b6aa42d2",
+        "rank": 100,
+        "speedup": 1.9087,
+        "submitted_at": 1793684169.8102417,
+        "team": "akorite",
+        "value": 202964.12900664815
+      }
+    }
+  },
+  "quota": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 2,
+            "left": 18
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 2,
+            "left": 18
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 2,
+            "left": 18
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 1,
+            "left": 19
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 20,
+            "used": 0,
+            "left": 20
+          },
+          "checks": {
+            "per_day": 40,
+            "used": 0,
+            "left": 40
+          }
+        }
+      }
+    ]
+  },
+  "live_jobs": [
+    {
+      "flags": [],
+      "job_id": "c7ea23f8907448b3",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_moe_w4a16",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793752808.9458678
+    },
+    {
+      "flags": [],
+      "job_id": "e71b737984f34454",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_attention_decode",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793752566.6955998
+    },
+    {
+      "flags": [],
+      "job_id": "3aaf5c74c0014a8b",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_bf16_proj",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793751778.1260245
+    },
+    {
+      "flags": [],
+      "job_id": "86ed5dd3bbcb48a8",
+      "mode": "run",
+      "passed": null,
+      "problem": "muse_decode_layer",
+      "result_status": null,
+      "score": null,
+      "score_us": null,
+      "status": "queued",
+      "submitted_at": 1793750870.070175
+    }
+  ],
+  "errors": {},
+  "scope": "Own-account shared list only, not individual job polls. Unknown source association is not inferred from job timing."
+}

@@ -1,0 +1,58 @@
+{
+  "job": "b6c0efcd06324246",
+  "source_sha256": "33c2353b52de29c5af341609de08a7e6f021e5395fc4ef633706978fecedf7cd",
+  "bytes": 914969,
+  "score_us": 10377.063926165112,
+  "speedup": 2.179836238935017,
+  "ci": [
+    2.147138695350992,
+    2.212533782519042
+  ],
+  "counts": {
+    "tests": 13,
+    "benchmarks": 12,
+    "profiles": 12
+  },
+  "PDL_T_enabled": [
+    1,
+    8,
+    16,
+    32
+  ],
+  "T8_edges": [
+    "attn",
+    "o",
+    "b1",
+    "pool",
+    "route",
+    "fin"
+  ],
+  "guard_ids_off_on": [
+    0,
+    0
+  ],
+  "largest_on_drift": 0.00719,
+  "frozen_keep": {
+    "score_us_lt": 10297.4,
+    "every_T_on": true,
+    "verify1_sliding_full_lt": [
+      109.7,
+      122.6
+    ],
+    "decode16_sliding_full_lt": [
+      127.1,
+      211.4
+    ]
+  },
+  "actual_verify1": [
+    107.1,
+    117.7
+  ],
+  "actual_decode16": [
+    129.3,
+    207.3
+  ],
+  "decision": "Frozen keep failed score/decode16sliding; no second check or submission. New build base only perb584ae10; public remainsRS.",
+  "receipt": "muse_decode_layer/cand/profiles/g1b4_pdl8h.b6c0efcd06324246.json",
+  "log": "muse_decode_layer/cand/profiles/g1b4_pdl8h.b6c0efcd06324246.log"
+}

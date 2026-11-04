@@ -578,7 +578,13 @@
         "Review actualcode/dispatch/packing/precision/order/progress/lifetime/fallback contracts and all30cells",
         "Matched clean complete-call comparison to exactC2 with duplicate controls/fresh outputs/regressions under owning bounded private allocation",
         "Concrete reviewable release before any new publicapproval request"
-      ]
+      ],
+      "latest_scope_checkpoint": {
+        "commit": "b584ae10",
+        "ledger_entry": "November3 16:10Pacific: lead did not open new BF16/attention lanes after quota reset; judge checks reserved for layer finalists.",
+        "disposition": "Numerical selected-twin lead/source-cleanup requirements preserved. No automatic standalone GPU allocation or public permission; fixed-floor rationale is not a hardware bound.",
+        "report": "docs/steering/2026-11-04-driver-monitor-0048.md"
+      }
     },
     {
       "problem": "muse_decode_layer",
