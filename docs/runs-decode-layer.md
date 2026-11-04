@@ -3603,3 +3603,87 @@ per CTA and cell) off the consumer warpgroups and onto a publisher warp through 
 next segment's stages. Expected 4 to 6 us per cell (hypothesis: 0.9 us x the whole-unit publishes per CTA, if the stall
 is fully exposed as the fci6 experiment indicated); the epilogue's own issue time (the NTT-dependent part) stays. Build
 and A/B below.
+
+### Candidate ly_pub: whole-unit releases through a publisher warp (box, loss)
+
+`tools/dl_ly_pub_patch.py` writes `muse_decode_layer/cand/ly_pub.py` (SHA256
+368bec058526ec18c978ba1cb7094bdafdd0245f30773a557cd5e822a408aa0e) from the pinned base. The MAIN build alone gets
+`-DOKC_PUB=1` (every other build compiles the base's text): a fifth non-consumer warp (NTL 544 to 576) is the
+publisher. For the flush kinds that only release (kind 1, phase A whole unit to doneAs; kind 4, phase B whole unit to
+the expert's MFIN count; kind 2, phase B cut share to its fixup count; the finisher's trailing doneAs / MFIN release)
+every consumer thread keeps its own `fence.proxy.async.global` and stores, waits (warp-uniform `mbarrier.try_wait`) on
+the acknowledge mbarrier of its warpgroup's previous publish, and arrives (release.cta) on the warpgroup's request
+mbarrier (count 128) instead of `bar.sync`; thread 0 of the warpgroup writes the (address, value) mailbox before its
+arrive. The publisher polls the four request barriers (`mbarrier.test_wait`, acquire.cta, `__nanosleep(64)` between
+empty polls), performs the `red.release.gpu` and arrives on the acknowledge barrier; after phase B each warpgroup sends
+a null sentinel and the publisher exits. Causality order through the cta-scope arrive / test_wait pair and then the
+gpu-scope release is the chain the base already relies on through `bar.sync` + one thread's release (PTX ISA memory
+model: release patterns are cumulative over what precedes them in causality order). Kind 3 (the finisher's count wait,
+`bar.sync`, read-back) and the phase A cut path (`atom.acq_rel`) are unchanged; no fence or barrier removed; the
+consumers' stage loop is the base's text. The publish count is a register threaded through wgs_phase / wgs_seg /
+wgs_flush like `seq`.
+
+Build facts (box, `tools/ly_micro_sass.py` main build, `.build/box/v16/pub_sass2/`): 96 registers, 0 spill, 8 B stack
+(base 0), stage loops 304 / 307 / 308 instructions with 16 HGMMA (one 310), the same opcode mix as the base; the phase A
+outer loop drops from 24 to 16 BAR, 96 to 64 MEMBAR and 52 to 36 REDG, and gains 32 SYNCS (the mbarrier ops) and 32
+STS (the mailbox). A first build whose acknowledge wait sat inside `if (wt == 0)` (divergent spin, count in shared
+memory) compiled to 388-instruction stage loops (the uniform-datapath address arithmetic fell back to IMAD / R2UR, 104 B
+stack, an LDL in the loop) and crashed the prepare probe with `unspecified launch failure`; it was replaced by the
+uniform wait before any measurement and its cause was not isolated further. Reference check (`.build/prtl/pub/chk.log`,
+`muse_decode_layer/profiles/box/pub/chk.log`): `FORK_MOE_ROUTE native repaired`, `G_RELEASE_STARTUP_OK native (128, 32,
+33, 256, 1, 8, 16) 56 verified_replays`, check PASS at all 12 cells. The bisect variant `ly_pubx.py`
+(ec01371016798e63d4d51b31b1d45a36ad0a9315bb70928b25014d801cb9a9c6, publisher warp present, base release path, relay
+for the sentinel only) also passes 12 / 12.
+
+Paired A/B (`tools/ly_prtl_ab.sh`, c/w/c/w/c, `--runs 60`, PDL pinned at 1, 8, 16, 32 in both arms, all six loads,
+12:46 to 12:48 UTC, no foreign GPU process; logs `/root/okc/.build/prtl/pub/`, copied to
+`muse_decode_layer/profiles/box/pub/`; table `tools/ly_prtl_table.py`, threshold max(2 x control spread, 0.5 us short
+cells, 1% long cells)):
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c mean | w_a-c_a | w_a-c_b | w_b-c_b | w_b-c_c | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.25 | 64.80 | 64.70 | 65.01 | 65.22 | 0.54 | -0.15 | -0.45 | +0.10 | +0.30 | -0.21 | 1.09 | inside |
+| decode 1 full | 71.71 | 71.57 | 71.92 | 71.46 | 72.14 | 0.43 | -0.41 | -0.14 | -0.35 | -0.46 | -0.69 | 0.86 | inside |
+| decode 16 sliding | 127.20 | 126.83 | 126.64 | 126.64 | 126.98 | 0.56 | -0.20 | -0.37 | +0.19 | +0.00 | -0.34 | 1.27 | inside |
+| decode 16 full | 199.73 | 199.87 | 200.91 | 199.76 | 199.78 | 1.18 | -0.32 | +0.14 | -1.04 | -1.15 | -0.02 | 2.37 | inside |
+| decode 32 sliding | 143.57 | 144.26 | 143.52 | 144.67 | 144.05 | 0.53 | +0.75 | +0.69 | +0.74 | +1.15 | +0.62 | 1.44 | inside |
+| decode 32 full | 295.44 | 295.15 | 294.14 | 294.80 | 295.42 | 1.30 | -0.03 | -0.29 | +1.01 | +0.66 | -0.62 | 2.95 | inside |
+| verify 1 sliding | 102.14 | 102.27 | 102.35 | 103.06 | 101.87 | 0.48 | +0.54 | +0.13 | -0.08 | +0.70 | +1.18 | 0.96 | inside |
+| verify 1 full | 110.70 | 110.74 | 110.88 | 110.66 | 110.80 | 0.18 | -0.10 | +0.03 | -0.14 | -0.22 | -0.14 | 0.50 | inside |
+| verify 16 sliding | 243.31 | 245.28 | 244.03 | 245.20 | 244.29 | 0.98 | +1.36 | +1.97 | +1.25 | +1.17 | +0.91 | 2.44 | inside |
+| verify 16 full | 327.38 | 329.06 | 327.02 | 328.77 | 327.41 | 0.38 | +1.64 | +1.68 | +2.03 | +1.74 | +1.36 | 3.27 | inside |
+| verify 32 sliding | 297.57 | 299.65 | 297.52 | 299.50 | 297.22 | 0.35 | +2.14 | +2.08 | +2.13 | +1.98 | +2.29 | 2.97 | inside |
+| verify 32 full | 459.95 | 463.04 | 459.74 | 462.16 | 460.54 | 0.80 | +2.52 | +3.09 | +3.30 | +2.42 | +1.62 | 4.60 | inside |
+
+The eight cells whose builds did not change sit inside the control spread. At the four target cells every one of the
+four pair differences is positive: +1.4 / +1.6 / +2.1 / +2.5 us mean, a loss (inside the 1% long-cell threshold, but
+with the same sign in all sixteen pair differences and the only cells whose build changed).
+
+Where the time went (candidate timeline `ly_moe_tlv16.py --base ly_pub.py`, 20 inputs per cell, same inputs as the base's
+run; `.build/box/v16/pub_tlv16g.log`, both logs in `muse_decode_layer/profiles/box/pub/tl/`; base -> candidate medians):
+
+| cell | span | phase A | phase B | MFIN wait | final | x producer wait on doneAs (b_dep_wait) | phase A fit intercept | first-of-segment issue gap A at NTT 1 / 2 / 4 | first gap B at NTT 1 / 4 |
+|---|---|---|---|---|---|---|---|---|---|
+| verify 16 sliding | 145.6 -> 147.1 | 86.0 -> 84.2 | 43.1 -> 44.7 | 6.6 -> 7.5 | 4.3 -> 4.4 | 15.2 -> 16.1 | 7.7 -> 4.0 | 2.18 / 2.56 / 3.33 -> 1.70 / 2.43 / 3.17 | 1.82 / 2.82 -> 1.76 / 2.78 |
+| verify 16 full | 141.2 -> 141.8 | 83.3 -> 81.1 | 41.3 -> 42.3 | 6.2 -> 7.8 | 4.1 -> 4.4 | 15.0 -> 15.2 | 7.2 -> 2.5 | 2.30 / 2.69 / 3.52 -> 1.82 / 2.56 / 3.49 | 1.86 / 2.91 -> 1.76 / 2.82 |
+| verify 32 sliding | 178.7 -> 179.1 | 103.1 -> 102.0 | 52.8 -> 54.2 | 7.2 -> 7.1 | 6.1 -> 6.4 | 16.7 -> 18.0 | 10.0 -> 9.3 | 2.08 / 2.40 / 2.94 -> 1.63 / 1.95 / 2.82 | 1.79 / 2.72 -> 1.73 / 2.78 |
+| verify 32 full | 177.7 -> 179.1 | 103.4 -> 102.4 | 53.2 -> 54.0 | 6.3 -> 6.9 | 6.0 -> 6.4 | 17.1 -> 18.0 | 4.4 -> 3.9 | 1.95 / 2.37 / 2.85 -> 1.60 / 1.95 / 2.69 | 1.76 / 2.69 -> 1.73 / 2.78 |
+
+The steady issue gaps are unchanged at every NTT (0.96 at NTT 1, 1.47 to 1.50 at NTT 8, phase A; the publisher's polling
+does not slow the stage loop), and the per-stage fit moves by at most 0.04 us. The mechanism did what it was built for in
+phase A: the first-of-segment gap at NTT 1 fell by 0.35 to 0.48 us per switch (2.1 to 2.3 -> 1.6 to 1.8 us), the phase A
+intercept fell, and phase A shortened by 1.0 to 2.2 us per cell. Phase B gave it back and more (+0.8 to +1.6 us): its
+segments end in kind 3 finishers that wait for the other shares' kind 2 counts, and the x producer waits for the doneAs
+counts of phase A (b_dep_wait +0.2 to +1.3 us); both now arrive through a polling warp instead of directly from the
+warpgroup, so the release latency seen by the waiters grew by about the poll period, and phase B's first-of-segment gaps
+did not move (1.8 -> 1.7 us at NTT 1). The MFIN wait before the final pass grew by 0.6 to 1.6 us at verify 16 for the same
+reason. Net: the consumer-side cost of a release was real (about 0.45 us per phase A switch), but the kernel is also
+latency-bound on those releases at its waiters, and the relay trades 0.45 us of issue time for more than that in waiting.
+
+Decision: ly_pub is a loss at verify 16 / 32 and unchanged elsewhere; no judge check. Ruled-out row added. What remains
+of the switch excess after this result: the epilogue's own issue time (NTT-dependent, 0.25 us per n-tile per segment),
+which the relay does not touch, and the finisher / producer waits on cross-CTA counts, which any added latency makes
+worse; a next step would have to shorten the release latency (for example `red.release.gpu` by thread 0 without the
+`bar.sync`, which needs a cheaper intra-warpgroup ordering than a named barrier and is not available without the
+mbarrier round trip measured here), or reduce the number of segments per CTA (fewer, longer ranges), which the
+stream-K balance forbids at 132 CTAs.
