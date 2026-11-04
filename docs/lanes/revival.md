@@ -35,15 +35,36 @@ Paired median difference against base in us (negative is faster), faster pairs o
 P = 4 loses for every role. Leads: o P = 3 at T = 8 (verify 1 -0.58, 40/48, control -0.34) and qkv P = 1 at T = 16
 (decode 16 -0.53, 36/48, control +0.03). Logs: muse_decode_layer/profiles/box/rev/arms_pcx.{log,json}, script pcx.sh.
 
+## Sweep 2: single-T confirmation, 96 runs, both layers (pcx2.sh, arms_pcx2.{log,json}, all checks PASS)
+
+| arm | verify 1 sl | verify 1 full | decode 16 sl | decode 16 full | decode 32 sl | decode 32 full |
+|---|---|---|---|---|---|---|
+| o3_8 | -0.59 (63) | +0.14 (45) | +0.06 (45) | +0.26 (38) | -0.18 (52) | -0.37 (54) |
+| qkv1_16 | -0.18 (53) | +0.29 (38) | +0.06 (44) | -0.32 (59) | +0.13 (44) | +0.08 (46) |
+| pool3_16 | -0.26 (55) | -0.22 (56) | +0.08 (45) | +0.03 (47) | +0.51 (38) | -0.14 (52) |
+| router1_8 | -0.06 (49) | +0.00 (46) | +0.42 (32) | -0.13 (50) | +0.50 (39) | -0.03 (50) |
+| qkv2_32 | -0.14 (51) | -0.08 (49) | +0.13 (43) | -0.16 (52) | +0.51 (36) | +0.32 (36) |
+| o2_32 | -0.18 (54) | -0.02 (48) | +0.34 (38) | -0.35 (58) | -0.27 (53) | -0.75 (60) |
+| pool2_32 | -0.16 (52) | +0.13 (39) | -0.11 (49) | -0.21 (55) | -0.05 (49) | -0.59 (60) |
+| base2 | -0.19 (55) | +0.29 (34) | +0.32 (36) | +0.06 (43) | +0.18 (47) | +0.19 (44) |
+
+qkv1_16 at decode 16 sliding did not repeat (+0.06). o3_8 at verify 1 sliding repeated (-0.59, 63/96), but only about
+0.4 us past its control. o2_32 at decode 32 full -0.75 (60/96).
+
+## Paired A/B (tools/rev_ab.sh: gate, then tools/ly_prtl_ab.sh two rounds against ly_stk3.py)
+
+ly_rvo38.py (ly_stk3 + `PCX_CFG[("o", 8)] = (3, 0, 0, 0)` after line 10194), SHA256
+2f00aeb84e8e506b5fc68524b9e71a9f658411a26756a901fa7fe6ff19387b9e. Gate: five PDL8H guards pass, chk PASS. Pooled 24
+pairs: verify 1 sliding -0.12 (15/24), verify 1 full +0.61 (1/24), decode 1 sliding -0.22 (20/24, T = 1 untouched),
+verify 32 sliding +1.51 (1/24, untouched). Rejected. The untouched cells show the process-level pairs count carries
+systematic swings of about 1.5 us. Box dirs /root/okc/.build/prtl/rvo38{,_r2}.
+
 ## In flight
 
-Sweep 2 (muse_decode_layer/profiles/box/rev/pcx2.sh, box /root/okc/.build/rev/arms_pcx2.log): single-T arms o3_8,
-qkv1_16, pool3_16, router1_8 and T = 32 P = 2 for qkv / o / pool, loads verify 1 / decode 16 / decode 32, both
-layers, 96 runs, duplicated control.
+ly_rvo232.py (`PCX_CFG[("o", 32)] = (2, 0, 0, 0)`), SHA256 069a1a14c15a139b9331fdf51f5326761cbf6aa429b79cd28da2ecae7ab6ae72,
+same A/B (box .build/rev/ab_run.log). Sweep 3 queued on the lock (fin.sh, .build/rev/arms_fin.log): SL_CLUSTER_CONFIG
+and SL_TILE_CONFIG shapes at T = 1 / 8, decode 1 / verify 1.
 
 ## Next
 
-If a lead holds at 96 runs: build ly_stk3 + one PCX_CFG line (after line 10194), gate it (reference check plus five
-PDL8H guards), paired A/B with tools/ly_prtl_ab.sh two rounds against CTL=ly_stk3.py. Then sweep SL_CLUSTER_CONFIG
-(line 15865) and SL_TILE_CONFIG / SL_ROUTE_CONFIG at T = 1 / 8 by glob arms. CG_LAYER_THREADS is consumed in prepare
-(line 18045), so it needs a state override or a file.
+Read sweep 3; CG_LAYER_THREADS is consumed in prepare (line 18045), so it needs a file.
