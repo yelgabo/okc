@@ -2081,3 +2081,119 @@ the prologue slower by more than the repeat costs. Reopen with a two-tile build 
 control's code (the two-tile loop in a separate function body that one-tile units never enter; the host cannot pick a
 build per launch, because it does not see the routing inside the graph) and a range split that costs the prologue
 nothing, or measure the loop's issue slots once Nsight counters are available on some host.
+
+## 2026-11-03 - Micro-optimizations on the box (layer lane, box only, no check)
+
+Question: do instruction-level and memory-layout changes to the layer's hot kernels (store coalescing, store
+vectorization, math precision, branch removal around guarded stores, register pressure) save measurable time on
+rv_k_combo2n.py (3ac83fb437d05308c2871301a5a10c537d9b2ec504d55305403641beec2f5d27)? No routing slack, no job sizing or
+range change, no fence, barrier or griddepcontrol.wait removed, no new PDL edge, every change keeps the output bits.
+Box only (okc-h200, 2026-11-04 02:55-03:25 UTC), no judge quota.
+
+Tools:
+
+- `tools/ly_micro_sass.py FILE OUTDIR`: imports the layer file with CUDA hidden and a recording load_inline, so
+  `_ma_ext` hands over the exact source and flags of the five fused-MoE builds (TINY decode 1, TINY2 verify 1, MID
+  decode 16, B4 decode 32, MAIN verify 16 / 32; production suffix `-DOKC_PRMTSC=1`, `-DOKC_SC6W=1` on WGS, DQ7), compiles
+  them on the box CPU with nvcc 13.0 and reports registers, local bytes and every loop that holds an HMMA / HGMMA. The
+  captured sources are byte-identical to the production builds' `cuda.cu` in `/root/.cache/bx_ext` (md5 match).
+  `tools/ly_micro_sass_diff.py` compares two reports.
+- `tools/dl_ly_micro_patch.py --variant V [...] --out F`: one change per variant on combo2n (SHA checked, output SHA
+  printed). `tools/ly_micro_ab.sh` runs control and variants as separate `bx_box_run.py --lock --ls-cache --ext-cache
+  --pin-pdl8 1,8,16,32 --skip-pdl8-gate` processes, `--runs 60`, router seed 106218864389449120, f931 case seeds;
+  `tools/ly_micro_table.py` makes the tables. Threshold: max(2 x control spread, 0.5 us at decode 1 / verify 1, 1% of
+  the control mean elsewhere).
+- Non-MoE kernels: a read-only audit (same capture method extended to the tvm_ffi glue builds, CPU compiles only;
+  sources, cubins and SASS in `/root/okc/.build/ly_micro/audit/` on the box).
+
+Logs, JSONs and tables: `muse_decode_layer/profiles/box/lym/` (`lym/` first round, `lym_r2/` five more rounds of scl and
+the stack, `lym_r3/` six loads); SASS diffs in `muse_decode_layer/profiles/box/lym/sass/`.
+
+### Four-pattern findings before any change
+
+Patterns: (1) coalescing, adjacent lanes more than one element apart in a global access; (2) narrow back-to-back stores
+to adjacent offsets; (3) 16-bit inputs through 32-bit math or transcendentals back to 16-bit; (4) boundary branch
+around a short math block plus store. Line numbers are in rv_k_combo2n.py.
+
+| kernel (cells) | pattern | line | what the source and SASS show |
+|---|---|---|---|
+| moe_fused helper0 WS builds (decode 1, verify 1, decode 16) | 1 | 14030 (ws_helper phase A), 14059-14060 (phase B) | lane & 3 picks the token row (8 KB apart), lane >> 2 the column: a phase A store covers 4 rows x 16 B (4 sectors, half used), phase B 4 rows x 32 B (full sectors). This is not the 32-transaction case. Both run on the helper warp, off the compute warps' unit loop |
+| same | 2 | 14030 | two STG.E.U16 per unit (tokens 2t and 2t + 1, different rows); the adjacent column sits in the lane 4 away. Change wspack |
+| same | 3 | 14029-14030 | gt and up are BF16-rounded (fork_bf16), then FP32 `__expf` (FMUL, FSETP, two predicated FMUL, MUFU.EX2) and `__fdividef` (MUFU.RCP, FMUL), rounded once to BF16. No `--use_fast_math`; the intrinsics are already the MUFU path. A BF16 hexp or bf16x2 SiLU changes bits, so it was not built; the ftz form of ex2 keeps them (change ftz) |
+| same | 4 | 14028 | `tk < cnt` per token compiles to BSSY / BRA around the whole SiLU and store (SASS 0x116c0, 0x11870 in TINY2). Change wsmask |
+| same, compute warps' unit loop | (loop) | 13920-13945 | 706 / 757 instructions per warp per unit (phase A / B, TINY2), 32 HMMA, LOP3 169, HMUL2 128, IMAD 114, SHF 82; each 64-K chunk builds its two rows' scales with two PRMT + two IMAD. Change scl. 145 / 145 / 152 registers (TINY / TINY2 / MID), 0 local |
+| helper0 epi_A / epi_B (the snippet in the brief) | - | 12901-12926 | called only from fat_stream (13808-13823); no scored build runs a fat job (TINY / TINY2 jobs hold at most 8 tokens, MID splits at 8), so this epilogue is compiled but not executed (source reading) |
+| moe_fused WGS B4 / MAIN (decode 32, verify 16, verify 32) | 1 | 5819 (wgs_epi_tile phase A into xB), 5836-5837 (phase B) | phase A: per instruction 4 x 16 B inside one 128 B line; phase B 4 rows x 32 B |
+| same | 2, 4 | 5812-5821 | 108 STG.E.U16 and per-token branches in B4 SASS (the epilogue is inlined per n-tile count). Change wgspack |
+| same | 3 | 5817-5818 | 50 MUFU.EX2 + 50 MUFU.RCP, 108 FSETP of the non-ftz exp range fix. Change ftz |
+| same | (registers) | | 96 registers at 544 threads (launch bound), 0 local, B4 stack 8 B |
+| sk2 / gle / narrow projections (qkv, o, pooler + router, unpooler at T > 1) | 1, 2 | 8536, 16286 | weights and x by TMA / cp.async.bulk; every output store is STG.E.64 (4 BF16 per thread), 0 STG.E.U16; 56-130 registers, 0 local |
+| sk2 FUSE router logits | 1 | 8422 | 8-lane groups cover 32 B, full sectors; once per tile |
+| sk2_kernel_narrow escape loop (T = 8 qkv) | 1 | 15953 | lane = token, 16 KB apart (8 sectors for 16 B); the layout requires it, off the MMA warps, once per escape |
+| sk2 escape correction | 4 | 8223-8230 | `lane < M` guard around a shared read-modify-write, once per escape |
+| gle FP32 router | 4 | 16441 | already predicated (36 @LDS.128); its MUFU.RCP are integer divides |
+| cgemv40<128,2> unpooler (T = 1) | 1 | 17396, 17409-17410 | x as two LDG.E.128 per thread at +0 / +16 B: 512 B per instruction over 32 half-used sectors, L1-bypassing `.cg` (PDL8 edit at 18522). A register-shuffle fix spills 72 B under maxnreg 40 (compiled, not run) |
+| cgemv (outside the patterns) | loads | 17402-17405 | ptxas sinks all 8 weight loads below griddepcontrol.wait (ACQBULK 0x1040, first weight LDG 0x10e0), so the 6.3 MB weight stream starts after the MoE. Change cgpf |
+| glue boundary kernels (SL glue, graft glue pdl8) | 1, 2, 4 | 15491-15593, 11685-11773 | float4 / bf16 x 4 loads, STG.E.128 / .64 stores, predicated; 54-64 registers, 0 spill. Math is inline `.rn` PTX and `rsqrt.approx.ftz` matching the reference |
+| attention (ATT7) | 1-4 | 590, 1915-1952, 2721 | hot loop clean; workspace RED.128 at 64 B lane stride (estimated under 0.1 us, not measured); sigmoid, RMSNorm and exp2 would change bits if demoted; masks are FSEL already; 96-128 registers, 0 spill |
+| router_fp32_kernel, b2_single, plain graft glue | - | 16122, 11819, 11563 | compiled, not launched at a scored shape |
+
+### Changes, SASS effect and box A/B
+
+Files (from `tools/dl_ly_micro_patch.py`, SHA256 prefixes): ly_mo_scl 6341505232ec, ly_mo_ftz 8b1b356dde1b, ly_mo_wspack
+e14d103308bf, ly_mo_wsmask 5a3cc4a24f53, ly_mo_wgspack 5144c07af7bb, ly_mo_cgpf 743cde948f65; stack ly_micro.py
+(scl + wspack + wgspack + ftz) dc3e0d00ab5a06c42566b45b4ba48a99b061da4bfef140708f249d0b7292ef79. Every run of every arm passed
+G_RELEASE_STARTUP_OK (56 verified replays) and the reference check at every cell it timed (all 12 cells for the stack
+and cgpf in lym_r3).
+
+| change | what | SASS effect | runs (ctl / var) | cells: control mean / variant mean / delta, us | decision |
+|---|---|---|---|---|---|
+| scl | skinny_ring_ws: both rows' scales in one bf16x2 (one PRMT + one IMAD per chunk), HMUL2 with .H0_H0 / .H1_H1 broadcast, as the WGS stage already does | unit loops 702 -> 686, 754 -> 738 (TINY), 706 -> 690, 757 -> 741 (TINY2), 708 -> 692, 763 -> 747 (MID): 8 PRMT and 8 IMAD fewer per warp per unit; registers 145 -> 141 (TINY, TINY2), 152 -> 144 (MID); B4 / MAIN unchanged | 6 / 5 (lym_r2) | d1 s 66.05 / 66.41 / +0.36; d1 f 72.20 / 72.29 / +0.09; d16 s 129.89 / 129.10 / -0.79 (5 of 5 runs -0.64 to -0.94); d16 f 202.39 / 201.54 / -0.85; d32 s -0.42; d32 f -0.54; v1 s 103.94 / 103.07 / -0.87 (5 of 5 negative); v1 f 112.17 / 111.24 / -0.93 (5 of 5 negative) | inside the threshold at every cell (d16 s threshold 1.30 by the 1% rule, v1 3.20 / 2.27 by the spread); consistent sign at decode 16 and verify 1 |
+| ftz | `ex2.approx.ftz` for e^-g in every MoE SiLU; differs from `__expf` only for results below 2^-126, where 1 + e^-g is 1.0f either way | FSETP -2 (helper0 builds); B4 -108 FSETP, -324 instructions; MAIN -323; unit loops unchanged | 3 / 2 (lym) | all cells -1.18 to +0.40; d32 s per run +0.20 / -2.55 | inside |
+| wspack | ws_helper phase A: shuffle pairing, one 32-bit store for (col, col + 1) per lane | 2 STG.E.U16 -> 1 STG.E + 1 SHFL.BFLY, one BSSY fewer (helper0 builds) | 3 / 2 | -0.91 (v1 s) to +0.14 (d1 f) | inside |
+| wsmask | ws_helper phase A: SiLU unconditional, only the store guarded | BSSY -2, 6-8 instructions fewer | 3 / 2 | -0.26 to +0.33 | inside |
+| wgspack | wgs_epi_tile phase A: the same pairing into xB | B4: STG.E.U16 108 -> 0, +54 STG.E, +54 SHFL, BSSY -82, 26796 -> 25850 instructions; stage loops trade 1-3 IMAD for SHF; registers 96 unchanged | 3 / 2 | d32 s -0.55, d32 f -0.51, others -0.24 to +0.39 | inside |
+| cgpf | T = 1 unpooler cgemv: thread 0 prefetches the CTA's weight bytes into L2 (cp.async.bulk.prefetch.L2) before griddepcontrol.wait | UBLKPF.L2 x 2 before the compute warps' ACQBULK in every cgemv instance; 40 registers, stack 0 (audit compile of the same text) | 4 / 3 (lym_r3) | d1 s 65.87 / 66.26 / +0.40; d1 f 72.14 / 72.39 / +0.25; others -0.68 to +0.56 | inside; no saving at decode 1 (the hypothesis was 0.3 to 1.4 us) |
+
+### Stacked file ly_micro.py, six loads (lym_r3: control 4 runs, stack 3 runs, net us)
+
+| cell | control mean | control spread | ly_micro mean | delta | per run | threshold | verdict |
+|---|---:|---:|---:|---:|---|---:|---|
+| decode 1 sliding | 65.87 | 0.59 | 66.42 | +0.55 | +0.46 +1.02 +0.18 | 1.18 | inside |
+| decode 1 full | 72.14 | 0.56 | 72.12 | -0.02 | +0.53 -0.24 -0.36 | 1.12 | inside |
+| decode 16 sliding | 129.93 | 0.48 | 128.81 | -1.12 | -1.48 -0.70 -1.18 | 1.30 | inside |
+| decode 16 full | 202.30 | 1.60 | 201.92 | -0.38 | -0.67 -0.45 -0.03 | 3.20 | inside |
+| decode 32 sliding | 145.86 | 2.13 | 145.28 | -0.58 | -0.34 -0.56 -0.85 | 4.26 | inside |
+| decode 32 full | 297.28 | 2.72 | 296.42 | -0.86 | -0.78 -0.64 -1.16 | 5.44 | inside |
+| verify 1 sliding | 103.88 | 1.62 | 103.24 | -0.64 | -1.10 -0.12 -0.70 | 3.23 | inside |
+| verify 1 full | 111.97 | 0.98 | 111.89 | -0.08 | -0.24 -0.05 +0.04 | 1.95 | inside |
+| verify 16 sliding | 244.12 | 2.30 | 244.01 | -0.11 | +0.14 +0.44 -0.92 | 4.61 | inside |
+| verify 16 full | 327.24 | 1.89 | 327.89 | +0.65 | +1.03 -0.08 +1.00 | 3.78 | inside |
+| verify 32 sliding | 297.92 | 0.98 | 296.37 | -1.55 | -1.31 -1.68 -1.66 | 2.98 | inside |
+| verify 32 full | 462.45 | 1.02 | 460.99 | -1.46 | -2.29 -1.17 -0.92 | 4.62 | inside |
+
+The five-round run of the same stack at four loads (lym_r2, 6 control / 5 stack runs) agrees in sign: decode 16 sliding
+-1.12 (5 of 5 runs negative), decode 16 full -1.04 (5 of 5), decode 32 sliding -1.32 (5 of 5, threshold 2.14), decode 32
+full -1.31 (5 of 5), verify 1 -0.43 / -0.25, decode 1 sliding +0.55 (5 of 5 positive, +0.40 to +0.67).
+
+### Reading
+
+- No single change, and not the stack, clears the threshold at any cell, so by the stated rule there is no winner. The
+  stack's sum of mean deltas over the 12 cells is -5.6 us (lym_r3). Across its eight runs in two sessions it was faster
+  at decode 16 sliding, decode 32 sliding and decode 32 full in every run, and faster at verify 32 in every lym_r3 run.
+  These are box measurements; whether they carry to the judge is untested.
+- decode 1 sliding is slower with the stack in all 8 stack runs (+0.18 to +1.02, mean +0.55) and with scl alone in 3
+  of 5 lym_r2 runs (mean +0.36), inside the 0.5 us floor and 2 x spread. Hypothesis, not separated: scl's register
+  allocation change in the TINY build (145 -> 141) moves the decode 1 MoE (2 to 3 experts, ramp-dominated) the wrong
+  way. A stack without scl on TINY would test it.
+- The time is in the unit loop: scl removes 2.3% of the WS unit loop's instructions (16 of 706) and decode 16 moved
+  -0.8 us of a 67 us MoE (1.2%), so the loop is partly issue-bound, as the T = 8 L2 probe found (docs/runs-moe.md). The
+  helper-warp epilogue changes (wspack, wsmask) moved nothing measurable; the WGS epilogue changes (wgspack, ftz)
+  remove about 1,000 instructions per B4 image, mostly outside the stage loop, and gave -0.5 us at decode 32 in two runs.
+- The brief's epilogue snippet (epi_A with `p.inter + (pstart + tk) * ID + col`) is not executed at any scored shape.
+- Fast math: the MoE already uses `__expf` / `__fdividef` (MUFU.EX2 / MUFU.RCP); the non-ftz range fix was the only
+  removable part. BF16 or bf16x2 SiLU math would change bits against combo2n and was not built.
+- Registers and spills: no MoE build spills (local 0 in all five); B4 has an 8-byte stack frame. No register-pressure
+  change was needed.
+- Judge check candidate, if the lead wants one: ly_micro.py (dc3e0d00), or ly_micro without scl on TINY if the decode 1
+  sign matters.

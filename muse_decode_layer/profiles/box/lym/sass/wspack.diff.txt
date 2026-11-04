@@ -1,0 +1,7 @@
+tiny  reg 145->145 local 0->0 ins 5201->5203 ops {'BSSY': -1, 'SHFL.BFLY': 1, 'STG.E.U16': -2, 'STG.E': 1}
+      loop 0x97c0 n 754->754 mma 32 {'LEA': 1, 'SHF': -1}
+tiny2 reg 145->145 local 0->0 ins 5250->5245 ops {'BSSY': -1, 'SHFL.BFLY': 1, 'STG.E.U16': -2, 'STG.E': 1}
+mid   reg 152->152 local 0->0 ins 5224->5219 ops {'BSSY': -1, 'SHFL.BFLY': 1, 'STG.E.U16': -2, 'STG.E': 1}
+      loop 0x8ef0 n 763->763 mma 32 {'IMAD': 2, 'LEA': -1, 'SHF': -1}
+b4    reg 96->96 local 0->0 ins 26796->26796 ops {}
+main  reg 96->96 local 0->0 ins 23862->23862 ops {}

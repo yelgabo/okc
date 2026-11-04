@@ -1,0 +1,5 @@
+tiny  reg 145->145 local 0->0 ins 5201->5195 ops {'BSSY': -2}
+tiny2 reg 145->145 local 0->0 ins 5250->5242 ops {'BSSY': -2}
+mid   reg 152->152 local 0->0 ins 5224->5216 ops {'BSSY': -2}
+b4    reg 96->96 local 0->0 ins 26796->26796 ops {}
+main  reg 96->96 local 0->0 ins 23862->23862 ops {}
