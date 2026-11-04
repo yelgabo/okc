@@ -1,0 +1,57 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793757515.368 acquire start after 4.4 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.36), ('sk2', 8.1), ('torch', 10.4)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 8.0 s
+  KERNEL    71.32 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    19.11 us  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.38 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.93 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.29 us  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     9.67 us  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Params)
+  KERNEL     5.98 us  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+  KERNEL     4.77 us  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+  KERNEL     4.37 us  _sl_tile_route_cg
+  KERNEL   150.83 us  total
+BOX decode 16 sliding: raw 134.16 net 129.84 us (overhead 4.32) | judge net 127.89 (n=1, 127.89-127.89) box/judge 1.015 | check PASS
+  KERNEL    84.83 us  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Params)
+  KERNEL    70.24 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    18.87 us  void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.53 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    11.17 us  void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.53 us  void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     5.96 us  void glue_cluster_boundary<4, 32, true, false, false, true>(GlueArgs)
+  KERNEL     5.06 us  void glue_cluster_boundary<4, 32, false, false, false, true>(GlueArgs)
+  KERNEL     4.60 us  _sl_tile_route_cg
+  KERNEL   225.80 us  total
+BOX decode 16 full: raw 205.95 net 201.92 us (overhead 4.03) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.959 | check PASS
+  KERNEL    78.32 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    20.82 us  void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.69 us  void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    13.20 us  void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    11.40 us  void (anonymous namespace)::attn_kernel<1, false, 1>((anonymous namespace)::Params)
+  KERNEL    11.24 us  void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     9.67 us  _graft_row_boundary_pre_cg
+  KERNEL     5.15 us  _sl_tile_route_cg
+  KERNEL   164.48 us  total
+BOX decode 32 sliding: raw 152.00 net 147.74 us (overhead 4.26) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.982 | check PASS
+  KERNEL   160.71 us  void (anonymous namespace)::attn_kernel<1, true, 0>((anonymous namespace)::Params)
+  KERNEL    79.88 us  void okc::moe_fused<false>(okc::Params)
+  KERNEL    20.91 us  void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, __nv_bfloat16, false, true>(CUten
+  KERNEL    14.89 us  void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    14.85 us  void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL    10.82 us  void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, __nv_bfloat16, false, false>(CUte
+  KERNEL     9.36 us  _graft_row_boundary_pre_cg
+  KERNEL     5.12 us  _sl_tile_route_cg
+  KERNEL   316.55 us  total
+BOX decode 32 full: raw 301.47 net 297.70 us (overhead 3.78) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.978 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 240 hits, 0 computed
+BXPHASE import_torch=4.79 load_reference_cuda_init=0.00 weights_and_router=0.36 prepare_submission=7.96 fresh_inputs=1.98 check=0.54 capture=0.05 overhead_graphs=0.44 replays=0.19 kernels_profiler=0.13 cell_tail=0.12 json_write=0.00 total=16.56

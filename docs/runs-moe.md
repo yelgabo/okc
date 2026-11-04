@@ -6091,6 +6091,11 @@ and no knob reached a W.
 | wgsub160 | OKC_WGSUB 140 -> 160 | ctlE | +1.02 / +0.21 | -0.94 / +0.46 | +0.75 / -0.30 | +0.59 / -0.58 | noise |
 | wgsu140 | OKC_WGSU 160 -> 140 (phase A unit cost) | ctlE | +0.14 / +0.06 | -0.29 / -0.70 | +0.40 / -0.42 | -0.62 / +0.80 | noise |
 
+Correction, 2026-11-03 (layer lane, source read): the midskt16 row measured the control. helper0 sets
+`#define OKC_SKT 8` with no `#ifndef`, so the command-line `-DOKC_SKT=16` is redefined back to 8 (a preprocessor
+warning, not an error); the `static_assert(!OKC_WS || OKC_SKT == 8)` that a real SKT 16 MID build would trip did not
+fire. MID with 16-token jobs is measured in docs/runs-decode-layer.md, "ly_ws2t".
+
 The build-pick knobs need pdl8h's prepare check, which wants exactly the five builds
 {tiny, tiny2, mid, b4, main}, relaxed to accept a subset of them. The tool adds that change to those six
 files only.

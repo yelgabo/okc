@@ -1896,3 +1896,188 @@ decode 32 -1.6 / -1.0, verify 1 sliding -0.9; verify 1 full -0.1). The mean is b
 below two (377). The one cell above the control range is verify 16 full (+0.81 mean, +2.24 in round d), which the revival
 lane also saw on combo2 (+1.42, with pdl8h's own repeat at +1.44 there). The judge check and submission are the lead's call;
 nothing was registered or dispatched by this lane.
+
+## 2026-11-03 - Decode 16 / 32 sliding: floor and gap (box, no check)
+
+The two weakest cells of the slack-carrying twin's check a88203c2400e4d56 are decode 32 sliding (155.8 us, 1.752x) and
+decode 16 sliding (130.1 us, 2.009x). The question: where do those cells spend their time above the byte floor, and what is
+the largest piece that is not floor? Base: muse_decode_layer/cand/rv_k_combo2n.py (3ac83fb4, slack-free; at T = 16 / 32 it
+runs the same code as the checked combo2, since the slack was a T = 1 program). Box only, no judge quota. Logs, traces and
+JSON: `muse_decode_layer/profiles/box/ly/`.
+
+Runs (okc-h200, 2026-11-04 01:58-02:10 UTC, router seed 106218864389449120, f931 case seeds, local_start per input, PDL on
+at T = 1, 8, 16, 32 in every run):
+
+- `tools/ly_tl_run.py` (bx_box_run.py with `--kernels`, plus each cell's CUDA trace written out; `--pin-pdl8 1,8,16,32
+  --skip-pdl8-gate`, all four reference checks PASS) and `tools/ly_tl_parse.py`: per-kernel start, duration and the gap to
+  the previous kernel over 10 cold replays (`tl_c2n.timeline.txt`). Net cell times in that run: decode 16 sliding 129.84,
+  decode 32 sliding 147.74 us.
+- `tools/box_route_map.py` (under flock on gpu.lock; the file's own PDL8H guard passed and kept every T on): 60 inputs per
+  cell, the in-graph `moe_fused` time against the distinct local experts of each input (`rmap_c2n.log` / `.json`).
+- `tools/ly_moe_tl16.py` writes `ly_tl16.py` (combo2n plus MOE-TL-01's globaltimer stamps on the MID build only, the
+  same edits `tools/dl_moe_tl.py` applies to TINY2; the file is rebuilt by the tool, not committed) and
+  `tools/ly_box_moe_tl16.py` replays the decode 16 MID launch of 40 inputs per cell plain and instrumented (`tl16.log` /
+  `.json`; instrumented output within 1.95e-3 of plain).
+
+### Floors
+
+Box read bandwidth 4.435 TB/s (`sum` over 4 GiB, measured in the tl16 run). Bytes per kernel:
+
+| kernel | bytes | floor us |
+|---|---|---:|
+| qkv_gate (12-bit code, 0.751 of BF16) | 2304 x 8192 x 2 x 0.751 = 28.35 MB | 6.39 |
+| attention, sliding window | K + V FP8, 2048 tokens x 256 B per sequence: 8.39 MB (16) / 16.78 MB (32) | 1.89 / 3.78 |
+| o (12-bit) | 8192 x 1024: 12.60 MB | 2.84 |
+| b1, b2 boundaries | T x 8192 x 12 B in and out: 1.57 MB (16) / 3.15 MB (32) | 0.35 / 0.71 each |
+| pooler + router (12-bit pooler, router counted at FP32 size) | 50.40 + 8.39 MB | 13.26 |
+| route | ids and logits only | 0 |
+| moe_fused | 28.31 MB per distinct local expert (MID, FP8 scales); 27.53 MB (B4, 6-bit SC6 scales) | 6.38 / 6.21 per expert |
+| unpooler (12-bit, all 8192 rows at T > 8) | 50.40 MB | 11.36 |
+
+At the judge's distinct-expert targets (7.5 at decode 16, 9.0 at decode 32) the MoE floor is 47.9 / 55.9 us, and the cell
+floors are 84.3 us (decode 16 sliding) and 95.0 us (decode 32 sliding). Box net is 129.8 / 147.7 us, 54% / 55% above.
+Neither cell is within 3% of its floor.
+
+### Measured breakdown
+
+The critical-path share of a kernel is its end minus the previous kernel's end in the replay timeline (with PDL a kernel
+starts before its predecessor ends, so its own duration includes waiting). The MoE row uses the route map's in-graph fit at
+the judge's distinct target instead of the 10 profiled inputs, whose routing differs.
+
+| kernel | d16 critical path | d16 floor | d16 gap | d32 critical path | d32 floor | d32 gap | judge a88203c2 duration d16 / d32 |
+|---|---:|---:|---:|---:|---:|---:|---|
+| qkv_gate sk2 | 10.24 | 6.39 | 3.85 | 10.91 | 6.39 | 4.52 | 10.4 / 11.0 |
+| attention | 7.84 | 1.89 | 5.95 | 9.59 | 3.78 | 5.81 | 7.6 / 9.3 |
+| o sk2 | 3.58 | 2.84 | 0.74 | 4.59 | 2.84 | 1.75 | 6.0 / 6.4 |
+| b1 (glue / Gluon row boundary) | 2.31 | 0.35 | 1.96 | 2.93 | 0.71 | 2.22 | 3.1 / 8.4 (both row calls) |
+| pooler + router sk2 | 17.21 | 13.26 | 3.95 | 18.80 | 13.26 | 5.54 | 19.1 / 20.3 |
+| route | 1.54 | 0 | 1.54 | 2.20 | 0 | 2.20 | 2.0 / 2.0 |
+| moe_fused at 7.5 / 9.0 experts | 66.9 | 47.9 | 19.0 | 79.8 | 55.9 | 23.9 | 68.4 / 81.0 |
+| unpooler sk2 | 14.63 | 11.36 | 3.27 | 15.24 | 11.36 | 3.88 | 15.0 / 15.5 |
+| b2 | 3.66 | 0.35 | 3.31 | 2.76 | 0.71 | 2.05 | 6.3 / (in the b1 row) |
+
+MoE fits over 60 inputs (in-graph kernel time, us): decode 16 sliding 24.49 + 5.66 x distinct (residual 3.60), decode 32
+sliding 34.25 + 5.06 x distinct (residual 2.52). The slopes sit below the per-expert floor (6.38 / 6.21), so the intercept is
+not a clean fixed cost; part of the time does not scale with the distinct count in a straight line (hypothesis: the split
+jobs below add units that follow the busiest expert's token count, not the distinct count).
+
+Inter-kernel gaps: every edge but two overlaps under PDL (gap -1.7 to -8.6 us: the next kernel starts early and waits).
+The two serial edges are route -> MoE (+0.06 / +0.45 us) and MoE -> unpooler (+0.18 / +0.58 us): the MoE launch is
+cooperative with PDL off ("MFIN/DF/YBF/PDL off"), and the unpooler sk2 carries bit 29 (no programmatic attribute), as qkv
+does. Launch gaps therefore cost under 1 us per cell; the time is inside the kernels.
+
+### Inside the decode 16 MoE (MID build, 40 inputs per cell)
+
+Median input (8 distinct sliding / 7 full), us: span 74.06 / 73.30, ramp 4.72 / 4.61 (routing and ranges done at 2.82 /
+2.78), phase A 40.25 / 39.94, A-to-B handoff 3.02 / 3.04, phase B 19.82 / 19.72, tail 4.42 / 4.34 (B end to barrier 0.82,
+barrier idle 3.13 / 3.05, final pass 0.47; B-end spread across CTAs 4.05 / 3.79), unit retire interval 1.18 (A) / 1.15 (B),
+weights wait 3.90 / 3.75 over phase A and 1.02 / 1.08 over phase B. The eager instrumented span runs about 7 us longer than
+the in-graph kernel (77.66 against 70.19 at 8 distinct, cause not separated); the shares below are of the span.
+
+The units each launch processes give the largest single piece. MID splits every expert with more than SK_T = 8 tokens into
+jobs of at most 8 tokens (OKC_SPLIT; the source comment reads "a split expert re-streams its weights"). On 34 / 33 of 40
+inputs (sliding / full) the launch processed 768 x (distinct + 1) units or more: one whole expert more than the distinct
+count on 32 / 31 inputs, two more on 2 / 2, none on 6 / 7. At decode 16 the busiest local expert holds 10 to 12 of the 16
+tokens (route map max_tok). The unit loop is issue-bound (the T = 8 L2 probe in docs/runs-moe.md retires units at the same
+interval with the weights in L2), so the repeat costs its loop time whether or not its bytes come from L2: 512 / 132 phase A
+units x 1.18 + 256 / 132 phase B units x 1.15 = 6.8 us per affected input.
+
+Span excess over the floor at 8 distinct (77.66 - 51.07 = 26.6 us), largest first:
+
+| piece | us | of which |
+|---|---:|---|
+| phase A above its floor (44.19 against 34.05) | 10.1 | split re-stream 4.6; unit loop 7.5% above the byte rate plus weights wait at job switches 5.5 |
+| ramp | 4.7 | routing prologue 2.8, first fill 1.9 |
+| tail | 4.4 | barrier idle 3.1 (B-end spread 3.9 across CTAs) |
+| phase B above its floor (21.05 against 17.02) | 4.0 | split re-stream 2.2 |
+| A-to-B handoff | 3.2 | |
+
+The decode 32 MoE is the B4 build (WGS warpgroup kernel, fat jobs up to FT_T = 64 tokens, so no split at these token
+counts). It has no timeline instrument, so its 23.9 us has no breakdown beyond the fit.
+
+### Largest non-floor piece
+
+At both cells it is the fused MoE's excess over its byte floor: 19.0 us at decode 16 sliding (15% of the cell) and 23.9 us
+at decode 32 sliding (16%), three to four times the next piece (attention, 5.8 to 6.0 us, latency-bound on 8 to 17 MB of
+KV). Inside it, at decode 16, the largest piece with a known cause is the split expert's repeated stream, 6.8 us per
+affected input. The MoE lane's knob sweep already measured the plain alternative: MID with OKC_SKT = 16 (two n-tiles per
+job, no split) is noise at decode 16 (+0.61 / -0.10 us). The source asserts `!OKC_WS || OKC_SKT == 8`, so that build also
+gives up the warp-specialized ring, which is what makes MID fast. A build that keeps the warp-specialized ring and runs the
+hot expert's 9 to 16 tokens as one two-n-tile job would remove the repeat without that trade (hypothesis; estimated -4 to
+-6 us at decode 16 and nothing at decode 32, which runs B4).
+
+## 2026-11-03 - ly_ws2t: decode 16 MID with two-n-tile skinny jobs (box, loss, no check)
+
+Hypothesis (from the floor-and-gap section above): the decode 16 MID MoE re-streams and re-decodes the busiest local
+expert's 768 units because OKC_SPLIT cuts every expert with more than 8 tokens into 8-token jobs, about 6.8 us per affected
+input. A job of up to 16 tokens that runs both n-tiles on one decode of each unit removes the repeat. Stop rule (the lead's
+bar): beat combo2n at decode 16 and decode 32 sliding by more than max(2 x control spread, 1% of the cell) and lose nowhere
+beyond it. Decode 32 runs the B4 build, which this change does not touch, so this candidate could not meet the decode 32
+half of the bar by construction; I built it because the split re-stream was the largest identified piece with a known
+cause, and the decode 32 MoE (B4) has no instrument yet.
+
+Also found on the way: the MoE lane's knob "midskt16" (docs/runs-moe.md, knob sweep) measured the control. helper0 has an
+unconditional `#define OKC_SKT 8`, so `-DOKC_SKT=16` was redefined back to 8; a correction line is under that table.
+
+Build: `python3 tools/dl_ly_ws2t_patch.py` writes `muse_decode_layer/cand/ly_ws2t.py`
+(dd413963012bee07ecb4db1494c0a36bb80cb6ddd08a8bb6da5dfe116058338b) from rv_k_combo2n.py (3ac83fb4, SHA checked). MID
+only gets `-DOKC_SKT=16`; every source edit is under `#if OKC_SKT > 8` with the original text in the `#else` arm, so
+TINY / TINY2 preprocess to the original code. The edits:
+
+- skinny_ring_ws: per job `two = cnt > 8`; tokens 8..15 staged per warp in shared memory (after the ring, the region the
+  smem size formula already reserves for OKC_SKT > 8) by a loader that issues a warp's 16 loads before its stores; per
+  unit, the second n-tile's MMA on the same dequantized fragments; tile-1 partial sums in a separate `red1` array, written
+  before the same `fence.proxy.async`, CTA barrier and mbarrier hand-over as tile 0; the WSBLK last-unit epilogue loops
+  over both tiles.
+- ws_helper: reads the tile-1 partials before it frees the buffer, then runs the epilogue for tokens 8..15.
+- Unit ranges split by cost (`ws_ranges`, one warp scan over the local experts; a two-tile unit costs 20, a one-tile unit
+  16), used by the helper's ranges, run_phase and the FAST1 preissue, so all three still agree.
+
+No fence, barrier, mbarrier protocol, griddepcontrol or launch attribute is changed. Correctness: G_RELEASE_STARTUP_OK
+(56 verified replays) in every prepare, and the reference check passed at all 12 scored cells (50 of 50 checks in the A/B
+runs plus verify 32 sliding and full in a separate run). No new PDL edge.
+
+Iterations (decode 16 only, box, in-graph `--kernels` moe_fused or the MID timeline `tools/ly_box_moe_tl16.py` on the
+instrumented copy; logs in `muse_decode_layer/profiles/box/ly/`):
+
+| version | change | units at 8 distinct | B-end spread / barrier idle | moe_fused in graph | cell net d16 sliding |
+|---|---|---:|---|---:|---:|
+| combo2n | | 6912 | 4.05 / 3.13 | 70.94 | 128.64 (same session) |
+| v1 | two-tile jobs, count split | 6144 | 16.9 / 14.0 | | 143.10 |
+| v2 | x1 loads batched | 6144 | 15.1 / 13.3 | | |
+| v3 | cost-weighted split (64-bit divide) | 6144 | 5.0 / 5.9 | | 134.54 |
+| v4 | one scan for all four range ends | 6144 | 3.8 / 4.1 | 74.67 | 132.48 |
+| v5 | tile 1 in `red1`; no run-time divides in the split | 6144 | 3.8 / 3.9 | 73.18 | 130.40 |
+
+The repeat is gone (units = 768 x distinct) and, with the cost split, the CTAs finish together again. What eats the
+saving: every unit retires slower, one-tile units included (median phase A interval 1.18 -> 1.25 us), and the routing
+prologue ends later (route stamp 2.8 -> 4.1 us, the cost scan and the FAST1 preissue's own range computation). Register
+count went from 152-159 to 164 with no spills (cuobjdump), so the slower loop is code generation in the shared unit loop
+(hypothesis, not separated). The eager instrumented span is shorter than the control's (72.29 against 74.06 at the median
+input), but the in-graph kernel is longer (73.18 against 70.94); I did not resolve that difference.
+
+Paired A/B, `tools/ly_ws2t_ab.sh` (okc-h200, 2026-11-04 02:34-02:36 UTC, `tools/bx_box_run.py --lock --ls-cache
+--ext-cache --pin-pdl8 1,8,16,32 --skip-pdl8-gate`, router seed 106218864389449120, f931 case seeds, `--runs 60`, one
+process per run: control, candidate, control, candidate, control; every run timed with PDL on at every T). Table by
+`tools/ly_ws2t_table.py muse_decode_layer/profiles/box/ly/ab`; net us:
+
+| cell | c_a | w_a | c_b | w_b | c_c | control spread | candidate - control (means) | threshold | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| decode 1 sliding | 65.82 | 66.56 | 65.55 | 65.89 | 65.92 | 0.37 | +0.46 | 0.74 | inside |
+| decode 1 full | 72.29 | 72.75 | 72.46 | 72.51 | 72.37 | 0.18 | +0.26 | 0.72 | inside |
+| decode 16 sliding | 130.11 | 131.42 | 130.05 | 131.71 | 129.54 | 0.58 | +1.67 | 1.30 | loss |
+| decode 16 full | 202.13 | 204.22 | 201.23 | 204.16 | 202.90 | 1.66 | +2.11 | 3.33 | inside (all four pairs +1.3 to +3.0) |
+| decode 32 sliding | 147.09 | 146.43 | 145.95 | 147.09 | 146.37 | 1.14 | +0.29 | 2.27 | inside |
+| decode 32 full | 297.23 | 297.28 | 296.90 | 297.34 | 297.09 | 0.34 | +0.24 | 2.97 | inside |
+| verify 1 sliding | 103.36 | 104.06 | 103.50 | 103.46 | 102.85 | 0.66 | +0.52 | 1.31 | inside |
+| verify 1 full | 111.94 | 111.65 | 112.08 | 111.17 | 111.87 | 0.21 | -0.55 | 1.12 | inside |
+| verify 16 sliding | 244.72 | 244.70 | 244.58 | 244.66 | 243.81 | 0.91 | +0.31 | 2.44 | inside |
+| verify 16 full | 327.52 | 328.75 | 327.89 | 328.26 | 327.10 | 0.78 | +1.00 | 3.28 | inside |
+
+Decision: loss at decode 16 sliding (+1.67 us against a 1.30 threshold), slower at decode 16 full in every pair, flat at
+decode 32 as expected. Not for a judge check; ruled-out row added. What it establishes: the split re-stream is real (768
+units per affected input) and a two-tile WS job removes it, but as built the two-tile path makes the shared unit loop and
+the prologue slower by more than the repeat costs. Reopen with a two-tile build whose one-tile loop compiles to the
+control's code (the two-tile loop in a separate function body that one-tile units never enter; the host cannot pick a
+build per launch, because it does not see the routing inside the graph) and a range split that costs the prologue
+nothing, or measure the loop's issue slots once Nsight counters are available on some host.

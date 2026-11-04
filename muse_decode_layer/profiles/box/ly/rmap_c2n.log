@@ -1,0 +1,60 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.46), ('sk2', 8.0), ('torch', 10.3)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+PDL8_AB T=1 sliding: off 76.70 on 70.05 us, median paired saving 6.98, wins 9/9
+PDL8H_GUARD T=1 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['1.99e-03', '3.16e-03', '0.00e+00'] on ['1.99e-03', '3.16e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=1 full: off 83.14 on 76.16 us, median paired saving 7.01, wins 9/9
+PDL8_AB T=16 sliding: off 159.68 on 155.01 us, median paired saving 4.70, wins 9/9
+PDL8H_GUARD T=16 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.58e-03', '4.08e-03', '0.00e+00'] on ['3.58e-03', '4.08e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=16 full: off 235.42 on 229.60 us, median paired saving 5.95, wins 9/9
+PDL8_AB T=32 sliding: off 224.38 on 220.00 us, median paired saving 5.06, wins 9/9
+PDL8_AB T=32 full: off 346.91 on 341.18 us, median paired saving 6.46, wins 9/9
+PDL8H_GUARD T=32 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['5.52e-03', '6.41e-03', '0.00e+00'] on ['5.52e-03', '6.41e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin: off 133.70 on 128.45 us, median paired saving 5.09, wins 9/9
+PDL8H_GUARD T=8 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['7.25e-03', '6.89e-03', '0.00e+00'] on ['7.25e-03', '6.89e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin: off 125.95 on 120.61 us, median paired saving 5.79, wins 9/9
+PDL8H_GUARD T=8 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.16e-03', '3.98e-03', '0.00e+00'] on ['6.33e-03', '6.09e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8H T=8 on, all six edges
+PDL8 weighted paired saving T=1: 6.98 us
+PDL8 weighted paired saving T=8: 5.61 us
+PDL8 weighted paired saving T=16: 5.03 us
+PDL8 weighted paired saving T=32: 5.42 us
+PDL8 six-load estimate +3.29% (enabled loads only); enabled {1: True, 8: True, 16: True, 32: True}
+MAP decode 16 sliding mode busiest: net med 129.98, moe_fused med 69.74, mean routes 26.93, mean distinct 7.67
+MAP decode 16 sliding distinct  5: n  1 routes  27.0 max_tok 16.0 net  110.34 moe_fused  50.18 (min  50.18 max  50.18)
+MAP decode 16 sliding distinct  6: n 11 routes  25.7 max_tok 11.8 net  117.95 moe_fused  57.38 (min  56.87 max  58.88)
+MAP decode 16 sliding distinct  7: n 13 routes  27.2 max_tok 11.2 net  124.80 moe_fused  64.77 (min  60.48 max  77.47)
+MAP decode 16 sliding distinct  8: n 22 routes  26.5 max_tok 10.6 net  130.74 moe_fused  70.19 (min  62.50 max  77.06)
+MAP decode 16 sliding distinct  9: n 10 routes  28.2 max_tok  9.6 net  136.69 moe_fused  76.70 (min  69.82 max  77.66)
+MAP decode 16 sliding distinct 10: n  2 routes  26.5 max_tok  7.5 net  137.15 moe_fused  76.18 (min  70.08 max  82.27)
+MAP decode 16 sliding distinct 12: n  1 routes  35.0 max_tok 10.0 net  158.91 moe_fused  98.34 (min  98.34 max  98.34)
+MAP decode 16 full mode busiest: net med 201.09, moe_fused med 65.66, mean routes 26.82, mean distinct 7.83
+MAP decode 16 full distinct  5: n  2 routes  26.0 max_tok 11.5 net  184.74 moe_fused  50.35 (min  50.27 max  50.43)
+MAP decode 16 full distinct  6: n 11 routes  25.2 max_tok 11.6 net  193.18 moe_fused  57.38 (min  51.23 max  58.78)
+MAP decode 16 full distinct  7: n 19 routes  25.8 max_tok 10.8 net  199.49 moe_fused  64.48 (min  58.08 max  72.29)
+MAP decode 16 full distinct  8: n  8 routes  27.6 max_tok 11.0 net  206.00 moe_fused  70.37 (min  62.50 max  72.90)
+MAP decode 16 full distinct  9: n  9 routes  30.2 max_tok 11.7 net  212.13 moe_fused  77.79 (min  69.53 max  82.30)
+MAP decode 16 full distinct 10: n  7 routes  28.0 max_tok  8.6 net  213.73 moe_fused  77.70 (min  75.46 max  83.26)
+MAP decode 16 full distinct 11: n  2 routes  26.0 max_tok  5.0 net  217.87 moe_fused  82.85 (min  82.08 max  83.62)
+MAP decode 16 full distinct 12: n  2 routes  24.5 max_tok  4.0 net  223.65 moe_fused  88.98 (min  88.83 max  89.12)
+MAP decode 32 sliding mode busiest: net med 147.23, moe_fused med 79.01, mean routes 51.73, mean distinct 9.02
+MAP decode 32 sliding distinct  6: n  1 routes  42.0 max_tok 24.0 net  128.35 moe_fused  60.99 (min  60.99 max  60.99)
+MAP decode 32 sliding distinct  7: n  7 routes  50.1 max_tok 21.6 net  138.24 moe_fused  73.02 (min  67.84 max  76.45)
+MAP decode 32 sliding distinct  8: n 11 routes  50.9 max_tok 22.5 net  140.90 moe_fused  73.82 (min  73.18 max  77.63)
+MAP decode 32 sliding distinct  9: n 20 routes  51.9 max_tok 21.1 net  146.96 moe_fused  78.74 (min  72.38 max  82.34)
+MAP decode 32 sliding distinct 10: n 14 routes  53.1 max_tok 21.5 net  152.18 moe_fused  85.50 (min  81.70 max  90.17)
+MAP decode 32 sliding distinct 11: n  6 routes  53.2 max_tok 20.5 net  156.69 moe_fused  91.84 (min  85.47 max  93.79)
+MAP decode 32 sliding distinct 12: n  1 routes  52.0 max_tok 20.0 net  161.34 moe_fused  95.87 (min  95.87 max  95.87)
+MAP decode 32 full mode busiest: net med 298.11, moe_fused med 80.54, mean routes 51.57, mean distinct 9.23
+MAP decode 32 full distinct  7: n  5 routes  49.2 max_tok 21.6 net  285.31 moe_fused  68.06 (min  65.57 max  73.89)
+MAP decode 32 full distinct  8: n 13 routes  49.2 max_tok 21.5 net  290.24 moe_fused  73.73 (min  71.14 max  76.19)
+MAP decode 32 full distinct  9: n 19 routes  52.5 max_tok 23.2 net  297.06 moe_fused  79.49 (min  76.64 max  90.62)
+MAP decode 32 full distinct 10: n 12 routes  53.1 max_tok 21.3 net  301.76 moe_fused  85.09 (min  80.67 max  87.52)
+MAP decode 32 full distinct 11: n  8 routes  51.9 max_tok 20.5 net  308.74 moe_fused  90.30 (min  89.15 max  91.46)
+MAP decode 32 full distinct 12: n  3 routes  53.0 max_tok 16.7 net  316.64 moe_fused  97.12 (min  93.47 max  97.98)

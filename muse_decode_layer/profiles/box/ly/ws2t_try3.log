@@ -1,0 +1,56 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793759140.611 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793759141.479 release build glue_moe_26e2962d6c7f3495_sm90a
+BXBUILD 1793759141.480 start build glue_moe_26e2962d6c7f3495_sm90a
+BXBUILD 1793759141.480 start build glue_moe_4752cd9a13d24f18_sm90a
+BXBUILD 1793759141.480 start build glue_moe_b0ef25157e47ef21_sm90a
+BXBUILD 1793759180.299 end build glue_moe_26e2962d6c7f3495_sm90a
+BXBUILD 1793759181.265 end build glue_moe_4752cd9a13d24f18_sm90a
+BXBUILD 1793759182.178 end build glue_moe_b0ef25157e47ef21_sm90a
+BXLOCK 1793759182.178 acquire build glue_moe_b0ef25157e47ef21_sm90a done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.58), ('sk2', 7.97), ('torch', 10.4)] -> ('cg',)
+BXLOCK 1793759184.523 release triton _sl_tile_route_cg
+BXBUILD 1793759184.523 start triton _sl_tile_route_cg
+BXBUILD 1793759185.333 end triton _sl_tile_route_cg
+BXLOCK 1793759185.333 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793759185.336 release triton _sl_cluster_finish_cg
+BXBUILD 1793759185.336 start triton _sl_cluster_finish_cg
+BXBUILD 1793759185.443 end triton _sl_cluster_finish_cg
+BXLOCK 1793759185.443 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793759185.483 release triton _sl_tile_route_cg
+BXBUILD 1793759185.483 start triton _sl_tile_route_cg
+BXBUILD 1793759186.286 end triton _sl_tile_route_cg
+BXLOCK 1793759186.286 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793759186.288 release triton _sl_cluster_finish_cg
+BXBUILD 1793759186.288 start triton _sl_cluster_finish_cg
+BXBUILD 1793759186.388 end triton _sl_cluster_finish_cg
+BXLOCK 1793759186.388 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793759186.443 release triton _sl_tile_route
+BXBUILD 1793759186.443 start triton _sl_tile_route
+BXBUILD 1793759187.155 end triton _sl_tile_route
+BXLOCK 1793759187.155 acquire triton _sl_tile_route done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 51.0 s
+BXLOCK 1793759192.477 release triton _sl_tile_route_cg
+BXBUILD 1793759192.477 start triton _sl_tile_route_cg
+BXBUILD 1793759193.184 end triton _sl_tile_route_cg
+BXLOCK 1793759193.184 acquire triton _sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BOX decode 16 sliding: raw 138.93 net 134.54 us (overhead 4.38) | judge net 127.89 (n=1, 127.89-127.89) box/judge 1.052 | check PASS
+BOX decode 16 full: raw 213.52 net 209.39 us (overhead 4.13) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.995 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 40 hits, 0 computed
+BXPHASE import_torch=1.58 load_reference_cuda_init=0.00 weights_and_router=0.24 prepare_submission=50.98 fresh_inputs=0.39 check=0.93 capture=0.02 overhead_graphs=0.22 replays=0.03 cell_tail=0.01 json_write=0.00 total=54.40
