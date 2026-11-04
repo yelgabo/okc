@@ -7273,3 +7273,56 @@ T = 8 and is ruled out. tests/test_phase_b.py on the v5 build (profiles/1.3a/v5_
 part B 64 cells with mismatch counts identical to CL-1.2's profiles/1.2/test.json cell by cell (raw sums, ybuf
 and per-unit sums of squares bitwise equal to helper0 where the slice K ranges match: 0 mismatches in every S = 1
 natural-order and S = 8 cell).
+
+### Round 6: 24 consumer warps at 72 registers (the decisive test of the latency hypothesis)
+
+Rounds 2 to 4 read as "per-warp dependent-chain latency with 4 consumer warps per SMSP". The decisive test is
+more warps per SMSP at the same loop: NCW = 24 (3 stage groups of 8 warps, 28 warps per CTA, 896 threads, 72
+registers at the launch bound). The group's stage count per K block then varies (4 stages over 3 groups), so the
+per-unit sums live in 16 KB of shared memory (float4 read-modify-write per stage) and the epilogue walks the units
+(`ACC_SMEM` in `consumer`, chosen at compile time from `SPB % NG`). The launch-bound probe first: the 16-warp
+kernel compiled at 896 threads spills 4 / 12 bytes (72 registers) and at 1,024 threads 28 / 24 bytes.
+
+| NCW (T = 8) | warps per SMSP | reg / stack | HMMA-region instr | math-only us | per stage us | no-exchange us |
+|---|---|---|---:|---:|---:|---:|
+| 16 (v6) | 4 | 96 / 0 | 1,001 | 21.25 [20.83-21.86] | (20.75 - 2.85) / 16 = 1.12 | 26.16 |
+| 24 (v6) | 6 | 72 / 16 | 1,005 | 21.92 [21.57-22.98] | (21.18 - 3.21) / 16 = 1.12 | 26.51 |
+
+Six warps per SMSP run the same loop body at the same stage rate as four: 1.12 us per stage either way, with each
+warp now taking 1.5x longer per unit-block. The SM's throughput for this instruction mix is fixed, which rules
+out the latency reading: the loop is at a throughput ceiling of the SMSP, about 0.5 warp-instructions per cycle
+(8 unit-blocks x 1,001 / 2 = 4,000 warp-instructions per stage per SM, 2,070 cycles at 1.85 GHz, 4 SMSPs). The
+0.6 us the 24-warp roster loses is the slower slab load and gather with 72-register staging warps (first stage
+3.21 against 2.85) and the shared-memory accumulator traffic.
+
+What this means for the target: at 1.12 us per stage the math-only T = 8 span is 2.85 + 16 x 1.12 = 20.8 us, and
+the 14.85 us byte floor needs 0.75 us per stage, one third fewer instructions per unit-block at the same issue
+rate. The mix is 46% E2M1 unpack (LOP3 + SHF, 9 ops per code word, minimal for this fragment layout by the
+bit-set argument in round 1), 25% scale multiply (4 HMUL2 per mma, required for bitwise identity with helper0),
+12% loads and address arithmetic, 6% mma. No scheduling of the same instructions reaches the floor; only a
+shorter decode would, and that is either a different weight layout (not available) or a non-bitwise numerics
+change (the per-row scale applied to the accumulators once per chunk instead of to the A fragments).
+
+The non-bitwise lever measured as a diagnostic (DIAG 7: unpack kept, the 4 HMUL2 per mma replaced by 2 XORs,
+numerics garbage): 19.52 us [19.10-20.67], 1.01 us per stage, 93 registers. Dropping a quarter of the loop's
+instructions buys 1.7 us (9% of the consumer span), so even a numerics change on the scale path leaves T = 8
+math-only at about 19.5 us; the floor is out of reach for the mma.sync form at T <= 8 with this decode.
+
+### Verdict
+
+The control loop stands at T <= 8: v5/v6 (the control's loop shape with `clu::unit_block` as the body, the CL-1.1
+proxy fence at the slot release, register accumulator rotation, 20-warp roster, 16 consumer warps) measures
+21.12 to 21.25 us math-only and 26.16 to 26.26 us no-exchange at T = 8 (control 20.96 / 26.11, session spread
+about 1%), 27.87 / 30.10 at T = 32 (control 27.97 / 29.97); floor ratios 1.43 and 1.76 at T = 8, 1.88 and 2.03 at
+T = 32. tests/test_phase_b.py: part A 18 / 18, part B mismatch counts identical to CL-1.2 cell by cell.
+
+The loop structure for task 1.3b (helper0 port) is the one helper0 already has: per chunk, one LDS.128 of codes
+and the two LDS.128 of B fragments, 4 k16 steps of 9-op DQ7 unpack + 4 HMUL2 + 1 mma into 4 chains, chains
+combined c0 + ((c1 + c2) + c3) per unit, one unit-block per warp per stage, the stage loop rolled with the
+chunk-range dispatch inside, 4 consumer warps per SMSP. Every departure measured here (B cache, two units per
+warp, IMAD merge, 8 or 24 consumer warps, setmaxnreg splits, 18-warp roster, per-variant loops, shared-memory
+sums) is slower or equal. The 1.3a deliverables that carry forward are the header (`cl_unit_loop.cuh`, the loop as
+a template phase A can include), the census tooling (`--census`, `--defines`), the fence at the slot release, and
+the throughput finding: T <= 8 is instruction-bound at about 0.5 warp-instructions per SMSP cycle, so the plan's
+floor for the mma.sync form is 20.8 us math-only, and the gain at T >= 16 has to come from the wgmma form that
+amortizes the decode over 4 n-tiles (11.9 instructions per HMMA at T = 32 against 15.7 at T = 8).

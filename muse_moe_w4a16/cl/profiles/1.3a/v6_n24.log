@@ -1,0 +1,16 @@
+START 10:42:07 v6_n24 cl13a 
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 50.1 s; defines []; sha cl_phase_b.cuh 04593803e179fa8f cl_math.cuh 0795eb99a2e29149 cl_schedule.h 8a5714cf88767414 cl_unit_loop.cuh c5017a1adc153904 bench f2f41bdd2f6a51a9
+SASS _ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6Para reg 168 stack 0 total 10984 hmma 640 per-hmma LOP3 2.08, HMUL2 1.59, SHF 1.41, IMAD 1.06, HMMA 1.0, FADD 0.97, LDS 0.59, FMUL 0.57, STS 0.56, SHFL 0.34, F2F 0.26, MOV 0.2
+SASS _ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6Para reg 96 stack 0 total 4200 hmma 64 per-hmma LOP3 4.84, HMUL2 3.91, SHF 2.41, IMAD 1.84, HMMA 1.0, LDS 0.67, PRMT 0.47, FADD 0.41, NOP 0.03, BRA 0.03, WARPSYNC 0.03
+LOCK acquired after 0.0 s
+APPS none
+BENCH T=8 distinct=7 policy=fill15 ncw=16 slices=15 sc_max=256 depth=4 smem=184576 floor 14.85 us inputs [1000, 1017, 1020, 1022, 1025] synthetic=False
+RUN T= 8 compute span  21.25 [20.83-21.86] us ratio 1.431 from-slab 19.46 (1.311) event  26.77 | slab-load 1.81 cons 20.75 slab-pub 2.21 first-stage 2.85 gather-end 11.74 | cons wait on gather med 2.03 max 2.82, on weights 0.70 | end spread 5.87
+RUN T= 8 none    span  26.16 [25.60-27.36] us ratio 1.762 from-slab 24.34 (1.639) event  31.66 | slab-load 1.83 cons 24.61 slab-pub 2.46 first-stage 3.81 gather-end 14.18 | cons wait on gather med 2.24 max 4.10, on weights 9.27 | end spread 6.35
+BENCH T=8 distinct=7 policy=fill15 ncw=24 slices=15 sc_max=256 depth=4 smem=184576 floor 14.85 us inputs [1000, 1017, 1020, 1022, 1025] synthetic=False
+RUN T= 8 compute span  21.92 [21.57-22.98] us ratio 1.477 from-slab 19.84 (1.336) event  27.42 | slab-load 2.11 cons 21.18 slab-pub 2.53 first-stage 3.21 gather-end 13.15 | cons wait on gather med 1.79 max 2.59, on weights 0.61 | end spread 6.13
+RUN T= 8 none    span  26.51 [25.92-28.16] us ratio 1.786 from-slab 24.42 (1.645) event  32.13 | slab-load 2.11 cons 25.74 slab-pub 2.75 first-stage 4.12 gather-end 14.69 | cons wait on gather med 2.02 max 3.97, on weights 11.74 | end spread 5.92
+LOCK released
+END 10:43:01 rc 0

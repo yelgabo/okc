@@ -15,6 +15,7 @@
 //   DIAG (bench only, numerics garbage): 1 B fragments are lane constants (no B loads), 2 no E2M1 unpack
 //     (a = word, scale multiply kept), 3 no unpack and no scale multiply, 4 no mma (one FADD per step per tile),
 //     5 no code and scale loads (lane constants), 6 (cl_phase_b.cuh) consumers do not wait on the stage barrier.
+//     7 unpack kept, scale multiply dropped (two XORs keep the scale live).
 //   UPW: unit-blocks per warp per stage. With 2, a stage's 8 unit-blocks go to 4 warps; each chunk's B fragments
 //     (two LDS.128) are loaded once for both units, and the warp carries 8 independent accumulator chains.
 #pragma once
@@ -70,6 +71,9 @@ __device__ __forceinline__ void decode_step(uint32_t word, uint32_t sg, uint32_t
     a[0] = clm::bmul2(word, sg); a[1] = clm::bmul2(word, sg8); a[2] = clm::bmul2(word ^ 1u, sg); a[3] = clm::bmul2(word ^ 2u, sg8);
   } else if (DIAG == 3) {
     a[0] = word; a[1] = word ^ 1u; a[2] = word ^ 2u; a[3] = word ^ 3u;
+  } else if (DIAG == 7) {
+    dq4<DQ>(word, one, a[0], a[1], a[2], a[3]);
+    a[0] ^= sg; a[1] ^= sg8;
   } else {
     uint32_t r0, r1, r2, r3;
     dq4<DQ>(word, one, r0, r1, r2, r3);
