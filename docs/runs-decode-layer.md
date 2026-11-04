@@ -4611,3 +4611,74 @@ longer final pass hides at sliding), then the same 2 us x-plus-math block, then 
 slice can start its weights earlier than its launch, and the launch follows the trigger by 1.3 to 1.6 us in both
 cells (the trigger sits at the MoE's phase B end, before the barrier; trigger placements are the MoE lane's and are
 covered by ruled-out rows).
+
+### Round 2 (16:16 to 16:21 UTC, `profiles/box/pmt/pmt2.{log,json}` base, `pmtx2.{log,json}` candidate): the parts
+
+Second stamp set: the stamp before the wait no longer consumes anything (thread 0's weight loads are only issued),
+warp 1 reports when every lane's weights landed, warp 0 reports when every lane's x landed (consumed, `__syncwarp`),
+and escape lane 1 reports when its x element landed. 20 inputs per cell, medians, us; "base" is ly_pmt (ly_fabq
+stamped), "xca" is ly_pmtx (the candidate below, stamped the same way). Per-CTA items are median over the 512 CTAs
+then median over inputs; "crit" is the CTA with the last store.
+
+| item | base sliding | xca sliding | base full | xca full |
+|---|---:|---:|---:|---:|
+| MoE last exit | 22.86 | 23.06 | 21.82 | 21.49 |
+| final pass after the barrier (last 8 CTAs) | 1.29 | 1.33 | 0.45 | 0.53 |
+| slice entry after the trigger | 1.26 | 1.28 | 1.63 | 1.73 |
+| weight loads issued = landed, after entry (the issue blocks on the LSU queue) | 1.63 | 1.63 | 1.63 | 1.63 |
+| CTAs with weights landed before the MoE exit | 479 | 488 | 0 | 0 |
+| wait return after the MoE exit, median / max | 0.58 / 0.61 | 0.50 / 0.51 | 1.57 / 2.50 (wait reached after the weights) | 1.60 / 2.30 |
+| lane 0's x after the wait | 1.22 | 0.55 | 0.67 | 0.42 |
+| every lane of warp 0's x after the wait, median / p90 / max | 1.82 / 2.18 / 2.50 | 1.28 / 1.47 / 1.76 | 1.47 / 1.76 / 2.67 | 1.14 / 1.41 / 1.76 |
+| math after the last x (FMAs, warp sums), median / max | 0.74 / 1.18 | 0.77 / 1.06 | 0.86 / 1.47 | 0.80 / 1.20 |
+| escape warp: x element after its wait / loop / sums | 1.17 / 1.09 / 0.10 | 0.38 / 0.38 / 0.13 | 0.83 / 0.86 / 0.18 | 0.35 / 0.42 / 0.14 |
+| escape done minus warp 0 done (negative: the compute warps are the laggards) | -1.34 | -1.47 | -1.34 | -1.42 |
+| CTA barrier / store | 0.06 / 0.06 | 0.06 / 0.06 | 0.06 / 0.06 | 0.06 / 0.06 |
+| CTA wait return to store, median / max | 2.74 / 3.36 | 2.18 / 2.69 | 2.51 / 3.60 | 2.06 / 2.69 |
+| slice end (last store) after the MoE exit | 4.00 | 3.17 | 5.12 | 4.29 |
+| crit CTA: wait latency / every lane's x / math | 0.59 / 2.46 / 0.74 | 0.50 / 1.65 / 0.86 | 1.55 / 2.53 / 0.83 | 1.70 / 1.60 / 0.86 |
+| finish: wait after the slice end / P / carry / end after the slice end | 0.42 / 0.40 / 0.48 / 1.60 | 0.38 / 0.35 / 0.48 / 1.60 | 0.42 / 0.42 / 0.54 / 1.60 | 0.42 / 0.42 / 0.51 / 1.63 |
+| finish end after the MoE exit | 5.62 | 4.75 | 6.77 | 5.90 |
+| plain graph / instrumented graph (us, 20 cold replays) | 68.75 / 70.62 | 68.58 / 70.05 | 75.98 / 77.68 | 75.15 / 76.94 |
+| max output difference, instrumented vs plain | 0 | 0 | 0 | 0 |
+
+Decomposition of the base's MoE-exit-to-slice-end at decode 1 sliding (4.00 us on the instrumented graph, 3.66 on
+round 1's; the plain graph's tail is about 0.3 shorter than the instrumented one): wait return 0.58; x landing for
+every lane of a warp 1.82 (the largest part; lane 0 alone 1.22, the escape warp's single element 1.17, so it is the
+L2 serving 512 CTAs x 64 lines of one 8 KB row at the same instant, not a lane's luck: hypothesis named by the
+candidate's effect below); math 0.74; barrier and store 0.13; the rest (about 0.7) is the spread of the last CTAs,
+whose x came last (crit CTA: x 2.46). At full the order is: launch 1.63 after the trigger (0.03 before the last MoE
+exit, since the final pass is short), weights 1.63, then the same x 1.47 and math 0.86 block, end spread 0.9. The
+escape table walk is one iteration and off the critical path (the compute warps finish 1.3 us after it), the finish
+is 1.6 us in both cells (wait 0.4, P 0.4, carry 0.5, store 0.1), and the wait-return latency behind the cooperative
+kernel is 0.5 to 0.6 us (a measurement; the earlier 0.7 us per-edge estimate stands).
+
+### Candidate ly_xca: the slice reads x through L1 after its wait
+
+`tools/dl_ly_xca_patch.py` (base and pin checked) writes `muse_decode_layer/cand/ly_xca.py` (SHA256
+1d45bee2ef4c8cd8fa7dfd52fdac385a79579d606709192aa3426151eae66373): in the pdl8 cgemv edits, the compute threads' two
+x loads and the escape warp's x element load become `__ldca` (ld.global.ca, L1 allocating) instead of `__ldcg` (L2
+only). They stay after `griddepcontrol.wait`; nothing in the kernel touches x before the wait, and the wait makes the
+MoE grid's writes visible to this grid (PTX ISA 8.x, griddepcontrol: "all the memory operations from the
+prerequisite grids are performed and made visible to the current grid"), so no line of x can be in L1 before the
+first read and the loads see the MoE's output. Trigger, launch attribute, fences, barriers, the PDL set per T and the
+weights' L1::no_allocate stream loads are unchanged; the `diff` against the base is the header line and the one
+`_PDL8_CG_EDITS` line (two `__ldcg` tokens). The mechanism (hypothesis): the SM's L1 merges the x requests of its 3
+to 4 resident slice CTAs (16 warps) into one fill per line, so L2 sees about 4x fewer requests on the hot row.
+
+SASS (`tools/ly_cg_sass.py`, device-only nvcc 13.0 build of the post-edit cgemv source on the box, sm_90a):
+cgemv40_kernel<128, 2> base and candidate both 688 instructions, REG 40, STACK 0, LOCAL 0, SHARED 1064; the only
+difference is 9 lines, the x loads `LDG.E.128.STRONG.GPU` -> `LDG.E.128.STRONG.SM` (4) and the escape warp's
+`LDG.E.U16.STRONG.GPU` -> `LDG.E.U16.STRONG.SM` (5, unrolled copies). Opcode histogram identical (FFMA 64, FADD 54,
+LOP3 105, PRMT 32, LDG 23, SHFL 31).
+
+Stamped candidate (ly_pmtx, table above): every lane's x lands 1.28 instead of 1.82 us after the wait (sliding) and
+1.14 instead of 1.47 (full), the escape warp's x element 0.38 instead of 1.17, the math unchanged, the slice's end
+after the MoE exit 3.17 instead of 4.00 (sliding) and 4.29 instead of 5.12 (full), the finish unchanged: -0.83 us on
+the instrumented graph in both cells, all 20 inputs; output identical (max difference 0).
+
+Correctness (box, `ly_prtl_ab.sh` chk step, `bx_box_run.py --runs 5`, six loads, 16:22 UTC, log
+`profiles/box/xca/chk.log`): reference check PASS at all 12 cells, G_RELEASE_STARTUP_OK (56 verified replays),
+`CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok`, the same line as
+the control's prepare in the same session (ab_c_a.log) and as the base's earlier box logs (the one sk2 ulp is
+input-dependent, the cgemv arm matches FP64); timed PDL set {1, 8, 16, 32} on in both arms.
