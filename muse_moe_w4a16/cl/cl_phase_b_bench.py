@@ -89,6 +89,35 @@ def build(verbose=False):
                                    "-Xptxas", "-v"], verbose=verbose)
 
 
+def sass_check():
+    """Builds cl_phase_b.cuh with the consumer body out of line (-DCLB_CONS_NOINLINE) and prints, per function, the
+    count of fence-like SASS instructions: the consumer functions must show none."""
+    import re
+    import subprocess
+    from collections import Counter
+    from torch.utils.cpp_extension import load
+    deps = [os.path.join(HERE, f) for f in ("cl_phase_b.cuh", "cl_math.cuh", "cl_schedule.h")]
+    tag = hashlib.md5(b"noinline" + b"".join(open(f, "rb").read() for f in deps)).hexdigest()[:12]
+    bdir = os.path.expanduser(f"~/.cache/clb_ext/chk_{tag}")
+    os.makedirs(bdir, exist_ok=True)
+    src = os.path.join(bdir, "clbchk.cu")
+    with open(src, "w") as f:
+        f.write('#define CLB_WITH_TORCH\n#define CLB_CONS_NOINLINE\n#include "cl_phase_b.cuh"\n')
+    load(name=f"clbchk_{tag}", sources=[src], build_directory=bdir, extra_include_paths=[HERE],
+         extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False)
+    so = [f for f in os.listdir(bdir) if f.endswith(".so")][0]
+    sass = subprocess.run(["cuobjdump", "-sass", os.path.join(bdir, so)], capture_output=True, text=True).stdout
+    out = {}
+    for blk in sass.split("Function : ")[1:]:
+        name = blk.split("\n")[0].strip()
+        ops = Counter(m.group(1) for m in re.finditer(
+            r"\b(MEMBAR\.\S+|CCTL\.\S+|UCGABAR_\w+|ERRBAR|BAR\.SYNC\S*|SYNCS\.\S+|HMMA\.\S+|REDG\S*|STG\S*|ATOMG?\S*)", blk))
+        kind = "consumer" if "consumer" in name else ("kernel" if "phase_b_kernel" in name else "other")
+        out[name] = {"kind": kind, "ops": dict(ops)}
+        print(f"SASS {kind:8s} {name[:70]}: " + ", ".join(f"{k} {v}" for k, v in sorted(ops.items())), flush=True)
+    return out
+
+
 def prep_weights(seed=505, keep_state=False):
     """32 local experts with per-expert global scales (run_unit_math.make_weights), packed by the public file's
     prepare. Returns (pub, wref in reference format, w2u [32*256, 36864], w2_gs [32], normw bf16 [4096]) and,
@@ -133,6 +162,8 @@ def sched_with_S(topk_ids, topk_w, S_of):
     for k in ("slice_expert", "slice_col0", "slice_ncol", "slice_tok0", "slice_ntok"):
         d[k] = [0] * 64
     d["expert_nslices"] = [0] * 32
+    if sum(S_of(e, cnt[e]) for e in range(32) if cnt[e]) > cl_schedule.MAX_SLICES:
+        return None
     i = 0
     for e in range(32):
         if cnt[e] == 0:
@@ -354,7 +385,14 @@ def main():
     ap.add_argument("--depth", default="4", help="comma list of ring depths (reduced to fit shared memory)")
     ap.add_argument("--ncw", default="", help="comma list of consumer warp counts (8, 16 at T <= 8); default per T")
     ap.add_argument("--max-scan", type=int, default=3000)
+    ap.add_argument("--sass-check", action="store_true", help="only the consumer-path fence census")
     a = ap.parse_args()
+    if a.sass_check:
+        res = sass_check()
+        if a.out:
+            with open(a.out, "w") as f:
+                json.dump(res, f, indent=1)
+        return
     t = time.monotonic()
     ext = build()
     print(f"BUILD {time.monotonic() - t:.1f} s; sha cl_phase_b.cuh {sha(os.path.join(HERE, 'cl_phase_b.cuh'))[:16]} "

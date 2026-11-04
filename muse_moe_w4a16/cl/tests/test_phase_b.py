@@ -222,6 +222,10 @@ def part_b(ext, pub, st, w2u, w2gs, normw, Ts, n_inputs, seed, policies, modes):
             h0 = helper0_dump(rum, build_debug, pub, dext, st, data)
             for pol in policies:
                 b = pb.make_sched(data["topk_ids"], data["topk_weights"], pol)
+                if b is None:
+                    print(f"PARTB T={T:2d} in{k} {pol:6s} skipped: more than {cl_schedule.MAX_SLICES} slices",
+                          flush=True)
+                    continue
                 d, n_sl, sc = pb.sched_dims(b)
                 es = expert_slices(d)
                 inter = torch.zeros((256, 4096), dtype=torch.bfloat16, device="cuda")

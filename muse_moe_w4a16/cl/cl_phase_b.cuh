@@ -240,8 +240,16 @@ struct Smem {
   float* sumsq_cl;       // [C][T_MAX], used in the leader
 };
 
+// CLB_CONS_NOINLINE (SASS check build only): the consumer body becomes its own function, so cuobjdump can list
+// every fence the consumer path executes.
+#ifdef CLB_CONS_NOINLINE
+#define CLB_CONS_ATTR __noinline__
+#else
+#define CLB_CONS_ATTR __forceinline__
+#endif
+
 template <int NTT, int TM, int NCW, bool DBG>
-__device__ __forceinline__ void consumer(const Params& p, const Smem& sm, const Slice& q, int rank, int warp, int lane,
+__device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Slice& q, int rank, int warp, int lane,
                                          unsigned long long* st) {
   constexpr int NG = NCW / UPS, R = SPB / NG;
   const int grp = warp / UPS, u8 = warp % UPS;
@@ -410,9 +418,8 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(n_threads(NCW), 1) p
     else if (ntt == 2) consumer<(TM > 8 ? 2 : 1), TM, NCW, DBG>(p, sm, q, rank, warp, lane, st);
     else if (ntt == 3) consumer<(TM > 8 ? 3 : 1), TM, NCW, DBG>(p, sm, q, rank, warp, lane, st);
     else consumer<(TM > 8 ? 4 : 1), TM, NCW, DBG>(p, sm, q, rank, warp, lane, st);
-    cl_wait();
-    cl_arrive_relaxed();
-    cl_wait();
+    // Consumers leave here: barrier.cluster.wait waits only for non-exited threads, so the end-of-kernel
+    // barrier does not need them, and they never execute its acquire (UCGABAR_WAIT + CCTL.IVALL).
   } else if (warp == WP) {
     cl_arrive_relaxed();
     if (lane == 0) {
