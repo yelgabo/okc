@@ -101,7 +101,7 @@ CG_EDITS = [
      "void cg_set_pdl(int64_t on) { g_cg_pdl = on ? 1 : 0; }\n"
      "void cg_set_tlb(int64_t p) {\n"
      "    unsigned long long* q = reinterpret_cast<unsigned long long*>(p);\n"
-     "    (void)cudaMemcpyToSymbol(g_cg_tlp, &q, sizeof(q));\n"
+     "    if (q) (void)cudaMemcpyToSymbol(g_cg_tlp, &q, sizeof(q));   // the captured TL kernel reads it at replay; 0 only stops new TL launches\n"
      "    g_cg_tl = p != 0;\n"
      "}\n", 1),
 ]

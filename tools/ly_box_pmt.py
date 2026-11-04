@@ -142,7 +142,7 @@ def main():
     state["pdl8_on"] = {T: True for T in getattr(mod, "PDL8_T", (1, 8, 16, 32))}
     state["pdl8_edges"] = {8: frozenset(mod.PDL8D_EDGES)}
     grid = int(state["nsm"])
-    e = state["cg"].get("unpooler") or {}
+    e = (state.get("bfp", {}).get("cg") or state.get("cg") or {}).get("unpooler") or {}
     print(f"PMT slice cgemv n {e.get('n')} nth {e.get('nth')} pmax {e.get('pmax')} escapes {e.get('escapes')}", flush=True)
     cg_buf = torch.zeros(4096 * CG_SLOTS, dtype=torch.int64, device="cuda")
     moe_buf = torch.zeros(grid * MOE_SLOTS, dtype=torch.int64, device="cuda")
