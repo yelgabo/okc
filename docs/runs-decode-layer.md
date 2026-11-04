@@ -7628,3 +7628,47 @@ File-name note: attention-d1 committed `muse_decode_layer/cand/ly_atrg.py`, `too
 `tools/dl_ly_v1sp_patch.py` and `tools/dl_ly_v1trg_patch.py`, and the box copies of attention-d1's three files (which
 this lane had overwritten at 19:19 / 19:37 UTC) were restored from origin/main (sha 1abac1d6, 5e4a3d8c, a3c7eb67).
 Attention-d1's recorded ly_atrg result (decode 1, trigger at entry) matches its own file's behaviour.
+## 2026-11-04 - Decode 16 / 32 sliding attention merge (box)
+
+Attention-d16 lane, round 2. Question: after ly_a16o2, can one change gated to the decode 16 / 32 sliding attention
+(`attn_kernel<1, false, 1>`) shorten its merge tail (reds -> acq_rel ticket -> last-CTA finalize -> o's wait), its tile
+loop, or o's start? Base: muse_decode_layer/cand/ly_stk3.py (SHA256
+a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6; its attention source is ly_a16o2's), never edited.
+Box only (okc-h200, 20:24 to 20:33 UTC), every run under gpu.lock (`tools/ly_a16r2_st.sh` -> `tools/ly_box_a16.py`,
+20 fresh inputs per cell, cold L2, router seed 106218864389449120). No judge job, no A/B run (no arm passed the stamp
+level). Logs: `muse_decode_layer/profiles/box/a16r2/`.
+
+### Stamp sweep (medians over 20 inputs, us after qkv's last stores; decode 16 / decode 32)
+
+| arm (change) | loop end | reds issued | ticket / barrier | attention end | o's wait | o end |
+|---|---:|---:|---:|---:|---:|---:|
+| ly_stk3 (base) | 4.69 / 7.26 | 5.17 / 7.66 | 6.72 / 8.59 | 7.95 / 9.57 | 8.51 / 10.10 | 11.87 / 14.21 |
+| ly_aopf (o stream L2 prefetch after non-last tickets) | 4.70 / 6.91 | 5.10 / 7.22 | 6.78 / 8.51 | 9.18 / 10.56 | 9.76 / 11.10 | 12.74 / 14.86 |
+| ly_aopfl (same prefetch after each tile loop) | 4.67 / 6.98 | 5.86 / 7.89 | 8.45 / 10.03 | 9.94 / 11.17 | 10.45 / 11.68 | 13.46 / 15.41 |
+| ly_a16sp (8 / 4 splits, one CTA per SM) | 6.18 / 10.16 | 6.50 / 10.48 | 7.30 / 11.36 | 8.93 / 12.14 | 9.47 / 12.66 | 12.85 / 16.78 |
+| ly_a16cl (cluster 16 / 8, DSMEM merge, sm_n) | 5.89 / 8.74 | - | 6.78 / 9.86 | 9.47 / 11.89 | 10.06 / 12.32 | 14.14 / 16.50 |
+| ly_a16cl2 (same, 81,920 B) | 12.70 / 16.21 | - | 13.54 / 17.02 | 15.65 / 19.14 | 16.06 / 19.55 | 20.16 / 23.74 |
+
+Findings (measurements):
+- o's weight stream (12,582,912 B at both loads) fully prefetched into L2 by the attention shortens o after its wait
+  only 3.36 -> 2.98 us (decode 16) and 4.11 -> 3.76 (decode 32); the fill traffic slows the last CTA's finalize from
+  1.14 to 2.34 us (aopf) or the ticket by 1.7 us (aopfl). o after its wait is mostly not DRAM-bound.
+- The ticket tracks same-address fan-in: reds -> ticket 1.46 us at 16 CTAs per request (decode 16), 0.93 at 8
+  (decode 32), 0.80 at 8 with 128 CTAs (ly_a16sp). Fewer splits pay it back in the loop (+1.5 / +2.9 us).
+- The MODE 2 cluster merge places worse (about three CTAs per SM on 96 to 100 SMs; at two per SM clusters of 16 do
+  not all land at launch) and its DSMEM reduce takes 1.67 us at decode 16.
+
+### Built, not yet run: ly_a16nc2
+
+`tools/dl_ly_a16nc_patch.py` writes `muse_decode_layer/cand/ly_a16nc2.py` (SHA256
+dbadd5302873cea3385f497b6d24837604bc67e2118e4e1dae1f87bf456c24bb): two workspace copies per request at decode 16 / 32
+(split parity picks the copy, 8 / 4 CTAs per address), fin_nc1 under a `NC2` template flag (MODE 1, q_len 1 only)
+loads both copies in its one round trip, adds them in copy order and zeroes both; ticket, CTA barrier, acq_rel atomic
+and fences unchanged. `--d16only` gates decode 16 alone. Hypothesis from the fan-in row above: ticket 1.46 -> about
+0.95 us at decode 16, finalize +0.1, so about -0.3 to -0.4 us there; below the 0.8 us registration bar even if it
+holds. Standalone nc 2 (ruled out, e468255b) used the cold generic finalize; this build keeps the warmed one.
+
+### Decision
+
+No candidate this round. Five arms lose at the stamp level (three ruled-out rows); ly_a16nc2 is built and gated but
+untested. No ledger registration.
