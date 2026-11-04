@@ -367,3 +367,39 @@ ssh okc-h200 'cd /root/okc && . tools/box_env.sh && nohup flock /root/okc/.build
 
 Lead option: `tools/bx_box_run.py` can replace `tools/box_run.py` as is (same default behaviour,
 extra log lines and JSON keys only); box_bg.sh then gains the flags by passing them through.
+
+## Lock released during compiles (`--lock`)
+
+Added after the audit at the user's request (coordinator message, 16:05 PST). `--lock PATH` makes
+bx_box_run.py take gpu.lock itself, with `fcntl.flock` on an fd it owns. That is the same flock(2)
+lock that flock(1) and box_bg.sh take, so jobs started either way queue on the same lock. The
+runner lets the lock go only while a compiler runs:
+
+- `torch.utils.cpp_extension.load_inline` and `load` are wrapped (this implies
+  `--ext-cache /root/.cache/bx_ext`). A build directory that already holds a `.so` for these exact
+  arguments is a cache hit and loads with the lock kept; any other call synchronizes the device,
+  releases the lock, builds, and takes the lock back before returning.
+- `triton.compiler.compile` is wrapped the same way. The runner repeats Triton 3.8's own cache
+  lookup (key, hash, cache manager group) and releases only on a miss; anything unexpected counts
+  as a hit, which keeps the lock.
+- g1b4_stage_release builds several extensions at once from threads. Releases and reacquires are
+  therefore counted across concurrent builds: the first build to start releases the lock and the
+  last to finish takes it back.
+- Weights, prepare's GPU work (self-tests, in-prepare benches), the checks, captures and replays
+  all run with the lock held. The lock is held from start-up until the process exits, apart from
+  the build windows.
+- `BXLOCK <unix time> acquire|release <why>` and `BXBUILD <unix time> start|end <why>` lines go to
+  the log, and `lock_events` to the JSON.
+- The runner refuses to start if a parent process is flock(1) on the same file, since taking the
+  lock again would wait forever (tested: `flock /tmp/bxtest.lock python tools/bx_box_run.py ...
+  --lock /tmp/bxtest.lock` exits with the error). Jobs that keep using `flock ... box_run.py` or
+  box_bg.sh are unaffected and still exclude everyone.
+
+Cost seen on the shared queue: after a build the job queues again behind every waiter. In the
+first test on the live queue (00:11-00:43 UTC, `.build/bx_audit/lk/`), g1b4_stage_release took
+the lock after 824 s and released it at once for a 13 s build of `proj_dl_escape_d8a1e29286a8`.
+It then waited 629 s to get the lock back, and released it again for its next two builds. That
+prepare would release and requeue once per group of builds. The GPU gains (other jobs run during
+the compile), but that lane's wall clock grows by about one queue wait per build group. In that
+test the compile windows overlapped other lanes' jobs rather than my g1b4_rs runs, because flock
+order is arbitrary, so it does not show the A/B effect; the controlled test below does.
