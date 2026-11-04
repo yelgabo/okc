@@ -4,12 +4,18 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 23:43 UTC](2026-11-03-driver-monitor-2343.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor November4 00:48UTC](2026-11-04-driver-monitor-0048.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
 - Local H200 measurements: [published four-board box parity and validity limits](../box.md) (not an official score or short-load judge substitute).
+
+## November 4 00:48 UTC — PDL8h terminal and the next build base
+
+[Current monitor](2026-11-04-driver-monitor-0048.md): ownPDL8h **b6c0efcd06324246** is VALID13/12/12 at**10377.063926us**, allT/all-sixT8edges on and coarse guards clean, but misses frozen total/decode16sliding keep. **No repeat or submission.** Lead names8h as the next layer build base; public remainsRS9d80. Efficiency audit now validates an opt-in ls-cache/extension-cache/conditioned-pin configuration, approximately52->19.5s warm runtime; failed build-once path removed, no universal bitwise/all-T-pin claim. Revival's small unpooler signal alone still misses the combined bar; per-T trigger/pre-issue forms are queued. Existing day2repeat loops launched after resolved timer stall; root duplicates none. No new standaloneBF16/attentionlane; selected-twin lead remains explicitly recorded. Fresh audit17leads/zero gaps, public scores unchanged, overall/layer362. Deadline unchanged despite a new official asset.
+
+Incoming revival**abcf284e** has now completed per-T screens and measured combo1 on8h: two prepares remain below the local finalist bar; its existing three-against-three100-input resolution run is queued. No judge acceptance or qualified finalist is recorded. The current monitor's incoming addendum supersedes only the earlier per-T pending sentence.
 
 ## November 3 23:43 UTC — rental revival/efficiency scopes and RS2 correction
 
