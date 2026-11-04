@@ -6277,3 +6277,43 @@ loop (its bound is a volatile shared load per iteration) loses scheduling the st
 or the claimed units, all in the last expert, add a job switch per CTA (an x reload and a doneA check). A
 claim that kept the loop's static bound would need the pool count fixed per CTA in advance, which is the
 static balancing MOE-BAL-01 already lost.
+
+### L2 prefetch past the ring at job switches (mo_xpf, loss)
+
+The target was the 2.5 us of phase A weight waits, which drop to 0.3 us when the weights are already in L2.
+`tools/dl_mo_xpf_patch.py` builds on the slack-free rv_k_combo2n.py (3ac83fb4). When thread 0 issues sequence
+index q + 3 into the ring, it also issues `cp.async.bulk.prefetch.L2.global` for index q + 4, so the unit is warmed
+one unit ahead of the ring without a fourth slot.
+- mo_xpf.py (OKC_L2PF=1, ec5e67a25910fae03394bee45aa975eb9a3b314d8191bb21817645b7e2e2e2eb): prefetch only when
+  that unit opens a new job, which is the next job's first refill brought early.
+- mo_xpf2.py (OKC_L2PF=2, 7bbbc3586f7c60bad4ed30264557a578fc67081fe1a6eb78181d5f408e347562): prefetch every unit.
+
+The edits apply to the TINY2 (verify 1) and MID (decode 16) builds, which share the WS ring. B4 at decode 32 is
+another source and is unchanged, so decode 32 serves as an in-run null. The prefetch writes nothing: no smem,
+no mbarrier. Fences, barriers, ring discipline and final pass are unchanged.
+
+Correctness: both files passed the startup expert comparison (`G_RELEASE_STARTUP_OK native ... 56
+verified_replays`) and every box check at the six swept cells. The 13-shape sweep was not run, because both
+lost first.
+
+Paired box A/B, 60 runs, order ctl, xpf, xpf2, ctl, xpf, xpf2, pinned PDL {1, 8, 16, 32}, `--lock` runner. Logs:
+`muse_decode_layer/profiles/box/mo/x_*.log`. Each pair is the paired delta in us against control 1 / control 2, one
+pair per run. The thresholds use the two-control spread with the 0.5 us / 1% floor.
+
+| cell | control 1 net | control 2 - control 1 | xpf, run 1; run 2 | xpf2, run 1; run 2 | threshold |
+|---|---:|---:|---|---|---:|
+| verify 1 sliding | 103.22 | +0.43 | +2.10 / +1.52; +2.32 / +1.55 | +6.26 / +5.97; +6.78 / +6.06 | 0.86 |
+| verify 1 full | 112.03 | +0.40 | +1.78 / +1.94; +1.76 / +1.46 | +6.90 / +7.17; +6.61 / +6.37 | 0.80 |
+| decode 16 sliding | 131.09 | +0.42 | +3.06 / +2.74; +3.25 / +3.12 | +6.24 / +6.30; +6.46 / +6.38 | 1.31 |
+| decode 16 full | 202.82 | +0.43 | +2.78 / +2.32; +2.66 / +2.35 | +6.03 / +5.90; +5.86 / +5.23 | 2.03 |
+| decode 32 sliding (unchanged build) | 146.06 | +0.05 | -0.29 / -0.21; +0.03 / +0.26 | +0.13 / +0.02; -0.16 / +0.02 | 1.46 |
+| decode 32 full (unchanged build) | 296.86 | +0.50 | +0.13 / -0.16; +0.03 / -0.62 | +0.19 / -0.10; +0.05 / -0.53 | 2.97 |
+
+Decision: loss. The prefetch at job switches costs +1.5 to +2.3 us at verify 1 and +2.3 to +3.3 us at decode 16.
+The prefetch on every unit costs +5.2 to +7.2 us at both, about 0.15 us per unit. decode 32 stays inside the null,
+so the cost is the prefetch itself. More early weight requests make the stream slower, the same way the fourth
+ring slot did (+2 us at verify 1). Not kept, nothing to the judge. Hypotheses, not tested: the extra requests
+compete with the ring's own TMA reads at an HBM queue that is already full, or the prefetched lines are evicted
+before the ring's evict-first TMA read reaches them, so those bytes are read twice. Either way, more depth in
+flight costs time on this stream. The 2.5 us of waits looks like latency variance under a full HBM queue,
+not a missing prefetch, which leaves the unit loop's own issue rate (2.3 us) as phase A's other piece.
