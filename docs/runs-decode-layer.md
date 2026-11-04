@@ -5009,3 +5009,122 @@ Left open, each at most 1 us: the slice's launch 1.3 to 1.7 us after the MoE's t
 trigger is the MoE lane's); the remaining x tail (1.1 to 1.3 us with L1, a cluster multicast of x would cut L2
 requests further and is untested, ruled-out.md row on x staging notes it); the finish's two serial loads after its
 wait (0.9 us, hypothesis: issue carry and P together). No ruled-out row: the candidate did not lose.
+
+## 2026-11-04 - ly_rfx stacked A/B (box)
+
+Revival lane, one bounded measurement: the stacked candidate `muse_decode_layer/cand/ly_rfx.py` (SHA256
+60ef465d47ff76cd83e236fc8d4768bc18eda7b77e2353e32f2c36491b704fda) against the public file
+`muse_decode_layer/cand/ly_fabq.py` (3765470032deb505c20e7573fcd0f01aac88a8474added7f2546579f74dde555) on the box,
+with the same driver, flags and rounds the two component lanes used ("Verify segment switches (box)" for ly_rfin,
+"Decode 1 post-MoE tail (box)" for ly_xca). Box only (okc-h200, 16:30 to 16:34 UTC), every run under
+`/root/okc/.build/box/gpu.lock`, no judge job, no candidate building. `nvidia-smi` before the launch (16:30:06 UTC):
+0% utilization, 531 MiB used, no compute process, no box_run / ly_prtl_ab / timeline process on the host; after the
+last run (16:33:51 UTC) again no compute process, so no other lane's run shared the GPU during either round. Logs:
+`/root/okc/.build/prtl/rfx/` (round 1 with the chk step) and `/root/okc/.build/prtl/rfx_r2/` (round 2), copied with
+their JSONs, session logs and the pooled table to `muse_decode_layer/profiles/box/rfx/` (`round1/`, `round2/`,
+`table_both_rounds.txt`).
+
+### Diff confirmation
+
+`ly_rfx.py` is `ly_rfin.py` (c42c12390ce22538260ebea22820002a2e8acaa6f7526920396b86a4b94cc029, hash verified in the
+worktree and on the box) plus two lines: the header comment on line 1 and the `_PDL8_CG_EDITS` line (19031 lines in
+both files after the header is dropped; one line differs, 18925 of ly_rfin). `ly_xca.py` against `ly_fabq.py` is the
+same shape (18976 lines, one line differs, 18870 of ly_fabq). Checked in Python: the old `_PDL8_CG_EDITS` line is
+byte-identical between the two pairs, the new line is byte-identical between the two pairs, and the new line equals
+the old line with its three `__ldcg` tokens replaced by `__ldca` (the two compute-thread x loads and the escape
+warp's x element load, all after the slice cgemv's `griddepcontrol.wait`). Nothing else differs: the `OKC_RFIN=1
+OKC_RFINQ=2` MAIN build defines, the fences, barriers, releases, PDL set and launch attributes are ly_rfin's.
+
+### Correctness (chk step, `bx_box_run.py --runs 5`, six loads, 16:30 UTC, `profiles/box/rfx/round1/chk.log`)
+
+`FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off`; `CG_GATE unpooler cg_vs_sk2 1.21e-04
+cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok` (the same line as the control's prepare in every
+control arm of both rounds and as ly_xca's and the base's earlier logs); `G_RELEASE_STARTUP_OK native (128, 32, 33,
+256, 1, 8, 16) 56 verified_replays` (the startup comparison of the MAIN build against the base's path at M = 128, 32,
+33, 256 and T = 1, 8, 16); reference check PASS at all 12 cells; timed PDL set {1, 8, 16, 32} on. Every one of the
+ten A/B arms also printed the same CG_GATE and G_RELEASE_STARTUP_OK lines and passed the check at all 12 cells
+(12 PASS / 0 FAIL per log, timed PDL {1, 8, 16, 32} on in each).
+
+### Paired A/B against ly_fabq (box, two rounds)
+
+`tools/ly_prtl_ab.sh` with CTL=ly_fabq.py, CAND=ly_rfx.py: five `bx_box_run.py` processes c/w/c/w/c per round under
+gpu.lock, all six loads, `--runs 60`, `--lock /root/okc/.build/box/gpu.lock --ls-cache
+/root/okc/.build/box/ls_cache.json --ext-cache /root/.cache/bx_ext --pin-pdl8 1,8,16,32 --skip-pdl8-gate
+--router-seed 106218864389449120 --judge .build/judge/g1b4_pdl8d.f931abf568544018.json`, f931 case seeds,
+local_start per input (60 cache hits, 0 computed). Round 1 16:30:46 to 16:32:17 UTC (`.build/prtl/rfx/`), round 2
+16:32:35 to 16:33:48 UTC (`.build/prtl/rfx_r2/`), back to back with nothing else on the lock. Tables by
+`tools/ly_prtl_table.py` (threshold max(2 x control spread, 0.5 us) at decode 1 / verify 1, max(2 x spread, 1% of the
+control mean) elsewhere); net us, candidate mean minus control mean, pairs w_a-c_a, w_a-c_b, w_b-c_b, w_b-c_c.
+
+Round 1:
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|
+| decode 1 sliding | 65.12 | 64.64 | 65.23 | 64.37 | 65.20 | 0.11 | -0.68 | -0.48 -0.59 -0.86 -0.83 | 0.50 | win |
+| decode 1 full | 71.95 | 70.99 | 71.76 | 70.82 | 71.66 | 0.29 | -0.89 | -0.96 -0.77 -0.94 -0.85 | 0.58 | win |
+| decode 16 sliding | 127.18 | 127.04 | 126.58 | 127.15 | 126.85 | 0.61 | +0.23 | -0.14 +0.46 +0.58 +0.30 | 1.27 | inside |
+| decode 16 full | 198.64 | 199.39 | 199.25 | 198.70 | 200.54 | 1.90 | -0.43 | +0.75 +0.14 -0.54 -1.84 | 3.81 | inside |
+| decode 32 sliding | 144.10 | 144.00 | 143.79 | 144.06 | 144.45 | 0.66 | -0.08 | -0.10 +0.21 +0.27 -0.38 | 1.44 | inside |
+| decode 32 full | 295.87 | 295.28 | 294.61 | 294.98 | 295.94 | 1.33 | -0.34 | -0.59 +0.67 +0.37 -0.96 | 2.95 | inside |
+| verify 1 sliding | 102.46 | 102.77 | 101.97 | 102.30 | 102.21 | 0.50 | +0.32 | +0.30 +0.80 +0.34 +0.10 | 0.99 | inside |
+| verify 1 full | 111.12 | 110.51 | 110.32 | 110.32 | 110.19 | 0.93 | -0.13 | -0.61 +0.19 +0.00 +0.13 | 1.86 | inside |
+| verify 16 sliding | 243.14 | 243.42 | 243.74 | 242.75 | 243.25 | 0.61 | -0.29 | +0.29 -0.32 -0.99 -0.50 | 2.43 | inside |
+| verify 16 full | 327.30 | 326.34 | 327.62 | 327.26 | 327.95 | 0.66 | -0.82 | -0.96 -1.28 -0.35 -0.69 | 3.28 | inside |
+| verify 32 sliding | 298.30 | 294.45 | 296.77 | 294.03 | 296.24 | 2.06 | -2.86 | -3.86 -2.32 -2.74 -2.21 | 4.13 | inside |
+| verify 32 full | 459.44 | 457.97 | 459.68 | 457.95 | 460.35 | 0.91 | -1.86 | -1.47 -1.71 -1.73 -2.40 | 4.60 | inside |
+
+Round 2:
+
+| cell | c_a | w_a | c_b | w_b | c_c | spread | w - c | pairs | thr | verdict |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|
+| decode 1 sliding | 65.28 | 64.51 | 65.65 | 64.06 | 65.63 | 0.37 | -1.23 | -0.77 -1.14 -1.58 -1.57 | 0.74 | win |
+| decode 1 full | 71.66 | 70.64 | 71.68 | 71.10 | 71.87 | 0.21 | -0.87 | -1.02 -1.04 -0.58 -0.77 | 0.50 | win |
+| decode 16 sliding | 126.43 | 126.90 | 126.99 | 126.40 | 126.69 | 0.56 | -0.06 | +0.46 -0.10 -0.59 -0.29 | 1.27 | inside |
+| decode 16 full | 199.58 | 199.28 | 199.71 | 199.62 | 199.34 | 0.37 | -0.10 | -0.30 -0.43 -0.10 +0.27 | 2.00 | inside |
+| decode 32 sliding | 144.48 | 143.33 | 143.78 | 144.58 | 143.79 | 0.70 | -0.06 | -1.15 -0.45 +0.80 +0.78 | 1.44 | inside |
+| decode 32 full | 294.99 | 295.28 | 295.87 | 295.73 | 295.49 | 0.88 | +0.05 | +0.29 -0.59 -0.14 +0.24 | 2.95 | inside |
+| verify 1 sliding | 102.16 | 101.86 | 101.90 | 102.00 | 102.32 | 0.42 | -0.20 | -0.30 -0.05 +0.10 -0.32 | 0.83 | inside |
+| verify 1 full | 110.64 | 110.82 | 110.98 | 110.46 | 111.12 | 0.48 | -0.27 | +0.18 -0.16 -0.51 -0.66 | 0.96 | inside |
+| verify 16 sliding | 242.90 | 243.22 | 244.19 | 243.92 | 242.90 | 1.30 | +0.24 | +0.32 -0.98 -0.27 +1.02 | 2.59 | inside |
+| verify 16 full | 327.71 | 326.45 | 327.55 | 327.76 | 327.90 | 0.35 | -0.62 | -1.26 -1.10 +0.21 -0.14 | 3.28 | inside |
+| verify 32 sliding | 297.10 | 295.04 | 297.33 | 295.06 | 297.06 | 0.27 | -2.11 | -2.06 -2.29 -2.27 -2.00 | 2.97 | inside |
+| verify 32 full | 460.51 | 457.52 | 460.50 | 458.06 | 460.58 | 0.08 | -2.74 | -2.99 -2.98 -2.43 -2.51 | 4.61 | inside |
+
+Pooled over both rounds (6 control runs, 4 candidate runs, 24 pairs per cell; threshold from the spread of the six
+controls), with the two component lanes' pooled deltas for the stacking comparison (ly_xca 24 pairs, ly_rfin 54
+pairs, from their own sections):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict | ly_xca alone | ly_rfin alone |
+|---|---:|---:|---:|---:|---:|---|---|---:|---:|
+| decode 1 sliding | 65.35 | 0.53 | 64.40 | -0.96 | 1.06 | 24/24 | inside | -0.67 (24/24) | +0.18 (14/54) |
+| decode 1 full | 71.77 | 0.29 | 70.89 | -0.88 | 0.58 | 24/24 | win | -0.65 (24/24) | -0.25 (42/54) |
+| decode 16 sliding | 126.79 | 0.75 | 126.87 | +0.09 | 1.50 | 10/24 | inside | +0.16 | +0.15 |
+| decode 16 full | 199.51 | 1.90 | 199.25 | -0.26 | 3.81 | 14/24 | inside | -0.45 | -0.28 |
+| decode 32 sliding | 144.06 | 0.70 | 143.99 | -0.07 | 1.44 | 12/24 | inside | +0.02 | +0.18 |
+| decode 32 full | 295.46 | 1.33 | 295.32 | -0.15 | 2.95 | 16/24 | inside | -0.26 | -0.28 |
+| verify 1 sliding | 102.17 | 0.56 | 102.23 | +0.06 | 1.12 | 12/24 | inside | -0.27 | -0.26 |
+| verify 1 full | 110.73 | 0.93 | 110.53 | -0.20 | 1.86 | 15/24 | inside | -0.43 | -0.20 |
+| verify 16 sliding | 243.35 | 1.30 | 243.33 | -0.02 | 2.59 | 12/24 | inside | -0.46 | -0.44 (35/54) |
+| verify 16 full | 327.67 | 0.66 | 326.95 | -0.72 | 3.28 | 20/24 | inside | -0.51 | -0.71 (42/54) |
+| verify 32 sliding | 297.13 | 2.06 | 294.64 | -2.49 | 4.13 | 24/24 | inside | -0.04 | -2.75 (54/54) |
+| verify 32 full | 460.18 | 1.14 | 457.88 | -2.30 | 4.60 | 24/24 | inside | -0.38 | -1.48 (54/54) |
+
+Reading (measurements on the box, paired, no judge number involved). The components stack: the four cells each
+component owns show the candidate faster in every one of the 24 pairs. Decode 1 sliding / full -0.96 / -0.88 us
+(ly_xca alone -0.67 / -0.65; round 2's sliding -1.23 pulled the pooled mean past the component's), verify 32
+sliding / full -2.49 / -2.30 (ly_rfin alone -2.75 / -1.48, both inside ly_rfin's three-round range of -1.95 to
+-3.49 and -0.95 to -2.17), verify 16 full -0.72 with 20 of 24 pairs (ly_rfin -0.71), verify 16 sliding -0.02 with
+12 of 24 (ly_rfin's weakest cell, -0.44 at 35 of 54, so this round reads it as null). The six cells neither component
+touches (decode 16 / 32, verify 1) sit within 0.26 us of the control with 10 to 16 of 24 pairs below, the session's
+null. By the 2x-spread rule decode 1 full is a win in both rounds and pooled, decode 1 sliding a win in both rounds
+and inside pooled (the six-control spread 0.53 sets a 1.06 bar), and verify 32 is inside because its control spread
+(2.06 us sliding, from one 298.30 control in round 1) sets a 4.1 to 4.6 us bar; the sign counts (24/24 at four cells,
+across two rounds and both cells of each load) are the evidence of the gain, as in both component sections.
+
+Value if the box deltas carry to the judge (hypothesis, the Box rule forbids reading them as a judge prediction):
+decode 1 about 0.9 us at 0.212% per us (0.19%), verify 32 about 2.4 us at 0.046% (0.11%), verify 16 full 0.7 us at
+0.062% (0.04%): about 0.3% of the layer score, twice either component alone and still below the 1.3% spread of a
+single judge draw (ly_rfin's two draws, ledger 07:18 PT). The judge check of ly_rfx (job 92543dcfd8164b3a, ledger
+08:28 PT) was already registered by the lead before this run; this section does not dispatch one. Decision: ly_rfx is
+correct on the box (12 / 12, startup comparison OK, CG_GATE equal to the control's), stacks the two measured gains
+without interference, and is the finalist from these two lanes; no ruled-out row.
