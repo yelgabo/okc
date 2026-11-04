@@ -9,12 +9,12 @@ Updated 2026-11-04 12:36 PT (Mac clock). Branch worktree-agent-a5dc59bb03b3b9eec
 - Ruled out at the stamp level (rows in docs/ruled-out.md, section "Decode 16 / 32 sliding attention merge (box)" in
   docs/runs-decode-layer.md): ly_aopf a7bc691a, ly_aopfl 0a58b5f6 (o stream L2 prefetch from the merge tail),
   ly_a16sp b72fc51a (8 / 4 splits), ly_a16cl e3bc81b5 and ly_a16cl2 21da0e02 (MODE 2 cluster merge).
-- Built, untested: muse_decode_layer/cand/ly_a16nc2.py, SHA256
-  dbadd5302873cea3385f497b6d24837604bc67e2118e4e1dae1f87bf456c24bb (two workspace copies, warmed finalize; expected
-  about -0.3 to -0.4 us at decode 16, below the 0.8 us bar).
-- Box paths: /root/okc/.build/a16/st_<arm>.log; logs copied to muse_decode_layer/profiles/box/a16r2/. Box was idle
-  after 20:33 UTC; nothing of this lane is running.
-- Next action: stamp ly_a16nc2 (`python3 tools/dl_ly_a16_patch.py --base muse_decode_layer/cand/ly_a16nc2.py --out
-  muse_decode_layer/cand/ly_a16nc2_st.py`, rsync both, `ARMS="ly_a16nc2_st" tools/ly_a16r2_st.sh`); if reds -> ticket
-  drops by at least 0.4 us with the finalize under +0.15, run `CAND=ly_a16nc2.py TAG=a16nc2 CTL=ly_stk3.py
-  tools/ly_a16_ab.sh` (gate, chk, two paired rounds).
+- Round 3 (relaunch, 12:36 PT, branch worktree-agent-af551e13c3c5956fd): candidate muse_decode_layer/cand/ly_a16nc2.py
+  (SHA256 dbadd5302873cea3385f497b6d24837604bc67e2118e4e1dae1f87bf456c24bb), stamp build ly_a16nc2_st.py
+  (f5a5dcc44452ee22362abd0d4cc3820b0294ef641a576a9d74cd279097eb0de7, tools/dl_ly_a16_patch.py). Base stamp build on
+  the box ly_stk3_st.py 95f41970. Stamp run launched 20:36:49 UTC on the box:
+  `ARMS="ly_stk3_st ly_a16nc2_st" tools/ly_a16r2_st.sh` -> /root/okc/.build/a16/st_<arm>.log, driver log
+  .build/a16/r3_st.log (queued behind other lanes on gpu.lock).
+- Gate: ticket (reds -> ticket) must drop by at least 0.4 us at decode 16 and the finalize (ticket -> attention end)
+  grow by less than 0.15 us. If met: `CAND=ly_a16nc2.py TAG=a16nc2 CTL=ly_stk3.py tools/ly_a16_ab.sh`.
+- Next action: read the two stamp logs, apply the gate.
