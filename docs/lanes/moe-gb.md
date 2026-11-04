@@ -27,11 +27,13 @@ Updated 2026-11-04 13:37 PT.
 - Gate (`.build/moegb/gb5_gate.log`, `.build/moegb/gate_gb5.log`): five PDL8H guards pass, 2000 replays per arm,
   ids mismatches 0 (T=1 s, T=16 s, T=32 f, T=8 f, T=8 s); check PASS at decode 16 and 32.
 - chk (`.build/prtl/gb_gb5/chk.log`): check PASS in all 12 cells.
-- A/B: running since 21:35 UTC, `.build/moegb/gb5_ab.log`, rounds in `.build/prtl/gb_gb5` and `.build/prtl/gb_gb5_r2`.
+- A/B, two rounds pooled, 24 pairs per cell (muse_decode_layer/profiles/box/moegb/gb5_table_both_rounds.txt; box
+  `.build/prtl/gb_gb5`, `.build/prtl/gb_gb5_r2`): decode 16 sliding 125.11 -> 125.22 us (+0.11, 9/24 faster, thr
+  2.21); decode 16 full 198.19 -> 198.18 (-0.01, 12/24). Every cell inside noise.
+- Decision: loses the bar. Not registered. Run log: docs/runs-decode-layer.md, "MoE grid barrier removal, MID (box)",
+  with a ruled-out row.
 
 ## Next action
 
-When the A/B finishes: `python tools/ly_prtl_table.py .build/prtl/gb_gb5 .build/prtl/gb_gb5_r2` on the box, then
-decide against the bar (decode 16 sliding at least 0.8 us faster, 20+/24 pairs, nothing else losing beyond noise).
-If it clears, add the ledger line and report. Either way, add the run-log section "MoE grid barrier removal, MID
-(box)" in docs/runs-decode-layer.md.
+None for ly_gb5. The untested variant is a final pass ordered by job completion, so that early final items read only
+early jobs; the per-token wait as built still waits for the last phase B job.

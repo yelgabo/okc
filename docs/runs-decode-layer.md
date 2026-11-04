@@ -8137,3 +8137,74 @@ Only the decode 32 cells run the edited code. The moves at decode 1 and 16 are o
 drift between process launches; no cell loses beyond its threshold. Decision: meets the lane bar (decode 32 sliding at
 least 0.8 us faster with 20+/24 pairs); registered in the ledger at 13:17 PT. Expected layer effect about -0.15% from
 decode 32 sliding, plus decode 32 full, a hypothesis until a judge check.
+
+## MoE grid barrier removal, MID (box)
+
+2026-11-04, moe-gb lane round 2. Candidate muse_decode_layer/cand/ly_gb5.py
+(SHA256 6177507af66733ca4b034e2552977cc8490623fedd93d5253deac7d125108170), built from ly_stk4
+(a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e) by tools/mk_ly_gb5.py. The target was the MID
+build (decode 16 sliding and full), where round 1 measured 2.75 us of barrier idle time, a phase B end spread of
+3.41 us and a final pass of 0.46 us.
+
+Design. Everything sits in the alt source `_MA_ALT_SRCS['moe_helper0']` under `#if OKC_WSFIN`, and only
+MOE_MID_DEFINES (ly_gb5 line 6941) sets `-DOKC_WSFIN=1`. TINY and TINY2 compile the same alt source without the
+define, and an `#error` rejects any build other than WS, TINY, FINPF and FINCOL without WGS. No MFIN code is
+touched, so the change stacks with the MAIN-build work of the moe-gbm lane.
+
+- Release (ly_gb5 lines 14201-14204 and 14293-14300). Each phase B epilogue warp (the helper warp, and compute warps
+  0 and 1 for their WSBL units) finishes its ybuf stores and ss atomicAdds, runs `bar.sync` on a warp-private named
+  barrier (IDs 8, 9 and 10), and then lane 0 issues one `red.release.gpu.global.add.s32` on a per-job counter
+  doneB[j] = doneA + 512 + mpar*88 + j. The helper accumulates its units of one job and releases once per job.
+  Release cumulativity carries the other lanes' writes, which the bar.sync ordered before the release.
+- Acquire (lines 15166-15178 and 15295-15304). Before the final pass reads any position of a token, threads 0..7 map
+  each of the token's 8 positions to its job (`wsfin_job`, a binary search over the ascending S.jS, lines 14084-14090)
+  and poll `ld.acquire.gpu` on doneB[job] until it reaches RB_B = 256 phase B units, with no bound and no
+  fall-through. CTA_SYNC follows, then the original `__ldcg` reads. The final's arithmetic is unchanged, so its
+  output is bitwise the same.
+- Counters by parity. doneB has two copies selected by a MID launch counter at doneA + 1023, which tid 0 reads at
+  kernel start (line 15077). The other copy is zeroed after route (line 15094), while the previous launch is complete:
+  the MoE kernel is a stream-ordered cooperative launch without the PDL attribute, the same assumption the base makes
+  for its ss parity. ctr[0..1] are never touched in MID (SKDYN = 0, enforced by a static_assert; OKC_TINY traps on fat
+  units), so they need no parity. doneA[0..88) keeps its base contract: each CTA's helper arrives with
+  `atom.acq_rel.gpu` on ctr[4+(gen&1)] after its last WS_JOIN (lines 14305-14317), and the last arriver, which has
+  acquired every CTA's phase B, zeroes doneA[0..88), bumps ctr[3] and bumps the MID launch counter. That preserves
+  the invariant every MoE build relies on at a launch boundary.
+- Co-residency. The cooperative launch and the host residency check are unchanged. The final pass depends only on
+  phase B, and phase B never waits on the final pass, so the poll cannot deadlock.
+
+Gate (`.build/moegb/gate_gb5.log` on the box): the five in-prepare PDL8H guards pass with 2000 replays per arm and
+0 id mismatches (T=1 sliding, T=16 sliding, T=32 full, T=8 full, T=8 sliding). Box check PASS at decode 16 and 32.
+chk (`.build/prtl/gb_gb5/chk.log`): check PASS in all 12 cells.
+
+Paired A/B against ly_stk4, two rounds of c/w/c/w/c, pooled into 24 pairs per cell
+(muse_decode_layer/profiles/box/moegb/gb5_table_both_rounds.txt), w - c in us:
+
+| cell | ly_stk4 | ly_gb5 | w - c | thr | pairs faster |
+|---|---|---|---|---|---|
+| decode 1 sliding | 63.86 | 64.04 | +0.19 | 2.02 | 8/24 |
+| decode 1 full | 70.40 | 70.86 | +0.46 | 2.75 | 6/24 |
+| decode 16 sliding | 125.11 | 125.22 | +0.11 | 2.21 | 9/24 |
+| decode 16 full | 198.19 | 198.18 | -0.01 | 2.30 | 12/24 |
+| decode 32 sliding | 140.86 | 141.28 | +0.42 | 1.41 | 4/24 |
+| decode 32 full | 292.42 | 292.69 | +0.27 | 2.92 | 11/24 |
+| verify 1 sliding | 100.61 | 100.39 | -0.22 | 3.78 | 13/24 |
+| verify 1 full | 108.86 | 108.84 | -0.02 | 2.50 | 12/24 |
+| verify 16 sliding | 242.20 | 242.60 | +0.40 | 5.63 | 11/24 |
+| verify 16 full | 326.72 | 326.46 | -0.25 | 5.98 | 14/24 |
+| verify 32 sliding | 293.75 | 294.00 | +0.25 | 3.71 | 8/24 |
+| verify 32 full | 459.40 | 458.55 | -0.85 | 4.59 | 21/24 |
+
+Decision: it loses the bar (decode 16 sliding needed at least 0.8 us faster with 20+/24 pairs; it measured +0.11 us
+with 9/24). Every cell is inside noise. Not registered, no judge check.
+
+Reading (a hypothesis, not measured). Each final item is one token and the 8 positions it reads belong to different
+experts, so a token's wait ends at the latest of its 8 jobs. With 16 tokens over 128 positions, nearly every final
+item waits on one of the last jobs to finish phase B, and removing the barrier saves only its own latency. The phase B
+end spread that round 1 measured stays on the critical path. A per-token wait helps only when the final is ordered
+so that early items depend only on early jobs, which this routing does not give.
+
+### Ruled out
+
+| idea | config tested | result | scope |
+|---|---|---|---|
+| MID grid barrier replaced by per-job release/acquire (ly_gb5, OKC_WSFIN) | decode 16 sliding and full, T <= 16 MID build, on ly_stk4 | +0.11 us (9/24) sliding, -0.01 us (12/24) full, inside noise | mechanism as built: the final's per-token wait covers 8 experts, so it still waits for the last phase B job; a final ordered by job completion is untested |
