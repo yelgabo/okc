@@ -1,0 +1,15 @@
+18:22:30 gate start
+18:22:50 gate rc=0
+18:23:20 chk ly_v1fs.py rc=0
+18:23:53 ab_c_a ly_v1un.py rc=0
+18:24:27 ab_w_a ly_v1fs.py rc=0
+18:25:00 ab_c_b ly_v1un.py rc=0
+18:25:34 ab_w_b ly_v1fs.py rc=0
+18:26:08 ab_c_c ly_v1un.py rc=0
+18:26:08 done
+18:26:27 ab_c_a ly_v1un.py rc=0
+18:26:45 ab_w_a ly_v1fs.py rc=0
+18:27:03 ab_c_b ly_v1un.py rc=0
+18:27:21 ab_w_b ly_v1fs.py rc=0
+18:27:39 ab_c_c ly_v1un.py rc=0
+18:27:39 done

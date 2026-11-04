@@ -5916,3 +5916,113 @@ before the MoE ends, but at decode 1 the slice's 6 MB of DRAM time then lands in
 barrier) instead of after its exit, and the base's ordering, where most code loads follow the MoE CTAs' exits and
 overlap only the final pass, is already close to the best one. This bears on the moe lane's current step (the MoE's
 CTAs prefetching the slice's 6.3 MB into L2 at phase B start): the same bytes would share phase B's DRAM time.
+
+## 2026-11-04 - Verify 1 finish spread (box)
+
+Verify 1 lane, round 3 (T = 8). Question: round 2 measured that 14 of the finish kernel's 64 programs land 3 or 4 per
+SM on the 4 SMs the 128-CTA slice sk2 leaves free and end about 0.7 us after the programs that sit alone. Can a
+T = 8-gated launch change put the programs one per SM without touching the finish's warps or reduction order? Base:
+`muse_decode_layer/cand/ly_v1un.py` (SHA256 88fbae8644f946af46b87ab89be17409e133ebab26d20cf61e9c3f3941788145, the
+public file), never edited. Box only (okc-h200, 18:20 to 18:30 UTC), every GPU process under
+`/root/okc/.build/box/gpu.lock`. No judge check. Logs: `muse_decode_layer/profiles/box/v1fs/`.
+
+### Resource arithmetic (measurement on the box, Triton 3.8)
+
+The T = 8 finish `_sl_cluster_finish_cg` (BC 1024, 16 warps) compiles to 27 registers, 0 spills and 4,096 B of
+dynamic shared memory (`CompiledKernel.metadata`, probe run under the lock). The slice CTA (`slice8_r192`: 13 warps,
+66 registers) takes 1024 + 4 x 28,672 + 16 x 4 + 32 + 4 x 576 + 128 = 118,240 B + 8 x pmax of dynamic shared memory
+(`launch_sk2`). An H200 SM has 233,472 B, and each CTA reserves 1,024 B more (the 512 B overshoot in docs/ruled-out.md
+row "Fixed G2/24"). Warps (16 per program) and registers (16,384 per program) let 4 finish programs share an idle SM,
+which is what round 2 saw. Shared memory is the one resource a launch can change without touching code:
+
+- one finish per SM needs 2 x (S + 1,024) > 233,472, so S > 115,712;
+- one finish beside a slice CTA needs S + 1,024 + 119,264 + 8 x pmax <= 233,472, so S <= 113,184 - 8 x pmax.
+
+Both cannot hold, so the choice is between S >= 115,713 (one per SM, none beside a running slice CTA: 4 programs
+start on the free SMs and 60 wait for slice CTAs to exit) and 76,801 <= S <= 113,184 - 8 x pmax (at most 2 per free
+SM, one beside a slice CTA).
+
+### Change: ly_v1fs
+
+`tools/dl_ly_v1fs_patch.py` (base and pin checked) writes `muse_decode_layer/cand/ly_v1fs.py` (SHA256
+7415c5a2ed5291a9060f4739c07a1f7e1bc6a76106f01e65d48cbe6485378b69). Lines changed against ly_v1un:
+
+- line 1: the header comment;
+- lines 18331 to 18350 (new, before `_pdl8_sl_tile_after_attention`): `_V1FS_SMEM = 118784` and `_v1fs_reserve()`,
+  which, for every compiled `_sl_cluster_finish_cg` in Triton's cache with 16 warps (the T = 8 config; T = 1 runs 8),
+  sets the function's MAX_DYNAMIC_SHARED_SIZE_BYTES to 118,784 (libcuda `cuFuncSetAttribute`) and the launcher's
+  packed shared-memory size (`packed_metadata[2]`) from 4,096 to 118,784;
+- lines 18415 to 18416 and 18418 to 18419: `if T == 8: _v1fs_reserve()` before and after the unchanged finish launch
+  (line 18417). Before covers kernels compiled by earlier calls; after covers the one the current call compiled.
+
+The kernel source, its Triton cache key, grid, warps and every load, wait, trigger and store are the base's; the
+launch only reserves shared memory that the code never addresses. So the SASS is the base's and the output is bitwise
+the base's by construction (the reduction order cannot change). No fence, wait or trigger moves; the finish still
+reads the slice's output only after `gdc_wait`.
+
+### Where the programs land (stamps)
+
+Instrument `muse_decode_layer/cand/ly_v1fsst.py` (46005dfd...): `dl_ly_v1fs_patch.py --env` (the reservation read from
+V1FS_SMEM; 0 leaves Triton's 4,096, the base's launch), then `tools/dl_ly_pmt_patch.py --xld __ldca` and
+`tools/dl_ly_v1st_patch.py`, the round 2 stamps unchanged. `tools/ly_v1fs_sweep.sh` runs `tools/ly_box_v1st.py` (20
+fresh inputs per cell, cold L2, PDL pinned) at three reservations; `tools/ly_v1fs_fin.py` reads the placement
+(`fin_placement.txt`). Medians over 20 inputs, sliding / full, us from the slice's last store unless stated:
+
+| finish reservation | 4,096 (base) | 118,784 (ly_v1fs) | 98,304 |
+|---|---:|---:|---:|
+| programs on SMs that hold a slice CTA / on the 4 free SMs | 50 / 14, 52 / 12 | 60 / 4, 60 / 4 | 58 / 6, 58 / 6 |
+| programs sharing an SM; most per SM | 14, 12; 4, 3 | 0, 0; 1, 1 | 4, 4; 2, 2 |
+| program entry, p50 | -1.30 / -0.99 | -0.34 / -0.35 | -1.37 / -0.94 |
+| wait return, p50 / max | 0.45 / 0.61, 0.45 / 0.58 | 0.45 / 0.45, 0.45 / 0.45 | 0.45 / 0.48, 0.43 / 0.45 |
+| P stage, p50 / max | 0.48 / 1.18, 0.49 / 0.93 | 0.46 / 0.54, 0.46 / 0.54 | 0.48 / 0.62, 0.48 / 0.64 |
+| finish end after the slice end | 2.29 / 1.95 | 1.57 / 1.57 | 1.63 / 1.63 |
+| slice end after the MoE exit (summary line) | 3.57 / 3.44 | 3.50 / 3.52 | 3.58 / 3.52 |
+| finish end after the MoE exit (summary line) | 5.87 / 5.50 | 5.07 / 5.06 | 5.20 / 5.12 |
+
+At 118,784 B every input puts exactly one program on each of 64 SMs: 4 on the free SMs at once, the other 60 on SMs
+whose slice CTA has exited. Those 60 enter 0.34 us before the slice's last store instead of 1.3 us, and the wait still
+returns 0.45 us after it, so entering late costs nothing: the slice's CTAs exit with a 0.6 us spread (median store
+-0.56) and the first 60 exits come early enough. The finish tail drops to the single-program time round 2 measured
+(1.58), and the slice is unchanged. 98,304 B behaves as the arithmetic predicts (at most 2 per free SM) and ends 0.06
+us later than 118,784; it was not built as a candidate.
+
+### Checks and A/B
+
+Gate (`.build/v1tl/gate_v1fs.log`, the file's own in-prepare benches): PDL8_AB T = 8 savings 7.74 (full) / 7.78
+(sliding) us, 9/9; PDL8H_GUARD T = 8 full and sliding pass with all seven edges, ids mismatches 0; CG_GATE line equal to
+the control's. Reference check (`chk.log`, six loads): PASS 12/12, `G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1,
+8, 16) 56 verified_replays`.
+
+Paired A/B against ly_v1un (`tools/ly_v1_ab.sh` with CTL=ly_v1un.py: c/w/c/w/c per round, 60 runs, six loads, PDL
+pinned; two rounds `v1fs`, `v1fs_r2`, `table_two_rounds.txt`):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 64.72 | 0.54 | 64.48 | -0.23 | 1.09 | 21/24 | inside |
+| decode 1 full | 70.92 | 0.38 | 70.97 | +0.05 | 0.77 | 7/24 | inside |
+| decode 16 sliding | 127.12 | 0.86 | 127.09 | -0.03 | 1.73 | 12/24 | inside |
+| decode 16 full | 199.13 | 0.78 | 199.40 | +0.27 | 1.99 | 7/24 | inside |
+| decode 32 sliding | 144.10 | 0.46 | 143.74 | -0.36 | 1.44 | 21/24 | inside |
+| decode 32 full | 295.09 | 0.77 | 294.88 | -0.21 | 2.95 | 15/24 | inside |
+| verify 1 sliding | 100.69 | 0.69 | 100.28 | -0.41 | 1.38 | 24/24 | inside |
+| verify 1 full | 108.82 | 1.47 | 108.50 | -0.32 | 2.94 | 13/24 | inside |
+| verify 16 sliding | 243.09 | 2.69 | 243.07 | -0.03 | 5.38 | 12/24 | inside |
+| verify 16 full | 326.35 | 1.34 | 326.56 | +0.21 | 3.26 | 10/24 | inside |
+| verify 32 sliding | 294.88 | 2.32 | 294.80 | -0.09 | 4.64 | 16/24 | inside |
+| verify 32 full | 458.48 | 1.57 | 458.29 | -0.19 | 4.58 | 15/24 | inside |
+
+A third round (`v1fs_r3`, run after the two-round table was read, so supplementary evidence only;
+`table_three_rounds.txt`) gave verify 1 -0.58 / -0.90 us; pooled over three rounds verify 1 sliding -0.46 us (50/54
+pairs), full -0.51 (36/54), every other cell inside its threshold (largest +0.42 at decode 16 full, 12/54). The
+timeline run (`tl_v1fs.log`, `--kernels`) shows `_sl_cluster_finish_cg` at 3.76 / 3.80 us of kernel span.
+
+### Decision
+
+ly_v1fs does what was asked: the 64 finish programs land one per SM in every input (stamps), the finish ends 1.57 us
+after the slice instead of 2.29 / 1.95, and its output is the base's by construction. On the box it is 0.41 us faster
+at verify 1 sliding with 24/24 pairs and 0.32 us faster at verify 1 full with 13/24; nothing else moves beyond noise.
+Against the lane's registration rule (at least 0.4 us at verify 1 with 20+ of 24 pairs, nothing else losing) sliding
+qualifies and full does not, so no ledger registration line from this lane. Size: about 0.4 to 0.5 us per verify 1
+cell, 0.06 to 0.07% of the layer score at 0.144% per us, well below the judge's 1.3% draw spread, so one judge check
+could not resolve it alone. Recommendation for the lead: stack it onto the next layer file rather than spend a check
+on it alone (numerics identical, T = 8 only, three lines of dispatch). No loss, so no ruled-out row.
