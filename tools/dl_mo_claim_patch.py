@@ -8,8 +8,8 @@
 The T = 8 timeline ("T = 8 MoE floor and gap", docs/runs-moe.md) puts 2.8 us of the kernel's tail in the spread
 of the CTAs' phase B end times. With OKC_CLM=1 (TINY2 only) the WS path splits only the first nB - P phase B units
 statically (the same muldiv split as before, over fewer units), and the last P = min(2G, nB - 4G) units (none
-when nB < 6G) form a pool. When thread 0 refills a ring slot past the CTA's static sequence, it takes a ticket from
-p.ctr[1] with one atomicAdd. A ticket below P names the pool unit nB - P + ticket, which goes into that slot
+when nB < 6G) form a pool. When thread 0 refills a ring slot past the CTA's static sequence, it uses a ticket from
+p.ctr[1] that it took (one atomicAdd) at the previous refill. A ticket below P names the pool unit nB - P + ticket, which goes into that slot
 exactly as a static unit would. The first ticket at or past P, or the CTA's 32nd claim, ends the CTA's sequence,
 and its phase B count is published in smem (S.wnB). Every refill attempts exactly one sequence index, OKC_NS
 ahead of its use, so the compute warps (two CTA barriers later) and the helper warp (after its mbarrier wait on
