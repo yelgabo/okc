@@ -1,4 +1,4 @@
-# Lane barriers: checkpoint 4 (lane stopped for restart, A/B still running on the box)
+# Lane barriers: checkpoint 5 (final; ly_fw closed as a loss)
 
 Base: `muse_decode_layer/cand/ly_stk4.py`, SHA256 a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e.
 Line numbers below are in ly_stk4. Inventory is from source reading (three read-only agents plus my own reads);
@@ -92,14 +92,29 @@ Native build in round 2 (every arm must match the first grep and none the second
 Judge only the touched cells: decode 1, verify 1 and decode 16, sliding first (helper0 TINY / TINY2 / MID). Every
 other cell runs identical code, so swings there are noise (about 1.5 us on pair counts).
 
-## Verdict so far
+## A/B result (box 22:18-22:20 UTC, both rounds complete)
 
-There are no A/B numbers yet, so there is no verdict. The reference check passes at all 12 cells and the guards show
-0 mismatches. Keep ly_fw only if decode 1 sliding improves by at least the lane threshold in both rounds with a
-majority of paired wins; otherwise close it with the ruled-out row below, filled in with the numbers.
+Round 2's native check passed: every arm log (ab_c_a, ab_w_a, ab_c_b, ab_w_b, ab_c_c) prints "backend native" once,
+and none matches "native build failed", "fallback" or "marlin". PDL was pinned on at T = 1, 8, 16 and 32 in every arm.
+Each row gives w - c in us: round 1 mean, then its four pairs; round 2 mean, then its four pairs.
 
-Draft ruled-out row: | 2026-11-04 ly_fw (059f734b, `tools/dl_ly_fw_patch.py` on ly_stk4 a054c8d5): the TINY / TINY2 /
-MID grid barrier waited on only by the M x 4 final-item CTAs (red.release arrivals, others exit, CTA 0 bumps the
-generation) | Box paired A/B vs ly_stk4, two rounds: decode 1 sliding <r1> / <r2> us, verify 1 sliding <..>, decode 16
-sliding <..>; check PASS 12/12 | fewer pollers on the skinny MoE grid-barrier counter as a decode 1 lever. Untested:
-a different arrival form (hierarchical or per-SM arrivals) |
+| Cell (touched) | r1 mean | r1 pairs | r2 mean | r2 pairs | thr r1 / r2 | verdict r1 / r2 |
+|---|---|---|---|---|---|---|
+| decode 1 sliding | +1.18 | +1.07 +1.02 +1.44 +1.23 | +0.58 | +0.62 +0.67 +0.70 +0.42 | 0.51 / 0.58 | loss / inside |
+| decode 1 full | +0.89 | +1.63 +1.86 +0.46 -0.11 | +1.37 | +1.18 +1.57 +1.39 +1.46 | 1.15 / 0.90 | inside / loss |
+| verify 1 sliding | +0.44 | +0.48 +0.46 +0.32 +0.45 | +0.37 | +0.58 +0.26 +0.34 +0.24 | 0.50 / 0.83 | inside |
+| verify 1 full | +1.13 | +1.14 +0.18 +0.94 +1.70 | +0.61 | +0.32 -0.06 +0.43 +1.33 | 1.92 / 1.79 | inside |
+| decode 16 sliding | +0.28 | +0.51 +0.08 +0.11 +0.24 | +0.25 | +0.51 +0.11 +0.10 +0.14 | 1.25 | inside |
+| decode 16 full | +0.58 | +0.74 +0.56 +1.04 +0.21 | +0.85 | +0.40 +0.85 +1.81 +0.83 | 2.02 / 1.97 | inside |
+
+## Verdict
+
+ly_fw is closed as a loss. In both rounds, all 8 decode 1 sliding pairs, all 8 verify 1 sliding pairs and all
+8 decode 16 sliding pairs were slower. The skinny grid barrier got slower when only the item CTAs waited. Possible
+causes, none tested: red.release costs more than atom.acq_rel on the arrival side; the 4 item CTAs' poll without a
+nanosleep competes with the arrivals at the counter's L2 slice; the generation bump and the flag zeroing now sit after
+CTA 0's wait. No stamps were taken.
+
+Ruled-out row:
+
+| 2026-11-04 ly_fw (059f734b, `tools/dl_ly_fw_patch.py` on ly_stk4 a054c8d5): the TINY / TINY2 / MID grid barrier waited on only by the M x 4 final-item CTAs (red.release arrivals, the others exit, CTA 0 bumps the generation, the waiting CTAs zero the flags) | Box paired A/B vs ly_stk4, two rounds, native build in every arm: decode 1 sliding +1.18 / +0.58 us (8/8 pairs slower), verify 1 sliding +0.44 / +0.37 (8/8), decode 16 sliding +0.28 / +0.25 (8/8), decode 1 full +0.89 / +1.37; reference check PASS 12/12 | fewer pollers on the skinny MoE barrier counter as a decode 1 lever. At T = 1 every final item needs every phase-B unit of the token's jobs (each route's ss covers all 4096 columns), so only the barrier's own latency was in play. Untested: a hierarchical or per-SM arrival form, and stamps that split arrival skew from release latency |
