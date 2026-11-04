@@ -1,0 +1,48 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793818482.751 acquire start after 17.9 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.46), ('sk2', 8.0), ('torch', 10.5)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+V16_AB T=128 sliding: off 296.19 on 295.20 us, median paired saving 0.22, wins 8/9
+PDL8H_GUARD T=128 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['5.71e-03', '6.05e-03', '0.00e+00'] on ['5.71e-03', '6.05e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+V16_AB T=128 full: off 383.74 on 383.01 us, median paired saving 0.58, wins 6/9
+V16_AB T=256 sliding: off 342.69 on 342.59 us, median paired saving -0.32, wins 4/9
+V16_AB T=256 full: off 512.86 on 513.41 us, median paired saving -0.38, wins 4/9
+PDL8H_GUARD T=256 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['5.03e-03', '4.82e-03', '0.00e+00'] on ['5.03e-03', '4.82e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+V16PDL enabled {128: True, 256: True} edges ('attn', 'b1', 'route', 'b2') (pre-wait boundary weights off)
+ARMS state v16pdl_on {128: True, 256: True} pdl8_on {1: True, 8: True, 16: True, 32: True}
+ARMS verify 16 sliding  off          net   240.22 us  d  +0.00  neg 0/48  check PASS
+ARMS verify 16 sliding  all          net   240.75 us  d  +0.24  neg 20/48  check PASS
+ARMS verify 16 sliding  attn         net   239.92 us  d  -0.03  neg 24/48  check PASS
+ARMS verify 16 sliding  b1           net   240.64 us  d  +0.22  neg 23/48  check PASS
+ARMS verify 16 sliding  route        net   240.58 us  d  +0.93  neg 16/48  check PASS
+ARMS verify 16 sliding  b2           net   241.09 us  d  +0.10  neg 23/48  check PASS
+ARMS verify 16 sliding  noattn       net   239.15 us  d  -0.40  neg 25/48  check PASS
+ARMS verify 16 full     off          net   326.34 us  d  +0.00  neg 0/48  check PASS
+ARMS verify 16 full     all          net   325.04 us  d  +0.21  neg 21/48  check PASS
+ARMS verify 16 full     attn         net   324.53 us  d  +0.32  neg 22/48  check PASS
+ARMS verify 16 full     b1           net   324.53 us  d  -0.16  neg 25/48  check PASS
+ARMS verify 16 full     route        net   325.79 us  d  +0.02  neg 24/48  check PASS
+ARMS verify 16 full     b2           net   326.29 us  d  -0.24  neg 26/48  check PASS
+ARMS verify 16 full     noattn       net   327.26 us  d  +1.18  neg 13/48  check PASS
+ARMS verify 32 sliding  off          net   293.25 us  d  +0.00  neg 0/48  check PASS
+ARMS verify 32 sliding  all          net   294.82 us  d  +0.94  neg 16/48  check PASS
+ARMS verify 32 sliding  attn         net   293.06 us  d  -0.21  neg 26/48  check PASS
+ARMS verify 32 sliding  b1           net   293.84 us  d  +0.03  neg 22/48  check PASS
+ARMS verify 32 sliding  route        net   294.54 us  d  +0.24  neg 20/48  check PASS
+ARMS verify 32 sliding  b2           net   293.41 us  d  +0.26  neg 22/48  check PASS
+ARMS verify 32 sliding  noattn       net   295.14 us  d  +0.35  neg 21/48  check PASS
+ARMS verify 32 full     off          net   459.84 us  d  +0.00  neg 0/48  check PASS
+ARMS verify 32 full     all          net   460.00 us  d  -0.98  neg 30/48  check PASS
+ARMS verify 32 full     attn         net   458.34 us  d  -1.39  neg 37/48  check PASS
+ARMS verify 32 full     b1           net   460.56 us  d  -1.18  neg 28/48  check PASS
+ARMS verify 32 full     route        net   459.38 us  d  -1.36  neg 32/48  check PASS
+ARMS verify 32 full     b2           net   459.44 us  d  -0.85  neg 30/48  check PASS
+ARMS verify 32 full     noattn       net   459.97 us  d  -0.90  neg 31/48  check PASS
+BXLOCK 1793818503.496 release end

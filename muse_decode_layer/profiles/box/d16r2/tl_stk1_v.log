@@ -1,0 +1,61 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793817959.410 acquire start after 3.9 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.98), ('sk2', 7.87), ('torch', 10.18)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 8.2 s
+USDT:2026-11-04 18:46:08 583511:583511 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 18:46:08 583511:583511 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL   142.45 us  void okc::moe_fused<true>(okc::Params)
+  KERNEL    28.81 us  nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT
+  KERNEL    25.00 us  nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN
+  KERNEL    16.39 us  nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN
+  KERNEL    11.67 us  void (anonymous namespace)::attn_kernel<8, false, 3>((anonymous namespace)::Params)
+  KERNEL     9.30 us  _graft_row_boundary
+  KERNEL     2.55 us  _graft_route
+  KERNEL   236.17 us  total
+BOX verify 16 sliding: raw 243.98 net 240.05 us (overhead 3.94) | judge net 250.02 (n=1, 250.02-250.02) box/judge 0.960 | check PASS
+USDT:2026-11-04 18:46:08 583511:583511 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 18:46:08 583511:583511 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL   140.88 us  void okc::moe_fused<true>(okc::Params)
+  KERNEL    97.96 us  void (anonymous namespace)::attn_kernel<8, true, 0>((anonymous namespace)::Params)
+  KERNEL    28.60 us  nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT
+  KERNEL    25.11 us  nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN
+  KERNEL    16.15 us  nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN
+  KERNEL     9.31 us  _graft_row_boundary
+  KERNEL     2.71 us  _graft_route
+  KERNEL   320.72 us  total
+BOX verify 16 full: raw 325.50 net 321.38 us (overhead 4.13) | judge net 335.01 (n=1, 335.01-335.01) box/judge 0.959 | check PASS
+USDT:2026-11-04 18:46:09 583511:583511 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 18:46:09 583511:583511 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL   177.91 us  void okc::moe_fused<true>(okc::Params)
+  KERNEL    31.71 us  nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN
+  KERNEL    26.56 us  nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT
+  KERNEL    17.74 us  nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN
+  KERNEL    14.94 us  void (anonymous namespace)::attn_kernel<8, false, 3>((anonymous namespace)::Params)
+  KERNEL    13.85 us  _graft_row_boundary
+  KERNEL     8.70 us  nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN
+  KERNEL     3.40 us  _graft_route
+  KERNEL   294.82 us  total
+BOX verify 32 sliding: raw 299.73 net 295.60 us (overhead 4.13) | judge net 308.45 (n=1, 308.45-308.45) box/judge 0.958 | check PASS
+USDT:2026-11-04 18:46:10 583511:583511 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-04 18:46:10 583511:583511 SyncActivityProfilerHandler.cpp:46] profiler_stop
+  KERNEL   178.93 us  void (anonymous namespace)::attn_kernel<8, true, 0>((anonymous namespace)::Params)
+  KERNEL   175.09 us  void okc::moe_fused<true>(okc::Params)
+  KERNEL    31.46 us  nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN
+  KERNEL    26.41 us  nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT
+  KERNEL    17.61 us  nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN
+  KERNEL    13.40 us  _graft_row_boundary
+  KERNEL     8.81 us  nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN
+  KERNEL     3.26 us  _graft_route
+  KERNEL   454.97 us  total
+BOX verify 32 full: raw 463.42 net 459.17 us (overhead 4.26) | judge net 468.64 (n=1, 468.64-468.64) box/judge 0.980 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 80 hits, 0 computed
+BXPHASE import_torch=4.08 load_reference_cuda_init=0.00 weights_and_router=0.24 prepare_submission=8.18 fresh_inputs=0.92 check=0.70 capture=0.06 overhead_graphs=0.44 replays=0.08 kernels_profiler=0.12 cell_tail=0.03 json_write=0.00 total=14.87

@@ -5,7 +5,7 @@ attention behind the qkv GEMM launch as PDL secondaries.
 Base: muse_decode_layer/cand/ly_stk1.py (SHA256 d7db12a1..., checked). At T = 128 / 256 `_pdl(T)` is False
 (PDL = False) and T is not in PDL8_T, so every edge of the verify 16 / 32 chain is a plain launch; the box timeline
 of ly_stk1 shows +0.26 to +0.93 us start gaps on all eight (docs/runs-decode-layer.md, "Verify 16 / 32 edges and
-unpooler stages (box)"). Five of the nine kernels are cuBLASLt nvjet GEMMs, which take no launch attribute and
+unpooler stages (box)"). Four of the nine kernels are cuBLASLt nvjet GEMMs, which take no launch attribute and
 execute no griddepcontrol, so they stay plain launches and cannot be secondaries; the MoE stays a plain cooperative
 launch. The four edges whose secondary is our own kernel and waits at entry are opened:
 

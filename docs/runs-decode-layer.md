@@ -6685,3 +6685,161 @@ Gate runs with the file's own in-prepare guard (no pin, no `--skip-pdl8-gate`; d
 `gate_ly_q1n.log`, `gate_ly_stk1_q1n.log`): both files pass PDL8H_GUARD at T = 1 sliding, 8 sliding and full, 16
 sliding and 32 full (ids mismatches 0 on both arms, T = 1 max relative difference to the PDL-off output 3.74e-04 /
 4.81e-04 on both arms), prepare and timed sets {1, 8, 16, 32} all on, check PASS at all four cells.
+
+## 2026-11-04 - Verify 16 / 32 edges and unpooler stages (box)
+
+Layer-d16 lane, round 2. Questions, in the lead's order: (1) do verify 16 / 32 (T = 128 / 256, 16 / 32 requests x 8
+tokens) have the serial edges ly_d16un removed at decode 16 / 32, and does opening them pay; (2) with the MoE ->
+unpooler edge programmatic at T = 16 / 32, what is the best number of unpooler weight stages issued before the wait
+(P); (3) any mechanism outside docs/ruled-out.md in the remaining decode 16 / 32 excess (pooler + router, row
+boundaries). Base: muse_decode_layer/cand/ly_stk1.py (SHA256 d7db12a14807eeb57df914dac468f4f2567b6bfc4e6771a549c167e92fc39878,
+judge-valid cf84eae4905f4745), never edited. Box only (okc-h200, 18:45 to 19:10 box UTC), every GPU process under
+gpu.lock, no judge job. Evidence: `muse_decode_layer/profiles/box/d16r2/`.
+
+Instrument for the sweeps: `tools/ly_arms.py` (new). One process, one prepare; per cell it captures one CUDA graph
+per arm (an arm is a state override and / or module globals set while its graph is captured, so a PCX_CFG entry or a
+table read at launch is baked into that graph), runs the reference check of every arm on a held-out input, then
+replays all arms on the same fresh input (per-input local_start, cold L2, the judge's replay overhead subtracted) in
+rotated and alternately reversed order. Reported: each arm's median net and the median of its paired difference to
+the first arm, with the count of negative pairs. Control arms with the first arm's settings ("base2", "off2", "m0b")
+measure the instrument's null: -0.66 to +0.70 us at 48 runs, -0.22 to +0.62 at 96 runs. Router seed
+106218864389449120, f931 case seeds, PDL pinned at T = 1, 8, 16, 32. Every arm of every sweep passed the reference
+check.
+
+### 1. Verify 16 / 32 edges (measurement, and candidate ly_v16pdl: null)
+
+At T = 128 / 256 `_pdl(T)` is False (PDL = False) and T is not in PDL8_T, so `_PDL8` is False and every launch in the
+chain is a plain launch. The chain (kernel names from the trace, `tl_stk1_v.tables.txt`): nvjet qkv -> attn_kernel<8,
+false, 3> -> nvjet o -> `_graft_row_boundary` (b1) -> nvjet pooler + router (concat, 4608 rows) -> `_graft_route` ->
+moe_fused<true> (MAIN, cooperative) -> nvjet unpooler -> `_graft_row_boundary` (b2). Start gaps on ly_stk1, us (verify
+16 sliding / full / verify 32 sliding / full): qkv -> attn +0.45 / +0.29 / +0.38 / +0.38, attn -> o +0.77 / +0.67 /
++0.93 / +0.66, o -> b1 +0.43 / +0.45 / +0.42 / +0.35, b1 -> pooler +0.43 / +0.45 / +0.45 / +0.43, pooler -> route
++0.26 / +0.32 / +0.26 / +0.29, route -> MoE +0.42 / +0.43 / +0.42 / +0.42, MoE -> unpooler +0.80 / +0.80 / +0.82 /
++0.88, unpooler -> b2 +0.29 / +0.29 / +0.27 / +0.26; 3.9 to 4.3 us of gaps per cell. Box nets 240.05 / 321.38 /
+295.60 / 459.17 us, check PASS.
+
+So every edge is serial, MoE -> unpooler included, but four of the nine kernels are cuBLASLt nvjet GEMMs: the box's
+cublasLt.h (13.1, both copies) has no programmatic-launch attribute and the kernels execute no griddepcontrol, so an
+nvjet can be neither a secondary (it would read its input without a wait) nor an early-triggering primary. The MoE ->
+unpooler edge at T = 128 / 256 is therefore not the T = 16 / 32 edge: its secondary is nvjet. What can be opened are
+the four edges whose secondary is our kernel and waits at entry: qkv -> attention (`pdl_wait()` before the first qkv
+read; the same binary PDL8D opens at T = 8), o -> b1 and unpooler -> b2 (`_gdc_wait()` is `_graft_row_boundary`'s
+first statement), pooler -> route (`_gdc_wait()` before any load, EARLY = False).
+
+`tools/dl_ly_v16pdl_patch.py` (base and pin checked) writes `muse_decode_layer/cand/ly_v16pdl.py` (SHA256
+920ed61a420244919c846fc3b693576f177f1ca8b7fe83142d1b6c7a7a343b80): the T > 32 `_graft_row_boundary` call takes
+`launch_pdl=_v16e("b2" if post else "b1")` (ly_stk1 lines 12512-12514), the four `_graft_route` calls
+`launch_pdl=_v16e("route") and T > 32` (lines 12557, 12568, 18462, 18473; the live ones are the last two), the
+attention launcher `... or _v16e("attn")` (line 18504), and an appended block: `kernel_fn` sets `_V16PDL` and the edge
+subset from `state["v16pdl_on"]` / `state["v16pdl_edges"]`, and a prepare step `_v16_setup` runs the PDL8H test at
+16 x 8 sliding and 32 x 8 full (2000 replays per arm against the PDL-off output; a failure turns that T off) and
+prints a paired V16_AB at all four cells. Gate (the file's own prepare, `gate_v16pdl.log`, `arms_v16.log`):
+PDL8H_GUARD T = 128 sliding and T = 256 full pass with ids mismatches 0 / 0 and on drift equal to off (5.71e-03 /
+6.05e-03, 5.03e-03 / 4.82e-03); the five existing guards pass; check PASS at verify 16 / 32. In-prepare V16_AB
+(synthetic inputs, 9 rounds): +0.22 / +0.58 us saved at T = 128, -0.32 / -0.38 at T = 256 (a first build gave -1.18 /
+-1.86 and +1.22 / +1.12: the in-prepare A/B swings by more than the effect).
+
+Arms (`arms_v16.log`, 48 runs), paired difference to PDL off, us (sliding / full):
+
+| arm | verify 16 | verify 32 |
+|---|---|---|
+| all four edges | +0.24 / +0.21 | +0.94 / -0.98 |
+| attention only | -0.03 / +0.32 | -0.21 / -1.39 |
+| b1 only | +0.22 / -0.16 | +0.03 / -1.18 |
+| route only | +0.93 / +0.02 | +0.24 / -1.36 |
+| b2 only | +0.10 / -0.24 | +0.26 / -0.85 |
+| b1 + route + b2 | -0.40 / +1.18 | +0.35 / -0.90 |
+
+No arm moves a cell beyond the instrument's null with a consistent sign; verify 32 full leans negative in every arm,
+including the attention-only one, which reads as the arms' position noise rather than any one edge. The candidate's
+timeline (`tl_v16pdl_v.tables.txt`) shows why: the gaps into the opened kernels stay +0.11 to +0.80 us (verify 16 full:
+attn +0.80, b1 +0.67, route +0.64). An nvjet primary never triggers early, so a programmatic secondary becomes
+launchable only when every primary CTA has exited, about when the plain launch would start it.
+
+Variant ly_v16pre (`--pre`, SHA256 54ea208f08b25f07297d946dede1e7ecf49c6e47b15916d41c854e57832ce78f): with the edge
+on, b1 / b2 at T > 32 take the `_graft_row_boundary_pre` body (norm weights, alpha and beta loaded before the wait).
+A loss: in-prepare V16_AB -1.25 / -0.48 / -3.01 / -2.43 us; arms (`arms_v16pre.log`, 48 runs) all edges +1.26 / +2.82
+/ +3.25 / +3.63, b1 + b2 only +1.52 / +2.13 / +3.01 / +3.65 (0 to 10 of 48 pairs faster), null -0.59 / +0.70 / -0.38 /
+-0.66.
+
+### 2. Unpooler pre-wait stages P at T = 16 / 32 (null: the base's P is best)
+
+The unpooler sk2 at T = 16 is `sk2_kernel<1, 16, 4, 1, 4, 1, 5, ...>` (unpooler16h_r100, NSTAGE 5, 256 CTAs, 16
+stages of K), at T = 32 `sk2_kernel<2, 32, 4, 2, 2, 2, 3, ...>` (unpooler32_r144, NSTAGE 3, 128 CTAs, 16 stages);
+CL = 1 in both, so P = min(PCX P, NSTAGE, 16). Base P: 2 at T = 16 (BFP_PDL_N), 1 at T = 32 (PCX_CFG[("un", 32)]).
+Arms on ly_stk1 (`arms_unp.log`, 48 runs; each arm overrides PCX_CFG[("un", T)] for one T, so it is a null at the
+other T), paired difference to the base, us (sliding / full):
+
+| arm | decode 16 | decode 32 |
+|---|---|---|
+| T = 16 P = 1 | +0.48 / +0.18 | +0.32 / +0.74 (null) |
+| T = 16 P = 3 | +0.21 / +0.08 | +0.70 / -0.37 (null) |
+| T = 16 P = 4 | +1.23 / +0.29 (6/48 faster at sliding) | +0.75 / +0.43 (null) |
+| T = 16 P = 5 | +1.44 / +1.06 (10/48, 11/48) | +0.37 / +0.56 (null) |
+| T = 32 P = 2 | +0.29 / -0.21 (null) | +1.06 / +0.40 |
+| T = 32 P = 3 | +0.42 / -0.14 (null) | +1.34 / +0.70 (5/48 faster at sliding) |
+
+Every other P loses or ties at its own T; P = 4 / 5 at T = 16 and P = 3 at T = 32 lose beyond the null at sliding. As
+at T = 8 (ly_v1un4), more of the unpooler's weight stages before the wait does not help: they go out while the MoE's
+last CTAs still stream phase B. Nothing to change.
+
+### 3. The remaining decode 16 / 32 excess
+
+Timeline of ly_stk1 at decode 16 / 32 (`tl_stk1_d.tables.txt`, sliding / full): MoE -> unpooler start gap -1.30 /
+-1.26 us at decode 16 and -2.42 / -2.30 at decode 32 (the round 1 edge); unpooler critical path 13.12 / 13.04 and
+14.10 / 14.32 us against an 11.36 us stream; b2 2.75 / 2.78 and 2.78 / 2.78. Three mechanisms tested.
+
+ly_unpf: the MoE pulls the unpooler's first stages into L2. `tools/dl_ly_unpf_patch.py` writes
+`muse_decode_layer/cand/ly_unpf.py` (SHA256 02e12ada96f82db7cd5aa4ce98dde30e8850a1c3fbfeac6dd1ff717aa4fc8d3e). In both
+MoE sources (MOE_CUDA_SRC, which the B4 build at T = 32 compiles, and the helper0 source, which MID at T = 16
+compiles), right after the CTA's `griddepcontrol.launch_dependents` at its phase B end, thread 0 issues
+`cp.async.bulk.prefetch.L2.global` over its 1/grid share of the first UNPF_STAGES[T] of the unpooler's 16
+stage-major stages (the stream is 50,331,648 B at both T, so one stage is 3,145,728 B; the share is computed on the
+host). Only the MID and B4 builds define OKC_UNPF (the fork's b4 key gains -DOKC_UNPF=1, MOE_MID_DEFINES gains it);
+SASS on the box: 16 UBLKPF in the MID and B4 builds, 0 in TINY, TINY2 and MAIN. The prefetch writes nothing and orders
+nothing. Arms (`arms_unpf.log`, 48 runs, k = stages prefetched, paired difference to k = 0, sliding / full): decode 16
+k = 2 -0.26 / +0.02, k = 4 -0.26 / +0.22, k = 6 +0.34 / -0.30, k = 8 -0.21 / +0.21, k = 12 +0.56 / +0.26; decode 32
+k = 2 -0.21 / +0.70, k = 4 +0.50 / +0.11, k = 6 -0.24 / +0.08, k = 8 +0.99 / +0.66, k = 12 +1.09 / +1.28. Timeline at
+k = 4 (`tl_unpf_d.tables.txt` against `tl_stk1_d`): unpooler critical path 13.12 -> 12.93, 13.04 -> 12.75, 14.10 ->
+14.11, 14.32 -> 14.05 us, MoE within its run-to-run spread. As at decode 1 (moe lane, "Decode 1 slice L2 prefetch from
+the MoE"), an L2 hit shortens the unpooler's start by 0.3 us at most: its excess after the MoE is not the DRAM latency
+of its first stages.
+
+ly_rbc: the row boundary's and route's geometry at T = 16 / 32. `tools/dl_ly_rbc_patch.py` writes
+`muse_decode_layer/cand/ly_rbc.py` (SHA256 d31ec064dada68e26c7d9d8a408e040867131bbdf6928d438ca225b719ab1cbc), ly_stk1
+launch for launch with two tables: RB_CFG, the (V, NW) of `_graft_row_boundary_pre_cg` (ly_stk1 lines 18898 and
+18906-18907), and RT_CFG, the (num_warps, PARTS, MODE) of the T = 16 / 32 route (the `{16: (8, 1), 32: (8, 1)}[T]`
+tuples and `MODE=0`). Arms (`arms_rbc.log`, 48 runs; decode 16 sliding / full, decode 32 sliding / full): row
+boundary 16 warps x 4 +0.24 / -0.10 / +0.48 / +0.50, 16 x 8 +0.32 / +0.40 / +1.22 / +1.82, 8 x 8 +0.96 / +0.48 /
++2.21 / +2.78, 4 x 8 +1.10 / +1.20 / +4.99 / +4.93; route 4 warps -0.30 / -0.40 / -0.96 / -0.05, 16 warps +0.34 /
++0.27 / +0.51 / +0.72, 2 parts -0.46 / -0.74 / +0.19 / -0.13, MODE 1 (sort) +0.46 / +0.03 / +0.75 / +1.15. The
+route's small arms rerun at 96 runs (`arms_rt2.log`): 4 warps -0.08 / +0.22 / -0.37 / +0.51, 2 warps +0.46 / -0.26 /
+-0.02 / +0.08, 2 parts -0.13 / +0.26 / +0.53 / +0.90, 4 warps x 2 parts +0.08 / +0.13 / -0.40 / +0.29, null +0.16 /
+-0.22 / +0.10 / +0.21. The row boundary gets slower with every halving of its warps (about 0.3, 1.1 and 2.5 us per
+boundary at 16, 32 and 64 elements per thread, from the decode 32 arms where b1 and b2 both use it), so at 8 elements
+per thread it is near what one 1024-thread program per row gives; the route is at its optimum within the null.
+
+ly_apf: the attention's pooler L2 prefetch at T = 16 / 32. At T = 1 / 8 the attention launcher passes the first 4 MB
+of the pooler stream and each attention CTA prefetches its share into L2 at entry; the gate `in (1, 8)` (ly_stk1 lines
+11423 and 18507) leaves it off at T = 16 / 32, although the FUSE pooler there reads the same `sk2["pooler"]` stream
+(FUSE is static_asserted to the pooler config's geometry). `tools/dl_ly_apf_patch.py` writes
+`muse_decode_layer/cand/ly_apf.py` (SHA256 b8ed6c7c025f4a94d5a0abac6c85b09c9c3fda2d655ae8ce78e0f76438eace81) with the
+gate and the cap as a table APF_BYTES. Arms (`arms_apf.log`, 48 runs, MB at T = 16 / 32): 4 MB -0.38 / -0.08 / -0.67 /
+-0.29, 8 MB +0.37 / +0.56 / +0.30 / +0.22, 12 MB +0.26 / +1.02 / +0.75 / +0.66, 16 MB +1.26 / +0.82 / +1.86 / +1.49,
+24 MB +1.26 / +0.96 / +2.00 / +0.70, null -0.16 / +0.24 / -0.43 / +0.32; at 96 runs (`arms_apf2.log`) 2 MB -0.11 /
++0.14 / -0.21 / +0.50, 4 MB -0.14 / -0.05 / -0.29 / +0.24, 6 MB -0.34 / -0.24 / +0.19 / +0.80, null +0.27 / -0.10 /
++0.24 / +0.62. Null up to 6 MB and a loss from 16 MB (hypothesis: the prefetch then competes with the attention's
+own KV reads).
+
+### Decision
+
+No candidate. Task 1: verify 16 / 32 do have serial edges, eight of them, but every one touches an nvjet GEMM or the
+cooperative MoE, and nvjet cannot take part in PDL; opening the four edges into our own kernels is a null
+(ly_v16pdl) and the pre-wait boundary body at T > 32 a loss of 1.3 to 3.6 us (ly_v16pre). Task 2: the base's P (2 at
+T = 16, 1 at T = 32) is the best of P = 1..5 / 1..3 with the programmatic edge. Task 3: the unpooler's 1.7 / 2.7 us
+excess after the MoE is not the DRAM latency of its first stages (ly_unpf null at 2 to 12 stages), the row boundary
+and route geometries are at their optimum (ly_rbc), and the attention's pooler prefetch does not pay at T = 16 / 32
+(ly_apf). The pooler + router at decode 32 (17.52 us against 13.26) was not built against: its geometry space is in
+docs/ruled-out.md (pool32w8, pool32n1b, rd pooler 16), and its ring depth is set by the 32-token x tile (32 KB of each
+56 KB stage, 3 stages), which only a change to the bf16 lane's sk2 kernel could move. Ruled-out rows added; no ledger
+registration line, no judge job.

@@ -1,0 +1,109 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793819111.517 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.94), ('sk2', 7.97), ('torch', 10.18)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+ARMS state v16pdl_on None pdl8_on {1: True, 8: True, 16: True, 32: True}
+BXLOCK 1793819120.488 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793819120.488 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793819120.611 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793819120.611 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819120.650 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793819120.650 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793819120.791 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793819120.791 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819120.830 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793819120.830 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793819120.936 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793819120.936 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819120.975 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793819120.975 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793819121.203 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793819121.203 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819121.240 release triton _prq_sl_tile_route_cg
+BXBUILD 1793819121.240 start triton _prq_sl_tile_route_cg
+BXBUILD 1793819122.023 end triton _prq_sl_tile_route_cg
+BXLOCK 1793819122.023 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819122.063 release triton _prq_sl_tile_route_cg
+BXBUILD 1793819122.063 start triton _prq_sl_tile_route_cg
+BXBUILD 1793819122.670 end triton _prq_sl_tile_route_cg
+BXLOCK 1793819122.670 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819122.708 release triton _prq_sl_tile_route_cg
+BXBUILD 1793819122.708 start triton _prq_sl_tile_route_cg
+BXBUILD 1793819123.462 end triton _prq_sl_tile_route_cg
+BXLOCK 1793819123.462 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819123.502 release triton _prq_sl_tile_route_cg
+BXBUILD 1793819123.502 start triton _prq_sl_tile_route_cg
+BXBUILD 1793819124.261 end triton _prq_sl_tile_route_cg
+BXLOCK 1793819124.261 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+ARMS decode 16 sliding  base         net   125.97 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 16 sliding  rb4x16       net   126.72 us  d  +0.24  neg 21/48  check PASS
+ARMS decode 16 sliding  rb8x8        net   127.39 us  d  +0.96  neg 8/48  check PASS
+ARMS decode 16 sliding  rb8x16       net   126.10 us  d  +0.32  neg 19/48  check PASS
+ARMS decode 16 sliding  rb8x4        net   127.26 us  d  +1.10  neg 8/48  check PASS
+ARMS decode 16 sliding  rt4          net   126.02 us  d  -0.30  neg 26/48  check PASS
+ARMS decode 16 sliding  rt16         net   126.51 us  d  +0.34  neg 20/48  check PASS
+ARMS decode 16 sliding  rtp2         net   125.84 us  d  -0.46  neg 34/48  check PASS
+ARMS decode 16 sliding  rtm1         net   126.93 us  d  +0.46  neg 15/48  check PASS
+ARMS decode 16 full     base         net   198.35 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 16 full     rb4x16       net   197.28 us  d  -0.10  neg 25/48  check PASS
+ARMS decode 16 full     rb8x8        net   198.13 us  d  +0.48  neg 16/48  check PASS
+ARMS decode 16 full     rb8x16       net   198.51 us  d  +0.40  neg 20/48  check PASS
+ARMS decode 16 full     rb8x4        net   199.12 us  d  +1.20  neg 12/48  check PASS
+ARMS decode 16 full     rt4          net   198.10 us  d  -0.40  neg 26/48  check PASS
+ARMS decode 16 full     rt16         net   198.22 us  d  +0.27  neg 21/48  check PASS
+ARMS decode 16 full     rtp2         net   197.71 us  d  -0.74  neg 29/48  check PASS
+ARMS decode 16 full     rtm1         net   197.38 us  d  +0.03  neg 22/48  check PASS
+BXLOCK 1793819127.260 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793819127.260 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793819127.382 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793819127.382 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819127.439 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793819127.439 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793819127.571 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793819127.571 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819127.629 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793819127.629 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793819127.731 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793819127.731 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793819127.787 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793819127.787 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793819127.994 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793819127.994 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+ARMS decode 32 sliding  base         net   143.42 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 32 sliding  rb4x16       net   144.19 us  d  +0.48  neg 16/48  check PASS
+ARMS decode 32 sliding  rb8x8        net   146.37 us  d  +2.21  neg 4/48  check PASS
+ARMS decode 32 sliding  rb8x16       net   144.42 us  d  +1.22  neg 12/48  check PASS
+ARMS decode 32 sliding  rb8x4        net   149.34 us  d  +4.99  neg 0/48  check PASS
+ARMS decode 32 sliding  rt4          net   142.99 us  d  -0.96  neg 32/48  check PASS
+ARMS decode 32 sliding  rt16         net   143.57 us  d  +0.51  neg 21/48  check PASS
+ARMS decode 32 sliding  rtp2         net   143.26 us  d  +0.19  neg 22/48  check PASS
+ARMS decode 32 sliding  rtm1         net   145.79 us  d  +0.75  neg 19/48  check PASS
+ARMS decode 32 full     base         net   293.73 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 32 full     rb4x16       net   294.77 us  d  +0.50  neg 20/48  check PASS
+ARMS decode 32 full     rb8x8        net   297.50 us  d  +2.78  neg 2/48  check PASS
+ARMS decode 32 full     rb8x16       net   295.58 us  d  +1.82  neg 10/48  check PASS
+ARMS decode 32 full     rb8x4        net   298.69 us  d  +4.93  neg 1/48  check PASS
+ARMS decode 32 full     rt4          net   294.26 us  d  -0.05  neg 24/48  check PASS
+ARMS decode 32 full     rt16         net   294.56 us  d  +0.72  neg 17/48  check PASS
+ARMS decode 32 full     rtp2         net   294.75 us  d  -0.13  neg 26/48  check PASS
+ARMS decode 32 full     rtm1         net   295.22 us  d  +1.15  neg 16/48  check PASS
+BXLOCK 1793819132.152 release end

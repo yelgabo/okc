@@ -1,0 +1,41 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793819334.098 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.07), ('sk2', 8.16), ('torch', 10.3)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+ARMS state v16pdl_on None pdl8_on {1: True, 8: True, 16: True, 32: True}
+ARMS decode 16 sliding  m0           net   125.57 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 16 sliding  m4           net   125.82 us  d  -0.38  neg 31/48  check PASS
+ARMS decode 16 sliding  m8           net   126.13 us  d  +0.37  neg 18/48  check PASS
+ARMS decode 16 sliding  m12          net   126.10 us  d  +0.26  neg 18/48  check PASS
+ARMS decode 16 sliding  m16          net   127.47 us  d  +1.26  neg 3/48  check PASS
+ARMS decode 16 sliding  m24          net   127.26 us  d  +1.26  neg 6/48  check PASS
+ARMS decode 16 sliding  m0b          net   125.92 us  d  -0.16  neg 26/48  check PASS
+ARMS decode 16 full     m0           net   197.39 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 16 full     m4           net   198.37 us  d  -0.08  neg 24/48  check PASS
+ARMS decode 16 full     m8           net   198.03 us  d  +0.56  neg 11/48  check PASS
+ARMS decode 16 full     m12          net   198.93 us  d  +1.02  neg 11/48  check PASS
+ARMS decode 16 full     m16          net   199.38 us  d  +0.82  neg 13/48  check PASS
+ARMS decode 16 full     m24          net   199.79 us  d  +0.96  neg 8/48  check PASS
+ARMS decode 16 full     m0b          net   197.86 us  d  +0.24  neg 20/48  check PASS
+ARMS decode 32 sliding  m0           net   144.75 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 32 sliding  m4           net   143.95 us  d  -0.67  neg 34/48  check PASS
+ARMS decode 32 sliding  m8           net   145.14 us  d  +0.30  neg 20/48  check PASS
+ARMS decode 32 sliding  m12          net   144.26 us  d  +0.75  neg 16/48  check PASS
+ARMS decode 32 sliding  m16          net   147.01 us  d  +1.86  neg 9/48  check PASS
+ARMS decode 32 sliding  m24          net   146.37 us  d  +2.00  neg 4/48  check PASS
+ARMS decode 32 sliding  m0b          net   144.40 us  d  -0.43  neg 28/48  check PASS
+ARMS decode 32 full     m0           net   293.60 us  d  +0.00  neg 0/48  check PASS
+ARMS decode 32 full     m4           net   293.12 us  d  -0.29  neg 26/48  check PASS
+ARMS decode 32 full     m8           net   293.49 us  d  +0.22  neg 22/48  check PASS
+ARMS decode 32 full     m12          net   294.21 us  d  +0.66  neg 16/48  check PASS
+ARMS decode 32 full     m16          net   293.87 us  d  +1.49  neg 14/48  check PASS
+ARMS decode 32 full     m24          net   293.86 us  d  +0.70  neg 19/48  check PASS
+ARMS decode 32 full     m0b          net   292.85 us  d  +0.32  neg 18/48  check PASS
+BXLOCK 1793819349.526 release end
