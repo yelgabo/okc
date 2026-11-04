@@ -7986,7 +7986,7 @@ faster; /root/okc/.build/bf16r3/bfq_r1.log, bfq_r2.log):
 | verify 16 full | -2.00 (17/24) | -0.38 (15/24) | -2.69 (21/24) | -2.42 (18/24) |
 | verify 32 sliding | +0.29 (11/24) | +0.67 (10/24) | +0.45 (8/24) | +0.64 (8/24) |
 | verify 32 full | -0.29 (14/24) | +0.22 (10/24) | -0.38 (13/24) | -0.45 (13/24) |
-| decode 1 / 16 / 32, verify 1 | -1.01 to +0.69 | | -0.59 to +0.69 | |
+| decode 1 / 16 / 32, verify 1 | -1.01 to +0.69 | | -0.77 to +0.69 | |
 
 Neither arm clears the bar (verify 16 or 32 sliding at least 1.5 us faster with 20/24). The swap alone is worth about
 0.9 us on verify 16 sliding and 0.4 to 2.0 us on full. The early trigger costs about 2 us on sliding (bfq against
