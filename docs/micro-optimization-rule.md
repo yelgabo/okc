@@ -22,3 +22,18 @@ SASS diff and a paired box A/B.
    and a store. Clamp the index unconditionally to a safe fallback
    (`Index = Condition ? Target : SafeFallback`), run the math unconditionally, and use a predicated
    or masked store instead of an execution branch.
+
+## Addendum (user, 2026-11-03 evening): compute-store fusion comes first
+
+0. **Compute-store fusion.** Writing a projection's output to global memory and reading it back in a
+   separate kernel wastes bandwidth and a launch. Fuse the element-wise math, residual adds and
+   normalization that the next kernel would do into the tail of the GEMM or compute kernel, in
+   registers, before the store. In Triton that means the consumer's loads and math move into the
+   producer's epilogue before `tl.store`; in the CUDA kernels it means the boundary or norm step
+   runs in the producer's epilogue (with the reduction it needs done in-kernel) instead of in its
+   own launch. Audit every kernel boundary in the layer: what the producer writes, what the consumer
+   reads back, the bytes and the launch cost, and whether the consumer's math can move upstream.
+
+Patterns 1 to 4 above remain, with these reference shapes: two adjacent 16-bit stores become one
+`__nv_bfloat162` store (`__halves2bfloat162`); `gt / (1 + exp(-gt))` becomes the `__expf` / MUFU
+form; a guarded block becomes `safe_i = valid ? i : 0`, unconditional math, predicated store.
