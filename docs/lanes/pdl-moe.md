@@ -1,6 +1,6 @@
 # Lane pdl-moe: route -> MoE as a PDL edge (checkpoint)
 
-Branch worktree-agent-a3c586c187190aa19. Last update 14:46 PT 2026-11-04.
+Branch worktree-agent-a3c586c187190aa19. Last update 14:46 PT 2026-11-04 (handoff before restart).
 
 ## Base
 
@@ -62,7 +62,37 @@ muse_decode_layer/cand/ly_stk4.py, SHA256 a054c8d57555352d924bc2c4ae73f3199f0502
   local_start), replays off, off, on, on; bitwise if off-vs-off is bitwise, else PDL8H; 30 s hang watchdog.
 - Box: /root/okc/muse_decode_layer/cand/ly_mpdl.py, runner tools/ly_mpdl_box.sh, outputs /root/okc/.build/pdlmoe/.
 
+## Gate run (done, 14:44-14:45 PT): PASS 12/12, guard passes at every T
+
+Command on the box: `cd /root/okc && PHASE=gate setsid nohup tools/ly_mpdl_box.sh > .build/pdlmoe/gate.log 2>&1 < /dev/null &`
+(bx_box_run, judge .build/judge/g1b4_pdl8d.f931abf568544018.json, 6 loads, --runs 5, --pin-pdl8 1,8,16,32, PDL8 gate
+not skipped). Log /root/okc/.build/pdlmoe/chk.log, JSON chk.json. prepare 74.25 s.
+
+- Native build: "G1b4 backend native repaired: cooperative+BF16" and "G_RELEASE_STARTUP_OK native ... 56
+  verified_replays"; grep for native build failed / fallback / marlin is empty.
+- Reference check PASS on all 12 cells. Box net (n=5, not a timing result): decode 1 62.18 / 69.86, decode 16
+  124.00 / 201.34, decode 32 135.90 / 293.02, verify 1 94.11 / 112.93, verify 16 239.33 / 318.72, verify 32
+  296.00 / 458.46 us (sliding / full).
+- PDL8 gate enabled T = 1, 8, 16, 32 (paired savings 7.14 / 7.82 / 7.34 / 6.34 us).
+- MPDL_GUARD, 48 fresh-routing rounds per T and layer: off-vs-off is not bitwise equal (the layer is nondeterministic),
+  so the PDL8H rule applied; all 8 pass, moe_pdl {1,8,16,32: True}. Each round compares off once and on twice against
+  the first off replay, so on-arm counts are about 2x by construction. Off / on: T=1 sl bytes 3381 / 13987, ids 0 / 0,
+  rel 3.6e-3 / 7.0e-3; T=1 full ids 0 / 0, rel 8.9e-3 / 8.9e-3; T=8 sl ids 0 / 0, rel 7.9e-3 / 9.1e-3; T=8 full ids 2 / 2;
+  T=16 sl ids 0 / 1; T=16 full ids 2 / 6, rel 6.2e-3 / 7.8e-3; T=32 sl ids 1 / 6, rel 7.2e-3 / 8.7e-3; T=32 full
+  ids 0 / 0, rel 9.3e-3 / 1.2e-2. No hang.
+
+## In progress: paired A/B (launched 14:45 PT, detached, survives this session)
+
+Command: `cd /root/okc && PHASE=ab setsid nohup tools/ly_mpdl_box.sh > .build/pdlmoe/ab.log 2>&1 < /dev/null &`
+It runs tools/ly_arms.py twice (r1, r2) on ly_mpdl.py with arms off = {"moe_pdl": {}} (the ly_stk4 launch path)
+and on = {"moe_pdl": {1,8,16,32: True}}, loads decode 1, verify 1, decode 16, decode 32, --runs 60,
+--skip-pdl8-gate --pin-pdl8 1,8,16,32, router seed 106218864389449120, under /root/okc/.build/box/gpu.lock, each
+under timeout 3000. Outputs: /root/okc/.build/pdlmoe/ab_r1.log, ab_r1.json, ab_r2.log, ab_r2.json; progress
+lines in ab.log ("ab r1 rc=...", "all done"). Check: `ssh okc-h200 'pgrep -af ly_arms; cat /root/okc/.build/pdlmoe/ab.log'`.
+
 ## Next action
 
-Gate run launched 14:45 PT (PHASE=gate: prepare with guard, reference check 6 loads, --runs 5, chk.log). Then
-PHASE=ab: two ly_arms rounds off vs on at decode 1, verify 1, decode 16, decode 32 (ab_r1.log, ab_r2.log).
+When ab.log says "all done": `grep ^ARMS` in ab_r1.log and ab_r2.log gives net us per cell and arm; tabulate on - off
+per cell for both rounds; grep both logs for "backend native" and for native build failed / fallback / marlin.
+Expected gain from proof 1 is about 0.4 us per cell (graph launch latency, no overlap). If on is not faster in both
+rounds at a cell, write a ruled-out row. Judge use is the lead's decision (T = 1, 8, 16, 32 only).
