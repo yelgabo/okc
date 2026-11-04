@@ -22,5 +22,6 @@ Updated 2026-11-04 12:36 PT (Mac clock). Branch worktree-agent-a5dc59bb03b3b9eec
   above the 0.3 bar, so the A/B runs as the decisive test.
 - A/B launched 20:44:08 UTC: `CAND=ly_a16nc2.py TAG=a16nc2 CTL=ly_stk3.py tools/ly_a16_ab.sh` -> box
   .build/a16/a16nc2_run.log, gate_a16nc2.log, .build/prtl/a16nc2{,_r2}/.
-- Next action: read the gate (PASS, five PDL8H guards) and both A/B rounds; register only on a decode 16 sliding win
+- Gate (20:44-20:46 UTC): check PASS at decode 16 / 32 sliding and full, five PDL8H guards pass.
+- Next action: read both A/B rounds (box .build/prtl/a16nc2{,_r2}/, `python3 tools/ly_prtl_table.py DIR`); register only on a decode 16 sliding win
   with 20+/24 pairs and no other load losing beyond noise.
