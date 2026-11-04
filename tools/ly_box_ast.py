@@ -23,7 +23,8 @@ import torch  # noqa: E402
 
 AS, KS = 32, 32
 ATT_NAMES = {0: "entry", 1: "idx", 8: "kv_iss", 15: "wait", 16: "q_vis", 17: "kv_own", 9: "rope", 10: "qpass",
-             11: "newkv", 2: "patch", 12: "stage", 13: "math0", 3: "loop", 4: "ticket", 14: "fin0", 5: "fin1"}
+             11: "newkv", 2: "patch", 12: "stage", 13: "math0", 3: "loop", 19: "xchg", 20: "reds", 21: "presync",
+             4: "ticket", 14: "fin0", 5: "fin1"}
 
 
 def summarize(att, qkv, o):
@@ -71,6 +72,7 @@ def main():
     ap.add_argument("--ls-cache", default="")
     ap.add_argument("--out", default="")
     ap.add_argument("--raw", type=int, default=0)
+    ap.add_argument("--warm", action="store_true", help="stamp a second back-to-back replay (no L2 flush before it)")
     a = ap.parse_args()
     if a.lock:
         br.release_lock_for_triton()
@@ -134,7 +136,20 @@ def main():
                 b.zero_()
             br.copy_into(static, f)
             torch.cuda.synchronize()
-            ti = timer.cold(gi) / 1e3
+            if a.warm:
+                gi.replay()
+                torch.cuda.synchronize()
+                for b in (att_buf, qkv_buf, o_buf):
+                    b.zero_()
+                br.copy_into(static, f)
+                torch.cuda.synchronize()
+                timer.a.record()
+                gi.replay()
+                timer.b.record()
+                timer.b.synchronize()
+                ti = timer.a.elapsed_time(timer.b) * 1e3
+            else:
+                ti = timer.cold(gi) / 1e3
             diff = float((first(outi).float() - op.float()).abs().max())
             att = att_buf.view(-1, AS).cpu().tolist()
             qk = qkv_buf.view(-1, KS).cpu().tolist()

@@ -33,6 +33,7 @@ if "--base" in sys.argv:
 if "--out" in sys.argv:
     DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
 KVW = "--kvw" in sys.argv
+MRG = "--mrg" in sys.argv   # merge slots 19 (key halves exchanged), 20 (thread 0 issued its reds), 21 (CTA barrier before the ticket)
 
 IDXF_WAIT = ("  if constexpr (IDXF) {   // the q group (all but the STAGES-1 K/V groups just committed), visible to every thread\n"
              "    cp_wait<STAGES - 1>();\n    csync<WS, NT>();\n  }\n")
@@ -46,6 +47,15 @@ ATT_EDITS = [
     (IDXF_WAIT, IDXF_WAIT + "  DBG(16);\n" + (
         "  if (p.dbg && tid == 0) { cp_wait<0>(); DBG(17); }\n" if KVW else "")),
 ]
+MRG_EDITS = [
+    ("  if (M_CL) {\n    cp_wait<0>();\n    csync<WS, NT>();\n    float* PB", "  DBG(19);\n  if (M_CL) {\n    cp_wait<0>();\n    csync<WS, NT>();\n    float* PB"),
+    ("  if (OKC_MRGDBG) DBG(7);   // (debug: reds issued)\n", "  DBG(20);\n"),
+    ("  if (OKC_MRGDBG) DBG(6);   // (debug: every thread's reds performed)\n", "  DBG(21);\n"),
+]
+# timing diagnostics (wrong outputs by design): --nol drops the row-sum reds into ws_l, --noacc the output reds
+NOL_EDIT = ("    if (tig == 0) red_f32(p.ws_l + ((bp * p.nc + copy) * L + j) * 16 + hh, lsum * f);\n",
+            "    if (tig == 0 && L != 1) red_f32(p.ws_l + ((bp * p.nc + copy) * L + j) * 16 + hh, lsum * f);\n")
+NOACC_EDIT = ("          red_v4(acc + 16 * tig + 8 * c + t4,", "          if (lsum < -1.f) red_v4(acc + 16 * tig + 8 * c + t4,")
 SK2_EDITS = [
     ("void sk2_set_pdl(int64_t n) { g_sk2_pdl = (int)n; }\n",
      "void sk2_set_pdl(int64_t n) { g_sk2_pdl = (int)n; }\n"
@@ -93,7 +103,8 @@ def main():
         sys.exit(f"base {SRC} is {sha}, expected {PIN}")
     i, j = region(text, 'ATT7_CUDA_SRC = r"""\n')
     at = text[i:j]
-    for old, new in ATT_EDITS:
+    diag = ([NOL_EDIT] if "--nol" in sys.argv else []) + ([NOACC_EDIT] if "--noacc" in sys.argv else [])
+    for old, new in ATT_EDITS + (MRG_EDITS if MRG else []) + diag:
         at = sub(at, old, new, 1, "att")
     text = text[:i] + at + text[j:]
     i, j = region(text, 'bfp_SK2_SRC = r"""\n')
