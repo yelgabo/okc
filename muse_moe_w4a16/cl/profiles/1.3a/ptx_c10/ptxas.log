@@ -1,0 +1,5 @@
+/root/okc/muse_moe_w4a16/cl13a/cl_phase_b.cuh(120): error: static assertion failed with "CLB_NREG16"
+  static_assert(128 == 0 || (NREG16_OTHER >= 24 && NREG16_OTHER <= 96 && 128 % 8 == 0 &&
+  ^
+
+1 error detected in the compilation of "/root/okc/.build/box/cl13a/ptx_c10/clb.cu".

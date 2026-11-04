@@ -1,0 +1,15 @@
+START 10:01:58 diag2 cl13a CLB_LOOP_DIAG=2
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 52.7 s; defines ['CLB_LOOP_DIAG=2']; sha cl_phase_b.cuh 3ad3a324b9a290c1 cl_math.cuh 0795eb99a2e29149 cl_schedule.h 8a5714cf88767414 cl_unit_loop.cuh 52e7072bcb7148de bench aa8e4b1d949b5dff
+SASS _ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6Para reg 168 stack 8 total 10776 hmma 640 per-hmma HMUL2 1.59, FADD 1.1, HMMA 1.0, LOP3 0.98, MOV 0.94, IMAD 0.76, LDS 0.6, FMUL 0.57, STS 0.56, SHFL 0.34, SHF 0.33, IADD3 0.29
+SASS _ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6Para reg 96 stack 64 total 3888 hmma 64 per-hmma HMUL2 3.88, LOP3 2.17, IMAD 1.19, HMMA 1.0, LDS 0.66, FADD 0.56, MOV 0.44, PRMT 0.44, ISETP 0.39, IADD3 0.3, BRA 0.25, LEA 0.17
+LOCK acquired after 13.2 s
+APPS 397874, 3020 MiB
+BENCH T=8 distinct=7 policy=fill15 ncw=16 slices=15 sc_max=256 depth=4 smem=184576 floor 14.85 us inputs [1000, 1017, 1020, 1022, 1025] synthetic=False
+RUN T= 8 compute span  20.14 [19.81-20.99] us ratio 1.357 from-slab 17.94 (1.208) event  25.70 | slab-load 2.30 cons 19.23 slab-pub 2.72 first-stage 3.84 gather-end 11.74 | cons wait on gather med 1.86 max 2.62, on weights 0.77 | end spread 5.38
+PICK only 4 of 5 inputs with 7 distinct experts in seeds 1000..3999; scanned distribution {7: 4, 8: 12, 9: 24, 10: 54, 11: 100, 12: 157, 13: 261, 14: 326, 15: 389, 16: 399, 17: 381, 18: 359, 19: 261, 20: 145, 21: 77, 22: 33, 23: 13, 24: 3, 25: 1, 26: 1}; synthesizing
+BENCH T=32 distinct=7 policy=fill15 ncw=8 slices=15 sc_max=256 depth=4 smem=230400 floor 14.85 us inputs [1000, 1001, 1002, 1003, 1004] synthetic=True
+RUN T=32 compute span  24.77 [22.02-35.87] us ratio 1.668 from-slab 22.45 (1.512) event  30.27 | slab-load 2.56 cons 22.78 slab-pub 3.07 first-stage 3.96 gather-end 13.41 | cons wait on gather med 1.82 max 3.04, on weights 1.18 | end spread 4.43
+LOCK released
+END 10:03:09 rc 0

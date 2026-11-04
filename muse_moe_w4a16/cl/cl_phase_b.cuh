@@ -421,7 +421,11 @@ __device__ __forceinline__ void epilogue(const Params& p, const Smem& sm, const 
 }
 
 template <int TM, int NCW, bool DBG>
-__global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(n_threads(NCW), 1) phase_b_kernel(Params p) {
+#ifndef CLB_LB_THREADS
+#define CLB_LB_THREADS 0   // compile probe only: launch bound in threads instead of n_threads(NCW)
+#endif
+__global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(CLB_LB_THREADS ? CLB_LB_THREADS : n_threads(NCW), 1)
+phase_b_kernel(Params p) {
   constexpr int WP = NCW, WS0 = NCW + 1, NSW = n_staging(NCW);
   constexpr bool EPI_IN_PROD = roster18(NCW);
   extern __shared__ __align__(1024) uint8_t dsm[];

@@ -1,0 +1,31 @@
+ptxas info    : 28 bytes gmem
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi32ELi8ELb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 2 barriers, 2048 bytes smem
+ptxas info    : Compile time = 799.542 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi32ELi8ELb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi32ELi8ELb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 2 barriers, 2048 bytes smem
+ptxas info    : Compile time = 881.731 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi8ELi8ELb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi8ELi8ELb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 2 barriers, 1024 bytes smem
+ptxas info    : Compile time = 222.681 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi8ELi8ELb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi8ELi8ELb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 2 barriers, 1024 bytes smem
+ptxas info    : Compile time = 225.227 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi8ELi16ELb0EEEvNS_6ParamsE
+    16 bytes stack frame, 28 bytes spill stores, 24 bytes spill loads
+ptxas info    : Used 64 registers, used 2 barriers, 16 bytes cumulative stack size, 1024 bytes smem
+ptxas info    : Compile time = 186.800 ms
+ptxas info    : Compiling entry function '_ZN3clb14phase_b_kernelILi8ELi16ELb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3clb14phase_b_kernelILi8ELi16ELb1EEEvNS_6ParamsE
+    16 bytes stack frame, 28 bytes spill stores, 24 bytes spill loads
+ptxas info    : Used 64 registers, used 2 barriers, 16 bytes cumulative stack size, 1024 bytes smem
+ptxas info    : Compile time = 199.848 ms

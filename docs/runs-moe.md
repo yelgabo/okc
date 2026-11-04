@@ -7252,3 +7252,24 @@ release inside each; the control runs a single rolled loop with the variant disp
 first-to-last-HMMA region holds 17.9 instructions per HMMA in v3 against 15.7 in the control (IMAD 2.56 against
 1.89, 24 ISETP and 16 BRA against 2 BRA), the per-variant loop prologues and address recomputation. Round 5 puts
 the loop back in the control's shape with `clu::unit_block` as the body.
+
+### Round 5: the control's loop shape with `clu::unit_block` as the body
+
+v5 is the consumer of the control (one rolled stage loop per K block, the chunk-range dispatch inside, register
+accumulator rotation) with the stage body from cl_unit_loop.cuh, the CL-1.1 proxy fence at the slot release and
+the 20-warp roster. The B cache and shared-memory accumulators are removed; `CLB_UPW`, `CLB_LOOP_DQ`,
+`CLB_LOOP_DIAG` and `CLB_ROSTER18` remain as knobs (all default to the control's form).
+
+| build | T, NCW | reg / stack | HMMA-region instr per HMMA | math-only us | no-exchange us |
+|---|---|---|---:|---:|---:|
+| control b1f1894d | 8, 16 | 96 / 0 | 15.7 | 20.96 | 26.11 |
+| v5 | 8, 16 | 96 / 0 | 15.7 (same opcode mix) | 21.12 [20.70-22.62] | 26.26 [25.70-27.90] |
+| v5 ROSTER18 (18 warps) | 8, 16 | 96 / 0 | 16.1 | 22.24 | 26.82 |
+| control | 32, 8 | 168 / 0 | 11.9 | 27.97 | 29.97 |
+| v5 | 32, 8 | 168 / 0 | 11.9 | 27.87 [25.89-36.26] | 30.10 [28.61-41.06] |
+
+v5 equals the control within the session spread (about 1%) in all four cells; the 18-warp roster costs 1.1 us at
+T = 8 and is ruled out. tests/test_phase_b.py on the v5 build (profiles/1.3a/v5_test.json): part A 18 / 18 pass,
+part B 64 cells with mismatch counts identical to CL-1.2's profiles/1.2/test.json cell by cell (raw sums, ybuf
+and per-unit sums of squares bitwise equal to helper0 where the slice K ranges match: 0 mismatches in every S = 1
+natural-order and S = 8 cell).
