@@ -1,0 +1,277 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793818000.766 acquire start after 10.4 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+BXLOCK 1793818001.360 release build dl_okc_bf16proj_v86y4_90a
+BXBUILD 1793818001.361 start build dl_okc_bf16proj_v86y4_90a
+BXBUILD 1793818025.949 end build dl_okc_bf16proj_v86y4_90a
+BXLOCK 1793818030.057 acquire build dl_okc_bf16proj_v86y4_90a done after 4.1 s
+BXCLOCK submission clocks now 4.1 s behind real (lock waits after builds)
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 6.94), ('sk2', 7.74), ('torch', 10.24)] -> ('cg',)
+BXLOCK 1793818031.983 release triton _boundary1
+BXBUILD 1793818031.983 start triton _boundary1
+BXBUILD 1793818032.177 end triton _boundary1
+BXLOCK 1793818044.774 acquire triton _boundary1 done after 12.6 s
+BXCLOCK submission clocks now 16.7 s behind real (lock waits after builds)
+BXLOCK 1793818044.788 release triton _route_split
+BXBUILD 1793818044.788 start triton _route_split
+BXBUILD 1793818045.125 end triton _route_split
+BXLOCK 1793818045.125 acquire triton _route_split done after 0.0 s
+BXCLOCK submission clocks now 16.7 s behind real (lock waits after builds)
+BXLOCK 1793818045.127 release triton _boundary2
+BXBUILD 1793818045.127 start triton _boundary2
+BXBUILD 1793818045.396 end triton _boundary2
+BXLOCK 1793818045.396 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 16.7 s behind real (lock waits after builds)
+BXLOCK 1793818045.403 release triton _gemm_splitk
+BXBUILD 1793818045.403 start triton _gemm_splitk
+BXBUILD 1793818045.558 end triton _gemm_splitk
+BXLOCK 1793818045.558 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 16.7 s behind real (lock waits after builds)
+BXLOCK 1793818045.570 release triton _gemm_splitk
+BXBUILD 1793818045.570 start triton _gemm_splitk
+BXBUILD 1793818045.741 end triton _gemm_splitk
+BXLOCK 1793818045.741 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 16.7 s behind real (lock waits after builds)
+BXLOCK 1793818045.753 release triton _boundary1
+BXBUILD 1793818045.753 start triton _boundary1
+BXBUILD 1793818045.930 end triton _boundary1
+BXLOCK 1793818045.930 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 16.7 s behind real (lock waits after builds)
+BXLOCK 1793818045.948 release triton _prq_route_split
+BXBUILD 1793818045.948 start triton _prq_route_split
+BXBUILD 1793818046.300 end triton _prq_route_split
+BXLOCK 1793818063.002 acquire triton _prq_route_split done after 16.7 s
+BXCLOCK submission clocks now 33.4 s behind real (lock waits after builds)
+BXLOCK 1793818063.009 release triton _gemm_splitk
+BXBUILD 1793818063.009 start triton _gemm_splitk
+BXBUILD 1793818063.168 end triton _gemm_splitk
+BXLOCK 1793818063.168 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 33.4 s behind real (lock waits after builds)
+BXLOCK 1793818063.169 release triton _boundary1
+BXBUILD 1793818063.169 start triton _boundary1
+BXBUILD 1793818063.361 end triton _boundary1
+BXLOCK 1793818063.361 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 33.4 s behind real (lock waits after builds)
+BXLOCK 1793818063.363 release triton _boundary2
+BXBUILD 1793818063.363 start triton _boundary2
+BXBUILD 1793818063.650 end triton _boundary2
+BXLOCK 1793818063.652 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 33.4 s behind real (lock waits after builds)
+BXLOCK 1793818063.657 release triton _gemm_splitk
+BXBUILD 1793818063.657 start triton _gemm_splitk
+BXBUILD 1793818063.813 end triton _gemm_splitk
+BXLOCK 1793818063.813 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 33.4 s behind real (lock waits after builds)
+BXLOCK 1793818063.821 release triton _gemm_splitk
+BXBUILD 1793818063.821 start triton _gemm_splitk
+BXBUILD 1793818063.992 end triton _gemm_splitk
+BXLOCK 1793818063.992 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 33.4 s behind real (lock waits after builds)
+BXLOCK 1793818064.000 release triton _boundary1
+BXBUILD 1793818064.000 start triton _boundary1
+BXBUILD 1793818064.173 end triton _boundary1
+BXLOCK 1793818064.173 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 33.4 s behind real (lock waits after builds)
+BXLOCK 1793818064.220 release triton _gemm_splitk
+BXBUILD 1793818064.220 start triton _gemm_splitk
+BXBUILD 1793818064.378 end triton _gemm_splitk
+BXLOCK 1793818080.747 acquire triton _gemm_splitk done after 16.4 s
+BXCLOCK submission clocks now 49.8 s behind real (lock waits after builds)
+BXLOCK 1793818080.837 release triton _gemm_splitk
+BXBUILD 1793818080.837 start triton _gemm_splitk
+BXBUILD 1793818081.066 end triton _gemm_splitk
+BXLOCK 1793818081.066 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 49.8 s behind real (lock waits after builds)
+BXLOCK 1793818081.072 release triton _gemm_splitk
+BXBUILD 1793818081.072 start triton _gemm_splitk
+BXBUILD 1793818081.247 end triton _gemm_splitk
+BXLOCK 1793818081.247 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 49.8 s behind real (lock waits after builds)
+BXLOCK 1793818081.257 release triton _boundary1
+BXBUILD 1793818081.257 start triton _boundary1
+BXBUILD 1793818081.488 end triton _boundary1
+BXLOCK 1793818081.488 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 49.8 s behind real (lock waits after builds)
+BXLOCK 1793818081.489 release triton _boundary2
+BXBUILD 1793818081.489 start triton _boundary2
+BXBUILD 1793818081.663 end triton _boundary2
+BXLOCK 1793818081.663 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 49.8 s behind real (lock waits after builds)
+BXLOCK 1793818081.669 release triton _gemm_splitk
+BXBUILD 1793818081.669 start triton _gemm_splitk
+BXBUILD 1793818081.848 end triton _gemm_splitk
+BXLOCK 1793818081.848 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 49.8 s behind real (lock waits after builds)
+BXLOCK 1793818081.854 release triton _gemm_splitk
+BXBUILD 1793818081.854 start triton _gemm_splitk
+BXBUILD 1793818082.018 end triton _gemm_splitk
+BXLOCK 1793818082.018 acquire triton _gemm_splitk done after 0.0 s
+BXCLOCK submission clocks now 49.8 s behind real (lock waits after builds)
+BXLOCK 1793818082.025 release triton _gemm_splitk
+BXBUILD 1793818082.025 start triton _gemm_splitk
+BXBUILD 1793818082.238 end triton _gemm_splitk
+BXLOCK 1793818098.768 acquire triton _gemm_splitk done after 16.5 s
+BXCLOCK submission clocks now 66.3 s behind real (lock waits after builds)
+BXLOCK 1793818098.811 release triton _boundary1
+BXBUILD 1793818098.811 start triton _boundary1
+BXBUILD 1793818098.982 end triton _boundary1
+BXLOCK 1793818098.982 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 66.3 s behind real (lock waits after builds)
+BXLOCK 1793818098.985 release triton _route
+BXBUILD 1793818098.985 start triton _route
+BXBUILD 1793818099.323 end triton _route
+BXLOCK 1793818099.323 acquire triton _route done after 0.0 s
+BXCLOCK submission clocks now 66.3 s behind real (lock waits after builds)
+BXLOCK 1793818099.324 release triton _boundary2
+BXBUILD 1793818099.325 start triton _boundary2
+BXBUILD 1793818099.500 end triton _boundary2
+BXLOCK 1793818099.557 acquire triton _boundary2 done after 0.1 s
+BXCLOCK submission clocks now 66.4 s behind real (lock waits after builds)
+BXLOCK 1793818099.643 release triton _prq_sl_tile_route_cg
+BXBUILD 1793818099.643 start triton _prq_sl_tile_route_cg
+BXBUILD 1793818100.436 end triton _prq_sl_tile_route_cg
+BXLOCK 1793818116.447 acquire triton _prq_sl_tile_route_cg done after 16.0 s
+BXCLOCK submission clocks now 82.4 s behind real (lock waits after builds)
+BXLOCK 1793818116.450 release triton _sl_cluster_finish_cg
+BXBUILD 1793818116.450 start triton _sl_cluster_finish_cg
+BXBUILD 1793818116.552 end triton _sl_cluster_finish_cg
+BXLOCK 1793818116.558 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 82.4 s behind real (lock waits after builds)
+BXLOCK 1793818116.563 release triton _boundary1
+BXBUILD 1793818116.563 start triton _boundary1
+BXBUILD 1793818116.827 end triton _boundary1
+BXLOCK 1793818116.827 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 82.4 s behind real (lock waits after builds)
+BXLOCK 1793818116.829 release triton _boundary2
+BXBUILD 1793818116.829 start triton _boundary2
+BXBUILD 1793818117.176 end triton _boundary2
+BXLOCK 1793818117.176 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 82.4 s behind real (lock waits after builds)
+BXLOCK 1793818117.178 release triton _boundary1
+BXBUILD 1793818117.178 start triton _boundary1
+BXBUILD 1793818117.696 end triton _boundary1
+BXLOCK 1793818117.696 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 82.4 s behind real (lock waits after builds)
+BXLOCK 1793818117.698 release triton _boundary2
+BXBUILD 1793818117.698 start triton _boundary2
+BXBUILD 1793818118.254 end triton _boundary2
+BXLOCK 1793818134.619 acquire triton _boundary2 done after 16.4 s
+BXCLOCK submission clocks now 98.7 s behind real (lock waits after builds)
+BXLOCK 1793818134.700 release triton _prq_sl_tile_route_cg
+BXBUILD 1793818134.700 start triton _prq_sl_tile_route_cg
+BXBUILD 1793818135.618 end triton _prq_sl_tile_route_cg
+BXLOCK 1793818135.618 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 98.7 s behind real (lock waits after builds)
+BXLOCK 1793818135.619 release triton _sl_cluster_finish_cg
+BXBUILD 1793818135.619 start triton _sl_cluster_finish_cg
+BXBUILD 1793818135.714 end triton _sl_cluster_finish_cg
+BXLOCK 1793818135.714 acquire triton _sl_cluster_finish_cg done after 0.0 s
+BXCLOCK submission clocks now 98.7 s behind real (lock waits after builds)
+BXLOCK 1793818135.719 release triton _boundary2
+BXBUILD 1793818135.719 start triton _boundary2
+BXBUILD 1793818135.893 end triton _boundary2
+BXLOCK 1793818135.893 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 98.7 s behind real (lock waits after builds)
+BXLOCK 1793818135.895 release triton _boundary1
+BXBUILD 1793818135.895 start triton _boundary1
+BXBUILD 1793818136.155 end triton _boundary1
+BXLOCK 1793818152.941 acquire triton _boundary1 done after 16.8 s
+BXCLOCK submission clocks now 115.5 s behind real (lock waits after builds)
+BXLOCK 1793818152.944 release triton _boundary2
+BXBUILD 1793818152.944 start triton _boundary2
+BXBUILD 1793818153.215 end triton _boundary2
+BXLOCK 1793818153.215 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 115.5 s behind real (lock waits after builds)
+BXLOCK 1793818153.217 release triton _boundary1
+BXBUILD 1793818153.217 start triton _boundary1
+BXBUILD 1793818153.812 end triton _boundary1
+BXLOCK 1793818153.812 acquire triton _boundary1 done after 0.0 s
+BXCLOCK submission clocks now 115.5 s behind real (lock waits after builds)
+BXLOCK 1793818153.813 release triton _boundary2
+BXBUILD 1793818153.813 start triton _boundary2
+BXBUILD 1793818154.365 end triton _boundary2
+BXLOCK 1793818154.365 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 115.5 s behind real (lock waits after builds)
+BXLOCK 1793818154.404 release triton _prq_sl_tile_route
+BXBUILD 1793818154.404 start triton _prq_sl_tile_route
+BXBUILD 1793818155.160 end triton _prq_sl_tile_route
+BXLOCK 1793818171.466 acquire triton _prq_sl_tile_route done after 16.3 s
+BXCLOCK submission clocks now 131.8 s behind real (lock waits after builds)
+BXLOCK 1793818171.469 release triton _boundary1
+BXBUILD 1793818171.469 start triton _boundary1
+BXBUILD 1793818171.725 end triton _boundary1
+BXLOCK 1793818172.109 acquire triton _boundary1 done after 0.4 s
+BXCLOCK submission clocks now 132.2 s behind real (lock waits after builds)
+BXLOCK 1793818172.111 release triton _boundary2
+BXBUILD 1793818172.112 start triton _boundary2
+BXBUILD 1793818172.394 end triton _boundary2
+BXLOCK 1793818172.394 acquire triton _boundary2 done after 0.0 s
+BXCLOCK submission clocks now 132.2 s behind real (lock waits after builds)
+BXLOCK 1793818172.397 release triton _boundary1
+BXBUILD 1793818172.397 start triton _boundary1
+BXBUILD 1793818172.896 end triton _boundary1
+BXLOCK 1793818189.216 acquire triton _boundary1 done after 16.3 s
+BXCLOCK submission clocks now 148.5 s behind real (lock waits after builds)
+BXLOCK 1793818189.218 release triton _boundary2
+BXBUILD 1793818189.218 start triton _boundary2
+BXBUILD 1793818189.935 end triton _boundary2
+BXLOCK 1793818206.729 acquire triton _boundary2 done after 16.8 s
+BXCLOCK submission clocks now 165.3 s behind real (lock waits after builds)
+BXLOCK 1793818206.772 release triton _graft_row_boundary_pre
+BXBUILD 1793818206.772 start triton _graft_row_boundary_pre
+BXBUILD 1793818206.866 end triton _graft_row_boundary_pre
+BXLOCK 1793818223.489 acquire triton _graft_row_boundary_pre done after 16.6 s
+BXCLOCK submission clocks now 182.0 s behind real (lock waits after builds)
+BXLOCK 1793818223.491 release triton _graft_row_boundary_pre
+BXBUILD 1793818223.491 start triton _graft_row_boundary_pre
+BXBUILD 1793818223.597 end triton _graft_row_boundary_pre
+BXLOCK 1793818231.457 acquire triton _graft_row_boundary_pre done after 7.9 s
+BXCLOCK submission clocks now 189.8 s behind real (lock waits after builds)
+BXLOCK 1793818231.508 release triton _graft_row_boundary
+BXBUILD 1793818231.508 start triton _graft_row_boundary
+BXBUILD 1793818231.606 end triton _graft_row_boundary
+BXLOCK 1793818249.145 acquire triton _graft_row_boundary done after 17.5 s
+BXCLOCK submission clocks now 207.4 s behind real (lock waits after builds)
+BXLOCK 1793818249.151 release triton _graft_route
+BXBUILD 1793818249.151 start triton _graft_route
+BXBUILD 1793818249.999 end triton _graft_route
+BXLOCK 1793818251.677 acquire triton _graft_route done after 1.7 s
+BXCLOCK submission clocks now 209.0 s behind real (lock waits after builds)
+BXLOCK 1793818251.679 release triton _graft_row_boundary
+BXBUILD 1793818251.679 start triton _graft_row_boundary
+BXBUILD 1793818251.779 end triton _graft_row_boundary
+BXLOCK 1793818263.267 acquire triton _graft_row_boundary done after 11.5 s
+BXCLOCK submission clocks now 220.5 s behind real (lock waits after builds)
+BXLOCK 1793818263.328 release triton _graft_row_boundary
+BXBUILD 1793818263.328 start triton _graft_row_boundary
+BXBUILD 1793818263.435 end triton _graft_row_boundary
+BXLOCK 1793818264.068 acquire triton _graft_row_boundary done after 0.6 s
+BXCLOCK submission clocks now 221.2 s behind real (lock waits after builds)
+BXLOCK 1793818264.073 release triton _graft_row_boundary
+BXBUILD 1793818264.073 start triton _graft_row_boundary
+BXBUILD 1793818264.182 end triton _graft_row_boundary
+BXLOCK 1793818265.895 acquire triton _graft_row_boundary done after 1.7 s
+BXCLOCK submission clocks now 222.9 s behind real (lock waits after builds)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BX in-prepare PDL8 gate skipped (--skip-pdl8-gate)
+BX submission pdl8 prepare {} timed {1: True, 8: True, 16: True, 32: True}
+BOX submission import+prepare 269.7 s
+BOX decode 1 sliding: raw 68.22 net 63.87 us (overhead 4.35) | judge net 70.56 (n=1, 70.56-70.56) box/judge 0.905 | check PASS
+BOX decode 1 full: raw 73.50 net 69.31 us (overhead 4.19) | judge net 79.90 (n=1, 79.90-79.90) box/judge 0.867 | check PASS
+BOX decode 16 sliding: raw 129.89 net 125.98 us (overhead 3.90) | judge net 127.89 (n=1, 127.89-127.89) box/judge 0.985 | check PASS
+BOX decode 16 full: raw 207.23 net 202.82 us (overhead 4.42) | judge net 210.51 (n=1, 210.51-210.51) box/judge 0.963 | check PASS
+BOX decode 32 sliding: raw 144.26 net 140.06 us (overhead 4.19) | judge net 150.40 (n=1, 150.40-150.40) box/judge 0.931 | check PASS
+BOX decode 32 full: raw 299.01 net 294.58 us (overhead 4.43) | judge net 304.50 (n=1, 304.50-304.50) box/judge 0.967 | check PASS
+BOX verify 1 sliding: raw 100.45 net 96.03 us (overhead 4.42) | judge net 106.22 (n=1, 106.22-106.22) box/judge 0.904 | check PASS
+BOX verify 1 full: raw 117.15 net 112.96 us (overhead 4.19) | judge net 119.15 (n=1, 119.15-119.15) box/judge 0.948 | check PASS
+BOX verify 16 sliding: raw 241.82 net 237.22 us (overhead 4.61) | judge net 250.02 (n=1, 250.02-250.02) box/judge 0.949 | check PASS
+BOX verify 16 full: raw 325.92 net 321.82 us (overhead 4.10) | judge net 335.01 (n=1, 335.01-335.01) box/judge 0.961 | check PASS
+BOX verify 32 sliding: raw 300.42 net 296.61 us (overhead 3.81) | judge net 308.45 (n=1, 308.45-308.45) box/judge 0.962 | check PASS
+BOX verify 32 full: raw 462.69 net 459.01 us (overhead 3.68) | judge net 468.64 (n=1, 468.64-468.64) box/judge 0.979 | check PASS
+BX local_start cache /root/okc/.build/box/ls_cache.json: 60 hits, 0 computed
+BXPHASE import_torch=11.82 load_reference_cuda_init=0.00 weights_and_router=0.24 prepare_submission=269.65 fresh_inputs=0.88 check=1.25 capture=0.12 overhead_graphs=1.29 replays=0.04 cell_tail=0.02 json_write=0.00 total=285.31
