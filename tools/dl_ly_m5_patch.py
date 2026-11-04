@@ -36,6 +36,10 @@ def f1hoist(whole):
     int f1v[4];
 #pragma unroll
     for (int k = 0; k < 4; ++k) f1v[k] = k * 32 + ln < p.M * 8 ? __ldg(p.topk_ids + k * 32 + ln) : 0;
+    // without this the compiler sank each load back into its iteration (ly_m5mh, 8c070f69: the four loads still came
+    // back 0.2 us apart in the stamps)
+#pragma unroll
+    for (int k = 0; k < 4; ++k) asm volatile("" : "+r"(f1v[k]));
 #endif
 """ + ZERO)
     h = rep(h, LOAD, """#if OKC_F1HOIST
