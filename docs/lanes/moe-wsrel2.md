@@ -1,6 +1,6 @@
 # Lane moe-wsrel2 checkpoint
 
-Updated: 2026-11-04 15:45 PST (candidates built, box run launching)
+Updated: 2026-11-04 15:55 PST (gates, SASS, four A/B rounds, decision)
 
 ## Goal
 
@@ -71,6 +71,49 @@ The first SASS attempt failed (C++17, no Python.h); fixed script rerun to /root/
 The run.log "rc=" values of the first launch are date's status (the script echoed `$?` after a `$(date)`);
 fixed in tools/ly_wsrel1_box.sh for later launches. Read the logs, not those rc values.
 
+Gate ly_wsrel1_sc (/root/okc/.build/wsrel1/chk_ly_wsrel1_sc.log): 12/12 check PASS, the same native line, 0 failed,
+0 Marlin. Box net us sliding / full: decode 1 63.01 / 68.54, decode 16 121.12 / 201.76, decode 32 135.78 / 292.42,
+verify 1 95.81 / 112.66, verify 16 235.65 / 317.76, verify 32 294.24 / 457.89.
+
+SASS (/root/okc/.build/wsrel1/sass2.log, .sass files in sass/): MEMBAR counts per build (two ws_helper
+instantiations each), TINY and MID identical:
+
+| build | MEMBAR.SC.GPU | MEMBAR.ALL.GPU |
+|---|---|---|
+| base ly_mpdl | 6 | 2 |
+| ar1 ly_wsrel1 | 4 | 4 |
+| sc1 ly_wsrel1_sc | 6 | 2 |
+
+In ly_wsrel1_tiny.sass the credit fence is at 0x11d40 (base: MEMBAR.SC.GPU at 0x11d20 executed by every lane). It
+follows `@P1 BRA 0x121e0` at 0x11d10 (lanes other than lane 0 branch past it) and precedes the
+`@P0 ATOMG.E.ADD.STRONG.GPU` credits at 0x11e20 onward, so one MEMBAR at the credit, lane 0 only. The sc1 build has
+MEMBAR.SC.GPU at the same address.
+
+A/B (tools/ly_arms.py on ly_wsrel1_ab, arms base / ar1 / sc1, 60 runs, ab_r{1,2,3,4}.log; r3 and r4 via
+PHASE=ab ROUNDS="r3 r4", run34.log). Paired median delta vs base in us, every arm check PASS in every round:
+
+| cell | arm | r1 | r2 | r3 | r4 | mean |
+|---|---|---|---|---|---|---|
+| decode 1 sliding | ar1 | -0.08 | +0.29 | +0.24 | +0.30 | +0.19 |
+| decode 1 sliding | sc1 | +0.03 | -0.19 | -0.22 | -0.03 | -0.10 |
+| decode 1 full | ar1 | +0.86 | -0.66 | -0.42 | -0.38 | -0.15 |
+| decode 1 full | sc1 | +0.51 | -0.72 | -0.22 | -0.32 | -0.19 |
+| decode 16 sliding | ar1 | +0.54 | -0.05 | +0.32 | +0.40 | +0.30 |
+| decode 16 sliding | sc1 | +0.26 | +0.00 | +0.38 | +0.30 | +0.24 |
+| decode 16 full | ar1 | -0.21 | -0.22 | +0.26 | +0.06 | -0.03 |
+| decode 16 full | sc1 | -0.06 | +0.14 | +0.34 | +0.22 | +0.16 |
+| verify 1 sliding | ar1 | -0.70 | +0.72 | +0.43 | +0.40 | +0.21 |
+| verify 1 sliding | sc1 | -0.43 | +0.03 | -0.03 | -0.06 | -0.12 |
+| verify 1 full | ar1 | -0.03 | -0.24 | -0.13 | -0.45 | -0.21 |
+| verify 1 full | sc1 | -0.05 | +0.27 | +0.02 | -0.13 | +0.02 |
+
+## Decision
+
+Both arms fail the bar (no worse than ly_mpdl by more than 0.2 us at any sliding cell): ar1 at all three sliding
+cells, sc1 at decode 16 sliding only (+0.24 mean, 3 of 4 rounds above 0.2). Ruled-out row appended to
+docs/ruled-out.md. sc1 is the form to take if the lead closes the base's proof gap for correctness at that cost.
+
 ## Next action
 
-Read sass2.log, chk_ly_wsrel1_sc.log and the A/B rounds ab_r1 / ab_r2.
+None in this lane. Lead decision: accept sc1 for correctness at about +0.24 us decode 16 sliding, or reopen with a
+cheaper MID-build release form.
