@@ -125,7 +125,7 @@ def part_a(ext, wref, w2u, w2gs, normw, ref, Ts, n_inputs, policies, modes):
                 d, n_sl, sc = pb.sched_dims(b)
                 inter, yref = host_reference(wref, data, d)
                 for mode in modes:
-                    xmode, order, rot = pb.MODES[mode]
+                    xmode, order, rot = pb.MODES[mode][:3]
                     runner = pb.Runner(ext, w2u, w2gs, normw, tmax, n_sl, sc)
                     runner.sched.copy_(pb.sched_tensor(b))
                     runner.inter.copy_(inter)
@@ -171,7 +171,7 @@ def part_a(ext, wref, w2u, w2gs, normw, ref, Ts, n_inputs, policies, modes):
                         a["ref_msgs"].append(f"seed {seed} distinct {dist} slices {n_sl}: {str(msg)[:90]}")
         for (pol, mode), a in agg.items():
             ok = a["floor_bad"] == 0 and a["ss_worst_rel"] <= 1e-5 and a["ref_pass"] == a["inputs"]
-            print(f"PARTA T={T:2d} {pol:4s} {mode:6s} inputs {a['inputs']} elems {a['elems']} bad(2^-7, floor) "
+            print(f"PARTA T={T:2d} {pol:6s} {mode:6s} inputs {a['inputs']} elems {a['elems']} bad(2^-7, floor) "
                   f"{a['floor_bad']} worst {a['worst_rel_floor']:.2e} | strict bad {a['strict_bad']} worst "
                   f"{a['worst_rel_strict']:.2e} | sumsq tokens {a['ss_tokens']} worst rel {a['ss_worst_rel']:.2e} | "
                   f"reference {a['ref_pass']}/{a['inputs']} | {'PASS' if ok else 'FAIL'} | {a['ref_msgs'][0]}",
@@ -233,7 +233,7 @@ def part_b(ext, pub, st, w2u, w2gs, normw, Ts, n_inputs, seed, policies, modes):
                     assert toks == d["tok_list"][t0:t0 + n]
                     inter[t0:t0 + n] = h0["inter"][p0:p0 + n]
                 for mode in modes:
-                    xmode, order, rot = pb.MODES[mode]
+                    xmode, order, rot = pb.MODES[mode][:3]
                     runner = pb.Runner(ext, w2u, w2gs, normw, tmax, n_sl, sc, dbg=True)
                     runner.sched.copy_(pb.sched_tensor(b))
                     runner.inter.copy_(inter)
@@ -263,7 +263,7 @@ def part_b(ext, pub, st, w2u, w2gs, normw, Ts, n_inputs, seed, policies, modes):
                         c["y_elems"] += v.numel()
                         c["y_bad"] += int((bits32(v) != bits32(ref_y)).sum())
                     results.append(c)
-                    print(f"PARTB T={T:2d} in{k} {pol:4s} {mode:6s} S {c['S']} raw-sum mismatches {c['acc_bad']}/"
+                    print(f"PARTB T={T:2d} in{k} {pol:6s} {mode:6s} S {c['S']} raw-sum mismatches {c['acc_bad']}/"
                           f"{c['acc_elems']} | ybuf mismatches {c['y_bad']}/{c['y_elems']} | unit sumsq mismatches "
                           f"{c['sq_bad']}/{c['sq_units']} | row sumsq vs helper0 max rel {c['ss_vs_h0_max_rel']:.2e}, "
                           f"vs unit partials {c['ss_vs_units_max_rel']:.2e}", flush=True)
@@ -276,10 +276,10 @@ def main():
     ap.add_argument("--json", default="")
     ap.add_argument("--tokens", default="1,8,32")
     ap.add_argument("--inputs", type=int, default=20)
-    ap.add_argument("--policies", default="fill,s1")
+    ap.add_argument("--policies", default="fill15,s1")
     ap.add_argument("--modes", default="b_rot1,b_nat,c_rot1")
     ap.add_argument("--bitwise-inputs", type=int, default=3)
-    ap.add_argument("--bitwise-policies", default="s1,s8,fill,s2")
+    ap.add_argument("--bitwise-policies", default="s1,s8,fill15,s2")
     ap.add_argument("--bitwise-modes", default="b_nat,b_rot1")
     ap.add_argument("--skip-a", action="store_true")
     ap.add_argument("--skip-b", action="store_true")

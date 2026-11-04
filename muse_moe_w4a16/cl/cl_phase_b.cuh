@@ -49,19 +49,20 @@
 namespace clb {
 
 constexpr int C = 8;
-constexpr int NCW = 8;                     // consumer warps 0..7
-constexpr int WP = 8;                      // producer warp
-constexpr int WS0 = 9, NSW = 2;            // staging warps 9, 10
-constexpr int WE = 11;                     // epilogue warp
-constexpr int NTHREADS = 384;
+// Warp roles for NCW consumer warps (8 or 16): consumers 0 .. NCW - 1 in NCW / 8 groups of 8; group g takes the
+// stages j = g (mod NCW / 8) of every K block. Then the producer, two staging warps, the epilogue warp.
+constexpr int UPS = 8;                     // unit-blocks per stage = consumer warps per group
+constexpr int NSW = 2;
+__host__ __device__ constexpr int n_threads(int ncw) { return 32 * (ncw + 4); }
 constexpr int SLOT = clm::UNIT_BYTES;      // 36,864
-constexpr int MAX_DEPTH = 4;
+constexpr int MAX_DEPTH = 6;
 constexpr int ROWS = clm::HD / C;          // 512 output rows per CTA
 constexpr int UPC = ROWS / 16;             // 32 units per CTA
-constexpr int SPB = UPC / NCW;             // 4 stages per K block
+constexpr int SPB = UPC / UPS;             // 4 stages per K block
 constexpr int BROW = 512 + 8;              // block-buffer row in bf16; the 16 B pad keeps rows g and g + 1 off the same banks
 constexpr int YROW = ROWS + 4;             // ystage row in floats; the pad spreads the 4 t-lanes over banks
-constexpr int NSTAMP = 8;
+constexpr int NSTAMP = 10;   // 0 entry, 1 slab loaded, 2 first stage, 3 consumers done, 4 epilogue stored,
+                              // 5 gather done, 6 / 7 consumer wait on gather / weights (ns), 8 slabs published
 
 struct Params {
   const uint8_t* w2u;              // [32][256][36864] w2 in unit order (public prepare ma_w[11])
@@ -80,6 +81,7 @@ struct Params {
   int rot;                         // rotation offset (1: peer c + 1 first, as task 1.2 states; 0: own block first)
   int xmode;                       // 0: DSMEM gather (b); 1: global + L2 (c); 2: no exchange (control)
   int slab_cols;                   // max sc over the launch (shared-memory layout)
+  int diag;                        // diagnostics: bit 0 consumers skip the math, bit 1 producer skips the loads
   uint32_t zero;                   // runtime 0 (k16 opaque to ptxas, as in helper0)
 };
 
@@ -153,8 +155,6 @@ __device__ __forceinline__ uint4 ld_cg(const void* p) {
 __device__ __forceinline__ void cl_arrive_release() { asm volatile("barrier.cluster.arrive.release;" ::: "memory"); }
 __device__ __forceinline__ void cl_arrive_relaxed() { asm volatile("barrier.cluster.arrive.relaxed;" ::: "memory"); }
 __device__ __forceinline__ void cl_wait() { asm volatile("barrier.cluster.wait.acquire;" ::: "memory"); }
-// Consumer-only CTA barrier (warps 0..7) before the ring is reused as the epilogue staging area.
-__device__ __forceinline__ void cons_bar() { asm volatile("bar.sync 1, 256;" ::: "memory"); }
 
 // One warp's partial of one unit over 64-K chunks [CLO, CHI) of helper0 warp range `u8` of the stage (the
 // unit-block layout above). The arithmetic is clm::unit_warp_mma's restricted to the chunk range: with
@@ -236,15 +236,18 @@ struct Smem {
   uint64_t* bfull;       // [2]
   uint64_t* bempty;      // [2]
   uint64_t* yready;
+  uint64_t* slabbar;
   float* sumsq_cl;       // [C][T_MAX], used in the leader
 };
 
-template <int NTT, int TM, bool DBG>
+template <int NTT, int TM, int NCW, bool DBG>
 __device__ __forceinline__ void consumer(const Params& p, const Smem& sm, const Slice& q, int rank, int warp, int lane,
                                          unsigned long long* st) {
-  float accr[SPB][NTT][4];
+  constexpr int NG = NCW / UPS, R = SPB / NG;
+  const int grp = warp / UPS, u8 = warp % UPS;
+  float accr[R][NTT][4];
 #pragma unroll
-  for (int j = 0; j < SPB; ++j)
+  for (int j = 0; j < R; ++j)
 #pragma unroll
     for (int n = 0; n < NTT; ++n)
 #pragma unroll
@@ -264,9 +267,12 @@ __device__ __forceinline__ void consumer(const Params& p, const Smem& sm, const 
       mbar_wait(&sm.bfull[bsel], (bi >> 1) & 1);
     }
     const __nv_bfloat16* buf = sm.buf + bsel * TM * BROW;
-#pragma unroll
-    for (int j = 0; j < SPB; ++j) {
-      const int it = bi * SPB + j, s = it % D;
+    // Rolled on purpose: unrolled, the 4 stages x 3 chunk-range variants made a ~120 KB hot loop and the
+    // consumers ran at about 1.7 us per stage. The 4 accumulator sets rotate through registers instead
+    // (accr[0] is always the current unit; after 4 stages the order is back to unit 8 j + warp in accr[j]).
+#pragma unroll 1
+    for (int jj = 0; jj < R; ++jj) {
+      const int it = bi * SPB + jj * NG + grp, s = it % D;
       if (stamp) {
         const unsigned long long t0 = gtimer();
         mbar_wait(&sm.full[s], (it / D) & 1);
@@ -278,15 +284,25 @@ __device__ __forceinline__ void consumer(const Params& p, const Smem& sm, const 
       }
       const unsigned char* slot = sm.ring + s * SLOT;
       float a[NTT][4];
-      if (clo == 0 && chi == 8) block_mma<NTT, 0, 8>(slot, warp, lane, k16, buf, a);
-      else if (clo == 0) block_mma<NTT, 0, 4>(slot, warp, lane, k16, buf, a);
-      else block_mma<NTT, 4, 8>(slot, warp, lane, k16, buf, a);
+      if (p.diag & 1) {
+#pragma unroll
+        for (int n = 0; n < NTT; ++n)
+#pragma unroll
+          for (int k = 0; k < 4; ++k) a[n][k] = 0.f;
+      } else if (clo == 0 && chi == 8) block_mma<NTT, 0, 8>(slot, u8, lane, k16, buf, a);
+      else if (clo == 0) block_mma<NTT, 0, 4>(slot, u8, lane, k16, buf, a);
+      else block_mma<NTT, 4, 8>(slot, u8, lane, k16, buf, a);
       __syncwarp();
       if (lane == 0) mbar_arrive(&sm.empty[s]);
 #pragma unroll
       for (int n = 0; n < NTT; ++n)
 #pragma unroll
-        for (int k = 0; k < 4; ++k) accr[j][n][k] += a[n][k];
+        for (int k = 0; k < 4; ++k) {
+          const float t0 = accr[0][n][k] + a[n][k];
+#pragma unroll
+          for (int r = 0; r + 1 < R; ++r) accr[r][n][k] = accr[r + 1][n][k];
+          accr[R - 1][n][k] = t0;
+        }
     }
     __syncwarp();
     if (lane == 0) mbar_arrive(&sm.bempty[bsel]);
@@ -297,14 +313,15 @@ __device__ __forceinline__ void consumer(const Params& p, const Smem& sm, const 
     st[7] = wait_f;
   }
   // Every consumer has finished reading the ring (and every bulk copy has landed) before it becomes ystage.
-  cons_bar();
+  asm volatile("bar.sync 1, %0;" :: "n"(32 * NCW) : "memory");
   float* ystage = reinterpret_cast<float*>(sm.ring);          // [TM][YROW]
   float* sqstage = ystage + TM * YROW;                         // [UPC][TM]
   const int g = lane >> 2, t = lane & 3;
   const float gsc = clm::gscale(p.w2_gs[q.e]);
 #pragma unroll
-  for (int j = 0; j < SPB; ++j) {
-    const int ul = 8 * j + warp;                 // unit inside the CTA
+  for (int jj = 0; jj < R; ++jj) {
+    const int j = jj * NG + grp;
+    const int ul = UPS * j + u8;                 // unit inside the CTA
     const int rl = 16 * ul + g;                  // local output row
     const int n0 = ROWS * rank + rl;             // global output row
     const float nw0 = clm::norm_mul(p.normw[n0]), nw8 = clm::norm_mul(p.normw[n0 + 8]);
@@ -313,7 +330,7 @@ __device__ __forceinline__ void consumer(const Params& p, const Smem& sm, const 
 #pragma unroll
       for (int h = 0; h < 2; ++h) {
         const int tk = 8 * n + 2 * t + h;
-        const float a0 = accr[j][n][h], a8 = accr[j][n][2 + h];
+        const float a0 = accr[jj][n][h], a8 = accr[jj][n][2 + h];
         if (DBG && tk < q.ntok) {
           float* da = p.dbg_acc + ((size_t)q.slice * TM + tk) * clm::HD;
           da[n0] = a0;
@@ -336,10 +353,11 @@ __device__ __forceinline__ void consumer(const Params& p, const Smem& sm, const 
   if (lane == 0) mbar_arrive(sm.yready);
 }
 
-template <int TM, bool DBG>
-__global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NTHREADS, 1) phase_b_kernel(Params p) {
+template <int TM, int NCW, bool DBG>
+__global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(n_threads(NCW), 1) phase_b_kernel(Params p) {
+  constexpr int WP = NCW, WS0 = NCW + 1;
   extern __shared__ __align__(1024) uint8_t dsm[];
-  __shared__ __align__(8) uint64_t bars[2 * MAX_DEPTH + 5];
+  __shared__ __align__(8) uint64_t bars[2 * MAX_DEPTH + 6];
   __shared__ float sumsq_cl[C * TM];
 
   const int rank = static_cast<int>(cta_rank());
@@ -357,37 +375,41 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NTHREADS, 1) phase_b
   sm.bfull = bars + 2 * MAX_DEPTH;
   sm.bempty = bars + 2 * MAX_DEPTH + 2;
   sm.yready = bars + 2 * MAX_DEPTH + 4;
+  sm.slabbar = bars + 2 * MAX_DEPTH + 5;
   sm.sumsq_cl = sumsq_cl;
 
   if (threadIdx.x == 0) {
     st[0] = gtimer();
     for (int s = 0; s < D; ++s) {
       mbar_init(&sm.full[s], 1);
-      mbar_init(&sm.empty[s], NCW);
+      mbar_init(&sm.empty[s], UPS);
     }
     for (int b = 0; b < 2; ++b) {
       mbar_init(&sm.bfull[b], NSW);
       mbar_init(&sm.bempty[b], NCW);
     }
     mbar_init(sm.yready, NCW);
+    mbar_init(sm.slabbar, NSW);
     asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
   }
   __syncthreads();
 
   const Slice q = slice_info(p, slice, rank);
 
-  // 384 threads x 168 registers at launch; warpgroups 0-1 (consumers) take 208, warpgroup 2 keeps 88:
+  // NCW = 8: 384 threads x 168 registers at launch; warpgroups 0-1 (consumers) take 208, warpgroup 2 keeps 88:
   // 256 x 208 + 128 x 88 = 64,512, the launch total. Without this the T = 32 consumer spills (240 B at 168).
-  if (warp < NCW) asm volatile("setmaxnreg.inc.sync.aligned.u32 208;");
-  else asm volatile("setmaxnreg.dec.sync.aligned.u32 88;");
+  if (NCW == 8) {
+    if (warp < NCW) asm volatile("setmaxnreg.inc.sync.aligned.u32 208;");
+    else asm volatile("setmaxnreg.dec.sync.aligned.u32 88;");
+  }
 
   if (warp < NCW) {
     cl_arrive_relaxed();   // phase 0 (slabs published): consumers publish nothing
     const int ntt = (q.ntok + 7) >> 3;
-    if (TM <= 8 || ntt == 1) consumer<1, TM, DBG>(p, sm, q, rank, warp, lane, st);
-    else if (ntt == 2) consumer<(TM > 8 ? 2 : 1), TM, DBG>(p, sm, q, rank, warp, lane, st);
-    else if (ntt == 3) consumer<(TM > 8 ? 3 : 1), TM, DBG>(p, sm, q, rank, warp, lane, st);
-    else consumer<(TM > 8 ? 4 : 1), TM, DBG>(p, sm, q, rank, warp, lane, st);
+    if (TM <= 8 || ntt == 1) consumer<1, TM, NCW, DBG>(p, sm, q, rank, warp, lane, st);
+    else if (ntt == 2) consumer<(TM > 8 ? 2 : 1), TM, NCW, DBG>(p, sm, q, rank, warp, lane, st);
+    else if (ntt == 3) consumer<(TM > 8 ? 3 : 1), TM, NCW, DBG>(p, sm, q, rank, warp, lane, st);
+    else consumer<(TM > 8 ? 4 : 1), TM, NCW, DBG>(p, sm, q, rank, warp, lane, st);
     cl_wait();
     cl_arrive_relaxed();
     cl_wait();
@@ -396,6 +418,10 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NTHREADS, 1) phase_b
     if (lane == 0) {
       uint64_t pol;
       asm volatile("createpolicy.fractional.L2::evict_first.b64 %0, 1.0;" : "=l"(pol));
+      // The test loads the slab from global; without this wait those loads queue behind the ring's first
+      // 4 x 36 KB x 120 CTAs of weight requests (5.4 us to the slab instead of ~1). In the real kernel the slab
+      // is phase A's output and is already in shared memory.
+      mbar_wait(sm.slabbar, 0);
       const uint8_t* wexp = p.w2u + (size_t)q.e * clm::RB_B * SLOT;
       const int n_it = q.nb * SPB;
       for (int it = 0; it < n_it; ++it) {
@@ -404,10 +430,14 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NTHREADS, 1) phase_b
         if (it >= D) mbar_wait(&sm.empty[s], ((it / D) - 1) & 1);
         uint8_t* slot = sm.ring + s * SLOT;
         const unsigned cbytes = (chi - clo) * 512;
-        mbar_expect_tx(&sm.full[s], NCW * (cbytes + 512));
+        if (p.diag & 2) {
+          mbar_arrive(&sm.full[s]);
+          continue;
+        }
+        mbar_expect_tx(&sm.full[s], UPS * (cbytes + 512));
 #pragma unroll 1
-        for (int u8 = 0; u8 < NCW; ++u8) {
-          const uint8_t* unit = wexp + (size_t)(UPC * rank + NCW * j + u8) * SLOT;
+        for (int u8 = 0; u8 < UPS; ++u8) {
+          const uint8_t* unit = wexp + (size_t)(UPC * rank + UPS * j + u8) * SLOT;
           bulk_load(slot + u8 * 4096 + clo * 512, unit + (kb * 8 + clo) * 512, cbytes, &sm.full[s], pol);
           bulk_load(slot + clm::UNIT_CODES + u8 * 512, unit + clm::UNIT_CODES + kb * 512, 512, &sm.full[s], pol);
         }
@@ -438,9 +468,12 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NTHREADS, 1) phase_b
         for (int idx = tid; idx < zr; idx += nst)
           reinterpret_cast<uint4*>(sm.buf + b * TM * BROW + q.ntok * BROW)[idx] = make_uint4(0, 0, 0, 0);
     }
+    __syncwarp();
+    if (lane == 0) mbar_arrive(sm.slabbar);
+    if (tid == 0) st[1] = gtimer();
     cl_arrive_release();
     cl_wait();
-    if (tid == 0) st[1] = gtimer();
+    if (tid == 0) st[8] = gtimer();
     const unsigned slab0 = smem_u32(sm.slab);
     const __nv_bfloat16* xg_s = p.xg + (size_t)slice * TM * clm::HD;
     for (int bi = 0; bi < q.nb; ++bi) {
@@ -532,12 +565,12 @@ __global__ void __cluster_dims__(C, 1, 1) __launch_bounds__(NTHREADS, 1) phase_b
 #include <torch/extension.h>
 #include <c10/cuda/CUDAStream.h>
 
-template <int TM, bool DBG>
+template <int TM, int NCW, bool DBG>
 static void clb_launch_t(const clb::Params& p, int n_slices, int smem, cudaStream_t s) {
-  auto fn = clb::phase_b_kernel<TM, DBG>;
+  auto fn = clb::phase_b_kernel<TM, NCW, DBG>;
   TORCH_CHECK(cudaFuncSetAttribute(fn, cudaFuncAttributeMaxDynamicSharedMemorySize, smem) == cudaSuccess,
               "smem attribute ", smem);
-  fn<<<n_slices * clb::C, clb::NTHREADS, smem, s>>>(p);
+  fn<<<n_slices * clb::C, clb::n_threads(NCW), smem, s>>>(p);
   const cudaError_t e = cudaGetLastError();
   TORCH_CHECK(e == cudaSuccess, "phase_b launch: ", cudaGetErrorString(e));
 }
@@ -549,7 +582,7 @@ int64_t clb_smem(int64_t tmax, int64_t depth, int64_t slab_cols) {
 void clb_launch(torch::Tensor w2u, torch::Tensor w2gs, torch::Tensor normw, torch::Tensor inter, torch::Tensor sched,
                 torch::Tensor y_partial, torch::Tensor sumsq, torch::Tensor xg, torch::Tensor stamps,
                 torch::Tensor dbg_acc, torch::Tensor dbg_sq, int64_t n_slices, int64_t tmax, int64_t depth,
-                int64_t order, int64_t rot, int64_t xmode, int64_t slab_cols) {
+                int64_t order, int64_t rot, int64_t xmode, int64_t slab_cols, int64_t ncw, int64_t diag) {
   TORCH_CHECK(depth >= 1 && depth <= clb::MAX_DEPTH && (tmax == 8 || tmax == 32));
   TORCH_CHECK(y_partial.numel() >= n_slices * tmax * 4096 && sumsq.numel() >= n_slices * tmax);
   TORCH_CHECK(stamps.numel() >= n_slices * clb::C * clb::NSTAMP);
@@ -571,11 +604,14 @@ void clb_launch(torch::Tensor w2u, torch::Tensor w2gs, torch::Tensor normw, torc
   p.rot = (int)rot;
   p.xmode = (int)xmode;
   p.slab_cols = (int)slab_cols;
+  p.diag = (int)diag;
   p.zero = 0;
   const int smem = clb::smem_bytes((int)tmax, (int)depth, (int)slab_cols);
   cudaStream_t s = c10::cuda::getCurrentCUDAStream();
-  if (tmax == 8) dbg ? clb_launch_t<8, true>(p, (int)n_slices, smem, s) : clb_launch_t<8, false>(p, (int)n_slices, smem, s);
-  else dbg ? clb_launch_t<32, true>(p, (int)n_slices, smem, s) : clb_launch_t<32, false>(p, (int)n_slices, smem, s);
+  const int n = (int)n_slices;
+  if (tmax == 8 && ncw == 16) dbg ? clb_launch_t<8, 16, true>(p, n, smem, s) : clb_launch_t<8, 16, false>(p, n, smem, s);
+  else if (tmax == 8) dbg ? clb_launch_t<8, 8, true>(p, n, smem, s) : clb_launch_t<8, 8, false>(p, n, smem, s);
+  else dbg ? clb_launch_t<32, 8, true>(p, n, smem, s) : clb_launch_t<32, 8, false>(p, n, smem, s);
 }
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {

@@ -36,7 +36,7 @@ C = 8
 W2_EXPERT_BYTES = 4096 * 4096 * (0.5 + 1 / 16)   # 9,437,184 B
 FLOOR_RATE = 4.45e12                              # box 4 GiB sum rate (CL-0.1)
 FLOOR_US_PER_EXPERT = W2_EXPERT_BYTES / FLOOR_RATE * 1e6
-NSTAMP = 8
+NSTAMP = 10
 MODES = {
     # name: (xmode, order, rot)
     "b_rot1": (0, 1, 1),     # D1 (b), rotated, CTA c starts at peer c + 1 (the task's statement)
@@ -44,6 +44,8 @@ MODES = {
     "b_nat": (0, 0, 1),      # D1 (b), blocks in K order (bitwise order), pieces rotated
     "c_rot1": (1, 1, 1),     # exchange (c): global write, cluster barrier, L2 read-back
     "none": (2, 1, 1),       # no exchange: stream and compute only (control; numerics garbage)
+    "stream": (2, 1, 1, 1),  # no exchange, consumers skip the math: the ring's delivery rate alone
+    "compute": (2, 1, 1, 2), # no exchange, producer skips the loads: the consumers' math rate alone
 }
 
 
@@ -151,6 +153,15 @@ def sched_with_S(topk_ids, topk_w, S_of):
 
 
 def make_sched(topk_ids, topk_w, policy):
+    """policy: s1 / s2 / fill (cl_schedule.build, fill target 128 // C = 16), fill15 (the fill rule with the
+    decided target of 15 co-resident clusters of 8, through cl_schedule._slices_per_expert), sN (S = N for all)."""
+    if policy == "fill15":
+        d = cl_schedule.decode(cl_schedule.build(topk_ids, topk_w, 0, 32, C, "s1", 0))
+        cnt = [0] * 32
+        for i in range(d["n_slices"]):
+            cnt[d["slice_expert"][i]] = d["slice_ntok"][i]
+        S = cl_schedule._slices_per_expert(cnt, "fill", 15)
+        return sched_with_S(topk_ids, topk_w, lambda e, c: S[e])
     if policy in ("s1", "s2", "fill"):
         d = cl_schedule.decode(cl_schedule.build(topk_ids, topk_w, 0, 32, C, policy, 0))
         n = d["n_slices"]
@@ -166,10 +177,11 @@ def sched_tensor(b):
 class Runner:
     """Buffers and one launch of the phase B kernel for a schedule."""
 
-    def __init__(self, ext, w2u, w2gs, normw, tmax, n_slices, slab_cols, depth=4, dbg=False):
+    def __init__(self, ext, w2u, w2gs, normw, tmax, n_slices, slab_cols, depth=4, dbg=False, ncw=None):
         dev = torch.device("cuda")
         self.ext, self.w2u, self.w2gs, self.normw = ext, w2u, w2gs, normw
         self.tmax, self.n_slices, self.slab_cols = tmax, n_slices, slab_cols
+        self.ncw = ncw if ncw is not None else (16 if tmax == 8 else 8)
         optin = torch.cuda.get_device_properties(0).shared_memory_per_block_optin
         static = 8 * 13 + 4 * C * tmax + 64
         while depth > 1 and ext.smem(tmax, depth, slab_cols) + static > optin:
@@ -189,10 +201,10 @@ class Runner:
             self.dacc = torch.zeros(0, dtype=torch.float32, device=dev)
             self.dsq = self.dacc
 
-    def launch(self, xmode, order, rot):
+    def launch(self, xmode, order, rot, diag=0):
         self.ext.launch(self.w2u, self.w2gs, self.normw, self.inter, self.sched, self.y, self.ss, self.xg,
                         self.stamps, self.dacc, self.dsq, self.n_slices, self.tmax, self.depth, order, rot, xmode,
-                        self.slab_cols)
+                        self.slab_cols, self.ncw, diag)
 
 
 def sched_dims(b):
@@ -212,10 +224,13 @@ def stamps_summary(st):
     t0 = min(r[0] for r in st)
     end = max(r[4] for r in st)
     cons = max(r[3] for r in st)
+    t1 = min(r[1] for r in st)
     return {
         "span_us": (end - t0) * 1e-3,
+        "span_slab_us": (end - t1) * 1e-3,
+        "slab_load_us": statistics.median((r[1] - r[0]) * 1e-3 for r in st),
         "cons_span_us": (cons - t0) * 1e-3,
-        "slab_pub_us": statistics.median((r[1] - r[0]) * 1e-3 for r in st),
+        "slab_pub_us": statistics.median((r[8] - r[0]) * 1e-3 for r in st),
         "first_stage_us": statistics.median((r[2] - r[0]) * 1e-3 for r in st),
         "gather_end_us": statistics.median((r[5] - t0) * 1e-3 for r in st),
         "wait_b_med_us": statistics.median(r[6] * 1e-3 for r in st),
@@ -255,37 +270,38 @@ def pick(ref, T, n, distinct, seed, max_scan):
     return out, {"seeds": seeds, "synthetic": True}
 
 
-def bench(ext, w2u, w2gs, normw, ref, T, distinct, n_inputs, replays, modes, seed, max_scan):
+def bench(ext, w2u, w2gs, normw, ref, T, distinct, n_inputs, replays, modes, seed, max_scan, policy="fill15",
+          ncw=None, depth=4):
     inputs, meta = pick(ref, T, n_inputs, distinct, seed, max_scan)
     tmax = 8 if T <= 8 else 32
-    scheds = [make_sched(d["topk_ids"], d["topk_weights"], "fill") for d in inputs]
+    scheds = [make_sched(d["topk_ids"], d["topk_weights"], policy) for d in inputs]
     dims = [sched_dims(b) for b in scheds]
     n_slices = {n for _, n, _ in dims}
     assert len(n_slices) == 1, n_slices
     n_slices = n_slices.pop()
     sc = max(s for _, _, s in dims)
-    runner = Runner(ext, w2u, w2gs, normw, tmax, n_slices, sc)
+    runner = Runner(ext, w2u, w2gs, normw, tmax, n_slices, sc, ncw=ncw, depth=depth)
     gen = torch.Generator(device="cuda").manual_seed(seed)
     inters = [(0.05 * torch.randn((256, 4096), generator=gen, device="cuda")).to(torch.bfloat16) for _ in inputs]
     flush = torch.ones((1 << 30) // 4, dtype=torch.float32, device="cuda")
     floor = distinct * FLOOR_US_PER_EXPERT
-    res = {"T": T, "distinct": distinct, "n_slices": n_slices, "slab_cols": sc, "depth": runner.depth,
+    res = {"T": T, "distinct": distinct, "policy": policy, "ncw": runner.ncw, "n_slices": n_slices, "slab_cols": sc, "depth": runner.depth,
            "smem": runner.smem, "floor_us": floor, "inputs": meta,
            "ntok": [[d["slice_ntok"][i] for i in range(n)] for d, n, _ in dims],
            "S": [[d["expert_nslices"][e] for e in range(32) if d["expert_nslices"][e]] for d, _, _ in dims],
            "modes": {}}
-    print(f"BENCH T={T} distinct={distinct} slices={n_slices} sc_max={sc} depth={runner.depth} smem={runner.smem} "
+    print(f"BENCH T={T} distinct={distinct} policy={policy} ncw={runner.ncw} slices={n_slices} sc_max={sc} depth={runner.depth} smem={runner.smem} "
           f"floor {floor:.2f} us inputs {meta.get('seeds')} synthetic={meta['synthetic']}", flush=True)
     for name in modes:
-        xmode, order, rot = MODES[name]
+        xmode, order, rot, diag = (MODES[name] + (0,))[:4]
         runner.sched.copy_(sched_tensor(scheds[0]))
-        runner.launch(xmode, order, rot)
+        runner.launch(xmode, order, rot, diag)
         torch.cuda.synchronize()
         g = torch.cuda.CUDAGraph()
         s = torch.cuda.Stream()
         with torch.cuda.stream(s):
             with torch.cuda.graph(g, stream=s):
-                runner.launch(xmode, order, rot)
+                runner.launch(xmode, order, rot, diag)
         torch.cuda.synchronize()
         rows = []
         for k, (b, it) in enumerate(zip(scheds, inters)):
@@ -308,14 +324,15 @@ def bench(ext, w2u, w2gs, normw, ref, T, distinct, n_inputs, replays, modes, see
         summ = {"span": span, "ratio": span["median"] / floor,
                 "event": quant([x["event_us"] for x in rows]),
                 **{k: statistics.median(x[k] for x in rows)
-                   for k in ("cons_span_us", "slab_pub_us", "first_stage_us", "gather_end_us", "wait_b_med_us",
+                   for k in ("span_slab_us", "slab_load_us", "cons_span_us", "slab_pub_us", "first_stage_us", "gather_end_us", "wait_b_med_us",
                              "wait_b_max_us", "wait_f_med_us", "end_spread_us")},
                 "per_input_span_med": [statistics.median(x["span_us"] for x in rows if x["input"] == k)
                                        for k in range(len(inputs))],
                 "rows": rows}
         res["modes"][name] = summ
         print(f"RUN T={T:2d} {name:7s} span {span['median']:6.2f} [{span['min']:.2f}-{span['max']:.2f}] us "
-              f"ratio {summ['ratio']:.3f} event {summ['event']['median']:6.2f} | cons {summ['cons_span_us']:.2f} "
+              f"ratio {summ['ratio']:.3f} from-slab {summ['span_slab_us']:.2f} ({summ['span_slab_us'] / floor:.3f}) event "
+              f"{summ['event']['median']:6.2f} | slab-load {summ['slab_load_us']:.2f} cons {summ['cons_span_us']:.2f} "
               f"slab-pub {summ['slab_pub_us']:.2f} first-stage {summ['first_stage_us']:.2f} gather-end "
               f"{summ['gather_end_us']:.2f} | cons wait on gather med {summ['wait_b_med_us']:.2f} max "
               f"{summ['wait_b_max_us']:.2f}, on weights {summ['wait_f_med_us']:.2f} | end spread "
@@ -331,8 +348,11 @@ def main():
     ap.add_argument("--distinct", type=int, default=7)
     ap.add_argument("--inputs", type=int, default=5)
     ap.add_argument("--replays", type=int, default=20)
-    ap.add_argument("--modes", default=",".join(MODES))
+    ap.add_argument("--modes", default="b_rot1,b_rot0,b_nat,c_rot1,none")
     ap.add_argument("--seed", type=int, default=1000)
+    ap.add_argument("--policy", default="fill15")
+    ap.add_argument("--depth", default="4", help="comma list of ring depths (reduced to fit shared memory)")
+    ap.add_argument("--ncw", default="", help="comma list of consumer warp counts (8, 16 at T <= 8); default per T")
     ap.add_argument("--max-scan", type=int, default=3000)
     a = ap.parse_args()
     t = time.monotonic()
@@ -345,8 +365,12 @@ def main():
     with GpuLock(a.lock):
         _, _, w2u, w2gs, normw = prep_weights()
         for T in [int(x) for x in a.T.split(",")]:
-            out["runs"].append(bench(ext, w2u, w2gs, normw, ref, T, a.distinct, a.inputs, a.replays,
-                                     a.modes.split(","), a.seed, a.max_scan))
+            for ncw in ([int(x) for x in a.ncw.split(",")] if a.ncw else [None]):
+                for depth in [int(x) for x in a.depth.split(",")]:
+                    if T > 8 and ncw == 16:
+                        continue
+                    out["runs"].append(bench(ext, w2u, w2gs, normw, ref, T, a.distinct, a.inputs, a.replays,
+                                             a.modes.split(","), a.seed, a.max_scan, a.policy, ncw, depth))
     if a.out:
         with open(a.out, "w") as f:
             json.dump(out, f, indent=1)
