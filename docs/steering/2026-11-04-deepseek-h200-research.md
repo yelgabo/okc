@@ -172,3 +172,79 @@ Reproducible CPU layout/score results: `qstage_mapping_check.py` and `qstage_map
 [hopper]: https://docs.nvidia.com/cuda/hopper-tuning-guide/index.html
 [deepgemm]: https://github.com/deepseek-ai/DeepGEMM/blob/5081f8513af57e61696de4f4f04b0e707ffb503e/deep_gemm/include/deep_gemm/impls/sm90_fp8_gemm_1d1d.cuh#L25-L200
 [fa3]: https://tridao.me/blog/2024/flash3/
+
+---
+
+## Addendum — November 4, 2026: barrier-removal results and current head
+
+**Reorientation through `f370e3aa84114ecef5d6e71a98c1c673996d3d15` (14:06 PT ledger entry).** The source/result inspection started at `a88fa79fe225d3d3b5ee12668faa929efd7fd4ca`; the subsequent head adds the existing DF/YBF lane. Everything above remains the original `39ae77cf` snapshot. This appendix supersedes its current-status recommendations without rewriting its evidence, experiments or conclusions as though the newer results had been known then.
+
+### A. The selected base has advanced; the two barrier results have different statuses
+
+| Implementation | Changed selected path | Owning complete-layer box comparison | Latest archived judge checks / disposition |
+|---|---|---|---|
+| `ly_stk4` = `ly_stk3` + `ly_gb4` | B4, 16 < T <= 32; scored decode-32 sliding/full | Against stk3: -1.75 / -1.67 us, 24/24 paired wins in each cell; other cells within thresholds | VALID 13/13 at 10,046.14 and 10,070.38 us. **Current engineering/draw base.** |
+| `ly_stk5` = `ly_stk4` + `ly_gbm` | MAIN/RFIN; scored verify-16/verify-32 (T128/T256) | Against stk4: verify-16 -1.03 / -1.04 us; verify-32 -1.59 / -1.40 us, respectively sliding/full | VALID 13/13 at 10,111.61 and 10,101.49 us. **Recorded alternative, not the selected draw base.** |
+| `ly_gb5` | MID T16, separate per-job completion implementation | Against stk4: decode-16 sliding +0.11 us, full -0.01 us | Null under its bar; closed and not stacked. |
+
+The two-draw arithmetic means are approximately **10,058.26 us for stk4** and **10,106.55 us for stk5**. These are cross-job score observations, not a matched causal estimate that MAIN adds 48 us. The latest ledger says much of the difference appears in unchanged decode-32 code; the MAIN-changed cells are slightly ahead at verify-16 and approximately even at verify-32. The lead nevertheless retained stk4 on its observed record. Keep both the MAIN box gain and the inconclusive judge attribution, rather than calling MAIN either a confirmed official improvement or a proven regression. [Latest ledger][head-ledger]
+
+Exact source identities: stk4 SHA256 `a054c8d57555352d924bc2c4ae73f3199f05025f40a11300bc301d1655ba927e`; stk5 SHA256 `b89d23a6a00d5d00a48821e419135727388dcad1349e4924e9a37591f9f74654`. Owning check IDs are stk4 `4f99c1ec20f54f0f` / `d947533cf0c540a2` and stk5 `1e0d522594094eef` / `c3112d526fe0489d`. These were read from archived repository evidence, not polled. The selected draw base is not automatically the public row; this pass made no leaderboard request or submission.
+
+### B. What “barrier removal” actually means here
+
+**The successful change narrows the dependency, not the memory-ordering guarantee.** The old path waited for all CTAs to finish expert work before finalization. With MFIN enabled, each final item acquires the completion counters of its token's local experts; unrelated experts do not need to finish first. Expert arithmetic, the final sum and the required publication remain. The useful question is now which data a final item actually needs, rather than how cheaply to implement the same all-grid wait.
+
+The inspected source supports that distinction:
+
+- The pre-finalization grid barrier is conditionally excluded by `OKC_MFIN && OKC_WGS && (OKC_MFQ & 4)`. B4's existing column-parallel finalizer polls its required local experts with `ld_acquire`, performs `CTA_SYNC`, then reads the output/norm partials. Its fixed-order reduction and final BF16 conversion are unchanged. [B4 finalization][head-stk4-final]
+- `wgs_flush` executes a 128-thread warpgroup barrier before one leader issues `red.release.gpu.global.add.s32` for a kind-4 expert completion. This is not the old proposed WS relaxed-flag relay, and the earlier unproved WS publication argument is not repaired or vindicated by these results. [Publication source][head-publication]
+- The readiness polls no longer fall through after four million unsuccessful iterations. This removes the unsafe “continue without readiness” path. It does not by itself prove progress: counter reachability, all-contributor coverage, resident scheduling and generation/reset lifetime remain necessary. Passing outputs are not a replacement for those obligations.
+
+B4 obtained a complete-call win from this dependency change; MID did not. The MID owner's hypothesis is that each token still waits for a last-finishing phase-B job, leaving the end spread exposed. That is an explanation to test, not an established family ceiling. A grid-barrier interval is not an additive removable-time budget. [MID receipt][head-mid]
+
+### C. MAIN's reopening corrected an actual source premise
+
+The earlier statement that RFIN finishers never release MFIN completion credits was wrong. In the current selected source, a non-finisher split share writes fixup partials and returns; the stage-zero finisher acquires those shares, combines their partials, and **falls through into the whole-unit epilogue**. That epilogue sets `WgsPend{4,...}`, and `wgs_flush` publishes the completion credit. The final pending release is also flushed at phase exit. [RFIN control flow][head-rfin]
+
+The owning source argument counts four warpgroup credits per phase-B unit and sixteen units per job: **64 credits per job**, matching the finalizer target times that expert's job count. The MAIN gate could therefore retain MFIN without inventing a missing finisher protocol. The owner additionally tested **5,800 graph replays** across M=33/48/97/128/200/255/256, varied routing, exact counter targets, opposite-parity zeroing, alternating parity and bitwise equality to stk4. This is strong recorded implementation evidence, not an independent exhaustive ordering/progress proof by this appendix. [MAIN owning proof and stress][head-main]
+
+The practical research correction is important: **audit the exact source premise behind a closure before ruling out a compatible mechanism.** This was new control-flow evidence, not a reason to repeat every previously losing barrier/flag treatment. The exact WS flags, full-K, norm and two-launch losses retain their existing scope.
+
+### D. Explicit corrections to the earlier recommendations
+
+| Earlier statement in this report | Newer evidence and current disposition |
+|---|---|
+| Prioritize attention-d16's two-copy merge candidate `ly_a16nc2` | The complete-layer comparison finished null: decode-16 sliding +0.03 us, 12/24 faster, despite an earlier stamped O endpoint. The lane closed. Do not continue recommending it as pending. |
+| Prioritize T1's first weight issue “behind routing” | The subsequent source/timing reconciliation shows TINY already issues its first two copies before `route()`. `ly_f1f` advanced issuance by about 0.15 us but was null (-0.24 us sliding, 16/24); issue-to-first-slot-full was about 1.93 us. The lane closed. The earlier attribution is superseded, not silently retained. |
+| Layer b1/b2 is an ongoing measured target | The read-ahead arm was null, and T32 cluster glue lost +1.04 us. This lane closed; its old floor-distance estimate is not remaining recoverable time. |
+| MAIN cannot use completion counters because RFIN does not publish | Corrected by the actual finisher fall-through and counter accounting above. A valid MAIN candidate exists; the lead retains it as an alternative rather than the current base. |
+| `ly_stk3` is the current comparison base | Use `ly_stk4` for newly selected comparisons. Preserve `ly_stk5` and its owning receipts as a separate alternative. |
+| QSTAGE-EXACT is a small reserve | Still source-only, unbuilt and unmeasured in the inspected evidence. No new pickup is established. It is not promoted by the unrelated barrier results; any future comparison must use the then-current base. |
+
+Additional completed work: the own-GEMM/PDL alternative at T128 was not a material sliding-cell keeper; broad launch/staging revival closed without a new selected candidate. These newer terminal entries supersede the older “in flight” descriptions in the original report. [Current closures][head-ledger]
+
+### E. Reoriented recommendation and latest ownership
+
+The strongest new lesson is **consumer-specific readiness with complete contributor accounting**, not generic barrier deletion. B4 already demonstrates that mechanism in a complete measured call, while MAIN's source correction shows why exact control-flow inspection can change an earlier integration decision. Preserve the existing release/acquire chain, precision boundaries and replay/reset behavior when assessing any related path.
+
+At the final inspected head, the latest user-authorized lane is **`moe-dfybf`**, opened at 14:06 PT: research DF/YBF features still off, build on stk4 only for a few-line justified repair with a plausible >=0.4 us sliding-cell opportunity, stop at 17:30 PT, **no judge use by that lane**. This is an existing owner's assignment. It supersedes any blanket claim that every implementation lane is now closed; it is not a new assignment or allocation from Research. [Head delta][head-delta]
+
+For this report, the immediate ordering is: retain stk4 and the lead's current release/draw decision; preserve stk5's distinct evidence; leave DF/YBF with its already-opened owner; keep QSTAGE-EXACT as a lower-leverage reserve only. Do not restart the completed attention merge, MoE prologue, MID barrier or generic knob searches.
+
+The plan's approximately 2.1% remaining gap uses its dated top-100 reference and stk4's best check. It is not a live rank statement, and neither the full 63.79 us difference from stk3's single check nor the old barrier idle spans can be credited as a causal algorithmic saving. Repeated draws and implementation gains remain separate. [Updated plan][head-plan]
+
+### F. Preservation and limits
+
+This is an append-only update to the same report. The original **20,934-byte UTF-8 prefix** is retained, Git blob `129595fd0d5e13851fc71c174281808a07029184`, SHA256 `ee6388723089d2edebc7f3d76398d0bccf54fb2ba0b0a4f4c44849dd2115f668`. Its earlier links stay pinned to the original snapshot; the references below bind this appendix to the newer evidence. No earlier result is relabeled retroactively.
+
+This pass read pushed source, current steering and owning archived results. It did not inspect uncommitted local changes, run native compilation or GPU measurements, poll owner jobs, change kernels/defaults, edit owner queues, schedule anything, or take public action.
+
+[head-ledger]: https://github.com/yelgabo/okc/blob/f370e3aa84114ecef5d6e71a98c1c673996d3d15/docs/steering/2026-11-02-final-day-directive.md#ledger
+[head-plan]: https://github.com/yelgabo/okc/blob/f370e3aa84114ecef5d6e71a98c1c673996d3d15/docs/steering/2026-11-04-top100-push.md
+[head-stk4-final]: https://github.com/yelgabo/okc/blob/f370e3aa84114ecef5d6e71a98c1c673996d3d15/muse_decode_layer/cand/ly_stk4.py#L6505-L6630
+[head-publication]: https://github.com/yelgabo/okc/blob/f370e3aa84114ecef5d6e71a98c1c673996d3d15/muse_decode_layer/cand/ly_stk5.py#L5890-L5910
+[head-rfin]: https://github.com/yelgabo/okc/blob/f370e3aa84114ecef5d6e71a98c1c673996d3d15/muse_decode_layer/cand/ly_stk5.py#L6079-L6168
+[head-main]: https://github.com/yelgabo/okc/blob/f370e3aa84114ecef5d6e71a98c1c673996d3d15/docs/lanes/moe-gbm.md
+[head-mid]: https://github.com/yelgabo/okc/blob/f370e3aa84114ecef5d6e71a98c1c673996d3d15/docs/lanes/moe-gb.md
+[head-delta]: https://github.com/yelgabo/okc/commit/f370e3aa84114ecef5d6e71a98c1c673996d3d15
