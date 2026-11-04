@@ -56,6 +56,9 @@ def main():
     b = text.index('\n"""\n', a)
     seg = text[a:b]
     for old, new in MAIN_EDITS:
+        if seg.count(old) == 0 and (old.startswith("      const int n = min(") or old.startswith(FENCE)):
+            print("fence-early build: anchor absent, stamp skipped:", old.splitlines()[0][:60])
+            continue
         seg = sub(seg, old, new)
     text = text[:a] + seg + text[b:]
     text = "# ly_mtf2: instrument (FAST1 issue segment stamps on a pmt copy, tools/dl_ly_mtf2_patch.py), never a candidate.\n" + text

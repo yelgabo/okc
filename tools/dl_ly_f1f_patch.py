@@ -8,7 +8,7 @@ flight, the range for k = popc(m) arrives by one shuffle, and each first unit's 
 of m, as __fns gave) is one ballot over lanes. Lane 0 then runs the existing init, fences and copy loop unchanged.
 Same unit ranges, experts and addresses as the control; no fence, barrier or ordering changed.
 
-    python3 tools/dl_ly_f1f_patch.py --base muse_decode_layer/cand/ly_stk3.py --out muse_decode_layer/cand/ly_f1f.py [--fast1 3]
+    python3 tools/dl_ly_f1f_patch.py --base muse_decode_layer/cand/ly_stk3.py --out muse_decode_layer/cand/ly_f1f.py [--fast1 3] [--fence-early]
 """
 import hashlib
 import pathlib
@@ -19,6 +19,16 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 SRC = ROOT / sys.argv[sys.argv.index("--base") + 1]
 DST = ROOT / sys.argv[sys.argv.index("--out") + 1]
 FAST1 = sys.argv[sys.argv.index("--fast1") + 1] if "--fast1" in sys.argv else None
+FENCE_EARLY = "--fence-early" in sys.argv
+FENCE = '      asm volatile("fence.mbarrier_init.release.cluster;\\n" ::: "memory");\n'
+PFENCE = '      asm volatile("fence.proxy.async.shared::cta;\\n" ::: "memory");\n'
+EARLY_EDITS = [
+    # the proxy fence right after lane 0's inits, while the topk loads are in flight; it still sits between the
+    # inits (the only generic-proxy shared writes the copies' barriers depend on) and the first cp.async.bulk
+    (FENCE + "    }\n    if (ln < E8)",
+     FENCE + "#if OKC_F1FAST\n" + PFENCE + "#endif\n    }\n    if (ln < E8)"),
+    ("#endif\n" + PFENCE + "#if OKC_SPLIT || OKC_F1FAST\n", "#endif\n#if !OKC_F1FAST\n" + PFENCE + "#endif\n#if OKC_SPLIT || OKC_F1FAST\n"),
+]
 PIN = "a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6"
 
 SEG_EDITS = [
@@ -72,7 +82,7 @@ def main():
     a = text.index("_MA_ALT_SRCS['moe_helper0'] = r\"\"\"")
     b = text.index('\n"""\n', a)
     seg = text[a:b]
-    for old, new in SEG_EDITS:
+    for old, new in SEG_EDITS + (EARLY_EDITS if FENCE_EARLY else []):
         seg = sub(seg, old, new)
     text = text[:a] + seg + text[b:]
     for old, new in TOP_EDITS:
