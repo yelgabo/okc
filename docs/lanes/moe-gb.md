@@ -1,6 +1,6 @@
 # moe-gb lane checkpoint (MoE grid barrier removal)
 
-Updated 2026-11-04 13:12 PT.
+Updated 2026-11-04 13:22 PT. Status: ly_gb4 meets the bar; registered in the ledger at 13:17 PT.
 
 ## Base
 
@@ -37,14 +37,30 @@ every CTA flushes its last pending release (line 6166) before its final. Final s
 - Gate (21:10-21:12 UTC): rc 0, all five PDL8H guards pass (T=1 sliding, T=8 full, T=8 sliding, T=16 sliding,
   T=32 full; 2000 replays per arm, ids mismatches 0). T=32 full max rel diff 5.52e-03 / 6.41e-03, equal off and on.
 - chk: 12/12 check PASS. Single-run decode 32 sliding net 135.84 us (box/judge 0.903), not an A/B number.
-- Paired A/B rounds 1 and 2 against ly_stk3: running since 21:12:50 UTC.
+- Paired A/B against ly_stk3, two rounds pooled, 24 pairs per cell (muse_decode_layer/profiles/box/moegb/
+  gb4_table_both_rounds.txt): decode 32 sliding 142.10 -> 140.36 us (-1.75, 24/24, thr 3.62); decode 32 full 294.00 ->
+  292.33 (-1.67, 24/24); decode 1 full -0.70 (24/24); decode 16 sliding / full -0.39 / -0.47 (18/24); decode 1 sliding
+  -0.10; verify 1 -0.21 / -0.08; verify 16 +0.17 / -0.59; verify 32 -0.33 / +0.09. No cell beyond its threshold.
+- Decision: meets the bar (decode 32 sliding >= 0.8 us, 20+/24). Ledger registration 13:17 PT; run log section
+  "MoE grid barrier removal (box)"; ruled-out row for MFIN in the MAIN (RFIN) build.
 
 ## Box paths
 
 Driver tools/ly_gb_ab.sh (PHASE=gate, PHASE=ab). Logs /root/okc/.build/moegb/ (gb4_gate.log, gb4_ab.log,
 gate_gb4.log); chk and rounds /root/okc/.build/prtl/gb_gb4/ and /root/okc/.build/prtl/gb_gb4_r2/.
 
+## Stretch note (not built): MoE as a PDL secondary of the route kernel
+
+Hypothesis only. The MoE already waits with griddepcontrol.wait at its top (line 6307), and its launch helper has a
+programmatic-serialization attribute slot (line 3603). Launching it as a PDL secondary keeps the cooperative launch,
+but its 132 CTAs need one whole SM each (1 CTA per SM, about 214 KB shared), so they cannot become resident until the
+producer's CTAs leave their SMs; the gain is the launch latency plus whatever sits above the wait, which today is
+nothing. Moving work above the wait is limited: which experts run depends on routing, and the MFIN parity atomicInc and
+zeroing must stay after the wait (the previous launch's final must be done). Cheapest decisive test: stamp the first
+wait return relative to the producer's end at decode 32 with the attribute on (tools/ly_box_moe_pro.py) before
+building anything.
+
 ## Next action
 
-Read the two tables (python3 tools/ly_prtl_table.py DIR); decide against the bar (decode 32 sliding at least 0.8 us,
-20 of 24 pairs, nothing else losing beyond noise).
+Lead: decide on a judge check of ly_gb4 (registered, not dispatched). Candidate 2 (MID decode 16) not started: it
+needs launch parity for ss, ctr[0..1] and doneA plus a new per-job release in ws_helper's phase B epilogue.
