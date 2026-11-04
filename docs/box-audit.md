@@ -84,7 +84,8 @@ life, including compile and input building.
 
 Kernel-level, with the queue full: nvidia-smi `utilization.gpu` every 0.5 s over 14:56-15:07 PST
 (1,276 samples): any kernel running in 53% of samples, mean utilization 44.5%, mean power
-212 W. Over the same window the process samples show at least two jobs queued on gpu.lock in 97%
+212 W. Over the longer window 14:56-15:39 PST (5,197 samples) the figure is 47.8% (mean utilization
+40.7%), with at least two jobs on gpu.lock in 99% of the process samples (mean 6.2 flock wrappers). Over the same window the process samples show at least two jobs queued on gpu.lock in 97%
 of samples (mean 4.05 flock wrappers, max 6). So with work waiting, the lock holder kept the GPU
 idle about half the time. The idle stretches line up with prepare compiles (15:00:30-15:03:45 PST,
 utilization 0-9% while an rv_ab job on g1b4_stage_release then g1b4_rs held the lock) and with the
@@ -268,3 +269,99 @@ and a runner variant that asserted equality failed there (`v_bx1.log`). One of t
 `generate_input` returns differs between two builds of the same seed in that cell, or ref_front
 writes into its input; not traced further, and the cache path does not depend on it because it
 still builds each timed input with one `generate_input` call, as box_run.py does.
+
+## Changes and validation
+
+All changes are opt-in flags in `tools/bx_box_run.py`, a copy of `tools/box_run.py` (box_run.py
+and box_bg.sh on the box are untouched). Without flags it behaves as box_run.py and adds three
+things: per-phase timers (a `BXPHASE` line and `phases` in the JSON), each side's PDL8 enable set
+as prepared and as timed (`BX submission pdl8 ...` line, `pdl8` in the JSON), and `argv` in the
+JSON.
+
+| flag | what it does | why it keeps the timed path |
+|---|---|---|
+| `--ls-cache FILE` | reads each fresh input's local_start from FILE, computes a missing one with `ref.case_fields` and merges it into FILE (atomic rename) | each timed input is still one `generate_input` call with the same seed and the same local_start |
+| `--ext-cache DIR` | wraps `torch.utils.cpp_extension.load_inline` so every call without its own build_directory builds in DIR/<name>-<sha256 of all its arguments and TORCH_CUDA_ARCH_LIST> | same sources, same flags, same compiler; only the directory differs, so two families no longer evict each other |
+| `--pin-pdl8 T,...` | after prepare sets `state["pdl8_on"]` to exactly these T and, with 8, `state["pdl8_edges"][8]` to all of `PDL8D_EDGES` | picks one of the file's own two paths per T, identically for every arm; no kernel or launch changes |
+| `--skip-pdl8-gate` | with `--pin-pdl8`, replaces the file's `_pdl8_setup` (the PDL8_AB / PDL8_STRESS / PDL8D gate) by a no-op | the gate only writes `pdl8_on` / `pdl8_edges`, which the pin then sets; G_RELEASE_STARTUP_OK still runs |
+
+Validation on g1b4_rs.py (01426b89) against itself, six loads, `--baseline --judge
+g1b4_pdl8d.f931abf568544018.json --router-seed 106218864389449120`, all in one lock hold
+(00:00:14-00:02:29 UTC; `.build/bx_audit/v_*.log|json`): `v_cur` and `v_cur2` are the current
+runner; `v_bx2` (empty local_start cache), `v_bx3` (warm cache) and `v_bx4` (warm, `--runs 20`)
+use all four flags with `--pin-pdl8 1,16,32`, the set `v_cur`'s own gate picked. `v_cur2`'s gate
+picked {1, 8}, so it is the coin-flip example. Paired differences are medians over the same
+inputs (input i of both runs has the same seed), net us; every check PASS.
+
+| cell | v_cur | v_cur2 | v_bx2 | v_bx3 | v_cur2 - v_cur | v_bx3 - v_bx2 | v_bx2 - v_cur | v_bx3 - v_cur | v_bx4 - v_cur (20 inputs) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| decode 1 sliding | 67.52 | 67.46 | 67.39 | 67.86 | +0.22 | -0.02 | -0.24 | +0.19 | +0.37 |
+| decode 1 full | 73.76 | 73.92 | 73.46 | 73.50 | +0.42 | -0.06 | -0.02 | +0.13 | -0.40 |
+| decode 16 sliding | 131.68 | 137.66 | 130.74 | 131.31 | +6.40 (PDL T = 16 off) | +0.21 | -0.38 | -0.11 | +0.19 |
+| decode 16 full | 203.09 | 210.03 | 202.96 | 202.72 | +6.99 (PDL T = 16 off) | +0.34 | -0.29 | -0.19 | +1.12 |
+| decode 32 sliding | 146.93 | 153.71 | 147.70 | 147.44 | +6.69 (PDL T = 32 off) | +0.64 | +0.30 | +0.96 | -0.30 |
+| decode 32 full | 298.59 | 305.30 | 297.74 | 298.37 | +6.67 (PDL T = 32 off) | +0.94 | -0.91 | -0.21 | -0.72 |
+| verify 1 sliding | 112.75 | 105.33 | 111.60 | 111.74 | -7.46 (PDL T = 8 on) | -0.14 | -0.75 | -0.83 | -0.06 |
+| verify 1 full | 120.53 | 112.90 | 120.13 | 120.80 | -8.19 (PDL T = 8 on) | +0.56 | -0.51 | -0.14 | -0.03 |
+| verify 16 sliding | 243.92 | 244.46 | 243.66 | 244.37 | +0.16 | +0.03 | +0.72 | +0.53 | +0.11 |
+| verify 16 full | 327.79 | 326.62 | 326.05 | 326.40 | -1.26 | -0.48 | +0.10 | -0.62 | -0.43 |
+| verify 32 sliding | 297.97 | 298.64 | 297.39 | 298.45 | +0.86 | +0.45 | -0.48 | +0.30 | +0.30 |
+| verify 32 full | 462.75 | 461.73 | 462.56 | 461.82 | +0.26 | -0.02 | -0.05 | -0.19 | -0.51 |
+
+On the cells where the two current-runner runs timed the same path (decode 1, verify 16, verify
+32) their control-vs-control differences span -1.26 to +0.86 us; the flagged runs against the
+current runner span -0.91 to +0.96 us over all 12 cells, and the two flagged runs against each
+other -0.48 to +0.94. So the flagged runner gives the same per-cell answer as the current runner
+within the current runner's own run-to-run spread. The coin flip moves `v_cur2` by 6.4 to 8.2 us
+at six cells; the pinned runs do not move.
+
+`--runs 20` keeps the paired answer (last column) but its medians are over the first 20 inputs,
+which is a different routing mix: verify 1 full reads 126.14 at 20 inputs against 120.80 at 60
+(`v_bx4` against `v_bx3`). Compare runs only at the same `--runs`.
+
+Wall clock of the lock-held part of a standard six-load run (12 cells, 60 inputs, with SGLang),
+from the stamps in `.build/bx_audit/val.times` and `a1.times`:
+
+| run | s |
+|---|---:|
+| box_run.py, warm torch extension cache (`warm_six` instrumented copy, `v_cur`, `v_cur2`) | 54.0 / 52.1 / 52.0 |
+| bx, all flags, empty local_start cache (`v_bx2`) | 47.0 |
+| bx, all flags, warm (`v_bx3`) | 19.5 |
+| bx, all flags, warm, `--runs 20` (`v_bx4`) | 16.7 |
+| bx, first build into an empty `--ext-cache` (`v_bx1`, prepare only) | 95.5 s prepare (compile) |
+
+Warm phases of `v_bx3`: prepare 8.05 s (gate skipped; 16.5 s with it), fresh inputs 3.95 s
+(30.2 s before), import 1.56, check 1.26, fixed-cost graphs 1.29, replays 1.23, capture 0.38.
+A six-load A/B pair (control and candidate) drops from about 105 s to about 39 s of GPU lock. The
+local_start cache for the standard judge file and router seed is pre-filled at
+`/root/okc/.build/box/ls_cache.json` (720 entries), and `/root/.cache/bx_ext` holds g1b4_rs's
+extensions.
+
+### Commands for the lanes
+
+Single file (in place of `tools/box_bg.sh <tag> ...`), with the same control and candidate pin:
+
+```bash
+ssh okc-h200 'cd /root/okc && . tools/box_env.sh && nohup flock /root/okc/.build/box/gpu.lock \
+  python tools/bx_box_run.py muse_decode_layer muse_decode_layer/cand/<file>.py --baseline \
+  --judge .build/judge/g1b4_pdl8d.f931abf568544018.json --router-seed 106218864389449120 \
+  --loads "decode 1,verify 1" --runs 60 \
+  --ls-cache /root/okc/.build/box/ls_cache.json --ext-cache /root/.cache/bx_ext \
+  --pin-pdl8 1,8,16,32 --skip-pdl8-gate \
+  --out .build/box/<tag>.json > .build/box/<tag>.log 2>&1 &'
+```
+
+- Pin the same set on every arm of one comparison. `1,8,16,32` is pdl8h's build-time set; use
+  `1,16,32` to match the file's most common gate outcome. Omit both PDL flags only when the
+  question is the gate itself (pdl8h's own dry runs).
+- `--ext-cache` and `--ls-cache` are safe for every layer file; `--ls-cache` keys on the judge
+  file's case seeds and the router seed, so a different `--judge` or `--router-seed` just fills new
+  entries.
+- For tools/rv_ab.py (rv lane): it calls `br.capture` and its own fresh-input loop, so the flags
+  do not reach it. The equivalent change there is three lines: call
+  `bx_box_run.content_addressed_extensions("/root/.cache/bx_ext")` before loading arms, set each
+  arm's `state["pdl8_on"]` after prepare instead of re-preparing until the gate agrees ("attempt
+  N"), and take local_start from `bx_box_run.LocalStartCache`.
+
+Lead option: `tools/bx_box_run.py` can replace `tools/box_run.py` as is (same default behaviour,
+extra log lines and JSON keys only); box_bg.sh then gains the flags by passing them through.
