@@ -7162,3 +7162,146 @@ ledger registration, no judge check. What the measurements leave:
   memory system in the 3 us after qkv; a gain there needs fewer bytes or fewer dependent round trips across both
   kernels (for example q-norm / RoPE in qkv's epilogue, or the finalize inside o's prologue), which is cross-lane
   work (bf16 owns qkv and o) and not tested here.
+
+## 2026-11-04 - Decode 16 / 32 sliding attention in the layer (box)
+
+Attention-d16 lane. Question: the layer-d16 timeline puts attention at 7.71 / 9.71 us on the decode 16 / 32 sliding
+critical path against 1.89 / 3.78 us byte floors; what are the parts, do the decode 1 findings (K/V off the path, q side
+and merge ticket on it) hold at batch 16 / 32, and does one change gated to these two cells shorten it? Base:
+muse_decode_layer/cand/ly_stk2.py (SHA256 4bbf4010f412b9afe8595b1a5ede517fb8aa6e31af6efdc1e55dd34a3a335846, the draw
+base), never edited. Box only (okc-h200, 19:52 to 20:08 UTC), every run under gpu.lock, router seed
+106218864389449120, f931 case seeds, local_start per input, PDL pinned on at every T. No judge check. Logs, JSONs and
+tables: `muse_decode_layer/profiles/box/a16/`.
+
+### Plan map (source, `_plan7` and `launch<1>`)
+
+Both cells run `attn_kernel<1, false, 1>` (kn[1], the plain per-request split-KV build, MODE 1), the only q_len 1 launch
+of that build in the layer (decode 1 sliding and full take the speculative builds 13 / 9, decode 16 / 32 full the flat
+kernel). `_plan7`: decode 16 has 16 requests (reqs < 24) and gets 16 splits, decode 32 has 32 (reqs >= 24) and gets 8;
+grid (n_splits, B) = 256 CTAs of 128 threads at both loads, 2 / 4 whole 64-key tiles per CTA, 3-stage cp.async ring
+(two tiles in flight), nc = 1, not cooperative. Merge: every CTA's key halves exchanged in shared memory, warps 0 / 1
+`red.global.add.v4.f32` into its request's 4 KB workspace region, then thread 0's `atom.acq_rel.gpu` ticket on the
+request's counter after the CTA barrier; the request's last CTA (16 / 8 CTAs per request contend) runs `fin_nc1` and
+zeroes the region. PDL secondary of qkv (trigger right after its `griddepcontrol.wait`), primary of the o projection.
+
+### Instrument (never a candidate)
+
+`tools/dl_ly_a16_patch.py` writes `ly_a16.py` (SHA256 33d316dd...) and with `--kvw` `ly_a16k.py`: everything
+`tools/dl_ly_ast_patch.py --mrg` adds (slots 0 to 21), the sk2 stamps also at M = 16 / 32, and per-tile stamps (22 to 24:
+tile 1 to 3's stage visible; 25 to 27: their math done). `tools/ly_box_a16.py` replays 20 fresh inputs per cell through a
+plain and an instrumented graph (cold L2) and summarizes per request: the critical request is the one whose finalize
+stores issue last, each of its slots the latest of its CTAs. Times are us after qkv_end (the last qkv CTA's stores
+issued; the profiler's qkv end is about 0.5 us later). Plain against instrumented graph: 130.69 / 131.34 and 147.18 /
+148.14 us (medians), maxdiff at the reds' order-of-addition level.
+
+### The excess as parts (measurement; base, medians over 20 inputs, us after qkv_end, critical request / p50 over CTAs)
+
+| step | decode 16 | decode 32 | part on the path (d16 / d32) |
+|---|---:|---:|---:|
+| CTAs enter (qkv's trigger) | -0.70 / -0.80 | -0.16 / -0.34 | |
+| `griddepcontrol.wait` returns | 0.46 / 0.45 | 0.62 / 0.48 | 0.46 / 0.62 (qkv completion and flush) |
+| page indices landed (post-wait barrier) | 0.88 / 0.83 | 1.06 / 0.90 | |
+| K/V of tiles 0, 1 issued (16 cp.async per thread) | 1.98 / 1.79 | 2.62 / 2.14 | 1.52 / 2.00 (index wait plus issue) |
+| q group visible | 2.06 / 1.86 | 2.69 / 2.21 | 0.08 / 0.07 (q landed during the issue) |
+| RoPE, q pass, new k / v pass, new rows patched | 3.34 / 2.42 | 4.30 / 2.83 | 1.28 / 1.61 |
+| tile 0 visible | 3.55 / 2.78 | 4.46 / 3.04 | 0.21 / 0.16 (K/V DRAM after the q side) |
+| tile loop done (2 / 4 tiles) | 5.26 / 4.81 | 8.61 / 7.23 | 1.71 / 4.15 |
+| key halves exchanged, reds issued | 5.92 / 5.30 | 9.01 / 7.71 | 0.66 / 0.40 |
+| ticket returns | 7.22 / 6.58 | 10.18 / 8.70 | 1.30 / 1.17 |
+| last CTA's finalize stores issued (attention end) | 8.27 / 7.90 | 10.96 / 10.25 | 1.05 / 0.78 |
+| o projection's `griddepcontrol.wait` returns | 8.78 | 11.49 | 0.51 / 0.53 |
+
+Placement. Every input put the 256 CTAs on 85 to 87 SMs, three per SM (`sm_used` 87; 82 to 84 SMs with three CTAs, the
+rest one or two). The grid launches 0.5 to 1 us before qkv's last CTA ends; qkv's 96 CTAs (large shared memory) still
+hold about 45 SMs then, three attention CTAs fit on each free SM, so all 256 land at once on the free SMs and the SMs
+qkv frees last get none (the o projection's first 88 CTAs land there at +1.3 us; its other 168 only as attention CTAs
+exit, +6.4 to +7.8 us). CTAs sharing an SM with two others issue their K/V slower (0.99 vs 0.83 us at decode 16, 1.34
+vs 1.07 at decode 32) and run the loop slower (1.97 vs 1.87, 4.22 vs 3.68 us). The window's 8.4 / 16.8 MB arrive at
+about 2.3 / 2.4 TB/s (index landing to last tile visible), against 3.8 TB/s standalone at two CTAs per SM on 128 SMs
+("batch 16 / 32 sliding timeline and split arms", runs-attention.md).
+
+The batch 1 findings, checked at batch 16 / 32:
+
+- K/V is still mostly off the path in the base (tile 0 visible 0.2 us after the q side), but the K/V issue is on it:
+  16 cp.async per thread take 1.0 to 1.5 us at three CTAs per SM, and the q side cannot start until the thread has
+  issued them. At decode 32 the in-loop issue of tiles 2 / 3 sits inside the first two tiles' math (1.1 / 1.3 us
+  against 0.6 / 0.5 for tiles 2 / 3, which issue nothing).
+- The q side is 1.3 / 1.6 us (batch 1: 0.67).
+- The merge tail holds: ticket 1.3 / 1.2 us, finalize 1.05 / 0.78, flush 0.5; 3.0 / 2.5 us in all (batch 1: 2.5).
+- New at these loads: the tile loop (1.7 / 4.2 us) on 87 SMs.
+
+`ly_a16k` (thread 0 waits for its own K/V right after the q group; diagnostic, it delays the q side): thread 0's two
+tiles land at 3.63 / 3.52 us (p50), 1.8 / 1.4 us after their issue ends.
+
+### Candidate ly_a16kv: the first tiles' K/V before the wait (loss at the stamp level)
+
+`tools/dl_ly_a16kv_patch.py` (base pinned) writes `ly_a16kv.py` (SHA256
+6012a503917f9381a1e856e66d5581bc3e720f679e09c31e506805a84d39e400): in `attn_kernel<1, false, 1>` only (KVPRE = L == 1
+&& !FLAT && MODE == 1), the page-index group plus the layer-input constants (inv_freq, k_scale, v_scale, cache_loc) are
+waited before `griddepcontrol.wait`, tiles 0 / 1 issued (new-token rows skipped as in the base issue), then the wait and
+trigger as before, and q / the new k, v rows as `ld.global.cg` loads stored to shared memory (no cp.async group, so the
+q pass does not wait behind the K/V groups). Gate (file's own prepare): five PDL8H guards pass, drift equal to the
+base's. Stamps (`st_a16kv.log`): the indices land only 0.50 us (p50) after qkv_end, so the K/V issue still ends after
+the wait (1.39) and the wait stamp moves to 1.43; the q loads queue behind 16 outstanding copies per thread (q visible
+3.10 vs 1.86), and the attention ends at 9.17 / 11.87 (base 8.27 / 10.96), o's wait at 9.66 / 12.40 (base 8.78 /
+11.49): +0.9 us at both loads. Stopped after one A/B pair; ruled-out row.
+
+### Candidate ly_a16o2: two CTAs per SM
+
+`tools/dl_ly_a16o2_patch.py` (base pinned) writes `muse_decode_layer/cand/ly_a16o2.py` (SHA256
+28855d72bd3d120db19edd621481c92fec4aa1294cec9ac478c199417c9db678). Host-only launch change in `launch<L>`: the kn[1]
+launch at L == 1 (decode 16 / 32 sliding only, see the plan map) asks for 81,920 B of dynamic shared memory instead of
+sm_n, so three CTAs no longer fit on an SM (3 x 81 KB > 228 KB) and two do. Kernel source, the wait, the trigger, the
+fences, the ticket and the PDL attribute are the base's; every other launch keeps sm_n. Diff against ly_stk2 (line
+numbers of ly_stk2): a header line; `#define OKC_A16SM 81920` after line 169; after line 3529 `if (L == 1 && OKC_A16SM >
+sm_n) cudaFuncSetAttribute(kn[1], cudaFuncAttributeMaxDynamicSharedMemorySize, OKC_A16SM);`; after line 3580 `const int
+smk = (L == 1 && kern == kn[1] && OKC_A16SM > sm) ? OKC_A16SM : sm;`; lines 3587 and 3607 launch with `smk` instead of
+`sm`.
+
+Gate (file's own prepare, `gate_a16o2.log`): PDL8_AB T = 16 sliding saving 7.90 us (9/9), T = 32 sliding 6.02 (9/9);
+PDL8H_GUARD T = 1 sliding, T = 16 sliding, T = 32 full, T = 8 full and T = 8 sliding all pass (ids mismatches 0, drift
+equal to the off arm's). Correctness (chk step, six loads): reference check PASS 12/12, `G_RELEASE_STARTUP_OK native
+(128, 32, 33, 256, 1, 8, 16) 56 verified_replays`, `CG_GATE ... equal 1023/1024 ok`.
+
+Stamps (`st_a16o2.log`, `ly_a16o2_st.py`): 128 SMs, two CTAs each, at every input. Decode 16 / 32 (base in brackets):
+K/V issued 1.70 / 2.10 (1.98 / 2.62), q side done 2.86 / 3.28 (3.34 / 4.30), tile 0 visible 3.23 / 3.52 (3.55 / 4.46),
+loop done 4.77 / 7.22 (5.26 / 8.61; decode 32 tiles visible 3.52 / 4.59 / 5.70 / 6.48), ticket 6.64 / 8.56 (7.22 /
+10.18), attention end 7.86 / 9.57 (8.27 / 10.96), o's wait 8.42 / 10.11 (8.78 / 11.49), o's end 11.70 / 14.29 (12.10 /
+15.71). At decode 16 the ticket grows (reds to ticket 1.44 vs 1.30 us) and takes back part of the front's gain.
+
+Paired A/B against ly_stk2 (`tools/ly_a16_ab.sh` -> `tools/ly_prtl_ab.sh` with CTL=ly_stk2.py, two rounds of
+c/w/c/w/c, 60 runs, six loads, PDL pinned on at T = 1, 8, 16, 32; 20:03 to 20:08 UTC; `prtl/a16o2_table_both_rounds.txt`).
+Per round, decode 32 sliding w - c -1.15 / -1.23 us (4/4 pairs each), decode 16 sliding -0.03 / -0.38. Pooled (6
+control runs, 4 candidate runs, 24 pairs per cell):
+
+| cell | ctl mean | spread | cand mean | w - c | thr | pairs < 0 | verdict |
+|---|---:|---:|---:|---:|---:|---|---|
+| decode 1 sliding | 63.59 | 0.54 | 63.68 | +0.09 | 1.09 | 13/24 | inside |
+| decode 1 full | 70.19 | 1.47 | 69.88 | -0.31 | 2.94 | 14/24 | inside |
+| decode 16 sliding | 125.71 | 0.93 | 125.51 | -0.21 | 1.86 | 18/24 | inside |
+| decode 16 full | 197.56 | 2.24 | 197.45 | -0.11 | 4.48 | 15/24 | inside |
+| decode 32 sliding | 143.67 | 1.12 | 142.48 | **-1.19** | 2.24 | **24/24** | inside |
+| decode 32 full | 294.43 | 1.65 | 294.02 | -0.42 | 3.30 | 16/24 | inside |
+| verify 1 sliding | 100.21 | 0.53 | 100.68 | +0.48 | 1.06 | 7/24 | inside |
+| verify 1 full | 108.73 | 0.70 | 108.40 | -0.33 | 1.41 | 18/24 | inside |
+| verify 16 sliding | 242.40 | 2.27 | 241.92 | -0.48 | 4.54 | 15/24 | inside |
+| verify 16 full | 326.09 | 2.59 | 325.25 | -0.84 | 5.18 | 19/24 | inside |
+| verify 32 sliding | 294.28 | 3.01 | 293.82 | -0.45 | 6.02 | 15/24 | inside |
+| verify 32 full | 458.66 | 1.38 | 459.32 | +0.66 | 4.59 | 4/24 | inside |
+
+The ten cells whose launches the change cannot reach (`launch<8>` and the flat / speculative builds take the same host
+code with the test false) sit within -0.84 to +0.66 us of the control, inside every threshold; verify 1 sliding (+0.48,
+7/24) and verify 32 full (+0.66, 4/24) are the session's drift on unchanged code.
+
+### Decision
+
+ly_a16o2 is the lane's candidate: decode 32 sliding -1.19 us with 24/24 pairs, decode 16 sliding -0.21 (18/24), every
+other cell inside its threshold, guards and check clean. It meets the registration bar (decode 32 sliding at least 1 us
+with 20+ of 24 pairs, nothing else beyond noise); a ledger registration line is written, and this lane dispatched no
+judge job. Value if the box deltas carried to the judge (hypothesis; the box rule forbids reading them as a
+prediction): 1.19 x 0.085 + 0.21 x 0.096 = about 0.12% of the score. It changes the launch's shared memory request
+only, so it stacks with the other lanes' changes (none touches `launch<1>`'s kn[1] path). ly_a16kv is a loss.
+
+Left open, measured above: the merge tail (ticket 1.3 to 1.4 us, finalize 0.8 to 1.1, flush 0.5) is now the largest
+part at decode 16; the K/V issue (16 cp.async per thread, 0.8 to 1.0 us even at two CTAs per SM) still precedes the q
+side; with ly_a16o2 the CTAs that land as qkv retires enter at about 0 us and set the slowest request at decode 16.
