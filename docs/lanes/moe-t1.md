@@ -1,4 +1,4 @@
-# moe-t1 checkpoint (2026-11-04 13:20 PT, round 2)
+# moe-t1 checkpoint (2026-11-04 13:30 PT, round 2, closed)
 
 Base: muse_decode_layer/cand/ly_stk3.py, SHA256 a1c488104e48368defce6734f8f87fd29a13acf325a0d92ef05582057cb135f6 (judge 10,109.9 us).
 
@@ -36,6 +36,10 @@ Question: why the eight warps' last phase A partials reach the helper 0.55-0.87 
 - A/B round 1 f1f against stk3 (/root/okc/.build/prtl/f1f, done 21:06 UTC), w - c mean us (6 pairs): decode 1 sliding -0.36 (5/6 pairs faster), decode 1 full -0.51 (6/6, verdict win, thr 0.50), decode 16 sliding -0.10, decode 16 full -0.08, decode 32 sliding +0.20, decode 32 full -0.43, verify 1 sliding +0.49, verify 1 full -0.57, verify 16 sliding -1.06, verify 16 full -0.84, verify 32 sliding -0.97, verify 32 full -0.48; every other cell inside. Timed PDL on in all runs.
 - Round 2 (PFX f1f_r2) is queued in chain2 behind another lane's A/B (m5_ww_r2); the pooled 24-pair table decides the bar.
 
+- f1fe stamps (raw rows, same session as stk3 /root/okc/.build/f1f/st_stk3.23125.json): both copies issued 0.97 / 0.92 against 1.07 / 1.05; no gain over f1f.
+- A/B round 2 (/root/okc/.build/prtl/f1f_r2) and pooled 24 pairs (/root/okc/.build/prtl/f1f_table_both_rounds.txt): decode 1 sliding -0.24 (16/24), decode 1 full -0.04 (13/24), all twelve cells inside noise. Bar not met; no ledger line, no judge check.
+- Run log section "2026-11-04 - Decode 1 TINY first weight copy (box)" and ruled-out row written.
+
 ## Next action
 
-Read /root/okc/.build/prtl/f1f and f1f_r2 tables (python3 tools/ly_prtl_table.py), the f1fe gate and stamps; write the run-log section and ruled-out row; final report. Bar not expected: the issue gain does not reach phase A end.
+Item closed null. Item 2 (per-warp handoff stamps) is the open follow-up; see the item 2 section above.

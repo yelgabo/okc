@@ -7714,3 +7714,56 @@ A/B (tools/ly_prtl_ab.sh, two rounds c/w/c/w/c, 24 pairs per cell, pooled; muse_
 | verify 32 full | 458.96 | 459.24 | +0.27 | 4.59 | 8/24 |
 
 Round 1 alone read decode 1 full -0.89 us (win verdict); round 2 read +0.39, so the pooled cell is noise. Decision: no registration, no judge check. The decode 1 MoE ramp is gated by the first weight unit's copy, so an x-side prologue change cannot move it; the ramp lever is the FAST1 copy issue time (about 1.1 us after entry), which sits behind route.
+
+## 2026-11-04 - Decode 1 TINY first weight copy (box)
+
+Base muse_decode_layer/cand/ly_stk3.py (a1c48810). Lane moe-t1, round 2. Null: no candidate cleared the bar and nothing was registered.
+
+Legality. The MoE is an ordinary same-stream cooperative launch without PDL, so the route kernel's topk_ids are complete and visible at kernel entry. In TINY (OKC_F1EARLY=1, OKC_SPLIT=0) the FAST1 warp already issues the first two weight copies before route(): it loads topk_ids, lane 0 runs the mbarrier inits and fence.mbarrier_init, the warp reduces the touched-expert mask m, and lane 0 issues the copies. The copies are not behind route().
+
+Address dependencies. The first copy's source is `wAu + (e * RB_A + (v & 511)) * UNIT_BYTES`. The unit index v starts at v0 = muldiv(popc(m) * RB_A, blockIdx.x, gridDim.x), so the unit range depends only on k = popc(m), blockIdx.x and gridDim.x. The expert e is the ((v >> 9) + 1)-th set bit of m, which needs the topk_ids values; no deterministic prediction exists without loading them, because k and the bit order both come from the routing. The ring slot is i in 0..FAST1-1.
+
+Stamps (tools/dl_ly_mtf1_patch.py, tools/dl_ly_mtf2_patch.py on ly_pmt copies; 20 inputs, decode 1, mean CTA us from the first CTA's entry, sliding / full where both were read):
+
+| stamp | stk3 |
+|---|---|
+| FAST1 top | 0.14 / 0.14 |
+| inits + fence.mbarrier_init | 0.40 / 0.37 |
+| mask reduced (topk loaded) | 0.56 / 0.53 |
+| both copies issued | 1.05 / 1.03 |
+| route() returned | 2.10 / 2.08 |
+| first ring slot full | 2.98 / 2.97 |
+| phase A end | 11.79 / 11.78 |
+
+The mask-to-issue segment (0.50 us) splits into v0/n 0.12, fence.proxy.async 0.02, first copy 0.20 and second copy 0.18: lane 0's serial __fns and address math per copy.
+
+Candidates (tools/dl_ly_f1f_patch.py, TINY only through a new `MOE_TINY_DEFINES += ("-DOKC_F1FAST=1",)` line): every lane precomputes the unit range for k = lane + 1 while the topk loads are in flight, one shuffle selects k = popc(m), and each first unit's expert is one ballot. Same addresses, fences, barriers and numerics.
+
+| file | SHA256 | change |
+|---|---|---|
+| ly_f1f.py | a2b943dfd2deda2fc739388e0730417cf97dfd0a29456089b91fb872fcd193dd | F1FAST |
+| ly_f1f3.py | 95c26f111105bb53f998afb8c13de04aba5887ca38e934b676d71d29604ba936 | F1FAST, OKC_FAST1=3 in TINY |
+| ly_f1fe.py | 3867f0bbe60ccfb852b478f9bd52567528c6bc004c2648b447aa74d76d62696e | F1FAST, fence.proxy.async moved into lane 0's init block |
+
+All three gates: 12 check PASS, 5/5 PDL8H_GUARD with 0 mismatches. Stamps, decode 1 sliding, mean CTA us (first copy / both issued / phase A end): stk3 0.88 / 1.06 / 11.68 and 0.89 / 1.07 / 11.77 (two runs), f1f 0.83 / 0.92 / 11.71, f1f3 0.85 / 1.00 / 12.57. f1fe against a same-session stk3 run, computed from the raw rows: both issued 0.97 / 0.92 (sliding / full) against 1.07 / 1.05. F1FAST issues the copies 0.10-0.15 us earlier, and the early fence adds nothing. Phase A end does not move, and the third early slot costs about 0.8 us.
+
+A/B f1f against stk3, tools/ly_prtl_ab.sh, two rounds (/root/okc/.build/prtl/f1f, /root/okc/.build/prtl/f1f_r2), pooled 24 pairs (/root/okc/.build/prtl/f1f_table_both_rounds.txt):
+
+| cell | ctl mean | w - c | thr | pairs < 0 | verdict |
+|---|---|---|---|---|---|
+| decode 1 sliding | 63.86 | -0.24 | 2.40 | 16/24 | inside |
+| decode 1 full | 70.57 | -0.04 | 2.88 | 13/24 | inside |
+| decode 16 sliding | 124.88 | -0.11 | 2.14 | 12/24 | inside |
+| decode 16 full | 197.72 | +0.52 | 3.36 | 6/24 | inside |
+| decode 32 sliding | 142.46 | -0.42 | 6.21 | 15/24 | inside |
+| decode 32 full | 294.60 | -0.83 | 3.46 | 18/24 | inside |
+| verify 1 sliding | 100.64 | +0.07 | 3.17 | 9/24 | inside |
+| verify 1 full | 109.09 | -0.54 | 2.02 | 21/24 | inside |
+| verify 16 sliding | 242.65 | -0.39 | 4.54 | 16/24 | inside |
+| verify 16 full | 326.47 | -0.29 | 4.16 | 11/24 | inside |
+| verify 32 sliding | 294.17 | -0.57 | 2.94 | 19/24 | inside |
+| verify 32 full | 458.94 | -0.10 | 4.59 | 11/24 | inside |
+
+Round 1 alone showed decode 1 sliding -0.36 (5/6) and decode 1 full -0.51 (6/6, a win at thr 0.50). Round 2 reversed decode 1 full to +0.43, so the round 1 win was noise. The bar (decode 1 sliding at least 0.4 us faster with 20/24 pairs) is not met. f1f3 and f1fe were not A/B'd because their stamps did not beat f1f.
+
+Conclusion. The first weight copy is already issued about 1 us after entry and gates the first unit only through DRAM latency (issue to slot full 1.93 us). Moving the issue 0.15 us earlier does not reach phase A end, so the decode 1 MoE prologue is not issue-bound at this depth.
