@@ -1,0 +1,20 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793819760.114 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.14), ('sk2', 8.13), ('torch', 10.34)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+QTL bytes {'qkv': 28311552, 'qtab': 32256, 'x': 524288, 'out': 147456} pmax 42 nstage 4 choice ('sk2',)
+BXLOCK 1793819768.329 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793819768.329 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793819768.434 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793819768.434 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+QTL decode 32 sliding n 10 medians grid 96.000 sms 96.000 entry_last 0.320 entry_spread 0.320 issue0 0.468 pre_done 0.549 wait_x 0.831 land0_first -1793819764191654.500 land0_mean -1793819764191654.500 land0_last -1793819764191654.500 lat_ring -1793819764191655.500 lat_late -1793819764191660.000 slot_refill 1793819764191660.000 land_ivl 0.000 land15_mean -1793819764191654.500 land15_last -1793819764191654.500 loop_end 9.382 loop_end_max 10.064 last_land_to_loop 1793819764191664.500 epi 0.106 store 0.543 fin_mean 10.029 fin_max 10.624 fin_spread 0.880 c_first 1.656 c_wait_mid 0.096 c_wait_sum 1.684 c_wait_late 0.096 c_proc 0.384 c_done15 9.341 refill_after_c0 0.032 esc_end_after_loop -2.495 cbar_after_loop 0.080 t10 -1793819764191654.500 t90 -1793819764191654.500 rate_tbs nan floor_w 6.372 graph_plain 145.248 graph_inst 147.536 maxdiff 0.023 floor_all 6.531
+QTL decode 32 sliding stage land mean -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50 -1793819764191654.50
+QTL decode 32 full n 10 medians grid 96.000 sms 96.000 entry_last 0.320 entry_spread 0.320 issue0 0.466 pre_done 0.545 wait_x 0.828 land0_first -1793819764341854.500 land0_mean -1793819764341854.500 land0_last -1793819764341854.500 lat_ring -1793819764341855.500 lat_late -1793819764341859.500 slot_refill 1793819764341859.500 land_ivl 0.000 land15_mean -1793819764341854.500 land15_last -1793819764341854.500 loop_end 9.315 loop_end_max 9.856 last_land_to_loop 1793819764341864.000 epi 0.105 store 0.594 fin_mean 10.009 fin_max 10.448 fin_spread 0.720 c_first 1.644 c_wait_mid 0.096 c_wait_sum 1.651 c_wait_late 0.096 c_proc 0.384 c_done15 9.272 refill_after_c0 0.032 esc_end_after_loop -2.287 cbar_after_loop 0.078 t10 -1793819764341854.500 t90 -1793819764341854.500 rate_tbs nan floor_w 6.372 graph_plain 298.624 graph_inst 300.736 maxdiff 0.023 floor_all 6.531
+QTL decode 32 full stage land mean -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50 -1793819764341854.50

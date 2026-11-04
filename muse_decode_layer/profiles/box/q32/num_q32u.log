@@ -1,0 +1,32 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793819875.201 acquire start after 9.4 s
+BXLOCK 1793819875.735 release build proj_dl_escape_7a80e912da36
+BXBUILD 1793819875.735 start build proj_dl_escape_7a80e912da36
+BXBUILD 1793819888.377 end build proj_dl_escape_7a80e912da36
+BXLOCK 1793819893.044 acquire build proj_dl_escape_7a80e912da36 done after 4.7 s
+BXCLOCK submission clocks now 4.7 s behind real (lock waits after builds)
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.04), ('sk2', 7.84), ('torch', 10.43)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+Q32NUM unpooler m 16 input 0 scale 1.0 cand_vs_base 0.00e+00 cand_vs_fp64 3.78e-05 base_vs_fp64 3.78e-05 equal 131072/131072 maxabs 0.000e+00
+Q32NUM unpooler m 16 input 1 scale 0.1 cand_vs_base 0.00e+00 cand_vs_fp64 3.48e-05 base_vs_fp64 3.48e-05 equal 131072/131072 maxabs 0.000e+00
+Q32NUM unpooler m 16 input 2 scale 3.0 cand_vs_base 0.00e+00 cand_vs_fp64 4.64e-05 base_vs_fp64 4.64e-05 equal 131072/131072 maxabs 0.000e+00
+Q32NUM unpooler m 16 input 3 scale 0.5 cand_vs_base 0.00e+00 cand_vs_fp64 4.52e-05 base_vs_fp64 4.52e-05 equal 131072/131072 maxabs 0.000e+00
+Q32NUM unpooler m 16 input 4 scale 1.0 cand_vs_base 0.00e+00 cand_vs_fp64 2.76e-05 base_vs_fp64 2.76e-05 equal 131072/131072 maxabs 0.000e+00
+Q32NUM unpooler m 16 input 5 scale 0.1 cand_vs_base 0.00e+00 cand_vs_fp64 6.52e-05 base_vs_fp64 6.52e-05 equal 131072/131072 maxabs 0.000e+00
+Q32NUM unpooler m 16 input 6 scale 3.0 cand_vs_base 0.00e+00 cand_vs_fp64 6.32e-05 base_vs_fp64 6.32e-05 equal 131072/131072 maxabs 0.000e+00
+Q32NUM unpooler m 16 input 7 scale 0.5 cand_vs_base 0.00e+00 cand_vs_fp64 4.73e-05 base_vs_fp64 4.73e-05 equal 131072/131072 maxabs 0.000e+00
+Q32NUM unpooler m 32 input 0 scale 1.0 cand_vs_base 0.00e+00 cand_vs_fp64 9.29e-05 base_vs_fp64 9.29e-05 equal 262144/262144 maxabs 0.000e+00
+Q32NUM unpooler m 32 input 1 scale 0.1 cand_vs_base 0.00e+00 cand_vs_fp64 1.04e-04 base_vs_fp64 1.04e-04 equal 262144/262144 maxabs 0.000e+00
+Q32NUM unpooler m 32 input 2 scale 3.0 cand_vs_base 0.00e+00 cand_vs_fp64 9.80e-05 base_vs_fp64 9.80e-05 equal 262144/262144 maxabs 0.000e+00
+Q32NUM unpooler m 32 input 3 scale 0.5 cand_vs_base 0.00e+00 cand_vs_fp64 9.93e-05 base_vs_fp64 9.93e-05 equal 262144/262144 maxabs 0.000e+00
+Q32NUM unpooler m 32 input 4 scale 1.0 cand_vs_base 0.00e+00 cand_vs_fp64 1.04e-04 base_vs_fp64 1.04e-04 equal 262144/262144 maxabs 0.000e+00
+Q32NUM unpooler m 32 input 5 scale 0.1 cand_vs_base 0.00e+00 cand_vs_fp64 8.45e-05 base_vs_fp64 8.45e-05 equal 262144/262144 maxabs 0.000e+00
+Q32NUM unpooler m 32 input 6 scale 3.0 cand_vs_base 0.00e+00 cand_vs_fp64 1.22e-04 base_vs_fp64 1.22e-04 equal 262144/262144 maxabs 0.000e+00
+Q32NUM unpooler m 32 input 7 scale 0.5 cand_vs_base 0.00e+00 cand_vs_fp64 1.11e-04 base_vs_fp64 1.11e-04 equal 262144/262144 maxabs 0.000e+00
+Q32NUM summary worst cand_vs_base 0.00e+00 (CG_GATE_REL 0.002) equal 3145728/3145728
