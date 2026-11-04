@@ -1,3 +1,8 @@
+"""Per-CTA groups of a --raw MID timeline JSON (tools/ly_box_moe_tl16.py or ly_box_moe_tl16g.py): CTAs whose phase A / B
+ranges hold a two-tile job (ranges recomputed from the routing with the build's split weights W1:W2) against the rest.
+
+    python3 tools/ly_ws2u_cta.py RAW.json W1 W2
+"""
 import json, statistics as st, sys
 d=json.load(open(sys.argv[1])); W1,W2=int(sys.argv[2]),int(sys.argv[3])
 RB_A,RB_B=512,256
