@@ -133,8 +133,10 @@ static_assert(CLB_NREG16 == 0 || (NREG16_OTHER >= 24 && NREG16_OTHER <= 96 && CL
                                   16 * 32 * CLB_NREG16 + 4 * 32 * NREG16_OTHER <= 640 * 96), "CLB_NREG16");
 // Running per-unit sums in shared memory at T_MAX = 8 (16 KB: 32 units x 32 lanes x float4) instead of 16 registers
 __host__ __device__ constexpr int buf_bytes(int tmax) { return tmax * BROW * 2; }
+// Per-unit running sums [UPC][32 lanes][4] for rosters whose stage groups do not divide the K block (NCW = 24).
+__host__ __device__ constexpr int acc_bytes(int tmax) { return tmax == 8 ? UPC * 32 * 16 : 0; }
 __host__ __device__ constexpr int smem_bytes(int tmax, int depth, int slab_cols) {
-  return depth * SLOT + 2 * buf_bytes(tmax) + tmax * slab_cols * 2;
+  return depth * SLOT + 2 * buf_bytes(tmax) + tmax * slab_cols * 2 + acc_bytes(tmax);
 }
 
 // ---- ring and barrier primitives, copied from cl_stream.cu (task 0.1) ----
@@ -233,6 +235,7 @@ struct Smem {
   uint8_t* ring;
   __nv_bfloat16* buf;    // [2][T_MAX][BROW]
   __nv_bfloat16* slab;   // [T_MAX][sc]
+  float* accs;           // [UPC][32 lanes][4] running sums (NCW = 24 only)
   uint64_t* full;        // [MAX_DEPTH]
   uint64_t* empty;
   uint64_t* bfull;       // [2]
@@ -253,8 +256,12 @@ struct Smem {
 template <int NTT, int TM, int NCW, bool DBG>
 __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Slice& q, int rank, int warp, int lane,
                                          unsigned long long* st) {
-  constexpr int UPW = upw(TM), WPG = wpg(TM), NG = NCW / WPG, R = SPB / NG;
-  static_assert(NCW % WPG == 0 && SPB % NG == 0, "consumer warps must form whole stage groups");
+  constexpr int UPW = upw(TM), WPG = wpg(TM), NG = NCW / WPG;
+  // ACC_SMEM: the group's stages per K block vary (NG = 3), so the per-unit sums live in shared memory and each
+  // stage does a float4 read-modify-write; otherwise R accumulator sets rotate through registers.
+  constexpr bool ACC_SMEM = SPB % NG != 0;
+  constexpr int R = ACC_SMEM ? 1 : SPB / NG;
+  static_assert(NCW % WPG == 0 && (!ACC_SMEM || (NTT == 1 && TM == 8)), "consumer roster");
   const int grp = warp / WPG, u8 = warp % WPG;
   float accr[R][UPW][NTT][4];
 #pragma unroll
@@ -265,6 +272,10 @@ __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Sl
       for (int n = 0; n < NTT; ++n)
 #pragma unroll
         for (int i = 0; i < 4; ++i) accr[j][k][n][i] = 0.f;
+  if (ACC_SMEM) {
+    for (int ul = warp; ul < UPC; ul += NCW) reinterpret_cast<float4*>(sm.accs)[ul * 32 + lane] = make_float4(0.f, 0.f, 0.f, 0.f);
+    asm volatile("bar.sync 1, %0;" :: "n"(32 * NCW) : "memory");
+  }
   const int D = p.depth;
   const bool stamp = warp == 0 && lane == 0;
   unsigned long long wait_b = 0, wait_f = 0;
@@ -284,8 +295,8 @@ __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Sl
     // per-variant rolled loop (CL-1.3a rounds 1 to 3) cost 1 us. The R accumulator sets rotate through registers
     // (accr[0] is always the current unit; after R stages the order is back to unit 8 j + warp in accr[j]).
 #pragma unroll 1
-    for (int jj = 0; jj < R; ++jj) {
-      const int it = bi * SPB + jj * NG + grp, s = it % D;
+    for (int j = ACC_SMEM ? ((grp - bi * SPB) % NG + NG) % NG : grp; j < SPB; j += NG) {
+      const int it = bi * SPB + j, s = it % D;
       if (CLB_LOOP_DIAG == 6) {
         if (stamp && it == 0) st[2] = gtimer();
       } else if (stamp) {
@@ -318,17 +329,27 @@ __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Sl
       // the refill overtake outstanding LDS on 9 of 12 two-pass runs): CTA-scope proxy fence before the release.
       if (CLB_LOOP_FENCE) asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
       if (lane == 0) mbar_arrive(&sm.empty[s]);
+      if (ACC_SMEM) {
 #pragma unroll
-      for (int k = 0; k < UPW; ++k)
+        for (int k = 0; k < UPW; ++k) {
+          float4* ac = reinterpret_cast<float4*>(sm.accs) + (UPS * j + u8 + WPG * k) * 32 + lane;
+          float4 v = *ac;
+          v.x += a[k][0][0]; v.y += a[k][0][1]; v.z += a[k][0][2]; v.w += a[k][0][3];
+          *ac = v;
+        }
+      } else {
 #pragma unroll
-        for (int n = 0; n < NTT; ++n)
+        for (int k = 0; k < UPW; ++k)
 #pragma unroll
-          for (int i = 0; i < 4; ++i) {
-            const float t0 = accr[0][k][n][i] + a[k][n][i];
+          for (int n = 0; n < NTT; ++n)
 #pragma unroll
-            for (int r = 0; r + 1 < R; ++r) accr[r][k][n][i] = accr[r + 1][k][n][i];
-            accr[R - 1][k][n][i] = t0;
-          }
+            for (int i = 0; i < 4; ++i) {
+              const float t0 = accr[0][k][n][i] + a[k][n][i];
+#pragma unroll
+              for (int r = 0; r + 1 < R; ++r) accr[r][k][n][i] = accr[r + 1][k][n][i];
+              accr[R - 1][k][n][i] = t0;
+            }
+      }
     }
     __syncwarp();
     if (lane == 0) mbar_arrive(&sm.bempty[bsel]);
@@ -344,12 +365,7 @@ __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Sl
   float* sqstage = ystage + TM * YROW;                         // [UPC][TM]
   const int g = lane >> 2, t = lane & 3;
   const float gsc = clm::gscale(p.w2_gs[q.e]);
-#pragma unroll
-  for (int jj = 0; jj < R; ++jj)
-#pragma unroll
-  for (int k = 0; k < UPW; ++k) {
-    const int j = jj * NG + grp;
-    const int ul = UPS * j + u8 + WPG * k;       // unit inside the CTA
+  auto emit = [&](int ul, const float (&av)[NTT][4]) {
     const int rl = 16 * ul + g;                  // local output row
     const int n0 = ROWS * rank + rl;             // global output row
     const float nw0 = clm::norm_mul(p.normw[n0]), nw8 = clm::norm_mul(p.normw[n0 + 8]);
@@ -358,7 +374,7 @@ __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Sl
 #pragma unroll
       for (int h = 0; h < 2; ++h) {
         const int tk = 8 * n + 2 * t + h;
-        const float a0 = accr[jj][k][n][h], a8 = accr[jj][k][n][2 + h];
+        const float a0 = av[n][h], a8 = av[n][2 + h];
         if (DBG && tk < q.ntok) {
           float* da = p.dbg_acc + ((size_t)q.slice * TM + tk) * clm::HD;
           da[n0] = a0;
@@ -376,6 +392,18 @@ __device__ CLB_CONS_ATTR void consumer(const Params& p, const Smem& sm, const Sl
         }
       }
     }
+  };
+  if (ACC_SMEM) {
+    for (int ul = warp; ul < UPC; ul += NCW) {
+      const float4 v = reinterpret_cast<const float4*>(sm.accs)[ul * 32 + lane];
+      const float av[NTT][4] = {{v.x, v.y, v.z, v.w}};
+      emit(ul, av);
+    }
+  } else {
+#pragma unroll
+    for (int jj = 0; jj < R; ++jj)
+#pragma unroll
+      for (int k = 0; k < UPW; ++k) emit(UPS * (jj * NG + grp) + u8 + WPG * k, accr[jj][k]);
   }
   __syncwarp();
   if (lane == 0) mbar_arrive(sm.yready);
@@ -442,6 +470,7 @@ phase_b_kernel(Params p) {
   sm.ring = dsm;
   sm.buf = reinterpret_cast<__nv_bfloat16*>(dsm + D * SLOT);
   sm.slab = reinterpret_cast<__nv_bfloat16*>(dsm + D * SLOT + 2 * buf_bytes(TM));
+  sm.accs = reinterpret_cast<float*>(dsm + D * SLOT + 2 * buf_bytes(TM) + TM * p.slab_cols * 2);
   sm.full = bars;
   sm.empty = bars + MAX_DEPTH;
   sm.bfull = bars + 2 * MAX_DEPTH;
@@ -664,6 +693,7 @@ void clb_launch(torch::Tensor w2u, torch::Tensor w2gs, torch::Tensor normw, torc
   cudaStream_t s = c10::cuda::getCurrentCUDAStream();
   const int n = (int)n_slices;
   if (tmax == 8 && ncw == 16) dbg ? clb_launch_t<8, 16, true>(p, n, smem, s) : clb_launch_t<8, 16, false>(p, n, smem, s);
+  else if (tmax == 8 && ncw == 24) dbg ? clb_launch_t<8, 24, true>(p, n, smem, s) : clb_launch_t<8, 24, false>(p, n, smem, s);
   else if (tmax == 8) dbg ? clb_launch_t<8, 8, true>(p, n, smem, s) : clb_launch_t<8, 8, false>(p, n, smem, s);
   else dbg ? clb_launch_t<32, 8, true>(p, n, smem, s) : clb_launch_t<32, 8, false>(p, n, smem, s);
 }
