@@ -1,0 +1,52 @@
+== ly_rfx cell0 (decode 1 sliding)
+.build/moe/ktl_rfx/cell0.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.90    9.90   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    8.02    7.01   15.07  -1.79  void (anonymous namespace)::attn_kernel<1, false, 13>((anonymous namespace)::Par
+ 2   10.29    8.37   18.64  -4.70  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   16.34    4.91   21.22  -2.34  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   19.12   17.01   36.14  -2.18  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   33.84    3.70   37.58  -2.26  _prq_sl_tile_route_cg
+ 6   37.84   22.90   61.25   0.10  void okc::moe_fused<false>(okc::Params)
+ 7   59.14    5.02   64.05  -2.16  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   62.77    2.86   65.57  -1.34  _sl_cluster_finish_cg
+span 65.57 us, sum of durations 82.46 us
+== ly_rfx cell1 (decode 1 full)
+.build/moe/ktl_rfx/cell1.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.00   10.00   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    8.13   13.22   21.33  -1.84  void (anonymous namespace)::attn_kernel<1, false, 11>((anonymous namespace)::Par
+ 2   10.51   14.46   24.98 -10.80  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   22.53    4.96   27.55  -2.37  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   25.39   16.72   42.19  -2.14  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   39.86    3.79   43.62  -2.38  _prq_sl_tile_route_cg
+ 6   43.68   22.38   66.50   0.11  void okc::moe_fused<false>(okc::Params)
+ 7   64.38    5.04   69.39  -2.13  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   67.95    2.96   70.93  -1.46  _sl_cluster_finish_cg
+span 70.93 us, sum of durations 93.98 us
+== ly_rpf cell0 (decode 1 sliding)
+.build/moe/ktl_rpf/cell0.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00    9.94    9.94   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    8.14    6.88   15.04  -1.79  void (anonymous namespace)::attn_kernel<1, false, 13>((anonymous namespace)::Par
+ 2   10.35    8.34   18.75  -4.69  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   16.30    4.94   21.34  -2.35  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   19.25   16.62   35.92  -2.13  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   33.54    6.26   39.82  -2.35  _prq_sl_tile_route_cg
+ 6   39.87   22.69   63.01   0.03  void okc::moe_fused<false>(okc::Params)
+ 7   61.15    4.70   65.92  -1.84  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   64.62    2.96   67.54  -1.38  _sl_cluster_finish_cg
+span 67.54 us, sum of durations 84.05 us
+== ly_rpf cell1 (decode 1 full)
+.build/moe/ktl_rpf/cell1.json: 10 replays of 9 kernels
+ #   start     dur     end    gap  kernel
+ 0    0.00   10.00   10.00   0.00  void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, __nv_bfloat16, true, fal
+ 1    8.05   13.63   21.55  -1.95  void (anonymous namespace)::attn_kernel<1, false, 11>((anonymous namespace)::Par
+ 2   10.53   14.64   25.49 -10.75  void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, __nv_bfloat16, true, fal
+ 3   22.77    4.99   28.11  -2.40  void glue_cluster_boundary<4, 32, false, false, true, false>(GlueArgs)
+ 4   25.90   16.90   42.75  -2.18  void sk2_kernel_glecd872d5396a4<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, __nv_bfl
+ 5   40.16    6.46   46.61  -2.59  _prq_sl_tile_route_cg
+ 6   46.70   22.10   68.96   0.10  void okc::moe_fused<false>(okc::Params)
+ 7   67.22    4.64   71.84  -1.76  void (anonymous namespace)::cgemv40_kernel<128, 2>(unsigned char const*, int, in
+ 8   70.53    2.98   73.42  -1.36  _sl_cluster_finish_cg
+span 73.42 us, sum of durations 96.86 us
