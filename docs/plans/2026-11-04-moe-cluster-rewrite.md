@@ -289,3 +289,20 @@ Gate G1 is re-stated: 1.3a reaches the math-only target, then 1.1 and 1.2 are re
 within 1.15x of their floors. Task 2.1 waits on that. Task 0.3's fill target changes from 128 // C to 15 (the measured
 co-resident cluster count), a one-line change assigned to 2.1. The shared-memory budget at T = 32 with S = 1 drops the
 ring to depth 3; 2.1 times it.
+
+### 9.1 Task 1.1 result (03:55 PT)
+
+Phase A is bitwise equal to helper0's intermediate on all 60 inputs (T = 1, 8, 32) and has no GPU-scope fence. Span
+against the w13 floor: 1.155 to 1.163x at T = 8 (ramp 2.5 us, loop at the HBM rate under the s2 policy, fill policy
+leaves the 15th slice's clusters 7 to 10 us early), 1.55x at T = 32. At T = 32 the kernel is compute-bound once an
+expert has more than 8 tokens: with mma.sync and tokens as the N = 8 operand, every extra 8-token tile costs about
+0.35 us per unit on top of the 0.5 us decode, so a 32-token expert needs about 1.7 us per unit against 0.93 us of HBM
+time. The current B4 / MAIN builds avoid that with wgmma (tokens as the smem B operand, N up to 32 or more per
+instruction, decoded weights as the register A operand), which is why the layer runs B4 at decode 32. Decision: at
+T >= 16 Family H's phase loops use the wgmma form of helper0's WGS build (bitwise with B4 / MAIN, which is what the
+layer runs there anyway); the mma.sync form stays for T <= 8. Task 1.3a takes this into its loop design.
+
+Race found and fixed by 1.1: a TMA refill can land in a ring slot while a consumer's ordinary loads of that slot are
+still outstanding; a `fence.proxy.async.shared::cta` before the arrive that frees the slot fixes it (CTA scope,
+about 0.3 us per kernel). cl_stream.cu and cl_phase_b.cuh copied the same ring and need the same fence (2.1 checks).
+Shared-file change still open: fill target 15 as an argument of cl_schedule.py / cl_prologue.cu (2.1).
