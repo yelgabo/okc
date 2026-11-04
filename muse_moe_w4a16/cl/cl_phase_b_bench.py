@@ -81,7 +81,7 @@ DEPS = ("cl_phase_b.cuh", "cl_math.cuh", "cl_schedule.h", "cl_unit_loop.cuh")
 
 
 def build(verbose=False, defines=()):
-    """defines: loop knobs as NAME=VALUE strings (CLB_LOOP_BREG, CLB_LOOP_DQ, CLB_LOOP_DIAG, CLB_NREG16); each
+    """defines: loop knobs as NAME=VALUE strings (CLB_LOOP_DQ, CLB_LOOP_DIAG, CLB_UPW, CLB_NREG16, CLB_ROSTER18); each
     set gets its own build directory."""
     from torch.utils.cpp_extension import load
     deps = [os.path.join(HERE, f) for f in DEPS]
