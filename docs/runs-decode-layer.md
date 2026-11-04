@@ -2581,7 +2581,7 @@ The change touches only the T = 16 PDL8 glue, so every cell but decode 16 is a n
 No stack file ly_fab.py was built: by the stated rule nothing cleared its threshold, and a stack of one is the b2pre
 file itself (14afa879).
 
-### Route recomputed in the MoE prologue (the audit's rank 1): weighed, not built
+### Route recomputed in the MoE prologue (the audit's rank 1): bounded on the box, not built
 
 The decode 1 chain runs `_sl_tile_route_cg` as a (1, 2) grid: one program normalizes the pooled row into xm, one does
 sigmoid, bias, top-8 (packed uint64 `tl.topk`), the weight normalization and the ids / lids / wts stores; the MoE
@@ -2600,8 +2600,21 @@ decode 1 if the added prologue costs 0.3 to 0.5 us, at or under the 0.5 us thres
 control spread (0.21 to 0.61 us). The one load-ordering change that did measure (b2pre) realised 0.35 to 0.45 us of a
 hypothesised 1 us. The build is two to three hours (a Params and launcher change in the TINY build, a bitwise top-8
 replica of the Triton kernel's packed sort and `div.full` sigmoid, the pooled norm with Triton's reduction order or an
-accepted last-bit difference in xm, and the Python path for both output forms). Decision: not built in this lane's
-window; recorded here with the bound so the lead can reopen it with a measured route-less upper bound if wanted.
+accepted last-bit difference in xm, and the Python path for both output forms).
+
+Measured upper bound (diagnostic pair, timing only, `--no-check`; `tools/dl_ly_fab_patch.py --variant rtdiag_ctl /
+rtdiag_var`, files ly_rtdiag_ctl.py 5601d00d and ly_rtdiag_var.py cc022635; logs `lyf/lyf_rtd/`, timeline
+`lyf/lyf_tl_rtvar.timeline.txt`): both arms route the T = 1 token from the previous call's pooled row and logits
+(state buffers copied after the finish kernel, two memcpy nodes that both arms carry), so the MoE runs the same stale
+routing in both; the control keeps the route kernel after the pooler, the variant launches it before the pooler, so the
+MoE follows the pooler directly. The variant's timeline confirms the order (b1, route, pooler + router, MoE with a
++0.42 us launch gap after the pooler against +0.06 after route in the control). Four controls, three variants, 60
+runs each: decode 1 sliding 62.77 control (spread 0.40) against 62.52, -0.25 us (per run -0.10 -0.32 -0.32); decode 1
+full 70.90 (spread 0.10) against 71.33, +0.42 us (+0.50 +0.50 +0.26). So removing the route kernel from the chain
+entirely, with no prologue work added to the MoE, is worth -0.25 us at decode 1 sliding and costs +0.42 at decode 1
+full (the cooperative MoE launch waits longer behind the 128-CTA pooler than behind the 2-CTA route). A fusion that
+also adds the top-8 and the pooled norm to the MoE prologue cannot clear the 0.5 us threshold at either cell. Closed on
+that measurement; not built.
 
 ### Reading
 

@@ -13,6 +13,9 @@ Variants (docs/runs-decode-layer.md "Blueprint builds (fable lane)"):
           (POST) keeps its stream (s1) load behind the wait with .cg.
   finpre  T <= 8 boundary 2 (_sl_cluster_finish_cg): the NEXT weight load (the next input's norm weight, a prepare-time
           constant) moves before gdc_wait; carry, tail and the slice stay behind the wait with .cg.
+  b2gl16  T = 16 boundary 2 through the one-program-per-row Gluon kernel `_graft_row_boundary_pre_cg` (the T = 32
+          path, weights before the wait, branch and s1 after it with .cg) instead of the 8-CTA cluster glue.
+  b1gl16  the same for T = 16 boundary 1 (POST = False).
 Diagnostics (timing only, wrong routing, run with --no-check; never candidates):
   rtdiag_ctl  T = 1: the route kernel reads the previous call's pooled / logits (state buffers copied after the finish
           kernel), so its routing is stale by one replay; kernel order unchanged.
@@ -182,8 +185,39 @@ RT_RET_NEW = """    _sl_cluster_finish_cg[(T,8192//bc)](P,T,s1,tail,g['beta2'],g
 
 def _pdl8_graft_after_attention("""
 
+GL_B2_OLD = """        if post and width == HIDDEN and nu == HIDDEN:
+            _pdl8_glue_call('b2c', br, stream, g["post2"], g["pre2"], g["alpha2"], g["beta2"], h_out, s_out)
+            return True
+"""
+GL_B2_NEW = """        if post and width == HIDDEN and nu == HIDDEN:
+            if T == 16:  # fab b2gl16: the one-program-per-row Gluon boundary, as at T = 32
+                _graft_row_boundary_pre_cg[(T,)](br, stream, g["post2"], g["pre2"], g["alpha2"], g["beta2"], h_out, s_out,
+                                                 HIDDEN, width, True, 4, 32, num_warps=32, launch_pdl=True)
+                return True
+            _pdl8_glue_call('b2c', br, stream, g["post2"], g["pre2"], g["alpha2"], g["beta2"], h_out, s_out)
+            return True
+"""
+GL_B1_OLD = """        if not post and width == HIDDEN:
+            _pdl8_glue_call('b1', br, stream, g["pre1"], g["alpha1"], g["beta1"], h_out, s_out,
+                            router_out if router_out is not None else s_out, router_out is not None)
+            return True
+"""
+GL_B1_NEW = """        if not post and width == HIDDEN:
+            if T == 16 and router_out is None:  # fab b1gl16: the one-program-per-row Gluon boundary, as at T = 32
+                _graft_row_boundary_pre_cg[(T,)](br, stream, g["post2"], g["pre1"], g["alpha1"], g["beta1"], h_out, s_out,
+                                                 HIDDEN, width, False, 4, 32, num_warps=32, launch_pdl=True)
+                return True
+            _pdl8_glue_call('b1', br, stream, g["pre1"], g["alpha1"], g["beta1"], h_out, s_out,
+                            router_out if router_out is not None else s_out, router_out is not None)
+            return True
+"""
+
 
 def apply(s, v):
+    if v == "b2gl16":
+        return once(s, GL_B2_OLD, GL_B2_NEW, v)
+    if v == "b1gl16":
+        return once(s, GL_B1_OLD, GL_B1_NEW, v)
     if v in ("rtdiag_ctl", "rtdiag_var"):
         i = s.index("def _pdl8_sl_tile_after_attention(")
         j = s.index("\ndef _pdl8_graft_after_attention(", i)
