@@ -6,9 +6,10 @@
 // layout, see clm::x_frag_base).
 //
 // What differs from clm::unit_warp_mma / clb::block_mma:
-//   BREG: the token operand (B fragments) is loaded once per K block into registers (BFrag) and reused by every
-//     unit-block of the block instead of two LDS.128 per chunk per unit-block. For NTT = 1 and 8 chunks that is 64
-//     registers; with 16 consumer warps the consumer warpgroups take them from setmaxnreg.
+//   NCACHE: the token operand (B fragments) of the block's first NCACHE chunks is loaded once per K block into
+//     registers (BFrag, 8 registers per chunk per n-tile) and reused by every unit-block of the block; the other
+//     chunks read two LDS.128 per chunk per unit-block as before. At NTT = 1 the full 8-chunk cache needs about
+//     130 registers (ptxas spills 80 B at 112), 4 chunks fit in the 112 of the 18-warp launch.
 //   DQ = 1: the r3 merge of the DQ7 unpack is an IMAD (x * one + y, `one` a runtime 1), which moves one LOP3 per
 //     word from the ALU pipe (16 lanes) to the FMA pipe. Bitwise identical: the two masked operands are disjoint.
 //   DIAG (bench only, numerics garbage): 1 B fragments are lane constants (no B loads), 2 no E2M1 unpack
@@ -31,18 +32,18 @@ struct Opaque {
 // B fragments of NTT n-tiles over NCHB chunks: w[n][c][2 st], w[n][c][2 st + 1] are k16 step st of chunk c.
 template <int NTT, int NCHB>
 struct BFrag {
-  uint32_t w[NTT][NCHB][8];
+  uint32_t w[NTT][NCHB > 0 ? NCHB : 1][8];
 };
 
 // buf: token rows (8 n + g for n-tile n, g = lane >> 2) with a row stride of `brow` bf16; the lane's 16 B pieces
 // at bf16 column 64 c + 16 t (t = lane & 3), as clb's block buffer and clm::x_frag_base lay them out.
-template <int NTT, int CLO, int CHI>
-__device__ __forceinline__ void load_bfrag(const __nv_bfloat16* buf, int brow, int lane, BFrag<NTT, CHI - CLO>& bf) {
+template <int NTT, int CLO, int NCACHE>
+__device__ __forceinline__ void load_bfrag(const __nv_bfloat16* buf, int brow, int lane, BFrag<NTT, NCACHE>& bf) {
 #pragma unroll
   for (int n = 0; n < NTT; ++n) {
     const uint4* base = reinterpret_cast<const uint4*>(buf + (8 * n + (lane >> 2)) * brow + 16 * (lane & 3));
 #pragma unroll
-    for (int c = CLO; c < CHI; ++c) {
+    for (int c = CLO; c < CLO + NCACHE; ++c) {
       const uint4 lo = base[8 * c], hi = base[8 * c + 1];
       uint32_t* w = bf.w[n][c - CLO];
       w[0] = lo.x; w[1] = lo.y; w[2] = lo.z; w[3] = lo.w;
@@ -75,11 +76,12 @@ __device__ __forceinline__ void decode_step(uint32_t word, uint32_t sg, uint32_t
 }
 
 // slot: the ring stage; u8: the unit-block inside it (clm::unit_codes / unit_scales index it as warp u8).
-// BREG = 1 reads the B fragments from `bf`; BREG = 0 reads them per chunk from `buf` (stride `brow`).
-template <int NTT, int CLO, int CHI, int BREG, int DQ, int DIAG>
+// Chunks [CLO, CLO + NCACHE) read their B fragments from `bf`, the others per chunk from `buf` (stride `brow`).
+template <int NTT, int CLO, int CHI, int NCACHE, int DQ, int DIAG>
 __device__ __forceinline__ void unit_block(const unsigned char* slot, int u8, int lane, Opaque op,
-                                           const __nv_bfloat16* buf, int brow, const BFrag<NTT, CHI - CLO>* bf,
+                                           const __nv_bfloat16* buf, int brow, const BFrag<NTT, NCACHE>* bf,
                                            float (&acc)[NTT][4]) {
+  static_assert(NCACHE >= 0 && NCACHE <= CHI - CLO, "NCACHE");
   float c1[NTT][4], c2[NTT][4], c3[NTT][4];
 #pragma unroll
   for (int n = 0; n < NTT; ++n)
@@ -88,7 +90,7 @@ __device__ __forceinline__ void unit_block(const unsigned char* slot, int u8, in
   const uint4 sc = DIAG == 5 ? make_uint4(0x3E3E3E3Eu + lane, 0x3F3F3F3Fu, 0x40404040u, 0x41414141u)
                              : clm::unit_scales(slot, u8, lane);
   const uint4* base[NTT];
-  if (!BREG) {
+  if (NCACHE < CHI - CLO) {
 #pragma unroll
     for (int n = 0; n < NTT; ++n)
       base[n] = reinterpret_cast<const uint4*>(buf + (8 * n + (lane >> 2)) * brow + 16 * (lane & 3));
@@ -106,9 +108,9 @@ __device__ __forceinline__ void unit_block(const unsigned char* slot, int u8, in
       if (DIAG == 1) {
 #pragma unroll
         for (int i = 0; i < 8; ++i) b[n][i] = 0x3F803F80u + (uint32_t)lane + (uint32_t)(8 * c + i);
-      } else if (BREG) {
+      } else if (c - CLO < NCACHE) {
 #pragma unroll
-        for (int i = 0; i < 8; ++i) b[n][i] = bf->w[n][c - CLO][i];
+        for (int i = 0; i < 8; ++i) b[n][i] = bf->w[n][(c - CLO < NCACHE ? c - CLO : 0)][i];
       } else {
         const uint4 lo = base[n][8 * c], hi = base[n][8 * c + 1];
         b[n][0] = lo.x; b[n][1] = lo.y; b[n][2] = lo.z; b[n][3] = lo.w;
