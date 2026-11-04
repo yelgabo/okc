@@ -1,0 +1,7 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FLUSH read
+LOCK acquired after 0.0 s
+READ 4 GiB sum 4.451 TB/s
+ST       h0  A k  7 D 3 delay    0 grid 132 inl 1 coop 1 eager 1 off 40960 cons 8 burn  0 polc 1 stores 1 ef 1 pro 0/0/0 units  3584 span   30.22 [29.89-31.39] stream 28.61 event 35.44 MHz 1979 TB/s 4.371 ( 98.2%) steady 4.843 (108.8%) ramp 2.99 endspread 4.90 cta_unit 0.982 mean 0.974 lat 2.72/3.62
+LOCK released

@@ -12876,11 +12876,34 @@ __device__ __forceinline__ unsigned long long gtimer() {
 #ifndef ST_NOEPI
 #define ST_NOEPI 0  // diagnostic (output wrong): the helper warp skips its phase A epilogue except the CTA's last unit
 #endif
+#ifndef ST_PLAIN
+#define ST_PLAIN 0  // diagnostic (output wrong): both phases as a plain stream loop over the CTA's ranges (st_plain), helper as ST_BARE
+#endif
+#if ST_PLAIN
+#undef ST_BARE
+#define ST_BARE 1
+#endif
+#ifndef ST_NOROUTE
+#define ST_NOROUTE 0  // diagnostic (output wrong, needs ST_PLAIN, TINY2): job table from the FAST1 warp's expert mask, no route()
+#endif
+#ifndef ST_NOX
+#define ST_NOX 0  // diagnostic: no x prefetch, no LUT fill
+#endif
+#ifndef ST_NOZERO
+#define ST_NOZERO 0  // diagnostic (breaks the next launch's ss): no ss / barrier-counter zeroing before the phases
+#endif
+#if ST_NOROUTE && (!ST_PLAIN || OKC_SPLIT)
+#undef ST_NOROUTE
+#define ST_NOROUTE 0  // (the SPLIT build has no expert mask: it keeps route())
+#endif
 #define ST_REC_N 128
-#define ST_CNT (136 * 64)
-#define ST_ISS (ST_CNT + 136)
-#define ST_RDY (ST_ISS + 136 * ST_REC_N * 2)
-#define ST_WT (ST_RDY + 136 * ST_REC_N)
+#ifndef ST_NC
+#define ST_NC 136  // CTAs the record covers (264 for a two-CTAs-per-SM build)
+#endif
+#define ST_CNT (ST_NC * 64)
+#define ST_ISS (ST_CNT + ST_NC)
+#define ST_RDY (ST_ISS + ST_NC * ST_REC_N * 2)
+#define ST_WT (ST_RDY + ST_NC * ST_REC_N)
 #if OKC_TLX
 #define ST_ISSUE(kv, blkv, pbv) do { if (TLX_ON) { \
     const int k_ = (kv); \
@@ -14093,6 +14116,7 @@ __device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigne
       tl_wait += t1 - tl_t0;
       if (!PB && i == 0) TLW(2, t1);
       if (lane == 0 && q < ST_REC_N) { p.dbg[ST_RDY + blockIdx.x * ST_REC_N + q] = t1; p.dbg[ST_WT + blockIdx.x * ST_REC_N + q] = t1 - tl_t0; }
+      if (lane == 0 && !PB && i == 0) { p.dbg[ST_WT + blockIdx.x * ST_REC_N + 120] = clock64(); p.dbg[ST_RDY + blockIdx.x * ST_REC_N + 120] = t1; }
     }
 #endif
     const unsigned char* slot = ring + sl * UNIT_BYTES;
@@ -14169,6 +14193,7 @@ __device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigne
       const unsigned long long t = gtimer();
       if (q < 46) TLW(18 + q, t);
       if (i == nU - 1) TLW(PB ? 6 : 3, t);
+      if (i == nU - 1 && !PB && lane == 0) { p.dbg[ST_WT + blockIdx.x * ST_REC_N + 121] = clock64(); p.dbg[ST_RDY + blockIdx.x * ST_REC_N + 121] = t; }
     }
 #endif
   }
@@ -14311,6 +14336,48 @@ __device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {
   if (lane == 0) TLS(8, gtimer());
   __threadfence();
   WS_JOIN();  // every epilogue store of this CTA is done before the grid barrier
+}
+#endif
+#if ST_PLAIN
+// diagnostic (output wrong): phases A and B as one plain stream over this CTA's ranges on the same ring, with
+// skinny_ring_ws's wait, fence, CTA barrier and thread-0 refill and nothing else (st_replay.cu's loop in place)
+__device__ void st_plain(const Params& p, Smem& S, unsigned char* ring) {
+  const int tid = TIDX, lane = tid & 31, warp = WARP_IDX(tid);
+  const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);
+  const bool tl = TLX_ON && warp == 0;
+  unsigned long long tl_wait = 0ull, tl_t0 = 0ull;
+  uint32_t keep = 0u;
+  for (int q = 0; q < N; ++q) {
+    const int sl = q % OKC_NS;
+    if (tl) tl_t0 = gtimer();
+    mbar_wait(S.bars + sl, (uint32_t)((q / OKC_NS) & 1));
+    if (tl) {
+      const unsigned long long t1 = gtimer();
+      tl_wait += t1 - tl_t0;
+      if (lane == 0) {
+        if (q < ST_REC_N) { p.dbg[ST_RDY + blockIdx.x * ST_REC_N + q] = t1; p.dbg[ST_WT + blockIdx.x * ST_REC_N + q] = t1 - tl_t0; }
+        if (q == 0) { TLS(2, t1); p.dbg[ST_WT + blockIdx.x * ST_REC_N + 120] = clock64(); p.dbg[ST_RDY + blockIdx.x * ST_REC_N + 120] = t1; }
+        if (q == nA) TLS(5, t1);
+      }
+    }
+    keep ^= *reinterpret_cast<const uint32_t*>(ring + sl * UNIT_BYTES + UNIT_CODES + warp * 512 + lane * 16);
+    asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
+    CTA_SYNC();
+    if (tid == 0 && q + OKC_NS < N) ws_issue(p, S, q + OKC_NS, nA, S.wsr[0], S.wsr[2], ring);
+    if (tl && lane == 0) {
+      const unsigned long long t = gtimer();
+      if (q < 46) TLS(18 + q, t);
+      if (q == nA - 1) { TLS(3, t); p.dbg[ST_WT + blockIdx.x * ST_REC_N + 121] = clock64(); p.dbg[ST_RDY + blockIdx.x * ST_REC_N + 121] = t; }
+      if (q == N - 1) TLS(6, t);
+    }
+  }
+  if (tl && lane == 0) {
+    TLS(12, tl_wait); TLS(13, 0ull); TLS(14, 0ull); TLS(15, 0ull); TLS(16, 0ull);
+    TLS(17, (unsigned long long)nA | ((unsigned long long)(N - nA) << 16) | ((unsigned long long)S.preissued << 32)
+                | ((unsigned long long)S.njS << 40));
+  }
+  if (keep == 0x9E3779B9u) S.fseq = -1;  // keeps the shared read
+  if (tid == 0) S.seq += N;
 }
 #endif
 
@@ -14998,6 +15065,12 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
       if (e >= 0 && e < p.nloc) m |= 1u << e;
     }
     m = __reduce_or_sync(0xffffffffu, m);
+#if ST_NOROUTE
+    if (ln == 0) {  // the skinny job table route() would build from this mask: touched experts ascending, no fat jobs
+      S.njF = 0; S.njS = __popc(m);
+      for (int k = 0; k < __popc(m); ++k) S.jE[k] = (int)__fns(m, 0, k + 1);
+    }
+#endif
 #endif
     if (ln == 0) {
 #if OKC_SPLIT || !OKC_F1EARLY
@@ -15037,6 +15110,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
     }
   }
 #endif
+#if !ST_NOX
   // pull every token row of x into L2 now (one 128 B line per thread-iteration); the skinny jobs read them later
   for (int li = blockIdx.x * NT + tid; li < p.M * (HD * 2 / 128); li += gridDim.x * NT)
     asm volatile("prefetch.global.L2 [%0];\n" ::"l"(reinterpret_cast<const char*>(p.x) + (size_t)li * 128));
@@ -15052,6 +15126,7 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
     }
     S.lut[i] = b | (b << 16);
   }
+#endif
   if (tid == 0) {
 #if !FAST1_ON
 #if OKC_WGS
@@ -15076,7 +15151,12 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
 #if SKDYN
   for (int i = tid; i < JMAX; i += NT) S.dync[i] = 0;
 #endif
+#if ST_NOROUTE
+  for (int i = tid; i < EMAX; i += NT) S.pos[i] = -1;  // (the final pass reads pos)
+  CTA_SYNC();
+#else
   route(p, S);
+#endif
 #if OKC_WGS && OKC_WGSPR
   __threadfence_block();
   asm volatile("bar.arrive 7, %0;\n" ::"n"(NT + 32) : "memory");  // the x producer computes the stage ranges
@@ -15084,7 +15164,9 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
   DBG(1);
   {  // the previous launch's ss copy and barrier counter are the next launch's: zero them now (this CTA's share)
     float* other = (S.gen & 1) ? p.ss : p.ss1;
+#if !ST_NOZERO
     for (int i = blockIdx.x * NT + tid; i < EMAX; i += gridDim.x * NT) other[i] = 0.f;
+#endif
     if (blockIdx.x == 0 && tid == 0) p.ctr[4 + ((S.gen + 1) & 1)] = 0;
   }
 #if OKC_WS
@@ -15129,10 +15211,14 @@ __global__ void __launch_bounds__(NTL, 1) moe_fused(Params p) {
     DBG(3);
   }
 #else
+#if ST_PLAIN
+  st_plain(p, S, reinterpret_cast<unsigned char*>(xbuf));
+#else
   run_phase<false, BIG>(p, S, xbuf);
   DBG(2);
   run_phase<true, BIG>(p, S, xbuf);
   DBG(3);
+#endif
 #endif
 #if OKC_WS
   WS_JOIN();  // the helper's last epilogue stores are visible

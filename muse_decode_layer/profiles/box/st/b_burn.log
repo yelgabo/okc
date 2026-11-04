@@ -1,0 +1,20 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+FLUSH read
+LOCK acquired after 0.0 s
+READ 4 GiB sum 4.434 TB/s
+ST       h0  A k  7 D 3 delay    0 grid 132 inl 0 coop 0 eager 0 off 0 cons 1 burn  0 polc 0 stores 0 ef 1 pro 0/0/0 units  3584 span   29.92 [29.57-34.37] stream 28.22 event 35.92 MHz 1980 TB/s 4.416 ( 99.6%) steady 4.815 (108.6%) ramp 2.84 endspread 4.72 cta_unit 0.988 mean 0.981 lat 2.74/3.60
+ST       h0  A k  7 D 3 delay    0 grid 132 inl 0 coop 0 eager 0 off 0 cons 8 burn  0 polc 0 stores 0 ef 1 pro 0/0/0 units  3584 span   31.04 [29.76-31.42] stream 29.26 event 36.32 MHz 1979 TB/s 4.256 ( 96.0%) steady 4.543 (102.5%) ramp 2.82 endspread 3.97 cta_unit 1.032 mean 1.027 lat 2.72/3.95
+ST       h0  A k  7 D 3 delay    0 grid 132 inl 0 coop 0 eager 0 off 0 cons 1 burn  8 polc 0 stores 0 ef 1 pro 0/0/0 units  3584 span   31.06 [30.72-32.67] stream 29.23 event 37.47 MHz 1766 TB/s 4.254 ( 95.9%) steady 4.808 (108.4%) ramp 2.84 endspread 3.94 cta_unit 1.002 mean 0.998 lat 2.54/3.26
+LOCK released
+Traceback (most recent call last):
+  File "/root/okc/muse_moe_w4a16/cl/st_replay_bench.py", line 306, in <module>
+    main()
+  File "/root/okc/muse_moe_w4a16/cl/st_replay_bench.py", line 282, in main
+    med, rows = run(ext, base, flush, fn, depth, delay, a.replays, a.evict_first,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/okc/muse_moe_w4a16/cl/st_replay_bench.py", line 140, in run
+    launch()
+  File "/root/okc/muse_moe_w4a16/cl/st_replay_bench.py", line 137, in launch
+    ext.launch(base, du, ds, stamps, ready, issued, sink, depth, delay, evict_first, smem, burn, polc, scratch, cons, slot_off, coop, inl,
+RuntimeError: Expected sink.numel() >= 2 * (starts.numel() - 1) && burn >= 0 && cons >= 1 && cons + burn <= 15 to be true, but got false.  (Could this error message be improved?  If so, please report an enhancement request to PyTorch.)

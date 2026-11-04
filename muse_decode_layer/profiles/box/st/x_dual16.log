@@ -1,0 +1,32 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BXLOCK 1793790854.695 acquire start after 0.0 s
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 1.21e-04 cg_vs_fp64 0.00e+00 sk2_vs_fp64 1.21e-04 equal 1023/1024 ok
+CG_TUNE unpooler [('cg', 7.49), ('sk2', 8.1), ('torch', 10.37)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+BXLOCK 1793790863.081 release triton _prq_sl_tile_route_cg
+BXBUILD 1793790863.081 start triton _prq_sl_tile_route_cg
+BXBUILD 1793790863.823 end triton _prq_sl_tile_route_cg
+BXLOCK 1793790863.824 acquire triton _prq_sl_tile_route_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+BXLOCK 1793790863.826 release triton _graft_row_boundary_pre_cg
+BXBUILD 1793790863.826 start triton _graft_row_boundary_pre_cg
+BXBUILD 1793790863.916 end triton _graft_row_boundary_pre_cg
+BXLOCK 1793790863.916 acquire triton _graft_row_boundary_pre_cg done after 0.0 s
+BXCLOCK submission clocks now 0.0 s behind real (lock waits after builds)
+REC {"label": "decode 16 sliding seed 4267547656320205676", "endA": 70.448, "a_buf": 1.645, "smclk_mhz": -98.418, "smclk_min": -712.766, "cta_unit_a": 2.937, "stallA_per_cta": 2.129, "stallB_per_cta": 0.034, "plain_us": 78.656, "span": 79.168, "A": 37.515, "B": 20.72, "a_wwait": 3.014, "b_wwait": 1.445, "distinct": 7, "units": 6144, "unit_a": 2.336, "unit_b": 2.592, "phaseA_tbs": 4.025}
+REC   snaps {"0.3": {"t": 21.134400000000003, "inflight": 1762, "ctas": 264, "experts": 8, "regions_2MB": 59, "stride_med": 15.0}, "0.6": {"t": 42.268800000000006, "inflight": 2362, "ctas": 264, "experts": 15, "regions_2MB": 89, "stride_med": 15.0}} latA(med,p90,sum) [13.152, 22.24, -4.000153617041689e+17] latB [16.512, 24.384, -1.1839019673755454e+17]
+REC   wait(count, per CTA us, median) {"A_first3": [792, 0.36, 0.096], "A_steady": [3150, 1.769, 0.096], "AtoB": [80, 0.034, 0.096], "A_jobswitch": [10, 0.0, 0.0]}
+REC {"label": "decode 16 sliding seed 4267547656320205677", "endA": 76.96, "a_buf": 1.846, "smclk_mhz": -118.644, "smclk_min": -592.105, "cta_unit_a": 3.012, "stallA_per_cta": 2.52, "stallB_per_cta": 0.04, "plain_us": 87.424, "span": 87.872, "A": 42.604, "B": 23.236, "a_wwait": 3.334, "b_wwait": 1.585, "distinct": 8, "units": 6912, "unit_a": 2.336, "unit_b": 2.624, "phaseA_tbs": 3.987}
+REC   snaps {"0.3": {"t": 23.087999999999997, "inflight": 2015, "ctas": 264, "experts": 9, "regions_2MB": 68, "stride_med": 17}, "0.6": {"t": 46.175999999999995, "inflight": 2363, "ctas": 264, "experts": 16, "regions_2MB": 96, "stride_med": 17}} latA(med,p90,sum) [13.376, 22.432, -4.699732052440975e+17] latB [15.616, 24.608, -1.5067843221566288e+17]
+REC   wait(count, per CTA us, median) {"A_first3": [792, 0.376, 0.096], "A_steady": [3767, 2.136, 0.096], "AtoB": [192, 0.04, 0.0], "B_first3": [24, 0.0, 0.0], "A_jobswitch": [25, 0.007, 0.0]}
+REC {"label": "decode 16 full seed 4267818073800716525", "endA": 64.544, "a_buf": 1.501, "smclk_mhz": -114.504, "smclk_min": -697.248, "cta_unit_a": 3.053, "stallA_per_cta": 1.869, "stallB_per_cta": 0.0, "plain_us": 73.216, "span": 71.808, "A": 33.167, "B": 18.711, "a_wwait": 2.749, "b_wwait": 1.34, "distinct": 6, "units": 5376, "unit_a": 2.336, "unit_b": 2.592, "phaseA_tbs": 3.984}
+REC   snaps {"0.3": {"t": 19.3632, "inflight": 1612, "ctas": 264, "experts": 7, "regions_2MB": 51, "stride_med": 14}, "0.6": {"t": 38.7264, "inflight": 2410, "ctas": 264, "experts": 13, "regions_2MB": 78, "stride_med": 13}} latA(med,p90,sum) [13.92, 22.4, -3.3185130905600864e+17] latB [19.744, 24.192, -8.789575212834642e+16]
+REC   wait(count, per CTA us, median) {"A_first3": [792, 0.367, 0.096], "A_steady": [2455, 1.493, 0.096], "A_jobswitch": [17, 0.009, 0.096]}
+REC {"label": "decode 16 full seed 4267818073800716526", "endA": 65.984, "a_buf": 1.511, "smclk_mhz": -106.796, "smclk_min": -750.0, "cta_unit_a": 3.153, "stallA_per_cta": 1.914, "stallB_per_cta": 0.0, "plain_us": 73.632, "span": 73.344, "A": 33.169, "B": 19.269, "a_wwait": 2.539, "b_wwait": 1.462, "distinct": 6, "units": 5376, "unit_a": 2.336, "unit_b": 2.624, "phaseA_tbs": 3.983}
+REC   snaps {"0.3": {"t": 19.7952, "inflight": 1625, "ctas": 264, "experts": 7, "regions_2MB": 51, "stride_med": 14}, "0.6": {"t": 39.5904, "inflight": 2426, "ctas": 264, "experts": 13, "regions_2MB": 79, "stride_med": 13}} latA(med,p90,sum) [13.952, 23.488, -3.318513090642337e+17] latB [20.704, 25.344, -8.789575213052467e+16]
+REC   wait(count, per CTA us, median) {"A_first3": [792, 0.364, 0.096], "A_steady": [2455, 1.54, 0.096], "A_jobswitch": [17, 0.01, 0.128]}
