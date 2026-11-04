@@ -10857,6 +10857,51 @@ def _route_split(POOLED, LOGITS, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, PERMUTED:
 
 
 @triton.jit
+def _prq_route_split(POOLED, LOGITS, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, PERMUTED: tl.constexpr, USE_PDL: tl.constexpr = False):
+    """Same as _route but the pooler output (bf16) and the router logits (fp32) arrive as separate tensors."""
+    t = tl.program_id(0)
+    e = tl.arange(0, 256)
+    c = tl.arange(0, 4096)
+    biasv = tl.load(BIAS + e)                      # weights and local_start: no producer dependency
+    gpre = 1.0 + tl.load(GPRE + c).to(tl.float32)
+    lsv = tl.load(LS)
+    if USE_PDL:
+        tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now
+        tl.extra.cuda.gdc_wait()   # pooled / logits are the producer's output
+    # prq: LOGITS is the fused kernel's quarter-partial buffer [32 tiles][4 quarters][32 tokens][8 rows];
+    # the four quarters are added in quarter order, as the last-arriving CTA did
+    pq = LOGITS + (e >> 3) * 1024 + t * 8 + (e & 7)
+    logit = (((tl.load(pq, cache_modifier='.cg') + tl.load(pq + 256, cache_modifier='.cg')) + tl.load(pq + 512, cache_modifier='.cg')) + tl.load(pq + 768, cache_modifier='.cg'))
+    pooled = tl.load(POOLED + t * 4096 + c).to(tl.float32)
+    sc = tl.sigmoid(logit * 0.1767766952966369)
+    sel = sc + biasv
+    k8 = tl.arange(0, 8)
+    ids = tl.zeros([8], dtype=tl.int32)
+    wv = tl.zeros([8], dtype=tl.float32)
+    for k in tl.static_range(8):
+        idx = tl.argmax(sel, 0)
+        val = tl.sum(tl.where(e == idx, sc, 0.0), 0)
+        ids = tl.where(k8 == k, idx, ids)
+        wv = tl.where(k8 == k, val, wv)
+        sel = tl.where(e == idx, float("-inf"), sel)
+    wv = wv / (tl.sum(wv, 0) + 1e-15)
+    tl.store(IDS + t * 8 + k8, ids)
+    lid = (ids - lsv + 256) % 256
+    tl.store(LIDS + t * 8 + k8, tl.where(lid < 32, lid, -1))
+    tl.store(WTS + t * 8 + k8, wv)
+    x = pooled * tl.rsqrt(tl.sum(pooled * pooled, 0) / 4096.0 + 1e-5) * gpre
+    ch = c // 64
+    kk = c % 64
+    kb = kk // 16
+    r = kk % 16
+    if PERMUTED:
+        po = ((t * 64 + ch) * 4 + (r % 8) // 2) * 16 + kb * 4 + (r // 8) * 2 + (r % 2)
+        tl.store(XOUT + po, x.to(tl.bfloat16).to(tl.float16))
+    else:
+        tl.store(XOUT + t * 4096 + c, x.to(tl.bfloat16))
+
+
+@triton.jit
 def _pexp_norm_sum(x_ptr, w_ptr, s_ptr, out_ptr, ids_ptr, TOPK: tl.constexpr, H: tl.constexpr, eps,
                    BLOCK_H: tl.constexpr):
     """post-expert norm (weight first) * routing weight, summed over slots. Same kernel as SGLang's
@@ -12129,6 +12174,63 @@ def _graft_route(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLI
         e = tl.arange(0, 256)
         if SPLIT:
             logit = tl.load(LOGITS + t * 256 + e)
+        else:
+            logit = tl.load(ALL + t * 4608 + 4096 + e) + tl.load(ALL + t * 4608 + 4352 + e)
+        sc = tl.sigmoid(logit * 0.1767766952966369)
+        sel = sc + tl.load(BIAS + e)
+        k8 = tl.arange(0, 8)
+        if PACKED != 0:
+            bits = sel.to(tl.uint32, bitcast=True)
+            ordered = tl.where((bits & 0x80000000) != 0, ~bits, bits ^ 0x80000000).to(tl.uint32)
+            packed = (ordered.to(tl.uint64) << 32) | (255 - e).to(tl.uint64)
+            if PACKED == 1:
+                picked = tl.topk(packed, 8)
+            else:
+                sorted_values = tl.sort(packed, descending=True)
+                picked = tl.gather(sorted_values, k8, 0)
+            ids = (255 - (picked & 255)).to(tl.int32)
+            wv = tl.gather(sc, ids, 0)
+        else:
+            ids = tl.zeros([8], dtype=tl.int32)
+            wv = tl.zeros([8], dtype=tl.float32)
+            for k in tl.static_range(8):
+                idx = tl.argmax(sel, 0)
+                val = tl.sum(tl.where(e == idx, sc, 0.0), 0)
+                ids = tl.where(k8 == k, idx, ids)
+                wv = tl.where(k8 == k, val, wv)
+                sel = tl.where(e == idx, float("-inf"), sel)
+        wv = wv / (tl.sum(wv, 0) + 1e-15)
+        tl.store(IDS + t * 8 + k8, ids)
+        lid = (ids - tl.load(LS) + 256) % 256
+        tl.store(LIDS + t * 8 + k8, tl.where(lid < 32, lid, -1))
+        tl.store(WTS + t * 8 + k8, wv)
+
+
+@triton.jit
+def _prq_graft_route(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, PACKED: tl.constexpr):
+    t = tl.program_id(0)
+    kind = tl.program_id(1)
+    if EARLY:
+        _gdc_launch()
+    _gdc_wait()
+    if not EARLY:
+        _gdc_launch()
+    if kind == 0:
+        c = tl.arange(0, 4096)
+        if SPLIT:
+            pooled = tl.load(POOLED + t * 4096 + c).to(tl.float32)
+        else:
+            pooled = tl.load(ALL + t * 4608 + c).to(tl.bfloat16).to(tl.float32)
+        gpre = 1.0 + tl.load(GPRE + c).to(tl.float32)
+        x = pooled * tl.rsqrt(tl.sum(pooled * pooled, 0) / 4096.0 + 1e-5) * gpre
+        tl.store(XOUT + t * 4096 + c, x.to(tl.bfloat16))
+    else:
+        e = tl.arange(0, 256)
+        if SPLIT:
+            # prq: LOGITS is the fused kernel's quarter-partial buffer [32 tiles][4 quarters][32 tokens][8 rows];
+            # the four quarters are added in quarter order, as the last-arriving CTA did
+            pq = LOGITS + (e >> 3) * 1024 + t * 8 + (e & 7)
+            logit = (((tl.load(pq, cache_modifier='.cg') + tl.load(pq + 256, cache_modifier='.cg')) + tl.load(pq + 512, cache_modifier='.cg')) + tl.load(pq + 768, cache_modifier='.cg'))
         else:
             logit = tl.load(ALL + t * 4608 + 4096 + e) + tl.load(ALL + t * 4608 + 4352 + e)
         sc = tl.sigmoid(logit * 0.1767766952966369)
@@ -15855,6 +15957,63 @@ def _sl_graft_route(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, S
         tl.store(LIDS + t * 8 + k8, tl.where(lid < 32, lid, -1))
         tl.store(WTS + t * 8 + k8, wv)
 
+
+@triton.jit
+def _prq_sl_graft_route(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr):
+    t = tl.program_id(0)
+    kind = tl.program_id(1)
+    if EARLY:
+        _gdc_launch()
+    _gdc_wait()
+    if not EARLY:
+        _gdc_launch()
+    if kind == 0:
+        c = tl.arange(0, 4096)
+        if SPLIT:
+            pooled = tl.load(POOLED + t * 4096 + c).to(tl.float32)
+        else:
+            pooled = tl.load(ALL + t * 4608 + c).to(tl.bfloat16).to(tl.float32)
+        gpre = 1.0 + tl.load(GPRE + c).to(tl.float32)
+        x = pooled * tl.rsqrt(tl.sum(pooled * pooled, 0) / 4096.0 + 1e-5) * gpre
+        tl.store(XOUT + t * 4096 + c, x.to(tl.bfloat16))
+    else:
+        e = tl.arange(0, 256)
+        if SPLIT:
+            # prq: LOGITS is the fused kernel's quarter-partial buffer [32 tiles][4 quarters][32 tokens][8 rows];
+            # the four quarters are added in quarter order, as the last-arriving CTA did
+            pq = LOGITS + (e >> 3) * 1024 + t * 8 + (e & 7)
+            logit = (((tl.load(pq, cache_modifier='.cg') + tl.load(pq + 256, cache_modifier='.cg')) + tl.load(pq + 512, cache_modifier='.cg')) + tl.load(pq + 768, cache_modifier='.cg'))
+        else:
+            logit = tl.load(ALL + t * 4608 + 4096 + e) + tl.load(ALL + t * 4608 + 4352 + e)
+        sc = tl.sigmoid(logit * 0.1767766952966369)
+        sel = sc + tl.load(BIAS + e)
+        k8 = tl.arange(0, 8)
+        if MODE != 2:
+            bits = sel.to(tl.uint32, bitcast=True)
+            ordered = tl.where((bits & 0x80000000) != 0, ~bits, bits ^ 0x80000000).to(tl.uint32)
+            packed = (ordered.to(tl.uint64) << 32) | (255 - e).to(tl.uint64)
+            if MODE == 0:
+                picked = tl.topk(packed, 8)
+            else:
+                sorted_values = tl.sort(packed, descending=True)
+                picked = tl.gather(sorted_values, k8, 0)
+            ids = (255 - (picked & 255)).to(tl.int32)
+            wv = tl.gather(sc, ids, 0)
+        else:
+            ids = tl.zeros([8], dtype=tl.int32)
+            wv = tl.zeros([8], dtype=tl.float32)
+            for k in tl.static_range(8):
+                idx = tl.argmax(sel, 0)
+                val = tl.sum(tl.where(e == idx, sc, 0.0), 0)
+                ids = tl.where(k8 == k, idx, ids)
+                wv = tl.where(k8 == k, val, wv)
+                sel = tl.where(e == idx, float("-inf"), sel)
+        wv = wv / (tl.sum(wv, 0) + 1e-15)
+        tl.store(IDS + t * 8 + k8, ids)
+        lid = (ids - tl.load(LS) + 256) % 256
+        tl.store(LIDS + t * 8 + k8, tl.where(lid < 32, lid, -1))
+        tl.store(WTS + t * 8 + k8, wv)
+
 SL_ROUTE_CONFIG={1: (8, 0, 0), 8: (4, 0, 0)}
 @triton.jit
 def _sl_tile_route(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr):
@@ -15893,6 +16052,78 @@ def _sl_tile_route(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SP
             ls=tl.load(LS)
         if SPLIT:
             logit = tl.load(LOGITS + t * 256 + e)
+        else:
+            logit = tl.load(ALL + t * 4608 + 4096 + e) + tl.load(ALL + t * 4608 + 4352 + e)
+        sc = tl.sigmoid(logit * 0.1767766952966369)
+        sel = sc + bias
+        k8 = tl.arange(0, 8)
+        if MODE != 2:
+            bits = sel.to(tl.uint32, bitcast=True)
+            ordered = tl.where((bits & 0x80000000) != 0, ~bits, bits ^ 0x80000000).to(tl.uint32)
+            packed = (ordered.to(tl.uint64) << 32) | (255 - e).to(tl.uint64)
+            if MODE == 0:
+                picked = tl.topk(packed, 8)
+            else:
+                sorted_values = tl.sort(packed, descending=True)
+                picked = tl.gather(sorted_values, k8, 0)
+            ids = (255 - (picked & 255)).to(tl.int32)
+            wv = tl.gather(sc, ids, 0)
+        else:
+            ids = tl.zeros([8], dtype=tl.int32)
+            wv = tl.zeros([8], dtype=tl.float32)
+            for k in tl.static_range(8):
+                idx = tl.argmax(sel, 0)
+                val = tl.sum(tl.where(e == idx, sc, 0.0), 0)
+                ids = tl.where(k8 == k, idx, ids)
+                wv = tl.where(k8 == k, val, wv)
+                sel = tl.where(e == idx, float("-inf"), sel)
+        wv = wv / (tl.sum(wv, 0) + 1e-15)
+        tl.store(IDS + t * 8 + k8, ids)
+        lid = (ids - ls + 256) % 256
+        tl.store(LIDS + t * 8 + k8, tl.where(lid < 32, lid, -1))
+        tl.store(WTS + t * 8 + k8, wv)
+
+
+@triton.jit
+def _prq_sl_tile_route(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr):
+    t = tl.program_id(0)
+    kind = tl.program_id(1)
+    if kind<PARTS:
+        c=tl.arange(0,4096)
+        oc=kind*(4096//PARTS)+tl.arange(0,4096//PARTS)
+        if PRELOAD:
+            gpre=1.0+tl.load(GPRE+oc).to(tl.float32)
+        _gdc_launch()
+        _gdc_wait()
+        if SPLIT:
+            pooled=tl.load(POOLED+t*4096+c).to(tl.float32)
+        else:
+            pooled=tl.load(ALL+t*4608+c).to(tl.bfloat16).to(tl.float32)
+        inv=tl.rsqrt(tl.sum(pooled*pooled,0)/4096.0+1e-5)
+        if not PRELOAD:
+            gpre=1.0+tl.load(GPRE+oc).to(tl.float32)
+        if PARTS==1:
+            vals=pooled
+        elif SPLIT:
+            vals=tl.load(POOLED+t*4096+oc).to(tl.float32)
+        else:
+            vals=tl.load(ALL+t*4608+oc).to(tl.bfloat16).to(tl.float32)
+        tl.store(XOUT+t*4096+oc,(vals*inv*gpre).to(tl.bfloat16))
+    else:
+        e = tl.arange(0, 256)
+        if PRELOAD:
+            bias=tl.load(BIAS+e)
+            ls=tl.load(LS)
+        _gdc_launch()
+        _gdc_wait()
+        if not PRELOAD:
+            bias=tl.load(BIAS+e)
+            ls=tl.load(LS)
+        if SPLIT:
+            # prq: LOGITS is the fused kernel's quarter-partial buffer [32 tiles][4 quarters][32 tokens][8 rows];
+            # the four quarters are added in quarter order, as the last-arriving CTA did
+            pq = LOGITS + (e >> 3) * 1024 + t * 8 + (e & 7)
+            logit = (((tl.load(pq, cache_modifier='.cg') + tl.load(pq + 256, cache_modifier='.cg')) + tl.load(pq + 512, cache_modifier='.cg')) + tl.load(pq + 768, cache_modifier='.cg'))
         else:
             logit = tl.load(ALL + t * 4608 + 4096 + e) + tl.load(ALL + t * 4608 + 4352 + e)
         sc = tl.sigmoid(logit * 0.1767766952966369)
@@ -17940,7 +18171,7 @@ def _sl_tile_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS,
 
 
 @triton.jit
-def _prq_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr):
+def _prq_sl_tile_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPLIT: tl.constexpr, EARLY: tl.constexpr, MODE: tl.constexpr, PARTS: tl.constexpr, PRELOAD: tl.constexpr):
     t = tl.program_id(0)
     kind = tl.program_id(1)
     if kind<PARTS:
@@ -17978,8 +18209,7 @@ def _prq_route_cg(POOLED, LOGITS, ALL, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, SPL
             # prq: LOGITS is the fused kernel's quarter-partial buffer [32 tiles][4 quarters][32 tokens][8 rows];
             # the four quarters are added in quarter order, as the last-arriving CTA did
             pq = LOGITS + (e >> 3) * 1024 + t * 8 + (e & 7)
-            logit = (((tl.load(pq, cache_modifier='.cg') + tl.load(pq + 256, cache_modifier='.cg'))
-                      + tl.load(pq + 512, cache_modifier='.cg')) + tl.load(pq + 768, cache_modifier='.cg'))
+            logit = (((tl.load(pq, cache_modifier='.cg') + tl.load(pq + 256, cache_modifier='.cg')) + tl.load(pq + 512, cache_modifier='.cg')) + tl.load(pq + 768, cache_modifier='.cg'))
         else:
             logit = tl.load(ALL + t * 4608 + 4096 + e, cache_modifier='.cg') + tl.load(ALL + t * 4608 + 4352 + e, cache_modifier='.cg')
         sc = tl.sigmoid(logit * 0.1767766952966369)
@@ -18745,16 +18975,17 @@ class _PrqLaunch:
     def __getitem__(self, grid):
         def go(*a, **kw):
             if any(getattr(x, "_prq_part", False) for x in a[:3]):
-                if self.alt is None or not kw.get("SPLIT", False):
+                if self.alt is None or not kw.get("SPLIT", True):
                     raise RuntimeError(f"prq: {self.name} got the router's quarter partials")
                 return self.alt[grid](*a, **kw)
             return self.base[grid](*a, **kw)
         return go
 
 
-_sl_tile_route_cg = _PrqLaunch(_sl_tile_route_cg, _prq_route_cg, "_sl_tile_route_cg")
-_sl_tile_route = _PrqLaunch(_sl_tile_route, None, "_sl_tile_route")
+_route_split = _PrqLaunch(_route_split, _prq_route_split, "_route_split")
+_graft_route = _PrqLaunch(_graft_route, _prq_graft_route, "_graft_route")
+_sl_graft_route = _PrqLaunch(_sl_graft_route, _prq_sl_graft_route, "_sl_graft_route")
+_sl_tile_route = _PrqLaunch(_sl_tile_route, _prq_sl_tile_route, "_sl_tile_route")
+_sl_tile_route_cg = _PrqLaunch(_sl_tile_route_cg, _prq_sl_tile_route_cg, "_sl_tile_route_cg")
 _route = _PrqLaunch(_route, None, "_route")
-_graft_route = _PrqLaunch(_graft_route, None, "_graft_route")
-_sl_graft_route = _PrqLaunch(_sl_graft_route, None, "_sl_graft_route")
 _gle_route = _PrqLaunch(_gle_route, None, "_gle_route")
