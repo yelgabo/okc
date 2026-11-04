@@ -1,0 +1,28 @@
+/root/venv/lib/python3.12/site-packages/torch/cuda/__init__.py:68: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+BUILD 0.0 s
+LOCK acquired after 0.0 s
+APPS 
+OCC C= 1 smem=110592 threads=160 -> max active clusters 264 (264 CTAs)
+OCC C= 1 smem=147456 threads=160 -> max active clusters 132 (132 CTAs)
+OCC C= 1 smem=184320 threads=160 -> max active clusters 132 (132 CTAs)
+OCC C= 1 smem=163840 threads=160 -> max active clusters 132 (132 CTAs)
+OCC C= 1 smem=231424 threads=160 -> max active clusters 132 (132 CTAs)
+OCC C= 8 smem=110592 threads=160 -> max active clusters  30 (240 CTAs)
+OCC C= 8 smem=147456 threads=160 -> max active clusters  15 (120 CTAs)
+OCC C= 8 smem=184320 threads=160 -> max active clusters  15 (120 CTAs)
+OCC C= 8 smem=163840 threads=160 -> max active clusters  15 (120 CTAs)
+OCC C= 8 smem=231424 threads=160 -> max active clusters  15 (120 CTAs)
+OCC C=16 smem=110592 threads=160 -> max active clusters  14 (224 CTAs)
+OCC C=16 smem=147456 threads=160 -> max active clusters   7 (112 CTAs)
+OCC C=16 smem=184320 threads=160 -> max active clusters   7 (112 CTAs)
+OCC C=16 smem=163840 threads=160 -> max active clusters   7 (112 CTAs)
+OCC C=16 smem=231424 threads=160 -> max active clusters   7 (112 CTAs)
+READ_RATE 4 GiB sum: 4.427 TB/s
+RUN C= 1 D=2 k= 1 S=  1 P= 0 R=0 mode=0 ef=1 grid=   1 span  376.43 [375.36-378.46] us  event  382.78  floor   6.36  ratio 59.167  0.08 TB/s  per-SM 75.2 GB/s over 1 (CTA 75.8)  ready 2.94  end-spread 0.00  late 0  sms 1  units 768-768
+RUN C= 1 D=2 k= 1 S=  1 P= 0 R=1 mode=0 ef=1 grid=   1 span  446.90 [444.64-460.86] us  event  452.88  floor   6.36  ratio 70.243  0.06 TB/s  per-SM 63.4 GB/s over 1 (CTA 63.7)  ready 2.54  end-spread 0.00  late 0  sms 1  units 768-768
+RUN C= 1 D=3 k= 1 S=  1 P= 0 R=0 mode=0 ef=1 grid=   1 span  287.15 [286.69-287.36] us  event  293.41  floor   6.36  ratio 45.134  0.10 TB/s  per-SM 98.6 GB/s over 1 (CTA 99.5)  ready 2.58  end-spread 0.00  late 0  sms 1  units 768-768
+RUN C= 1 D=3 k= 1 S=  1 P= 0 R=1 mode=0 ef=1 grid=   1 span  327.95 [327.07-328.99] us  event  334.24  floor   6.36  ratio 51.547  0.09 TB/s  per-SM 86.3 GB/s over 1 (CTA 87.0)  ready 2.56  end-spread 0.00  late 0  sms 1  units 768-768
+RUN C= 1 D=4 k= 1 S=  1 P= 0 R=0 mode=0 ef=1 grid=   1 span  286.26 [286.02-286.50] us  event  292.42  floor   6.36  ratio 44.994  0.10 TB/s  per-SM 98.9 GB/s over 1 (CTA 99.7)  ready 2.38  end-spread 0.00  late 0  sms 1  units 768-768
+RUN C= 1 D=4 k= 1 S=  1 P= 0 R=1 mode=0 ef=1 grid=   1 span  323.62 [322.75-324.48] us  event  329.84  floor   6.36  ratio 50.866  0.09 TB/s  per-SM 87.5 GB/s over 1 (CTA 88.2)  ready 2.51  end-spread 0.00  late 0  sms 1  units 768-768
+LOCK released
