@@ -3661,6 +3661,14 @@ Paired A/B (same recipe, CTL ly_fabq, CAND ly_apre2, 12:25-12:26 UTC; logs
 Decode 32 full is neutral; decode 16 full is slower in all four pairs. Neither candidate reaches a win at the two
 target cells, and both lose at decode 16 full.
 
+ly_apre2 stamps (same diagnostic build, 5 runs, logs `muse_decode_layer/profiles/box/attn/stamps/stamps_apre2_d{16,32}.log`),
+medians in us from the earliest entry, decode 16 / decode 32: producer after partition sync 1.39 / 1.63 (base 1.15
+/ 1.95), segment list done 4.02 / 4.72 (base 2.37 / 3.49), consumer after setmaxnreg.inc 4.13 / 4.94 (base 2.46 /
+3.62), first tile consumed 6.16 / 6.59 (base 4.99 / 6.00), loop end 80.74 / 155.57 (base 77.38 / 154.74). The
+pre-issue block runs on the producer warps before the segment list and costs about 1.6 us at decode 16 (0.9 us at
+decode 32) of first-execution time, so the first copies are issued earlier but the first tile is consumed 1.2 /
+0.6 us later than in the base. That is the measured mechanism of the decode 16 full loss.
+
 ### Decision
 
 The full-context q_len 1 attention cells are at the DRAM floor in steady state (4.47 to 4.53 TB/s per CTA from the
