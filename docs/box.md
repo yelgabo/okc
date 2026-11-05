@@ -8,6 +8,16 @@ worker; numbers below are measurements on that day.
 
 ## Reaching it
 
+**2026-11-04, replacement pod.** The original pod `l667980o376btc` stopped at about 16:40 PT when
+the account credits ran out and cannot restart (its host's GPU was taken). Since 16:55 PT the
+`okc-h200` alias points at the replacement: RunPod pod `gdmhzavzpcfiex`, name `okc-h200b`, H200
+SXM, Secure cloud, US-CO-1, $5.29/h, 80 GB container disk, image
+`runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`. Direct ssh is `root@152.236.142.240 -p 16377`
+(the `~/.ssh/config` block was edited in place; backup at `~/.ssh/config.bak-rebox`); the proxy is
+`ssh gdmhzavzpcfiex-6441240f@ssh.runpod.io` and needs a PTY. The rebuild recipe is in "Rebuilding
+the box" below, and the new host's parity in "Parity on okc-h200b, 2026-11-04". The text from here
+to that section describes the original pod.
+
 `ssh okc-h200` works from the Mac (the `~/.ssh/config` alias for `root@205.196.19.51 -p 11831`,
 key auth). The direct address changes if the pod is stopped and restarted; the RunPod proxy
 `ssh l667980o376btc-64410c58@ssh.runpod.io` stays fixed. Never stop or modify the pod from a lane;
@@ -32,6 +42,36 @@ Sync a changed file before running it:
 ```bash
 rsync -a muse_decode_layer/cand/<file>.py okc-h200:/root/okc/muse_decode_layer/cand/
 ```
+
+## Rebuilding the box (okc-h200b, 2026-11-04)
+
+No recipe was written down for the original pod, so this is the one used for the replacement; it
+took about 9 minutes from first ssh to a working venv. Everything runs as root.
+
+1. Point the `Host okc-h200` block in `~/.ssh/config` at the pod's direct `ssh.direct` host and
+   port (from the RunPod `get-pod` read), then `ssh okc-h200 nvidia-smi`.
+2. Toolkit, detached: `apt-get update && apt-get install -y --no-install-recommends
+   cuda-toolkit-13-0 rsync`. The image already carries NVIDIA's ubuntu2404 apt repo; this gives nvcc
+   13.0.88 and Nsight Compute under `/usr/local/cuda-13.0`, and `/usr/local/cuda` already resolves
+   there through `/etc/alternatives/cuda`.
+3. Venv, in parallel with step 2: `python3 -m venv /root/venv`, then `uv pip install --python
+   /root/venv/bin/python torch==2.14.1 --index-url https://download.pytorch.org/whl/cu130
+   --extra-index-url https://pypi.org/simple --index-strategy unsafe-best-match`. This brings
+   triton 3.8.0 and nvidia-cublas 13.1.1.3.
+4. SGLang: run `okc serve init sgl` on the Mac (it fetches the pinned a55ab7d5 checkout) and copy
+   `sgl/sglang` to `/root/sglang`; delete macOS `._*` files and `chown -R root:root` afterwards or
+   git refuses the repository. Install rustup (`curl -sSf https://sh.rustup.rs | sh -s -- -y
+   --profile minimal`), because the package builds a Rust extension, then `uv pip install -e
+   /root/sglang/python --override override.txt` with the same index flags, where `override.txt` pins
+   `torch==2.14.1+cu130`, `triton==3.8.0` and `nvidia-cublas==13.1.1.3`. SGLang's own pins give
+   sglang-kernel 0.4.9, flashinfer-python 0.7.0.post1 and apache-tvm-ffi 0.1.11. The Rust release
+   build is most of the 5 minutes this step takes.
+5. Repo: `rsync -a --files-from=<(git ls-files) . okc-h200:/root/okc/` (about 90 s), then
+   `.build/repeats/*_base.py` into `/root/okc/.build/repeats/` and the f931abf568544018 and
+   4a737387f88b4d7d g1b4_pdl8d JSONs from `muse_decode_layer/cand/profiles/` into
+   `/root/okc/.build/judge/`; create `/root/okc/.build/box/` (gpu.lock) and `.build/eat/`.
+
+The install scripts and logs stay on the box under `/root/setup/`.
 
 ## Running a file
 
