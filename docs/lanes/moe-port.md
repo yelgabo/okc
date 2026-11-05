@@ -77,7 +77,29 @@ This is a single pair, so it is not a verdict yet. The changes at decode 32 (MFI
 (RFIN and MFIN on main) point the expected way. The decode 16 gain is unexpected: the mid build only gets the
 helper changes (scl, wspack, ftz, doneA). Both decode 1 and verify 1 are within noise.
 
+## Full A/B (4 rounds, done 19:07 PT)
+
+After round 1, the runs reused the cached builds and took about 1 minute each. All 8 runs have check PASS at all
+6 shapes. The table gives net microseconds as the median over rounds of each run's median_net_ns. A win means the
+port beat base in the same round.
+
+| Shape | base r1-r4 | port r1-r4 | base med | port med | port - base | port wins |
+|---|---|---|---|---|---|---|
+| decode 1 | 23.54 23.33 23.87 23.50 | 23.66 23.54 24.10 24.03 | 23.52 | 23.85 | +0.33 | 0/4 |
+| decode 16 | 90.22 90.27 90.35 90.11 | 88.69 89.14 89.46 89.52 | 90.25 | 89.30 | -0.95 | 4/4 |
+| decode 32 | 120.83 120.56 119.92 120.05 | 119.41 119.10 118.53 118.27 | 120.30 | 118.82 | -1.49 | 4/4 |
+| verify 1 | 64.03 63.57 63.86 63.54 | 63.89 62.26 62.96 62.45 | 63.71 | 62.70 | -1.01 | 4/4 |
+| verify 16 | 175.52 174.61 174.48 173.74 | 172.88 173.42 172.10 172.70 | 174.54 | 172.79 | -1.75 | 4/4 |
+| verify 32 | 208.99 208.59 208.08 209.12 | 208.14 206.80 206.34 206.99 | 208.79 | 206.90 | -1.90 | 4/4 |
+
+By hand calculation from the medians above, the geometric mean of the port/base ratios is about 0.9927, so the
+port is about 0.7% faster. The port wins 5 of the 6 shapes in every round. Decode 1 (the tiny build) is
+0.33 us slower in every round. In the tiny build the only changes are NOSCL, the doneA fence and ftz.
+
 ## Next
+
+The port is ready to be the standalone candidate, but it needs a ledger registration line before any judge check.
+A follow-up that could win back decode 1 is a variant without `-DOKC_NOSCL=1` on TINY, A/B'd at decode 1 only.
 
 The lane stopped at 19:02 PT because it reached its tool-call budget. The A/B driver keeps running on the box. To
 tabulate it once `=== done` appears in ab.out, run:
