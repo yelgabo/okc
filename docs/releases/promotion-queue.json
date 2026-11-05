@@ -991,6 +991,20 @@
    "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
    "release_review_required": false,
    "public_submission_occurred": false
+  },
+  {
+   "job": "dba1ac4d426c42ea",
+   "problem": "muse_decode_layer",
+   "score_us": 10106.81357592488,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_wsrel1_sc check: ly_mpdl + leader-only post-relay doneA release (fence.sc by lane 0)",
+   "source_identity": "muse_decode_layer/cand/ly_wsrel1_sc.py SHA256 ef68943633ee037e16a4bab0bd4a971b3d7fce74782eec092ba937720e6d07a3",
+   "release_state": "superseded-by-ly_stk6-pending",
+   "reason": "Below the public row (10,146.4 us). Closes the doneA publication gap; box four-round means score-neutral against ly_mpdl. User approved it as the batch-2 base; ly_stk6 (this plus MAIN MFIN, check 3c98bfe866524d61) is preferred if it passes.",
+   "evidence": "docs/lanes/moe-wsrel2.md",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": false
   }
  ],
  "ineligible_source_family_checkpoint": {
