@@ -36,7 +36,11 @@ extension was "unavailable"; those runs were killed and their logs deleted. `/ro
 (PATH=/root/venv/bin first) runs the 16 tests on port then base, then 4 rounds of bx_box_run (base, port
 alternating, --runs 60, --lock), JSONs ab_<side>_<r>.json, progress in ab.progress.
 
+Tests (tools/attp_tests.py, seeds 1000+i): attn_port.py 16/16 PASS, attention_base.py 16/16 PASS. Residency of
+attn_one_kernel<1, 1>: base per_sm 3 (resident 396), port per_sm 2 (resident 264), so the edit is live in the
+standalone launch too. Mode 1 ran in 3 of the 16 tests (plan (32, 1, 1)).
+
 ## Next
 
-Read tests_*.log (16/16 PASS each, LIMIT L=1 mode=1 per_sm), then `python3 tools/attp_ab_table.py
-/root/okc/.build/box/attp` after ALLDONE.
+After ALLDONE in /root/okc/.build/box/attp/ab.progress: `python3 tools/attp_ab_table.py /root/okc/.build/box/attp`
+on the box; decide on decode 16 / 32 sliding (the only cells the edit touches; the other 10 are controls).
