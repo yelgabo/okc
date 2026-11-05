@@ -1,6 +1,6 @@
 # moe-port checkpoint
 
-Updated: 2026-11-04 18:50 PT (from `date`).
+Updated: 2026-11-04 18:53 PST (from `date`).
 
 ## Task
 
@@ -38,21 +38,40 @@ and the route kernels.
 As a fidelity check, the comment-stripped, whitespace-normalized MOE_CUDA_SRC and moe_helper0 of the port
 match ly_stk7c's except for the PDL launch block (14 changed lines each, all in the launch).
 
-## Build map (M to build)
+## Build map (M to build) and expected native build tags
 
-| Shape | M | Build |
-|---|---|---|
-| decode 1 | 1 | tiny |
-| verify 1 | 8 | tiny2 |
-| decode 16 | 16 | mid |
-| decode 32 | 32 | b4 (now with MFIN) |
-| verify 16 | 128 | main (now RFIN+MFIN) |
-| verify 32 | 256 | main (now RFIN+MFIN) |
+The tags come from the scratchpad script tags.py: md5 of MOE_CPP_SRC + src + repr((defines, 3)), with PRMTSC on all
+builds and SC6W on the WGS builds.
+
+| Shape | M | Build | port tag | base tag |
+|---|---|---|---|---|
+| decode 1 | 1 | tiny | glue_moe_2cb6e07dc691eff1 (NOSCL) | glue_moe_415a2bdc6eb73960 |
+| verify 1 | 8 | tiny2 | glue_moe_163b29f2a08931ff | glue_moe_b2495a009a910301 |
+| decode 16 | 16 | mid | glue_moe_3687d894b73f8e44 | glue_moe_1b555edc8284ed23 |
+| decode 32 | 32 | b4 + MFIN | glue_moe_3a4ede75f863927a | glue_moe_7e37cd900cb88979 |
+| verify 16, 32 | 128, 256 | main + RFIN + MFIN | glue_moe_13de9d65ad63a10d | glue_moe_45a005177ff52c30 |
+
+The round 1 port log shows builds of glue_moe_13de9d65ad63a10d and glue_moe_3a4ede75f863927a, which are the
+RFIN main build and the MFIN b4 build.
 
 ## Box
 
-Not run yet. The paths will be `/root/okc/muse_moe_w4a16/cand/moe_port.py` and `/root/okc/.build/repeats/moe_base.py`.
+The A/B driver is `/root/okc/.build/box/moep_ab.sh`. It started at 18:43 PT and runs 4 rounds with orders port/base,
+base/port, port/base, base/port. Each run is `bx_box_run.py --runs 60 --lock gpu.lock`, and its output goes to
+`/root/okc/.build/box/moep/ab_{side}_{round}.{json,log}`. The driver log is `/root/okc/.build/box/moep/ab.out`.
+
+The round 1 port run, which included the cold builds, has check PASS at all 6 shapes. Net times in us:
+
+| Shape | port r1 |
+|---|---|
+| decode 1 | 23.66 |
+| decode 16 | 88.69 |
+| decode 32 | 119.41 |
+| verify 1 | 63.89 |
+| verify 16 | 172.88 |
+| verify 32 | 208.14 |
 
 ## Next
 
-rsync to okc-h200, run the check (box_bg.sh, which holds gpu.lock), then run a paired A/B of base against port with 3 or more runs each.
+Wait for the base and later rounds. Tabulate the per-load median of `median_net_ns` over the rounds for each side, then
+update this file.
