@@ -1069,7 +1069,7 @@
    "owner": "Final-day lead (Claude session)",
    "judged_arm": "ly_stk6 public repeat submission 0 (day3b)",
    "source_identity": "muse_decode_layer/cand/ly_stk6.py SHA256 b2530cad7e8a1d7bfd306d2dc584bc9310570de9f95d57f1a9b7de2d2bc73955 plus a trailing comment",
-   "release_state": "published-row",
+   "release_state": "published-not-row",
    "reason": "Batch 1 evening repeat submissions / candidate check.",
    "evidence": ".build/repeats/day3b/muse_decode_layer.jsonl",
    "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
@@ -1145,6 +1145,34 @@
    "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
    "release_review_required": false,
    "public_submission_occurred": false
+  },
+  {
+   "job": "908cc07e43364008",
+   "problem": "muse_decode_layer",
+   "score_us": 9922.866809214464,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "eat_b4 public repeat submission",
+   "source_identity": "muse_decode_layer/cand/eat_b4.py SHA256 1880297e7eaf4c7bb68711d0cca3cf38ca29ad08bdf05538577b8315e5b965d2 (EAT best_4) plus a trailing comment",
+   "release_state": "published-row",
+   "reason": "Evening public run of EAT iteration 2's best_4.",
+   "evidence": ".build/repeats/day3d/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
+  },
+  {
+   "job": "6b7069abad014fbb",
+   "problem": "muse_decode_layer",
+   "score_us": 10160.795906363657,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "eat_b4 public repeat submission",
+   "source_identity": "muse_decode_layer/cand/eat_b4.py SHA256 1880297e7eaf4c7bb68711d0cca3cf38ca29ad08bdf05538577b8315e5b965d2 (EAT best_4) plus a trailing comment",
+   "release_state": "published-not-row",
+   "reason": "Evening public run of EAT iteration 2's best_4.",
+   "evidence": ".build/repeats/day3d/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
   }
  ],
  "ineligible_source_family_checkpoint": {
@@ -1170,17 +1198,17 @@
   "terminal_receipt": "muse_decode_layer/cand/profiles/rv_k_combo2n.03e45b68e75d47fa.json"
  },
  "current_layer_reference": {
-  "observed_at": "2026-11-05T01:16:53+00:00",
-  "displayed_job": "5dbfa4b025274c1a",
+  "observed_at": "2026-11-05T03:07:23+00:00",
+  "displayed_job": "908cc07e43364008",
   "displayed_source_eligible": true,
-  "score_us": 10044.342241229682,
-  "source_sha256": "b2530cad7e8a1d7bfd306d2dc584bc9310570de9f95d57f1a9b7de2d2bc73955",
-  "source_binding": "muse_decode_layer/cand/ly_stk6.py plus a repeat comment",
+  "score_us": 9922.866809214464,
+  "source_sha256": "1880297e7eaf4c7bb68711d0cca3cf38ca29ad08bdf05538577b8315e5b965d2",
+  "source_binding": "muse_decode_layer/cand/eat_b4.py (EAT best_4) plus a repeat comment",
   "report": "docs/steering/2026-11-02-final-day-directive.md",
-  "closing_rank": null,
+  "closing_rank": 146,
   "previous": {
-   "job": "40ac6a2458454a6d",
-   "score_us": 10061.877173431702
+   "job": "5dbfa4b025274c1a",
+   "score_us": 10044.342241229682
   }
  },
  "known_clean_public_candidate": {
