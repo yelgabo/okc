@@ -20,7 +20,7 @@ The standalone kernel launches with no predecessor (no PDL attribute), so the ca
 analogue is `attn_one_kernel<1, 1>` (mode 1; decode 16: 16 splits x 16 = 256 CTAs, decode 32: 8 x 32 = 256 CTAs,
 `_ONE_TARGET` 264), the only mode-1 L = 1 build used by the scored shapes.
 
-## Step 2: candidate built (18:45 PST)
+## Step 2: candidate built (18:43 PST)
 
 - `tools/dl_attp_patch.py` (7 edits, each anchor exactly once, pinned to base aa3535d0): Instance<L, MODE> gains
   `LBYTES = (L == 1 && MODE == 1 && ONE_A16SM > BYTES) ? ONE_A16SM : BYTES` (ONE_A16SM 81920) and uses it in the
@@ -29,7 +29,14 @@ analogue is `attn_one_kernel<1, 1>` (mode 1; decode 16: 16 splits x 16 = 256 CTA
 - `tools/attp_tests.py`: the 16 TASK.md tests plus the residency table (per_sm) for one file, GPU lock in-process.
 - Box: /root/okc/muse_attention_decode/cand/attn_port.py (sha matches), logs in /root/okc/.build/box/attp/.
 
+## Step 3: box run in progress (started 18:48 PST)
+
+First attempt failed: the venv's ninja is not on PATH when /root/venv/bin/python is called directly, so every
+extension was "unavailable"; those runs were killed and their logs deleted. `/root/okc/.build/box/attp/run.sh`
+(PATH=/root/venv/bin first) runs the 16 tests on port then base, then 4 rounds of bx_box_run (base, port
+alternating, --runs 60, --lock), JSONs ab_<side>_<r>.json, progress in ab.progress.
+
 ## Next
 
-16 tests on port and base (tests_port.log, tests_base.log), check per_sm of L=1 mode=1 in both; then paired A/B,
-alternating bx_box_run on base and port, 3+ runs each, --lock /root/okc/.build/box/gpu.lock.
+Read tests_*.log (16/16 PASS each, LIMIT L=1 mode=1 per_sm), then `python3 tools/attp_ab_table.py
+/root/okc/.build/box/attp` after ALLDONE.
