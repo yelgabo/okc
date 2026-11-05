@@ -1,6 +1,6 @@
 # bf16-port lane checkpoint
 
-Updated 2026-11-04 18:43 PST. Branch worktree-agent-a2d69d5fe5d6ab73d.
+Updated 2026-11-04 18:53 PST. Branch worktree-agent-a2d69d5fe5d6ab73d.
 
 ## Base and source
 
@@ -23,8 +23,14 @@ Updated 2026-11-04 18:43 PST. Branch worktree-agent-a2d69d5fe5d6ab73d.
 
 ## Box
 
-- okc-h200, files in /root/okc/.build/bfport/. Runs queued 18:43 under gpu.lock: bfp_base1, bfp_all1, bfp_alls1 (logs /root/okc/.build/box/<tag>.log).
+- okc-h200, files in /root/okc/.build/bfport/, runner /root/okc/.build/box/bfp/ab.sh (bx_box_run.py --runs 60 --lock gpu.lock), results /root/okc/.build/box/bfp/r<N>_<side>.json, compare with /root/okc/.build/box/bfp/cmp.py.
+- Round 1 (one run each, all cells check PASS): untouched m 128/256 cells moved by up to 0.8 us between runs, so one run only flags large effects. Port minus base, us:
+  - qkv narrow: m 1 -0.16, m 8 -0.64. The wide sk2 geometry at qkv m 1 / 8 is +1.44 / +0.08, so the narrow build is the part that carries.
+  - Large losses on sk2: router m 1 +1.63, unpooler m 1 +1.39, qkv m 16 +1.06, pooler m 16 +0.82, unpooler m 32 +0.83, o m 8 +0.72, pooler m 8 +0.74, router m 8 +0.86. Dropped.
+  - Within noise, kept for the repeat: o m 32 -0.19, qkv m 32 -0.16, router m 16 -0.14, unpooler m 16 -0.14 (the alls run gave -0.03, +0.03, +0.27, +0.21).
+- New candidates: `muse_bf16_proj/cand/bf16_port_q.py` (qkv m 1 and 8 narrow only), SHA256 a8282b3e538cd021c9fd0d5f7eb49230e5ae2a920755bd410a58fec37fd0a106; `muse_bf16_proj/cand/bf16_port_qp.py` (plus o 32, qkv 32, router 16, unpooler 16 on sk2), SHA256 ebc16e6f87a75ca69845800c65b869baec37149dc399fd4ed9a2433e85744e58.
+- Rounds 2 to 4 queued 18:52 (orders base,q,qp / qp,q,base / base,q,qp).
 
 ## Next
 
-Read per-shape medians, pick per-shape winners, build `muse_bf16_proj/cand/bf16_port.py` with the winners only, then three alternating A/B rounds against base.
+Compare rounds 1 to 4 per shape (base vs q vs qp), pick the final file, copy it to `muse_bf16_proj/cand/bf16_port.py`, report.
