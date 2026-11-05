@@ -40,7 +40,31 @@ Tests (tools/attp_tests.py, seeds 1000+i): attn_port.py 16/16 PASS, attention_ba
 attn_one_kernel<1, 1>: base per_sm 3 (resident 396), port per_sm 2 (resident 264), so the edit is live in the
 standalone launch too. Mode 1 ran in 3 of the 16 tests (plan (32, 1, 1)).
 
+## Step 4: paired A/B (box 02:54-03:05 UTC, 4 rounds, base then port each round, --runs 60, every check PASS)
+
+Net us, median of 4 runs (tools/attp_ab_table.py /root/okc/.build/box/attp):
+
+| cell | base | base range | port | port range | port - base |
+|---|---:|---|---:|---|---:|
+| decode 1 sliding | 4.67 | 4.58-5.06 | 4.82 | 4.54-4.90 | +0.14 |
+| decode 1 full | 11.79 | 11.68-11.87 | 11.76 | 11.49-12.22 | -0.03 |
+| decode 16 sliding | 8.10 | 7.86-8.14 | 8.02 | 7.68-8.14 | -0.08 |
+| decode 16 full | 87.17 | 86.77-87.47 | 87.24 | 87.10-87.46 | +0.07 |
+| decode 32 sliding | 10.34 | 10.21-10.50 | 10.34 | 10.19-10.56 | -0.01 |
+| decode 32 full | 167.32 | 166.80-167.70 | 167.49 | 167.26-167.79 | +0.17 |
+| verify 1 sliding | 6.67 | 6.40-6.88 | 7.07 | 6.66-7.17 | +0.40 |
+| verify 1 full | 14.52 | 14.46-15.09 | 14.86 | 14.56-14.94 | +0.34 |
+| verify 16 sliding | 11.41 | 11.36-11.92 | 11.80 | 11.31-12.11 | +0.39 |
+| verify 16 full | 100.54 | 99.92-100.56 | 100.70 | 100.11-100.98 | +0.16 |
+| verify 32 sliding | 15.05 | 14.91-15.57 | 15.54 | 15.04-15.65 | +0.50 |
+| verify 32 full | 182.72 | 182.66-183.38 | 182.53 | 182.45-182.66 | -0.19 |
+
+Only decode 16 / 32 sliding run the edited instance (L = 1, mode 1). Their change is -0.08 and -0.01 us, inside
+the run ranges. The verify cells (L = 8 modes, byte-identical code paths) moved +0.3 to +0.5 us, so the A/B's
+shared drift is larger than the target effect. Verdict: no measurable standalone gain; not a submission
+candidate. The layer's 1.19 us came from PDL early-launch crowding, which the standalone launch lacks, even
+though the standalone base also packs 3 CTAs per SM (per_sm 3 -> 2 confirmed).
+
 ## Next
 
-After ALLDONE in /root/okc/.build/box/attp/ab.progress: `python3 tools/attp_ab_table.py /root/okc/.build/box/attp`
-on the box; decide on decode 16 / 32 sliding (the only cells the edit touches; the other 10 are controls).
+None for this port. Closed; add a ruled-out row if the lead agrees.
