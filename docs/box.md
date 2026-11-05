@@ -106,6 +106,59 @@ search picked for the layer), `--out` writes all runs as JSON (box_bg.sh sets
 PDL8_STRESS, PDL8D lines) because they are the file's own code; prepare of layer_base.py takes
 120 s cold and 14 s with warm caches.
 
+## Parity on okc-h200b, 2026-11-04
+
+Same driver as the original pod (595.91.07, CUDA 13.2), same nvcc 13.0.88, torch 2.14.1+cu130,
+triton 3.8.0, cuBLASLt 13.1.1.3 and SGLang a55ab7d5 stack. The pod's cgroup allows 13.6 CPUs
+(`cpu.max` 1360000/100000) although `nproc` prints 128, so cold builds are slower than on the original
+pod: the first ly_stk6 run with an empty `/root/.cache/bx_ext`, compiling at the same time as an EAT
+eval, spent 354 s in builds and died with `G startup self-test exceeded prepare budget` (295 s).
+Its rerun on warm caches prepared in 10.5 s. A lane that brings a new extension source can hit the
+same budget if several cold builds overlap.
+
+EAT eval of the start file ly_mpdl (`eat_best.py` sha256 a0ee638cf534..., tag
+eval_a0ee638cf534_1793840782, 30 runs, all 12 cells, router seed 106218864389449120): **SCORE
+2.32968**, every cell check PASS, `G1b4 backend native repaired`, no "native build failed", no
+Marlin. On the original pod the same file scored 2.3578 / 2.3531 / 2.3559. Per cell, net us on the
+new pod against the median of the original pod's three runs (eval logs 1793833407, ...3506, ...3624
+in okc-eat `.work/eval/`):
+
+| cell | new net | old net | new/old | SGLang new | SGLang old |
+|---|---:|---:|---:|---:|---:|
+| decode 1 sliding | 63.71 | 63.55 | 1.003 | 185.92 | 189.54 |
+| decode 1 full | 74.66 | 75.09 | 0.994 | 200.24 | 201.41 |
+| decode 16 sliding | 127.22 | 125.97 | 1.010 | 283.26 | 286.30 |
+| decode 16 full | 202.82 | 197.95 | 1.025 | 449.41 | 452.45 |
+| decode 32 sliding | 142.05 | 141.23 | 1.006 | 273.81 | 275.65 |
+| decode 32 full | 298.83 | 292.00 | 1.023 | 630.86 | 634.93 |
+| verify 1 sliding | 100.03 | 100.24 | 0.998 | 273.23 | 275.28 |
+| verify 1 full | 112.58 | 111.62 | 1.009 | 296.96 | 297.38 |
+| verify 16 sliding | 244.14 | 243.87 | 1.001 | 545.78 | 548.86 |
+| verify 16 full | 329.25 | 322.94 | 1.020 | 703.36 | 707.36 |
+| verify 32 sliding | 296.22 | 294.50 | 1.006 | 690.35 | 696.86 |
+| verify 32 full | 464.43 | 456.26 | 1.018 | 1034.22 | 1041.60 |
+
+The short cells agree within 1%; the four large full-attention cells are 1.8 to 2.5% slower and
+SGLang is 0.1 to 1.9% faster, which together give the 1.1% lower score. This eval's timed phase
+overlapped the failed ly_stk6 run's cold compiles (13.6 CPUs saturated by `cc1plus`), so part of
+the gap may be host CPU load (hypothesis; one run, not separated). Treat 2.33 as this pod's
+reference for ly_mpdl until a quiet rerun says otherwise, and compare A/B arms only within this pod.
+
+ly_stk6.py (main 0faf0b62), `tools/bx_box_run.py --baseline --loads "decode 1,verify 1" --runs 60
+--pin-pdl8 1,16,32 --skip-pdl8-gate`, router seed 106218864389449120, log
+`/root/okc/.build/box/rebox_stk6.log`, JSON `rebox_stk6.json`; every cell check PASS with the native
+MoE build:
+
+| cell | net | overhead | SGLang raw | paired | shown |
+|---|---:|---:|---:|---:|---:|
+| decode 1 sliding | 65.36 | 3.68 | 185.90 | 2.758 | 66.06 |
+| decode 1 full | 71.06 | 3.97 | 196.50 | 2.693 | 71.49 |
+| verify 1 sliding | 110.30 | 4.13 | 273.28 | 2.413 | 111.55 |
+| verify 1 full | 119.57 | 3.86 | 288.21 | 2.361 | 120.44 |
+
+The runner's judge column for this run is the f931 profile of g1b4_pdl8d, a different file, so its
+box/judge ratios (0.926, 0.889, 1.038, 1.003) are not a same-bytes parity.
+
 ## Parity, 2026-11-03
 
 Net time is median raw replay minus the fixed replay cost, in us. Judge numbers are medians over the
