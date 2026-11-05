@@ -34,3 +34,10 @@ Updated 2026-11-04 18:53 PST. Branch worktree-agent-a2d69d5fe5d6ab73d.
 ## Next
 
 Compare rounds 1 to 4 per shape (base vs q vs qp), pick the final file, copy it to `muse_bf16_proj/cand/bf16_port.py`, report.
+
+## Checkpoint 3 (18:55 PST): round 2 in
+
+Round 2 (base, q, qp; one run each, 0 check FAIL in all three logs). Port minus base, us, base median over r1+r2:
+qkv m1 q +0.38 / qp +0.10; verify 1 qkv (m8) q -0.29 / qp +0.03; router m1 +0.58 / +0.26; decode 32 qkv -0.63 / +0.55.
+Cells the q file does not touch moved by up to +-0.8 us, so one round decides nothing. Rounds 3 and 4 are running.
+Next action: cmp.py over r1_base + r2..r4, pick keys, build muse_bf16_proj/cand/bf16_port.py.
