@@ -421,3 +421,4 @@ MoE factorized-output7479372115c64702 is terminal and archived at1454ac73: offic
 - 18:52 PT: eat_b4 check 4 = 9,978.2 us (first judged result under 10,000); eat_b4 four checks mean 10,052.8 vs ly_stk7c ten results mean 10,084.6. 3 public runs of eat_b4 (1880297e) started now (.build/repeats/day3d); 3 held for EAT's final file.
 - 19:02 PT: moe-port (budget stop) built muse_moe_w4a16/cand/moe_port.py (5542c8a8, 325 KB): doneA leader release, B4/MAIN MFIN, RFIN on MAIN, ly_micro2 ftz/pack/scl; round 1 box: d16 -1.53, d32 -1.42, v16 -2.64, v32 -0.85 us, d1/v1 noise; check PASS 6/6; rounds 2-4 on the box until about 20:00 (/root/okc/.build/box/moep/). Two MoE-board checks dispatched (.build/checks/moe_port.txt).
 - 19:04 PT: bf16-port closed, no gain (picks do not transfer to the standalone shapes); ruled-out row added; no BF16 checks or runs spent.
+- 19:06 PT: attention-port closed, no standalone gain; ruled-out row. Only moe-port remains for the standalone boards.
