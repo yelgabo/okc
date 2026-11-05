@@ -1005,6 +1005,48 @@
    "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
    "release_review_required": false,
    "public_submission_occurred": false
+  },
+  {
+   "job": "40ac6a2458454a6d",
+   "problem": "muse_decode_layer",
+   "score_us": 10061.877173431702,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_mpdl public repeat draw 1 (day3), base a0ee638c plus a trailing comment",
+   "source_identity": "muse_decode_layer/cand/ly_mpdl.py SHA256 a0ee638cf5342235a879054ac68da02e63d6f5e88f4834db6081e09937858a68 plus a trailing comment",
+   "release_state": "published-row",
+   "reason": "Below the earlier public row (10,146.4 us).",
+   "evidence": ".build/repeats/day3/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
+  },
+  {
+   "job": "4444d8640a504738",
+   "problem": "muse_decode_layer",
+   "score_us": 10127.942464723208,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_mpdl public repeat draw 0 (day3), base a0ee638c plus a trailing comment",
+   "source_identity": "muse_decode_layer/cand/ly_mpdl.py SHA256 a0ee638cf5342235a879054ac68da02e63d6f5e88f4834db6081e09937858a68 plus a trailing comment",
+   "release_state": "published-not-row",
+   "reason": "Below the earlier public row (10,146.4 us).",
+   "evidence": ".build/repeats/day3/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
+  },
+  {
+   "job": "3c98bfe866524d61",
+   "problem": "muse_decode_layer",
+   "score_us": 10059.15562090955,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_stk6 check: ly_wsrel1_sc + MAIN-build MFIN (EAT best_1's change)",
+   "source_identity": "muse_decode_layer/cand/ly_stk6.py SHA256 b2530cad7e8a1d7bfd306d2dc584bc9310570de9f95d57f1a9b7de2d2bc73955",
+   "release_state": "draw-base",
+   "reason": "Below the earlier public row (10,146.4 us).",
+   "evidence": "okc status 3c98bfe866524d61",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": false
   }
  ],
  "ineligible_source_family_checkpoint": {
@@ -1030,17 +1072,17 @@
   "terminal_receipt": "muse_decode_layer/cand/profiles/rv_k_combo2n.03e45b68e75d47fa.json"
  },
  "current_layer_reference": {
-  "observed_at": "2026-11-04T17:20:00+00:00",
-  "displayed_job": "caed0290397b44a7",
+  "observed_at": "2026-11-05T00:20:57+00:00",
+  "displayed_job": "40ac6a2458454a6d",
   "displayed_source_eligible": true,
-  "score_us": 10146.409630196673,
-  "source_sha256": "60ef465d47ff76cd83e236fc8d4768bc18eda7b77e2353e32f2c36491b704fda",
-  "source_binding": "muse_decode_layer/cand/ly_rfx.py, slack-free (ly_fabq + ly_rfin finisher + ly_xca slice x loads)",
+  "score_us": 10061.877173431702,
+  "source_sha256": "a0ee638cf5342235a879054ac68da02e63d6f5e88f4834db6081e09937858a68",
+  "source_binding": "muse_decode_layer/cand/ly_mpdl.py plus a repeat-draw comment",
   "report": "docs/steering/2026-11-02-final-day-directive.md",
-  "closing_rank": 308,
+  "closing_rank": null,
   "previous": {
-   "job": "117605d07c944666",
-   "score_us": 10333.381525094357
+   "job": "caed0290397b44a7",
+   "score_us": 10146.409630196673
   }
  },
  "known_clean_public_candidate": {
