@@ -60,18 +60,40 @@ The A/B driver is `/root/okc/.build/box/moep_ab.sh`. It started at 18:43 PT and 
 base/port, port/base, base/port. Each run is `bx_box_run.py --runs 60 --lock gpu.lock`, and its output goes to
 `/root/okc/.build/box/moep/ab_{side}_{round}.{json,log}`. The driver log is `/root/okc/.build/box/moep/ab.out`.
 
-The round 1 port run, which included the cold builds, has check PASS at all 6 shapes. Net times in us:
+Round 1 is complete, and both sides have check PASS at all 6 shapes. Each run spends 457 to 580 s in import and
+prepare, which is the native build, so every run takes about 9 to 10 minutes. Rounds 2 to 4 should end
+around 20:00 PT. Net times in us from round 1 (one pair, port run first):
 
-| Shape | port r1 |
-|---|---|
-| decode 1 | 23.66 |
-| decode 16 | 88.69 |
-| decode 32 | 119.41 |
-| verify 1 | 63.89 |
-| verify 16 | 172.88 |
-| verify 32 | 208.14 |
+| Shape | base r1 | port r1 | port - base |
+|---|---|---|---|
+| decode 1 | 23.54 | 23.66 | +0.12 |
+| decode 16 | 90.22 | 88.69 | -1.53 |
+| decode 32 | 120.83 | 119.41 | -1.42 |
+| verify 1 | 64.03 | 63.89 | -0.14 |
+| verify 16 | 175.52 | 172.88 | -2.64 |
+| verify 32 | 208.99 | 208.14 | -0.85 |
+
+This is a single pair, so it is not a verdict yet. The changes at decode 32 (MFIN on b4) and at verify 16 and 32
+(RFIN and MFIN on main) point the expected way. The decode 16 gain is unexpected: the mid build only gets the
+helper changes (scl, wspack, ftz, doneA). Both decode 1 and verify 1 are within noise.
 
 ## Next
 
-Wait for the base and later rounds. Tabulate the per-load median of `median_net_ns` over the rounds for each side, then
-update this file.
+The lane stopped at 19:02 PT because it reached its tool-call budget. The A/B driver keeps running on the box. To
+tabulate it once `=== done` appears in ab.out, run:
+
+```
+ssh okc-h200 'cd /root/okc/.build/box/moep && python3 -c "
+import json,glob,statistics as S
+d={}
+for f in sorted(glob.glob(\"ab_*_*.json\")):
+    side=f.split(\"_\")[1]
+    for r in json.load(open(f))[\"rows\"]:
+        d.setdefault(r[\"load\"],{}).setdefault(side,[]).append(r[\"median_net_ns\"]/1e3)
+for l,v in d.items():
+    b,p=S.median(v[\"base\"]),S.median(v[\"port\"]); print(l,len(v[\"base\"]),len(v[\"port\"]),round(b,2),round(p,2),round(p-b,2))
+"'
+```
+
+If the port wins at verify 16 and 32 and decode 32, and loses nowhere outside noise, it becomes the standalone
+candidate. Before any judge check, a ledger registration line is required.
