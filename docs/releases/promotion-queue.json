@@ -1013,7 +1013,7 @@
    "owner": "Final-day lead (Claude session)",
    "judged_arm": "ly_mpdl public repeat draw 1 (day3), base a0ee638c plus a trailing comment",
    "source_identity": "muse_decode_layer/cand/ly_mpdl.py SHA256 a0ee638cf5342235a879054ac68da02e63d6f5e88f4834db6081e09937858a68 plus a trailing comment",
-   "release_state": "published-row",
+   "release_state": "published-not-row",
    "reason": "Below the earlier public row (10,146.4 us).",
    "evidence": ".build/repeats/day3/muse_decode_layer.jsonl",
    "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
@@ -1047,6 +1047,104 @@
    "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
    "release_review_required": false,
    "public_submission_occurred": false
+  },
+  {
+   "job": "60b7ad0dd7b94651",
+   "problem": "muse_decode_layer",
+   "score_us": 10144.054981049863,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_mpdl public repeat submission 2",
+   "source_identity": "muse_decode_layer/cand/ly_mpdl.py SHA256 a0ee638cf5342235a879054ac68da02e63d6f5e88f4834db6081e09937858a68 plus a trailing comment",
+   "release_state": "published-not-row",
+   "reason": "Batch 1 evening repeat submissions / candidate check.",
+   "evidence": ".build/repeats/day3b/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
+  },
+  {
+   "job": "5dbfa4b025274c1a",
+   "problem": "muse_decode_layer",
+   "score_us": 10044.342241229682,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_stk6 public repeat submission 0 (day3b)",
+   "source_identity": "muse_decode_layer/cand/ly_stk6.py SHA256 b2530cad7e8a1d7bfd306d2dc584bc9310570de9f95d57f1a9b7de2d2bc73955 plus a trailing comment",
+   "release_state": "published-row",
+   "reason": "Batch 1 evening repeat submissions / candidate check.",
+   "evidence": ".build/repeats/day3b/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
+  },
+  {
+   "job": "c89b3cc66b85462d",
+   "problem": "muse_decode_layer",
+   "score_us": 10103.963159753303,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_stk6 public repeat submission 1",
+   "source_identity": "muse_decode_layer/cand/ly_stk6.py SHA256 b2530cad7e8a1d7bfd306d2dc584bc9310570de9f95d57f1a9b7de2d2bc73955 plus a trailing comment",
+   "release_state": "published-not-row",
+   "reason": "Batch 1 evening repeat submissions / candidate check.",
+   "evidence": ".build/repeats/day3b/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
+  },
+  {
+   "job": "b3ca5f98e0464b8e",
+   "problem": "muse_decode_layer",
+   "score_us": 10047.396674579708,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_stk6 public repeat submission 2",
+   "source_identity": "muse_decode_layer/cand/ly_stk6.py SHA256 b2530cad7e8a1d7bfd306d2dc584bc9310570de9f95d57f1a9b7de2d2bc73955 plus a trailing comment",
+   "release_state": "published-not-row",
+   "reason": "Batch 1 evening repeat submissions / candidate check.",
+   "evidence": ".build/repeats/day3b/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
+  },
+  {
+   "job": "84d326af95f74be6",
+   "problem": "muse_decode_layer",
+   "score_us": 10060.478503249416,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_stk6 public repeat submission 3",
+   "source_identity": "muse_decode_layer/cand/ly_stk6.py SHA256 b2530cad7e8a1d7bfd306d2dc584bc9310570de9f95d57f1a9b7de2d2bc73955 plus a trailing comment",
+   "release_state": "published-not-row",
+   "reason": "Batch 1 evening repeat submissions / candidate check.",
+   "evidence": ".build/repeats/day3b/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
+  },
+  {
+   "job": "30c1bd95b2a44095",
+   "problem": "muse_decode_layer",
+   "score_us": 10166.454110796356,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_stk6 public repeat submission 4",
+   "source_identity": "muse_decode_layer/cand/ly_stk6.py SHA256 b2530cad7e8a1d7bfd306d2dc584bc9310570de9f95d57f1a9b7de2d2bc73955 plus a trailing comment",
+   "release_state": "published-above-old-row",
+   "reason": "Batch 1 evening repeat submissions / candidate check.",
+   "evidence": ".build/repeats/day3b/muse_decode_layer.jsonl",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": true
+  },
+  {
+   "job": "c3ad04cddc254d97",
+   "problem": "muse_decode_layer",
+   "score_us": 10116.110086691993,
+   "owner": "Final-day lead (Claude session)",
+   "judged_arm": "ly_stk7c check (ly_stk6 + bfq, comment-stripped)",
+   "source_identity": "muse_decode_layer/cand/ly_stk7c.py SHA256 920587d5",
+   "release_state": "candidate",
+   "reason": "Batch 1 evening repeat submissions / candidate check.",
+   "evidence": "okc status c3ad04cddc254d97",
+   "disclosure_report": "docs/steering/2026-11-04-top100-push.md",
+   "release_review_required": false,
+   "public_submission_occurred": false
   }
  ],
  "ineligible_source_family_checkpoint": {
@@ -1072,17 +1170,17 @@
   "terminal_receipt": "muse_decode_layer/cand/profiles/rv_k_combo2n.03e45b68e75d47fa.json"
  },
  "current_layer_reference": {
-  "observed_at": "2026-11-05T00:20:57+00:00",
-  "displayed_job": "40ac6a2458454a6d",
+  "observed_at": "2026-11-05T01:16:53+00:00",
+  "displayed_job": "5dbfa4b025274c1a",
   "displayed_source_eligible": true,
-  "score_us": 10061.877173431702,
-  "source_sha256": "a0ee638cf5342235a879054ac68da02e63d6f5e88f4834db6081e09937858a68",
-  "source_binding": "muse_decode_layer/cand/ly_mpdl.py plus a repeat-draw comment",
+  "score_us": 10044.342241229682,
+  "source_sha256": "b2530cad7e8a1d7bfd306d2dc584bc9310570de9f95d57f1a9b7de2d2bc73955",
+  "source_binding": "muse_decode_layer/cand/ly_stk6.py plus a repeat comment",
   "report": "docs/steering/2026-11-02-final-day-directive.md",
   "closing_rank": null,
   "previous": {
-   "job": "caed0290397b44a7",
-   "score_us": 10146.409630196673
+   "job": "40ac6a2458454a6d",
+   "score_us": 10061.877173431702
   }
  },
  "known_clean_public_candidate": {
