@@ -20,7 +20,16 @@ The standalone kernel launches with no predecessor (no PDL attribute), so the ca
 analogue is `attn_one_kernel<1, 1>` (mode 1; decode 16: 16 splits x 16 = 256 CTAs, decode 32: 8 x 32 = 256 CTAs,
 `_ONE_TARGET` 264), the only mode-1 L = 1 build used by the scored shapes.
 
+## Step 2: candidate built (18:45 PST)
+
+- `tools/dl_attp_patch.py` (7 edits, each anchor exactly once, pinned to base aa3535d0): Instance<L, MODE> gains
+  `LBYTES = (L == 1 && MODE == 1 && ONE_A16SM > BYTES) ? ONE_A16SM : BYTES` (ONE_A16SM 81920) and uses it in the
+  smem attribute, the occupancy query and both launch paths. Mode 1 is not cooperative, so the plan is unchanged.
+- `muse_attention_decode/cand/attn_port.py`: 292,648 bytes, SHA256 341c0bd976fb4e040e5d0aa6340eef290c23bc86db7e10193de4959ae7f77334.
+- `tools/attp_tests.py`: the 16 TASK.md tests plus the residency table (per_sm) for one file, GPU lock in-process.
+- Box: /root/okc/muse_attention_decode/cand/attn_port.py (sha matches), logs in /root/okc/.build/box/attp/.
+
 ## Next
 
-Build muse_attention_decode/cand/attn_port.py with tools/dl_attp_patch.py (Instance<1,1> launch bytes 81,920),
-print per_sm for both files on the box, run the 16 tests, then paired A/B against attention_base.py.
+16 tests on port and base (tests_port.log, tests_base.log), check per_sm of L=1 mode=1 in both; then paired A/B,
+alternating bx_box_run on base and port, 3+ runs each, --lock /root/okc/.build/box/gpu.lock.
