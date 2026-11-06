@@ -764,7 +764,15 @@ work bought is the same speed with written arguments for ordering and progress o
 every dependent-launch edge and on the completion counters, which the donor
 shipped without. The argument for the last edge, EAT's entry trigger, was finished
 only after the close, and the guards that run in preparation cannot catch an
-ordering error on their own.
+ordering error on their own. The donor as published (upstream commit
+\texttt{8e30e1be}~\cite{keell}) does contain hazards of the kind the audit looked
+for. Its counters' readiness poll gives up after four million iterations and then
+reads unreduced data. At $T=1$, programs in its deferred route kernel read the o
+projection's output before that kernel's dependency wait. Its expert kernel's
+phase-A hand-off fences in each lane before the warp relay, which the PTX memory
+model does not guarantee publishes the other lanes' stores. The audit removed the
+first two and a later change of ours the third. The donor passed every
+correctness test, and we never saw any of these produce a wrong output.
 Whether those arguments are worth the time is a fair question for anyone running a
 short competition.
 
