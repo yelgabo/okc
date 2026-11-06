@@ -23,7 +23,7 @@
 
 \sisetup{group-separator={,},group-minimum-digits=4}
 
-\title{Running an Agent Team on a Mixture-of-Experts Decode Kernel:\\
+\title{Running an Agent Team on a Mixture-of-Experts Decode Layer:\\
 An Experience Report from the Open Kernel Challenge}
 \author{Yelnil Gabo}
 \date{November 5, 2026}
@@ -39,13 +39,13 @@ person ran a team of LLM coding agents on this problem. Our own kernels reached
 2.043$\times$ SGLang. We then forked the best public layer file, which measured
 2.249$\times$ on our account. Our safety audit of the fork switched off several
 features whose ordering or progress we could not justify, and the audited fork
-scored 2.053$\times$. The first public fork, with one change of ours, scored
-2.126$\times$, and three more days brought the final file to a mean of
-2.250$\times$ over nine judged runs. Single-run steps attribute roughly half of
-those three days' gain to writing correctness arguments for disabled features and
-switching them back on: programmatic dependent launch across kernel boundaries and
-per-expert completion counters in place of a grid barrier. Only the first of those
-steps is clearly larger than the judge's run-to-run noise. The best run,
+scored 2.053$\times$. The first public fork, with one change of ours, averaged
+2.112$\times$, and three more days brought the final file to a mean of
+2.250$\times$ over nine judged runs. Averaged over every judged run of each file,
+about 59\% of those three days' gain came from writing ordering arguments for
+programmatic dependent launch, which the audit had disabled, and switching it back
+on edge by edge. Per-expert completion counters in place of a grid barrier, re-enabled the
+same way, helped on our own machine but stayed within the judge's noise. The best run,
 2.280$\times$, ranked 153rd on the layer board late on the last day. We
 describe the layer and its timing rules, what we inherited and what we changed,
 the variants that lost, an organizer disqualification of a routing optimization
@@ -79,7 +79,8 @@ publishing, for three reasons:
   \item It gives a concrete case of a synchronization lesson. A grid-wide barrier
   in the routed-expert kernel could be replaced by per-expert completion
   counters once someone re-read the disabled code instead of treating it as
-  settled. One hang risk stays recorded against the replacement.
+  settled. Its gain was clear on our own machine and within noise on the judge, and
+  one hang risk stays recorded against it.
   \item It records how an agent team failed: stale clocks, shared checkouts,
   a measurement flag that changed the thing measured, and a routing
   optimization that passed every numerical check and was then disqualified.
@@ -92,7 +93,8 @@ layer with FlashAttention-3~\cite{fa3} for attention, Marlin~\cite{marlin} for
 the 4-bit-weight expert GEMMs and cuBLAS for the dense projections. Our expert
 kernel assigns work with a stream-K decomposition~\cite{streamk}.
 MegaBlocks~\cite{megablocks} and DeepGEMM~\cite{deepgemm} are public examples of
-grouped GEMM kernels for MoE layers, the second written for Hopper GPUs. The synchronization arguments in
+grouped GEMM kernels for MoE layers, the second written for Hopper GPUs; vLLM~\cite{vllmmoe}
+and TensorRT-LLM~\cite{trtllm} ship fused MoE kernels for serving. The synchronization arguments in
 Section~\ref{sec:opt} rest on the PTX memory consistency model~\cite{ptx} and on
 CUDA's programmatic dependent launch~\cite{cudaguide}.
 
@@ -105,6 +107,14 @@ for days as a team with shared state. The public entries we built on
 last day, are the closest prior work we know of. The keell0renz entry comes
 with notes on about 460 experiments; none of them is a paper.
 
+The routing-slack episode in Section~\ref{sec:negative} is a case of specification
+gaming: meeting the letter of an objective while missing its purpose~\cite{specgaming}.
+Kernel generation has met the same problem from the evaluator's side. Sakana AI
+built a new benchmark, robust-kbench, because existing kernel benchmarks ``suffer
+from exploitable loopholes and insufficient diversity in testing
+conditions''~\cite{sakana}. In our case the evaluation was sound and the
+optimization was ours.
+
 \section{The benchmark}
 \label{sec:benchmark}
 
@@ -115,7 +125,7 @@ parallelism and 8-way expert parallelism, with all-reduces treated as the
 identity~\cite{task}. A step processes $T$ tokens. With $x$ the attention input
 ($T\times8192$, BF16) and $s$ the FP32 residual stream:
 \begin{align*}
-q,k,v,z &= \mathrm{split}(x W_{qkvg}^\top);\ \text{QK-norm, RoPE (sliding layers only), write } \mathrm{fp8}(k), \mathrm{fp8}(v)\\
+q,k,v,z &= \mathrm{split}(x W_{qkvz}^\top);\ \text{QK-norm, RoPE (sliding layers only), write } \mathrm{fp8}(k), \mathrm{fp8}(v)\\
 a &= \bigl(\mathrm{rmsnorm}(\mathrm{attn}(q)) \odot \sigma(z)\bigr) W_o^\top\\
 s &\leftarrow \alpha_1 s + \beta_1\,\mathrm{rmsnorm}(a),\qquad h = \mathrm{rmsnorm}(s)\odot(1+w_1)\\
 E &= \mathrm{top8}\bigl(\sigma(0.177\, h W_r^\top) + b\bigr)\\
@@ -132,7 +142,7 @@ the sum of those scores over $E$. Up to $T=8$ this GPU computes only its eighth 
 the unpooler's output columns. The kernel returns $\mathrm{rmsnorm}(s)\odot(1+w_5)$,
 the new $s$ and the chosen experts.
 
-This GPU holds 16 query heads and 2 KV heads of dimension 64, so $W_{qkvg}$ is
+This GPU holds 16 query heads and 2 KV heads of dimension 64, so $W_{qkvz}$ is
 $2304\times8192$ and $W_o$ is $8192\times1024$. The router scores 256 experts in
 FP32, and this GPU owns 32 of them. A pooler projects to width 4096 before the
 experts and an unpooler projects back. Each expert is a SwiGLU block at width
@@ -214,7 +224,8 @@ the box ran the short loads 9--18\% faster than the judge, mostly inside the
 expert kernel. The cause was our box harness: it gave every fresh input the same
 choice of which experts count as local, while the judge draws that per input.
 With the harness fixed, box times at decode 1 and verify 1 rose by 11 to 22\%,
-which covers the gap. The box's driver is also newer than the judge's.
+which closes most of the gap; decode 1 full stayed about 4\% faster on the box.
+The box's driver is also newer than the judge's.
 
 \begin{table}[t]
 \centering
@@ -239,7 +250,9 @@ SGLang & \texttt{a55ab7d5} & \texttt{a55ab7d5}\\
 
 \subsection{Where the baseline spends its time}
 
-Profiles of the SGLang baseline show three regimes. At decode 1 on a sliding
+A profile of the SGLang baseline, from a separate run of it (job
+\texttt{7d42771c}), shows three regimes; its cell times differ slightly from
+Table~\ref{tab:cells}. At decode 1 on a sliding
 layer (\SI{170.0}{\micro\second}), no single kernel dominates. The Marlin expert
 GEMMs take \SI{40.8}{\micro\second} (23\%) and a split-K cuBLAS projection
 \SI{31.4}{\micro\second} (18\%); the rest is a long chain of small launches. At
@@ -271,8 +284,52 @@ private runs and \texttt{okc submit} for public ones. The quota started at 10
 public runs and 20 checks per problem per day and later rose to 20 and 40. On the
 last day the judge's backlog stood between 381 and 619 queued jobs. From 3 November we
 rented the box on RunPod at \$5.29 per hour for paired A/B timing against our own
-public file. Because of its offset from the judge, we used it only to rank two
-files against each other, never to predict a judge number.
+public file. Because the box and the judge still differed, we used the box only to
+rank two files against each other, never to predict a judge number.
+
+\subsection{Who did what}
+
+On the author's Mac, 5 lead Claude Code sessions and 143 worker and subagent
+sessions worked in the repository before the close, along with 20 EAT sessions
+and 75 Codex sessions. Sessions on other machines were not counted, and apart from
+EAT's \$131.94 we did not total the agents' cost or the author's hours. The agents
+wrote nearly all code, ran every measurement and wrote the written arguments
+behind each re-enabled feature. About 445 ruled-out entries stand against the 26
+eligible milestone results in Table~\ref{tab:timeline}.
+
+The decisions that shaped the result were mostly the author's
+(Table~\ref{tab:decisions}). Two of the three changes that mattered most after the
+fork started outside the agents: the fork itself, and the completion counters,
+which came from a write-up the author relayed. The hand-off fence fix came from a
+read-only review by a separate agent that the author relayed. Re-enabling PDL edge
+by edge was the agents' own work. So was the cause of the box's offset, which an
+expert-kernel lane found. The rule that kept the counters out of view for three
+days was the author's.
+
+\begin{table}[t]
+\centering
+\caption{Decisions by the author that changed what the agents did, from the
+final-day ledger in~\cite{repo}. Times are Pacific.}
+\label{tab:decisions}
+\small
+\begin{tabular}{ll}
+\toprule
+when & decision\\
+\midrule
+Nov 1 & fork the best public layer file\\
+Nov 2, late & spend checks and engineering only on the short loads\\
+Nov 2, 23:45 & resubmit each board's best file as repeat runs\\
+Nov 3, 02:58 & standing authorization to submit the best clean PDL file\\
+Nov 3, 14:15 & approve routing slack under the written tolerances\\
+Nov 3, 14:47 & fix the PDL enable set at build time\\
+Nov 3, 20:05 & make every judge job asynchronous\\
+Nov 3, 21:30 & withdraw the remaining routing-slack runs\\
+Nov 4, 13:01 & relay a top-ten team's write-up (the barrier removal)\\
+Nov 4, 15:05 & run EAT on the layer with a \$400 budget\\
+Nov 4, 15:27 & relay a read-only review that found the hand-off fence gap\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Where the code came from}
 
@@ -302,8 +359,8 @@ also rounded the attention output and several of the expert kernel's
 intermediate values to BF16 where the baseline rounds them, and added a fallback
 for empty routing. The audited fork alone, judged as a control, scored
 2.053$\times$. The first public fork added one change of ours to the expert
-kernel, which retires each stage's activations at the end of the stage, and
-scored 2.126$\times$ (rank 303). The ledger does not price the audit's changes
+kernel, which retires each stage's activations at the end of the stage. Its public
+run scored 2.126$\times$ (rank 303), and its ten judged runs averaged 2.112$\times$. The ledger does not price the audit's changes
 one by one, and it notes that different inputs and machines may account for part
 of the gap between those two runs.
 
@@ -312,9 +369,9 @@ of the gap between those two runs.
 The rules asked every experiment to register its hypothesis, control, affected
 shapes and acceptance threshold before dispatch, and every loss to go into the
 ruled-out list with its numbers; reopening an entry required new evidence. From
-the evening of 4 November a box A/B of a small change to the expert, routing or
-unpooler kernels needed at least four pairs with the judge's launch configuration
-before it counted as a null. Public runs needed the author's go-ahead.
+the evening of 4 November a box A/B of a sub-microsecond change to the expert,
+routing or unpooler kernels at $T\le32$ needed at least four pairs with the
+judge's launch configuration before it counted as a null. Public runs needed the author's go-ahead.
 Section~\ref{sec:lessons} gives the failures behind the rules added during the
 work.
 
@@ -331,42 +388,53 @@ and most are smaller than the judge's run-to-run spread, a standard deviation of
 
 \begin{table}[t]
 \centering
-\caption{Judged steps after the fork. Each row adds to the one above. Single runs
-vary by about 0.8\% (one standard deviation), so adjacent rows within about
-\SI{100}{\micro\second} are not separable; the means at the bottom are more
-reliable than any single row.}
+\caption{Judged steps after the fork, averaged over every judged run of each file
+(public runs and private checks; repeat runs differ only in a nonce). Each row adds
+to the one above. $\Delta$ is the change in mean from the row above; ``sig.'' marks
+a change larger than two standard errors, using the pooled within-file standard
+deviation of \SI{57.3}{\micro\second} (56 degrees of freedom). Means from different
+days also include drift between judge machines, so a significant step is a real
+difference at the judge but not purely a code effect.}
 \label{tab:steps}
 \small
-\begin{tabular}{llrl}
+\begin{tabular}{lrrrrl}
 \toprule
-step & job & \si{\micro\second} & basis\\
+step & $n$ & mean (\si{\micro\second}) & SD & $\Delta$ & \\
 \midrule
-unmodified donor & \texttt{3a5f879d} & \num{10058.9} & 1 check\\
-audited fork & \texttt{74a29e03} & \num{11018.9} & 1 public run\\
-+ stage-end activation retirement & \texttt{607eb52b} & \num{10639.4} & 1 public run\\
-+ PDL at $T = 1, 16, 32$ & \texttt{fefd7f7b} & \num{10419.9} & 1 public run\\
-+ PDL at $T = 8$, four of six edges & \texttt{f931abf5} & \num{10374.6} & 1 public run\\
-+ PDL at every $T$, three edge changes (slack-free rebuild) & \texttt{117605d0} & \num{10333.4} & 1 public run\\
-+ expert-kernel micro changes, $T=16$ boundary dispatch & \texttt{7d03f88d} & \num{10194.1} & 1 public run\\
-+ finisher in registers, cached unpooler loads & \texttt{caed0290} & \num{10146.4} & 1 public run\\
-+ unpooler PDL, $T=1$ QKV, attention shared memory & \texttt{4a2bf539} & \num{10109.9} & 1 check\\
-+ completion counters, 17--32-token build & \texttt{4f99c1ec} & \num{10058.2} & mean of 2 checks\\
-+ expert-kernel PDL, counters on larger build, hand-off fix & & \num{10105.4} & mean of 9\\
-+ in-house $T=128$ QKV GEMV & & \num{10084.6} & mean of 10\\
-+ EAT's boundary exchange (final file) & & \num{10054.0} & mean of 9\\
+unmodified donor & 1 & \num{10058.9} & & & \\
+audited fork & 1 & \num{11018.9} & & & \\
++ stage-end activation retirement & 10 & \num{10708.8} & 52.5 & $-310.1$ & sig.\\
++ PDL at $T = 1, 16, 32$ & 2 & \num{10475.6} & 78.8 & $-233.2$ & sig.\\
++ PDL at $T = 8$, four of six edges & 4 & \num{10488.4} & 103.2 & $+12.8$ & \\
++ PDL at every $T$, three edge changes & 4 & \num{10325.3} & 42.8 & $-163.1$ & sig.\\
++ expert-kernel micro changes & 4 & \num{10344.4} & 56.3 & $+19.1$ & \\
++ $T=16$ boundary on a per-row kernel & 4 & \num{10260.8} & 42.1 & $-83.6$ & sig.\\
++ follow-up to the previous row & 4 & \num{10238.0} & 43.0 & $-22.8$ & \\
++ finisher in registers, cached unpooler loads & 2 & \num{10142.8} & 5.1 & $-95.2$ & \\
++ unpooler PDL at $T=8$ & 2 & \num{10188.7} & 48.2 & $+45.9$ & \\
++ $T=8$ finish spread, unpooler PDL at $T=16,32$, & & & & & \\
+\quad $T=1$ QKV build, attention shared memory & 1 & \num{10109.9} & & $-78.8$ & \\
++ completion counters, 17--32-token build & 2 & \num{10058.3} & 17.1 & $-51.7$ & \\
++ expert kernel as PDL dependent & 4 & \num{10098.4} & 44.0 & $+40.1$ & \\
++ hand-off fence fix & 1 & \num{10106.8} & & $+8.5$ & \\
++ completion counters, larger build & 9 & \num{10105.4} & 56.7 & $-1.4$ & \\
++ in-house $T=128$ QKV GEMV & 10 & \num{10084.6} & 36.0 & $-20.8$ & \\
++ EAT's boundary exchange (final file) & 9 & \num{10054.0} & 78.7 & $-30.6$ & \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-From the audited fork's \SI{11018.9}{\micro\second} to the final mean of
-\SI{10054.0}{\micro\second} is \SI{965}{\micro\second}. The three PDL rows and
-the first counters row account for \SI{357.7}{\micro\second}, about 50\% of the
-\SI{716.5}{\micro\second} from the first public fork to the best run, or 61\% of
-the \SI{585.4}{\micro\second} to the mean. Only the first PDL row
-(\SI{219.5}{\micro\second}, about a third) is clearly larger than single-run
-noise, so the split is rough. The expert kernel's own dependent launch entered in
-the same row as the counters on the larger build and is not separable on the
-judge.
+From the first public fork's mean of \SI{10708.8}{\micro\second} to the final
+mean of \SI{10054.0}{\micro\second} is \SI{654.8}{\micro\second}. The three
+rows that only add PDL account for \SI{383.5}{\micro\second} of it, about 59\%,
+and two of them are the clearest steps in the table. Only one other step after the
+fork, the $T=16$ boundary dispatch, clears two standard errors, and only barely.
+Neither completion-counter row does ($-51.7$ and $-1.4$\,\si{\micro\second}),
+although the box measured both patches and the judge's decode 32 paired ratios
+moved (Section~\ref{sec:counters}). From the last 3 November file to the final
+file, about a dozen changes each too small for the judge to resolve took the mean down by
+\SI{184}{\micro\second} (1.8\%) together. Board rows in Table~\ref{tab:timeline}
+are each file's best run, so steps between them overstate these differences.
 
 \subsection{Inherited structure}
 
@@ -404,7 +472,8 @@ informal arguments from the code and the PTX memory model, not machine-checked
 proofs. A 2{,}000-replay drift guard runs in preparation and can turn PDL off for a
 whole token count. It replays fixed inputs and compares against the PDL-off
 output, so it catches errors beyond a tolerance sized for floating-point
-merge-order noise (2\% relative) but not a consumer that reads ahead of its
+merge-order noise (at least 2\% relative, or the PDL-off arm's own drift if
+larger, plus a small allowance for flipped routing choices) but not a consumer that reads ahead of its
 producer: such a read would see the previous replay's identical
 values. The written arguments carry that case. The enable set itself is fixed at
 build time. An earlier gate enabled PDL per token count by comparing output drift
@@ -428,6 +497,7 @@ entry and gained nothing measurable at decode 1 (\SI{113.1}{} to
 \SI{115.4}{\micro\second}).
 
 \subsection{Per-expert completion counters instead of a grid barrier}
+\label{sec:counters}
 
 From 1 to 4 November, the expert kernel ended with a grid-wide barrier between the
 expert GEMMs and the final pass, which weights and sums each token's expert
@@ -438,8 +508,9 @@ the final pass acquire-polls (\texttt{ld.acquire.gpu}) only the counters of its 
 token's experts. Our audit had forced this path off, because the poll gave up after
 four million iterations and then read unreduced data.
 
-On 4 November a top-ten team's write-up, relayed by the author, described removing
-this barrier. Two two-line patches followed. The first re-enabled the counters on
+On 4 November the author relayed a write-up from a top-ten team that is not
+public; the ledger summarizes it as about 110 kept changes of 0.3--0.6\% each,
+one of them removing a grid-wide barrier in the expert step. Two two-line patches followed. The first re-enabled the counters on
 the 17--32-token build and removed the poll's cap. The second extended them to the
 build for larger $T$. A ruled-out entry written at 13:19 that day called that
 build's barrier necessary ``by construction'', because the CTA that finishes a
@@ -456,8 +527,9 @@ unchanged. On the judge, the first patch's check scored \SI{10046.1}{} and then
 \SI{10070.4}{\micro\second} against \SI{10109.9}{\micro\second} for its
 parent, and the decode 32 paired ratios rose from 1.801 to 1.846 (sliding) and
 2.063 to 2.194 (full). With the second patch added, two checks drew
-\SI{10111.6}{} and \SI{10101.5}{\micro\second}. At this noise level the judge
-cannot separate the second patch from zero.
+\SI{10111.6}{} and \SI{10101.5}{\micro\second}. Over all judged runs, neither
+patch's step is larger than two standard errors (Table~\ref{tab:steps}), so on the
+judge the counters' gain is within noise.
 
 The counters had stayed off for three days. One reason is a final-day rule that
 ranked work by score gain per microsecond on the short loads to ration judge
@@ -549,9 +621,10 @@ reached a lower time before its public run does not appear.
 Table~\ref{tab:timeline} in the appendix lists them with job ids. The score rose
 in two phases. Our own line went from 1.168$\times$ to 2.043$\times$ in four days,
 mostly by porting our standalone kernels into the layer: the fused W4A16 expert
-kernel, the one-launch attention and the GEMV projections. The fork started at
-2.126$\times$, and three days of work on it took the best run to 2.280$\times$ and
-the mean to 2.250$\times$.
+kernel, the one-launch attention and the GEMV projections. The fork's first public
+file had a best run of 2.126$\times$ and a mean of 2.112$\times$ over ten runs,
+and three days of work on it took the best run to 2.280$\times$ and the mean to
+2.250$\times$.
 
 \begin{figure}[t]
 \centering
@@ -562,12 +635,12 @@ the mean to 2.250$\times$.
   title style={font=\small}}}
 \begin{axis}[name=left, width=0.47\linewidth,
   title={Whole project},
-  xmin=-0.3, xmax=8.2, ymin=1.1, ymax=2.35,
-  xtick={0,2,4,6,8}, xticklabels={Oct 28,Oct 30,Nov 1,Nov 3,Nov 5},
+  xmin=-1.1, xmax=8.2, ymin=1.1, ymax=2.35,
+  xtick={-1,1,3,5,7}, xticklabels={Oct 27,Oct 29,Oct 31,Nov 2,Nov 4},
   ytick={1.2,1.4,1.6,1.8,2.0,2.2}, ylabel={speedup over SGLang}]
 \addplot[const plot, thick, black, mark=*, mark size=1.2pt] coordinates {
  (-0.144,1.168) (-0.044,1.384) (0.025,1.449) (0.508,1.643) (0.587,1.761)
- (0.676,1.782) (1.031,1.833) (1.101,1.878) (1.186,1.930) (1.359,1.964)
+ (0.676,1.782) (1.031,1.833) (1.101,1.878) (1.186,1.930) (1.356,1.964)
  (1.778,2.014) (2.880,2.015) (2.977,2.019) (3.935,2.023) (4.06,2.043) (4.17,2.126) (6.23,2.171) (6.44,2.180) (6.897,2.189) (6.902,2.203)
  (6.923,2.215) (6.947,2.219) (7.392,2.229) (7.681,2.248) (7.719,2.252) (7.796,2.280)
  (8.0,2.280)};
@@ -645,9 +718,13 @@ dense projections.
   \item Box results carry no reported dispersion in this paper and are mostly
   smaller than the judge's run-to-run spread. They ranked candidates; they do not
   establish judge gains.
-  \item Steps in Table~\ref{tab:steps} are mostly single runs, and attributions
-  between adjacent rows are within noise.
+  \item Several steps in Table~\ref{tab:steps} rest on one or two runs, and only
+  four of the seventeen steps clear two standard errors.
   \item The best run is selected from nine.
+  \item The donor ran on 1 November and the final file on 4 November. Judge
+  receipts name a node id per run, and we did not control for node or day.
+  \item The judge closed with the competition, so no one can re-measure these
+  numbers. The receipts in~\cite{repo} are the evidence.
   \item Everything here is one layer, one model, one GPU type and one judge.
 \end{itemize}
 
@@ -661,7 +738,8 @@ that closed them.
   o, router and unpooler weights beside attention cut the o GEMV from 7.3 to
   \SI{5.9}{\micro\second}, but the whole step got 3.5--\SI{4.1}{\micro\second} slower
   at decode 1 between two judge checks. The prefetch traffic cost more than the hits
-  saved. Several other teams reported the same in public.
+  saved. Several other teams reported the same in public; our survey of their reports is
+in~\cite{publicsurvey}.
   \item[Fusing across stage boundaries.] One cooperative launch for the o projection,
   the attention boundary and the pooler/router saved 0.5--\SI{1.3}{\micro\second}
   inside the process and nothing on any short load. Fusing the experts into the
@@ -721,9 +799,12 @@ the checks is not the same as being eligible.
 \section{Process lessons}
 \label{sec:lessons}
 
-Each failure below cost real time and ended in a written rule; the incidents are
-recorded in \texttt{docs/process-incidents.md} in~\cite{repo}. Some would
-trouble any team; the first and the last two follow from how agent sessions work.
+Each failure below cost real time and ended in a written rule. The checkout, flag
+and context incidents are recorded in \nolinkurl{docs/process-incidents.md}
+in~\cite{repo}; the clock, rationing and judge-queue incidents are in the
+final-day ledger and steering notes there. Most
+would trouble any team. The clock and context failures follow from how agent
+sessions work.
 \begin{description}[style=unboxed,leftmargin=0pt]
   \item[Estimated clocks.] On the last day the lead agent stamped ledger times from
   its own estimates and ran 3.5 hours ahead of the real clock. In the same
@@ -742,8 +823,9 @@ trouble any team; the first and the last two follow from how agent sessions work
   pairs. We built the next file without that change. Four pairs with the edge on
   later showed it 0.48/\SI{0.52}{\micro\second} faster. Rule: measure with the
   configuration the judge uses, in at least four pairs.
-  \item[Rationing that narrowed the search.] The rule that ranked work by gain per
-  microsecond on the short loads was meant to ration judge checks. It also
+  \item[Rationing that narrowed the search.] The author's final-day rule, which
+  ranked work by gain per microsecond on the short loads, was meant to ration judge
+  checks. It also
   narrowed what the agents looked at, and the completion-counter fix sat in the
   excluded cells. Rule: rank engineering work by its effect on the whole score, and
   treat a feature compiled in but switched off as a lead to re-check.
@@ -758,20 +840,23 @@ trouble any team; the first and the last two follow from how agent sessions work
 \section{Discussion}
 
 The fork's inherited design carried the score. Our work after the fork took the
-file from 2.126$\times$ to a mean of 2.250$\times$, and against the unmodified donor
+mean from 2.112$\times$ to 2.250$\times$, mostly by re-enabling PDL, and against the unmodified donor
 measured on our account that gain is zero within the judge's interval. What the
 work bought is the same speed with written arguments for ordering and progress on
 every dependent-launch edge and on the completion counters, which the donor
 shipped without. The argument for the last edge, EAT's entry trigger, was finished
 only after the close, and the guards that run in preparation cannot catch an
-ordering error on their own. The donor as published (upstream commit
-\texttt{8e30e1be}~\cite{keell}) does contain hazards of the kind the audit looked
-for. Its counters' readiness poll gives up after four million iterations and then
-reads unreduced data. At $T=1$, programs in its deferred route kernel read the o
-projection's output before that kernel's dependency wait. Its expert kernel's
-phase-A hand-off fences in each lane before the warp relay, which the PTX memory
-model does not guarantee publishes the other lanes' stores. The audit removed the
-first two and a later change of ours the third. The donor passed every
+ordering error on their own. The donor as published (upstream commit \texttt{8e30e1be},
+\texttt{kernels/muse\_decode\_layer.py}~\cite{keell}) does contain hazards of
+the kind the audit looked for. Its counters' readiness poll gives up after four
+million iterations and then reads unreduced data (line 5984). At $T=1$, programs in
+its deferred route kernel read the o projection's output with no dependency wait;
+the source comment says so (line 14009). Its expert kernel's phase-A hand-off has
+each lane fence, then synchronize the warp, then lets one lane publish with a
+relaxed atomic add (lines 5474--5477). We could not derive from the PTX memory
+model~\cite{ptx} that this publishes the other lanes' stores, though we have not
+shown that it fails. The audit removed the first two and a later change of ours the
+third. The donor passed every
 correctness test, and we never saw any of these produce a wrong output.
 Whether those arguments are worth the time is a fair question for anyone running a
 short competition.
@@ -817,6 +902,18 @@ ruled-out list. \url{https://github.com/yelgabo/okc}, 2026.
 \bibitem{eat} caoshiyi. EAT. \url{https://github.com/caoshiyi/EAT}, 2026.
 \bibitem{review} Review of the final decode-layer file,
 \texttt{docs/decode-layer-final-review.md} in~\cite{repo}, 2026.
+\bibitem{publicsurvey} Survey of public challenge techniques, 3 November 2026,
+\texttt{docs/steering/2026-11-03-0115-public-techniques-research.md} in~\cite{repo}.
+\bibitem{specgaming} V.~Krakovna et al. Specification gaming: the flip side of AI
+ingenuity. DeepMind blog, 21 April 2020.
+\url{https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/}.
+\bibitem{sakana} Sakana AI. The AI CUDA Engineer.
+\url{https://sakana.ai/ai-cuda-engineer/}. Accessed November 2026.
+\bibitem{vllmmoe} vLLM project. Fused MoE layers.
+\url{https://github.com/vllm-project/vllm/tree/main/vllm/model_executor/layers/fused_moe}.
+Accessed November 2026.
+\bibitem{trtllm} NVIDIA. TensorRT-LLM. \url{https://github.com/NVIDIA/TensorRT-LLM}.
+Accessed November 2026.
 \bibitem{sglang} L.~Zheng, L.~Yin, et al. SGLang: Efficient execution of
 structured language model programs. arXiv:2312.07104, 2023.
 \bibitem{fa3} J.~Shah, G.~Bikshandi, et al. FlashAttention-3: Fast and accurate
@@ -833,7 +930,7 @@ training with mixture-of-experts. arXiv:2211.15841, 2022.
 \url{https://github.com/deepseek-ai/DeepGEMM}, 2025.
 \bibitem{kernelbench} A.~Ouyang, S.~Guo, et al. KernelBench: Can LLMs write
 efficient GPU kernels? arXiv:2502.10517, 2025.
-\bibitem{ptx} NVIDIA. Parallel Thread Execution ISA, memory consistency model.
+\bibitem{ptx} NVIDIA. Parallel Thread Execution ISA, section ``Memory Consistency Model''.
 \url{https://docs.nvidia.com/cuda/parallel-thread-execution/}. Accessed November
 2026.
 \bibitem{cudaguide} NVIDIA. CUDA Programming Guide, programmatic dependent
@@ -870,7 +967,7 @@ Oct 28 16:13 & \texttt{a41ace0b} & MoE ordering repair & \num{12692.1} & 1.782 &
 Oct 29 & \texttt{344ae513} & MoE configs chosen on judge-like routing & \num{12338.0} & 1.833 & \\
 Oct 29 & \texttt{5b95c24e} & attention trimming & \num{12046.1} & 1.878 & \\
 Oct 29 & \texttt{0fae6468} & another MoE work schedule & \num{11720.2} & 1.930 & \\
-Oct 29 & \texttt{9b921feb} & routing front end & \num{11517.0} & 1.964 & \\
+Oct 29 08:32 & \texttt{9b921feb} & routing front end & \num{11517.0} & 1.964 & \\
 Oct 29 & \texttt{3fbb3ad0} & clean release, MoE schedule & \num{11229.9} & 2.014 & \\
 Oct 30 21:06 & \texttt{0f58d5d8} & expert-kernel mode and stable tuner & \num{11227.0} & 2.015 & \\
 Oct 30 23:26 & \texttt{7b84ed43} & projection plan, routing side stream & \num{11205.4} & 2.019 & \\
