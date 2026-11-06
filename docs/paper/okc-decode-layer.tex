@@ -37,37 +37,41 @@ Mixture-of-Experts transformer decoder layer, timed on an NVIDIA H200 against
 SGLang's production kernels across twelve shapes. Over nine days (27 October
 to 4 November 2026) one person ran a team of LLM coding agents on this problem.
 Our final file averages 2.250$\times$ SGLang over nine judged runs. Its best run,
-2.280$\times$ with a 95\% interval of [2.245, 2.314], was our board row and
-ranked 153rd. The mean equals, within the judge's interval, the
+2.280$\times$ with a 95\% interval of [2.245, 2.314], was our board row. It ranked
+153rd on the layer board late on the last day, and the team finished 158th
+overall. The mean equals, within the judge's interval, the
 2.249$\times$ that the best public layer file measured on our account. We forked
-that file on 1 November. Our own safety audit of the fork switched off three of
-its features whose correctness we could not prove. Most of our later gain came
-from proving those features correct and switching them back on: programmatic
-dependent launch across kernel boundaries, and per-expert completion counters in
-place of a grid barrier in the routed-expert kernel. We describe the layer, the
+that file on 1 November. Our own safety audit of the fork switched off several of
+its features whose correctness we could not prove. About half of our later gain
+came from proving three of them correct and switching them back on: programmatic
+dependent launch across kernel boundaries, the routed-expert kernel's own
+dependent launch, and per-expert completion counters in place of that kernel's
+grid barrier. We describe the layer, the
 timing rules, what we changed and what we inherited, the variants that lost, an
 organizer disqualification of a routing optimization we had read as allowed,
 and the process failures of an agent team working against a rationed judge.
-Every number has a source in a public repository.
+Every number has a source in the project's repository.
 \end{abstract}
 
 \section{Introduction}
 
 GPU kernel competitions now attract agent-driven entries. The Open Kernel
 Challenge~\cite{okc} posed five problems drawn from one model, Muse Spark Open.
-One of them, the whole decoder layer for batched decode and speculative
-verification, decided each team's overall rank.
+One of them was the whole decoder layer for batched decode and speculative
+verification. Its board counted toward the overall board, which ranks teams by
+how much their best runs together would speed up a decode step.
 
 This report covers one entry. The work ran from 27 October to the close of kernel
 submissions at midnight Pacific on 4 November 2026. One person steered. LLM
 coding agents wrote nearly all of the code, ran the experiments and kept the
-records; most were Claude Code sessions, with some Codex sessions early on. The
-repository holds 2{,}646 commits, a ledger of every judged run and a list of
-about 445 ruled-out variants with their measurements~\cite{repo}.
+records. Most were Claude Code sessions; Codex sessions did much of the work on
+the forked line between 31 October and 3 November. The repository holds about
+2{,}650 commits, a ledger of every judged run and a list of about 445 ruled-out
+variants, most with their measurements~\cite{repo}.
 
-The result is modest. The board row placed 153rd, about 1\% below the
-100th-ranked entry, and the final file's mean speed matches the public file it
-descends from. We still think the record is worth publishing, for three reasons:
+The result is modest. The board row placed 153rd on the layer board, about 1\%
+below the 100th-ranked entry at 18:28 Pacific that day, and the final file's mean
+speed matches the public file it descends from. We still think the record is worth publishing, for three reasons:
 \begin{itemize}
   \item It measures where time goes in a well-optimized MoE decode layer at small
   batch, and which plausible optimizations lose there.
@@ -94,16 +98,19 @@ q,k,v,g &= \mathrm{split}(x W_{qkvg}^\top);\ \text{QK-norm, RoPE, write } \mathr
 a &= \bigl(\mathrm{rmsnorm}(\mathrm{attn}(q)) \odot \sigma(g)\bigr) W_o^\top\\
 s &\leftarrow \alpha_1 s + \beta_1\,\mathrm{rmsnorm}(a),\qquad h = \mathrm{rmsnorm}(s)\odot(1+w)\\
 E &= \mathrm{top8}\bigl(\sigma(0.177\, h W_r^\top) + b\bigr)\\
-y &= \textstyle\sum_{e\in E\cap\text{local}} \mathrm{expert}_e\bigl(\mathrm{rmsnorm}(h W_{pool}^\top)\odot(1+w)\bigr)\\
+p &= \mathrm{rmsnorm}(h W_{pool}^\top)\odot(1+w),\qquad
+y = \textstyle\sum_{e\in E\cap\text{local}} g_e\,\mathrm{rmsnorm}\bigl(\mathrm{expert}_e(p)\odot(1+w)\bigr)\\
 f &= y W_{unpool}^\top,\qquad s \leftarrow \alpha_2 s + \beta_2\,\mathrm{rmsnorm}(f\odot(1+w))
 \end{align*}
-The kernel returns $\mathrm{rmsnorm}(s)\odot(1+w)$, the new $s$ and the chosen
-experts. This GPU holds 16 query heads and 2 KV heads of dimension 64, so
+Here $g_e$ is expert $e$'s unbiased sigmoid score divided by the sum of those
+scores over $E$. Up to $T=8$ this GPU computes only its eighth of the unpooler's
+output columns. The kernel returns $\mathrm{rmsnorm}(s)\odot(1+w)$, the new $s$
+and the chosen experts. This GPU holds 16 query heads and 2 KV heads of dimension 64, so
 $W_{qkvg}$ is $2304\times8192$ and $W_o$ is $8192\times1024$. The router scores
 256 experts in FP32; this GPU owns 32 of them. A pooler projects to width 4096
 before the experts and an unpooler projects back. Each expert is a SwiGLU block
 at width 4096 whose weights are NVFP4: E2M1 values, one FP8 scale per 16 values
-and one FP32 scale per expert. Activations stay BF16 wherever SGLang keeps them.
+and one FP32 scale per expert and matrix. Activations stay BF16 wherever SGLang keeps them.
 The KV cache is FP8 E4M3, and queries may be rounded to E4M3 as
 FlashAttention-3 does.
 
@@ -150,7 +157,7 @@ speed-of-light bound; ``of floor'' is our time over it.}
 \toprule
 load & layer & SGLang & ours & speedup & floor & of floor\\
 \midrule
-decode 1  & sliding &  170.77 &  65.84 & 2.594 &  40.02 & 1.65\\
+decode 1  & sliding &  170.77 &  65.84 & 2.594 &  40.02 & 1.64\\
 decode 1  & full    &  180.74 &  71.66 & 2.522 &  44.18 & 1.62\\
 decode 16 & sliding &  268.51 & 127.15 & 2.112 &  76.72 & 1.66\\
 decode 16 & full    &  439.92 & 202.29 & 2.175 & 137.46 & 1.47\\
@@ -195,7 +202,7 @@ file's last change.
 Official numbers came only from the challenge's judge: \texttt{okc check} for
 private runs and \texttt{okc submit} for public ones. The quota started at 10
 public runs and 20 checks per problem per day and later rose to 20 and 40. On the
-last day each job waited 15 to 20 minutes in the queue. From 3 November we also
+last day the judge's backlog reached 381 to 619 queued jobs. From 3 November we also
 rented an H200 SXM on RunPod at \$5.29 per hour for paired A/B timing against our
 own public file. The rented box ran short loads 9--18\% faster than the judge, so
 we used it only to rank two files against each other, never to predict a judge
@@ -217,20 +224,23 @@ donor measured 2.249$\times$ [2.215, 2.283] on our account (job
 \texttt{3a5f879df0d44825}). We never submitted it.
 
 Before using the fork we audited its synchronization. Where we could not prove
-an ordering or progress guarantee, we switched the feature off. The audit turned
-off layer-wide programmatic dependent launch, the expert kernel's dependent
-launch, and the per-expert completion counters that let the expert kernel skip a
-grid barrier. It also added a BF16 rounding of the attention output and a fallback
-for empty routing. That first fork scored 2.126$\times$ (rank 303). The ledger does
-not price the audit's changes one by one.
+an ordering or progress guarantee, we switched the feature off. Among the
+features the audit turned off were layer-wide programmatic dependent launch, the
+expert kernel's dependent launch, and the per-expert completion counters that let
+the expert kernel skip a grid barrier. Among the things it added were a BF16
+rounding of the attention output and a fallback for empty routing. The audited
+fork alone, judged as a control, scored 2.053$\times$. The first public fork added
+one change of ours to the expert kernel (stage-end activation retirement) and
+scored 2.126$\times$ (rank 303). The ledger does not price the audit's changes one
+by one.
 
 \subsection{Rules the team adopted}
 
 Every experiment registered its hypothesis, control, affected shapes and
 acceptance threshold before dispatch. Every loss went into the ruled-out list
-with its numbers, and reopening an entry required new evidence. A box A/B needed
-at least four paired rounds with the judge's launch configuration before a change
-counted as a win or a null. Public runs needed the author's go-ahead.
+with its numbers, and reopening an entry required new evidence. From 4 November a
+box A/B needed at least four pairs with the judge's launch configuration before a
+change counted as a win or a null. Public runs needed the author's go-ahead.
 Section~\ref{sec:lessons} gives the failure behind each rule.
 
 \section{What we inherited and what we changed}
@@ -238,8 +248,8 @@ Section~\ref{sec:lessons} gives the failure behind each rule.
 
 The final file is \texttt{muse\_decode\_layer/final/decode\_layer.py}, one
 21{,}117-line Python file that compiles
-its CUDA sources at preparation time. Gains marked ``box'' are paired medians on
-the rented H200. They are not additive, and most are smaller than the judge's
+its CUDA sources at preparation time. Gains marked ``box'' are paired differences
+on the rented H200, either medians of pairs or means against interleaved controls. They are not additive, and most are smaller than the judge's
 run-to-run spread, a standard deviation of 0.78\% over the final file's nine runs.
 
 \subsection{Inherited structure}
@@ -252,8 +262,9 @@ triggers. Attention is one fused launch that does QK-norm, RoPE, the FP8 cache
 write, split-KV attention, the merge and the gated RMSNorm. The splits merge
 through \texttt{red.global.add} into a fixed frame, so no split waits for
 another's running maximum. The routed experts run as one cooperative launch per
-step. Two TMA producer warps feed four WGMMA warpgroups, NVFP4 weights decode to
-BF16 in registers, and a cost table assigns work stream-K. Block scales are
+step. In the builds for 17 or more tokens, two TMA producer warps feed four WGMMA
+warpgroups; the smaller builds use eight compute warps and one helper warp. NVFP4
+weights decode to BF16 in registers, and a cost table assigns work stream-K. Block scales are
 stored losslessly in 6 bits. Preparation times each backend in graph replay and
 dispatches per token count. The per-expert completion counters (below) were in
 the donor file too.
@@ -269,9 +280,13 @@ producer, such as loading weights, can run before the wait.
 After the audit switched PDL off, we brought it back one edge at a time. Each edge
 needed a written argument about the producer's publication, the consumer's wait
 and, for cooperative grids, residency and progress. A 2{,}000-replay drift guard
-runs in preparation and can turn an edge off. The enable set itself is fixed at
-build time, because an earlier gate that chose edges by timing during preparation
-gave four different enable sets across 35 logs of the same bytes. Two edges
+runs in preparation and can turn an edge off. It replays fixed inputs and compares
+against the PDL-off output, so it catches nondeterminism and wrong arithmetic but
+not a consumer that reads ahead of its producer: such a read would see the
+previous replay's identical values. The written arguments carry that case. The
+enable set itself is fixed at build time, because an earlier gate that chose
+edges by timing during preparation gave four different enable sets across 16
+preparation logs of one file. Two edges
 around attention produced a $6\times10^{-3}$ output drift at $q_\text{len} = 8$
 and stayed off at $T=8$ until a later file re-enabled all six edges behind the
 guard.
@@ -279,8 +294,9 @@ guard.
 PDL was the largest single gain after the fork. The public score went from
 \SI{10639.4}{} to \SI{10419.9}{\micro\second} with PDL at $T = 1, 16, 32$, and
 to \SI{10374.6}{\micro\second} with most edges on at $T=8$. In the final file's
-preparation log, PDL saves a median 6.51, 7.82, 7.77 and \SI{6.80}{\micro\second}
-at $T = 1, 8, 16, 32$. The last edge, the expert kernel as a dependent of the
+preparation log, the median paired saving from PDL, weighted 46:16 over the
+sliding and full layers, is 6.51, 7.82, 7.77 and \SI{6.80}{\micro\second} at
+$T = 1, 8, 16, 32$. The last edge, the expert kernel as a dependent of the
 routing kernel, gained less than the others. The driver does not overlap a
 cooperative launch, so that edge only shortens graph launch latency, from
 0.76--0.96 to 0.38--\SI{0.50}{\micro\second}.
@@ -330,7 +346,7 @@ down the list.
 \subsection{Smaller changes of ours}
 
 \begin{itemize}
-  \item At $T=8$, 128 and 256, the expert kernel's finishing CTA keeps its own
+  \item At $T=128$ and 256, the expert kernel's finishing CTA keeps its own
   share of the sum in registers instead of writing and re-reading it. Box: verify
   32 sliding \SI{-2.75}{\micro\second}, faster in 54 of 54 pairs.
   \item A publication-ordering fix in the expert kernel's hand-off between phases.
@@ -342,22 +358,29 @@ down the list.
   $T=2$ to 8 (box: $-1.32/-0.37$\,\si{\micro\second}).
   \item At $T=128$ an in-house GEMV replaced cuBLASLt for QKV, with attention as
   its PDL dependent. Evidence is mixed. The final file's preparation log
-  measures $-1.31/-1.86$\,\si{\micro\second}, while a box A/B measured
-  $+0.72/+1.33$\,\si{\micro\second} on the sliding cells.
+  measures $-1.31/-1.86$\,\si{\micro\second} (sliding/full), while two box rounds
+  measured $+0.72$ and $+1.33$\,\si{\micro\second} at verify 16 sliding.
   \item Requesting \SI{81920}{B} of shared memory puts two decode 16/32
   sliding attention CTAs on each SM (box: $-1.19$\,\si{\micro\second} at decode 32
   sliding). Requesting \SI{118784}{B} for the $T=8$ finish kernel spreads it to
   one CTA per SM (box: $-0.41/-0.32$\,\si{\micro\second}).
-  \item EAT's change, the last one, computes the first residual's per-row sum of
-  squares across a thread-block cluster. CTAs write into a peer's shared memory
-  with \texttt{st.async} and count arriving bytes on an mbarrier, and the kernel
-  fires its PDL trigger at entry (box: $-0.3$ to \SI{-1.0}{\micro\second} at
-  decode 1, verify 1 and decode 16).
+  \item EAT's change, the last one, is in the first residual boundary's kernel at
+  $T = 1$, 8 and 16. That kernel's eight CTAs form a cluster and exchange partial
+  sums of squares for the boundary's two RMS norms. Instead of storing into each
+  other's shared memory and calling \texttt{cluster.sync()}, each CTA now sends
+  its partials with \texttt{st.async} and waits on its own mbarrier until every
+  byte addressed to it has landed. The kernel also fires its PDL trigger at entry.
+  EAT's written argument covered the exchange; the argument for the trigger was
+  completed only after the close, when we traced each kernel that can follow the
+  boundary and found that it reads only weights and preparation-time tables before
+  its own wait (box: $-0.3$ to \SI{-1.0}{\micro\second} at decode 1, verify 1 and
+  decode 16).
 \end{itemize}
 One constraint shaped the last day. Submissions were capped at
 \SI{1000000}{bytes}, and one stacked file came to \num{1057604}. We stripped its
-comments, keeping legal notices and runtime anchors, and checked that the
-program's syntax tree was unchanged.
+comments, keeping legal notices and runtime anchors. For the CUDA source strings
+the tool checked that every character outside a comment was unchanged, and for
+the Python that the syntax tree was unchanged.
 
 \subsection{Where the time still goes}
 
@@ -366,17 +389,35 @@ share of profiled GPU time, the routed-expert kernel is the largest kernel in
 every cell except three. Attention leads at decode 16 and 32 on full layers and is
 about even with the experts at verify 32 full (\SI{179.6}{} against
 \SI{175.4}{\micro\second}). At decode 1 sliding the expert kernel takes 32\% of
-profiled time (\SI{22.5}{\micro\second}), and the three projection GEMVs take
-\SI{32.5}{\micro\second} together. Our weakest cell is decode 32 sliding at
+profiled time (\SI{22.5}{\micro\second}). The QKV, o and fused pooler-router GEMVs
+take \SI{32.5}{\micro\second} together, and the unpooler another
+\SI{3.4}{\micro\second}. Our weakest cell is decode 32 sliding at
 1.855$\times$, where the expert kernel takes half of profiled time
 (\SI{73.8}{\micro\second}). On the verify 16 and 32 sliding cells, cuBLASLt projections still take
 \SI{55}{} to \SI{87}{\micro\second} per cell.
 
+\subsection{A review of the final file after the close}
+
+After the close we reviewed the final file's newest code: EAT's change, the
+$T=128$ QKV GEMV, the cluster boundary kernels and the Python preparation and
+dispatch layers~\cite{review}. The attention, expert and projection CUDA sources
+were not part of it. The review found no error that changes output on the scored
+shapes. It found weaknesses in the checks that run during preparation. The PDL
+and $T=128$ drift guards replay fixed inputs, so they cannot see a read that runs
+ahead of its producer. The guard words that follow each scratch buffer were
+checked before most of the preparation-time replays ran. No stage tracked the
+total \SI{300}{\second} preparation limit, and the $T=128$ GEMV ignores a timed-out
+mbarrier wait. A successor file in the repository adds fresh-input stress rounds,
+a final guard check and a preparation budget. It has not been run on a GPU or
+judged.
+
 \section{Results}
 \label{sec:results}
 
-Figure~\ref{fig:timeline} shows every judged layer result that set a new best,
-plus the two disqualified runs. Table~\ref{tab:timeline} in the appendix lists
+Figure~\ref{fig:timeline} shows the milestones among the judged layer results,
+plus the two disqualified runs. Before the fork they are selected new bests of
+our own line; after it they are the public board rows, so a private check that
+reached a lower time before its public run does not appear. Table~\ref{tab:timeline} in the appendix lists
 them with job ids. The score rose in two phases. Our own line went from
 1.168$\times$ to 2.043$\times$ in five days, mostly by porting our standalone
 kernels into the layer: the fused W4A16 expert kernel, the one-launch attention
@@ -418,7 +459,7 @@ work on it took the best run to 2.280$\times$ and the mean to 2.250$\times$.
  (4.40,2.043) (4.60,2.126) (6.23,2.171) (6.44,2.180) (6.90,2.189) (6.91,2.203)
  (6.92,2.215) (6.95,2.219) (7.39,2.229) (7.68,2.248) (7.72,2.252) (7.80,2.280)
  (8.0,2.280)};
-\addlegendentry{best eligible run}
+\addlegendentry{milestone run}
 \addplot[only marks, red, mark=x, mark size=3pt, thick] coordinates {(6.61,2.187) (6.67,2.208)};
 \addlegendentry{disqualified}
 \addplot[dashed, blue!70!black, domain=4.3:8.1, samples=2] {2.249};
@@ -427,12 +468,12 @@ work on it took the best run to 2.280$\times$ and the mean to 2.250$\times$.
 \addlegendentry{final file, mean of 9 runs}
 \end{axis}
 \end{tikzpicture}
-\caption{Best eligible decode-layer result over time, official judge only. Left: the
+\caption{Milestone decode-layer results over time, official judge only. Left: the
 whole project; before the fork the points are our own line. Right: the boxed
 region enlarged. The unmodified donor file was measured once on our account
 (2.249$\times$, shaded 95\% interval); the final file's mean over nine runs falls
-inside that interval. Rows on 28--31 October have dates but no recorded times and
-are spread within their day.}
+inside that interval. Rows from 28 October to 1 November have dates but no
+recorded times and are spread within their day.}
 \label{fig:timeline}
 \end{figure}
 
@@ -440,7 +481,7 @@ The final file ran nine times on the judge, three public runs and six private
 checks. They span \num{9922.9} to \SI{10160.8}{\micro\second}, with a mean of
 \SI{10054.0}{\micro\second} (2.250$\times$) and a standard deviation of 0.78\%. The best
 of them, run \texttt{908cc07e43364008}, is the board row: 2.2796$\times$ with a 95\%
-interval of [2.2454, 2.3139]. The judge returns a cached result for identical
+interval of [2.2454, 2.3138]. The judge returns a cached result for identical
 bytes, so each repeat differed only in a nonce. The best run is 1.3\% faster than
 the mean. That selection effect is part of the board position, and entries are
 better compared by their means.
@@ -496,8 +537,9 @@ that closed them.
   \SI{30}{\micro\second} question. With routing skewed the way the judge's is, verify
   16 dropped 25--\SI{30}{\micro\second}.
   \item[Porting layer wins back to the standalone problems.] Projection and
-  attention choices tuned inside the layer gave nothing on the standalone boards.
-  Only the expert-kernel port helped there, by about 0.7\% on the box. We did not
+  attention choices tuned inside the layer gave nothing for the standalone
+  problems on the box, so we never submitted them. Only the expert-kernel port
+  helped there, by about 0.7\% on the box. We did not
   find out why.
 \end{description}
 
@@ -512,8 +554,8 @@ reads. Decode 1 got about 5 and \SI{3}{\micro\second} faster on sliding and full
 layers. The file passed every correctness test. The author approved it under the
 written tolerances, and it went public at \SI{10343.1}{\micro\second}, rank 355.
 
-On 3 November at 17:45 Pacific the organizers disqualified both public runs of the
-technique, and we withdrew a third. Their reason was that the change ``swaps
+On 3 November at 17:45 Pacific the organizers disqualified two public runs of the
+technique, and we withdrew the other two. Their reason was that the change ``swaps
 near-tied experts for ones on other GPUs so their weights are never read, which
 changes the model's output'' and so ``goes against the spirit of the challenge''.
 The row fell back to \SI{10374.6}{\micro\second} (2.180$\times$, rank 364). Every file
@@ -532,8 +574,8 @@ An agent team fails in ways a single engineer usually does not. Each failure
 below cost real time and ended in a written rule.
 \begin{description}[style=unboxed,leftmargin=0pt]
   \item[Estimated clocks.] On the last day the lead agent stamped ledger times from
-  its own estimates and ran 3.5 hours ahead of the real clock. Separately, a plan
-  written that morning said 11.5 hours remained when about 13.5 did. Rule: every
+  its own estimates and ran 3.5 hours ahead of the real clock. In the same
+  incident, a plan written that morning said 11.5 hours remained when about 13.5 did. Rule: every
   ledger or schedule time comes from \texttt{date} in the same command.
   \item[Shared checkouts.] Another session's merge reset the working tree and wiped
   staged edits, which we recovered with \texttt{git fsck --dangling}. A union merge of
@@ -554,8 +596,8 @@ below cost real time and ended in a written rule.
   \item[Context limits.] Lane sessions reached 250{,}000--500{,}000 tokens per round
   and became slower, costlier and less reliable. Rule: each lane writes a checkpoint
   file after every step and restarts fresh after about 60 tool calls.
-  \item[An async judge.] With 15--20 minute queues, a session that waited on a job
-  did nothing else. Rule: submit with \texttt{--no-wait}, record the job id in the
+  \item[An async judge.] With hundreds of jobs queued ahead of ours, a session that
+  waited on a job did nothing else. Rule: submit with \texttt{--no-wait}, record the job id in the
   ledger and wait in the background.
 \end{description}
 
@@ -566,16 +608,19 @@ score. Our work after the fork took the file from 2.126$\times$ to a mean of
 2.250$\times$, and against the unmodified donor measured on our account that gain is
 zero within the judge's interval. What the work bought is the same speed with
 written arguments for ordering and progress on every dependent-launch edge and on
-the completion counters, which the donor shipped without. We did not show that the
-donor was wrong anywhere. Whether those arguments are worth the time is a fair
+the completion counters, which the donor shipped without. The argument for the
+last edge, EAT's entry trigger, was finished only after the close, and the guards
+that run in preparation cannot catch an ordering error on their own. We did not
+show that the donor was wrong anywhere. Whether those arguments are worth the time is a fair
 question for anyone running a short competition.
 
 Two observations may help others working at small batch on this GPU. With PDL, a
 kernel boundary inside a CUDA graph cost us less than the synchronization that the
 cross-stage fusions we tried put in its place. Fusion inside a stage, such as the
 one-launch attention kernel, still paid. Second, a feature that someone switched
-off for safety deserves a re-check against the code once the pressure is gone. Ours
-held the largest single fix of the last day.
+off for safety deserves a re-check against the code once the pressure is gone. Our
+completion counters sat switched off for three days before a re-read showed them
+safe.
 
 For agent-driven kernel work, the largest gains came from reading: a public file,
 a top team's write-up, a disabled code path. Local tuning gave the smallest.
@@ -589,14 +634,18 @@ LLM coding agents wrote most of the code and kept the experiment records:
 Anthropic's Claude models through Claude Code, OpenAI Codex sessions, and the EAT
 supervisor running Claude Code agents. A Claude agent drafted this report from the
 repository's ledgers, and a second agent checked its claims against the sources.
+After the close, three more agents rechecked every section against the repository.
 The author chose the work, approved every public submission, and is responsible for
 the content.
 
+\clearpage
 \appendix
 \section{Judged layer runs}
 \begin{table}[h]
 \centering
-\caption{Decode-layer results that set a new best, plus the disqualified runs.
+\caption{Decode-layer milestone results, plus the disqualified runs. Some
+intermediate bests are omitted, among them private checks that preceded a public
+run of the same change. Ranks are as of when the row was set.
 Times are the board's: SGLang's fixed \SI{22620.3}{\micro\second} over the speedup.
 Times marked $\sim$ are derived that way because the ledger records only the
 speedup. ``check'' is a private run; DQ means disqualified. Sources:
@@ -621,7 +670,7 @@ Oct 29 & \texttt{9b921feb} & routing front end & $\sim$\num{11517.5} & 1.964 & \
 Oct 30 & \texttt{3fbb3ad0} & clean release, mode 47 & $\sim$\num{11231.5} & 2.014 & \\
 Oct 31 & \texttt{8f2780d7} & attention port & $\sim$\num{11182.3} & 2.023 & \\
 Nov 1 & \texttt{cb71acec} & residual boundary & $\sim$\num{11069.7} & 2.043 & 373\\
-Nov 1 & \texttt{607eb52b} & audited fork of public file & \num{10639.4} & 2.126 & 303\\
+Nov 1 & \texttt{607eb52b} & audited fork + stage-end retirement & \num{10639.4} & 2.126 & 303\\
 Nov 3 05:25 & \texttt{fefd7f7b} & PDL at $T=1,16,32$ & \num{10419.9} & 2.171 & 369\\
 Nov 3 10:40 & \texttt{f931abf5} & PDL at $T=8$ & \num{10374.6} & 2.180 & 364\\
 Nov 3 14:40 & \texttt{9d80ae24} & routing slack (DQ) & \num{10343.1} & 2.187 & 355\\
@@ -633,7 +682,7 @@ Nov 3 22:43 & \texttt{7d03f88d} & follow-up to the previous row & \num{10194.1} 
 Nov 4 09:25 & \texttt{caed0290} & finisher in registers & \num{10146.4} & 2.229 & 308\\
 Nov 4 16:20 & \texttt{40ac6a24} & expert kernel as PDL dependent & \num{10061.9} & 2.248 & \\
 Nov 4 17:16 & \texttt{5dbfa4b0} & completion counters, both builds & \num{10044.3} & 2.252 & 246\\
-Nov 4 19:07 & \texttt{908cc07e} & EAT cluster residual (final) & \num{9922.9} & 2.280 & 153\\
+Nov 4 19:07 & \texttt{908cc07e} & EAT cluster exchange (final) & \num{9922.9} & 2.280 & 146\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -652,6 +701,8 @@ ruled-out list. \url{https://github.com/yelgabo/okc}.
 \bibitem{vjeux} vjeux. OKC 2026 submissions.
 \url{https://github.com/vjeux/okc-2026}, 2026.
 \bibitem{eat} caoshiyi. EAT. \url{https://github.com/caoshiyi/EAT}, 2026.
+\bibitem{review} Review of the final decode-layer file,
+\texttt{docs/decode-layer-final-review.md} in~\cite{repo}, 2026.
 \end{thebibliography}
 
 \end{document}
