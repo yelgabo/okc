@@ -1,6 +1,14 @@
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
-\usepackage{fontspec}
+% arXiv builds with pdfLaTeX; tectonic builds with XeTeX.
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage{lmodern}
+  \usepackage{textcomp}
+\else
+  \usepackage{fontspec}
+\fi
 \usepackage{microtype}
 \usepackage{amsmath}
 \usepackage{booktabs}
