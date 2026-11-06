@@ -359,7 +359,8 @@ down the list.
   \item At $T=128$ an in-house GEMV replaced cuBLASLt for QKV, with attention as
   its PDL dependent. Evidence is mixed. The final file's preparation log
   measures $-1.31/-1.86$\,\si{\micro\second} (sliding/full), while two box rounds
-  measured $+0.72$ and $+1.33$\,\si{\micro\second} at verify 16 sliding.
+  measured $+0.72$ and $+1.33$\,\si{\micro\second} at verify 16 sliding and
+  $-2.69$ and $-2.42$\,\si{\micro\second} at verify 16 full.
   \item Requesting \SI{81920}{B} of shared memory puts two decode 16/32
   sliding attention CTAs on each SM (box: $-1.19$\,\si{\micro\second} at decode 32
   sliding). Requesting \SI{118784}{B} for the $T=8$ finish kernel spreads it to
@@ -401,8 +402,8 @@ take \SI{32.5}{\micro\second} together, and the unpooler another
 After the close we reviewed the final file's newest code: EAT's change, the
 $T=128$ QKV GEMV, the cluster boundary kernels and the Python preparation and
 dispatch layers~\cite{review}. The attention, expert and projection CUDA sources
-were not part of it. The review found no error that changes output on the scored
-shapes. It found weaknesses in the checks that run during preparation. The PDL
+were not part of it. In the parts it covered, the review found no error that
+changes output on the scored shapes. It found weaknesses in the checks that run during preparation. The PDL
 and $T=128$ drift guards replay fixed inputs, so they cannot see a read that runs
 ahead of its producer. The guard words that follow each scratch buffer were
 checked before most of the preparation-time replays ran. No stage tracked the
