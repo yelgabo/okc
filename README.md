@@ -7,6 +7,8 @@ Background and decisions are in [docs/context.md](docs/context.md).
 The final decode-layer file is [muse_decode_layer/final/decode_layer.py](muse_decode_layer/final/decode_layer.py)
 (SHA256 `1880297e`, best public run `908cc07e43364008`, 2.280x; mean of nine judged runs 2.250x).
 Ledgers written before the rename call it `eat_b4` or `muse_decode_layer/cand/eat_b4.py`.
+[decode_layer_fixed.py](muse_decode_layer/final/decode_layer_fixed.py) is that file with the prepare-time guard and
+fallback fixes from [the final review](docs/decode-layer-final-review.md); it has not been run on a GPU or judged.
 The write-up is [docs/paper/okc-decode-layer.pdf](docs/paper/okc-decode-layer.pdf).
 Read [current steering](docs/steering/README.md) for active work.
 Component `submission.py` files and their fallbacks remain working sources.
