@@ -4,8 +4,11 @@ Experiments for the [Muse Spark Open Kernel Challenge](https://openkernelchallen
 `muse_*` folder is one problem as `okc init` wrote it.
 Background and decisions are in [docs/context.md](docs/context.md).
 
-The scored decode incumbent is [g1b4_stage_release.py](muse_decode_layer/cand/g1b4_stage_release.py),
-job `607eb52bdaf24160`. Read [current steering](docs/steering/README.md) for active work.
+The final decode-layer file is [muse_decode_layer/final/decode_layer.py](muse_decode_layer/final/decode_layer.py)
+(SHA256 `1880297e`, best public run `908cc07e43364008`, 2.280x; mean of nine judged runs 2.250x).
+Ledgers written before the rename call it `eat_b4` or `muse_decode_layer/cand/eat_b4.py`.
+The write-up is [docs/paper/okc-decode-layer.pdf](docs/paper/okc-decode-layer.pdf).
+Read [current steering](docs/steering/README.md) for active work.
 Component `submission.py` files and their fallbacks remain working sources.
 
 ```sh
