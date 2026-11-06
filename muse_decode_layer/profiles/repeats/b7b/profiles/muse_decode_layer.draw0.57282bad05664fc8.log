@@ -1,0 +1,43 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+CG_GATE unpooler cg_vs_sk2 0.00e+00 cg_vs_fp64 0.00e+00 sk2_vs_fp64 0.00e+00 equal 1024/1024 ok
+CG_TUNE unpooler [('cg', 6.94), ('sk2', 7.94), ('torch', 10.43)] -> ('cg',)
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+CG_CHAIN {'qkv': 'bfp', 'o': 'bfp', 'un': 'bfp'} {'unpooler': ('cg',)}
+PDL8_AB T=1 sliding: off 74.53 on 66.53 us, median paired saving 7.42, wins 9/9
+PDL8H_GUARD T=1 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['0.00e+00', '0.00e+00', '0.00e+00'] on ['0.00e+00', '0.00e+00', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=1 full: off 87.01 on 80.48 us, median paired saving 6.40, wins 9/9
+PDL8_AB T=16 sliding: off 178.27 on 170.82 us, median paired saving 7.46, wins 9/9
+PDL8H_GUARD T=16 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['6.62e-03', '6.45e-03', '0.00e+00'] on ['6.62e-03', '6.45e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=16 full: off 256.67 on 247.04 us, median paired saving 9.31, wins 9/9
+PDL8_AB T=32 sliding: off 225.38 on 217.92 us, median paired saving 7.23, wins 9/9
+PDL8_AB T=32 full: off 390.40 on 382.43 us, median paired saving 8.16, wins 9/9
+PDL8H_GUARD T=32 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['0.00e+00', '8.91e-05', '0.00e+00'] on ['0.00e+00', '8.91e-05', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=8 full edges=attn+o+b1+pool+route+fin+un: off 125.86 on 118.08 us, median paired saving 7.68, wins 9/9
+PDL8H_GUARD T=8 full: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['3.70e-03', '3.59e-03', '0.00e+00'] on ['3.70e-03', '3.59e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8_AB T=8 sliding edges=attn+o+b1+pool+route+fin+un: off 117.70 on 110.14 us, median paired saving 7.58, wins 9/9
+PDL8H_GUARD T=8 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['7.14e-03', '4.90e-03', '0.00e+00'] on ['7.14e-03', '4.90e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+PDL8H T=8 on, all six edges
+PDL8 weighted paired saving T=1: 7.16 us
+PDL8 weighted paired saving T=8: 7.61 us
+PDL8 weighted paired saving T=16: 7.93 us
+PDL8 weighted paired saving T=32: 7.47 us
+PDL8 six-load estimate +4.10% (enabled loads only); enabled {1: True, 8: True, 16: True, 32: True}
+MPDL_GUARD T=1 sliding: 48 fresh-routing rounds, 2 replays per arm per round; off vs off bytes 3166 ids 0 rel 7.19e-03; on vs off bytes 624 ids 0 rel 4.74e-03; rule PDL8H (ids <= 2*off+16, rel <= max(2e-02, off)): pass
+MPDL_GUARD T=1 full: 48 fresh-routing rounds, 2 replays per arm per round; off vs off bytes 6161 ids 0 rel 9.05e-03; on vs off bytes 6108 ids 0 rel 9.05e-03; rule PDL8H (ids <= 2*off+16, rel <= max(2e-02, off)): pass
+MPDL_GUARD T=8 sliding: 48 fresh-routing rounds, 2 replays per arm per round; off vs off bytes 33707 ids 0 rel 9.57e-03; on vs off bytes 52778 ids 0 rel 1.22e-02; rule PDL8H (ids <= 2*off+16, rel <= max(2e-02, off)): pass
+MPDL_GUARD T=8 full: 48 fresh-routing rounds, 2 replays per arm per round; off vs off bytes 32076 ids 0 rel 8.97e-03; on vs off bytes 70148 ids 0 rel 8.97e-03; rule PDL8H (ids <= 2*off+16, rel <= max(2e-02, off)): pass
+MPDL_GUARD T=16 sliding: 48 fresh-routing rounds, 2 replays per arm per round; off vs off bytes 188067 ids 0 rel 9.62e-03; on vs off bytes 420493 ids 0 rel 9.15e-03; rule PDL8H (ids <= 2*off+16, rel <= max(2e-02, off)): pass
+MPDL_GUARD T=16 full: 48 fresh-routing rounds, 2 replays per arm per round; off vs off bytes 152053 ids 0 rel 7.19e-03; on vs off bytes 482460 ids 0 rel 7.19e-03; rule PDL8H (ids <= 2*off+16, rel <= max(2e-02, off)): pass
+MPDL_GUARD T=32 sliding: 48 fresh-routing rounds, 2 replays per arm per round; off vs off bytes 342962 ids 0 rel 7.59e-03; on vs off bytes 753982 ids 0 rel 8.93e-03; rule PDL8H (ids <= 2*off+16, rel <= max(2e-02, off)): pass
+MPDL_GUARD T=32 full: 48 fresh-routing rounds, 2 replays per arm per round; off vs off bytes 337372 ids 0 rel 6.49e-03; on vs off bytes 445131 ids 0 rel 6.49e-03; rule PDL8H (ids <= 2*off+16, rel <= max(2e-02, off)): pass
+MPDL_GUARD done in 0.5 s; moe_pdl {1: True, 8: True, 16: True, 32: True}
+BFQ selftest b1n128c3s8h m=128: rel L2 1.10e-04 (Lt 2.02e-04, wd vs Lt 1.74e-04), diag 0
+BFQ_AB T=128 sliding: off 305.38 on 304.22 us, median paired saving 1.15, wins 9/9
+PDL8H_GUARD T=128 sliding: 2000 replays per arm; ids mismatches off 0 on 0 (limit 16); max rel diff to the PDL-off output off ['5.71e-03', '7.28e-03', '0.00e+00'] on ['5.71e-03', '7.28e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+BFQ PDL8H T=128 sliding: off max [0.0057142856530845165, 0.007280121091753244, 0.0] bad 0, on max [0.0057142856530845165, 0.007280121091753244, 0.0] bad 0 -> pass
+BFQ_AB T=128 full: off 391.58 on 389.25 us, median paired saving 1.98, wins 9/9
+PDL8H_GUARD T=128 full: 2000 replays per arm; ids mismatches off 1416 on 1024 (limit 2848); max rel diff to the PDL-off output off ['5.38e-03', '5.00e-03', '0.00e+00'] on ['5.38e-03', '4.74e-03', '0.00e+00'] (bound max(2e-02, off)): pass, T stays on
+BFQ PDL8H T=128 full: off max [0.005376344081014395, 0.005000088829547167, 0.0] bad 1416, on max [0.005376344081014395, 0.004739118739962578, 0.0] bad 1024 -> pass
+BFQ enabled True

@@ -25,8 +25,7 @@
 
 \title{Running an Agent Team on a Mixture-of-Experts Decode Kernel:\\
 An Experience Report from the Open Kernel Challenge}
-% arXiv needs the author's real name, an affiliation and an email; replace this line.
-\author{AUTHOR NAME\\\small Independent researcher}
+\author{Yelnil Gabo\\\small Independent researcher}
 \date{November 5, 2026}
 
 \begin{document}
@@ -180,8 +179,9 @@ whichever is longer.
 \begin{table}[t]
 \centering
 \caption{The twelve timed shapes on the final file's best judged run
-(\texttt{908cc07e43364008}). Times in \si{\micro\second}. The floor is the judge's
-speed-of-light bound.}
+(\texttt{908cc07e43364008}; receipt in
+\texttt{muse\_decode\_layer/profiles/repeats/day3d/} in~\cite{repo}). Times in
+\si{\micro\second}. The floor is the judge's speed-of-light bound.}
 \label{tab:cells}
 \small
 \begin{tabular}{llrrrrr}
@@ -721,7 +721,8 @@ the checks is not the same as being eligible.
 \section{Process lessons}
 \label{sec:lessons}
 
-Each failure below cost real time and ended in a written rule. Some would
+Each failure below cost real time and ended in a written rule; the incidents are
+recorded in \texttt{docs/process-incidents.md} in~\cite{repo}. Some would
 trouble any team; the first and the last two follow from how agent sessions work.
 \begin{description}[style=unboxed,leftmargin=0pt]
   \item[Estimated clocks.] On the last day the lead agent stamped ledger times from
@@ -791,8 +792,7 @@ against the sources. The author chose the work, approved every public
 submission directly or through standing authorizations, and is responsible for the
 content.
 
-% TODO before submission: cite a tagged commit or archived snapshot (e.g. a Zenodo DOI)
-% in [repo], and make it publicly readable.
+% Before submission, cite a tagged commit or an archived snapshot (e.g. a Zenodo DOI) in [repo].
 \begin{thebibliography}{99}
 \bibitem{okc} Muse Spark Open Kernel Challenge.
 \url{https://openkernelchallenge.dev}, rules at
@@ -844,8 +844,9 @@ intermediate bests are omitted, among them private checks that preceded a public
 run of the same change. Ranks are as of when the row was set. Times are the
 judge's, which equal SGLang's fixed \SI{22620.3}{\micro\second} over the speedup.
 Before 1 November a time of day is given only where a judge receipt records it;
-other rows give the Pacific date of the ledger entry. ``check'' is a private run; DQ means disqualified. Sources: \texttt{docs/runs-decode-layer.md}
-and \texttt{docs/steering/2026-11-02-final-day-directive.md} in~\cite{repo}.}
+other rows give the Pacific date of the ledger entry. ``check'' is a private run; DQ means disqualified. Sources: \texttt{docs/runs-decode-layer.md},
+\texttt{docs/steering/2026-11-02-final-day-directive.md} and the judge receipts
+under \texttt{muse\_decode\_layer/} in~\cite{repo}.}
 \label{tab:timeline}
 \small
 \begin{tabular}{lllrrr}
